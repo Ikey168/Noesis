@@ -265,6 +265,7 @@ def entity_dossier(
     ownership_namespace: Optional[str] = None,
     as_of: Optional[str] = None,
     designations_namespace: Optional[str] = None,
+    onchain_namespace: Optional[str] = None,
 ) -> dict:
     """A cited entity brief from already-ingested public documents only. A
     person entity with no ingested document is refused (person guardrail).
@@ -289,6 +290,10 @@ def entity_dossier(
         ownership_namespace: namespace whose ownership records to compose.
         as_of: as-of date (YYYY-MM-DD) for ownership and designations; today by default.
         designations_namespace: namespace whose Legal sanctions records to compose.
+        onchain_namespace: namespace whose On-chain Observations records to compose
+            (optional ``onchain`` feature: cited contract-origin facts for an
+            organization given by canonical id, through accepted label references
+            only; never for a person, never an attribution of an address).
     """
     try:
         con = _warehouse_ro()
@@ -321,6 +326,7 @@ def entity_dossier(
             entity_type=entity_type,
             ownership=ownership,
             designations=designations,
+            onchain={"namespace": onchain_namespace, "scopes": _context()[1]} if onchain_namespace else None,
         )
     except Exception as exc:
         return {"error": str(exc)}

@@ -74,6 +74,19 @@
           "reason": "the section composes the Legal sanctions record owner's as-of statements"
         }
       ]
+    },
+    {
+      "id": "onchain",
+      "default": false,
+      "description": "Cited contract-origin facts (deployer, creation transaction, first funding) in entity_dossier for organization entities, reached only through accepted On-chain label references; never for persons and never an attribution of an address",
+      "requires": [
+        {
+          "capability": "onchain.observations",
+          "contract": "noesis-onchain-observation",
+          "range": "^1.0.0",
+          "reason": "the section composes the On-chain Observations record owner's cited contract-origin answers"
+        }
+      ]
     }
   ],
   "contributes": {

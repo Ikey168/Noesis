@@ -738,6 +738,10 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
 
 
 def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    if server_stem == "onchain_mcp":
+        from tools.onchain_mcp.server import TOOL_SCOPES as ONCHAIN_SCOPES
+
+        return list(ONCHAIN_SCOPES.get(tool_name) or (["operator"] if mutability == "write" else ["knowledge:read"]))
     if server_stem == "market_mcp":
         market_scopes = {
             "market_readiness": ["market:instruments:read"],

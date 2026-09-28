@@ -37,6 +37,14 @@ line cites its snapshot, listing revision and legal-basis work. For a person
 (who must already pass the guardrail above) only the list record's own
 statement is shown: no cross-list expansion and no identity context.
 
+On-chain Observations (#2058): an optional ``onchain`` section cites
+contract-origin facts (deployer, creation transaction, first funding) for an
+organization or contract entity given by its canonical id. Addresses are
+reached only through accepted, unreverted On-chain label references (a
+reviewer's decision that a source-stated label refers to the entity); never
+by name, never for a person, and never presented as the entity controlling
+the address.
+
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -576,6 +584,90 @@ def _designations_section(
     }
 
 
+ONCHAIN_NOTICE = (
+    "Ledger facts cited to block explorers for addresses whose source-stated label a reviewer referred to this "
+    "entity. Not a statement that the entity controls or owns any address; labels are quoted from their sources."
+)
+
+
+def _onchain_section(
+    conn, entity: str, is_person: bool, request: Mapping[str, Any]
+) -> Dict[str, Any]:
+    namespace = str(request.get("namespace") or "")
+    base = {"feature": "onchain", "namespace": namespace, "notice": ONCHAIN_NOTICE}
+    if is_person:
+        return {
+            **base,
+            "status": "not_assembled_for_person",
+            "note": "the on-chain section is never assembled for a person entity",
+        }
+    from src.kb import onchain
+
+    scopes = set(request.get("scopes") or ())
+    if onchain.READ_SCOPE not in scopes and "operator" not in scopes:
+        return {
+            **base,
+            "status": "unauthorized",
+            "required_scopes": [onchain.READ_SCOPE],
+        }
+    if not onchain.ready(conn):
+        return {
+            **base,
+            "status": "inert",
+            "reason": "no On-chain Observations records in this warehouse",
+        }
+    row = None
+    if common.table_exists(conn, "canonical_entities"):
+        row = conn.execute(
+            "SELECT canonical_id, entity_type FROM canonical_entities WHERE canonical_id = ?",
+            [entity],
+        ).fetchone()
+    if row is None:
+        return {
+            **base,
+            "status": "not_resolved",
+            "note": "pass the organization's canonical entity id; names are never matched to addresses",
+        }
+    if str(row[1] or "").strip().lower() in onchain.PERSON_TYPES:
+        return {
+            **base,
+            "status": "not_assembled_for_person",
+            "note": "the on-chain section is never assembled for a person entity",
+        }
+    references = onchain.references_for_entity(conn, namespace, row[0])
+    if not references:
+        return {
+            **base,
+            "status": "no_accepted_references",
+            "note": "no accepted label reference links a source-stated label to this entity",
+        }
+    contracts = []
+    for ref in references:
+        origin = onchain.contract_origin(
+            conn, namespace, ref["chain_id"], ref["address"]
+        )
+        contracts.append(
+            {
+                "address": ref["address"],
+                "chain_id": ref["chain_id"],
+                "reference_id": ref["reference_id"],
+                "decision_id": ref["decision_id"],
+                "status": origin.get("status"),
+                "deployment": origin.get("deployment"),
+                "contract_funding": origin.get("contract_funding"),
+                "deployer_funding_chain": origin.get("deployer_funding_chain"),
+                "labels": (origin.get("labels") or {}).get(ref["address"], []),
+                "unknowns": origin.get("unknowns"),
+            }
+        )
+    return {
+        **base,
+        "status": "assembled",
+        "canonical_id": row[0],
+        "contracts": contracts,
+    }
+
+
 def entity_dossier(
     conn,
     entity: str,
@@ -583,6 +675,7 @@ def entity_dossier(
     *,
     ownership: Optional[Mapping[str, Any]] = None,
     designations: Optional[Mapping[str, Any]] = None,
+    onchain: Optional[Mapping[str, Any]] = None,
 ) -> Dict[str, Any]:
     """A cited brief for one entity from ingested public documents.
 
@@ -642,4 +735,8 @@ def entity_dossier(
         out["designations"] = _designations_section(
             conn, entity, is_person, designations
         )
+    if onchain is not None:
+        # Ledger-sourced, cited to explorer observations; kept apart from the
+        # document-sourced lines above.
+        out["onchain"] = _onchain_section(conn, entity, is_person, onchain)
     return out

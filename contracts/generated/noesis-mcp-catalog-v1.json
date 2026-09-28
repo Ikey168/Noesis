@@ -391,6 +391,26 @@
       "visible_tool_count": 14
     },
     {
+      "aliases": [],
+      "kind": "noesis",
+      "name": "noesis-onchain",
+      "pack": null,
+      "reason": null,
+      "state": "unauthorized",
+      "tool_count": 3,
+      "tools": [
+        "noesis-onchain.address_cluster",
+        "noesis-onchain.address_observations",
+        "noesis-onchain.contract_origin"
+      ],
+      "transports": [
+        "stdio",
+        "streamable-http"
+      ],
+      "version": "1",
+      "visible_tool_count": 3
+    },
+    {
       "aliases": [
         "neuronews-dataset"
       ],
@@ -1954,13 +1974,13 @@
     "omitted": {
       "unauthorized": 1
     },
-    "servers": 30,
+    "servers": 31,
     "states": {
       "available": 119,
       "degraded": 159,
-      "unauthorized": 1066
+      "unauthorized": 1069
     },
-    "tools": 1344
+    "tools": 1347
   },
   "tools": [
     {
@@ -5887,7 +5907,7 @@
     },
     {
       "cost_class": "low",
-      "description": "A cited entity brief from already-ingested public documents only. A\nperson entity with no ingested document is refused (person guardrail).\n\nOptional ``ownership`` feature (off unless ``ownership_namespace`` is\ngiven): for an organization, a cited section from the Corporate Ownership\nbundle (identity, direct/ultimate parents, subsidiaries, officers,\nconflicts side by side). Resolved only via accepted identity decisions,\nnever by name; inert when the bundle is disabled; never for a person.\n\nOptional ``designations`` feature (off unless ``designations_namespace``\nis given): what each sanctions list (EU, UN, OFAC, UK) stated about the\nentity as of the date, per list, citing snapshots, listing revisions and\nlegal-basis works. Resolved only via accepted identity decisions; inert\nunless the Legal sanctions feature is enabled. List statements only, not a\nscreening verdict or compliance determination; for a person only the list\nrecord's own statement, and only under the person guardrail.\n\nArgs:\n    entity: the entity name or id (see kg_mcp.list_entities).\n    entity_type: optional type hint (e.g. \"person\") to enforce the guardrail.\n    ownership_namespace: namespace whose ownership records to compose.\n    as_of: as-of date (YYYY-MM-DD) for ownership and designations; today by default.\n    designations_namespace: namespace whose Legal sanctions records to compose.",
+      "description": "A cited entity brief from already-ingested public documents only. A\nperson entity with no ingested document is refused (person guardrail).\n\nOptional ``ownership`` feature (off unless ``ownership_namespace`` is\ngiven): for an organization, a cited section from the Corporate Ownership\nbundle (identity, direct/ultimate parents, subsidiaries, officers,\nconflicts side by side). Resolved only via accepted identity decisions,\nnever by name; inert when the bundle is disabled; never for a person.\n\nOptional ``designations`` feature (off unless ``designations_namespace``\nis given): what each sanctions list (EU, UN, OFAC, UK) stated about the\nentity as of the date, per list, citing snapshots, listing revisions and\nlegal-basis works. Resolved only via accepted identity decisions; inert\nunless the Legal sanctions feature is enabled. List statements only, not a\nscreening verdict or compliance determination; for a person only the list\nrecord's own statement, and only under the person guardrail.\n\nArgs:\n    entity: the entity name or id (see kg_mcp.list_entities).\n    entity_type: optional type hint (e.g. \"person\") to enforce the guardrail.\n    ownership_namespace: namespace whose ownership records to compose.\n    as_of: as-of date (YYYY-MM-DD) for ownership and designations; today by default.\n    designations_namespace: namespace whose Legal sanctions records to compose.\n    onchain_namespace: namespace whose On-chain Observations records to compose\n        (optional ``onchain`` feature: cited contract-origin facts for an\n        organization given by canonical id, through accepted label references\n        only; never for a person, never an attribution of an address).",
       "id": "noesis-osint.entity_dossier",
       "input_schema": {
         "properties": {
@@ -5917,6 +5937,17 @@
             "type": "string"
           },
           "entity_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "onchain_namespace": {
             "anyOf": [
               {
                 "type": "string"
@@ -6712,6 +6743,405 @@
       ],
       "server": "noesis-osint",
       "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "Addresses probably controlled together with one address (status\n``probable``): every edge names its heuristic (common-input,\ndeposit-address-reuse, deployer-funding) and cites the transactions that\nestablish it; the result carries the calibrated threshold with its\nmeasured false-positive rate on a labelled synthetic fixture, a\ndegree-preserving null model and a caveat that exchange, bridge and mixer\nactivity commonly breaks clustering. There is no owner or attribution\nfield. Refuses to run without a cited transaction for the address.\n\nArgs:\n    address: an EVM or Bitcoin address.\n    chain_id: CAIP-2 chain id.\n    min_score: edge threshold (0-1]; the calibrated default when omitted.\n    max_depth: traversal depth (1-3).\n    max_edges: edge budget (1-200).\n    namespace: the record namespace to read.\n    investigation: optional investigation name for the audit trail.",
+      "id": "noesis-onchain.address_cluster",
+      "input_schema": {
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "chain_id": {
+            "default": "eip155:1",
+            "type": "string"
+          },
+          "investigation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "max_depth": {
+            "default": 2,
+            "type": "integer"
+          },
+          "max_edges": {
+            "default": 50,
+            "type": "integer"
+          },
+          "min_score": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "onchain",
+            "type": "string"
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "read",
+      "name": "address_cluster",
+      "output_schema": {
+        "additionalProperties": true,
+        "anyOf": [
+          {
+            "required": [
+              "n",
+              "method",
+              "assumptions"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "assumptions": {
+            "description": "assumptions/caveats the method carries",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "edges": {
+            "type": "array"
+          },
+          "error": {
+            "type": [
+              "string",
+              "object"
+            ]
+          },
+          "generation": {
+            "type": "string"
+          },
+          "heuristics": {
+            "type": "object"
+          },
+          "labels": {
+            "type": "object"
+          },
+          "members": {
+            "type": "array"
+          },
+          "method": {
+            "description": "the analytical technique used",
+            "type": "string"
+          },
+          "n": {
+            "description": "sample size the analysis ran on",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "note": {
+            "type": "string"
+          },
+          "null_model": {
+            "type": "object"
+          },
+          "status": {
+            "type": "string"
+          },
+          "threshold": {
+            "type": "object"
+          }
+        },
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:onchain:read"
+      ],
+      "server": "noesis-onchain",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cited transactions and token transfers in and out of one explicit ledger\naddress within a block range, each with block height, timestamp and an\nexplorer citation. Block ranges no acquisition covered, truncated windows\nand unacquired internal transfers are listed as unknowns; an address no\nacquisition ever covered returns ``status: unknown``. Labels are quoted\nfrom their sources; nothing attributes the address to anyone.\n\nArgs:\n    address: an EVM address (0x...) or a Bitcoin address; names are refused.\n    chain_id: CAIP-2 chain id (eip155:1 or bip122:000000000019d6689c085ae165831e93).\n    from_block: first block of the range (inclusive).\n    to_block: last block of the range (inclusive).\n    namespace: the record namespace to read.\n    investigation: optional investigation name for the audit trail.",
+      "id": "noesis-onchain.address_observations",
+      "input_schema": {
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "chain_id": {
+            "default": "eip155:1",
+            "type": "string"
+          },
+          "from_block": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "investigation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "default": "onchain",
+            "type": "string"
+          },
+          "to_block": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "address"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "address_observations",
+      "output_schema": {
+        "additionalProperties": true,
+        "anyOf": [
+          {
+            "required": [
+              "n",
+              "method",
+              "assumptions"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "address": {
+            "type": "string"
+          },
+          "assumptions": {
+            "description": "assumptions/caveats the method carries",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "chain_id": {
+            "type": "string"
+          },
+          "counterparties": {
+            "type": "array"
+          },
+          "coverage": {
+            "type": "array"
+          },
+          "error": {
+            "type": [
+              "string",
+              "object"
+            ]
+          },
+          "generation": {
+            "type": "string"
+          },
+          "items": {
+            "type": "array"
+          },
+          "labels": {
+            "type": "object"
+          },
+          "method": {
+            "description": "the analytical technique used",
+            "type": "string"
+          },
+          "n": {
+            "description": "sample size the analysis ran on",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "unknowns": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:onchain:read"
+      ],
+      "server": "noesis-onchain",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The cited deployer and creation transaction of one contract, its first\ninbound funding, and the deployer's first-funding chain (each hop the\nearliest inbound value transfer of the previous address). A hop that was\nnever acquired is reported as ``not_acquired``, never guessed. A funder is\na ledger fact, not a controller or owner.\n\nArgs:\n    contract: the contract address (0x...).\n    chain_id: CAIP-2 chain id of an EVM chain (eip155:1).\n    max_hops: funding-chain hops to follow (1-5).\n    namespace: the record namespace to read.\n    investigation: optional investigation name for the audit trail.",
+      "id": "noesis-onchain.contract_origin",
+      "input_schema": {
+        "properties": {
+          "chain_id": {
+            "default": "eip155:1",
+            "type": "string"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "investigation": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "max_hops": {
+            "default": 3,
+            "type": "integer"
+          },
+          "namespace": {
+            "default": "onchain",
+            "type": "string"
+          }
+        },
+        "required": [
+          "contract"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "contract_origin",
+      "output_schema": {
+        "additionalProperties": true,
+        "anyOf": [
+          {
+            "required": [
+              "n",
+              "method",
+              "assumptions"
+            ]
+          },
+          {
+            "required": [
+              "error"
+            ]
+          }
+        ],
+        "properties": {
+          "assumptions": {
+            "description": "assumptions/caveats the method carries",
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "contract_funding": {
+            "type": "object"
+          },
+          "deployer_funding_chain": {
+            "type": "array"
+          },
+          "deployment": {
+            "type": [
+              "object",
+              "null"
+            ]
+          },
+          "error": {
+            "type": [
+              "string",
+              "object"
+            ]
+          },
+          "generation": {
+            "type": "string"
+          },
+          "labels": {
+            "type": "object"
+          },
+          "method": {
+            "description": "the analytical technique used",
+            "type": "string"
+          },
+          "n": {
+            "description": "sample size the analysis ran on",
+            "minimum": 0,
+            "type": "integer"
+          },
+          "status": {
+            "type": "string"
+          },
+          "unknowns": {
+            "type": "array"
+          }
+        },
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:onchain:read"
+      ],
+      "server": "noesis-onchain",
+      "state": "unauthorized",
       "version": "1"
     },
     {

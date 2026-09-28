@@ -28,6 +28,8 @@
     "market.instruments",
     "market.legal-entities",
     "news.articles",
+    "onchain.clustering",
+    "onchain.observations",
     "osint.corroboration",
     "ownership.dossier",
     "ownership.graph",
@@ -69,6 +71,7 @@
     "legal",
     "market",
     "news",
+    "onchain",
     "osint",
     "political",
     "procurement",
@@ -203,6 +206,9 @@
     "noesis-knowledge-engine.undo_entity_identity_change",
     "noesis-market.get_market_price_history",
     "noesis-market.lookup_market_instrument",
+    "noesis-onchain.address_cluster",
+    "noesis-onchain.address_observations",
+    "noesis-onchain.contract_origin",
     "noesis-osint.corroborate",
     "noesis-osint.source_reliability",
     "noesis-pipeline.latest_articles",
@@ -2101,6 +2107,74 @@
         ],
         "reason": null,
         "tool": "noesis-pipeline.semantic_search"
+      }
+    ],
+    "onchain": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "onchain",
+        "composition": "onchain",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-onchain.address_cluster"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "onchain",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "warehouse"
+        ],
+        "reason": null,
+        "tool": "noesis-onchain.address_cluster"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "onchain",
+        "composition": "onchain",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-onchain.address_observations"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "onchain",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "warehouse"
+        ],
+        "reason": null,
+        "tool": "noesis-onchain.address_observations"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "onchain",
+        "composition": "onchain",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-onchain.contract_origin"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "onchain",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "warehouse"
+        ],
+        "reason": null,
+        "tool": "noesis-onchain.contract_origin"
       }
     ],
     "osint": [

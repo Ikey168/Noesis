@@ -193,6 +193,11 @@ For the project overview and local setup, start with the
   vintaged statistics, World Bank projects linked by stated identifiers, reviewable organisation identity with an
   open-call cross-reference, as-of answers with publisher coverage and monitors; no totals across publishers and no
   impact judgement; [source audit](roadmaps/development-finance-source-audit.md)
+- [On-chain Observations guide](guides/onchain-observations.md) — cited public-ledger transactions, token
+  transfers, contract deployer and first-funding chains for one explicit address, transaction or contract, quoted
+  label assertions and probable address clustering with declared heuristics, a null model and a measured
+  false-positive rate; no attribution verdicts, no person linkage, no wallet or submission capability;
+  [source access audit](security/onchain-source-access.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

@@ -69,6 +69,11 @@ MATRIX = {
     "Funder to aid activities":
         "tests/unit/domains/test_development_finance_acceptance.py::"
         "test_funder_to_cited_activities_with_coverage_vintages_identity_and_monitoring",
+    # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
+    # the OSINT provenance chain and the source-pack declarations.
+    "Contract and address to cited ledger observations":
+        "tests/unit/domains/test_onchain_acceptance.py::"
+        "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
 }
 
 
