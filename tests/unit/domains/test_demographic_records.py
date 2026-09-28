@@ -276,3 +276,44 @@ def test_operator_sheets_keep_applications_and_decisions_apart_and_refuse_verdic
             h.NS, json.loads(h.body(h.BAMF_SHEET)), principal_id="x", scopes=h.READ_ONLY
         )
     assert denied.value.code == "unauthorized"
+
+
+def test_a_corrected_declared_definition_is_a_correction_not_a_conflict():
+    conn = h.connection()
+    h.apply(conn, "berlin", 0)
+    h.apply(conn, "berlin", 1)
+    store = DemographicStore(conn)
+    (mitte,) = [
+        s
+        for s in store.find_series(h.NS, provider="statistik-bb", geography_code="001")
+        if s["indicator"] == "residents"
+    ]
+    assert [b["kind"] for b in mitte["breaks"]] == ["census_base_change"]
+    vintages_before = counts(conn)["demographic_vintages"]
+    # The operator corrects the declared base of the already ingested 2098 file (same file, same release time).
+    item = h.source("berlin")
+    for definition in item["demographics"]["documents"][0]["definitions"].values():
+        definition["population_base"] = "census-2022"
+        definition["source_text"] = definition["source_text"].replace("2011", "2022")
+    result = h.apply(conn, "berlin", 0, item=item)
+    assert result["status"] == "applied" and result["definition_corrections"] == 6
+    assert result["vintages"] == 0
+    assert counts(conn)["demographic_vintages"] == vintages_before
+    first, second = store.vintage_rows(h.NS, mitte["series_id"])
+    assert (
+        first["definition_corrections"]
+        and first["published_definition_id"] != first["definition_id"]
+    )
+    corrected = store.definition(h.NS, first["definition_id"])
+    assert corrected["content"]["population_base"] == "census-2022"
+    # The values stay as published; the base change is no longer a break of the series.
+    assert (
+        store.values(h.NS, mitte["series_id"], vintage_id=first["vintage_id"])[
+            "observations"
+        ][0]["value"]
+        == "381000"
+    )
+    assert store.series(h.NS, mitte["series_id"])["breaks"] == []
+    # Ingestion keeps working: the corrected and the original declarations replay without a conflict.
+    assert h.apply(conn, "berlin", 0, item=item)["status"] == "unchanged"
+    assert h.apply(conn, "berlin", 1)["status"] == "unchanged"

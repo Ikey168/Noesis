@@ -143,6 +143,10 @@ CREATE TABLE IF NOT EXISTS demographic_observations (
   flags_json TEXT NOT NULL, normalized_json TEXT, definition_id TEXT NOT NULL, extra_json TEXT NOT NULL,
   PRIMARY KEY(namespace, vintage_id, period)
 );
+CREATE TABLE IF NOT EXISTS demographic_vintage_readings (
+  namespace TEXT NOT NULL, vintage_id TEXT NOT NULL, definition_id TEXT NOT NULL, release_id TEXT NOT NULL,
+  created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, vintage_id, definition_id, release_id)
+);
 CREATE TABLE IF NOT EXISTS demographic_release_members (
   namespace TEXT NOT NULL, release_id TEXT NOT NULL, series_id TEXT NOT NULL, vintage_id TEXT NOT NULL,
   PRIMARY KEY(namespace, release_id, series_id)
@@ -424,7 +428,13 @@ class DemographicStore:
             except DemographicFormatError as exc:
                 raise DemographicError("invalid_release", str(exc)) from exc
         retrieved = int(retrieved_at_ms if retrieved_at_ms is not None else self.now())
-        counts = {"series": 0, "definitions": 0, "vintages": 0, "breaks": 0}
+        counts = {
+            "series": 0,
+            "definitions": 0,
+            "vintages": 0,
+            "breaks": 0,
+            "definition_corrections": 0,
+        }
         self.conn.execute("BEGIN")
         try:
             release_id, created = self._release(
@@ -471,7 +481,7 @@ class DemographicStore:
                     )
                 seen.add(series_id)
                 counts["series"] += int(new_series)
-                vintage_id, new_vintage = self._vintage(
+                vintage_id, new_vintage, corrected = self._vintage(
                     namespace,
                     series_id,
                     item,
@@ -488,7 +498,8 @@ class DemographicStore:
                     [namespace, release_id, series_id, vintage_id],
                 )
                 counts["vintages"] += int(new_vintage)
-                if new_vintage:
+                counts["definition_corrections"] += int(corrected)
+                if new_vintage or corrected:
                     counts["breaks"] += self._breaks(namespace, series_id, vintage_id)
             self.conn.execute("COMMIT")
         except Exception:
@@ -712,8 +723,9 @@ class DemographicStore:
         retrieved,
     ):
         observations = list(item["observations"])
+        # The content is the published values; the declared definition is a reading of them, recorded separately,
+        # so a corrected declaration of an already stored publication is a correction, never a conflict.
         content = {
-            "definition_id": definition_id,
             "observations": [
                 {k: o.get(k) for k in ("period", "value_text", "value", "flags")}
                 for o in observations
@@ -734,7 +746,15 @@ class DemographicStore:
                     "the publication changed values without a new release time; the stored vintage is kept",
                     series_id=series_id,
                 )
-            return existing[0], False
+            if self._current_definition(namespace, existing[0]) != definition_id:
+                # The declared reading changed (e.g. a corrected population base): the stored values stay, the new
+                # definition revision is recorded as a correction made by this release.
+                self.conn.execute(
+                    "INSERT INTO demographic_vintage_readings VALUES (?,?,?,?,?)",
+                    [namespace, existing[0], definition_id, release_id, self.now()],
+                )
+                return existing[0], False, True
+            return existing[0], False, False
         sequence = 1 + int(
             self.conn.execute(
                 "SELECT coalesce(max(sequence), 0) FROM demographic_vintages WHERE namespace=? AND series_id=?",
@@ -786,7 +806,7 @@ class DemographicStore:
                     canonical(extra),
                 ],
             )
-        return vintage_id, True
+        return vintage_id, True, False
 
     def _add_break(
         self,
@@ -854,6 +874,8 @@ class DemographicStore:
                 continue
             before = self.definition(namespace, previous["definition_id"])
             after = self.definition(namespace, following["definition_id"])
+            if before["content_hash"] == after["content_hash"]:
+                continue  # two revisions with the same wording (e.g. after a corrected declaration) are no break
             base_changed = before["content"].get("population_base") != after[
                 "content"
             ].get("population_base")
@@ -1130,6 +1152,27 @@ class DemographicStore:
                 break
         return out
 
+    def _readings(self, namespace: str, vintage_id: str) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "demographic_vintage_readings"):
+            return []
+        return [
+            {"definition_id": r[0], "release_id": r[1], "recorded_at_ms": r[2]}
+            for r in self.conn.execute(
+                "SELECT definition_id, release_id, created_at_ms FROM demographic_vintage_readings WHERE namespace=? "
+                "AND vintage_id=? ORDER BY created_at_ms, definition_id",
+                [namespace, vintage_id],
+            ).fetchall()
+        ]
+
+    def _current_definition(self, namespace: str, vintage_id: str) -> str:
+        readings = self._readings(namespace, vintage_id)
+        if readings:
+            return readings[-1]["definition_id"]
+        return self.conn.execute(
+            "SELECT definition_id FROM demographic_vintages WHERE namespace=? AND vintage_id=?",
+            [namespace, vintage_id],
+        ).fetchone()[0]
+
     def vintage_rows(self, namespace: str, series_id: str) -> list[dict[str, Any]]:
         """Every vintage of a series in release-clock order, each with ``revision_of`` its predecessor."""
         rows = self.conn.execute(
@@ -1162,6 +1205,16 @@ class DemographicStore:
             view["notes"] = _load(view["notes"], [])
             view["locator"] = _load(view["locator"], {})
             view["series_id"] = series_id
+            # The definition as first declared stays addressable; a later correction of the declaration is the
+            # reading in force.
+            view["published_definition_id"] = view["definition_id"]
+            view["definition_corrections"] = self._readings(
+                namespace, view["vintage_id"]
+            )
+            if view["definition_corrections"]:
+                view["definition_id"] = view["definition_corrections"][-1][
+                    "definition_id"
+                ]
             view["revision_of"] = previous["vintage_id"] if previous else None
             view["values_changed"] = (
                 previous is None or previous["content_hash"] != view["content_hash"]
@@ -1242,6 +1295,14 @@ class DemographicStore:
             "demographic_breaks WHERE namespace=? AND series_id=? ORDER BY coalesce(period, ''), kind, break_id",
             [namespace, series_id],
         ).fetchall()
+        ordered = self.vintage_rows(namespace, series_id)
+        adjacent = {
+            (a["definition_id"], b["definition_id"])
+            for a, b in zip(ordered, ordered[1:])
+        }
+        # A definition break whose revisions are no longer adjacent (a corrected declaration removed the change)
+        # stays stored but is not reported as a break of the series.
+        rows = [r for r in rows if r[3] is None or (r[3], r[4]) in adjacent]
         return [
             {
                 "record_type": "series_break",
