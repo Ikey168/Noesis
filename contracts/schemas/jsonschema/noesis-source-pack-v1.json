@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -203,6 +203,44 @@
                 "coverage_notes": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
                 "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier", "relation"], "properties": {"scheme": {"enum": ["celex", "eli", "ecli", "de-bgbl", "de-drucksache", "eu-procedure"]}, "identifier": {"type": "string", "minLength": 1}, "relation": {"enum": ["defined_by", "reported_under", "referenced_in"]}, "locator": {"type": "string"}, "stated_in": {"type": "string"}}, "additionalProperties": false}},
                 "expected_release": {"type": "object", "required": ["on"], "properties": {"on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "calendar_url": {"type": "string", "pattern": "^https://"}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "housing": {
+            "type": "object",
+            "description": "Geospatial housing declarations (#1912). On a wfs source: the housing layer (land-value, development-plan or residential-area) and which published attribute carries the zone or plan identifier, value, valuation date, stage, category, qualifiers and explicit references, with the declared unit, stage vocabulary and edition. On a housing-connector source: provider, documented format, namespace and the declared documents (one publication each: an HTTPS resource on the endpoint host or a GENESIS table, with edition, qualifying date, publication URL and page, column layout, units and references).",
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "layer": {"enum": ["land-value", "development-plan", "residential-area"]},
+              "attributes": {"type": "object", "additionalProperties": {"type": "string"}},
+              "qualifiers": {"type": "object", "additionalProperties": {"type": "string"}},
+              "unit": {"type": "object", "properties": {"published": {"type": "string"}, "currency": {"type": "string"}}, "additionalProperties": false},
+              "number_format": {"enum": ["plain", "de"]},
+              "stages": {"type": "object", "additionalProperties": {"enum": ["aufstellungsbeschluss", "fruehzeitige_beteiligung", "oeffentliche_auslegung", "festgesetzt", "aufgehoben"]}},
+              "stage_dates": {"type": "object", "additionalProperties": {"type": "string"}},
+              "reference_attributes": {"type": "object", "additionalProperties": {"type": "object", "required": ["scheme"], "properties": {"scheme": {"enum": ["berlin-gvbl", "berlin-amtsblatt", "juris", "de-bgbl", "celex", "eli", "de-drucksache"]}, "relation": {"enum": ["legal_basis", "published_in", "stage_decided_by", "referenced_in"]}, "stage": {"type": "string"}}, "additionalProperties": false}},
+              "edition": {"type": "object", "required": ["edition_id", "valid_from"], "properties": {"edition_id": {"type": "string"}, "edition": {"type": "string"}, "valid_from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+              "provider": {"enum": ["berlin-mietspiegel", "statistik-bb", "destatis"]},
+              "format": {"enum": ["rent-index-table-csv", "statbb-building-csv", "destatis-genesis-ffcsv"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "table": {"type": "string"}, "geography_attribute": {"type": "string"}, "frequency": {"type": "string"},
+                "measures": {"type": "object", "additionalProperties": {"type": "string"}},
+                "statistic": {"enum": ["permits", "completions"]},
+                "edition_id": {"type": "string"}, "edition": {"type": "string"},
+                "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "qualifying_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "qualifying_date_semantics": {"type": "string"},
+                "valid_from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "publication_url": {"type": "string", "pattern": "^https://"},
+                "page": {"type": "string"}, "extraction": {"type": "string"},
+                "unit": {"type": "string"}, "units": {"type": "object", "additionalProperties": {"type": "string"}},
+                "number_format": {"enum": ["plain", "de"]},
+                "columns": {"type": "object"},
+                "total_codes": {"type": "object"},
+                "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier", "relation"], "properties": {"scheme": {"enum": ["berlin-gvbl", "berlin-amtsblatt", "juris", "de-bgbl", "celex", "eli", "de-drucksache"]}, "identifier": {"type": "string", "minLength": 1}, "relation": {"enum": ["legal_basis", "published_in", "stage_decided_by", "referenced_in"]}, "locator": {"type": "string"}}, "additionalProperties": false}}
               }, "additionalProperties": false}}
             },
             "additionalProperties": false

@@ -250,6 +250,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"public-finance"})
 NATIVE_CONNECTOR_MODULES["demographics"] = "src.ingestion.demographic_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"demographics"})
 
+# Geospatial housing publications (Mietspiegel tables, Statistik BB building activity, GENESIS 31111/31231; #1912).
+NATIVE_CONNECTOR_MODULES["housing"] = "src.ingestion.housing_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"housing"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

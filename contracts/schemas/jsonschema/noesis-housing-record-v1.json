@@ -1,0 +1,130 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-housing-record-v1",
+  "title": "Housing record: land-value-zone revision, rent-index edition or cell, development-plan stage, residential-area category, permit or completion statistic, housing-indicator vintage",
+  "description": "Every record carries its namespace-scoped record id, the entity it revises (source, identifier and the source's own date, edition, stage or vintage), its revision number and the revision it supersedes, and the source revision it was read from (an acquired Geospatial feature revision or a tabular publication). Values keep their published text, currency and unit; a missing date stays null (unknown) and never defaults to the acquisition time. Geometries are referenced by Geospatial feature, feature revision and geometry id, never copied. Readings from different sources, valuation dates, editions or vintages are separate records, never merged or averaged; no record carries a valuation, rent or investment advice, tenancy legal advice or an interpolated value.",
+  "type": "object",
+  "required": ["contract", "record_type", "record_id", "entity_key", "revision_no", "change", "source_revision", "source_id", "provider"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "figure": {
+      "type": "object",
+      "required": ["value_text", "value"],
+      "properties": {
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+        "published": {"type": "boolean"}
+      }
+    },
+    "feature_source": {
+      "type": "object",
+      "required": ["kind", "source_id", "provider", "collection", "native_id", "feature_id", "feature_revision_id"],
+      "properties": {
+        "kind": {"const": "feature-revision"},
+        "feature_id": {"type": "string", "pattern": "^geofeature:"},
+        "feature_revision_id": {"type": "string", "pattern": "^geofeature-rev:"},
+        "geometry_id": {"type": ["string", "null"]},
+        "response_sha256": {"type": ["string", "null"]}
+      }
+    },
+    "publication_source": {
+      "type": "object",
+      "required": ["kind", "source_revision_id", "source_id", "provider", "published_on", "evidence_origin"],
+      "properties": {
+        "kind": {"const": "publication"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "publication_basis": {"enum": ["declared_publication", "http_last_modified", "genesis_table_updated", null]},
+        "evidence_origin": {"enum": ["fixture", "live", "operator"]},
+        "page": {"type": ["string", "null"]},
+        "publication_url": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-housing-record-v1"},
+    "record_type": {"enum": ["source_revision", "land_value_revision", "rent_index_edition", "rent_index_cell", "plan_stage", "area_category", "building_statistic", "indicator_vintage"]},
+    "record_id": {"type": "string", "pattern": "^housing-"},
+    "entity_key": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "revision_no": {"type": "integer", "minimum": 1},
+    "supersedes": {"type": ["string", "null"]},
+    "change": {"enum": ["initial", "correction"]},
+    "source_id": {"type": "string"},
+    "provider": {"type": "string"},
+    "source_revision": {"type": "object"}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "land_value_revision"}}},
+      "then": {
+        "required": ["zone_id", "valuation_date", "valuation_date_basis", "value_text", "value", "currency", "unit", "qualifiers"],
+        "properties": {
+          "valuation_date": {"$ref": "#/definitions/day"},
+          "value": {"type": "string"},
+          "currency": {"type": ["string", "null"]},
+          "unit": {"enum": ["EUR/m²", "EUR/m² monthly", "count", "dwellings", "buildings", "m²", "1000 m²"]},
+          "source_revision": {"$ref": "#/definitions/feature_source"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "plan_stage"}}},
+      "then": {
+        "required": ["plan_id", "stage", "stage_label", "stage_date", "stage_date_basis", "references"],
+        "properties": {
+          "stage": {"enum": ["aufstellungsbeschluss", "fruehzeitige_beteiligung", "oeffentliche_auslegung", "festgesetzt", "aufgehoben", "unrecognized"]},
+          "stage_date": {"$ref": "#/definitions/day"},
+          "source_revision": {"$ref": "#/definitions/feature_source"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "area_category"}}},
+      "then": {
+        "required": ["area_id", "category", "edition"],
+        "properties": {"source_revision": {"$ref": "#/definitions/feature_source"}}
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "rent_index_edition"}}},
+      "then": {
+        "required": ["edition_id", "edition", "qualifying_date", "valid_from", "published_on"],
+        "properties": {
+          "qualifying_date": {"$ref": "#/definitions/day"},
+          "valid_from": {"$ref": "#/definitions/day"},
+          "source_revision": {"$ref": "#/definitions/publication_source"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "rent_index_cell"}}},
+      "then": {
+        "required": ["cell_key", "dimensions", "ranges", "unit", "currency"],
+        "properties": {
+          "ranges": {"type": "object", "additionalProperties": {"$ref": "#/definitions/figure"}},
+          "source_revision": {"$ref": "#/definitions/publication_source"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "building_statistic"}}},
+      "then": {
+        "required": ["statistic", "reporting_area", "period", "measure", "unit", "value_text", "value", "vintage"],
+        "properties": {
+          "statistic": {"enum": ["permits", "completions"]},
+          "vintage": {"$ref": "#/definitions/day"},
+          "source_revision": {"$ref": "#/definitions/publication_source"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "indicator_vintage"}}},
+      "then": {
+        "required": ["series_id", "measure", "geography", "as_of_ms", "published_on", "values_in"],
+        "properties": {
+          "as_of_ms": {"type": "integer"},
+          "source_revision": {"$ref": "#/definitions/publication_source"}
+        }
+      }
+    }
+  ]
+}
