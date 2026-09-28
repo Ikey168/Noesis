@@ -960,7 +960,7 @@ def _cod(documents, source, retrieved_at, ceiling):
             volume=None
             if esd(item.get("vol"))[0] is None
             else {"value": esd(item["vol"])[0], "unit": "Å^3"},
-            nsites=None,
+            nsites=_cod_sites(item.get("Z"), formula),
             measurement=measurement,
         )
         citation = ", ".join(
@@ -996,6 +996,16 @@ def _cod(documents, source, retrieved_at, ceiling):
             )
         )
     return entries, skipped
+
+
+def _cod_sites(z, formula):
+    """Atoms in the cell from the stated Z (formula units per cell) and the formula; unknown otherwise."""
+
+    text = num(z)
+    if text is None or not text.isdigit():
+        return None
+    total = sum(mr.parse_formula(formula).values())
+    return int(int(text) * total) if total.denominator == 1 else None
 
 
 # -------------------------------------------------------------------- adapter

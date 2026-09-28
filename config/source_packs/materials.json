@@ -236,7 +236,7 @@
    "fixture": {
     "path": "tests/fixtures/source_packs/materials-cod.json",
     "sha256": "12ae3fb20150f5f6d7e80a274bdb7244320cfb392c81d852743be8ced339ed15",
-    "expected_output_hash": "23dfd7b0996beb4e8b2907cbc457e3dda835414c9cfcc85b9fe7a2b7199aead9"
+    "expected_output_hash": "70321a7b62a27b472ed0efda5f0524dad9d6a12b35de4b35a4b00fba38a6fe4b"
    }
   }
  ]
