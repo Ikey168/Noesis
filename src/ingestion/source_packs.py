@@ -254,6 +254,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"demographics"})
 NATIVE_CONNECTOR_MODULES["housing"] = "src.ingestion.housing_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"housing"})
 
+# Clinical Evidence public-health surveillance series (RKI, WHO GHO, Eurostat health, Destatis; #1917).
+NATIVE_CONNECTOR_MODULES["surveillance"] = "src.ingestion.surveillance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"surveillance"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

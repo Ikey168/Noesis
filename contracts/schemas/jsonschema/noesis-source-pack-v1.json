@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rii", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -42,6 +42,18 @@
             "description": "Clinical Evidence selection: the namespace records belong to plus pinned NCT/EU CT/EudraCT numbers, openFDA products or EMA product numbers (1-50), or one bounded ClinicalTrials.gov query.",
             "required": ["namespace"],
             "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
+          },
+          "surveillance": {
+            "type": "object",
+            "description": "Bounded public-health surveillance publications for the surveillance connector (#1917): provider, documented format, namespace and the declared documents (one release each: an RKI release tag and CSV path with its column layout, a WHO GHO indicator and filter, a Eurostat hlth_* dataset and series key, or a GENESIS table), each with the kind of its values, unit, condition, geography code system, case-definition editions, reporting-delay note and citable identifiers.",
+            "required": ["namespace", "provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health"]},
+              "format": {"enum": ["rki-github-csv", "who-gho-odata", "eurostat-sdmx-csv", "destatis-genesis-ffcsv"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "kind"], "properties": {"label": {"type": "string", "minLength": 1}, "kind": {"enum": ["observation", "estimate", "model-output"]}}}}
+            },
+            "additionalProperties": false
           },
           "zbmath": {
             "type": "object",

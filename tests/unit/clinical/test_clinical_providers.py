@@ -47,13 +47,16 @@ def test_contracts_document_access_identifiers_and_unavailable_fallbacks():
 
 def test_source_pack_declares_each_source_with_pinned_fixtures_that_replay():
     pack = next(p for p in load_source_packs(ROOT / "config/source_packs") if p["pack_id"] == "clinical-evidence")
-    assert {s["connector"] for s in pack["sources"]} == {"ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines"}
-    assert all(s["mapping"]["target_schema"] == "noesis-clinical-record-v1" for s in pack["sources"])
+    clinical = [s for s in pack["sources"] if s["connector"] != "surveillance"]  # surveillance: its own tests
+    assert {s["connector"] for s in clinical} == {"ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines"}
+    assert all(s["mapping"]["target_schema"] == "noesis-clinical-record-v1" for s in clinical)
+    assert {s["mapping"]["target_schema"] for s in pack["sources"] if s not in clinical} == {
+        "noesis-surveillance-record-v1"}
     openfda = next(s for s in pack["sources"] if s["connector"] == "openfda")
     assert openfda["auth"] == {"kind": "optional-secret", "secret_ref": "NOESIS_OPENFDA_API_KEY"}
     result = SourcePackConformance(ROOT).offline(pack)
     assert result["valid"], result["sources"]
-    fixtures = [json.loads((ROOT / s["fixture"]["path"]).read_text()) for s in pack["sources"]]
+    fixtures = [json.loads((ROOT / s["fixture"]["path"]).read_text()) for s in clinical]
     assert all(f["authored"] is True and "not a live capture" in f["note"] for f in fixtures)
 
 

@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-surveillance-record-v1",
+  "title": "Surveillance record: release, surveillance series, case definition, case-definition revision, reporting-delay note, indicator vintage, value or series break",
+  "description": "Public-health surveillance records owned by src/kb/surveillance.py (clinical.surveillance). Every record carries its namespace and cites the source revision it came from (a pinned release, a dataset update, a table stamp or an operator-supplied export). Every value keeps reference_period and reporting_date as separate fields and lists the unknown one; the series kind (observation, estimate, model-output) is required; a value references the case-definition revision in force on its reference date and a definition change is a marked break, never applied to earlier values. No record carries a prediction, nowcast, completeness estimate, derived threshold, health advice or corrected value.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "period": {"type": ["string", "null"], "pattern": "^\\d{4}(-(Q[1-4]|W\\d{2}|\\d{2}(-\\d{2})?))?$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_revision": {
+      "type": "object",
+      "required": ["release_id", "provider", "file_sha256", "published_on", "release_basis", "evidence_origin"],
+      "properties": {
+        "release_id": {"type": "string"},
+        "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health", "ecdc-atlas"]},
+        "source_id": {"type": ["string", "null"]},
+        "native_revision": {"type": ["string", "null"]},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "published_at": {"type": ["string", "null"]},
+        "release_basis": {"enum": ["declared_release", "declared_publication", "declared_extraction", "http_last_modified", "latest_value_date", "eurostat_last_update", "genesis_table_updated"]},
+        "url": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live", "operator"]},
+        "retrieved_at_ms": {"type": "integer"}
+      }
+    },
+    "condition": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["rki-meldekategorie", "ecdc-health-topic", "gho-indicator", "eurostat-icd10", "destatis-icd10"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "geography": {
+      "type": "object",
+      "required": ["system", "code"],
+      "properties": {
+        "system": {"enum": ["ags", "rki-landkreis", "nuts", "eu-country", "iso3166-1-alpha2", "iso3166-1-alpha3", "who-region", "who-global", "ecdc-aggregate"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]},
+        "code_list_version": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-surveillance-record-v1"},
+    "record_type": {"enum": ["release", "surveillance-series", "case-definition", "case-definition-revision", "reporting-delay-note", "indicator-vintage", "surveillance-value", "series-break"]},
+    "namespace": {"type": "string"},
+    "series_id": {"type": "string"},
+    "provider": {"type": "string"},
+    "condition": {"$ref": "#/definitions/condition"},
+    "geography": {"$ref": "#/definitions/geography"},
+    "indicator": {"type": "object", "required": ["code"]},
+    "unit": {"type": "object", "required": ["label"], "properties": {"label": {"enum": ["cases", "deaths", "persons", "thousand cases", "per 100 000 population", "per 1 000 000 population", "per 1000 population", "percent"]}}},
+    "interval": {"enum": ["day", "week", "month", "quarter", "year"]},
+    "kind": {"enum": ["observation", "estimate", "model-output"]},
+    "definition_key": {"type": ["string", "null"]},
+    "revision_id": {"type": "string"},
+    "version": {"type": "string"},
+    "valid_from": {"$ref": "#/definitions/day"},
+    "valid_to": {"$ref": "#/definitions/day"},
+    "predecessor_version": {"type": ["string", "null"]},
+    "correction_of": {"type": ["string", "null"]},
+    "vintage_id": {"type": "string"},
+    "release_at_ms": {"type": "integer"},
+    "release_basis": {"type": "string"},
+    "retrieved_at_ms": {"type": "integer"},
+    "retrieved_at_basis": {"const": "acquisition_time"},
+    "revision_of": {"type": ["string", "null"]},
+    "reference_period": {"$ref": "#/definitions/period"},
+    "reporting_date": {"$ref": "#/definitions/period"},
+    "unknown": {"type": "array", "items": {"enum": ["reference_period", "reporting_date"]}},
+    "value_text": {"type": ["string", "null"]},
+    "value": {"type": ["string", "null"]},
+    "lower": {"type": ["string", "null"]},
+    "upper": {"type": ["string", "null"]},
+    "flags": {"type": "array", "items": {"type": "string"}},
+    "case_definition_revision_id": {"type": ["string", "null"]},
+    "incomplete_recent": {"type": ["object", "null"], "properties": {"interval": {"enum": ["day", "week", "month"]}, "count": {"type": "integer", "minimum": 1}}},
+    "source_revision": {"$ref": "#/definitions/source_revision"}
+  },
+  "not": {
+    "anyOf": [
+      {"required": ["prediction"]}, {"required": ["forecast"]}, {"required": ["nowcast"]},
+      {"required": ["advice"]}, {"required": ["corrected_value"]}, {"required": ["completeness_estimate"]},
+      {"required": ["suggested_threshold"]}, {"required": ["derived_threshold"]}
+    ]
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"const": "surveillance-series"}}}, "then": {"required": ["series_id", "provider", "condition", "geography", "indicator", "unit", "interval", "kind"]}},
+    {"if": {"properties": {"record_type": {"const": "surveillance-value"}}}, "then": {"required": ["reference_period", "reporting_date", "unknown", "value_text", "value", "flags"]}},
+    {"if": {"properties": {"record_type": {"const": "case-definition-revision"}}}, "then": {"required": ["revision_id", "definition_key", "version", "valid_from", "source_revision"]}},
+    {"if": {"properties": {"record_type": {"const": "indicator-vintage"}}}, "then": {"required": ["vintage_id", "series_id", "release_at_ms", "release_basis", "retrieved_at_ms", "revision_of", "source_revision"]}}
+  ]
+}

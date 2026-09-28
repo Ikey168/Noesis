@@ -748,6 +748,15 @@ class ClinicalRecordStore:
         self.conn.execute("INSERT INTO clinical_term_annotations VALUES (?,?,?,?,?,?) ON CONFLICT DO NOTHING",
                           [namespace, rid, source, digest(terms), encoded, observed_at_ms])
 
+    def record_success(self, namespace, provider, *, observation_id, observed_at_ms, execution):
+        """A successful refresh of a provider whose records another clinical owner keeps (surveillance series)."""
+        self.conn.execute(
+            """INSERT INTO clinical_provider_state VALUES (?,?,?,NULL,NULL,?,?)
+               ON CONFLICT (namespace, provider) DO UPDATE SET last_success_ms=excluded.last_success_ms,
+               last_observation_id=excluded.last_observation_id, last_execution=excluded.last_execution,
+               last_failure_ms=NULL, last_failure_code=NULL""",
+            [namespace, provider, observed_at_ms, observation_id, execution])
+
     def record_failure(self, namespace, provider, *, observation_id, failure_code, observed_at_ms, scopes=None,
                        internal=False):
         """A failed refresh marks the provider stale; it changes no record."""

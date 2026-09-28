@@ -20,6 +20,10 @@ schedules and the maintenance orchestrator. Nothing here schedules anything.
   every record and FAERS figures kept as reporting counts.
 * ``ema-medicines`` – EMA's published medicines data export (JSON).
 
+The ``surveillance`` connector of the same pack (public-health surveillance series: RKI open data, WHO GHO,
+Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) is implemented in
+:mod:`src.ingestion.surveillance_sources`; its access decisions are merged into :data:`PROVIDER_CONTRACTS` here.
+
 PROSPERO has no documented machine interface that this module could rely on;
 its registrations enter only as user-supplied record exports
 (:func:`parse_prospero_export`). WHO ICTRP and Cochrane are recorded as not
@@ -198,6 +202,17 @@ PROVIDER_CONTRACTS = {
         "cross_references": "preprint-to-paper families via PaperFamilyStore",
     },
 }
+# Public-health surveillance sources (#1917, I01): RKI open data, SurvStat, ECDC Atlas, WHO GHO, Eurostat health and
+# Destatis health, with their access decisions. Their connector (``surveillance``) and parsers live in
+# src/ingestion/surveillance_sources.py; their series are owned by src/kb/surveillance.py, not by the clinical
+# record store (a surveillance rate or incidence is outside the clinical record boundary).
+from src.ingestion.surveillance_sources import PROVIDER_CONTRACTS as _SURVEILLANCE_CONTRACTS  # noqa: E402
+from src.ingestion.surveillance_sources import PROVIDER_HOSTS as _SURVEILLANCE_HOSTS  # noqa: E402
+
+SURVEILLANCE_PROVIDERS = tuple(_SURVEILLANCE_CONTRACTS)
+PROVIDER_CONTRACTS.update({provider: {**contract, "record_owner": "src.kb.surveillance"}
+                           for provider, contract in _SURVEILLANCE_CONTRACTS.items()})
+PROVIDER_HOSTS.update(_SURVEILLANCE_HOSTS)
 LIVE_VERIFICATION = {
     provider: ({"status": "unverified-live",
                 "note": "no successful live run from a permitted network; see scripts/clinical_live_check.py"}
@@ -217,6 +232,11 @@ LIVE_CHECK = {
 }
 for _provider in ("ctgov", "ctis", "euctr", "openfda", "ema"):
     LIVE_VERIFICATION[_provider] = {**LIVE_VERIFICATION[_provider], "last_check": LIVE_CHECK}
+for _provider in SURVEILLANCE_PROVIDERS:
+    if PROVIDER_CONTRACTS[_provider]["status"] == "implemented":
+        LIVE_VERIFICATION[_provider] = {"status": "unverified-live",
+                                        "note": "no dated live run of the surveillance sources yet (#2034); fixture "
+                                                "evidence only"}
 
 # --------------------------------------------------------------- identifiers
 
