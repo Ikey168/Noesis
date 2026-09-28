@@ -64,12 +64,24 @@ AUTHORITIES: dict[str, tuple[str, str, str]] = {
     "faa-ad": ("Federal Aviation Administration", "us-faa", "US"),
     "easa-ad": ("European Union Aviation Safety Agency", "eu-easa", "EU"),
     "ntsb": ("National Transportation Safety Board", "us-ntsb", "US"),
-    "phmsa": ("Pipeline and Hazardous Materials Safety Administration", "us-phmsa", "US"),
+    "phmsa": (
+        "Pipeline and Hazardous Materials Safety Administration",
+        "us-phmsa",
+        "US",
+    ),
     "csb": ("U.S. Chemical Safety and Hazard Investigation Board", "us-csb", "US"),
     "nhtsa-odi": ("NHTSA Office of Defects Investigation", "us-nhtsa-odi", "US"),
-    "nhtsa-complaints": ("NHTSA Office of Defects Investigation (complaints)", "us-nhtsa-odi", "US"),
+    "nhtsa-complaints": (
+        "NHTSA Office of Defects Investigation (complaints)",
+        "us-nhtsa-odi",
+        "US",
+    ),
     "bfu": ("Bundesstelle für Flugunfalluntersuchung", "de-bfu", "DE"),
-    "bea": ("Bureau d'Enquêtes et d'Analyses pour la sécurité de l'aviation civile", "fr-bea", "FR"),
+    "bea": (
+        "Bureau d'Enquêtes et d'Analyses pour la sécurité de l'aviation civile",
+        "fr-bea",
+        "FR",
+    ),
 }
 PROVIDER_KINDS: dict[str, frozenset[str]] = {
     "faa-ad": frozenset({"directive"}),
@@ -156,7 +168,9 @@ class EngineeringSafetyError(ValueError):
 
 
 def canonical(value: Any) -> str:
-    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
+    return json.dumps(
+        value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str
+    )
 
 
 def digest(value: Any) -> str:
@@ -188,7 +202,9 @@ def date_rank(value: Any) -> date:
     return iso_date(value) or date.min
 
 
-def authorize(namespace: str, scopes: Iterable[str], required: str, *, write: bool = False) -> None:
+def authorize(
+    namespace: str, scopes: Iterable[str], required: str, *, write: bool = False
+) -> None:
     scopes = set(scopes)
     if "operator" in scopes:
         return
@@ -198,7 +214,9 @@ def authorize(namespace: str, scopes: Iterable[str], required: str, *, write: bo
         else {f"namespace:{namespace}:read", f"namespace:{namespace}:write"}
     )
     if required not in scopes or not needed & scopes:
-        raise EngineeringSafetyError("unauthorized", f"{required} and namespace access are required")
+        raise EngineeringSafetyError(
+            "unauthorized", f"{required} and namespace access are required"
+        )
 
 
 def require(scopes: Iterable[str], *required: str) -> None:
@@ -206,7 +224,9 @@ def require(scopes: Iterable[str], *required: str) -> None:
     scopes = set(scopes)
     missing = [s for s in required if s not in scopes and "operator" not in scopes]
     if missing:
-        raise EngineeringSafetyError("unauthorized", f"{', '.join(missing)} is required for this request")
+        raise EngineeringSafetyError(
+            "unauthorized", f"{', '.join(missing)} is required for this request"
+        )
 
 
 def designation_key(value: Any) -> str:
@@ -237,7 +257,11 @@ def subject_key(kind: str, fields: Mapping[str, Any]) -> str | None:
     """
     if kind in {"aircraft_model", "aircraft", "engine_model"}:
         model = designation_key(fields.get("model"))
-        return f"{'engine' if kind == 'engine_model' else 'aircraft'}-model:{model}" if model else None
+        return (
+            f"{'engine' if kind == 'engine_model' else 'aircraft'}-model:{model}"
+            if model
+            else None
+        )
     if kind == "vehicle":
         make, model = name_key(fields.get("make")), designation_key(fields.get("model"))
         if not make or not model:
@@ -253,7 +277,9 @@ def subject_key(kind: str, fields: Mapping[str, Any]) -> str | None:
         return f"pipeline-operator:{operator}" if operator else None
     if kind == "facility":
         name = name_key(fields.get("name"))
-        address = re.sub(r"\s+", " ", str(fields.get("address") or "")).strip().casefold()
+        address = (
+            re.sub(r"\s+", " ", str(fields.get("address") or "")).strip().casefold()
+        )
         return f"facility:{name}:{address}" if name else None
     if kind == "organisation":
         name = name_key(fields.get("name"))
@@ -267,6 +293,7 @@ def record_id_for(namespace: str, provider: str, kind: str, native_id: str) -> s
 
 def clean(value: Any) -> Any:
     """Drop absent values (never stored as "None" or empty strings) recursively."""
+
     def absent(item: Any) -> bool:
         return item is None or item == "" or item == [] or item == {}
 
@@ -294,41 +321,75 @@ def _forbidden(value: Any) -> set[str]:
 def validate_statement(statement: Mapping[str, Any]) -> dict[str, Any]:
     """A normalised statement, or ``invalid_record``. Absent values are dropped, never written as strings."""
     value = clean(dict(statement))
-    provider, kind = str(value.get("provider") or ""), str(value.get("record_kind") or "")
+    provider, kind = (
+        str(value.get("provider") or ""),
+        str(value.get("record_kind") or ""),
+    )
     native = str(value.get("native_id") or "").strip()
     if value.get("contract") != CONTRACT or provider not in AUTHORITIES or not native:
-        raise EngineeringSafetyError("invalid_record", "a statement needs its contract, provider and native id")
+        raise EngineeringSafetyError(
+            "invalid_record", "a statement needs its contract, provider and native id"
+        )
     if kind not in PROVIDER_KINDS[provider]:
-        raise EngineeringSafetyError("invalid_record", f"{provider} does not publish {kind!r} records")
+        raise EngineeringSafetyError(
+            "invalid_record", f"{provider} does not publish {kind!r} records"
+        )
     forbidden = _forbidden(value)
     if forbidden:
         raise EngineeringSafetyError(
-            "invalid_record", "statements never carry verdicts, scores, rankings or compliance determinations",
-            keys=sorted(forbidden))
-    if value.get("report_status") is not None and value["report_status"] not in REPORT_STATUSES:
-        raise EngineeringSafetyError("invalid_record", "report_status is preliminary or final")
+            "invalid_record",
+            "statements never carry verdicts, scores, rankings or compliance determinations",
+            keys=sorted(forbidden),
+        )
+    if (
+        value.get("report_status") is not None
+        and value["report_status"] not in REPORT_STATUSES
+    ):
+        raise EngineeringSafetyError(
+            "invalid_record", "report_status is preliminary or final"
+        )
     for date_field in ("revision_date", "effective_date"):
         if date_field in value and iso_date(value[date_field]) is None:
-            raise EngineeringSafetyError("invalid_record", f"{date_field} must be an ISO date")
+            raise EngineeringSafetyError(
+                "invalid_record", f"{date_field} must be an ISO date"
+            )
     for item in value.get("statements") or []:
-        if item.get("kind") not in STATEMENT_KINDS or not str(item.get("text") or "").strip():
-            raise EngineeringSafetyError("invalid_record", "each statement needs a known kind and verbatim text")
+        if (
+            item.get("kind") not in STATEMENT_KINDS
+            or not str(item.get("text") or "").strip()
+        ):
+            raise EngineeringSafetyError(
+                "invalid_record", "each statement needs a known kind and verbatim text"
+            )
         if not item.get("locator"):
-            raise EngineeringSafetyError("invalid_record", "each verbatim statement needs a locator")
+            raise EngineeringSafetyError(
+                "invalid_record", "each verbatim statement needs a locator"
+            )
     for item in value.get("relations") or []:
         if item.get("relation") not in RELATIONS or not item.get("target_native_id"):
-            raise EngineeringSafetyError("invalid_record", "each relation needs a known relation and a target")
+            raise EngineeringSafetyError(
+                "invalid_record", "each relation needs a known relation and a target"
+            )
     for item in value.get("subjects") or []:
         if item.get("kind") not in SUBJECT_KINDS or not item.get("source_string"):
-            raise EngineeringSafetyError("invalid_record", "each subject needs a known kind and its source string")
+            raise EngineeringSafetyError(
+                "invalid_record",
+                "each subject needs a known kind and its source string",
+            )
     for item in value.get("applicability") or []:
         if not str(item.get("text") or "").strip() or not item.get("locator"):
-            raise EngineeringSafetyError("invalid_record", "applicability keeps its published text and locator")
+            raise EngineeringSafetyError(
+                "invalid_record", "applicability keeps its published text and locator"
+            )
         if item.get("parse_state") not in {"parsed", "unparsed"}:
-            raise EngineeringSafetyError("invalid_record", "applicability parse_state is parsed or unparsed")
+            raise EngineeringSafetyError(
+                "invalid_record", "applicability parse_state is parsed or unparsed"
+            )
     for item in value.get("responses") or []:
         if not str(item.get("status") or "").strip():
-            raise EngineeringSafetyError("invalid_record", "a recommendation response needs its status")
+            raise EngineeringSafetyError(
+                "invalid_record", "a recommendation response needs its status"
+            )
     value["native_id"] = native
     return value
 
@@ -367,10 +428,15 @@ def schema_definitions(root: Any = None) -> dict[str, Any]:
     from pathlib import Path
 
     base = Path(root) if root else Path(__file__).resolve().parents[2]
-    return {name: json.loads((base / path).read_text()) for name, path in SCHEMA_FILES.items()}
+    return {
+        name: json.loads((base / path).read_text())
+        for name, path in SCHEMA_FILES.items()
+    }
 
 
-def register_schemas(conn: Any, *, principal_id: str, scopes: Iterable[str], root: Any = None) -> list[dict]:
+def register_schemas(
+    conn: Any, *, principal_id: str, scopes: Iterable[str], root: Any = None
+) -> list[dict]:
     """Register the pack's contracts in the existing schema registry (idempotent per version)."""
     from src.kb.schema_registry import SchemaRegistry
 

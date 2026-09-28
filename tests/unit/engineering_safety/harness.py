@@ -32,6 +32,7 @@ REVIEW_SCOPE = "knowledge:engineering-safety:review"
 READ = {READ_SCOPE, f"namespace:{NS}:read"}
 WRITE = READ | {WRITE_SCOPE, f"namespace:{NS}:write"}
 REVIEW = WRITE | {REVIEW_SCOPE}
+PRODUCTS = {"knowledge:products:read"}
 ALL = REVIEW | {
     "knowledge:standards:read",
     "knowledge:legal:read",
@@ -52,8 +53,18 @@ SOURCES = [
     "bfu-reports",
     "bea-reports",
 ]
-FORBIDDEN = {"verdict", "safe", "unsafe", "is_safe", "airworthy", "compliant", "risk_score", "ranking",
-             "safety_rating", "cause_inferred"}
+FORBIDDEN = {
+    "verdict",
+    "safe",
+    "unsafe",
+    "is_safe",
+    "airworthy",
+    "compliant",
+    "risk_score",
+    "ranking",
+    "safety_rating",
+    "cause_inferred",
+}
 PUBLIC_DNS = lambda _host: ["8.8.8.8"]  # noqa: E731 - resolver stub
 EX100 = {"kind": "aircraft_model", "model": "EX-100"}
 
@@ -64,7 +75,9 @@ def manifest() -> dict:
 
 def source(source_id: str, value: dict | None = None) -> dict:
     value = value or manifest()
-    return copy.deepcopy(next(s for s in value["sources"] if s["source_id"] == source_id))
+    return copy.deepcopy(
+        next(s for s in value["sources"] if s["source_id"] == source_id)
+    )
 
 
 def fixture(source_id: str) -> dict:
@@ -98,40 +111,69 @@ class Env:
     def __init__(self, conn: Any | None = None) -> None:
         self.conn = conn if conn is not None else duckdb.connect(":memory:")
         self.value = manifest()
-        SourcePackStore(self.conn).install(self.value, principal_id="operator", enable=True, now_ms=10)
+        SourcePackStore(self.conn).install(
+            self.value, principal_id="operator", enable=True, now_ms=10
+        )
         self.clock = iter(range(1_000, 10_000_000_000, 1_000))
-        self.runtime = SourcePackRuntime(self.conn, now=lambda: next(self.clock), sleep=lambda _d: None)
+        self.runtime = SourcePackRuntime(
+            self.conn, now=lambda: next(self.clock), sleep=lambda _d: None
+        )
         for item in self.value["sources"]:
-            self.runtime.accept_license(self.value["pack_id"], item["source_id"], principal_id="operator")
+            self.runtime.accept_license(
+                self.value["pack_id"], item["source_id"], principal_id="operator"
+            )
         self.store = EngineeringSafetyStore(self.conn, now=lambda: next(self.clock))
 
     def compiled(self, source_id: str, native_pages: list[dict]):
         installed = self.runtime._manifest(self.value["pack_id"])[0]
-        return self.runtime.factory.compile(source(source_id, installed), transport=fixture_transport(native_pages))
+        return self.runtime.factory.compile(
+            source(source_id, installed), transport=fixture_transport(native_pages)
+        )
 
-    def run(self, key: str, *, source_ids: list[str] | None = None, overrides: dict[str, list[dict]] | None = None,
-            fault=None) -> dict:
+    def run(
+        self,
+        key: str,
+        *,
+        source_ids: list[str] | None = None,
+        overrides: dict[str, list[dict]] | None = None,
+        fault=None,
+    ) -> dict:
         """Run the named sources; ``overrides`` serves other native pages for a source (a later publication)."""
         adapters = self.runtime.fixture_adapters(self.value["pack_id"], ROOT)
         for source_id, native in (overrides or {}).items():
             adapters[source_id] = self.compiled(source_id, native)
         selected = source_ids or SOURCES
         return self.runtime.run(
-            {"pack_id": self.value["pack_id"], "run_key": key, "operation": "records", "max_results": 1000,
-             "max_bytes": 20_000_000, "timeout_ms": 60_000, "source_ids": selected},
-            principal_id="operator", adapters={k: v for k, v in adapters.items() if k in selected},
-            dns_resolver=PUBLIC_DNS, secret_resolver=lambda _ref: None, fault=fault)
+            {
+                "pack_id": self.value["pack_id"],
+                "run_key": key,
+                "operation": "records",
+                "max_results": 1000,
+                "max_bytes": 20_000_000,
+                "timeout_ms": 60_000,
+                "source_ids": selected,
+            },
+            principal_id="operator",
+            adapters={k: v for k, v in adapters.items() if k in selected},
+            dns_resolver=PUBLIC_DNS,
+            secret_resolver=lambda _ref: None,
+            fault=fault,
+        )
 
     def record(self, provider: str, native_id: str, kind: str | None = None) -> str:
         return self.store.resolve(NS, f"{provider}:{native_id}", kind)
 
 
-def ntsb_pages(case: dict | None = None, statuses: list[dict] | None = None) -> list[dict]:
+def ntsb_pages(
+    case: dict | None = None, statuses: list[dict] | None = None
+) -> list[dict]:
     native = pages("ntsb-investigations")
     for page in native:
         if case is not None and page["request"].endswith("/cases/ERA26FA101"):
             page["body"] = case
-        if statuses is not None and page["request"].endswith("/recommendations/A-26-015"):
+        if statuses is not None and page["request"].endswith(
+            "/recommendations/A-26-015"
+        ):
             page["body"] = {**page["body"], "StatusHistory": statuses}
     return native
 
@@ -149,13 +191,31 @@ def seed_products(conn: Any) -> str:
       parent_id TEXT, provider TEXT, brand TEXT, designation TEXT, family TEXT,
       provider_record_id TEXT, market_json TEXT NOT NULL, identifiers_json TEXT NOT NULL,
       category_label TEXT, created_run_id TEXT NOT NULL, created_at_ms BIGINT NOT NULL)""")
-    rows = [("product-model:velomark-cityrunner", "VELOMARK", "CITYRUNNER"),
-            ("product-model:velomark-cityrunner-x", "VELOMARK", "CITYRUNNER X"),
-            ("product-model:otherbrand-cityrunner", "OTHERBRAND", "CITYRUNNER")]
+    rows = [
+        ("product-model:velomark-cityrunner", "VELOMARK", "CITYRUNNER"),
+        ("product-model:velomark-cityrunner-x", "VELOMARK", "CITYRUNNER X"),
+        ("product-model:otherbrand-cityrunner", "OTHERBRAND", "CITYRUNNER"),
+    ]
     for identity, brand, designation in rows:
-        conn.execute("INSERT OR IGNORE INTO product_identities VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                     [identity, NS, "model", None, "fixture", brand, designation, None, identity, "{}", "{}",
-                      "vehicles", "seed", 1])
+        conn.execute(
+            "INSERT OR IGNORE INTO product_identities VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                identity,
+                NS,
+                "model",
+                None,
+                "fixture",
+                brand,
+                designation,
+                None,
+                identity,
+                "{}",
+                "{}",
+                "vehicles",
+                "seed",
+                1,
+            ],
+        )
     return rows[0][0]
 
 
@@ -165,11 +225,18 @@ def seed_entities(conn: Any) -> dict[str, str]:
 
     ensure_entity_schema(conn)
     result = {}
-    for name, canonical_id in (("Examplar Pipeline Company LP", "ent-examplar-pipeline"),
-                               ("Skyline Charter LLC", "ent-skyline-charter")):
-        conn.execute("INSERT OR IGNORE INTO canonical_entities VALUES (?,?,?,?)", [canonical_id, name, "ORG", 1])
-        conn.execute("INSERT OR IGNORE INTO entity_aliases VALUES (?,?,?,?,?,?)",
-                     [normalize_surface(name), canonical_id, 1.0, "exact", None, 1])
+    for name, canonical_id in (
+        ("Examplar Pipeline Company LP", "ent-examplar-pipeline"),
+        ("Skyline Charter LLC", "ent-skyline-charter"),
+    ):
+        conn.execute(
+            "INSERT OR IGNORE INTO canonical_entities VALUES (?,?,?,?)",
+            [canonical_id, name, "ORG", 1],
+        )
+        conn.execute(
+            "INSERT OR IGNORE INTO entity_aliases VALUES (?,?,?,?,?,?)",
+            [normalize_surface(name), canonical_id, 1.0, "exact", None, 1],
+        )
         result[name] = canonical_id
     return result
 
@@ -179,7 +246,11 @@ def seed_recall(conn: Any) -> str:
     from src.ingestion.product_sources import parse_nhtsa_campaign
     from src.kb.product_safety import ProductSafetyStore
 
-    products = json.loads((ROOT / "tests/fixtures/source_packs/products-safety-nhtsa.json").read_text())
-    rows = next(p for p in products["native_pages"] if p["request"].endswith("26V104000"))["body"]["results"]
+    products = json.loads(
+        (ROOT / "tests/fixtures/source_packs/products-safety-nhtsa.json").read_text()
+    )
+    rows = next(
+        p for p in products["native_pages"] if p["request"].endswith("26V104000")
+    )["body"]["results"]
     store = ProductSafetyStore(conn)
     return store.apply(NS, parse_nhtsa_campaign(rows))["notice_id"]

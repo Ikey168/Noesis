@@ -33,10 +33,25 @@ from typing import Any
 
 from src.kb.legal_citations import IDENT_END, IDENT_START
 
-CITATION_KINDS = ("legal", "standard", "directive", "recommendation", "recall", "service_bulletin")
+CITATION_KINDS = (
+    "legal",
+    "standard",
+    "directive",
+    "recommendation",
+    "recall",
+    "service_bulletin",
+)
 
-_FAA_AD = re.compile(IDENT_START + r"(?:FAA\s+)?AD\s+(?P<num>\d{4}-\d{2}-\d{2})(?P<rev>R\d+)?" + IDENT_END)
-_EASA_AD = re.compile(IDENT_START + r"EASA\s+AD\s+(?:No\.?\s+)?(?P<num>\d{4}-\d{4})(?P<rev>R\d+)?" + IDENT_END)
+_FAA_AD = re.compile(
+    IDENT_START
+    + r"(?:FAA\s+)?AD\s+(?P<num>\d{4}-\d{2}-\d{2})(?P<rev>R\d+)?"
+    + IDENT_END
+)
+_EASA_AD = re.compile(
+    IDENT_START
+    + r"EASA\s+AD\s+(?:No\.?\s+)?(?P<num>\d{4}-\d{4})(?P<rev>R\d+)?"
+    + IDENT_END
+)
 _NTSB_REC = re.compile(IDENT_START + r"(?P<num>[AHMPRI]-\d{2}-\d{1,3})" + IDENT_END)
 _CSB_REC = re.compile(IDENT_START + r"(?P<num>\d{4}-\d{2}-I-[A-Z]{2}-R\d+)" + IDENT_END)
 _RECALL = re.compile(IDENT_START + r"(?P<num>\d{2}[VETCIX]\d{6})" + IDENT_END)
@@ -48,8 +63,7 @@ _CFR = re.compile(
 _EU_ACT = re.compile(
     IDENT_START
     + r"(?P<form>Regulation|Directive|Decision)\s+(?:\((?P<tag>EU|EC|EEC|Euratom)\)\s+)?(?P<no>No\.?\s+)?"
-    r"(?P<a>\d{1,4})/(?P<b>\d{1,4})"
-    + IDENT_END
+    r"(?P<a>\d{1,4})/(?P<b>\d{1,4})" + IDENT_END
 )
 _STANDARD = re.compile(
     IDENT_START
@@ -57,7 +71,9 @@ _STANDARD = re.compile(
     r"(?:(?:RP|Std|Spec|DO|AS|ARP|AMS|MP|B|J)\s?-?)?[A-Z]?\d+[A-Za-z0-9.\-]*(?::\d{4})?)"
 )
 _SERVICE_BULLETIN = re.compile(
-    IDENT_START + r"(?:[Ss]ervice\s+[Bb]ulletin|SB)\s+(?:No\.?\s+)?(?P<num>[A-Z0-9][A-Z0-9-]*\d[A-Z0-9-]*)" + IDENT_END
+    IDENT_START
+    + r"(?:[Ss]ervice\s+[Bb]ulletin|SB)\s+(?:No\.?\s+)?(?P<num>[A-Z0-9][A-Z0-9-]*\d[A-Z0-9-]*)"
+    + IDENT_END
 )
 _ACT_LETTER = {"Regulation": "R", "Directive": "L", "Decision": "D"}
 
@@ -72,7 +88,8 @@ def standard_key(value: str) -> str:
 def _celex(match: re.Match[str]) -> str | None:
     a, b = match.group("a"), match.group("b")
     numbered_first = bool(match.group("no")) or (
-        match.group("form") == "Regulation" and match.group("tag") in {"EC", "EEC", "Euratom"}
+        match.group("form") == "Regulation"
+        and match.group("tag") in {"EC", "EEC", "Euratom"}
     )
     year, number = (b, a) if numbered_first else (a, b)
     if len(year) == 2:
@@ -87,7 +104,13 @@ def extract(text: str, locator: Mapping[str, Any]) -> list[dict[str, Any]]:
     text = str(text or "")
     found: list[dict[str, Any]] = []
 
-    def add(kind: str, match: re.Match[str], key: str, identifiers: dict[str, Any], raw: str | None = None) -> None:
+    def add(
+        kind: str,
+        match: re.Match[str],
+        key: str,
+        identifiers: dict[str, Any],
+        raw: str | None = None,
+    ) -> None:
         raw = raw if raw is not None else match.group(0)
         found.append(
             {
@@ -95,7 +118,10 @@ def extract(text: str, locator: Mapping[str, Any]) -> list[dict[str, Any]]:
                 "raw": raw,
                 "reference_key": key,
                 "identifiers": identifiers,
-                "locator": {**dict(locator), "span": [match.start(), match.start() + len(raw)]},
+                "locator": {
+                    **dict(locator),
+                    "span": [match.start(), match.start() + len(raw)],
+                },
             }
         )
 
@@ -109,22 +135,44 @@ def extract(text: str, locator: Mapping[str, Any]) -> list[dict[str, Any]]:
     for match in _FAA_AD.finditer(text):
         if any(start <= match.start() < end for start, end in easa_spans):
             continue
-        add("directive", match, f"faa-ad:{match.group('num')}", {"provider": "faa-ad", "native_id": match.group("num")})
+        add(
+            "directive",
+            match,
+            f"faa-ad:{match.group('num')}",
+            {"provider": "faa-ad", "native_id": match.group("num")},
+        )
     for pattern, provider in ((_NTSB_REC, "ntsb"), (_CSB_REC, "csb")):
         for match in pattern.finditer(text):
-            add("recommendation", match, f"{provider}:{match.group('num')}",
-                {"provider": provider, "native_id": match.group("num")})
+            add(
+                "recommendation",
+                match,
+                f"{provider}:{match.group('num')}",
+                {"provider": provider, "native_id": match.group("num")},
+            )
     for match in _RECALL.finditer(text):
-        add("recall", match, f"nhtsa:{match.group('num')}", {"provider": "nhtsa", "campaign_number": match.group("num")})
+        add(
+            "recall",
+            match,
+            f"nhtsa:{match.group('num')}",
+            {"provider": "nhtsa", "campaign_number": match.group("num")},
+        )
     for match in _CFR.finditer(text):
         cited = f"{match.group('title')} CFR {match.group('part')}" + (
-            f".{match.group('section')}" if match.group("section") else "")
+            f".{match.group('section')}" if match.group("section") else ""
+        )
         add("legal", match, "cfr:" + cited.replace(" CFR ", ":"), {"cfr": cited})
     for match in _EU_ACT.finditer(text):
         celex = _celex(match)
         if celex:
-            add("legal", match, f"celex:{celex}",
-                {"celex": celex, "celex_basis": "derived from the act's official number"})
+            add(
+                "legal",
+                match,
+                f"celex:{celex}",
+                {
+                    "celex": celex,
+                    "celex_basis": "derived from the act's official number",
+                },
+            )
     for match in _STANDARD.finditer(text):
         raw = match.group("ref").rstrip(".-")
         end = match.start() + len(raw)
@@ -132,7 +180,12 @@ def extract(text: str, locator: Mapping[str, Any]) -> list[dict[str, Any]]:
             continue  # the reference runs into a word: not a standard reference
         add("standard", match, standard_key(raw), {"reference": raw}, raw=raw)
     for match in _SERVICE_BULLETIN.finditer(text):
-        add("service_bulletin", match, f"service-bulletin:{match.group('num')}", {"number": match.group("num")})
+        add(
+            "service_bulletin",
+            match,
+            f"service-bulletin:{match.group('num')}",
+            {"number": match.group("num")},
+        )
     return found
 
 
@@ -142,12 +195,23 @@ PRODUCTS_READ_SCOPE = "knowledge:products:read"
 
 
 def _table(conn: Any, name: str) -> bool:
-    return bool(conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name=?", [name]).fetchone())
+    return bool(
+        conn.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_name=?", [name]
+        ).fetchone()
+    )
 
 
-def link_citations(conn: Any, namespace: str, *, scopes: Iterable[str], principal_id: str,
-                   standards_namespace: str | None = None, legal_namespace: str | None = None,
-                   products_namespace: str | None = None) -> dict[str, Any]:
+def link_citations(
+    conn: Any,
+    namespace: str,
+    *,
+    scopes: Iterable[str],
+    principal_id: str,
+    standards_namespace: str | None = None,
+    legal_namespace: str | None = None,
+    products_namespace: str | None = None,
+) -> dict[str, Any]:
     """Resolve citations by exact identifier; idempotent, append-only and revision-aware.
 
     Directive and recommendation numbers always resolve against this pack's records. Standards, legal works and
@@ -178,9 +242,13 @@ def link_citations(conn: Any, namespace: str, *, scopes: Iterable[str], principa
         standards = {}
         if _table(conn, "standard_revisions"):
             for native_id, reference, revision_id in conn.execute(
-                    "SELECT r.native_id, r.reference, r.revision_id FROM standard_current c JOIN standard_revisions r "
-                    "ON r.revision_id=c.revision_id WHERE c.namespace=?", [standards_namespace]).fetchall():
-                standards.setdefault(standard_key(reference), []).append((native_id, reference, revision_id))
+                "SELECT r.native_id, r.reference, r.revision_id FROM standard_current c JOIN standard_revisions r "
+                "ON r.revision_id=c.revision_id WHERE c.namespace=?",
+                [standards_namespace],
+            ).fetchall():
+                standards.setdefault(standard_key(reference), []).append(
+                    (native_id, reference, revision_id)
+                )
     if legal_namespace:
         require(scopes, LEGAL_READ_SCOPE)
         if _table(conn, "legal_works"):
@@ -193,31 +261,66 @@ def link_citations(conn: Any, namespace: str, *, scopes: Iterable[str], principa
     created, unresolved = [], []
     now = int(store.now())
     for citation_id, revision_id, kind, raw, key, identifiers in conn.execute(
-            "SELECT citation_id, revision_id, kind, raw, reference_key, identifiers_json FROM es_citations "
-            "WHERE namespace=? ORDER BY citation_id", [namespace]).fetchall():
+        "SELECT citation_id, revision_id, kind, raw, reference_key, identifiers_json FROM es_citations "
+        "WHERE namespace=? ORDER BY citation_id",
+        [namespace],
+    ).fetchall():
         identifiers = load(identifiers, {})
         target: tuple[str, str, str, str | None, str | None, str] | None = None
         if kind in {"directive", "recommendation"}:
-            record_kind = "directive" if kind == "directive" else "safety_recommendation"
-            record_id = record_id_for(namespace, identifiers["provider"], record_kind, identifiers["native_id"])
+            record_kind = (
+                "directive" if kind == "directive" else "safety_recommendation"
+            )
+            record_id = record_id_for(
+                namespace,
+                identifiers["provider"],
+                record_kind,
+                identifiers["native_id"],
+            )
             current = store.current_revision_id(namespace, record_id)
             if current:
-                target = ("engineering-safety-record", namespace, record_id, current,
-                          f"{identifiers['provider']} {identifiers['native_id']}", identifiers["native_id"])
-        elif kind == "recall" and products_namespace and _table(conn, "product_safety_current"):
+                target = (
+                    "engineering-safety-record",
+                    namespace,
+                    record_id,
+                    current,
+                    f"{identifiers['provider']} {identifiers['native_id']}",
+                    identifiers["native_id"],
+                )
+        elif (
+            kind == "recall"
+            and products_namespace
+            and _table(conn, "product_safety_current")
+        ):
             from src.kb.product_safety import notice_id_for
 
-            notice_id = notice_id_for(products_namespace, "nhtsa", identifiers["campaign_number"])
-            row = conn.execute("SELECT revision_id FROM product_safety_current WHERE namespace=? AND notice_id=?",
-                               [products_namespace, notice_id]).fetchone()
+            notice_id = notice_id_for(
+                products_namespace, "nhtsa", identifiers["campaign_number"]
+            )
+            row = conn.execute(
+                "SELECT revision_id FROM product_safety_current WHERE namespace=? AND notice_id=?",
+                [products_namespace, notice_id],
+            ).fetchone()
             if row:
-                target = ("product-safety-notice", products_namespace, notice_id, row[0],
-                          f"NHTSA recall {identifiers['campaign_number']}", identifiers["campaign_number"])
+                target = (
+                    "product-safety-notice",
+                    products_namespace,
+                    notice_id,
+                    row[0],
+                    f"NHTSA recall {identifiers['campaign_number']}",
+                    identifiers["campaign_number"],
+                )
         elif kind == "standard" and standards is not None:
             hits = standards.get(key) or []
             if len(hits) == 1:
-                target = ("standard", str(standards_namespace), f"standard:{hits[0][0]}", hits[0][2], hits[0][1],
-                          hits[0][1])
+                target = (
+                    "standard",
+                    str(standards_namespace),
+                    f"standard:{hits[0][0]}",
+                    hits[0][2],
+                    hits[0][1],
+                    hits[0][1],
+                )
         elif kind == "legal" and legal is not None:
             from src.kb.legal import LegalError
 
@@ -226,35 +329,87 @@ def link_citations(conn: Any, namespace: str, *, scopes: Iterable[str], principa
                 if not value:
                     continue
                 try:
-                    found = legal.lookup(str(legal_namespace), scopes=scopes, identifier=value)
+                    found = legal.lookup(
+                        str(legal_namespace), scopes=scopes, identifier=value
+                    )
                 except LegalError as exc:
-                    raise EngineeringSafetyError(getattr(exc, "code", "unauthorized"), str(exc)) from exc
+                    raise EngineeringSafetyError(
+                        getattr(exc, "code", "unauthorized"), str(exc)
+                    ) from exc
                 if found["status"] == "found":
                     work = found["works"][0]
-                    target = ("legal-work", str(legal_namespace), work["work_id"], None, work.get("title"), value)
+                    target = (
+                        "legal-work",
+                        str(legal_namespace),
+                        work["work_id"],
+                        None,
+                        work.get("title"),
+                        value,
+                    )
                     break
         if target is None:
-            unresolved.append({"citation_id": citation_id, "revision_id": revision_id, "kind": kind, "raw": raw,
-                               "note": "kept as the cited text; never resolved by topic similarity"})
+            unresolved.append(
+                {
+                    "citation_id": citation_id,
+                    "revision_id": revision_id,
+                    "kind": kind,
+                    "raw": raw,
+                    "note": "kept as the cited text; never resolved by topic similarity",
+                }
+            )
             continue
-        target_kind, target_namespace, target_id, target_revision, label, identifier = target
-        link_id = "es-citation-link:" + digest([namespace, citation_id, target_id, target_revision])[:24]
+        target_kind, target_namespace, target_id, target_revision, label, identifier = (
+            target
+        )
+        link_id = (
+            "es-citation-link:"
+            + digest([namespace, citation_id, target_id, target_revision])[:24]
+        )
         inserted = conn.execute(
             "INSERT OR IGNORE INTO es_citation_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING link_id",
-            [namespace, link_id, citation_id, revision_id, target_kind, target_namespace, target_id, target_revision,
-             label, "cited", identifier, principal_id, now]).fetchall()
+            [
+                namespace,
+                link_id,
+                citation_id,
+                revision_id,
+                target_kind,
+                target_namespace,
+                target_id,
+                target_revision,
+                label,
+                "cited",
+                identifier,
+                principal_id,
+                now,
+            ],
+        ).fetchall()
         if inserted:
-            created.append({"link_id": link_id, "citation_id": citation_id, "revision_id": revision_id, "raw": raw,
-                            "target_kind": target_kind, "target_id": target_id,
-                            "target_revision_id": target_revision})
+            created.append(
+                {
+                    "link_id": link_id,
+                    "citation_id": citation_id,
+                    "revision_id": revision_id,
+                    "raw": raw,
+                    "target_kind": target_kind,
+                    "target_id": target_id,
+                    "target_revision_id": target_revision,
+                }
+            )
     if created:
         store.bump(namespace)
     return {
         "namespace": namespace,
         "linked": created,
         "unresolved": unresolved,
-        "owners_consulted": {k: v for k, v in {"standards": standards_namespace, "legal": legal_namespace,
-                                                "products": products_namespace}.items() if v},
+        "owners_consulted": {
+            k: v
+            for k, v in {
+                "standards": standards_namespace,
+                "legal": legal_namespace,
+                "products": products_namespace,
+            }.items()
+            if v
+        },
         "policy": "exact identifiers only (AD, recommendation and campaign numbers, standard references, CELEX and "
         "CFR); an unresolved citation keeps its text; links name the citing and the cited revision",
     }
@@ -266,7 +421,11 @@ def extract_all(items: Iterable[tuple[str, Mapping[str, Any]]]) -> list[dict[str
     result = []
     for text, locator in items:
         for citation in extract(text, locator):
-            key = (citation["reference_key"], citation["raw"], repr(sorted(citation["locator"].items())))
+            key = (
+                citation["reference_key"],
+                citation["raw"],
+                repr(sorted(citation["locator"].items())),
+            )
             if key not in seen:
                 seen.add(key)
                 result.append(citation)

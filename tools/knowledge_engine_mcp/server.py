@@ -9266,6 +9266,12 @@ from tools.knowledge_engine_mcp.bafin_notices import (
 
 register_bafin_notice_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.engineering_safety import (
+    register as register_engineering_safety_tools,
+)
+
+register_engineering_safety_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )
