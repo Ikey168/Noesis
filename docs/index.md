@@ -164,6 +164,10 @@ For the project overview and local setup, start with the
 - [Legal federal statutes guide](guides/legal-federal-statutes.md) — provisions as of a date
   (source-stated or observed), BGBl amendment acts, DIP dossiers, EU implementation links, citing
   decisions and monitors; [source audit](development/federal-statutes-evidence/source-audit.md)
+- [Market BaFin notices guide](guides/market-bafin-notices.md) — voting-rights notifications with holder
+  chains and corrections, managers' transactions, net short positions, the BaFin company database, warnings and
+  measures as of a date under the Market publication cutoffs, issuer dossiers, ownership projection and monitors;
+  [source audit](development/bafin-notices-evidence/source-audit.md)
 - [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
   CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
   monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
