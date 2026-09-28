@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1037,
+      "tool_count": 1047,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1047,6 +1047,7 @@
         "noesis-knowledge-engine.compare_openreview_rounds",
         "noesis-knowledge-engine.compare_paper_family_members",
         "noesis-knowledge-engine.compare_product_models",
+        "noesis-knowledge-engine.compare_provision_versions",
         "noesis-knowledge-engine.compare_quality_policies",
         "noesis-knowledge-engine.compare_research_analysis_runs",
         "noesis-knowledge-engine.compare_research_gap_coverage",
@@ -1105,6 +1106,7 @@
         "noesis-knowledge-engine.create_sanctions_monitor",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
+        "noesis-knowledge-engine.create_statute_monitor",
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
         "noesis-knowledge-engine.create_vulnerability_monitor",
@@ -1116,6 +1118,7 @@
         "noesis-knowledge-engine.decide_intake_feed_item",
         "noesis-knowledge-engine.decide_procurement_party_link",
         "noesis-knowledge-engine.decide_source_alias",
+        "noesis-knowledge-engine.decisions_citing_provision",
         "noesis-knowledge-engine.decrypt_research_package",
         "noesis-knowledge-engine.delete_source_identity",
         "noesis-knowledge-engine.deliver_anomaly_alert",
@@ -1245,6 +1248,7 @@
         "noesis-knowledge-engine.get_event_record_as_of",
         "noesis-knowledge-engine.get_evidence_freshness_assessment",
         "noesis-knowledge-engine.get_evidence_freshness_policy",
+        "noesis-knowledge-engine.get_federal_provision",
         "noesis-knowledge-engine.get_geospatial_place",
         "noesis-knowledge-engine.get_hypothesis_research_plan",
         "noesis-knowledge-engine.get_hypothesis_workspace",
@@ -1386,6 +1390,7 @@
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.lei_parents_as_of",
+        "noesis-knowledge-engine.link_amendment_dossiers",
         "noesis-knowledge-engine.link_budget_acts",
         "noesis-knowledge-engine.link_budget_districts",
         "noesis-knowledge-engine.link_budget_dossier",
@@ -1405,6 +1410,7 @@
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.link_surveillance_series",
+        "noesis-knowledge-engine.list_amendment_acts",
         "noesis-knowledge-engine.list_audit_findings",
         "noesis-knowledge-engine.list_beneficiary_payments",
         "noesis-knowledge-engine.list_budget_lines",
@@ -1430,6 +1436,7 @@
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
+        "noesis-knowledge-engine.list_federal_statute_versions",
         "noesis-knowledge-engine.list_funding_opportunities",
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_government_finance_series",
@@ -1520,6 +1527,7 @@
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
+        "noesis-knowledge-engine.poll_statute_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
@@ -1716,6 +1724,7 @@
         "noesis-knowledge-engine.resolve_review_inbox_task",
         "noesis-knowledge-engine.resolve_sanctions_legal_bases",
         "noesis-knowledge-engine.resolve_source_alias",
+        "noesis-knowledge-engine.resolve_statutory_citation",
         "noesis-knowledge-engine.resolve_surveillance_geographies",
         "noesis-knowledge-engine.restore_knowledge_archive",
         "noesis-knowledge-engine.resume_maintenance_schedule",
@@ -1823,6 +1832,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.run_statute_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
         "noesis-knowledge-engine.sanctions_readiness",
@@ -1965,7 +1975,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1037
+      "visible_tool_count": 1047
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1978,9 +1988,9 @@
     "states": {
       "available": 119,
       "degraded": 159,
-      "unauthorized": 1069
+      "unauthorized": 1079
     },
-    "tools": 1347
+    "tools": 1357
   },
   "tools": [
     {
@@ -26631,6 +26641,55 @@
     },
     {
       "cost_class": "low",
+      "description": "Provision-level diff between two versions (version ids) or two dates, with the amendment acts the later\nversion itself names. Source changes only, not a legal-effect assessment.",
+      "id": "noesis-knowledge-engine.compare_provision_versions",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "type": "string"
+          },
+          "right": {
+            "type": "string"
+          },
+          "statute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statute",
+          "provision",
+          "left",
+          "right"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_provision_versions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Compare dimension definitions, weights, defaults, and thresholds.",
       "id": "noesis-knowledge-engine.compare_quality_policies",
       "input_schema": {
@@ -30190,6 +30249,93 @@
     },
     {
       "cost_class": "medium",
+      "description": "A subscription on a statute, a provision or an amendment act (BGBl citation); no new scheduler.",
+      "id": "noesis-knowledge-engine.create_statute_monitor",
+      "input_schema": {
+        "properties": {
+          "act": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "statute": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_statute_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a series or a condition within a boundary; thresholds are user-configured and unit-checked.",
       "id": "noesis-knowledge-engine.create_surveillance_monitor",
       "input_schema": {
@@ -30767,6 +30913,87 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Federal court decisions that explicitly cite a provision (or any provision of the statute), with the\ndecision locator, the provision version selected for the decision date and its evidence basis.",
+      "id": "noesis-knowledge-engine.decisions_citing_provision",
+      "input_schema": {
+        "properties": {
+          "court": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statute"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "decisions_citing_provision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -36678,6 +36905,51 @@
       ],
       "required_scopes": [
         "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A federal statute provision's cited text as of a date, labelled by its evidence.\n\n`provision` is a path (`\u00a75/abs2`) or a citation (`\u00a7 5 Abs. 2`). Returns the source-stated version whose stated\nvalidity covers the date; otherwise the nearest observed version on or before it, labelled \"observed on\n<date>, validity not stated\"; otherwise \"no version on record\". Differing sources for the date are returned\nside by side as a conflict. Never states that the provision is in force.",
+      "id": "noesis-knowledge-engine.get_federal_provision",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "type": "string"
+          },
+          "statute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statute",
+          "provision",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "get_federal_provision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -42872,6 +43144,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link acquired amendment acts to Bundestag DIP dossiers whose stages state the act's BGBl citation (exact\ncitation match only); unmatched acts stay unlinked with the reason.",
+      "id": "noesis-knowledge-engine.link_amendment_dossiers",
+      "input_schema": {
+        "properties": {
+          "dossier_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_amendment_dossiers",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:write",
+        "knowledge:political:dossier:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link plans to budget acts by an exact stated citation (CELEX, ELI, BGBl, GVBl); title overlap is only a\ncandidate; unmatched citations stay unresolved.",
       "id": "noesis-knowledge-engine.link_budget_acts",
       "input_schema": {
@@ -43934,6 +44251,61 @@
       "required_scopes": [
         "knowledge:clinical:read",
         "knowledge:clinical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Acquired Federal Law Gazette amendment acts (optionally touching one statute or provision): BGBl citation,\npromulgation date, entry-into-force text, instructions with locators, DIP dossier and EU implementation\nlinks. Instructions are never applied.",
+      "id": "noesis-knowledge-engine.list_amendment_acts",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statute": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_amendment_acts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -45336,6 +45708,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every version of a statute with its evidence basis: stated validity (source-stated) or sightings\n(observed), the source's 'Stand' notes and stated amendment references.",
+      "id": "noesis-knowledge-engine.list_federal_statute_versions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "statute": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "statute"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_federal_statute_versions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -49734,6 +50143,44 @@
       "latency_class": "interactive",
       "mutability": "read",
       "name": "poll_sanctions_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a statute monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_statute_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_statute_monitor",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"
@@ -61434,6 +61881,43 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Parse a German statutory citation into statute, provision paths, offsets and a.F./n.F. hints. Unknown\nabbreviations stay unresolved; nothing is guessed.",
+      "id": "noesis-knowledge-engine.resolve_statutory_citation",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "citation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_statutory_citation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Resolve every series geography code to a boundary feature by the published code; unresolved stay so.",
       "id": "noesis-knowledge-engine.resolve_surveillance_geographies",
@@ -66741,6 +67225,52 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a statute monitor at a committed watermark: new amendment acts, changed observed text, new or\ncorrected source-stated versions and newly citing decisions, each cited with a provision-level diff.",
+      "id": "noesis-knowledge-engine.run_statute_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_statute_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {

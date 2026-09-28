@@ -16,6 +16,14 @@
           "name": "noesis-sanctions-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "legal.federal-statutes",
+        "provider": "legal.federal-statutes",
+        "contract": {
+          "name": "noesis-legal-federal-statute",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -25,6 +33,10 @@
       },
       {
         "id": "legal.sanctions",
+        "version": "1.0.0"
+      },
+      {
+        "id": "legal.federal-statutes",
         "version": "1.0.0"
       }
     ],
@@ -91,6 +103,43 @@
           "contract": "noesis-knowledge-subscription",
           "range": "^1.0.0",
           "reason": "sanctions monitors are knowledge subscriptions"
+        }
+      ]
+    },
+    {
+      "id": "federal-statutes",
+      "default": false,
+      "description": "German federal statutes and Federal Law Gazette promulgations: provisions as of a date labelled source-stated or observed, provision-level comparisons, amendment acts with BGBl citations, court decisions citing a provision, Bundestag DIP dossier and EU implementation links, and subscription monitors. No statement of current force, no computed consolidation and no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.federal-statutes",
+          "contract": "noesis-legal-federal-statute",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "statutes, versions, provisions, amendment acts and court decisions are Legal works, expressions, versions and passages"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "amendment acts link to Bundestag DIP legislative dossiers"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "statute, provision and amendment-act monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "statutes, versions and promulgations are acquired through the legal-research source pack runtime"
         }
       ]
     }

@@ -9254,6 +9254,12 @@ from tools.knowledge_engine_mcp.sanctions import (
 
 register_sanctions_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.federal_statutes import (
+    register as register_federal_statute_tools,
+)
+
+register_federal_statute_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )
