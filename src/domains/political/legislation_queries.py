@@ -58,6 +58,16 @@ def _day(value: str | None) -> str:
         raise LegislationError("invalid_time", "as_of is an ISO date (YYYY-MM-DD)") from exc
 
 
+def _laws_as_of(fields: Mapping[str, Any], day: str) -> list[dict[str, Any]]:
+    """Public laws the provider cites, only once an action on or before the day records the enactment.
+
+    The laws list carries no date; the ``BecameLaw`` action (or an action naming the law number) dates it.
+    """
+    actions = [a for a in fields.get("actions") or [] if a["action_date"] <= day]
+    return [law for law in fields.get("laws") or []
+            if any(a.get("type") == "BecameLaw" or str(law.get("number")) in a["text"] for a in actions)]
+
+
 def _cite(stage: Mapping[str, Any], dossier_namespace: str) -> dict[str, Any]:
     citation = stage["citation"]
     detail = stage.get("legislation") or {}
@@ -134,7 +144,7 @@ class LegislationQueries:
                 stage_by_source[stage["legislation"]["provider"] + (":billstatus" if kind == "us-bill-status"
                                                                      else "")] = {
                     "latest_action": actions[-1] if actions else None, "actions_on_record": len(actions),
-                    "laws": [law for law in fields.get("laws") or []] if actions else [],
+                    "laws": _laws_as_of(fields, day),
                     "used": _cite(stage, dossier_namespace)}
         primary = stage_by_source.get("congress-gov") or next(iter(stage_by_source.values()), None)
         versions = sorted((s for s in self._stages(dossier, "us-text-version")
@@ -267,8 +277,8 @@ class LegislationQueries:
             "sponsors": (sorted(s["member_id"] for s in left["sponsors"]),
                          sorted(s["member_id"] for s in right["sponsors"])),
             "cosponsors": (cosponsors(left), cosponsors(right)),
-            "laws": (sorted(law["number"] for law in left.get("laws") or []),
-                     sorted(law["number"] for law in right.get("laws") or [])),
+            "laws": (sorted(law["number"] for law in _laws_as_of(left, day)),
+                     sorted(law["number"] for law in _laws_as_of(right, day))),
         }
         return [{"field": field, "congress_gov": a, "govinfo_billstatus": b, "resolution": "not resolved",
                  "citations": [_cite(congress, dossier_namespace), _cite(status, dossier_namespace)]}

@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Political legislation features' offline journey (#2451) composes the political dossier store, the
+    # source-pack runtime, entity identity, the lobbying links, Legal works and subscriptions.
+    "US or UK bill to cited legislative dossier":
+        "tests/unit/domains/test_legislation_acceptance.py::"
+        "test_us_and_uk_bills_to_cited_dossiers_with_stages_versions_votes_and_linked_disclosures",
 }
 
 
