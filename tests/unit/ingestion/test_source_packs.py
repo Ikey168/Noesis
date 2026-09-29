@@ -35,12 +35,13 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 15
+    assert len(packs) == 16
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "clinical",
         "corporate-ownership",
         "economic",
         "geospatial",
+        "humanitarian",
         "legal",
         "onchain",
         "osint",
@@ -60,8 +61,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Clinical Evidence surveillance feature's four statistics sources (#1917),
     # plus the Products safety feature's four notice sources and its CELLAR selection of cited acts (#1916),
     # plus the Funding development-finance feature's OECD CRS source (#1932),
-    # plus the On-chain Observations pack's two explorers and one label dataset (#2056).
-    assert sum(len(pack["sources"]) for pack in packs) == 104
+    # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
+    # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206).
+    assert sum(len(pack["sources"]) for pack in packs) == 110
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -326,6 +328,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "corporate-ownership",
         "economic",
         "geospatial",
+        "humanitarian",
         "legal",
         "onchain",
         "osint",

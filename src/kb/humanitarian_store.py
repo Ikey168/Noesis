@@ -58,7 +58,7 @@ CREATE TABLE IF NOT EXISTS humanitarian_receipts(
  execution TEXT NOT NULL, detail_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL);
 CREATE TABLE IF NOT EXISTS humanitarian_provider_state(
  namespace TEXT NOT NULL, source TEXT NOT NULL, last_success_ms BIGINT, last_failure_ms BIGINT,
- last_failure_code TEXT, last_execution TEXT, last_run_id TEXT, PRIMARY KEY(namespace, source));
+ last_failure_code TEXT, last_execution TEXT, last_run_id TEXT, last_outcome TEXT, PRIMARY KEY(namespace, source));
 """
 DEFAULT_NAMESPACE = "humanitarian"
 REVISION_CONTRACT = "noesis-humanitarian-revision-v1"
@@ -218,6 +218,7 @@ class HumanitarianStore:
         return dropped
 
     def _state(self, namespace, source, *, success=None, failure=None, code=None, run_id=None, execution=None):
+        """Latest outcome wins: a failure after a success reads as stale until the next success."""
         row = self.conn.execute("SELECT last_success_ms, last_failure_ms, last_failure_code, last_execution FROM "
                                 "humanitarian_provider_state WHERE namespace=? AND source=?", [namespace, source]).fetchone()
         current = list(row) if row else [None, None, None, None]
@@ -225,11 +226,13 @@ class HumanitarianStore:
             current[0], current[3] = success, execution
         if failure is not None:
             current[1], current[2] = failure, code
+        outcome = "success" if success is not None else "failure"
         self.conn.execute(
-            "INSERT INTO humanitarian_provider_state VALUES (?,?,?,?,?,?,?) ON CONFLICT (namespace, source) DO UPDATE SET "
+            "INSERT INTO humanitarian_provider_state VALUES (?,?,?,?,?,?,?,?) ON CONFLICT (namespace, source) DO UPDATE SET "
             "last_success_ms=excluded.last_success_ms, last_failure_ms=excluded.last_failure_ms, "
             "last_failure_code=excluded.last_failure_code, last_execution=excluded.last_execution, "
-            "last_run_id=excluded.last_run_id", [namespace, source, *current, run_id])
+            "last_run_id=excluded.last_run_id, last_outcome=excluded.last_outcome",
+            [namespace, source, *current, run_id, outcome])
 
     def record_failure(self, namespace: str, source: str, *, code: str, run_id: str, scopes: Iterable[str]) -> dict:
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
@@ -246,12 +249,12 @@ class HumanitarianStore:
     def provider_state(self, namespace: str, source: str) -> dict[str, Any]:
         row = None
         if table_exists(self.conn, "humanitarian_provider_state"):
-            row = self.conn.execute("SELECT last_success_ms, last_failure_ms, last_failure_code, last_execution, last_run_id "
-                                    "FROM humanitarian_provider_state WHERE namespace=? AND source=?",
+            row = self.conn.execute("SELECT last_success_ms, last_failure_ms, last_failure_code, last_execution, last_run_id, "
+                                    "last_outcome FROM humanitarian_provider_state WHERE namespace=? AND source=?",
                                     [namespace, source]).fetchone()
         if row is None:
             return {"source": source, "last_success_ms": None, "stale": True, "reason": "never acquired"}
-        stale = row[0] is None or (row[1] is not None and row[1] > row[0])
+        stale = row[0] is None or row[5] == "failure"
         return {"source": source, "last_success_ms": row[0], "last_failure_ms": row[1], "last_failure_code": row[2],
                 "last_execution": row[3], "last_run_id": row[4], "stale": stale}
 

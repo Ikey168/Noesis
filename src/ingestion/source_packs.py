@@ -268,6 +268,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
+# Humanitarian Response and Conflict Events: ReliefWeb, HDX, UCDP and the gated ACLED entry (#2206).
+NATIVE_CONNECTOR_MODULES["humanitarian"] = "src.ingestion.humanitarian_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

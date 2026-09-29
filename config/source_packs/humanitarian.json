@@ -1,0 +1,286 @@
+{
+  "pack_id": "humanitarian-response",
+  "version": "1.0.0",
+  "description": "Humanitarian Response and Conflict Events: ReliefWeb situation reports, appeals and disaster entries, HDX dataset metadata with HXL tags and update history, and UCDP GED and Candidate conflict events with the coder's precision codes, for one bounded crisis selection (Sudan). ACLED is declined under its licence and never acquired. Counts and codings are quoted as published; no casualty estimation, cross-coder deduplication, forecasting or personal data. Audit: docs/development/humanitarian-evidence/source-audit.md.",
+  "domains": [
+    "humanitarian"
+  ],
+  "defaults": {
+    "connector": "humanitarian",
+    "temporal_semantics": "the provider's own change time (ReliefWeb date.changed, HDX metadata_modified) or the declared release date of a coder dataset version as the as-of time; retrieval time recorded separately; revisions appended, never overwritten",
+    "update_cadence": "ReliefWeb and HDX daily; UCDP Candidate monthly; UCDP GED annually",
+    "mapping": {
+      "target_schema": "noesis-humanitarian-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "humanitarian-sources:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 1000,
+      "max_bytes": 10000000,
+      "max_pages": 2
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    },
+    "policy": {
+      "personal_data": "never; free text that can name individuals is dropped at parse time",
+      "counts": "as published by the coder or publisher; never summed, merged or estimated",
+      "bodies": "referenced by locator, never mirrored"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "reliefweb-reports-sdn",
+      "endpoint": "https://api.reliefweb.int/v2",
+      "publisher": "ReliefWeb (UN OCHA)",
+      "scope": "ReliefWeb reports tagged Sudan (SDN) and the pinned Sudan conflict disaster, formats Situation Report, Appeal and Flash Appeal, in a closed 12-month window; at most 50 per page and 2 pages",
+      "license": {
+        "id": "reliefweb-terms",
+        "terms_url": "https://reliefweb.int/terms-conditions",
+        "redistribution": "metadata and links with attribution to ReliefWeb and the report's own sources; report bodies are never mirrored (verify)"
+      },
+      "operations": [
+        "reports"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 2
+      },
+      "humanitarian": {
+        "provider": "reliefweb",
+        "namespace": "humanitarian",
+        "appname": "noesis-humanitarian",
+        "live_verification": "unverified-live",
+        "selection": {
+          "resource": "reports",
+          "countries": [
+            "SDN"
+          ],
+          "disaster_ids": [
+            99001
+          ],
+          "limit": 50,
+          "date_from": "2098-04-15",
+          "date_to": "2099-04-14"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/humanitarian-reliefweb-reports-sdn.json",
+        "sha256": "e87b5a1c1b4ea91254e0b190828ba5d67fecca64ec87093dc02d290c5d3581e0",
+        "expected_output_hash": "595e99ade3efb79f674839bae4a28b174da0e58dbc6c97a44b24d43bce99fc26"
+      }
+    },
+    {
+      "source_id": "reliefweb-disasters-sdn",
+      "endpoint": "https://api.reliefweb.int/v2",
+      "publisher": "ReliefWeb (UN OCHA)",
+      "scope": "ReliefWeb disaster entries for Sudan (SDN): name, GLIDE number, status, types; at most 20",
+      "license": {
+        "id": "reliefweb-terms",
+        "terms_url": "https://reliefweb.int/terms-conditions",
+        "redistribution": "metadata and links with attribution to ReliefWeb (verify)"
+      },
+      "operations": [
+        "disasters"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 1
+      },
+      "humanitarian": {
+        "provider": "reliefweb",
+        "namespace": "humanitarian",
+        "appname": "noesis-humanitarian",
+        "live_verification": "unverified-live",
+        "selection": {
+          "resource": "disasters",
+          "countries": [
+            "SDN"
+          ],
+          "limit": 20
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/humanitarian-reliefweb-disasters-sdn.json",
+        "sha256": "07d9ebbd4605610114032b30122ca6b1f06d79ddbec683e04409f2cd0c038144",
+        "expected_output_hash": "f0b1eff6dd373d51cffe803d59fbef8db9fb743349119f45ff25dee06843e06d"
+      }
+    },
+    {
+      "source_id": "hdx-sdn-datasets",
+      "endpoint": "https://data.humdata.org/api/3/action",
+      "publisher": "Humanitarian Data Exchange (UN OCHA Centre for Humanitarian Data)",
+      "scope": "HDX datasets in the Sudan (sdn) group: metadata, licence, access flags and resource update history; HXL hashtags from at most two header rows of at most 10 public, openly licensed CSV resources hosted on data.humdata.org; 25 datasets per run",
+      "license": {
+        "id": "hdx-per-dataset",
+        "terms_url": "https://data.humdata.org/faqs/terms",
+        "redistribution": "per dataset licence stored with each revision; HDX Connect, private and non-open datasets are metadata-only (verify)"
+      },
+      "operations": [
+        "datasets"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 25,
+        "max_bytes": 5000000,
+        "max_pages": 1
+      },
+      "humanitarian": {
+        "provider": "hdx",
+        "namespace": "humanitarian",
+        "live_verification": "unverified-live",
+        "selection": {
+          "groups": [
+            "sdn"
+          ],
+          "rows": 25,
+          "max_hxl_resources": 10
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/humanitarian-hdx-sdn-datasets.json",
+        "sha256": "b915c230bc4c400bd03da6a63d54fe5abdf5042222fb305c32b5b1fe375a3ebf",
+        "expected_output_hash": "f7e15a0b0fad74b238fd9b382fde3b65dec27f885d0a1ea547caac0d994ec421"
+      }
+    },
+    {
+      "source_id": "ucdp-candidate-sdn",
+      "endpoint": "https://ucdpapi.pcr.uu.se/api",
+      "publisher": "Uppsala Conflict Data Program (UCDP)",
+      "scope": "UCDP Candidate Events of one pinned candidate version for Sudan (Gleditsch-Ward 625) in a closed window of at most 366 days; pagesize 500, at most 2 pages",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://ucdp.uu.se/downloads/",
+        "redistribution": "CC BY 4.0 with the UCDP dataset citation; candidate events are provisional (verify)"
+      },
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_UCDP_ACCESS_TOKEN"
+      },
+      "update_cadence": "monthly candidate versions",
+      "operations": [
+        "events"
+      ],
+      "humanitarian": {
+        "provider": "ucdp-candidate",
+        "namespace": "humanitarian",
+        "live_verification": "unverified-live",
+        "selection": {
+          "version": "98.0.5",
+          "release": {
+            "version": "98.0.5",
+            "published_on": "2098-06-10"
+          },
+          "country": "625",
+          "start_date": "2098-01-01",
+          "end_date": "2098-12-31",
+          "pagesize": 500
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/humanitarian-ucdp-candidate-sdn.json",
+        "sha256": "f8cee65514db787967118ca97c32db04fb77159f1c8794a4f643840af560ffa1",
+        "expected_output_hash": "59faa7ecfb83de02de2ec8cd5c4b541c7f7da85e7402fc50f74b885b2d522eb6"
+      }
+    },
+    {
+      "source_id": "ucdp-ged-sdn",
+      "endpoint": "https://ucdpapi.pcr.uu.se/api",
+      "publisher": "Uppsala Conflict Data Program (UCDP)",
+      "scope": "UCDP GED final release of one pinned version for Sudan (Gleditsch-Ward 625) in a closed window of at most 366 days; pagesize 500, at most 2 pages; a complete release records its event ids",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://ucdp.uu.se/downloads/",
+        "redistribution": "CC BY 4.0 with the UCDP GED citation (verify)"
+      },
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_UCDP_ACCESS_TOKEN"
+      },
+      "update_cadence": "annual GED release",
+      "operations": [
+        "events"
+      ],
+      "humanitarian": {
+        "provider": "ucdp-ged",
+        "namespace": "humanitarian",
+        "live_verification": "unverified-live",
+        "selection": {
+          "version": "99.1",
+          "release": {
+            "version": "99.1",
+            "published_on": "2099-06-01"
+          },
+          "country": "625",
+          "start_date": "2098-01-01",
+          "end_date": "2098-12-31",
+          "pagesize": 500
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/humanitarian-ucdp-ged-sdn.json",
+        "sha256": "1fdedaf3028949682b6ec251e58f1dedfda7943aa834219c75ba116305d3fdbe",
+        "expected_output_hash": "41d7a5268cbb7aacba300f72664f349c0677aac7cc3771c6d9a438ecea4dd9d4"
+      }
+    },
+    {
+      "source_id": "acled-events",
+      "endpoint": "https://acleddata.com/api",
+      "publisher": "Armed Conflict Location & Event Data (ACLED)",
+      "scope": "Declined under the ACLED licence (HR01): no request is made and no record is stored; the entry keeps the gap visible and gates the optional acled feature on an accepted decision",
+      "license": {
+        "id": "acled-terms",
+        "terms_url": "https://acleddata.com/terms-of-use/",
+        "redistribution": "declined: redistribution of raw or near-raw data is restricted and commercial use needs a separate licence (docs/development/humanitarian-evidence/source-audit.md#acled-licence-and-access-decision)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_ACLED_ACCESS_TOKEN"
+      },
+      "update_cadence": "not acquired",
+      "operations": [
+        "events"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "humanitarian": {
+        "provider": "acled",
+        "namespace": "humanitarian",
+        "live_verification": "declined",
+        "licence_decision": {
+          "status": "declined",
+          "recorded": "2026-09-29",
+          "reference": "docs/development/humanitarian-evidence/source-audit.md#acled-licence-and-access-decision"
+        },
+        "selection": {
+          "country": "Sudan",
+          "start_date": "2098-01-01",
+          "end_date": "2098-12-31",
+          "limit": 500
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/humanitarian-acled-events.json",
+        "sha256": "bba94f7693c621da96e59958f2c54c246fad6c4b7db292647adbfecb1fc6dbbb",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    }
+  ]
+}
