@@ -74,6 +74,12 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Energy Systems bundle's offline journey (#2267) composes its own record owner, climate-environment (the
+    # reused ENTSO-E adapter), market price storage, geospatial place resolution, entity identity, subscriptions and
+    # the source-pack declarations.
+    "Zone or country to cited energy series":
+        "tests/unit/domains/test_energy_acceptance.py::"
+        "test_zone_and_country_to_cited_energy_series_with_vintages_identity_and_monitoring",
 }
 
 
