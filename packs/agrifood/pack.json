@@ -1,0 +1,124 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "agrifood",
+  "version": "1.0.0",
+  "description": "Agriculture and Food Systems: from a crop or commodity and a place to the published production, yield, area, producer and market prices and food balances of FAOSTAT, USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture and the EU Agri-food data portal - per source, side by side, with units, calendar or marketing-year periods, flags verbatim, release vintages and as-of time - aligned through reviewable commodity crosswalks and geospatial place resolution, and linked by citation to trade flows, climate and weather records and RASFF food alerts.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "commodity",
+      "crop",
+      "maize",
+      "wheat",
+      "soybeans",
+      "food balance"
+    ],
+    "sources": [
+      "faostat",
+      "nass",
+      "quick stats",
+      "psd",
+      "wasde",
+      "eurostat agriculture",
+      "agri-food data portal"
+    ],
+    "overview": [
+      "production",
+      "yield",
+      "area harvested",
+      "producer price",
+      "supply and distribution",
+      "release vintage"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "commodity-series-records",
+    "release-vintages",
+    "source-flags-verbatim",
+    "food-balance-records",
+    "reviewable-commodity-crosswalks",
+    "place-resolution-by-code",
+    "citation-links",
+    "series-as-of-date",
+    "subscription-monitors"
+  ],
+  "schema_versions": {
+    "agrifood-record": "1.0.0",
+    "agrifood-series": "1.0.0",
+    "agrifood-crosswalk": "1.0.0",
+    "agrifood-link": "1.0.0",
+    "agrifood-notification": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-agrifood-record-v1",
+      "dataset-series-v1"
+    ],
+    "object_types": [
+      "commodity",
+      "release",
+      "observation",
+      "food_balance",
+      "series_vintage",
+      "commodity_crosswalk"
+    ],
+    "relation_types": [
+      "published_in",
+      "revises",
+      "equivalent_commodity",
+      "broader_commodity",
+      "narrower_commodity",
+      "cited_by"
+    ]
+  },
+  "source_pack": "config/source_packs/agrifood.json",
+  "query_examples": [
+    {
+      "intent": "Published maize figures for the United States as of a date",
+      "tool": "agrifood_series_as_of",
+      "arguments": {
+        "namespace": "global",
+        "commodity": "maize",
+        "place": "United States",
+        "as_of": "2025-06-30"
+      },
+      "semantics": "each source's series side by side with unit, period type, flags and citations; per period the vintage released at or before the date; never blended, forecast or imputed"
+    },
+    {
+      "intent": "How a figure was revised",
+      "tool": "agrifood_revision_history",
+      "arguments": {
+        "namespace": "global",
+        "series_id": "agrifood-series:...",
+        "period": "2023"
+      },
+      "semantics": "every vintage with its release date, flag and citation, and the differences between consecutive vintages"
+    },
+    {
+      "intent": "Which codes a commodity reaches",
+      "tool": "resolve_agrifood_commodity",
+      "arguments": {
+        "namespace": "global",
+        "query": "nass-commodity:CORN"
+      },
+      "semantics": "exact code or published name; other publishers' codes only through accepted crosswalks, each with its kind and reviewer"
+    }
+  ],
+  "exclusions": [
+    "yield or price forecasting",
+    "production projections by the pack",
+    "food-security scoring beyond quoting the publisher",
+    "blending or summing across sources",
+    "marketing-year conversion",
+    "imputation of withheld values",
+    "causal or correlational weather-to-yield links"
+  ]
+}

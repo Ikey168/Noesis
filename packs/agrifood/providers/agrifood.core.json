@@ -1,0 +1,459 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "agrifood.core",
+  "version": "1.0.0",
+  "description": "Agriculture and Food Systems: FAOSTAT, USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture and EU Agri-food portal figures kept as release vintages with flags verbatim (numeric values in the Economics series storage); reviewable commodity crosswalks and place resolution by code; series as of a date; citation links to trade flows, climate/weather records and RASFF notices; subscription monitors. No forecasting, projection or food-security scoring.",
+  "implementation": {
+    "name": "src.kb.agrifood_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "agrifood.series",
+      "contract": {
+        "name": "noesis-agrifood-series",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "bundle-status",
+        "acquire-sources",
+        "series-as-of",
+        "revision-history"
+      ],
+      "semantic_constraints": {
+        "records": "figures as published with unit, period type, flag verbatim, release vintage and citation",
+        "vintages": "a revision is a new vintage; as-of selects the vintage released at or before the time",
+        "sources": "per-source series side by side; never blended, summed, forecast or imputed",
+        "absence": "a commodity and place without series has none on record"
+      }
+    },
+    {
+      "id": "agrifood.crosswalks",
+      "contract": {
+        "name": "noesis-agrifood-crosswalk",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "resolve-commodity",
+        "resolve-place",
+        "publish-codelists",
+        "register-places",
+        "propose-crosswalks",
+        "propose-crosswalk-manual",
+        "review-crosswalk",
+        "revert-crosswalk",
+        "list-crosswalks",
+        "list-unmapped"
+      ],
+      "semantic_constraints": {
+        "matching": "exact code or exact published name; other codes only through accepted crosswalks",
+        "kinds": "equivalent, broader, narrower (ontology mapping kinds); differently defined commodities are never aggregated",
+        "places": "exact source codes through geospatial place resolution"
+      }
+    },
+    {
+      "id": "agrifood.citations",
+      "contract": {
+        "name": "noesis-agrifood-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-citations",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "trade": "reviewed crosswalk and place; provider_unavailable while no trade provider is composed",
+        "climate_weather": "explicit place and period citation only",
+        "rasff": "explicit commodity mention",
+        "claims": "no causal or correlational link"
+      }
+    },
+    {
+      "id": "agrifood.monitoring",
+      "contract": {
+        "name": "noesis-agrifood-notification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "committed complete agrifood runs; no scheduler of its own",
+        "events": "release, revision (old and new with both citations), linked alert; user thresholds only"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.agrifood_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.agrifood_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-sources",
+      "tool": "noesis-knowledge-engine.acquire_agrifood_sources",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "run_key (source-pack run receipt)"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "network",
+        "source_terms",
+        "credentials"
+      ]
+    },
+    {
+      "id": "series-as-of",
+      "tool": "noesis-knowledge-engine.agrifood_series_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revision-history",
+      "tool": "noesis-knowledge-engine.agrifood_revision_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-commodity",
+      "tool": "noesis-knowledge-engine.resolve_agrifood_commodity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-place",
+      "tool": "noesis-knowledge-engine.resolve_agrifood_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "publish-codelists",
+      "tool": "noesis-knowledge-engine.publish_agrifood_codelists",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "code list content"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-places",
+      "tool": "noesis-knowledge-engine.register_agrifood_places",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "place key"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:write",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-crosswalks",
+      "tool": "noesis-knowledge-engine.propose_agrifood_crosswalks",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "code pair"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-crosswalk-manual",
+      "tool": "noesis-knowledge-engine.propose_agrifood_crosswalk_manual",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "code pair"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-crosswalk",
+      "tool": "noesis-knowledge-engine.review_agrifood_crosswalk",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "crosswalk_id and decision"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-crosswalk",
+      "tool": "noesis-knowledge-engine.revert_agrifood_crosswalk",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "crosswalk_id"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-crosswalks",
+      "tool": "noesis-knowledge-engine.list_agrifood_crosswalks",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-unmapped",
+      "tool": "noesis-knowledge-engine.list_unmapped_agrifood_codes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-citations",
+      "tool": "noesis-knowledge-engine.link_agrifood_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "citing record and target"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:write",
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_agrifood_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_agrifood_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_agrifood_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_agrifood_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "values",
+      "required_scopes": [
+        "knowledge:agrifood:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "agrifood-record",
+      "store": "src.kb.agrifood_store",
+      "tables": [
+        "agrifood_series",
+        "agrifood_vintages",
+        "agrifood_values",
+        "agrifood_commodities",
+        "agrifood_releases",
+        "agrifood_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "agrifood-crosswalk",
+      "store": "src.kb.agrifood_identity",
+      "tables": [
+        "agrifood_crosswalks"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "agrifood-link",
+      "store": "src.kb.agrifood_links",
+      "tables": [
+        "agrifood_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "values",
+      "kind": "table-exists",
+      "target": "agrifood_values"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "agrifood",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

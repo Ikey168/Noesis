@@ -1,5 +1,9 @@
 {
   "bound_capabilities": [
+    "agrifood.citations",
+    "agrifood.crosswalks",
+    "agrifood.monitoring",
+    "agrifood.series",
     "chemicals.citations",
     "chemicals.identity",
     "chemicals.monitoring",
@@ -67,6 +71,7 @@
     "technology.standards"
   ],
   "bundles_resolved": [
+    "agrifood",
     "chemicals",
     "climate-environment",
     "clinical-evidence",
@@ -89,10 +94,15 @@
     "noesis-kb.kb_economic",
     "noesis-kb.kb_political",
     "noesis-kb.kb_technical",
+    "noesis-knowledge-engine.acquire_agrifood_sources",
     "noesis-knowledge-engine.acquire_environment_source",
     "noesis-knowledge-engine.acquire_funding_source",
     "noesis-knowledge-engine.acquire_ownership_sources",
     "noesis-knowledge-engine.acquire_substance_sources",
+    "noesis-knowledge-engine.agrifood_bundle_status",
+    "noesis-knowledge-engine.agrifood_revision_history",
+    "noesis-knowledge-engine.agrifood_series_as_of",
+    "noesis-knowledge-engine.agrifood_source_contracts",
     "noesis-knowledge-engine.align_clinical_terms",
     "noesis-knowledge-engine.assess_funding_eligibility",
     "noesis-knowledge-engine.assess_procurement_eligibility",
@@ -112,6 +122,7 @@
     "noesis-knowledge-engine.clinical_trial_history",
     "noesis-knowledge-engine.command_intake_mode",
     "noesis-knowledge-engine.compare_environment_vintages",
+    "noesis-knowledge-engine.create_agrifood_monitor",
     "noesis-knowledge-engine.create_authored_report",
     "noesis-knowledge-engine.create_clinical_monitor",
     "noesis-knowledge-engine.create_environment_monitor",
@@ -160,9 +171,12 @@
     "noesis-knowledge-engine.inspect_review_protocol",
     "noesis-knowledge-engine.inspect_standard_edition",
     "noesis-knowledge-engine.lei_parents_as_of",
+    "noesis-knowledge-engine.link_agrifood_citations",
     "noesis-knowledge-engine.link_clinical_publications",
     "noesis-knowledge-engine.link_product_notice_citations",
     "noesis-knowledge-engine.link_substance_citations",
+    "noesis-knowledge-engine.list_agrifood_crosswalks",
+    "noesis-knowledge-engine.list_agrifood_links",
     "noesis-knowledge-engine.list_environment_facilities",
     "noesis-knowledge-engine.list_environment_grid_events",
     "noesis-knowledge-engine.list_environment_operator_links",
@@ -171,6 +185,7 @@
     "noesis-knowledge-engine.list_procurement_notices",
     "noesis-knowledge-engine.list_substance_identity_candidates",
     "noesis-knowledge-engine.list_substance_links",
+    "noesis-knowledge-engine.list_unmapped_agrifood_codes",
     "noesis-knowledge-engine.list_unmatched_substances",
     "noesis-knowledge-engine.lookup_clinical_trial",
     "noesis-knowledge-engine.lookup_environment_series",
@@ -184,6 +199,7 @@
     "noesis-knowledge-engine.ownership_state_as_of",
     "noesis-knowledge-engine.ownership_timeline",
     "noesis-knowledge-engine.patent_family_members",
+    "noesis-knowledge-engine.poll_agrifood_monitor",
     "noesis-knowledge-engine.poll_clinical_monitor",
     "noesis-knowledge-engine.poll_environment_monitor",
     "noesis-knowledge-engine.poll_substance_monitor",
@@ -191,25 +207,33 @@
     "noesis-knowledge-engine.procurement_notice_history",
     "noesis-knowledge-engine.procurement_party_candidates",
     "noesis-knowledge-engine.procurement_provider_contracts",
+    "noesis-knowledge-engine.propose_agrifood_crosswalk_manual",
+    "noesis-knowledge-engine.propose_agrifood_crosswalks",
     "noesis-knowledge-engine.propose_environment_operator_links",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
     "noesis-knowledge-engine.propose_product_notice_matches",
     "noesis-knowledge-engine.propose_product_notice_party_links",
     "noesis-knowledge-engine.propose_substance_identities",
     "noesis-knowledge-engine.propose_substance_identity_manual",
+    "noesis-knowledge-engine.publish_agrifood_codelists",
     "noesis-knowledge-engine.query_geospatial_features_within",
     "noesis-knowledge-engine.record_clinical_trial_design",
     "noesis-knowledge-engine.record_entity_identity_decision",
     "noesis-knowledge-engine.record_geospatial_resolution",
     "noesis-knowledge-engine.record_ownership_register_document",
+    "noesis-knowledge-engine.register_agrifood_places",
     "noesis-knowledge-engine.register_environment_schemas",
     "noesis-knowledge-engine.register_methodology_study",
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
+    "noesis-knowledge-engine.resolve_agrifood_commodity",
+    "noesis-knowledge-engine.resolve_agrifood_place",
     "noesis-knowledge-engine.resolve_entity_history",
     "noesis-knowledge-engine.resolve_substance",
+    "noesis-knowledge-engine.revert_agrifood_crosswalk",
     "noesis-knowledge-engine.revert_ownership_identity_match",
     "noesis-knowledge-engine.revert_substance_identity",
+    "noesis-knowledge-engine.review_agrifood_crosswalk",
     "noesis-knowledge-engine.review_clinical_publication_link",
     "noesis-knowledge-engine.review_environment_operator_link",
     "noesis-knowledge-engine.review_geospatial_resolution",
@@ -218,6 +242,7 @@
     "noesis-knowledge-engine.review_product_notice_party_link",
     "noesis-knowledge-engine.review_substance_identity",
     "noesis-knowledge-engine.revise_geospatial_place",
+    "noesis-knowledge-engine.run_agrifood_monitor",
     "noesis-knowledge-engine.run_clinical_monitor",
     "noesis-knowledge-engine.run_environment_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
@@ -249,6 +274,457 @@
     "noesis-subscriptions.inspect_subscription"
   ],
   "disagreements": {
+    "agrifood": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.acquire_agrifood_sources"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.acquire_agrifood_sources"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_bundle_status"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_bundle_status"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_revision_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_revision_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_series_as_of"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_series_as_of"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_source_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.agrifood_source_contracts"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "agrifood",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "available",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-knowledge-engine.agrifood_source_contracts"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_agrifood_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_agrifood_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.link_agrifood_citations"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.link_agrifood_citations"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_agrifood_crosswalks"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_agrifood_crosswalks"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_agrifood_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_agrifood_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_unmapped_agrifood_codes"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_unmapped_agrifood_codes"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_agrifood_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_agrifood_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_agrifood_crosswalk_manual"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_agrifood_crosswalk_manual"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_agrifood_crosswalks"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_agrifood_crosswalks"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.publish_agrifood_codelists"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.publish_agrifood_codelists"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_agrifood_places"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_agrifood_places"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.resolve_agrifood_commodity"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.resolve_agrifood_commodity"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.resolve_agrifood_place"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.resolve_agrifood_place"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_agrifood_crosswalk"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_agrifood_crosswalk"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_agrifood_crosswalk"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_agrifood_crosswalk"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "agrifood",
+        "composition": "agrifood",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_agrifood_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "agrifood",
+        "composition": [
+          "values"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_agrifood_monitor"
+      }
+    ],
     "chemicals": [
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",

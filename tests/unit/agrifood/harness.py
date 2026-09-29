@@ -130,10 +130,13 @@ _TEMPLATE: dict[str, Path] = {}
 def loaded_env(directory: Path) -> Env:
     """An Env over a copy of one database loaded once per session with every agrifood fixture."""
     import shutil
-    import tempfile
 
     if "path" not in _TEMPLATE:
-        path = Path(tempfile.mkdtemp(prefix="agrifood-template-")) / "loaded.duckdb"
+        # Under pytest's own base temp directory (never a loose /tmp directory), removed with it.
+        base = Path(directory).parent / "agrifood-template"
+        base.mkdir(parents=True, exist_ok=True)
+        path = base / "loaded.duckdb"
+        path.unlink(missing_ok=True)
         conn = duckdb.connect(str(path))
         Env(conn).loaded()
         conn.close()
