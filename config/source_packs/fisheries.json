@@ -1,0 +1,249 @@
+{
+  "pack_id": "fisheries-maritime",
+  "version": "1.0.0",
+  "description": "Fisheries and Maritime Activity: Global Fishing Watch vessel identity and published fishing-effort aggregates, FAO FishStat capture statistics per release, the ICCAT, WCPFC and IOTC authorised-vessel registers and IUU vessel lists, and the Combined IUU Vessel List, bounded to explicit flag states, areas, species, years and vessels. Every value is quoted as published with its source, snapshot or release and retrieval time; registers are dated snapshots and removals are revisions. Effort is GFW's apparent fishing effort, never confirmed fishing; no illegal-fishing inference, legality status or enforcement recommendation. Access, licence and coverage decisions: docs/development/fisheries-evidence/source-audit.md.",
+  "domains": [
+    "fisheries"
+  ],
+  "defaults": {
+    "connector": "fisheries",
+    "update_cadence": "weekly re-check of the explicit selection; RFMO registers and IUU lists change after commission decisions, FishStat publishes one release a year (plus corrections) and GFW datasets carry their own version",
+    "temporal_semantics": "register and list pages are dated snapshots (published date or Last-Modified) with the retrieval time kept beside them; authorisation periods, listing and delisting dates as published; FishStat values belong to a release; GFW aggregates to a dataset version and period; every distinct payload is an immutable revision and absence from a later snapshot of the same list and selection is a dated removal revision",
+    "mapping": {
+      "target_schema": "noesis-fisheries-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "fisheries-sources:1.0.0"
+    ],
+    "operations": [
+      "fisheries"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 2592000
+    },
+    "policy": {
+      "aggregates_only_for_effort": true,
+      "excluded": ["per-vessel tracks or positions", "fishing, encounter, loitering or port events", "owner addresses", "inferred illegal fishing", "legality or compliance status", "enforcement recommendations"],
+      "no_derived_verdicts": true
+    }
+  },
+  "sources": [
+    {
+      "source_id": "gfw-vessels-effort",
+      "endpoint": "https://gateway.api.globalfishingwatch.org",
+      "publisher": "Global Fishing Watch",
+      "scope": "GFW self-reported vessel identity for explicitly selected GFW vessel ids, and monthly apparent fishing-effort aggregates at the published LOW (0.1 degree) grid, grouped by flag and gear, for the ICCAT convention area over a bounded date range; no tracks, positions or events",
+      "license": {
+        "id": "gfw-api-terms-cc-by-nc-4.0",
+        "terms_url": "https://globalfishingwatch.org/our-apis/documentation#terms-of-use",
+        "redistribution": "non-commercial use with attribution to Global Fishing Watch and the dataset version; aggregates and identity only (verify the current API terms before any redistribution or commercial use)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_GFW_API_TOKEN"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "fisheries": {
+        "provider": "gfw",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "two selected vessels plus one unknown id; effort for the ICCAT convention area, January-February 2024, LOW grid, monthly, by flag and gear",
+        "selection": [
+          {"kind": "vessel", "vessel_id": "a1b2c3d4-0001-4000-8000-000000000001", "label": "synthetic longliner, one identity segment"},
+          {"kind": "vessel", "vessel_id": "a1b2c3d4-0002-4000-8000-000000000002", "label": "synthetic purse seiner, renamed and re-flagged"},
+          {"kind": "vessel", "vessel_id": "ffffffff-0000-4000-8000-00000000dead", "label": "unknown vessel id (not found)"},
+          {"kind": "effort", "region_dataset": "public-rfmo", "region_id": "ICCAT", "region_name": "ICCAT convention area", "date_from": "2024-01-01", "date_to": "2024-02-29", "spatial_resolution": "LOW", "temporal_resolution": "MONTHLY", "group_by": "FLAGANDGEARTYPE", "label": "ICCAT area effort, Jan-Feb 2024"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/fisheries-gfw.json",
+        "sha256": "33f08a53f5f12a88db470c63bb903d87b86f666f632a30a921eccd88a7450ead",
+        "expected_output_hash": "5f8a0f890c2259fc4b97e9b0749e2e8bc7e10c7a23dd3baa9587d00243652c6e"
+      }
+    },
+    {
+      "source_id": "fao-fishstat-capture",
+      "endpoint": "https://www.fao.org",
+      "publisher": "Food and Agriculture Organization of the United Nations (FAO), FishStat",
+      "scope": "FishStat global capture production release file, read only for FAO major areas 27, 34 and 51, ASFIS species COD, SKJ and YFT, countries ESP, GHA and NOR and the years 2021-2022; quantities, units and status flags as published, tied to the release",
+      "license": {
+        "id": "cc-by-nc-sa-3.0-igo",
+        "terms_url": "https://www.fao.org/contact-us/terms/db-terms-of-use/en/",
+        "redistribution": "non-commercial reuse with attribution 'Source: FAO FishStat' and the release; share-alike (verify the release's own notice)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "fisheries": {
+        "provider": "fao-fishstat",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "three FAO major areas, three species, three countries and two years; aquaculture not selected",
+        "selection": [
+          {"dataset": "capture", "areas": ["27", "34", "51"], "species": ["COD", "SKJ", "YFT"], "countries": ["ESP", "GHA", "NOR"], "years": [2021, 2022], "units": {"Q_tlw": "t (tonnes live weight)"}, "label": "global capture production, bounded cells"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/fisheries-fishstat.json",
+        "sha256": "a217c8b08d74373812cf2b3ccc34a1e9c518fc224835027bffb076d699330a74",
+        "expected_output_hash": "cd8c49441361ff2306d55bec720b56d246759b1d24c159ef4f8ac447076c6d9c"
+      }
+    },
+    {
+      "source_id": "iccat-vessel-lists",
+      "endpoint": "https://www.iccat.int",
+      "publisher": "International Commission for the Conservation of Atlantic Tunas (ICCAT)",
+      "scope": "ICCAT Record of Vessels bounded to the ESP and GHA flags, and the ICCAT IUU Vessel List taken whole; each download a dated snapshot",
+      "license": {
+        "id": "iccat-public-record",
+        "terms_url": "https://www.iccat.int/en/",
+        "redistribution": "public record under ICCAT recommendations; reproduction with attribution to ICCAT (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "fisheries": {
+        "provider": "iccat",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "flags ESP and GHA on the register; the IUU list whole",
+        "selection": [
+          {"list": "authorised-vessels", "flags": ["ESP", "GHA"], "label": "ICCAT Record of Vessels"},
+          {"list": "iuu-vessels", "label": "ICCAT IUU Vessel List"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/fisheries-iccat.json",
+        "sha256": "ff5ded44d34320ed8258a5742d9e9e66cd4b1d74a738f00e9fb58a7337adee6d",
+        "expected_output_hash": "27d61feb1f272f5bf7d90d21977e1c952115ab9d227cd18fb837a4db2cbe66fd"
+      }
+    },
+    {
+      "source_id": "wcpfc-vessel-lists",
+      "endpoint": "https://vessels.wcpfc.int",
+      "publisher": "Western and Central Pacific Fisheries Commission (WCPFC)",
+      "scope": "WCPFC Record of Fishing Vessels bounded to the KIR and ESP flags, and the WCPFC IUU Vessel List taken whole",
+      "license": {
+        "id": "wcpfc-public-record",
+        "terms_url": "https://www.wcpfc.int/",
+        "redistribution": "public record under the WCPFC Convention; reproduction with attribution to WCPFC (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "fisheries": {
+        "provider": "wcpfc",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "flags KIR and ESP on the register; the IUU list whole",
+        "selection": [
+          {"list": "authorised-vessels", "flags": ["KIR", "ESP"], "label": "WCPFC Record of Fishing Vessels"},
+          {"list": "iuu-vessels", "label": "WCPFC IUU Vessel List"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/fisheries-wcpfc.json",
+        "sha256": "8493c622561837c25c08598557383ab01285392bea9b6cbf4c2abab2eb290f77",
+        "expected_output_hash": "9629a32e14be0cda56d29dcaa226d3ca8b12538c2eb0c06606b6b364cd040caf"
+      }
+    },
+    {
+      "source_id": "iotc-vessel-lists",
+      "endpoint": "https://iotc.org",
+      "publisher": "Indian Ocean Tuna Commission (IOTC)",
+      "scope": "IOTC Record of Authorised Vessels bounded to the ESP and SYC flags, and the IOTC IUU Vessel List taken whole",
+      "license": {
+        "id": "iotc-public-record",
+        "terms_url": "https://iotc.org/",
+        "redistribution": "public record under IOTC resolutions; reproduction with attribution to IOTC (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "fisheries": {
+        "provider": "iotc",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "flags ESP and SYC on the register; the IUU list whole",
+        "selection": [
+          {"list": "authorised-vessels", "flags": ["ESP", "SYC"], "label": "IOTC Record of Authorised Vessels"},
+          {"list": "iuu-vessels", "label": "IOTC IUU Vessel List"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/fisheries-iotc.json",
+        "sha256": "1fbf150ae0807b31f4441b159a582c9acb4f487622157c665b0fb443e26e4f3f",
+        "expected_output_hash": "a4bdf496a73e6f1b2b013acbad5cd5d3af4ed964a6f965bb8d673b8f954eb5bb"
+      }
+    },
+    {
+      "source_id": "combined-iuu-vessel-list",
+      "endpoint": "https://iuu-vessels.org",
+      "publisher": "Combined IUU Vessel List (Trygg Mat Tracking)",
+      "scope": "the Combined IUU Vessel List taken whole; each entry cites its originating RFMO listings and is never an independent confirmation",
+      "license": {
+        "id": "combined-iuu-public-information",
+        "terms_url": "https://iuu-vessels.org/",
+        "redistribution": "public information with attribution to the Combined IUU Vessel List and the originating RFMOs (verify reuse terms)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 2
+      },
+      "fisheries": {
+        "provider": "combined-iuu",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "the combined list whole",
+        "selection": [
+          {"list": "iuu-vessels", "label": "Combined IUU Vessel List"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/fisheries-combined-iuu.json",
+        "sha256": "45b81fdff1a5c72c55165d471980c3ce2b2e51bdbdc27840dd0318ac8d2bcd2e",
+        "expected_output_hash": "7076ea0bd4b0caeb3de4277504eb11a67d2f9c2ebb2b6a37647a91c6623425b7"
+      }
+    }
+  ]
+}

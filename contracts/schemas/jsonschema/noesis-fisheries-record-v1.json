@@ -1,0 +1,87 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-fisheries-record-v1",
+  "title": "Fisheries record statement: what one provider published about one vessel, list entry or statistics cell",
+  "description": "One statement a Fisheries and Maritime Activity adapter emits (Global Fishing Watch, FAO FishStat, RFMO authorised-vessel registers and IUU vessel lists, the Combined IUU Vessel List) and src.kb.fisheries_store keeps as an immutable revision. Record types: vessel (GFW identity segment), authorisation (register, vessel, flag, gear, validity period), listing (list, listing/delisting date, stated reason verbatim), effort_aggregate (area, grid, period, flag, gear, unit, method) and catch_observation (area, species, flag, period, quantity, unit, status flags). A newer snapshot or release supersedes without deleting. No statement carries a derived illegal, legal, compliant or IUU status, an enforcement recommendation, or per-vessel positions.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "subject", "record_key", "as_published", "effective", "source"],
+  "additionalProperties": false,
+  "definitions": {
+    "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "area": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["fao-major-area", "rfmo-convention-area", "eez", "gfw-region"]},
+        "code": {"type": "string", "minLength": 1},
+        "name": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "period": {
+      "type": "object",
+      "required": ["from", "to", "resolution"],
+      "properties": {
+        "from": {"$ref": "#/definitions/date"},
+        "to": {"$ref": "#/definitions/date"},
+        "resolution": {"enum": ["day", "month", "year", "range"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-fisheries-record-v1"},
+    "record_type": {"enum": ["vessel", "authorisation", "listing", "effort_aggregate", "catch_observation"]},
+    "provider": {"enum": ["gfw", "fao-fishstat", "iccat", "wcpfc", "iotc", "combined-iuu"]},
+    "subject": {
+      "type": "object",
+      "required": ["key", "kind"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^(gfw|fao-fishstat|iccat|wcpfc|iotc|combined-iuu):[a-z-]+:.+$"},
+        "kind": {"enum": ["vessel", "area"]},
+        "name": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "record_key": {"type": "string", "minLength": 1},
+    "as_published": {"type": "object"},
+    "effective": {
+      "type": "object",
+      "required": ["event"],
+      "properties": {
+        "from": {"$ref": "#/definitions/date"},
+        "to": {"$ref": "#/definitions/date"},
+        "event": {"enum": ["published", "authorised", "amended", "removed", "listed", "delisted", "release"]},
+        "date_basis": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["url", "locator", "attribution"],
+      "properties": {
+        "url": {"type": "string", "pattern": "^https://"},
+        "locator": {"type": "string"},
+        "attribution": {"type": "string", "minLength": 1},
+        "list": {"enum": ["authorised-vessels", "iuu-vessels", "vessel-identity", "fishing-effort", "capture-production"]},
+        "snapshot_date": {"$ref": "#/definitions/date"},
+        "release": {"type": ["string", "null"]},
+        "dataset_version": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"const": "vessel"}}},
+     "then": {"properties": {"provider": {"const": "gfw"}, "as_published": {"required": ["gfw_vessel_id", "shipname", "flag", "transmission_from", "transmission_to"]}}}},
+    {"if": {"properties": {"record_type": {"const": "authorisation"}}},
+     "then": {"properties": {"provider": {"enum": ["iccat", "wcpfc", "iotc"]}, "as_published": {"required": ["register", "register_number", "vessel_name", "flag", "gear", "valid_from", "valid_to"]}}}},
+    {"if": {"properties": {"record_type": {"const": "listing"}}},
+     "then": {"properties": {"provider": {"enum": ["iccat", "wcpfc", "iotc", "combined-iuu"]}, "as_published": {"required": ["list_body", "list_entry", "vessel_name", "listed_on", "delisted_on", "stated_reason"], "properties": {"stated_reason": {"type": "string"}}}}}},
+    {"if": {"properties": {"record_type": {"const": "effort_aggregate"}}},
+     "then": {"properties": {"as_published": {"required": ["area", "grid", "period", "flag", "gear", "unit", "value", "method"], "properties": {"area": {"$ref": "#/definitions/area"}, "period": {"$ref": "#/definitions/period"}}}}}},
+    {"if": {"properties": {"record_type": {"const": "catch_observation"}}},
+     "then": {"properties": {"provider": {"const": "fao-fishstat"}, "as_published": {"required": ["area", "species", "flag", "period", "quantity", "unit", "status_flags"], "properties": {"area": {"$ref": "#/definitions/area"}, "period": {"$ref": "#/definitions/period"}, "status_flags": {"type": "array", "items": {"type": "string"}}}}}}}
+  ]
+}

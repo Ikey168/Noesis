@@ -1,0 +1,26 @@
+{
+  "description": "ICCAT Record of Vessels and ICCAT IUU Vessel List (CSV downloads). Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "scenarios": [
+    "register snapshot bounded to flags ESP and GHA with authorisation periods",
+    "owner address column dropped",
+    "IUU listing with its delisting date and the stated reason verbatim"
+  ],
+  "native_pages": [
+    {
+      "request": "/en/vesselsrecord.asp?export=csv",
+      "status": 200,
+      "headers": {
+        "Last-Modified": "Tue, 01 Sep 2026 06:00:00 GMT"
+      },
+      "body": "ICCATSerialNo,VesselName,FlagCode,IRCS,IMO,GearCode,AuthFrom,AuthTo,OwnerName,OwnerAddress\nAT000ESP00001,SAMPLE ALBACORA UNO,ESP,EAAA1,9000015,LL,01/01/2024,31/12/2026,Sample Pesquerias S.L.,Calle Ficticia 1 Vigo\nAT000GHA00002,SAMPLE STAR,GHA,9GAA2,9000027,PS,01/01/2023,31/12/2024,Sample Star Fishing Ltd,Harbour Road Tema\nAT000FRA00009,SAMPLE HORS SELECTION,FRA,FAAA9,,LL,01/01/2024,31/12/2026,Sample Armement SA,Quai 1\n"
+    },
+    {
+      "request": "/en/IUU.asp?export=csv",
+      "status": 200,
+      "headers": {
+        "Last-Modified": "Tue, 01 Sep 2026 06:00:00 GMT"
+      },
+      "body": "IUURef,VesselName,Flag,IMO,IRCS,PreviousNames,PreviousFlags,ListedOn,DelistedOn,Reason\n20160001,SAMPLE DRIFTER,Unknown,9000039,,SAMPLE WANDERER,BLZ,2016-11-20,2024-11-18,\"Fishing activities in the Convention area, not on the ICCAT record of authorised vessels (Rec. 18-08, para 1a) - as stated by the listing\"\n"
+    }
+  ]
+}

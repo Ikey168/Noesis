@@ -35,12 +35,13 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 16
+    assert len(packs) == 17
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "fisheries",
         "geospatial",
         "legal",
         "onchain",
@@ -62,8 +63,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Products safety feature's four notice sources and its CELLAR selection of cited acts (#1916),
     # plus the Funding development-finance feature's OECD CRS source (#1932),
     # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
-    # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212).
-    assert sum(len(pack["sources"]) for pack in packs) == 108
+    # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212),
+    # plus the Fisheries pack's GFW, FishStat, ICCAT, WCPFC, IOTC and Combined IUU Vessel List sources (#2222).
+    assert sum(len(pack["sources"]) for pack in packs) == 114
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -328,6 +330,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "clinical",
         "corporate-ownership",
         "economic",
+        "fisheries",
         "geospatial",
         "legal",
         "onchain",

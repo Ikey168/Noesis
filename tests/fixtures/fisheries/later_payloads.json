@@ -1,0 +1,22 @@
+{
+  "description": "Later snapshots and releases replacing named request bodies (a second acquisition). SYNTHETIC vessels; illustrative values. Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "second": {
+    "/en/vesselsrecord.asp?export=csv": {
+      "body": "ICCATSerialNo,VesselName,FlagCode,IRCS,IMO,GearCode,AuthFrom,AuthTo,OwnerName,OwnerAddress\nAT000ESP00001,SAMPLE ALBACORA UNO,ESP,EAAA1,9000015,LL,01/01/2024,31/12/2026,Sample Pesquerias S.L.,Calle Ficticia 1 Vigo\nAT000FRA00009,SAMPLE HORS SELECTION,FRA,FAAA9,,LL,01/01/2024,31/12/2026,Sample Armement SA,Quai 1\n",
+      "headers": {
+        "Last-Modified": "Sun, 01 Nov 2026 06:00:00 GMT"
+      }
+    },
+    "/en/IUU.asp?export=csv": {
+      "body": "IUURef,VesselName,Flag,IMO,IRCS,PreviousNames,PreviousFlags,ListedOn,DelistedOn,Reason\n20160001,SAMPLE DRIFTER,Unknown,9000039,,SAMPLE WANDERER,BLZ,2016-11-20,2024-11-18,\"Fishing activities in the Convention area, not on the ICCAT record of authorised vessels (Rec. 18-08, para 1a) - as stated by the listing\"\n20260007,SAMPLE LATECOMER,PAN,9000065,HPAA6,,,2026-11-10,,\"Transhipment at sea with a listed vessel (Rec. 18-08, para 1g) - as stated by the listing\"\n",
+      "headers": {
+        "Last-Modified": "Sun, 15 Nov 2026 06:00:00 GMT"
+      }
+    }
+  },
+  "release": {
+    "/fishery/static/Data/Capture_Global.csv": {
+      "body": "COUNTRY.ISO3_CODE,SPECIES.ALPHA_3_CODE,AREA.CODE,MEASURE,PERIOD,VALUE,STATUS,RELEASE,RELEASE_DATE\nESP,SKJ,34,Q_tlw,2021,12000,,2026.1,2026-03-27\nESP,SKJ,34,Q_tlw,2022,13400,,2026.1,2026-03-27\nGHA,SKJ,34,Q_tlw,2021,51200,,2026.1,2026-03-27\nESP,YFT,51,Q_tlw,2022,45000,,2026.1,2026-03-27\nNOR,COD,27,Q_tlw,2022,300000,,2026.1,2026-03-27\nNOR,COD,27,Q_tlw,2021,0,N,2026.1,2026-03-27\nJPN,SKJ,61,Q_tlw,2022,999999,,2026.1,2026-03-27\n"
+    }
+  }
+}

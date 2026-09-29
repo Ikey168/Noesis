@@ -1,0 +1,63 @@
+{
+  "description": "WCPFC Record of Fishing Vessels and WCPFC IUU Vessel List (JSON exports). Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "scenarios": [
+    "register entry sharing a name but no IMO with another register's vessel (name-only candidate)",
+    "IUU listing with no IMO and an unresolvable flag"
+  ],
+  "native_pages": [
+    {
+      "request": "/api/rfv/vessels.json",
+      "status": 200,
+      "body": {
+        "as_of": "2026-09-02",
+        "vessels": [
+          {
+            "wcpfc_id": "WCPFC-KIR-0007",
+            "vessel_name": "Sample Albacora Uno",
+            "flag": "KIR",
+            "ircs": "T3AA7",
+            "imo": "",
+            "gear": "Longline",
+            "authorised_from": "2025-03-01",
+            "authorised_to": "2027-02-28",
+            "owner": "Sample Pacific Fishing Co Ltd"
+          },
+          {
+            "wcpfc_id": "WCPFC-CHN-0100",
+            "vessel_name": "SAMPLE OUT OF SCOPE",
+            "flag": "CHN",
+            "ircs": "BAAA1",
+            "imo": "",
+            "gear": "Longline",
+            "authorised_from": "2025-01-01",
+            "authorised_to": "2026-12-31",
+            "owner": "Sample Owner"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/iuu/vessels.json",
+      "status": 200,
+      "body": {
+        "as_of": "2026-09-02",
+        "entries": [
+          {
+            "entry": "WCPFC-IUU-2010-01",
+            "vessel_name": "SAMPLE GHOST",
+            "flag": "Unknown",
+            "imo": "",
+            "ircs": "",
+            "previous_names": [
+              "SAMPLE SHADE"
+            ],
+            "previous_flags": [],
+            "listed": "2010-12-10",
+            "removed": null,
+            "reason": "Fishing in the Convention Area without being on the WCPFC Record of Fishing Vessels - as stated by the listing"
+          }
+        ]
+      }
+    }
+  ]
+}
