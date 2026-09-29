@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Humanitarian bundle's offline journey (#2288) composes its own record owner, geospatial places and
+    # geometries, entity identity, subscriptions and the source-pack runtime; ACLED is the declined source.
+    "Place or crisis to humanitarian dossier":
+        "tests/unit/domains/test_humanitarian_acceptance.py::"
+        "test_place_and_crisis_to_a_cited_dossier_with_precision_history_identity_and_gaps",
 }
 
 
