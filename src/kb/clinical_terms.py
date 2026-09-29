@@ -29,6 +29,7 @@ mapping blocks a term as it always has.
 from __future__ import annotations
 
 import hashlib
+import json
 import re
 from typing import Any
 
@@ -554,6 +555,301 @@ class ClinicalTerms:
                                + (f", reviewed by {evidence['reviewer']}" if evidence.get("reviewer") else "") + ")"})
 
 
+# ------------------------------------------------------------------ medicines identity (#2214, MR07)
+
+MATCH_KINDS = ("equivalent", "broader", "narrower")
+MATCH_STATES = ("proposed", "accepted", "rejected")
+_MEDICINE_DDL = """
+CREATE TABLE IF NOT EXISTS clinical_medicine_matches(
+ match_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, subject_key TEXT NOT NULL, subject_json TEXT NOT NULL,
+ target_rxcui TEXT NOT NULL, target_json TEXT NOT NULL, kind TEXT NOT NULL, basis TEXT NOT NULL,
+ evidence_json TEXT NOT NULL, state TEXT NOT NULL, rxnorm_release TEXT NOT NULL, created_ms BIGINT NOT NULL,
+ updated_ms BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS clinical_medicine_match_decisions(
+ decision_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, match_id TEXT NOT NULL, action TEXT NOT NULL,
+ from_state TEXT NOT NULL, to_state TEXT NOT NULL, principal_id TEXT NOT NULL, reason TEXT NOT NULL,
+ decided_ms BIGINT NOT NULL);
+"""
+
+
+def rxnav_name(name):
+    """The name sent to RxNav's exact search: the published name, case- and whitespace-folded only."""
+    return " ".join(str(name or "").split()).casefold()
+
+
+class MedicineIdentity:
+    """Reviewable crosswalks from regulator-published medicines and substances to RxNorm concepts (RxCUI).
+
+    A *subject* is a medicine or substance as one regulator publishes it: an EMA product (by product number, named
+    through its active substance), a Drugs@FDA application, a DailyMed SPL set, a substance named by a Drug Safety
+    Communication, or the product of a FAERS count summary. Each subject name is looked up in RxNav (exact name,
+    bounded, receipted); the result is a crosswalk record with kind (``equivalent``/``broader``/``narrower``),
+    evidence, the RxNorm release and a review state:
+
+    * a US subject whose own published name is an exact RxNorm name is ``equivalent`` and starts accepted by rule
+      (``rxnav-exact-name``) - reviewable, rejectable and revertible like any other;
+    * an EU product (RxNorm covers US products only) matches only by its active substance, as ``narrower`` than the
+      ingredient concept, and starts ``proposed``: it connects records only once a reviewer accepts it;
+    * names with no RxNorm concept are reported unmatched; nothing is guessed from similar names.
+
+    Query resolution (:meth:`resolve`) reaches subjects only through accepted matches and reports the match used.
+    """
+
+    def __init__(self, conn, *, initialize=True, now=None):
+        import time
+
+        self.conn = conn
+        self.records = ClinicalRecordStore(conn, initialize=initialize, now=now)
+        self.now = now or (lambda: int(time.time() * 1000))
+        if initialize:
+            conn.execute(_MEDICINE_DDL)
+
+    def _ready(self):
+        return bool(self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name="
+                                      "'clinical_medicine_matches'").fetchone())
+
+    # ------------------------------------------------------------ subjects
+
+    def subjects(self, namespace, *, scopes):
+        """Regulator-published medicines and substances in the namespace, each with its names as published."""
+        from src.kb.clinical_medicines import CONTRACT
+
+        _require_read(namespace, scopes)
+        subjects: dict[str, dict[str, Any]] = {}
+
+        def add(provider, native_id, name, role, record_kind, jurisdiction, key=None):
+            if not str(name or "").strip():
+                return
+            subject_key = key or f"{provider}:{native_id}"
+            entry = subjects.setdefault(subject_key, {
+                "subject_key": subject_key, "provider": provider, "native_id": native_id,
+                "jurisdiction": jurisdiction, "names": [], "record_kinds": []})
+            label = {"name": str(name).strip(), "role": role}
+            if label not in entry["names"]:
+                entry["names"].append(label)
+            if record_kind not in entry["record_kinds"]:
+                entry["record_kinds"].append(record_kind)
+
+        for row in self.records.find(namespace, scopes=scopes, limit=10000):
+            item = row["record"]
+            if item.get("contract") == CONTRACT:
+                kind = item["record_kind"]
+                if kind in {"medicinal-product", "label-revision"}:
+                    for substance in item.get("active_substances") or []:
+                        add(item["provider"], item["native_id"], substance["name"], "active substance", kind,
+                            item["jurisdiction"])
+                    if item["jurisdiction"] == "US":
+                        for brand in item.get("brand_names") or []:
+                            add(item["provider"], item["native_id"], brand["name"], "brand name", kind,
+                                item["jurisdiction"])
+                elif kind == "safety-communication":
+                    for substance in item.get("named_substances") or []:
+                        add(item["provider"], item["native_id"], substance["name"], "named substance", kind, "US",
+                            key=f"fda-dsc:{item['native_id']}#{normalize_label(substance['name'])}")
+            elif item.get("record_kind") == "regulatory-record" and item.get("regulatory_kind") == \
+                    "adverse-event-summary":
+                for name in (item.get("product") or {}).get("generic_names") or []:
+                    add("openfda", item["native_id"], name, "FAERS product (generic name)", "adverse-event-summary",
+                        "US")
+        return [subjects[k] for k in sorted(subjects)]
+
+    # ------------------------------------------------------------ propose
+
+    def propose(self, namespace, *, principal_id, scopes, client):
+        """Look every subject name up in RxNav and record crosswalk candidates; unmatched names are reported."""
+        _require_write(namespace, scopes)
+        release = client.release()
+        subjects = self.subjects(namespace, scopes=scopes)
+        names = sorted({rxnav_name(n["name"]) for s in subjects for n in s["names"]} - {""})
+        concepts = {}
+        for name in names:
+            concepts[name] = client.lookup(name)
+        created, unmatched = [], []
+        stamp = self.now()
+        for subject in subjects:
+            matched = False
+            for label in subject["names"]:
+                key = rxnav_name(label["name"])
+                for concept in concepts.get(key) or []:
+                    matched = True
+                    eu = subject["jurisdiction"] == "EU"
+                    kind = "narrower" if eu else "equivalent"
+                    basis = "reviewed-active-substance" if eu else "rxnav-exact-name"
+                    state = "proposed" if eu else "accepted"
+                    evidence = {"published_name": label, "rxnav_query": key, "rxnorm_name": concept["name"],
+                                "tty": concept["tty"], "ingredients": concept["ingredients"],
+                                "note": ("EU product without RxNorm coverage: matched through its active substance "
+                                         "only; needs review") if eu else "exact RxNorm name of the published name"}
+                    match_id = "medmatch:" + digest([namespace, subject["subject_key"], concept["rxcui"], kind])[:24]
+                    if self.conn.execute("SELECT 1 FROM clinical_medicine_matches WHERE match_id=?",
+                                         [match_id]).fetchone():
+                        self.conn.execute("UPDATE clinical_medicine_matches SET subject_json=?, updated_ms=? "
+                                          "WHERE match_id=?", [json.dumps(subject, sort_keys=True), stamp, match_id])
+                        continue
+                    target = {"rxcui": concept["rxcui"], "name": concept["name"], "tty": concept["tty"],
+                              "ingredients": concept["ingredients"]}
+                    self.conn.execute(
+                        "INSERT INTO clinical_medicine_matches VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                        [match_id, namespace, subject["subject_key"], json.dumps(subject, sort_keys=True),
+                         concept["rxcui"], json.dumps(target, sort_keys=True), kind, basis,
+                         json.dumps(evidence, sort_keys=True), state, release, stamp, stamp])
+                    self._decide(namespace, match_id, "propose", "none", state, principal_id if eu else
+                                 "rule:rxnav-exact-name", basis)
+                    created.append(match_id)
+            if not matched:
+                unmatched.append({"subject_key": subject["subject_key"], "names": subject["names"],
+                                  "reason": "no exact RxNorm concept for any published name; left unmatched"})
+        self.records.record_success(namespace, "rxnorm", observation_id=f"rxnav:{release}:{stamp}",
+                                    observed_at_ms=stamp, execution=client.execution)
+        return {"rxnorm_release": release, "created": created, "unmatched": unmatched,
+                "receipts": list(client.receipts), "matches": self.matches(namespace, scopes=scopes)}
+
+    # ------------------------------------------------------------ review
+
+    def _decide(self, namespace, match_id, action, from_state, to_state, principal_id, reason):
+        stamp = self.now()
+        decision_id = "meddecision:" + digest([match_id, action, from_state, to_state, principal_id, stamp,
+                                               self.conn.execute("SELECT count(*) FROM clinical_medicine_match_"
+                                                                 "decisions WHERE match_id=?",
+                                                                 [match_id]).fetchone()[0]])[:24]
+        self.conn.execute("INSERT INTO clinical_medicine_match_decisions VALUES (?,?,?,?,?,?,?,?,?)",
+                          [decision_id, namespace, match_id, action, from_state, to_state, principal_id, reason,
+                           stamp])
+        if action != "propose":
+            self.conn.execute("UPDATE clinical_medicine_matches SET state=?, updated_ms=? WHERE match_id=?",
+                              [to_state, stamp, match_id])
+        return decision_id
+
+    def _match(self, namespace, match_id):
+        row = self.conn.execute("SELECT state FROM clinical_medicine_matches WHERE namespace=? AND match_id=?",
+                                [namespace, match_id]).fetchone() if self._ready() else None
+        if not row:
+            raise ClinicalRecordError("match_not_found", "medicine identity match is unavailable")
+        return row[0]
+
+    def review(self, namespace, match_id, decision, reason, *, principal_id, scopes):
+        """Accept or reject a crosswalk candidate with a reason (clinical review scope)."""
+        if "knowledge:clinical:review" not in scopes and "operator" not in scopes:
+            raise ClinicalRecordError("unauthorized", "clinical review scope is required")
+        if decision not in {"accept", "reject"} or not str(reason or "").strip():
+            raise ClinicalRecordError("invalid_review", "accept or reject with a reason")
+        state = self._match(namespace, match_id)
+        target = "accepted" if decision == "accept" else "rejected"
+        if state == target:
+            return {"match_id": match_id, "state": state, "changed": False}
+        decision_id = self._decide(namespace, match_id, decision, state, target, principal_id, reason)
+        return {"match_id": match_id, "state": target, "changed": True, "decision_id": decision_id}
+
+    def revert(self, namespace, match_id, reason, *, principal_id, scopes):
+        """Undo the latest review decision; the match returns to the state before it (decisions are kept)."""
+        if "knowledge:clinical:review" not in scopes and "operator" not in scopes:
+            raise ClinicalRecordError("unauthorized", "clinical review scope is required")
+        state = self._match(namespace, match_id)
+        rows = self.conn.execute(
+            "SELECT action, from_state, to_state FROM clinical_medicine_match_decisions WHERE match_id=? "
+            "ORDER BY decided_ms, decision_id", [match_id]).fetchall()
+        stack = []
+        for action, before, after in rows:
+            if action == "revert":
+                stack.pop()
+            elif action != "propose":
+                stack.append((before, after))
+        if not stack:
+            raise ClinicalRecordError("nothing_to_revert", "the match has no review decision to revert")
+        before, _ = stack[-1]
+        decision_id = self._decide(namespace, match_id, "revert", state, before, principal_id, reason or "revert")
+        return {"match_id": match_id, "state": before, "decision_id": decision_id}
+
+    # ------------------------------------------------------------ read
+
+    def matches(self, namespace, *, scopes, state=None):
+        _require_read(namespace, scopes)
+        if not self._ready():
+            return []
+        rows = self.conn.execute(
+            "SELECT match_id, subject_key, subject_json, target_json, kind, basis, evidence_json, state, "
+            "rxnorm_release FROM clinical_medicine_matches WHERE namespace=? ORDER BY subject_key, match_id",
+            [namespace]).fetchall()
+        out = []
+        for match_id, key, subject, target, kind, basis, evidence, current, release in rows:
+            if state is not None and current != state:
+                continue
+            decisions = [{"action": a, "from": f, "to": t, "principal_id": p, "reason": r} for a, f, t, p, r in
+                         self.conn.execute("SELECT action, from_state, to_state, principal_id, reason FROM "
+                                           "clinical_medicine_match_decisions WHERE match_id=? ORDER BY decided_ms, "
+                                           "decision_id", [match_id]).fetchall()]
+            out.append({"match_id": match_id, "subject_key": key, "subject": json.loads(subject),
+                        "target": json.loads(target), "kind": kind, "basis": basis,
+                        "evidence": json.loads(evidence), "state": current, "rxnorm_release": release,
+                        "decisions": decisions})
+        return out
+
+    def resolve(self, namespace, medicine, *, scopes):
+        """RxNorm concepts a medicine name or RxCUI denotes and the subjects accepted matches connect to them."""
+        _require_read(namespace, scopes)
+        text = str(medicine or "").strip()
+        if not text:
+            raise ClinicalRecordError("invalid_medicine", "name a medicine, substance or RxCUI")
+        key = normalize_label(text)
+        names = {key}
+        crosswalk = None
+        try:
+            expansion = ClinicalTerms(self.conn, initialize=False).expand(namespace, text, scopes=scopes,
+                                                                          relationships=("equivalent",))
+            names |= set(expansion["labels"])
+            crosswalk = {"start": expansion.get("start"), "mesh_ids": expansion["mesh_ids"],
+                         "steps": expansion["steps"]}
+        except (ClinicalRecordError, OntologyError, SchemaRegistryError):
+            crosswalk = None
+        all_matches = self.matches(namespace, scopes=scopes)
+        concepts = {}
+        for match in all_matches:
+            target = match["target"]
+            published = {normalize_label(n["name"]) for n in match["subject"]["names"]}
+            if text == target["rxcui"] or normalize_label(target["name"]) in names or published & names:
+                concepts[target["rxcui"]] = target
+        ingredients = {i["rxcui"] for c in concepts.values() for i in c.get("ingredients") or []} | {
+            rxcui for rxcui, c in concepts.items() if c.get("tty") == "IN"}
+        reached, pending, rejected = {}, [], []
+
+        def connects(target):
+            return target["rxcui"] in concepts or target["rxcui"] in ingredients or bool(
+                {i["rxcui"] for i in target.get("ingredients") or []} & ingredients)
+
+        for match in all_matches:
+            if not connects(match["target"]):
+                continue
+            view = {"match_id": match["match_id"], "kind": match["kind"], "basis": match["basis"],
+                    "state": match["state"], "rxcui": match["target"]["rxcui"], "rxnorm_name": match["target"]["name"],
+                    "tty": match["target"]["tty"], "rxnorm_release": match["rxnorm_release"],
+                    "decided_by": match["decisions"][-1]["principal_id"] if match["decisions"] else None}
+            if match["state"] == "accepted":
+                subject = match["subject"]
+                reached.setdefault(match["subject_key"], {"subject_key": match["subject_key"],
+                                                          "provider": subject["provider"],
+                                                          "native_id": subject["native_id"],
+                                                          "jurisdiction": subject["jurisdiction"], "match": view})
+            elif match["state"] == "proposed":
+                pending.append({"subject_key": match["subject_key"], "match": view})
+            else:
+                rejected.append({"subject_key": match["subject_key"], "match": view})
+        # A regulator's own identifier (EMA product number, application number, SPL set id) names its record exactly;
+        # no crosswalk is involved, so this holds for EU products without RxNorm coverage too.
+        for subject in self.subjects(namespace, scopes=scopes):
+            if subject["native_id"].casefold() == text.casefold() and subject["subject_key"] not in reached:
+                reached[subject["subject_key"]] = {
+                    "subject_key": subject["subject_key"], "provider": subject["provider"],
+                    "native_id": subject["native_id"], "jurisdiction": subject["jurisdiction"],
+                    "match": {"match_id": None, "kind": "equivalent", "basis": "exact-regulator-identifier",
+                              "state": "accepted", "rxcui": None, "rxnorm_name": None, "tty": None,
+                              "rxnorm_release": None, "decided_by": None}}
+        return {"medicine": text, "concepts": [concepts[k] for k in sorted(concepts)],
+                "ingredient_rxcuis": sorted(ingredients), "subjects": [reached[k] for k in sorted(reached)],
+                "pending_review": pending, "rejected": rejected, "term_crosswalk": crosswalk,
+                "note": "records are reached only through accepted matches; pending and rejected matches connect "
+                        "nothing"}
+
+
 def _finish(result):
     result["labels"] = sorted(result["labels"])
     result["mesh_ids"] = sorted(result["mesh_ids"])
@@ -566,6 +862,6 @@ def _normalized(concepts):
     return _validate_concepts(concepts)
 
 
-__all__ = ["ClinicalTerms", "MESH_MODULE", "OntologyError", "crosswalk_module", "icd_crosswalk_module", "icd_module",
+__all__ = ["ClinicalTerms", "MESH_MODULE", "MedicineIdentity", "OntologyError", "crosswalk_module", "icd_crosswalk_module", "icd_module",
            "surveillance_icd_module", "surveillance_mesh_module", "surveillance_terms_module", "term_id",
            "terms_module"]

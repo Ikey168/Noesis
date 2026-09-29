@@ -1,7 +1,7 @@
 {
   "pack_id": "clinical-evidence",
-  "version": "0.1.1",
-  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart; existing sources are unchanged. No medical advice.",
+  "version": "0.1.2",
+  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart. Version 0.1.2 adds medicines regulation (EMA EPARs and product information, Drugs@FDA submission history through the openFDA connector, DailyMed SPL versions, FDA Drug Safety Communications); existing sources are unchanged. No medical advice.",
   "domains": [
     "clinical"
   ],
@@ -678,6 +678,231 @@
         "path": "tests/fixtures/source_packs/surveillance-destatis-todesursachen-tuberkulose.json",
         "sha256": "16b1d303a6c431bab697ed0b94eaf6c6c1cca1b164225fb896072ca509a61ead",
         "expected_output_hash": "9a8f0cd499ab10e75b60e31fa0c668bdb8386d8f016b898719132487c6cc8275"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-medicines-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "medicines-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "medicines-ema-epar",
+      "connector": "medicines",
+      "publisher": "European Medicines Agency",
+      "endpoint": "https://www.ema.europa.eu",
+      "scope": "Pinned EMA products: authorisation status and dates, EPAR revision, product information (SmPC) sections and withdrawal public statements",
+      "update_cadence": "daily at most; a new EPAR revision on each procedure affecting the product information",
+      "temporal_semantics": "EPAR revision number and last-updated date per revision; authorisation event dates as published; observation time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "medicines": {
+        "namespace": "clinical",
+        "provider": "ema-epar",
+        "export_path": "/en/documents/report/medicines-output-medicines_json-report_en.json",
+        "products": [
+          {
+            "product_number": "EMEA/H/C/009001",
+            "product_information_path": "/en/documents/product-information/noetiglu-fixture-epar-product-information_en.pdf"
+          },
+          {
+            "product_number": "EMEA/H/C/009002",
+            "public_statement_path": "/en/documents/public-statement/public-statement-fixturamab-withdrawal-marketing-authorisation-european-union_en.pdf"
+          }
+        ]
+      },
+      "license": {
+        "id": "ema-legal-notice",
+        "terms_url": "https://www.ema.europa.eu/en/about-us/legal-notice",
+        "redistribution": "reproduction authorised provided the source (EMA) is acknowledged"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/medicines-ema-epar.json",
+        "sha256": "fff7aaff47c089f112fd119d87aa9f72be15f29727596594ad08e66c3837558e",
+        "expected_output_hash": "68dcd0091390dd998961c9b7495ac024351778ef18905eb3a0ebbd9d1c328289"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-medicines-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "medicines-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "medicines-drugsfda-submissions",
+      "connector": "openfda",
+      "publisher": "US Food and Drug Administration (openFDA)",
+      "endpoint": "https://api.fda.gov",
+      "scope": "Pinned products: Drugs@FDA applications, products and every submission (original approval, supplements, labeling revisions) through the existing openFDA provider",
+      "update_cadence": "weekly at most",
+      "temporal_semantics": "submission status date per submission; marketing status as of openFDA meta.last_updated",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "products": [
+          {
+            "generic_name": "noetiglutide"
+          }
+        ],
+        "endpoints": [
+          "drugsfda-submissions"
+        ]
+      },
+      "license": {
+        "id": "openfda-terms",
+        "terms_url": "https://open.fda.gov/terms/",
+        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
+      },
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_OPENFDA_API_KEY"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/medicines-drugsfda-submissions.json",
+        "sha256": "be1b1aa1214ca3c8c24aa05a89465df03f0fce6af577d0ec4aff4f4396baf6a5",
+        "expected_output_hash": "e29411e387a06df7d0e9f31dab8ca62393efb1d67a2b6d6ec8622622428a54df"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-medicines-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "medicines-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "medicines-dailymed-spl",
+      "connector": "medicines",
+      "publisher": "US National Library of Medicine (DailyMed)",
+      "endpoint": "https://dailymed.nlm.nih.gov",
+      "scope": "Pinned SPL set ids: version history and the current SPL document with LOINC-coded sections",
+      "update_cadence": "weekly at most; a new SPL version on each label update",
+      "temporal_semantics": "SPL version number and effective time per revision; history published dates; observation time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "medicines": {
+        "namespace": "clinical",
+        "provider": "dailymed",
+        "set_ids": [
+          "9a1f0c3e-0000-4000-8000-000000009001"
+        ]
+      },
+      "license": {
+        "id": "nlm-dailymed-terms",
+        "terms_url": "https://dailymed.nlm.nih.gov/dailymed/about-dailymed.cfm",
+        "redistribution": "public label content; cite DailyMed and the set id; no NLM endorsement"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/medicines-dailymed-spl.json",
+        "sha256": "b2b4e8d133554ef2fcca7362d44831300f71edf25f16a17a86a735f0f430a039",
+        "expected_output_hash": "33a115fb1d2b667299355a06f60f107638378b85faeb953b7106ecbc20b2a308"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-medicines-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "medicines-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "medicines-fda-dsc",
+      "connector": "medicines",
+      "publisher": "US Food and Drug Administration",
+      "endpoint": "https://www.fda.gov",
+      "scope": "Pinned FDA Drug Safety Communications: issue date, dated updates, named substances and products",
+      "update_cadence": "weekly at most; FDA adds dated updates to the same page",
+      "temporal_semantics": "issue date and update dates as published; each update is a new revision",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "medicines": {
+        "namespace": "clinical",
+        "provider": "fda-dsc",
+        "communications": [
+          "/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-adds-warning-about-pancreatitis-noetiglutide-fixture"
+        ]
+      },
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://www.fda.gov/about-fda/about-website/website-policies",
+        "redistribution": "US government work; cite FDA and the page URL"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/medicines-fda-dsc.json",
+        "sha256": "94a424a341787435d49de8328d32190cc6c0c99e95b4e322c0278c9301bfd5e7",
+        "expected_output_hash": "360883905d8cd2ca0ac631b18a05a7138aaf9976993405bb1d9d5db1233852fa"
       }
     }
   ]

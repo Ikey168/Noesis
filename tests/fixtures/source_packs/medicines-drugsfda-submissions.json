@@ -1,0 +1,90 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "meta": {
+     "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+     "last_updated": "2026-09-19",
+     "license": "https://open.fda.gov/license/",
+     "results": {
+      "limit": 5,
+      "skip": 0,
+      "total": 1
+     },
+     "terms": "https://open.fda.gov/terms/"
+    },
+    "results": [
+     {
+      "application_number": "NDA299001",
+      "openfda": {
+       "application_number": [
+        "NDA299001"
+       ],
+       "brand_name": [
+        "NOETIGLU (FIXTURE)"
+       ],
+       "generic_name": [
+        "NOETIGLUTIDE"
+       ],
+       "manufacturer_name": [
+        "Fixture Therapeutics GmbH"
+       ],
+       "product_type": [
+        "HUMAN PRESCRIPTION DRUG"
+       ],
+       "route": [
+        "SUBCUTANEOUS"
+       ],
+       "substance_name": [
+        "NOETIGLUTIDE"
+       ]
+      },
+      "products": [
+       {
+        "active_ingredients": [
+         {
+          "name": "NOETIGLUTIDE",
+          "strength": "(fixture)"
+         }
+        ],
+        "brand_name": "NOETIGLU (FIXTURE)",
+        "marketing_status": "Prescription",
+        "product_number": "001"
+       }
+      ],
+      "sponsor_name": "FIXTURE THERAPEUTICS GMBH",
+      "submissions": [
+       {
+        "review_priority": "STANDARD",
+        "submission_class_code": "TYPE 1",
+        "submission_class_code_description": "Type 1 - New Molecular Entity",
+        "submission_number": "1",
+        "submission_status": "AP",
+        "submission_status_date": "20190905",
+        "submission_type": "ORIG"
+       },
+       {
+        "submission_class_code": "LABELING",
+        "submission_class_code_description": "Labeling",
+        "submission_number": "7",
+        "submission_status": "AP",
+        "submission_status_date": "20250415",
+        "submission_type": "SUPPL"
+       }
+      ]
+     }
+    ]
+   },
+   "request": "/drug/drugsfda.json?search=openfda.generic_name%3A%22noetiglutide%22&limit=5",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; medicines, identifiers and texts are fictional placeholders. Not live evidence.",
+ "provider": "openFDA Drugs@FDA",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

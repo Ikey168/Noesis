@@ -263,6 +263,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"housing"})
 # Clinical Evidence public-health surveillance series (RKI, WHO GHO, Eurostat health, Destatis; #1917).
 NATIVE_CONNECTOR_MODULES["surveillance"] = "src.ingestion.surveillance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"surveillance"})
+# Clinical Evidence medicines regulation (EMA EPARs, DailyMed SPL, FDA Drug Safety Communications; #2214).
+NATIVE_CONNECTOR_MODULES["medicines"] = "src.ingestion.medicines_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medicines"})
 
 # Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
 NATIVE_CONNECTOR_MODULES.update({

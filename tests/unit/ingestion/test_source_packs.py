@@ -104,8 +104,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208),
     # plus the Energy Systems pack's ten ENTSO-E, EIA, Ember, Eurostat and Energy-Charts selections (#2211),
     # plus the Fisheries pack's GFW, FishStat, ICCAT, WCPFC, IOTC and Combined IUU Vessel List sources (#2222),
-    # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206).
-    assert sum(len(pack["sources"]) for pack in packs) == 220
+    # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206),
+    # plus the Clinical Evidence medicines feature's four EMA, Drugs@FDA, DailyMed and FDA DSC sources (#2214).
+    assert sum(len(pack["sources"]) for pack in packs) == 224
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

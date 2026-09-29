@@ -1,0 +1,43 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "data": {
+     "history": [
+      {
+       "published_date": "Apr 15, 2025",
+       "spl_version": "8"
+      },
+      {
+       "published_date": "Jan 10, 2024",
+       "spl_version": "7"
+      }
+     ],
+     "spl": {
+      "setid": "9a1f0c3e-0000-4000-8000-000000009001",
+      "title": "NOETIGLU (FIXTURE) (noetiglutide) injection"
+     }
+    },
+    "metadata": {
+     "db_published_date": "Sep 01, 2026 (fixture)",
+     "total_elements": 2
+    }
+   },
+   "request": "/dailymed/services/v2/spls/9a1f0c3e-0000-4000-8000-000000009001/history.json",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><document xmlns=\"urn:hl7-org:v3\"><id root=\"0e0a0000-0000-4000-8000-000000009008\"/><code code=\"34391-3\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"HUMAN PRESCRIPTION DRUG LABEL\"/><title>NOETIGLU (FIXTURE) (noetiglutide) injection</title><effectiveTime value=\"20250415\"/><setId root=\"9a1f0c3e-0000-4000-8000-000000009001\"/><versionNumber value=\"8\"/><component><structuredBody><component><section ID=\"s-product\"><code code=\"48780-1\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"SPL PRODUCT DATA ELEMENTS SECTION\"/><subject><manufacturedProduct><manufacturedProduct><name>NOETIGLU (FIXTURE)</name><ingredient classCode=\"ACTIB\"><ingredientSubstance></ingredientSubstance></ingredient><activeIngredient><activeIngredientSubstance><name>NOETIGLUTIDE</name></activeIngredientSubstance></activeIngredient></manufacturedProduct><subjectOf><approval><id extension=\"NDA299001\" root=\"2.16.840.1.113883.3.150\"/></approval></subjectOf></manufacturedProduct></subject></section></component><component><section ID=\"s-boxed\"><code code=\"34066-1\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"BOXED WARNING SECTION\"/><title>WARNING: RISK OF PANCREATITIS</title><text><paragraph>Noetiglutide can cause acute pancreatitis (fixture text).</paragraph></text></section></component><component><section ID=\"s-ind\"><code code=\"34067-9\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"INDICATIONS &amp; USAGE SECTION\"/><title>1 INDICATIONS AND USAGE</title><text><paragraph>NOETIGLU is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus (fixture text).</paragraph></text></section></component><component><section ID=\"s-dose\"><code code=\"34068-7\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"DOSAGE &amp; ADMINISTRATION SECTION\"/><title>2 DOSAGE AND ADMINISTRATION</title><text><paragraph>Fixture dosing text that is never retained.</paragraph></text></section></component><component><section ID=\"s-contra\"><code code=\"34070-3\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"CONTRAINDICATIONS SECTION\"/><title>4 CONTRAINDICATIONS</title><text><paragraph>Serious hypersensitivity to noetiglutide (fixture text).</paragraph></text></section></component><component><section ID=\"s-warn\"><code code=\"43685-7\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"WARNINGS AND PRECAUTIONS SECTION\"/><title>5 WARNINGS AND PRECAUTIONS</title><text><paragraph>Pancreatitis: acute pancreatitis, including fatal cases, has been reported; discontinue promptly if pancreatitis is suspected (fixture text).</paragraph></text></section></component><component><section ID=\"s-studies\"><code code=\"34092-7\" codeSystem=\"2.16.840.1.113883.6.1\" displayName=\"CLINICAL STUDIES SECTION\"/><title>14 CLINICAL STUDIES</title><text><paragraph>Study NOETIC-1 (NCT09000001) enrolled adults with type 2 diabetes (fixture text).</paragraph></text></section></component></structuredBody></component></document>",
+   "request": "/dailymed/services/v2/spls/9a1f0c3e-0000-4000-8000-000000009001.xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; medicines, identifiers and texts are fictional placeholders. Not live evidence.",
+ "provider": "DailyMed web services v2",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

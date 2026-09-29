@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -501,6 +501,20 @@
                 "reference": {"type": "string", "minLength": 1}
               }, "additionalProperties": false},
               "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "medicines": {
+            "type": "object",
+            "description": "Bounded medicines-regulation selection for the medicines connector (#2214): namespace, provider and the pinned items (EMA product numbers with product-information and public-statement paths, DailyMed SPL set ids, or FDA Drug Safety Communication page paths).",
+            "required": ["namespace", "provider"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ema-epar", "dailymed", "fda-dsc"]},
+              "export_path": {"type": "string"},
+              "products": {"type": "array", "maxItems": 50, "items": {"type": "object", "required": ["product_number"], "properties": {"product_number": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}, "product_information_path": {"type": "string"}, "public_statement_path": {"type": "string"}}, "additionalProperties": false}},
+              "set_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}},
+              "communications": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^/drugs/drug-safety-and-availability/"}}
             },
             "additionalProperties": false
           },

@@ -200,6 +200,10 @@ For the project overview and local setup, start with the
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
   publications; [source audit](roadmaps/clinical-surveillance-source-audit.md)
+- [Clinical Evidence medicines guide](guides/clinical-medicines.md) — EMA EPARs, Drugs@FDA submissions, DailyMed SPL
+  versions and FDA Drug Safety Communications as authorisation, label-revision and safety-communication records with
+  RxNorm identity review, section diffs, as-of answers, cited timelines and monitors;
+  [source audit](roadmaps/clinical-medicines-source-audit.md)
 - [Products pack guide: safety notices and recalls](guides/products-pack.md#safety-notices-and-recalls) — EU Safety
   Gate alerts, CPSC and NHTSA recalls and RASFF notifications with every revision, verbatim hazard, affected
   identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,

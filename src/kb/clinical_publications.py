@@ -342,6 +342,119 @@ class PublicationLinker:
                     "evidence_kind": evidence_kind, "status": status, "created": bool(applied["created"])})
         return result
 
+    # ------------------------------------------------------------ medicines (#2214, MR09)
+
+    def link_medicines(self, namespace, *, principal_id, scopes, observation_id, document_ids=None):
+        """Link medicines-regulation records to what they explicitly cite, and to FAERS counts by reviewed identity.
+
+        A ``medicine-trial`` or ``medicine-publication`` link needs an identifier (NCT, EudraCT, EU CT, PMID, DOI)
+        in the regulator's own text (label section, EPAR, safety communication), stored with the citing text and
+        locator. A ``medicine-faers`` link needs an *accepted* RxNorm match on both sides that shares an ingredient
+        concept; the linked record stays labelled as FAERS reporting counts. Nothing is linked from a similar name
+        or a shared topic.
+        """
+        from src.kb.clinical_medicines import CONTRACT
+        from src.kb.clinical_records import COUNT_SEMANTICS, REGISTRY_FOR_IDENTIFIER
+
+        del principal_id
+        _require_write(namespace, scopes)
+        rows = [r for r in self.records.find(namespace, scopes=scopes, limit=10000)
+                if r["record"].get("contract") == CONTRACT]
+        docs = self._documents(set(document_ids) if document_ids is not None else None)
+        by_pmid = {d["ids"]["pmid"]: d for d in docs if d["ids"].get("pmid")}
+        by_doi = {str(d["ids"]["doi"]).lower(): d for d in docs if d["ids"].get("doi")}
+        result = {"observation_id": observation_id, "trials": [], "publications": [], "not_held": [], "faers": [],
+                  "faers_withheld": []}
+        cited: dict[tuple, dict[tuple, list]] = {}
+        for row in rows:
+            item = row["record"]
+            for reference in item.get("cited_references") or []:
+                cited.setdefault((item["provider"], item["native_id"]), {}).setdefault(
+                    (reference["kind"], reference["value"]), []).append(
+                    {"citing_text": reference["citing_text"], "locator": reference["locator"],
+                     "record_id": row["record_id"], "revision": row["revision"], "record_kind": row["record_kind"]})
+        for (provider, native_id), references in sorted(cited.items()):
+            source = {"provider": provider, "identifier": native_id}
+            for (kind, value), citations in sorted(references.items()):
+                evidence = {"citations": citations, "note": "identifier written in the regulator's own text"}
+                if kind in REGISTRY_FOR_IDENTIFIER:
+                    registry = REGISTRY_FOR_IDENTIFIER[kind]
+                    status = "accepted" if self.records.trial_id(namespace, registry, value) else "target-not-acquired"
+                    applied = self.records.add_link(namespace, {
+                        "link_kind": "medicine-trial", "from_record": source,
+                        "to": {"registry": registry, "identifier": value},
+                        "evidence_kind": "regulator-cited-reference", "evidence": evidence, "status": status},
+                        scopes=scopes, observation_id=observation_id)
+                    result["trials"].append({"link_id": applied["link_id"], "from": source, "trial": value,
+                                             "registry": registry, "status": status})
+                    continue
+                doc = by_pmid.get(value) if kind == "pmid" else by_doi.get(str(value).lower())
+                if doc is None:
+                    result["not_held"].append({"from": source, "kind": kind, "value": value,
+                                               "reason": "cited publication is not among harvested documents"})
+                    continue
+                target = {"document_id": doc["document_id"], "revision_id": doc["revision_id"],
+                          "identifiers": {k: v for k, v in doc["ids"].items() if v},
+                          "title": (doc.get("title") or "")[:500]}
+                applied = self.records.add_link(namespace, {
+                    "link_kind": "medicine-publication", "from_record": source, "to": target,
+                    "evidence_kind": "regulator-cited-reference", "evidence": evidence, "status": "accepted"},
+                    scopes=scopes, observation_id=observation_id)
+                result["publications"].append({"link_id": applied["link_id"], "from": source,
+                                               "document_id": doc["document_id"], "status": "accepted"})
+        self._link_faers(namespace, scopes, observation_id, result, COUNT_SEMANTICS)
+        return result
+
+    def _link_faers(self, namespace, scopes, observation_id, result, count_semantics):
+        from src.kb.clinical_terms import MedicineIdentity
+
+        identity = MedicineIdentity(self.conn, initialize=False)
+        matches = identity.matches(namespace, scopes=scopes)
+
+        def ingredients(match):
+            target = match["target"]
+            return ({target["rxcui"]} if target.get("tty") == "IN" else set()) | {
+                i["rxcui"] for i in target.get("ingredients") or []}
+
+        faers = [m for m in matches if m["subject"]["provider"] == "openfda"
+                 and str(m["subject"]["native_id"]).startswith("faers:")]
+        medicines = [m for m in matches if m not in faers and not m["subject_key"].startswith("fda-dsc:")]
+        pairs: dict[tuple, list] = {}
+        for faers_match in faers:
+            for match in medicines:
+                shared = sorted(ingredients(faers_match) & ingredients(match))
+                if shared:
+                    key = (match["subject"]["provider"], match["subject"]["native_id"],
+                           faers_match["subject"]["native_id"])
+                    pairs.setdefault(key, []).append((match, faers_match, shared))
+        for (provider, native_id, faers_id), candidates in sorted(pairs.items()):
+            source = {"provider": provider, "identifier": native_id}
+            accepted = [(m, f, s) for m, f, s in candidates if m["state"] == f["state"] == "accepted"]
+            existing = [link for link in self.records.links(namespace, provider=provider, identifier_value=native_id)
+                        if link["link_kind"] == "medicine-faers" and link["to"]["identifier"] == faers_id]
+            if not accepted and not existing:
+                result["faers_withheld"].append({
+                    "from": source, "faers": faers_id, "reason": "the substance identity is not accepted on both "
+                                                                 "sides; no link", "matches": [
+                        {"medicine_match": m["match_id"], "medicine_state": m["state"],
+                         "faers_match": f["match_id"], "faers_state": f["state"]} for m, f, _ in candidates]})
+                continue
+            used = accepted[0] if accepted else candidates[0]
+            evidence = {"medicine_match": used[0]["match_id"], "faers_match": used[1]["match_id"],
+                        "shared_ingredient_rxcuis": used[2], "rxnorm_release": used[0]["rxnorm_release"],
+                        "counts": "FAERS reporting counts as already acquired; not incidence, rate or causation",
+                        "count_semantics": count_semantics}
+            if not accepted:
+                evidence["withdrawn"] = "the substance identity is no longer accepted on both sides"
+            status = "accepted" if accepted else "rejected"
+            applied = self.records.add_link(namespace, {
+                "link_kind": "medicine-faers", "from_record": source, "to": {"registry": "openfda",
+                                                                              "identifier": faers_id},
+                "evidence_kind": "reviewed-substance-identity", "evidence": evidence, "status": status},
+                scopes=scopes, observation_id=observation_id)
+            result["faers"].append({"link_id": applied["link_id"], "from": source, "faers": faers_id,
+                                    "status": status})
+
     def _add_series(self, namespace, source, doc, evidence_kind, status, evidence, scopes, observation_id):
         target = {"document_id": doc["document_id"], "revision_id": doc["revision_id"],
                   "identifiers": {k: v for k, v in doc["ids"].items() if v}, "title": (doc.get("title") or "")[:500]}
