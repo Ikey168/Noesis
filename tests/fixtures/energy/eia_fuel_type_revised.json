@@ -1,0 +1,98 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "apiVersion": "2.1.8",
+    "request": {
+     "command": "/v2/electricity/rto/fuel-type-data/data/"
+    },
+    "response": {
+     "data": [
+      {
+       "fueltype": "SUN",
+       "period": "2026-09-24T00",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type-name": "Solar",
+       "value": "0",
+       "value-units": "megawatthours"
+      },
+      {
+       "fueltype": "NG",
+       "period": "2026-09-24T00",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type-name": "Natural Gas",
+       "value": "8120",
+       "value-units": "megawatthours"
+      },
+      {
+       "fueltype": "SUN",
+       "period": "2026-09-24T01",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type-name": "Solar",
+       "value": "0",
+       "value-units": "megawatthours"
+      },
+      {
+       "fueltype": "NG",
+       "period": "2026-09-24T01",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type-name": "Natural Gas",
+       "value": "7990",
+       "value-units": "megawatthours"
+      },
+      {
+       "fueltype": "SUN",
+       "period": "2026-09-24T02",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type-name": "Solar",
+       "value": "18",
+       "value-units": "megawatthours"
+      },
+      {
+       "fueltype": "NG",
+       "period": "2026-09-24T02",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type-name": "Natural Gas",
+       "value": "7875",
+       "value-units": "megawatthours"
+      }
+     ],
+     "dateFormat": "YYYY-MM-DD\"T\"HH24",
+     "description": "Hourly net generation by balancing authority and energy source.",
+     "frequency": "hourly",
+     "total": "6"
+    }
+   },
+   "body_sha256": "6419be9bd812a60db277a74c23d6e880564b7bd4a8dbd0d821f6c3f7e03531f4",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "data[0]": "value",
+    "end": "2026-09-24T02",
+    "facets[respondent][]": "CISO",
+    "frequency": "hourly",
+    "length": "500",
+    "offset": "0",
+    "sort[0][column]": "period",
+    "sort[0][direction]": "asc",
+    "start": "2026-09-24T00"
+   },
+   "status": 200,
+   "url": "https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "eia",
+ "retrieved_at": "2026-09-27T06:00:00Z",
+ "scenarios": [
+  "revision"
+ ]
+}

@@ -135,6 +135,12 @@ MATRIX = {
     "US or UK bill to cited legislative dossier":
         "tests/unit/domains/test_legislation_acceptance.py::"
         "test_us_and_uk_bills_to_cited_dossiers_with_stages_versions_votes_and_linked_disclosures",
+    # The Energy Systems bundle's offline journey (#2267) composes its own record owner, climate-environment (the
+    # reused ENTSO-E adapter), market price storage, geospatial place resolution, entity identity, subscriptions and
+    # the source-pack declarations.
+    "Zone or country to cited energy series":
+        "tests/unit/domains/test_energy_acceptance.py::"
+        "test_zone_and_country_to_cited_energy_series_with_vintages_identity_and_monitoring",
 }
 
 

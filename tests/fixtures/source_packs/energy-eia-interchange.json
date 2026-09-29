@@ -1,0 +1,93 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "apiVersion": "2.1.8",
+    "response": {
+     "data": [
+      {
+       "fromba": "CISO",
+       "fromba-name": "California Independent System Operator",
+       "period": "2026-09-24T00",
+       "toba": "BPAT",
+       "toba-name": "Bonneville Power Administration",
+       "value": "-1210",
+       "value-units": "megawatthours"
+      },
+      {
+       "fromba": "CISO",
+       "fromba-name": "California Independent System Operator",
+       "period": "2026-09-24T00",
+       "toba": "AZPS",
+       "toba-name": "Arizona Public Service Company",
+       "value": "455",
+       "value-units": "megawatthours"
+      },
+      {
+       "fromba": "CISO",
+       "fromba-name": "California Independent System Operator",
+       "period": "2026-09-24T01",
+       "toba": "BPAT",
+       "toba-name": "Bonneville Power Administration",
+       "value": "-1180",
+       "value-units": "megawatthours"
+      },
+      {
+       "fromba": "CISO",
+       "fromba-name": "California Independent System Operator",
+       "period": "2026-09-24T01",
+       "toba": "AZPS",
+       "toba-name": "Arizona Public Service Company",
+       "value": "470",
+       "value-units": "megawatthours"
+      },
+      {
+       "fromba": "CISO",
+       "fromba-name": "California Independent System Operator",
+       "period": "2026-09-24T02",
+       "toba": "BPAT",
+       "toba-name": "Bonneville Power Administration",
+       "value": "-1160",
+       "value-units": "megawatthours"
+      },
+      {
+       "fromba": "CISO",
+       "fromba-name": "California Independent System Operator",
+       "period": "2026-09-24T02",
+       "toba": "AZPS",
+       "toba-name": "Arizona Public Service Company",
+       "value": "468",
+       "value-units": "megawatthours"
+      }
+     ],
+     "frequency": "hourly",
+     "total": "6"
+    }
+   },
+   "body_sha256": "89effc98beeccafd494e32e6d63805fa49a3bc296b4dd36831925b8d1967840a",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "data[0]": "value",
+    "end": "2026-09-24T02",
+    "facets[fromba][]": "CISO",
+    "frequency": "hourly",
+    "length": "500",
+    "offset": "0",
+    "sort[0][column]": "period",
+    "sort[0][direction]": "asc",
+    "start": "2026-09-24T00"
+   },
+   "status": 200,
+   "url": "https://api.eia.gov/v2/electricity/rto/interchange-data/data/"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "eia",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "interchange"
+ ]
+}

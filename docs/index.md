@@ -242,6 +242,12 @@ For the project overview and local setup, start with the
   ISO 639-3 through reviewable identity, WALS typological profiles and monitors; CC BY-SA attribution travels
   with Wiktionary output, and no machine translation is presented as sourced;
   [source audit](development/linguistics-evidence/source-audit.md)
+- [Energy Systems guide](guides/energy-systems.md) — generation by fuel, load, day-ahead prices, installed
+  capacity (zone and plant/unit), cross-border flows and energy balances as published by ENTSO-E, US EIA, Ember,
+  Eurostat and Energy-Charts, each release a vintage with status and as-of time, reviewable zone/country/plant
+  identity, citation-only links to climate-environment and market, as-of answers with revision history and
+  monitors; no forecasting, dispatch modelling, emissions estimation or trading advice;
+  [source audit](roadmaps/energy-systems-source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

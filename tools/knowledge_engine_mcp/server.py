@@ -9367,6 +9367,9 @@ from tools.knowledge_engine_mcp.legislation import (
 )
 
 register_legislation_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.energy import register as register_energy_tools
+
+register_energy_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

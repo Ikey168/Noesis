@@ -321,6 +321,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
 # Political legislation: congress.gov, senate.gov, GovInfo and UK Parliament Bills/Votes/Hansard (#2208).
 NATIVE_CONNECTOR_MODULES["legislation"] = "src.ingestion.legislation_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"legislation"})
+# Energy Systems: ENTSO-E (via the environment adapter), EIA, Ember, Eurostat balances, Energy-Charts (#2211).
+NATIVE_CONNECTOR_MODULES["energy"] = "src.ingestion.energy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"energy"})
 
 
 def native_connector_module(connector: str) -> Any:

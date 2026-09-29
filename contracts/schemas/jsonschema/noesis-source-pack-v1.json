@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -457,6 +457,19 @@
                 "divisions": {"type": "array", "minItems": 1, "maxItems": 50},
                 "debates": {"type": "array", "minItems": 1, "maxItems": 50}
               }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "energy": {
+            "type": "object",
+            "description": "Energy Systems selection for the energy connector (#2211): the provider (ENTSO-E through the environment adapter, EIA, Ember, Eurostat balances through the SDMX connector, Energy-Charts public power), the namespace records belong to, the access decision and one explicit bounded selection compiled by src/ingestion/energy_sources.py plan().",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["entsoe", "eia", "ember", "eurostat", "energy-charts"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "access_decision": {"type": "string", "minLength": 1},
+              "live_verification": {"type": "string", "minLength": 1},
+              "selection": {"type": "object"}
             },
             "additionalProperties": false
           },

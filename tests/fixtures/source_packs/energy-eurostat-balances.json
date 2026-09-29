@@ -1,0 +1,27 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,nrg_bal,siec,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,GIC,TOTAL,KTOE,DE,2023,268312.4,\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,GIC,TOTAL,KTOE,DE,2024,259880.0,p\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,NRGSUP,TOTAL,KTOE,DE,2023,271004.9,\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,NRGSUP,TOTAL,KTOE,DE,2024,262410.3,p\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,GIC,TOTAL,KTOE,FR,2023,231550.8,\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,GIC,TOTAL,KTOE,FR,2024,229901.6,ep\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,NRGSUP,TOTAL,KTOE,FR,2023,234118.0,b\nESTAT:NRG_BAL_C(1.0),12/06/26 23:00:00,A,NRGSUP,TOTAL,KTOE,FR,2024,:,\n",
+   "body_sha256": "dc182079596ccdae9a954f62081325ffd794f6bc83c9ae5967cdecc376865b62",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "params": {
+    "endPeriod": "2024",
+    "format": "SDMX-CSV",
+    "startPeriod": "2023"
+   },
+   "status": 200,
+   "url": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_bal_c/A.GIC+NRGSUP.TOTAL.KTOE.DE+FR"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "eurostat",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "balance",
+  "flags",
+  "missing-value"
+ ]
+}

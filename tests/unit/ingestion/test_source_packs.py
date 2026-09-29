@@ -44,14 +44,16 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Linguistics pack's linguistics-lexical-typological pack (#2178),
     # plus the OSS Ecosystems pack (#2192),
     # plus the Chemicals and Substances pack (#2212),
-    # plus the Natural Hazards pack (#2207).
-    assert len(packs) == 25
+    # plus the Natural Hazards pack (#2207),
+    # plus the Energy Systems pack (#2211).
+    assert len(packs) == 26
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "astronomy",
         "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "energy",
         "engineering-safety",
         "geospatial",
         "legal",
@@ -95,8 +97,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212),
     # plus the Natural Hazards pack's six hazard sources (#2207),
     # plus the Economics trade features' Comtrade, Comext and WITS concordance sources (#2210),
-    # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208).
-    assert sum(len(pack["sources"]) for pack in packs) == 198
+    # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208),
+    # plus the Energy Systems pack's ten ENTSO-E, EIA, Ember, Eurostat and Energy-Charts selections (#2211).
+    assert sum(len(pack["sources"]) for pack in packs) == 208
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -362,6 +365,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "clinical",
         "corporate-ownership",
         "economic",
+        "energy",
         "engineering-safety",
         "geospatial",
         "legal",

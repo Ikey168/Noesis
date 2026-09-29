@@ -48,6 +48,7 @@ PROJECTOR_OWNERS = {
     "noesis-astronomy-record-v1": "src.kb.astronomy_store",
     "noesis-weather-record-v1": "src.kb.weather_store",
     "noesis-trade-flow-record-v1": "src.kb.trade_flows",
+    "noesis-energy-record-v1": "src.kb.energy_store",
     "noesis-housing-record-v1": "src.kb.housing",
     "noesis-surveillance-record-v1": "src.kb.surveillance",
     "noesis-substance-record-v1": "src.kb.substances_store",

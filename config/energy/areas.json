@@ -1,0 +1,22 @@
+{
+  "contract": "noesis-energy-area-codes-v1",
+  "note": "Declared code table for the Energy Systems pack's bounded coverage (docs/roadmaps/energy-systems-source-audit.md). It states which published codes denote the same country, and which bidding zones and balancing areas lie in which country. It is used to PROPOSE reviewable identity matches through geospatial place resolution; nothing here is applied without review, and codes outside the table are reported as unmatched.",
+  "countries": [
+    {"iso2": "DE", "iso3": "DEU", "eurostat": "DE", "energy_charts": "de", "place_name": "germany"},
+    {"iso2": "FR", "iso3": "FRA", "eurostat": "FR", "energy_charts": "fr", "place_name": "france"},
+    {"iso2": "PL", "iso3": "POL", "eurostat": "PL", "energy_charts": "pl", "place_name": "poland"},
+    {"iso2": "US", "iso3": "USA", "eurostat": null, "energy_charts": null, "place_name": "united states"}
+  ],
+  "bidding_zones": [
+    {"eic": "10Y1001A1001A82H", "name": "DE-LU", "countries": ["DE", "LU"], "source": "ENTSO-E EIC code list (verify)"},
+    {"eic": "10YFR-RTE------C", "name": "FR", "countries": ["FR"], "source": "ENTSO-E EIC code list (verify)"},
+    {"eic": "10YPL-AREA-----S", "name": "PL", "countries": ["PL"], "source": "ENTSO-E EIC code list (verify)"}
+  ],
+  "balancing_areas": [
+    {"code": "CISO", "name": "California Independent System Operator", "country": "US", "source": "EIA-930 balancing authority list (verify)"},
+    {"code": "ERCO", "name": "Electric Reliability Council of Texas, Inc.", "country": "US", "source": "EIA-930 balancing authority list (verify)"},
+    {"code": "PJM", "name": "PJM Interconnection, LLC", "country": "US", "source": "EIA-930 balancing authority list (verify)"},
+    {"code": "BPAT", "name": "Bonneville Power Administration", "country": "US", "source": "EIA-930 balancing authority list (verify)"},
+    {"code": "AZPS", "name": "Arizona Public Service Company", "country": "US", "source": "EIA-930 balancing authority list (verify)"}
+  ]
+}

@@ -1,0 +1,72 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "deprecated": false,
+    "production_types": [
+     {
+      "data": [
+       0.0,
+       0.0,
+       0.0,
+       0.0
+      ],
+      "name": "Solar"
+     },
+     {
+      "data": [
+       7910.4,
+       7988.1,
+       8050.2,
+       8102.9
+      ],
+      "name": "Wind onshore"
+     },
+     {
+      "data": [
+       44790.2,
+       44321.0,
+       43987.5,
+       43650.8
+      ],
+      "name": "Load"
+     },
+     {
+      "data": [
+       36879.8,
+       36332.9,
+       35937.3,
+       35547.9
+      ],
+      "name": "Residual load"
+     }
+    ],
+    "unix_seconds": [
+     1790208000,
+     1790208900,
+     1790209800,
+     1790210700
+    ]
+   },
+   "body_sha256": "a145912a0ba229cee32add95fba0b3ff0875f8252d428c3ac73c131760dc510d",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "country": "de",
+    "end": "2026-09-24T01:00Z",
+    "start": "2026-09-24T00:00Z"
+   },
+   "status": 200,
+   "url": "https://api.energy-charts.info/public_power"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "energy-charts",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "derived-from-entsoe",
+  "skipped-computed-series"
+ ]
+}
