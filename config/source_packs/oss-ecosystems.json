@@ -86,7 +86,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-pypi-json.json",
         "sha256": "ef718db418553d79a8272dbe4f2f9d800794cf55bd17dbad6b8a8950b71a6784",
-        "expected_output_hash": "b81bfd1b86edd207215cf30dcb2e6c79dff11e076af8f2a08253971485611e62"
+        "expected_output_hash": "9202fac235803169abda946a1113d1fe652c387ab403ef49a70651d04d9c6fda"
       }
     },
     {
@@ -135,7 +135,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-npm-registry.json",
         "sha256": "e1a42e53a9ec40b91c80431342b869d619d936b8789d6d37cf5ec407e88e6eeb",
-        "expected_output_hash": "dfa2e4b62e8fc43c579c02180e4c5c6d1531bad4aea5fa062825053a9a47f3cc"
+        "expected_output_hash": "8f722b80ac07d827a1852b46405b2c59fc2840ec982145138dacec30df4465a3"
       }
     },
     {
@@ -192,7 +192,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-crates-io.json",
         "sha256": "00ead617b7b5cc80378bcbd2925b40afc4ba7f8daa38091fdd16a751e7e0d70e",
-        "expected_output_hash": "504b1f55ab7be571828d475024f52286ba28c6d9920a2cf3a51cf654f794ff3c"
+        "expected_output_hash": "8c54f82d470a8c40f27f5d3c17362765fb0dac95d2f91772447a0e0bad384e39"
       }
     },
     {
@@ -251,7 +251,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-maven-central.json",
         "sha256": "6ffc02a7a217a7761ae24e629afbe7d028556ffd032c4b07a1b3e284a3572598",
-        "expected_output_hash": "558c0aab80c4b5725823834869f0c3179cc3bf9c86f69ee8892e38e3c6fdd4ac"
+        "expected_output_hash": "53c27ecd4bea05cddf73af712ced532a51a20c233b9cf48bf5b232086af761a5"
       }
     },
     {
@@ -302,7 +302,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-deps-dev-npm.json",
         "sha256": "b936af7603908c1fcf458ff92d5c7f856445f29eb8c2a375c8837afb259def93",
-        "expected_output_hash": "8507f2b57006d4c7314e5460929b13152969c93026be0f06126d358d31080b4c"
+        "expected_output_hash": "c5441a173dc1aa3d496a2dca15203d5ed11f7e1ffbfe36e71c262f816f72de62"
       }
     },
     {
@@ -346,7 +346,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-spdx-license-list.json",
         "sha256": "40c3ae2f638f4d2cec32b3c4f2c20bc7681d1e935e2c8293675782205749be0c",
-        "expected_output_hash": "7ad85cef9182469f203d06f0bc28a0a03dad6a1aa28ba296b98e11f2d2f77a0d"
+        "expected_output_hash": "abee4ffc826df3f6a860fb02be8f8d642d58a56bddc1586fe124c12c7e372fd2"
       }
     },
     {
@@ -394,7 +394,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/oss-software-heritage.json",
         "sha256": "38d11b207fa1266b0da2ad7e289d122688da22708ca9b56390f2494613e5fb81",
-        "expected_output_hash": "51aa0e5a0fc394664dc1e9b1c401f5611ff74d4731de609767c801dae51f6447"
+        "expected_output_hash": "43ae0e06bbbbc55ad5a5961990da8fa39d2133f1d39017647b0d671164a97a0e"
       }
     }
   ]

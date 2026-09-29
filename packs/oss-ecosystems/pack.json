@@ -42,7 +42,6 @@
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
     "reuses": [
-      "noesis-technical-model-v1",
       "noesis-temporal-v1",
       "noesis-entity-identity-decision-v1",
       "noesis-knowledge-subscription-v1",

@@ -245,6 +245,10 @@ def _statement_id(source_id: str, statement: Mapping[str, Any]) -> str:
         statement.get("version") or "",
         statement.get("detail") or "",
         statement.get("visit") or statement.get("snapshot_swhid") or "",
+        sorted({o.get("kind", "") for o in statement.get("organisations") or []}),
+        # A declaration repeated by several documents (a POM's <organization> per version) is one record per
+        # document, never two contents under one id.
+        statement.get("source_url") or "",
     ]
     return f"{source_id}:" + hashlib.sha256(canonical(key).encode()).hexdigest()[:24]
 
