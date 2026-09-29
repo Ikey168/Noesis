@@ -1,0 +1,12 @@
+{
+  "contract": "noesis-market-fx-commodity-analytics-v1",
+  "asset_class": "fx_commodity",
+  "formula_version": "noesis-market-specialized-v1",
+  "status": "complete",
+  "observations": [{"at_ms": 1, "asset_type": "commodity_future", "value": -37.0, "base": "CL", "quote": "USD", "contract_id": "CL:2020-05"}],
+  "continuous_series": [{"at_ms": 1, "value": -37.0, "synthetic": false}],
+  "tradable_pnl": [],
+  "source_revision_ids": ["fixture:commodity:1"],
+  "source_rights": {"status": "rights_unverified", "decisions": []},
+  "limitations": ["Fixture only."]
+}

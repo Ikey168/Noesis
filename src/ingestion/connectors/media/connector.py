@@ -143,6 +143,7 @@ class MediaConnector(Connector):
         frame_sampler: Optional[Any] = None,
         ocr: Optional[Any] = None,
         aligner: Optional[Any] = None,
+        asset_store: Optional[Any] = None,
     ) -> None:
         self._model_size = model_size
         self._language = language
@@ -153,6 +154,9 @@ class MediaConnector(Connector):
         self._frame_sampler = frame_sampler
         self._ocr = ocr
         self._aligner = aligner
+        # OX04 (#2044): when an ImageAssetStore is supplied, sampled keyframes
+        # are indexed as corpus image assets for perceptual-hash reuse checks.
+        self._asset_store = asset_store
 
     def discover(self, query: Optional[Any] = None) -> Iterable[SourceRef]:
         if query is None:
@@ -241,7 +245,7 @@ class MediaConnector(Connector):
             default_sampler, default_ocr = default_backends()
             sampler = sampler or default_sampler
             ocr = ocr or default_ocr
-        if sampler is None or ocr is None:
+        if sampler is None or (ocr is None and self._asset_store is None):
             return []  # missing binary: transcript-only, already warned
 
         try:
@@ -257,6 +261,15 @@ class MediaConnector(Connector):
             file_path=None if is_url else str(Path(locator).resolve()),
             title=title,
         )
+        media_ref = locator if is_url else f"file://{Path(locator).resolve()}"
+        if self._asset_store is not None:
+            from src.ingestion.connectors.media.keyframes import index_keyframe_assets
+
+            index_keyframe_assets(
+                self._asset_store, doc_id, frames, media_ref=media_ref, now_ms=ingested_at
+            )
+        if ocr is None:
+            return []  # frames indexed as assets; no OCR backend, so no text documents
         parent = Document(
             document_id=doc_id,
             source_type=self.source_type,
@@ -265,5 +278,4 @@ class MediaConnector(Connector):
             title=title,
             url=locator if is_url else None,
         )
-        media_ref = locator if is_url else f"file://{Path(locator).resolve()}"
         return keyframe_documents(parent, media_ref, doc_id, frames, ocr=ocr, ingested_at=ingested_at)

@@ -1,0 +1,26 @@
+{
+ "note": "Authored reviewer curations for the crosswalk fixtures.",
+ "curations": [
+  {
+   "source": "t2dm",
+   "target": "D003924",
+   "kind": "equivalent",
+   "reviewer": "fixture-reviewer",
+   "rationale": "T2DM is a common abbreviation of type 2 diabetes mellitus"
+  },
+  {
+   "source": "type 2 diabetes",
+   "target": "D003922",
+   "kind": "incompatible",
+   "reviewer": "fixture-reviewer",
+   "rationale": "type 1 and type 2 diabetes are distinct conditions"
+  },
+  {
+   "source": "type 2 diabetes",
+   "target": "D003922",
+   "kind": "related",
+   "reviewer": "fixture-automation",
+   "rationale": "shared token 'diabetes' (low-quality automated suggestion, blocked by the incompatible curation)"
+  }
+ ]
+}

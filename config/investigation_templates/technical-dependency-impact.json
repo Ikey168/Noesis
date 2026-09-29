@@ -1,0 +1,26 @@
+{
+  "name": "Technical Dependency Impact",
+  "description": "Assess a pinned project dependency inventory against acquired package, advisory and upstream-change evidence.",
+  "parameters": {
+    "project": "Project name or stable identity",
+    "inventory_date": "Date of the pinned package-lock.json or requirements.txt"
+  },
+  "questions": [
+    "Which dependencies in ${project} at ${inventory_date} match acquired affected ranges?",
+    "Which versions are unaffected under assessed ranges, and which remain unknown?"
+  ],
+  "success_criteria": [
+    "Retain the inventory hash and exact source revision for every cited finding",
+    "Keep proposed upgrades separate from executed dependency changes",
+    "Label missing advisories or source coverage as unknown"
+  ],
+  "scope": {"domains": ["technical"], "namespaces": []},
+  "source_packs": [{"pack_id": "technical-software-knowledge", "version": "1.0.0"}],
+  "report_outline": [
+    "Inventory and evidence snapshot for ${project} at ${inventory_date}",
+    "Affected dependencies and cited ranges",
+    "Unaffected under assessed ranges",
+    "Unknown impact and missing coverage",
+    "Review-only upstream change candidates"
+  ]
+}

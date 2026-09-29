@@ -1,0 +1,38 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-universe-membership-v1.json",
+  "title": "Noesis market universe membership v1",
+  "description": "An append-only membership decision for one security in a dated, versioned universe. Exclusions and corrections do not delete historical membership evidence.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "membership_id", "universe_id", "security_id", "membership_status", "valid_from_ms", "valid_to_ms", "revision_id", "revision", "source_refs", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-universe-membership-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "membership_id": {"type": "string", "minLength": 1},
+    "universe_id": {"type": "string", "minLength": 1},
+    "security_id": {"type": "string", "minLength": 1},
+    "membership_status": {"enum": ["included", "excluded"]},
+    "valid_from_ms": {"type": "integer", "minimum": 0},
+    "valid_to_ms": {"type": ["integer", "null"], "minimum": 0},
+    "revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/source_ref"}},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "source_ref": {
+      "type": "object",
+      "required": ["source_ref_id", "provider", "provider_object_id", "source_revision_id", "public_at_ms", "source_snapshot_id", "source_url", "retrieved_at_ms", "content_hash", "license_id", "entitlement_id"],
+      "properties": {
+        "source_ref_id": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}, "provider_object_id": {"type": "string", "minLength": 1},
+        "source_revision_id": {"type": ["string", "null"]}, "public_at_ms": {"type": ["integer", "null"], "minimum": 0}, "source_snapshot_id": {"type": ["string", "null"]}, "source_url": {"type": ["string", "null"], "format": "uri"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0}, "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license_id": {"type": "string", "minLength": 1}, "entitlement_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

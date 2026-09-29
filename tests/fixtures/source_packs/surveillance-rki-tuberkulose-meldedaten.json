@@ -1,0 +1,20 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "IdLandkreis,Altersgruppe,Meldedatum,Refdatum,IstErkrankungsbeginn,AnzahlFall\n09162,A15-A34,2098-12-28,2098-12-20,1,3\n09162,A15-A34,2099-01-05,2099-01-02,1,2\n09162,A15-A34,2099-01-12,2099-01-12,0,1\n09162,A35-A59,2098-12-29,2098-12-22,1,1\n09184,A15-A34,2099-01-06,2098-12-30,1,1\n09184,A15-A34,2099-01-14,2099-01-08,1,2\n",
+   "headers": {
+    "Content-Type": "text/plain"
+   },
+   "request": "/robert-koch-institut/Fiktive_Tuberkulose-Meldedaten/2099-01-20/Daten/Tuberkulose_Meldedaten.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; repository names, indicator codes, table codes and values are fictional. Not live evidence.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

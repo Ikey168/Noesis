@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" standalone=\"yes\"?>\n<sdnList xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xmlns=\"http://tempuri.org/sdnList.xsd\">\n  <publshInformation>\n    <Publish_Date>03/05/2026</Publish_Date>\n    <Record_Count>2</Record_Count>\n  </publshInformation>\n  <sdnEntry>\n    <uid>99001</uid>\n    <lastName>FICTIONAL STAR</lastName>\n    <sdnType>Vessel</sdnType>\n    <programList><program>FIXTURE-EO</program></programList>\n    <idList>\n      <id><uid>990011</uid><idType>Vessel Registration Identification</idType><idNumber>IMO 9999991</idNumber></id>\n    </idList>\n    <vesselInfo><callSign>ZZFS1</callSign><vesselType>Crude Oil Tanker</vesselType><vesselFlag>Fictionland</vesselFlag></vesselInfo>\n  </sdnEntry>\n  <sdnEntry>\n    <uid>99002</uid>\n    <lastName>EXAMPLAR FREIGHT LLC</lastName>\n    <sdnType>Entity</sdnType>\n    <programList><program>FIXTURE-EO</program></programList>\n    <idList>\n      <id><uid>990021</uid><idType>Registration Number</idType><idNumber>1027700000001</idNumber><idCountry>Russia</idCountry></id>\n    </idList>\n    <addressList><address><uid>990022</uid><city>Fictionville</city><country>Russia</country></address></addressList>\n  </sdnEntry>\n</sdnList>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/api/PublicationPreview/exports/SDN.XML",
+   "status": 200
+  }
+ ],
+ "note": "Authored list file in the documented ofac-sls format; every party is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

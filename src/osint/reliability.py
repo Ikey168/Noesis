@@ -17,6 +17,14 @@ The reliability figure is honesty-wrapped and always carries an interval whose
 width shrinks with the source's track-record size, so a thinly-evidenced
 source reads as uncertain rather than authoritative.
 
+OX01 (#2041): the card also carries a ``reliability_grade`` block, an
+Admiralty-style (NATO AJP-2.1) source-reliability letter A–F derived
+deterministically from the same three signals plus the track-record size. It is
+one of two *independent* axes: information credibility (1–6) is graded per
+claim by :func:`src.osint.corroboration.credibility_grade` and the two are never
+fused into one confidence. The thresholds ship in the output so the derivation
+is inspectable.
+
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -37,6 +45,78 @@ ASSUMPTIONS = [
     "correction history approximated by disputed fact-check verdicts on the source's claims",
     "origin lineage is reported separately and never collapsed into the reliability figure",
 ]
+
+
+# Admiralty source-reliability scale. The letter describes the *source*, never
+# the claim; information credibility is a separate 1–6 axis.
+RELIABILITY_LABELS = {
+    "A": "completely reliable",
+    "B": "usually reliable",
+    "C": "fairly reliable",
+    "D": "not usually reliable",
+    "E": "unreliable",
+    "F": "reliability cannot be judged",
+}
+# Minimum track record (documents or claims, whichever is larger) before any
+# letter other than F is given. A thin record is F, never a mid grade by default.
+MIN_TRACK_RECORD = 5
+# A needs a longer record than the other letters: "completely reliable" is a
+# claim about history, so a short record caps at B.
+MIN_TRACK_RECORD_FOR_A = 20
+# Lower bounds on the blended reliability score, checked top-down.
+GRADE_THRESHOLDS = (("A", 0.85), ("B", 0.70), ("C", 0.55), ("D", 0.40), ("E", 0.0))
+GRADE_METHOD = "admiralty-source-reliability-v1: threshold map over the blended reliability score"
+GRADE_ASSUMPTIONS = [
+    f"F (cannot be judged) whenever the track record is below {MIN_TRACK_RECORD} documents/claims",
+    f"A additionally requires a track record of at least {MIN_TRACK_RECORD_FOR_A}; shorter records cap at B",
+    "score is the mean of transparency composite, corroboration hit-rate and clean-record rate",
+    "grades the carrying source only; information credibility is a separate, independent axis",
+    "an explanation of existing signals, not a new inference",
+]
+
+
+def reliability_grade(
+    score: float, track_record_n: int, components: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Admiralty source-reliability letter (A–F) with its derivation shown.
+
+    Deterministic: *score* is the blended reliability figure the card already
+    reports; *track_record_n* is the evidence size behind it.
+    """
+    n = int(track_record_n)
+    inputs = {
+        "score": round(float(score), 3),
+        "transparency": components.get("transparency"),
+        "corroboration_hit_rate": components.get("corroboration_hit_rate"),
+        "clean_record_rate": components.get("clean_record_rate"),
+        "track_record_n": n,
+    }
+    if n < MIN_TRACK_RECORD:
+        grade = "F"
+        rule = f"track_record_n {n} < {MIN_TRACK_RECORD}: reliability cannot be judged"
+    else:
+        grade = next(letter for letter, lo in GRADE_THRESHOLDS if score >= lo)
+        rule = f"score {inputs['score']} >= {dict(GRADE_THRESHOLDS)[grade]}"
+        if grade == "A" and n < MIN_TRACK_RECORD_FOR_A:
+            grade = "B"
+            rule += f"; capped at B because track_record_n {n} < {MIN_TRACK_RECORD_FOR_A}"
+    return {
+        "axis": "source_reliability",
+        "scale": "A-F",
+        "grade": grade,
+        "label": RELIABILITY_LABELS[grade],
+        "derivation": {
+            "inputs": inputs,
+            "rule_applied": rule,
+            "thresholds": {letter: lo for letter, lo in GRADE_THRESHOLDS},
+            "min_track_record": MIN_TRACK_RECORD,
+            "min_track_record_for_a": MIN_TRACK_RECORD_FOR_A,
+        },
+        "n": n,
+        "method": GRADE_METHOD,
+        "assumptions": list(GRADE_ASSUMPTIONS),
+        "independent_of": "information_credibility",
+    }
 
 
 def _track_record(conn, source: str) -> Dict[str, Any]:
@@ -169,4 +249,7 @@ def source_reliability(conn, source: str) -> Dict[str, Any]:
         corrections={"disputed_claims": claims["disputed"]},
         lineage=lineage,
         scored_as_outlet=transparency is not None,
+        reliability_grade=reliability_grade(
+            composite, max(track["documents"], total_claims), components
+        ),
     )

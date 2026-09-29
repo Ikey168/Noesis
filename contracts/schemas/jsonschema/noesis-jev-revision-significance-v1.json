@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-revision-significance-v1.json",
+  "title": "Version-bound revision significance suggestion",
+  "type": "object",
+  "required": ["contract", "status", "document_id", "before_revision_id", "after_revision_id", "coverage", "accepted", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-revision-significance-v1"},
+    "status": {"enum": ["unchanged", "suggested", "pending"]},
+    "document_id": {"type": "string", "minLength": 1},
+    "before_revision_id": {"type": "string", "minLength": 1},
+    "after_revision_id": {"type": "string", "minLength": 1},
+    "semantic_score": {"type": ["integer", "null"], "minimum": 0, "maximum": 3},
+    "suggested_category": {"type": ["string", "null"]},
+    "classification_authoritative": {"type": "string"},
+    "coverage": {"type": "object"},
+    "source_binding": {"type": "array", "items": {"type": "object"}},
+    "accepted": {"const": false},
+    "decision_run": {"type": ["object", "null"]}
+  },
+  "additionalProperties": true
+}

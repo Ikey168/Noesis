@@ -73,6 +73,14 @@ def _compile_enricher(desc: Dict[str, Any]) -> Enricher:
     raise PackInstallError(f"unknown enricher kind {kind!r}")
 
 
+def _require_legacy_authority(name: str, action: str) -> None:
+    """Composition-managed bundles are installed by the lifecycle coordinator (C05.5)."""
+    if domain_registry._managed(name):
+        raise PackInstallError(
+            f"pack {name!r} is composition-managed; {action} it through the composition lifecycle coordinator"
+        )
+
+
 def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
     """Install an in-memory manifest's capabilities into the running instance.
     Reinstalling the same pack replaces its prior registration.
@@ -81,6 +89,7 @@ def install_manifest(manifest: PackManifest) -> Dict[str, Any]:
     registered anywhere: the generative UI they fed has been retired, so they
     are advisory metadata now. The pack's enrichers, ui_flags and provisioning
     templates install as before."""
+    _require_legacy_authority(manifest.name, "install")
     if manifest.name in _INSTALLED:
         uninstall(manifest.name)
 
@@ -180,6 +189,7 @@ def deploy_template(conn, name: str, provisioner: Any = None, approve: bool = Tr
 def uninstall(name: str) -> bool:
     """Remove an installed pack's runtime registrations. Returns True if the pack
     was installed."""
+    _require_legacy_authority(name, "uninstall")
     info = _INSTALLED.pop(name, None)
     if info is None:
         return False

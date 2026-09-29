@@ -1,0 +1,187 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-transit-feed-v1.json",
+  "title": "Noesis transit feed record v1",
+  "description": "One GTFS acquisition: a Schedule version (ZIP hash + feed_info, pinned routes only) or one GTFS Realtime FeedMessage observation (header timestamp, trip updates, alerts). Schedules are published plans, not evidence of operations.",
+  "type": "object",
+  "required": [
+    "contract",
+    "kind",
+    "feed"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-transit-feed-v1"
+    },
+    "kind": {
+      "enum": [
+        "schedule",
+        "realtime"
+      ]
+    },
+    "feed": {
+      "type": "string",
+      "minLength": 1
+    },
+    "feed_version": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "agencies": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "agency_timezone"
+        ]
+      }
+    },
+    "routes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "route_id"
+        ]
+      }
+    },
+    "trips": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "trip_id",
+          "route_id",
+          "service_id"
+        ]
+      }
+    },
+    "stop_times": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "trip_id",
+          "stop_id",
+          "stop_sequence"
+        ]
+      }
+    },
+    "stops": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "stop_id"
+        ]
+      }
+    },
+    "calendar": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "calendar_dates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "service_id",
+          "date",
+          "exception_type"
+        ]
+      }
+    },
+    "shapes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "shape_id",
+          "shape_pt_lat",
+          "shape_pt_lon",
+          "shape_pt_sequence"
+        ]
+      }
+    },
+    "feed_info": {
+      "type": "object"
+    },
+    "missing_routes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "stop_times_truncated": {
+      "type": "boolean"
+    },
+    "shapes_truncated": {
+      "type": "boolean"
+    },
+    "header_timestamp": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "trip_updates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "trip"
+        ]
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object"
+      }
+    },
+    "raw_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "schedule"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "feed_version",
+          "agencies",
+          "routes",
+          "trips",
+          "stop_times",
+          "stops",
+          "missing_routes",
+          "stop_times_truncated"
+        ]
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "realtime"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "header_timestamp",
+          "trip_updates",
+          "alerts",
+          "raw_sha256"
+        ]
+      }
+    }
+  ]
+}

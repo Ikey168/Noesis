@@ -1,0 +1,26 @@
+<?xml version="1.0" ?>
+<PubmedArticleSet>
+<PubmedArticle><MedlineCitation Status="MEDLINE" Owner="NLM"><PMID Version="1">99000001</PMID>
+<Article><ArticleTitle>Noetiglutide versus placebo in type 2 diabetes (NOETIC-1): a randomised trial.</ArticleTitle>
+<Abstract><AbstractText Label="BACKGROUND">Noetiglutide is a fictional GLP-1 receptor agonist used in this fixture.</AbstractText>
+<AbstractText Label="METHODS">Adults with type 2 diabetes were randomised to noetiglutide or placebo. The primary outcome was change in HbA1c from baseline to week 26.</AbstractText>
+<AbstractText Label="RESULTS">Authored fixture text; no real results are reported.</AbstractText></Abstract>
+<DataBankList CompleteYN="Y"><DataBank><DataBankName>ClinicalTrials.gov</DataBankName><AccessionNumberList><AccessionNumber>NCT09000001</AccessionNumber></AccessionNumberList></DataBank>
+<DataBank><DataBankName>EudraCT</DataBankName><AccessionNumberList><AccessionNumber>2015-900001-10</AccessionNumber></AccessionNumberList></DataBank></DataBankList>
+<PublicationTypeList><PublicationType UI="D016428">Journal Article</PublicationType><PublicationType UI="D016449">Randomized Controlled Trial</PublicationType></PublicationTypeList>
+</Article></MedlineCitation>
+<PubmedData><ArticleIdList><ArticleId IdType="pubmed">99000001</ArticleId><ArticleId IdType="doi">10.5555/noetic1.2019</ArticleId></ArticleIdList></PubmedData></PubmedArticle>
+<PubmedArticle><MedlineCitation Status="MEDLINE" Owner="NLM"><PMID Version="1">99000002</PMID>
+<Article><ArticleTitle>Noetiglutide dose finding in type 2 diabetes (NOETIC-2).</ArticleTitle>
+<Abstract><AbstractText>Open-label phase 2 study (fixture). The primary end point was change in HbA1c at week 12.</AbstractText></Abstract>
+<DataBankList CompleteYN="Y"><DataBank><DataBankName>ClinicalTrials.gov</DataBankName><AccessionNumberList><AccessionNumber>NCT09000002</AccessionNumber></AccessionNumberList></DataBank></DataBankList>
+<PublicationTypeList><PublicationType UI="D016428">Journal Article</PublicationType><PublicationType UI="D017427">Clinical Trial, Phase II</PublicationType></PublicationTypeList>
+</Article></MedlineCitation>
+<PubmedData><ArticleIdList><ArticleId IdType="pubmed">99000002</ArticleId><ArticleId IdType="doi">10.5555/noetic2.2021</ArticleId></ArticleIdList></PubmedData></PubmedArticle>
+<PubmedArticle><MedlineCitation Status="MEDLINE" Owner="NLM"><PMID Version="1">99000003</PMID>
+<Article><ArticleTitle>A randomised trial of noetiglutide in adolescents with type 2 diabetes.</ArticleTitle>
+<Abstract><AbstractText>Authored fixture. No trial registration number is reported in this record.</AbstractText></Abstract>
+<PublicationTypeList><PublicationType UI="D016428">Journal Article</PublicationType><PublicationType UI="D016449">Randomized Controlled Trial</PublicationType></PublicationTypeList>
+</Article></MedlineCitation>
+<PubmedData><ArticleIdList><ArticleId IdType="pubmed">99000003</ArticleId><ArticleId IdType="doi">10.5555/adolescent.2024</ArticleId></ArticleIdList></PubmedData></PubmedArticle>
+</PubmedArticleSet>

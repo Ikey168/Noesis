@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.4.0",
+  "id": "GHSA-f1x7-cccc-dddd",
+  "modified": "2099-02-01T00:00:00Z",
+  "published": "2099-01-20T00:00:00Z",
+  "withdrawn": "2099-02-01T00:00:00Z",
+  "aliases": [
+    "CVE-2099-0002"
+  ],
+  "summary": "Authored fixture: withdrawn advisory for fixture-parser",
+  "details": "Withdrawn: authored fixture, the maintainer disputed the report.",
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "fixture-parser"
+      },
+      "ranges": [
+        {
+          "type": "ECOSYSTEM",
+          "events": [
+            {
+              "introduced": "0"
+            },
+            {
+              "fixed": "1.1.0"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "references": [],
+  "database_specific": {
+    "cwe_ids": [
+      "CWE-20"
+    ],
+    "severity": "LOW"
+  }
+}

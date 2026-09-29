@@ -43,6 +43,10 @@ class CreateKeyRequest(BaseModel):
     name: str = Field(..., min_length=1, max_length=100)
     role: str = Field("viewer", pattern="^(admin|editor|viewer)$")
     expires_in_days: Optional[int] = Field(365, ge=1, le=3650)
+    permissions: List[str] = Field(
+        default_factory=list,
+        description="e.g. kb:read:<domain>, kb:read:*, documents:ingest[:<source_type>]",
+    )
 
 
 class KeyResponse(BaseModel):
@@ -55,6 +59,7 @@ class KeyResponse(BaseModel):
     expires_at: Optional[Any]
     last_used_at: Optional[Any]
     usage_count: int
+    permissions: List[str] = Field(default_factory=list)
 
 
 class CreateKeyResponse(KeyResponse):
@@ -80,7 +85,8 @@ async def create_api_key(
     _admin: dict = Depends(_require_admin),
 ) -> Dict[str, Any]:
     from src.api.auth.local_api_keys import create_api_key as _create
-    result = _create(name=body.name, role=body.role, expires_in_days=body.expires_in_days)
+    result = _create(name=body.name, role=body.role, expires_in_days=body.expires_in_days,
+                     permissions=body.permissions)
     # Retrieve the stored record to fill remaining fields
     from src.api.auth.local_api_keys import get_api_key
     record = get_api_key(result["key_id"]) or {}

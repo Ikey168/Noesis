@@ -22,6 +22,7 @@ python tools/statistics_mcp/server.py     # one server, stdio transport
 | `noesis-kg` | `tools/kg_mcp` | Knowledge-graph entities, relations, communities, centrality |
 | `noesis-kb` | `tools/kb_mcp` | Unified KB contract, briefs, diffs, claims, evidence, and integrity verification |
 | `noesis-osint` | `tools/osint_mcp` | Corroboration, reliability, contradiction ledger, dossiers, paths, timelines, image provenance/reuse |
+| `noesis-onchain` | `tools/onchain_mcp` | Read-only On-chain Observations: cited address observations, contract origin and probable address clusters (no attribution) |
 | `noesis-statistics` | `tools/statistics_mcp` | Statistical series, claim-vs-data checks, the data-check ledger |
 | `noesis-research` | `tools/research_mcp` | Venues, citation graph, literature claims |
 | `noesis-provisioning` | `tools/provisioning_mcp` | Deploy/attach/ingest/teardown namespaced knowledge graphs |
@@ -106,6 +107,33 @@ python tools/statistics_mcp/server.py
   fastmcp offers no supported token verifier, the server **refuses to start**
   rather than silently serving unauthenticated. Unset means open — intended
   only for the localhost default.
+
+For caller-scoped Information Intake sessions on `noesis-knowledge-engine`,
+set `NOESIS_MCP_AUTH_TOKENS_FILE` instead of the shared token. The file is a
+private (mode `0600`) JSON object whose keys are 32-character-or-longer bearer
+tokens and whose values contain a unique `client_id` and a nonempty `scopes`
+list. For example, an intake writer needs `knowledge:intake:write` and
+`namespace:research:write`; reads need the corresponding read scopes. The
+[intake mode guide](../subsystems/intake-modes.md) describes the session
+contract and remaining integration limits. Do not configure both token env
+variables.
+
+Modulo's Information Intake connector uses the **Knowledge Engine** MCP server.
+Launch that server with its own private caller map and warehouse path:
+
+```bash
+NOESIS_DB_PATH=/path/to/warehouse.duckdb \
+NOESIS_MCP_TRANSPORT=http \
+NOESIS_MCP_HTTP_HOST=127.0.0.1 \
+NOESIS_MCP_HTTP_PORT=8129 \
+NOESIS_MCP_AUTH_TOKENS_FILE=/path/to/private-callers.json \
+python tools/knowledge_engine_mcp/server.py
+```
+
+Point Modulo's `NOESIS_INTAKE_MCP_URL` at `http://127.0.0.1:8129/mcp` when both
+services share the host, and give its server-only credentials file the matching
+per-user bearer tokens. The `noesis serve --surface kb-mcp` command starts the
+separate `noesis-kb-v1` MCP server; it does not expose the intake tools.
 
 An HTTP client entry then looks like:
 

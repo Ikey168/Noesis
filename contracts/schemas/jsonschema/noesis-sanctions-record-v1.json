@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-sanctions-record-v1",
+  "title": "Legal sanctions record: snapshot, designation, listing revision, programme, legal basis, identifier alias, delisting or control-list entry",
+  "description": "Every record carries the list (or control list) it came from and its source revision (a list snapshot or an annex edition), with acquisition time kept apart from the dates the source reports. Lists are never merged: identity is per list and a cross-list match is a reviewable identity decision, not a record. No record carries a screening result, risk score or compliance status.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "list_id": {"enum": ["eu", "un", "ofac", "uk"]},
+    "source_revision": {"type": "object", "properties": {
+      "snapshot_id": {"type": "string"}, "file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+      "publication_date": {"$ref": "#/definitions/day"}, "version_id": {"type": "string"},
+      "edition": {"type": ["string", "null"]}}}
+  },
+  "properties": {
+    "contract": {"const": "noesis-sanctions-record-v1"},
+    "record_type": {"enum": ["snapshot", "designation", "listing_revision", "programme", "legal_basis",
+                             "identifier_alias", "delisting", "control_list_entry"]},
+    "list_id": {"$ref": "#/definitions/list_id"},
+    "source_revision": {"$ref": "#/definitions/source_revision"},
+    "acquired_at_ms": {"type": "integer"},
+    "publication_date": {"$ref": "#/definitions/day"},
+    "file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "designation_id": {"type": "string"},
+    "list_entry_id": {"type": "string", "minLength": 1},
+    "party_kind": {"enum": ["person", "entity", "vessel", "aircraft", "unknown"]},
+    "record_key": {"type": "string", "pattern": "^sanctions:(eu|un|ofac|uk):"},
+    "revision_id": {"type": "string"},
+    "revision_no": {"type": "integer", "minimum": 1},
+    "change": {"enum": ["listed", "amended", "relisted", "delisted"]},
+    "compared_snapshots": {"type": "array", "items": {"$ref": "#/definitions/source_revision"}, "maxItems": 2},
+    "source_dates": {"type": "object", "properties": {
+      "listed_on": {"$ref": "#/definitions/day"}, "amended_on": {"$ref": "#/definitions/day"},
+      "delisted_on": {"$ref": "#/definitions/day"}, "publication_date": {"$ref": "#/definitions/day"},
+      "entry_into_force": {"$ref": "#/definitions/day"}}},
+    "statement": {"type": ["object", "null"]},
+    "status": {"enum": ["resolved", "unresolved"]},
+    "source_citation": {"type": ["string", "null"]},
+    "work_id": {"type": ["string", "null"]},
+    "expression_id": {"type": ["string", "null"]},
+    "alias_kind": {"type": "string"},
+    "assertion": {"const": "stated by the list at this revision"},
+    "control_list": {"type": "string"},
+    "control_code": {"type": "string", "pattern": "^\\d[A-E]\\d{3}$"},
+    "version_id": {"type": "string"},
+    "locator": {"type": "object"},
+    "text": {"type": "string"}
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"enum": ["listing_revision", "delisting"]}}},
+     "then": {"required": ["list_id", "designation_id", "revision_id", "change", "source_revision", "acquired_at_ms",
+                           "source_dates"]}},
+    {"if": {"properties": {"record_type": {"const": "designation"}}},
+     "then": {"required": ["list_id", "list_entry_id", "party_kind", "record_key", "first_snapshot_id"]}},
+    {"if": {"properties": {"record_type": {"const": "legal_basis"}}},
+     "then": {"required": ["list_id", "status", "source_citation"]}},
+    {"if": {"properties": {"record_type": {"const": "control_list_entry"}}},
+     "then": {"required": ["control_list", "control_code", "version_id", "locator", "text", "source_revision"]}}
+  ],
+  "not": {"anyOf": [{"required": ["screening_result"]}, {"required": ["risk_score"]},
+                    {"required": ["compliance_status"]}, {"required": ["verdict"]}]}
+}

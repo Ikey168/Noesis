@@ -1,0 +1,57 @@
+{
+ "authored": true,
+ "provider": "OEIS (search?q=id:...&fmt=json)",
+ "note": "Authored in the OEIS JSON entry shape because oeis.org was unreachable from the build environment. Terms are the true initial terms of A000045 and A003714; revision numbers, times and the DOI/zbMATH link targets are placeholders.",
+ "scenarios": [
+  "sequence-terms",
+  "reference-with-identifier",
+  "zbmath-link",
+  "term-subsequence-search"
+ ],
+ "native_pages": [
+  {
+   "request": "/search?q=id:A000045&fmt=json",
+   "status": 200,
+   "body": [
+    {
+     "number": 45,
+     "data": "0,1,1,2,3,5,8,13,21,34,55,89,144,233,377,610,987,1597,2584,4181,6765,10946,17711,28657,46368,75025,121393,196418,317811,514229,832040,1346269,2178309,3524578,5702887,9227465,14930352,24157817,39088169,63245986,102334155",
+     "name": "Fibonacci numbers: F(n) = F(n-1) + F(n-2) with F(0) = 0 and F(1) = 1.",
+     "reference": [
+      "E. Zeckendorf, Représentation des nombres naturels par une somme de nombres de Fibonacci ou de nombres de Lucas, Bull. Soc. Roy. Sci. Liège 41 (1972), 179-182."
+     ],
+     "link": [
+      "E. Zeckendorf, <a href=\"https://doi.org/10.5555/zeckendorf-1972\">Représentation des nombres naturels</a> (placeholder DOI in this fixture)"
+     ],
+     "formula": [
+      "a(n) = a(n-1) + a(n-2)"
+     ],
+     "keyword": "core,nonn,nice,easy",
+     "revision": 1000,
+     "time": "2026-09-01T00:00:00-04:00",
+     "created": "1991-04-30T03:00:00-04:00"
+    }
+   ]
+  },
+  {
+   "request": "/search?q=id:A003714&fmt=json",
+   "status": 200,
+   "body": [
+    {
+     "number": 3714,
+     "data": "0,1,2,4,5,8,9,10,16,17,18,20,21,32,33,34,36,37,40,41,42,64,65,66,68,69,72,73,74,80,81,82,84,85",
+     "name": "Fibbinary numbers: if n = F(i1) + F(i2) + ... + F(ik) is the Zeckendorf representation of n then a(n) = 2^(i1 - 2) + 2^(i2 - 2) + ... + 2^(ik - 2).",
+     "reference": [],
+     "link": [
+      "<a href=\"https://zbmath.org/?q=an:9000002\">A formal proof of unique Zeckendorf representation</a> (placeholder zbMATH id in this fixture)"
+     ],
+     "formula": [],
+     "keyword": "nonn,base,easy",
+     "revision": 1000,
+     "time": "2026-09-01T00:00:00-04:00",
+     "created": "1991-04-30T03:00:00-04:00"
+    }
+   ]
+  }
+ ]
+}

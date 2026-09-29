@@ -86,8 +86,9 @@ class DecisionAlertStore(DecisionStore):
                 ns = dep['namespace']
                 if condition['kind']=='assumption' and condition['assumption'] not in decision['content']['assumptions']:
                     raise DecisionError('invalid_conditions', 'assumption must be declared in the pinned decision')
-            if ns not in {baseline['namespace'], *baseline['scope']['namespaces']}:
-                raise DecisionError('scope_mismatch', 'condition is outside the pinned project scope')
+            allowed = {baseline['namespace'], *baseline['scope']['namespaces']} if baseline else {decision['namespace']}
+            if ns not in allowed:
+                raise DecisionError('scope_mismatch', 'condition is outside the decision scope')
         definition = {'decision_id': decision_id, 'decision_revision': expected_revision, 'namespace': namespace,
             'owner': principal_id, 'conditions': conditions, 'created_at_ms': self.now()}
         identity = 'decision-watch:'+_hash({k:v for k,v in definition.items() if k!='created_at_ms'})[:32]

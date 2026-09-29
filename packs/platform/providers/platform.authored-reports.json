@@ -1,0 +1,79 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.authored-reports",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.authored_reports",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.authored-reports",
+      "contract": {
+        "name": "noesis-authored-report",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-report",
+        "inspect-report"
+      ],
+      "semantic_constraints": {
+        "citations": "pinned document revisions"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "create-report",
+      "tool": "noesis-knowledge-engine.create_authored_report",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "reports",
+      "required_scopes": [
+        "knowledge:reports:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-report",
+      "tool": "noesis-knowledge-engine.inspect_authored_report",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "reports",
+      "required_scopes": [
+        "knowledge:reports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "authored-report",
+      "store": "src.kb.authored_reports",
+      "tables": [
+        "authored_reports",
+        "authored_report_revisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "reports",
+      "kind": "table-exists",
+      "target": "authored_reports"
+    }
+  ]
+}

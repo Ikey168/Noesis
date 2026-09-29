@@ -1,0 +1,47 @@
+{
+ "authored": true,
+ "note": "Authored offline fixture (not a live capture). The intervention noetiglutide, its sponsor and every identifier are fictional placeholders; shapes follow the provider's public response format. See tests/fixtures/clinical/README.md.",
+ "provider": "EMA medicines data export (JSON)",
+ "scenarios": [
+  "authorisation-status",
+  "revision-number",
+  "therapeutic-area-mesh-text"
+ ],
+ "native_pages": [
+  {
+   "request": "/en/documents/report/medicines-output-medicines_json-report_en.json",
+   "status": 200,
+   "body": {
+    "data": [
+     {
+      "category": "Human",
+      "name_of_medicine": "Noetiglu (fixture)",
+      "ema_product_number": "EMEA/H/C/009001",
+      "medicine_status": "Authorised",
+      "inn_common_name": "noetiglutide",
+      "active_substance": "noetiglutide",
+      "therapeutic_area_mesh": "Diabetes Mellitus, Type 2",
+      "pharmacotherapeutic_group_human": "Drugs used in diabetes",
+      "marketing_authorisation_developer_applicant_holder": "Fixture Therapeutics GmbH",
+      "marketing_authorisation_date": "2020-02-10",
+      "revision_number": "4",
+      "last_updated_date": "2026-06-01",
+      "medicine_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/noetiglu-fixture"
+     },
+     {
+      "category": "Human",
+      "name_of_medicine": "Unrelated medicine (fixture)",
+      "ema_product_number": "EMEA/H/C/009002",
+      "medicine_status": "Withdrawn",
+      "inn_common_name": "fixturamab",
+      "active_substance": "fixturamab",
+      "therapeutic_area_mesh": "Arthritis, Rheumatoid",
+      "revision_number": "2",
+      "last_updated_date": "2025-01-01",
+      "medicine_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/fixturamab"
+     }
+    ]
+   }
+  }
+ ]
+}

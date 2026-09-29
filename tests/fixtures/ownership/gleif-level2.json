@@ -1,0 +1,470 @@
+{
+ "authored": true,
+ "provider": "GLEIF API v1 (JSON:API)",
+ "note": "Authored JSON:API envelopes for fictional LEIs with valid ISO 17442 check digits; shapes follow the GLEIF API v1 lei-records, relationship and reporting-exception responses. Unlisted paths replay as HTTP 404 (none reported).",
+ "scenarios": [
+  "direct-and-ultimate-parent",
+  "reporting-exception-no-known-person",
+  "lapsed-lei-with-successor",
+  "registration-authority-pointer",
+  "none-reported"
+ ],
+ "leis": {
+  "holdings": "213800EXAMPLAHOLDS95",
+  "uk": "213800EXAMPLAUKLTD71",
+  "trading": "213800EXAMPLATRADE88",
+  "intermediate": "724500EXAMPLAINTBV75"
+ },
+ "native_pages": [
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLAHOLDS95",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "213800EXAMPLAHOLDS95",
+     "attributes": {
+      "lei": "213800EXAMPLAHOLDS95",
+      "entity": {
+       "legalName": {
+        "name": "Exampla Holdings plc",
+        "language": "en"
+       },
+       "otherNames": [],
+       "legalAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "London",
+        "postalCode": "EC1A 1AA",
+        "country": "GB"
+       },
+       "headquartersAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "London",
+        "postalCode": "EC1A 1AA",
+        "country": "GB"
+       },
+       "registeredAt": {
+        "id": "RA000585",
+        "other": null
+       },
+       "registeredAs": "09990001",
+       "jurisdiction": "GB",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "H0PO",
+        "other": null
+       },
+       "status": "ACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": null,
+        "name": null
+       },
+       "creationDate": null
+      },
+      "registration": {
+       "initialRegistrationDate": "2014-01-01T00:00:00Z",
+       "lastUpdateDate": "2026-05-01T00:00:00Z",
+       "status": "ISSUED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "213800WAVVOPS85N2205",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLAHOLDS95/direct-parent-reporting-exception",
+   "body": {
+    "data": {
+     "type": "reporting-exceptions",
+     "attributes": {
+      "lei": "213800EXAMPLAHOLDS95",
+      "category": "DIRECT_ACCOUNTING_CONSOLIDATION_PARENT",
+      "reason": "NO_KNOWN_PERSON",
+      "reference": null
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLAHOLDS95/ultimate-parent-reporting-exception",
+   "body": {
+    "data": {
+     "type": "reporting-exceptions",
+     "attributes": {
+      "lei": "213800EXAMPLAHOLDS95",
+      "category": "ULTIMATE_ACCOUNTING_CONSOLIDATION_PARENT",
+      "reason": "NO_KNOWN_PERSON",
+      "reference": null
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLAUKLTD71",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "213800EXAMPLAUKLTD71",
+     "attributes": {
+      "lei": "213800EXAMPLAUKLTD71",
+      "entity": {
+       "legalName": {
+        "name": "Exampla UK Limited",
+        "language": "en"
+       },
+       "otherNames": [
+        {
+         "name": "Exampla Services Limited",
+         "language": "en",
+         "type": "PREVIOUS_LEGAL_NAME"
+        }
+       ],
+       "legalAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "London",
+        "postalCode": "EC1A 1AA",
+        "country": "GB"
+       },
+       "headquartersAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "London",
+        "postalCode": "EC1A 1AA",
+        "country": "GB"
+       },
+       "registeredAt": {
+        "id": "RA000585",
+        "other": null
+       },
+       "registeredAs": "09990002",
+       "jurisdiction": "GB",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "H0PO",
+        "other": null
+       },
+       "status": "ACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": null,
+        "name": null
+       },
+       "creationDate": null
+      },
+      "registration": {
+       "initialRegistrationDate": "2014-01-01T00:00:00Z",
+       "lastUpdateDate": "2026-05-01T00:00:00Z",
+       "status": "ISSUED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "213800WAVVOPS85N2205",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLAUKLTD71/direct-parent-relationship",
+   "body": {
+    "data": {
+     "type": "relationship-records",
+     "attributes": {
+      "relationship": {
+       "startNode": {
+        "id": "213800EXAMPLAUKLTD71",
+        "type": "LEI"
+       },
+       "endNode": {
+        "id": "213800EXAMPLAHOLDS95",
+        "type": "LEI"
+       },
+       "type": "IS_DIRECTLY_CONSOLIDATED_BY",
+       "status": "ACTIVE",
+       "periods": [
+        {
+         "startDate": "2016-04-06T00:00:00Z",
+         "endDate": null,
+         "type": "RELATIONSHIP_PERIOD"
+        },
+        {
+         "startDate": "2017-01-01T00:00:00Z",
+         "endDate": null,
+         "type": "ACCOUNTING_PERIOD"
+        }
+       ]
+      },
+      "registration": {
+       "status": "PUBLISHED",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLAUKLTD71/ultimate-parent-relationship",
+   "body": {
+    "data": {
+     "type": "relationship-records",
+     "attributes": {
+      "relationship": {
+       "startNode": {
+        "id": "213800EXAMPLAUKLTD71",
+        "type": "LEI"
+       },
+       "endNode": {
+        "id": "213800EXAMPLAHOLDS95",
+        "type": "LEI"
+       },
+       "type": "IS_ULTIMATELY_CONSOLIDATED_BY",
+       "status": "ACTIVE",
+       "periods": [
+        {
+         "startDate": "2016-04-06T00:00:00Z",
+         "endDate": null,
+         "type": "RELATIONSHIP_PERIOD"
+        },
+        {
+         "startDate": "2017-01-01T00:00:00Z",
+         "endDate": null,
+         "type": "ACCOUNTING_PERIOD"
+        }
+       ]
+      },
+      "registration": {
+       "status": "PUBLISHED",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/213800EXAMPLATRADE88",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "213800EXAMPLATRADE88",
+     "attributes": {
+      "lei": "213800EXAMPLATRADE88",
+      "entity": {
+       "legalName": {
+        "name": "Exampla Trading Ltd",
+        "language": "en"
+       },
+       "otherNames": [],
+       "legalAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "London",
+        "postalCode": "EC1A 1AA",
+        "country": "GB"
+       },
+       "headquartersAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "London",
+        "postalCode": "EC1A 1AA",
+        "country": "GB"
+       },
+       "registeredAt": {
+        "id": "RA000585",
+        "other": null
+       },
+       "registeredAs": "08880003",
+       "jurisdiction": "GB",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "H0PO",
+        "other": null
+       },
+       "status": "INACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": "213800EXAMPLAUKLTD71",
+        "name": null
+       },
+       "creationDate": null
+      },
+      "registration": {
+       "initialRegistrationDate": "2014-01-01T00:00:00Z",
+       "lastUpdateDate": "2026-05-01T00:00:00Z",
+       "status": "RETIRED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "213800WAVVOPS85N2205",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/724500EXAMPLAINTBV75",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "724500EXAMPLAINTBV75",
+     "attributes": {
+      "lei": "724500EXAMPLAINTBV75",
+      "entity": {
+       "legalName": {
+        "name": "Exampla Intermediate B.V.",
+        "language": "en"
+       },
+       "otherNames": [],
+       "legalAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "Amsterdam",
+        "postalCode": "1011 AA",
+        "country": "NL"
+       },
+       "headquartersAddress": {
+        "language": "en",
+        "addressLines": [
+         "1 Fixture Street"
+        ],
+        "city": "Amsterdam",
+        "postalCode": "1011 AA",
+        "country": "NL"
+       },
+       "registeredAt": {
+        "id": "RA000463",
+        "other": null
+       },
+       "registeredAs": "99990003",
+       "jurisdiction": "NL",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "54M6",
+        "other": null
+       },
+       "status": "ACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": null,
+        "name": null
+       },
+       "creationDate": null
+      },
+      "registration": {
+       "initialRegistrationDate": "2014-01-01T00:00:00Z",
+       "lastUpdateDate": "2026-05-01T00:00:00Z",
+       "status": "ISSUED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "213800WAVVOPS85N2205",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/724500EXAMPLAINTBV75/direct-parent-relationship",
+   "body": {
+    "data": {
+     "type": "relationship-records",
+     "attributes": {
+      "relationship": {
+       "startNode": {
+        "id": "724500EXAMPLAINTBV75",
+        "type": "LEI"
+       },
+       "endNode": {
+        "id": "213800EXAMPLAHOLDS95",
+        "type": "LEI"
+       },
+       "type": "IS_DIRECTLY_CONSOLIDATED_BY",
+       "status": "ACTIVE",
+       "periods": [
+        {
+         "startDate": "2024-12-01T00:00:00Z",
+         "endDate": null,
+         "type": "RELATIONSHIP_PERIOD"
+        },
+        {
+         "startDate": "2017-01-01T00:00:00Z",
+         "endDate": null,
+         "type": "ACCOUNTING_PERIOD"
+        }
+       ]
+      },
+      "registration": {
+       "status": "PUBLISHED",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/724500EXAMPLAINTBV75/ultimate-parent-relationship",
+   "body": {
+    "data": {
+     "type": "relationship-records",
+     "attributes": {
+      "relationship": {
+       "startNode": {
+        "id": "724500EXAMPLAINTBV75",
+        "type": "LEI"
+       },
+       "endNode": {
+        "id": "213800EXAMPLAHOLDS95",
+        "type": "LEI"
+       },
+       "type": "IS_ULTIMATELY_CONSOLIDATED_BY",
+       "status": "ACTIVE",
+       "periods": [
+        {
+         "startDate": "2024-12-01T00:00:00Z",
+         "endDate": null,
+         "type": "RELATIONSHIP_PERIOD"
+        },
+        {
+         "startDate": "2017-01-01T00:00:00Z",
+         "endDate": null,
+         "type": "ACCOUNTING_PERIOD"
+        }
+       ]
+      },
+      "registration": {
+       "status": "PUBLISHED",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  }
+ ]
+}

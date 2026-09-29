@@ -1,0 +1,198 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "geospatial.feature-query",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-geospatial-feature-query",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.spatial-relation",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-spatial-relation",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.geometry-store",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-geospatial-geometry",
+          "version": "2.0.0"
+        }
+      },
+      {
+        "id": "geospatial.place-resolution",
+        "provider": "geospatial.core",
+        "contract": {
+          "name": "noesis-geospatial-place",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.transit-schedules",
+        "provider": "geospatial.transit",
+        "contract": {
+          "name": "noesis-transit-feed",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.housing-records",
+        "provider": "geospatial.housing",
+        "contract": {
+          "name": "noesis-housing-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.housing-dossiers",
+        "provider": "geospatial.housing",
+        "contract": {
+          "name": "noesis-housing-dossier",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "geospatial.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "geospatial.transit",
+        "version": "1.0.0"
+      },
+      {
+        "id": "geospatial.housing",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "geospatial-berlin",
+        "version": "1.1.0",
+        "range": "^1.1.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "geospatial.housing-dossier",
+        "description": "Address-to-housing-dossier: land-value zones with valuation dates, rent-index editions and cells, development-plan stages, permit and completion statistics and housing indicator vintages, each with source, unit, currency and as-of basis, side by side",
+        "workflow_defaults": {
+          "boundary_collection": "alkis_bezirke:bezirksgrenzen",
+          "land_value_collection": "brw:bodenrichtwertzonen",
+          "plan_collection": "bplan:bplan_geltungsbereiche",
+          "residential_area_collection": "wohnlagen:wohnlagen_2099",
+          "as_of": "latest valuation date, dated stage, edition valid_from and vintage not after the requested date, with the selection basis",
+          "boundaries": "a point on a zone boundary or in no published zone is reported as such; nothing is chosen or interpolated",
+          "sources": "different sources, editions and vintages side by side; disagreements are listed, never resolved",
+          "transit": "stops as accessibility context only (optional housing-transit-context feature)"
+        },
+        "vocabulary": {
+          "Bodenrichtwert": "a land value per square metre for a published zone on its Stichtag (valuation date), not a price of any parcel",
+          "Stichtag": "the valuation date a land value applies to",
+          "Mietspiegel": "a rent index edition: ranges per published cell, valid from the edition date; not a rent for a dwelling",
+          "Wohnlage": "the source-labelled residential-area category of a Mietspiegel edition; not a value or score",
+          "Bebauungsplan": "a development plan with its published procedural stage and stage dates",
+          "vintage": "the publication a statistic was read from; revised figures are new vintages"
+        },
+        "source_packs": [
+          "geospatial-berlin"
+        ]
+      }
+    ]
+  },
+  "optional_features": [
+    {
+      "id": "housing",
+      "default": false,
+      "description": "Housing, land-value and urban-planning layers: BORIS land-value zones with valuation dates, Mietspiegel editions and cells, Bebauungsplan stages, Wohnlagen, Statistik Berlin-Brandenburg permits and completions and Destatis GENESIS 31111/31231 vintages, projected onto places with as-of answers, citation links to legal works and decisions, and subscription monitors. No valuation, rent, investment or tenancy advice and no interpolated value.",
+      "requires": [
+        {
+          "capability": "geospatial.housing-records",
+          "contract": "noesis-housing-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own record entry points use these operations"
+        },
+        {
+          "capability": "geospatial.housing-dossiers",
+          "contract": "noesis-housing-dossier",
+          "range": "^1.0.0",
+          "reason": "the feature's own dossier entry points use these operations"
+        },
+        {
+          "capability": "geospatial.feature-query",
+          "contract": "noesis-geospatial-feature-query",
+          "range": "^1.0.0",
+          "reason": "zones, plans and districts are Geospatial features queried by containment"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "addresses and parcels resolve through reviewable place resolution"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "rent-index editions and plans link to Berlin legal works by explicit citation"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "Destatis housing series are dataset-series vintages in the ObservationStore"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "plans link to decisions and dossiers by their identifiers"
+        },
+        {
+          "capability": "news.articles",
+          "contract": "noesis-news-articles",
+          "range": "^1.0.0",
+          "reason": "news items mentioning a plan or edition are discovery context"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "housing monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "housing layers and tables are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "housing-transit-context",
+      "default": false,
+      "description": "Optional accessibility context for housing dossiers: transit stops near a place from the VBB GTFS feed, carrying no valuation meaning.",
+      "requires": [
+        {
+          "capability": "geospatial.housing-dossiers",
+          "contract": "noesis-housing-dossier",
+          "range": "^1.0.0",
+          "reason": "transit stops are listed inside housing dossiers"
+        },
+        {
+          "capability": "geospatial.transit-schedules",
+          "contract": "noesis-transit-feed",
+          "range": "^1.0.0",
+          "reason": "stops come from the acquired GTFS feed as accessibility context only"
+        }
+      ]
+    }
+  ]
+}

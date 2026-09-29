@@ -4,7 +4,11 @@
   "title": "Noesis domain pack",
   "description": "Distributable domain-pack manifest (M9). Bundles a pack's panels, planner keywords, enrichers, provisioning templates and UI flags into one installable unit. Validated in pure Python by src/domains/pack_format.py:validate_manifest.",
   "type": "object",
-  "required": ["pack_format", "name", "version"],
+  "required": [
+    "pack_format",
+    "name",
+    "version"
+  ],
   "properties": {
     "pack_format": {
       "type": "string",
@@ -28,47 +32,124 @@
       "type": "array",
       "items": {
         "type": "string",
-        "enum": ["news", "blog", "paper", "book", "transcript", "web", "note"]
+        "enum": [
+          "news",
+          "blog",
+          "paper",
+          "book",
+          "transcript",
+          "web",
+          "note"
+        ]
       }
     },
     "ui_flags": {
       "type": "object",
-      "additionalProperties": {"type": "boolean"},
+      "additionalProperties": {
+        "type": "boolean"
+      },
       "description": "Feature flags that gate the pack's panels"
     },
     "panels": {
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["type", "title", "facets"],
+        "required": [
+          "type",
+          "title",
+          "facets"
+        ],
         "properties": {
-          "type": {"type": "string", "minLength": 1},
-          "title": {"type": "string", "minLength": 1},
-          "description": {"type": "string"},
-          "endpoint": {"type": ["string", "null"]},
+          "type": {
+            "type": "string",
+            "minLength": 1
+          },
+          "title": {
+            "type": "string",
+            "minLength": 1
+          },
+          "description": {
+            "type": "string"
+          },
+          "endpoint": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
           "facets": {
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["overview", "trend", "sentiment", "claims", "stance", "actors", "conflict", "sources", "entities", "events", "library"]
+              "enum": [
+                "overview",
+                "trend",
+                "sentiment",
+                "claims",
+                "stance",
+                "actors",
+                "conflict",
+                "sources",
+                "entities",
+                "events",
+                "library"
+              ]
             }
           },
-          "tables": {"type": "array", "items": {"type": "string"}},
-          "ui_flag": {"type": ["string", "null"]},
-          "default_span": {"type": "integer", "minimum": 3, "maximum": 12},
-          "topic_param": {"type": ["string", "null"]},
-          "source_type_param": {"type": ["string", "null"]}
+          "tables": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "ui_flag": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "default_span": {
+            "type": "integer",
+            "minimum": 3,
+            "maximum": 12
+          },
+          "topic_param": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "source_type_param": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
         }
       }
     },
     "planner_keywords": {
       "type": "object",
       "propertyNames": {
-        "enum": ["overview", "trend", "sentiment", "claims", "stance", "actors", "conflict", "sources", "entities", "events", "library"]
+        "enum": [
+          "overview",
+          "trend",
+          "sentiment",
+          "claims",
+          "stance",
+          "actors",
+          "conflict",
+          "sources",
+          "entities",
+          "events",
+          "library"
+        ]
       },
       "additionalProperties": {
         "type": "array",
-        "items": {"type": "string"}
+        "items": {
+          "type": "string"
+        }
       },
       "description": "facet -> keywords, merged into the planner's routing on install"
     },
@@ -76,35 +157,76 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name", "kind"],
+        "required": [
+          "name",
+          "kind"
+        ],
         "properties": {
-          "name": {"type": "string", "minLength": 1},
-          "kind": {"type": "string", "enum": ["keyword_tag"]},
-          "description": {"type": "string"},
+          "name": {
+            "type": "string",
+            "minLength": 1
+          },
+          "kind": {
+            "type": "string",
+            "enum": [
+              "keyword_tag"
+            ]
+          },
+          "description": {
+            "type": "string"
+          },
           "source_types": {
             "type": "array",
             "items": {
               "type": "string",
-              "enum": ["news", "blog", "paper", "book", "transcript", "web", "note"]
+              "enum": [
+                "news",
+                "blog",
+                "paper",
+                "book",
+                "transcript",
+                "web",
+                "note"
+              ]
             }
           },
-          "params": {"type": "object"}
+          "params": {
+            "type": "object"
+          }
         },
         "allOf": [
           {
-            "if": {"properties": {"kind": {"const": "keyword_tag"}}},
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "keyword_tag"
+                }
+              }
+            },
             "then": {
               "properties": {
                 "params": {
                   "type": "object",
-                  "required": ["field", "keywords", "label"],
+                  "required": [
+                    "field",
+                    "keywords",
+                    "label"
+                  ],
                   "properties": {
-                    "field": {"type": "string", "minLength": 1},
-                    "label": {"type": "string", "minLength": 1},
+                    "field": {
+                      "type": "string",
+                      "minLength": 1
+                    },
+                    "label": {
+                      "type": "string",
+                      "minLength": 1
+                    },
                     "keywords": {
                       "type": "array",
                       "minItems": 1,
-                      "items": {"type": "string"}
+                      "items": {
+                        "type": "string"
+                      }
                     }
                   }
                 }
@@ -118,19 +240,41 @@
       "type": "array",
       "items": {
         "type": "object",
-        "required": ["name"],
+        "required": [
+          "name"
+        ],
         "properties": {
-          "name": {"type": "string", "pattern": "^[a-z][a-z0-9_]{1,30}$"},
-          "description": {"type": "string"},
+          "name": {
+            "type": "string",
+            "pattern": "^[a-z][a-z0-9_]{1,30}$"
+          },
+          "description": {
+            "type": "string"
+          },
           "ontology": {},
-          "sources": {"type": "array", "items": {"type": "string"}},
-          "backend": {"type": "string", "enum": ["table-prefix", "attached", "postgres"]}
+          "sources": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "backend": {
+            "type": "string",
+            "enum": [
+              "table-prefix",
+              "attached",
+              "postgres"
+            ]
+          }
         }
       }
     },
     "capabilities": {
       "type": "array",
-      "items": {"type": "string", "minLength": 1}
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
     },
     "schema_versions": {
       "type": "object",
@@ -142,6 +286,30 @@
     "ontology_extensions": {
       "type": "object",
       "description": "Domain-specific entity and relation vocabulary mapped onto canonical objects."
+    },
+    "source_pack": {
+      "type": "string",
+      "description": "Repository path of the companion noesis-source-pack-v1 manifest."
+    },
+    "query_examples": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "intent",
+          "tool",
+          "arguments",
+          "semantics"
+        ]
+      },
+      "description": "Routing examples bound to existing tools, with their exact semantics."
+    },
+    "exclusions": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Capabilities the pack explicitly does not provide."
     }
   }
 }
