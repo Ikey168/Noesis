@@ -15,6 +15,7 @@
     "clinical.publication-links",
     "clinical.terms",
     "clinical.trials",
+    "economics.demographics",
     "economics.knowledge",
     "energy.identity",
     "energy.links",
@@ -53,6 +54,12 @@
     "hazards.monitoring",
     "hazards.place-events",
     "hazards.records",
+    "humanitarian.conflict-events",
+    "humanitarian.dossiers",
+    "humanitarian.identity",
+    "humanitarian.links",
+    "humanitarian.monitoring",
+    "humanitarian.records",
     "legal.works",
     "linguistics.languoids",
     "linguistics.lexicon",
@@ -119,6 +126,7 @@
     "fisheries",
     "funding-grants",
     "geospatial",
+    "humanitarian",
     "legal",
     "linguistics",
     "market",
@@ -144,6 +152,7 @@
     "noesis-knowledge-engine.acquire_environment_source",
     "noesis-knowledge-engine.acquire_fisheries_sources",
     "noesis-knowledge-engine.acquire_funding_source",
+    "noesis-knowledge-engine.acquire_humanitarian_source",
     "noesis-knowledge-engine.acquire_ownership_sources",
     "noesis-knowledge-engine.acquire_substance_sources",
     "noesis-knowledge-engine.align_clinical_terms",
@@ -151,6 +160,7 @@
     "noesis-knowledge-engine.assess_procurement_eligibility",
     "noesis-knowledge-engine.astronomy_citations",
     "noesis-knowledge-engine.attach_environment_obligation_evidence",
+    "noesis-knowledge-engine.attach_humanitarian_population",
     "noesis-knowledge-engine.attach_weather_evidence",
     "noesis-knowledge-engine.build_clinical_evidence_map",
     "noesis-knowledge-engine.build_environment_place_dossier",
@@ -159,6 +169,7 @@
     "noesis-knowledge-engine.build_procurement_shortlist",
     "noesis-knowledge-engine.calculate_spatial_relation",
     "noesis-knowledge-engine.chemicals_bundle_status",
+    "noesis-knowledge-engine.cite_humanitarian_link",
     "noesis-knowledge-engine.climate_environment_bundle_status",
     "noesis-knowledge-engine.clinical_coverage_gaps",
     "noesis-knowledge-engine.clinical_outcome_switching",
@@ -167,9 +178,11 @@
     "noesis-knowledge-engine.clinical_trial_history",
     "noesis-knowledge-engine.command_intake_mode",
     "noesis-knowledge-engine.compare_advisory_revisions",
+    "noesis-knowledge-engine.compare_demographic_publishers",
     "noesis-knowledge-engine.compare_environment_vintages",
     "noesis-knowledge-engine.compare_inventory_with_graph",
     "noesis-knowledge-engine.compare_material_property",
+    "noesis-knowledge-engine.convert_demographic_units",
     "noesis-knowledge-engine.create_astronomy_monitor",
     "noesis-knowledge-engine.create_authored_report",
     "noesis-knowledge-engine.create_clinical_monitor",
@@ -181,6 +194,7 @@
     "noesis-knowledge-engine.create_funding_profile",
     "noesis-knowledge-engine.create_funding_workspace",
     "noesis-knowledge-engine.create_hazard_monitor",
+    "noesis-knowledge-engine.create_humanitarian_monitor",
     "noesis-knowledge-engine.create_linguistics_monitor",
     "noesis-knowledge-engine.create_material_watch",
     "noesis-knowledge-engine.create_package_monitor",
@@ -196,6 +210,8 @@
     "noesis-knowledge-engine.create_weather_monitor",
     "noesis-knowledge-engine.decide_procurement_party_link",
     "noesis-knowledge-engine.definition_changes",
+    "noesis-knowledge-engine.demographic_series_citing",
+    "noesis-knowledge-engine.demographic_series_values",
     "noesis-knowledge-engine.dependency_graph_as_of",
     "noesis-knowledge-engine.directives_as_of",
     "noesis-knowledge-engine.discover_hazard_links",
@@ -214,6 +230,7 @@
     "noesis-knowledge-engine.export_clinical_evidence_bundle",
     "noesis-knowledge-engine.export_environment_dossier",
     "noesis-knowledge-engine.export_hazard_bundle",
+    "noesis-knowledge-engine.export_humanitarian_dossier",
     "noesis-knowledge-engine.export_lexeme_dossier",
     "noesis-knowledge-engine.export_ownership_dossier",
     "noesis-knowledge-engine.export_sports_records",
@@ -233,12 +250,18 @@
     "noesis-knowledge-engine.hazard_event_revisions",
     "noesis-knowledge-engine.hazard_events_for_place",
     "noesis-knowledge-engine.hazard_provider_contracts",
+    "noesis-knowledge-engine.humanitarian_bundle_status",
+    "noesis-knowledge-engine.humanitarian_dossier",
+    "noesis-knowledge-engine.humanitarian_event_history",
+    "noesis-knowledge-engine.humanitarian_source_contracts",
     "noesis-knowledge-engine.impact_risk_listing_as_of",
+    "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
     "noesis-knowledge-engine.import_prospero_registration",
     "noesis-knowledge-engine.import_sports_olympic_results",
     "noesis-knowledge-engine.inspect_authored_report",
     "noesis-knowledge-engine.inspect_certificate",
     "noesis-knowledge-engine.inspect_clinical_evidence_map",
+    "noesis-knowledge-engine.inspect_demographic_series",
     "noesis-knowledge-engine.inspect_environment_dossier",
     "noesis-knowledge-engine.inspect_environment_obligation_evidence",
     "noesis-knowledge-engine.inspect_funding_opportunity",
@@ -275,6 +298,11 @@
     "noesis-knowledge-engine.link_sports_venue_place",
     "noesis-knowledge-engine.link_substance_citations",
     "noesis-knowledge-engine.list_astronomy_identity_candidates",
+    "noesis-knowledge-engine.list_demographic_comparability_notes",
+    "noesis-knowledge-engine.list_demographic_links",
+    "noesis-knowledge-engine.list_demographic_pins",
+    "noesis-knowledge-engine.list_demographic_resolutions",
+    "noesis-knowledge-engine.list_demographic_series",
     "noesis-knowledge-engine.list_energy_identity_matches",
     "noesis-knowledge-engine.list_energy_links",
     "noesis-knowledge-engine.list_energy_series",
@@ -286,6 +314,8 @@
     "noesis-knowledge-engine.list_funding_opportunities",
     "noesis-knowledge-engine.list_hazard_correspondences",
     "noesis-knowledge-engine.list_hazard_links",
+    "noesis-knowledge-engine.list_humanitarian_identity",
+    "noesis-knowledge-engine.list_humanitarian_links",
     "noesis-knowledge-engine.list_linguistic_identity_candidates",
     "noesis-knowledge-engine.list_oss_identity_candidates",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
@@ -330,6 +360,7 @@
     "noesis-knowledge-engine.poll_environment_monitor",
     "noesis-knowledge-engine.poll_fisheries_monitor",
     "noesis-knowledge-engine.poll_hazard_monitor",
+    "noesis-knowledge-engine.poll_humanitarian_monitor",
     "noesis-knowledge-engine.poll_linguistics_monitor",
     "noesis-knowledge-engine.poll_material_watch",
     "noesis-knowledge-engine.poll_package_monitor",
@@ -347,6 +378,7 @@
     "noesis-knowledge-engine.propose_environment_operator_links",
     "noesis-knowledge-engine.propose_fisheries_identities",
     "noesis-knowledge-engine.propose_hazard_correspondences",
+    "noesis-knowledge-engine.propose_humanitarian_identity",
     "noesis-knowledge-engine.propose_languoid_matches",
     "noesis-knowledge-engine.propose_lexeme_matches",
     "noesis-knowledge-engine.propose_oss_identity_link",
@@ -361,7 +393,9 @@
     "noesis-knowledge-engine.propose_substance_identity_manual",
     "noesis-knowledge-engine.propose_weather_station_matches",
     "noesis-knowledge-engine.publish_energy_prices_to_market",
+    "noesis-knowledge-engine.query_demographic_boundary",
     "noesis-knowledge-engine.query_geospatial_features_within",
+    "noesis-knowledge-engine.query_humanitarian_conflict_events",
     "noesis-knowledge-engine.record_clinical_trial_design",
     "noesis-knowledge-engine.record_entity_identity_decision",
     "noesis-knowledge-engine.record_geospatial_resolution",
@@ -375,10 +409,12 @@
     "noesis-knowledge-engine.register_energy_schemas",
     "noesis-knowledge-engine.register_environment_schemas",
     "noesis-knowledge-engine.register_hazard_schemas",
+    "noesis-knowledge-engine.register_humanitarian_schemas",
     "noesis-knowledge-engine.register_material_schemas",
     "noesis-knowledge-engine.register_methodology_study",
     "noesis-knowledge-engine.register_oss_schemas",
     "noesis-knowledge-engine.register_weather_schemas",
+    "noesis-knowledge-engine.replay_demographic_query",
     "noesis-knowledge-engine.replay_dependency_graph",
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
@@ -389,6 +425,7 @@
     "noesis-knowledge-engine.revert_astronomy_identity_match",
     "noesis-knowledge-engine.revert_fisheries_identity",
     "noesis-knowledge-engine.revert_hazard_correspondence",
+    "noesis-knowledge-engine.revert_humanitarian_identity",
     "noesis-knowledge-engine.revert_oss_identity_match",
     "noesis-knowledge-engine.revert_ownership_identity_match",
     "noesis-knowledge-engine.revert_safety_subject_match",
@@ -403,6 +440,7 @@
     "noesis-knowledge-engine.review_fisheries_identity",
     "noesis-knowledge-engine.review_geospatial_resolution",
     "noesis-knowledge-engine.review_hazard_correspondence",
+    "noesis-knowledge-engine.review_humanitarian_identity",
     "noesis-knowledge-engine.review_linguistic_identity_match",
     "noesis-knowledge-engine.review_oss_identity_match",
     "noesis-knowledge-engine.review_ownership_identity_match",
@@ -423,6 +461,7 @@
     "noesis-knowledge-engine.run_fisheries_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
     "noesis-knowledge-engine.run_hazard_monitor",
+    "noesis-knowledge-engine.run_humanitarian_monitor",
     "noesis-knowledge-engine.run_material_watch",
     "noesis-knowledge-engine.run_package_monitor",
     "noesis-knowledge-engine.run_procurement_monitor",
@@ -2422,6 +2461,270 @@
         "legacy": "degraded",
         "reason": "required domain pack is disabled",
         "tool": "noesis-kb.kb_economic"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_demographic_publishers"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_demographic_publishers"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.convert_demographic_units"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.convert_demographic_units"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.demographic_series_citing"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.demographic_series_citing"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.demographic_series_values"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.demographic_series_values"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_demographic_series"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_demographic_series"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_comparability_notes"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_comparability_notes"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_pins"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_pins"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_resolutions"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_resolutions"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_series"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_demographic_series"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.query_demographic_boundary"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.query_demographic_boundary"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "economics",
+        "composition": "economics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.replay_demographic_query"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "economics",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.replay_demographic_query"
       }
     ],
     "energy": [
@@ -3999,6 +4302,435 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.transit_stops_in_bbox"
+      }
+    ],
+    "humanitarian": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.acquire_humanitarian_source"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.acquire_humanitarian_source"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.attach_humanitarian_population"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "links"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.attach_humanitarian_population"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.cite_humanitarian_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "links"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.cite_humanitarian_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_humanitarian_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_humanitarian_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_humanitarian_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_humanitarian_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_bundle_status"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_bundle_status"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_event_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_event_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_source_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.humanitarian_source_contracts"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "humanitarian",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "available",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-knowledge-engine.humanitarian_source_contracts"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.import_humanitarian_admin_boundaries"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.import_humanitarian_admin_boundaries"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_humanitarian_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "links"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_humanitarian_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_humanitarian_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_humanitarian_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.query_humanitarian_conflict_events"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.query_humanitarian_conflict_events"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_humanitarian_schemas"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_humanitarian_schemas"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_humanitarian_identity"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "humanitarian",
+        "composition": "humanitarian",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_humanitarian_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "humanitarian",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_humanitarian_monitor"
       }
     ],
     "legal": [

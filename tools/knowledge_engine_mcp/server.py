@@ -9376,6 +9376,9 @@ from tools.knowledge_engine_mcp.fisheries import (
 )
 
 register_fisheries_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.humanitarian import register as register_humanitarian_tools
+
+register_humanitarian_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

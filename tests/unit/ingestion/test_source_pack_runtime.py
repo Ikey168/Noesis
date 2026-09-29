@@ -642,6 +642,7 @@ def test_six_domain_offline_execution(setup):
         "economic",
         "engineering-safety",
         "geospatial",
+        "humanitarian",
         "legal",
         "linguistics",
         "market",

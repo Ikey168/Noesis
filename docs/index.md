@@ -253,6 +253,11 @@ For the project overview and local setup, start with the
   Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,
   with reviewable vessel identity, sanctions and area citations and monitors; no illegal-fishing inference or
   enforcement recommendation; [source audit](development/fisheries-evidence/source-audit.md)
+- [Humanitarian Response and Conflict Events guide](guides/humanitarian-response.md) — ReliefWeb situation
+  reports, appeals and crises, HDX dataset revisions with HXL tags and UCDP conflict events with each coder's
+  precision codes and release history, per place or crisis as of a date, with reviewable identity, citation links
+  and monitors; no casualty estimation, merged counts, forecasts or personal data, ACLED not acquired (licence);
+  [source audit](development/humanitarian-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

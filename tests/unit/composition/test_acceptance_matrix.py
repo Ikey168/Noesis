@@ -146,6 +146,11 @@ MATRIX = {
     "Vessel and area to cited fisheries records":
         "tests/unit/domains/test_fisheries_acceptance.py::"
         "test_vessel_and_area_to_cited_authorisations_listings_effort_and_catch",
+    # The Humanitarian bundle's offline journey (#2288) composes its own record owner, geospatial places and
+    # geometries, entity identity, subscriptions and the source-pack runtime; ACLED is the declined source.
+    "Place or crisis to humanitarian dossier":
+        "tests/unit/domains/test_humanitarian_acceptance.py::"
+        "test_place_and_crisis_to_a_cited_dossier_with_precision_history_identity_and_gaps",
 }
 
 

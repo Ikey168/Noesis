@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1324,
+      "tool_count": 1344,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -971,6 +971,7 @@
         "noesis-knowledge-engine.acquire_environment_source",
         "noesis-knowledge-engine.acquire_fisheries_sources",
         "noesis-knowledge-engine.acquire_funding_source",
+        "noesis-knowledge-engine.acquire_humanitarian_source",
         "noesis-knowledge-engine.acquire_iati_activities",
         "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.acquire_ownership_sources",
@@ -1017,6 +1018,7 @@
         "noesis-knowledge-engine.attach_development_finance_answer",
         "noesis-knowledge-engine.attach_environment_obligation_evidence",
         "noesis-knowledge-engine.attach_event_account",
+        "noesis-knowledge-engine.attach_humanitarian_population",
         "noesis-knowledge-engine.attach_paper_family_notice",
         "noesis-knowledge-engine.attach_weather_evidence",
         "noesis-knowledge-engine.authorize_access_export",
@@ -1056,6 +1058,7 @@
         "noesis-knowledge-engine.capture_claim_timeline_state",
         "noesis-knowledge-engine.capture_exploration_page",
         "noesis-knowledge-engine.chemicals_bundle_status",
+        "noesis-knowledge-engine.cite_humanitarian_link",
         "noesis-knowledge-engine.cite_product_document",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.climate_environment_bundle_status",
@@ -1137,6 +1140,7 @@
         "noesis-knowledge-engine.create_funding_workspace",
         "noesis-knowledge-engine.create_hazard_monitor",
         "noesis-knowledge-engine.create_housing_monitor",
+        "noesis-knowledge-engine.create_humanitarian_monitor",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
         "noesis-knowledge-engine.create_intake_skill",
@@ -1278,6 +1282,7 @@
         "noesis-knowledge-engine.export_formal_references",
         "noesis-knowledge-engine.export_funding_application_draft",
         "noesis-knowledge-engine.export_hazard_bundle",
+        "noesis-knowledge-engine.export_humanitarian_dossier",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_intake_creation",
         "noesis-knowledge-engine.export_intake_mode",
@@ -1365,12 +1370,17 @@
         "noesis-knowledge-engine.housing_rent_index_edition",
         "noesis-knowledge-engine.housing_source_contracts",
         "noesis-knowledge-engine.housing_statistics",
+        "noesis-knowledge-engine.humanitarian_bundle_status",
+        "noesis-knowledge-engine.humanitarian_dossier",
+        "noesis-knowledge-engine.humanitarian_event_history",
+        "noesis-knowledge-engine.humanitarian_source_contracts",
         "noesis-knowledge-engine.impact_risk_listing_as_of",
         "noesis-knowledge-engine.import_audit_findings",
         "noesis-knowledge-engine.import_certificates",
         "noesis-knowledge-engine.import_demographic_figure_sheet",
         "noesis-knowledge-engine.import_election_poll_release",
         "noesis-knowledge-engine.import_geospatial_features",
+        "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_prospero_registration",
         "noesis-knowledge-engine.import_research_package",
@@ -1571,6 +1581,8 @@
         "noesis-knowledge-engine.list_housing_links",
         "noesis-knowledge-engine.list_housing_projection_outcomes",
         "noesis-knowledge-engine.list_housing_records",
+        "noesis-knowledge-engine.list_humanitarian_identity",
+        "noesis-knowledge-engine.list_humanitarian_links",
         "noesis-knowledge-engine.list_intake_feed_inbox",
         "noesis-knowledge-engine.list_intake_feed_signal_rules",
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
@@ -1689,6 +1701,7 @@
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
+        "noesis-knowledge-engine.poll_humanitarian_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
@@ -1762,6 +1775,7 @@
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
         "noesis-knowledge-engine.propose_hazard_correspondences",
         "noesis-knowledge-engine.propose_housing_link_candidates",
+        "noesis-knowledge-engine.propose_humanitarian_identity",
         "noesis-knowledge-engine.propose_intake_concept_revision",
         "noesis-knowledge-engine.propose_intake_decision_revision",
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
@@ -1808,6 +1822,7 @@
         "noesis-knowledge-engine.query_demographic_boundary",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
+        "noesis-knowledge-engine.query_humanitarian_conflict_events",
         "noesis-knowledge-engine.query_knowledge",
         "noesis-knowledge-engine.query_sanctioned_trade_flows",
         "noesis-knowledge-engine.query_trade_flows",
@@ -1874,6 +1889,7 @@
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_hazard_schemas",
+        "noesis-knowledge-engine.register_humanitarian_schemas",
         "noesis-knowledge-engine.register_jev_intake_intent",
         "noesis-knowledge-engine.register_material_schemas",
         "noesis-knowledge-engine.register_methodology_study",
@@ -1971,6 +1987,7 @@
         "noesis-knowledge-engine.revert_fisheries_identity",
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
+        "noesis-knowledge-engine.revert_humanitarian_identity",
         "noesis-knowledge-engine.revert_legislation_identity_match",
         "noesis-knowledge-engine.revert_linguistic_identity_match",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
@@ -2017,6 +2034,7 @@
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_hazard_correspondence",
         "noesis-knowledge-engine.review_housing_link",
+        "noesis-knowledge-engine.review_humanitarian_identity",
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_languoid_location",
         "noesis-knowledge-engine.review_legislation_identity_match",
@@ -2085,6 +2103,7 @@
         "noesis-knowledge-engine.run_hazard_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
+        "noesis-knowledge-engine.run_humanitarian_monitor",
         "noesis-knowledge-engine.run_legislation_monitor",
         "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
@@ -2145,6 +2164,7 @@
         "noesis-knowledge-engine.set_energy_bundle_enabled",
         "noesis-knowledge-engine.set_fisheries_bundle_enabled",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
+        "noesis-knowledge-engine.set_humanitarian_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_natural_hazards_bundle_enabled",
         "noesis-knowledge-engine.set_ownership_bundle_enabled",
@@ -2283,7 +2303,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1324
+      "visible_tool_count": 1344
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2294,11 +2314,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 133,
+      "available": 135,
       "degraded": 173,
-      "unauthorized": 1342
+      "unauthorized": 1360
     },
-    "tools": 1648
+    "tools": 1668
   },
   "tools": [
     {
@@ -21627,6 +21647,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Run one declared source of the humanitarian-response pack (bounded, receipted; credentials from NOESIS_* env).",
+      "id": "noesis-knowledge-engine.acquire_humanitarian_source",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "operation": {
+            "type": "string"
+          },
+          "run_key": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "source_id",
+          "run_key",
+          "operation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_humanitarian_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Bounded IATI Datastore acquisition for named publishers, recipient countries or sectors.",
       "id": "noesis-knowledge-engine.acquire_iati_activities",
       "input_schema": {
@@ -24668,6 +24734,70 @@
     },
     {
       "cost_class": "medium",
+      "description": "Attach a population denominator with its vintage by citation or accepted place match; no rate is computed.",
+      "id": "noesis-knowledge-engine.attach_humanitarian_population",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "attach_humanitarian_population",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Attach a retained Crossref notice to its evidenced member or mark target unresolved.",
       "id": "noesis-knowledge-engine.attach_paper_family_notice",
       "input_schema": {
@@ -27064,6 +27194,67 @@
       ],
       "required_scopes": [
         "knowledge:substances:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link a record revision to a news article, OSINT dossier or population series the source cites (with locator).",
+      "id": "noesis-knowledge-engine.cite_humanitarian_link",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_kind": {
+            "type": "string"
+          },
+          "target_revision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key",
+          "target_kind",
+          "target_id",
+          "citation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "cite_humanitarian_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -31503,6 +31694,115 @@
       ],
       "required_scopes": [
         "knowledge:housing:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a place or crisis: new reports, dataset revisions and event releases (a knowledge subscription).",
+      "id": "noesis-knowledge-engine.create_humanitarian_monitor",
+      "input_schema": {
+        "properties": {
+          "crisis_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_humanitarian_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -39034,6 +39334,117 @@
     },
     {
       "cost_class": "low",
+      "description": "The dossier as a noesis-evidence-bundle-v1: every record revision cited; gaps and declined sources as omissions.",
+      "id": "noesis-knowledge-engine.export_humanitarian_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "crisis_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events_area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_humanitarian_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export complete accessible workspace lineage with a deterministic hash.",
       "id": "noesis-knowledge-engine.export_hypothesis_workspace",
       "input_schema": {
@@ -43239,6 +43650,215 @@
     },
     {
       "cost_class": "low",
+      "description": "Declared contributions plus ready/fixture-only/stale/unavailable/declined per source; live verification separate.",
+      "id": "noesis-knowledge-engine.humanitarian_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "humanitarian_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cited reports, appeals, crises and dataset revisions about a place or crisis as of a date, plus bounded events.",
+      "id": "noesis-knowledge-engine.humanitarian_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "crisis_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events_area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "events_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "imprecise": {
+            "default": "admin",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "pcode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "humanitarian_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every release revision of one conflict event with the fields that changed (dropped candidates included).",
+      "id": "noesis-knowledge-engine.humanitarian_event_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "humanitarian_event_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source contract, licence, limits, revision model, live-verification state and the ACLED decision.",
+      "id": "noesis-knowledge-engine.humanitarian_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "humanitarian_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "The published Sentry listing for a small body at a date: listed or removed, with the listing date and\nthe published figures quoted as text. Noesis issues no impact-risk, hazard or collision verdict.",
       "id": "noesis-knowledge-engine.impact_risk_listing_as_of",
       "input_schema": {
@@ -43593,6 +44213,53 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register a published COD-AB boundary file as geospatial admin places with its boundary vintage.",
+      "id": "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
+      "input_schema": {
+        "properties": {
+          "feature_collection": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_url": {
+            "type": "string"
+          },
+          "vintage": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "feature_collection",
+          "vintage",
+          "source_url"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_humanitarian_admin_boundaries",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write",
         "knowledge:geospatial:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -53019,6 +53686,105 @@
     },
     {
       "cost_class": "low",
+      "description": "Assertions with their review state, and every subject still unmatched.",
+      "id": "noesis-knowledge-engine.list_humanitarian_identity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_humanitarian_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Citation links with their basis and pinned revisions; broken targets reported, never dropped.",
+      "id": "noesis-knowledge-engine.list_humanitarian_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_humanitarian_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Page persistent feed items without marking unseen entries processed.",
       "id": "noesis-knowledge-engine.list_intake_feed_inbox",
       "input_schema": {
@@ -58905,6 +59671,48 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_humanitarian_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_humanitarian_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Delivered legislation monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_legislation_monitor",
       "input_schema": {
@@ -62320,6 +63128,39 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Propose place, crisis, organisation and actor match assertions (method, evidence, confidence); none accepted.",
+      "id": "noesis-knowledge-engine.propose_humanitarian_identity",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_humanitarian_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Save a complete cited Research Bundle concept proposal for review.",
       "id": "noesis-knowledge-engine.propose_intake_concept_revision",
@@ -64433,6 +65274,67 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Conflict events in a bounded area/window, each coder side by side with its precision codes and counts as published.",
+      "id": "noesis-knowledge-engine.query_humanitarian_conflict_events",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "type": "string"
+          },
+          "imprecise": {
+            "default": "admin",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "area",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_humanitarian_conflict_events",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -69087,6 +69989,40 @@
       ],
       "required_scopes": [
         "knowledge:hazards:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register noesis-humanitarian-record-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_humanitarian_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_humanitarian_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write",
         "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
@@ -74267,6 +75203,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected assertion; the records stay as published.",
+      "id": "noesis-knowledge-engine.revert_humanitarian_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_humanitarian_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert an accepted or rejected member identity decision.",
       "id": "noesis-knowledge-engine.revert_legislation_identity_match",
       "input_schema": {
@@ -76353,6 +77330,51 @@
       ],
       "required_scopes": [
         "knowledge:housing:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject another principal's assertion with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_humanitarian_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_humanitarian_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -79894,6 +80916,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark (newest by default); a replay creates no new notices.",
+      "id": "noesis-knowledge-engine.run_humanitarian_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_humanitarian_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a legislation monitor at a committed watermark; notices cite the new and previous revision.",
       "id": "noesis-knowledge-engine.run_legislation_monitor",
       "input_schema": {
@@ -83238,6 +84309,43 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "set_funding_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Humanitarian (a coordinator selection change once composed); shared providers keep working.",
+      "id": "noesis-knowledge-engine.set_humanitarian_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_humanitarian_bundle_enabled",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

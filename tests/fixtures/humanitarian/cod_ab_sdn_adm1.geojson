@@ -1,0 +1,15 @@
+{
+  "type": "FeatureCollection",
+  "name": "fixture-cod-ab-sdn-adm1",
+  "note": "Authored offline fixture: simplified rectangles standing in for a COD-AB admin boundary file; not real boundaries.",
+  "features": [
+    {"type": "Feature", "properties": {"admin_level": 0, "pcode": "SDN", "iso3": "SDN", "name": "Sudan", "parent_pcode": null},
+     "geometry": {"type": "Polygon", "coordinates": [[[21.8, 8.7], [38.6, 8.7], [38.6, 22.2], [21.8, 22.2], [21.8, 8.7]]]}},
+    {"type": "Feature", "properties": {"admin_level": 1, "pcode": "SD01", "name": "Khartoum", "parent_pcode": "SDN"},
+     "geometry": {"type": "Polygon", "coordinates": [[[31.5, 15.0], [34.0, 15.0], [34.0, 16.5], [31.5, 16.5], [31.5, 15.0]]]}},
+    {"type": "Feature", "properties": {"admin_level": 1, "pcode": "SD02", "name": "North Darfur", "parent_pcode": "SDN"},
+     "geometry": {"type": "Polygon", "coordinates": [[[22.0, 13.0], [27.5, 13.0], [27.5, 20.0], [22.0, 20.0], [22.0, 13.0]]]}},
+    {"type": "Feature", "properties": {"admin_level": 1, "pcode": "SD03", "name": "Kassala", "parent_pcode": "SDN"},
+     "geometry": {"type": "Polygon", "coordinates": [[[34.5, 14.5], [37.0, 14.5], [37.0, 17.0], [34.5, 17.0], [34.5, 14.5]]]}}
+  ]
+}
