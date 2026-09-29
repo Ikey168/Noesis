@@ -58,6 +58,7 @@ PROJECTOR_OWNERS = {
     "noesis-linguistic-record-v1": "src.kb.linguistics_store",
     "noesis-oss-ecosystem-record-v1": "src.kb.oss_ecosystem_store",
     "noesis-legislation-record-v1": "src.kb.legislation",
+    "noesis-fisheries-record-v1": "src.kb.fisheries_store",
 }
 
 

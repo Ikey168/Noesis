@@ -1,0 +1,123 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "fisheries.records",
+        "provider": "fisheries.core",
+        "contract": {
+          "name": "noesis-fisheries-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "fisheries.identity",
+        "provider": "fisheries.core",
+        "contract": {
+          "name": "noesis-fisheries-identity",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "fisheries.citations",
+        "provider": "fisheries.core",
+        "contract": {
+          "name": "noesis-fisheries-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "fisheries.monitoring",
+        "provider": "fisheries.core",
+        "contract": {
+          "name": "noesis-fisheries-notification",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "fisheries.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "fisheries-maritime",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "fisheries.records",
+      "contract": "noesis-fisheries-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "fisheries.identity",
+      "contract": "noesis-fisheries-identity",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "fisheries.citations",
+      "contract": "noesis-fisheries-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "fisheries.monitoring",
+      "contract": "noesis-fisheries-notification",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "vessel identity matches are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "fisheries monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "GFW, FishStat, RFMO and combined IUU list sources run through the source-pack runtime"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "sanctions",
+      "default": false,
+      "description": "Sanctions citations: a vessel links to a Legal sanctions designation only when the designation states the same IMO number, citing the listing revision; a shared name is a candidate only. Without the feature the link step reports provider_unavailable.",
+      "requires": [
+        {
+          "capability": "legal.sanctions",
+          "contract": "noesis-sanctions-record",
+          "range": "^1.0.0",
+          "reason": "designations stating an IMO number are read from the Legal sanctions owner"
+        }
+      ]
+    },
+    {
+      "id": "geospatial",
+      "default": false,
+      "description": "Fishing areas as places: published FAO major area, RFMO convention area and EEZ codes and published GFW grid cells are registered as geospatial places by their codes and linked; no geometry is guessed from free text.",
+      "requires": [
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "area codes and grid cells are registered and resolved as geospatial places"
+        }
+      ]
+    }
+  ]
+}

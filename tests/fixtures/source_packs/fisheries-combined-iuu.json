@@ -1,0 +1,82 @@
+{
+  "description": "Combined IUU Vessel List export (JSON). Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "scenarios": [
+    "entries cite their originating RFMO listings and are not independent confirmations",
+    "a delisted compilation entry"
+  ],
+  "native_pages": [
+    {
+      "request": "/iuu/api/vessels.json",
+      "status": 200,
+      "body": {
+        "generated": "2026-09-15",
+        "vessels": [
+          {
+            "id": "CIUU-0101",
+            "current_name": "SAMPLE NOVA",
+            "current_flag": "TGO",
+            "imo": "9000027",
+            "call_sign": "5VAA2",
+            "previous_names": [
+              "SAMPLE STAR"
+            ],
+            "previous_flags": [
+              "GHA"
+            ],
+            "listings": [
+              {
+                "rfmo": "IOTC",
+                "reference": "IOTC-IUU-2025-01",
+                "listed": "2025-07-01",
+                "delisted": null
+              }
+            ],
+            "reason": "IOTC: fishing without authorisation (as stated by IOTC)"
+          },
+          {
+            "id": "CIUU-0102",
+            "current_name": "SAMPLE DRIFTER",
+            "current_flag": "Unknown",
+            "imo": "9000039",
+            "call_sign": "",
+            "previous_names": [
+              "SAMPLE WANDERER"
+            ],
+            "previous_flags": [
+              "BLZ"
+            ],
+            "listings": [
+              {
+                "rfmo": "ICCAT",
+                "reference": "20160001",
+                "listed": "2016-11-20",
+                "delisted": "2024-11-18"
+              }
+            ],
+            "reason": "ICCAT: unauthorised fishing in the Convention area (as stated by ICCAT)"
+          },
+          {
+            "id": "CIUU-0103",
+            "current_name": "SAMPLE GHOST",
+            "current_flag": "Unknown",
+            "imo": "",
+            "call_sign": "",
+            "previous_names": [
+              "SAMPLE SHADE"
+            ],
+            "previous_flags": [],
+            "listings": [
+              {
+                "rfmo": "WCPFC",
+                "reference": "WCPFC-IUU-2010-01",
+                "listed": "2010-12-10",
+                "delisted": null
+              }
+            ],
+            "reason": "WCPFC: fishing without being on the Record (as stated by WCPFC)"
+          }
+        ]
+      }
+    }
+  ]
+}

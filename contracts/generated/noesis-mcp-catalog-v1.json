@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1307,
+      "tool_count": 1324,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -969,6 +969,7 @@
         "noesis-knowledge-engine.acquire_cultural_assets",
         "noesis-knowledge-engine.acquire_energy_source",
         "noesis-knowledge-engine.acquire_environment_source",
+        "noesis-knowledge-engine.acquire_fisheries_sources",
         "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_iati_activities",
         "noesis-knowledge-engine.acquire_opencitations",
@@ -1130,6 +1131,7 @@
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
         "noesis-knowledge-engine.create_event_record",
+        "noesis-knowledge-engine.create_fisheries_monitor",
         "noesis-knowledge-engine.create_funding_monitor",
         "noesis-knowledge-engine.create_funding_profile",
         "noesis-knowledge-engine.create_funding_workspace",
@@ -1305,6 +1307,11 @@
         "noesis-knowledge-engine.extract_review_field",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.filter_access_bound_query",
+        "noesis-knowledge-engine.fisheries_area_aggregates",
+        "noesis-knowledge-engine.fisheries_bundle_status",
+        "noesis-knowledge-engine.fisheries_source_contracts",
+        "noesis-knowledge-engine.fisheries_vessel_identity",
+        "noesis-knowledge-engine.fisheries_vessel_status",
         "noesis-knowledge-engine.forecast_as_issued",
         "noesis-knowledge-engine.forecast_evolution",
         "noesis-knowledge-engine.formal_declaration_dependencies",
@@ -1505,6 +1512,7 @@
         "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
+        "noesis-knowledge-engine.link_fisheries_citations",
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
@@ -1553,6 +1561,8 @@
         "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_federal_statute_versions",
+        "noesis-knowledge-engine.list_fisheries_identity_matches",
+        "noesis-knowledge-engine.list_fisheries_links",
         "noesis-knowledge-engine.list_funding_opportunities",
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_government_finance_series",
@@ -1675,6 +1685,7 @@
         "noesis-knowledge-engine.poll_energy_monitor",
         "noesis-knowledge-engine.poll_engineering_safety_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
+        "noesis-knowledge-engine.poll_fisheries_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
@@ -1729,6 +1740,7 @@
         "noesis-knowledge-engine.products_readiness",
         "noesis-knowledge-engine.project_bafin_voting_rights",
         "noesis-knowledge-engine.project_election_boundaries",
+        "noesis-knowledge-engine.project_fisheries_areas",
         "noesis-knowledge-engine.project_languoid_locations",
         "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.promote_intake_work_procedure",
@@ -1745,6 +1757,7 @@
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_energy_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
+        "noesis-knowledge-engine.propose_fisheries_identities",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
         "noesis-knowledge-engine.propose_hazard_correspondences",
@@ -1955,6 +1968,7 @@
         "noesis-knowledge-engine.revert_development_finance_identity_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
+        "noesis-knowledge-engine.revert_fisheries_identity",
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_legislation_identity_match",
@@ -1998,6 +2012,7 @@
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
+        "noesis-knowledge-engine.review_fisheries_identity",
         "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_hazard_correspondence",
@@ -2065,6 +2080,7 @@
         "noesis-knowledge-engine.run_energy_monitor",
         "noesis-knowledge-engine.run_engineering_safety_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
+        "noesis-knowledge-engine.run_fisheries_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hazard_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
@@ -2127,6 +2143,7 @@
         "noesis-knowledge-engine.set_climate_environment_bundle_enabled",
         "noesis-knowledge-engine.set_clinical_bundle_enabled",
         "noesis-knowledge-engine.set_energy_bundle_enabled",
+        "noesis-knowledge-engine.set_fisheries_bundle_enabled",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_natural_hazards_bundle_enabled",
@@ -2266,7 +2283,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1307
+      "visible_tool_count": 1324
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2277,11 +2294,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 131,
+      "available": 133,
       "degraded": 173,
-      "unauthorized": 1327
+      "unauthorized": 1342
     },
-    "tools": 1631
+    "tools": 1648
   },
   "tools": [
     {
@@ -21503,6 +21520,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded, receipted run of the fisheries-maritime source pack's explicit selection (secrets from NOESIS_*).",
+      "id": "noesis-knowledge-engine.acquire_fisheries_sources",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_key": {
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "run_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_fisheries_sources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Bounded live acquisition of one explicitly selected provider page, topic or search.",
       "id": "noesis-knowledge-engine.acquire_funding_source",
       "input_schema": {
@@ -31024,6 +31093,112 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch vessels, lists, areas or species for authorisations, listings, delistings and new releases.",
+      "id": "noesis-knowledge-engine.create_fisheries_monitor",
+      "input_schema": {
+        "properties": {
+          "areas": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lists": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "species": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "vessels": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_fisheries_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch new calls, rule/eligibility changes and deadlines via a knowledge subscription.",
       "id": "noesis-knowledge-engine.create_funding_monitor",
       "input_schema": {
@@ -40251,6 +40426,273 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "GFW effort and FishStat catch side by side for an area, flag or species, with releases and gaps.",
+      "id": "noesis-knowledge-engine.fisheries_area_aggregates",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "flag": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "species": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fisheries_area_aggregates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions, per-provider readiness and contract status, optional features; live kept separate.",
+      "id": "noesis-knowledge-engine.fisheries_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fisheries_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access contracts, the GFW licence decision, bounded coverage and excluded RFMOs.",
+      "id": "noesis-knowledge-engine.fisheries_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fisheries_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One vessel's member records, accepted matches, pending candidates, identity history and parties.",
+      "id": "noesis-knowledge-engine.fisheries_vessel_identity",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subject_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fisheries_vessel_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A vessel's authorisations and IUU listings on a date with snapshots, identity matches and coverage.",
+      "id": "noesis-knowledge-engine.fisheries_vessel_status",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fisheries_vessel_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "The published forecast for a valid time as issued at or before `issued_before`: per provider, product and\nmodel the latest issuance, with lead time and the issuer. Published forecasts only; Noesis forecasts nothing.",
       "id": "noesis-knowledge-engine.forecast_as_issued",
@@ -49322,6 +49764,53 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link by explicit citation: sanctions (stated IMO), areas (published codes), OSINT movements, Agri-food.",
+      "id": "noesis-knowledge-engine.link_fisheries_citations",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "targets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_fisheries_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link rent-index editions and plans to legal works by their published GVBl, Amtsblatt, juris, BGBl,\nCELEX or ELI references in the reference's jurisdiction; unmatched references stay unresolved.",
       "id": "noesis-knowledge-engine.link_housing_citations",
       "input_schema": {
@@ -51933,6 +52422,109 @@
       ],
       "required_scopes": [
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity matches and candidates with basis, evidence and review state.",
+      "id": "noesis-knowledge-engine.list_fisheries_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_fisheries_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Citation links (sanctions, geospatial, citing providers) of one vessel or area and its matched records.",
+      "id": "noesis-knowledge-engine.list_fisheries_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_fisheries_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -58149,6 +58741,48 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll delivered monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_fisheries_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_fisheries_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_funding_monitor",
       "input_schema": {
@@ -60608,6 +61242,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register published area codes and grid cells as geospatial places keyed by exactly those codes.",
+      "id": "noesis-knowledge-engine.project_fisheries_areas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "project_fisheries_areas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:write",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Store each Glottolog point as a geometry and place and save a resolution awaiting Geospatial review.",
       "id": "noesis-knowledge-engine.project_languoid_locations",
       "input_schema": {
@@ -61455,6 +62123,39 @@
       ],
       "required_scopes": [
         "knowledge:environment:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record IMO matches with evidence and offer name/flag/call-sign review candidates (records never merged).",
+      "id": "noesis-knowledge-engine.propose_fisheries_identities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_fisheries_identities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -73443,6 +74144,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo an accepted or rejected match (IMO matches included); both records stay intact.",
+      "id": "noesis-knowledge-engine.revert_fisheries_identity",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_fisheries_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert an accepted or rejected correspondence (undoes the identity decision).",
       "id": "noesis-knowledge-engine.revert_hazard_correspondence",
       "input_schema": {
@@ -75375,6 +76117,51 @@
       ],
       "required_scopes": [
         "knowledge:freshness:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision, with a reason.",
+      "id": "noesis-knowledge-engine.review_fisheries_identity",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_fisheries_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -78833,6 +79620,55 @@
       ],
       "required_scopes": [
         "knowledge:environment:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed complete run (latest when omitted); replay creates no new events.",
+      "id": "noesis-knowledge-engine.run_fisheries_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_fisheries_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:fisheries:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -82328,6 +83164,43 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "set_energy_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Fisheries and Maritime Activity (a coordinator selection change once composed).",
+      "id": "noesis-knowledge-engine.set_fisheries_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_fisheries_bundle_enabled",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

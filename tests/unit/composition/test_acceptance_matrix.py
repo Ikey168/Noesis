@@ -141,6 +141,11 @@ MATRIX = {
     "Zone or country to cited energy series":
         "tests/unit/domains/test_energy_acceptance.py::"
         "test_zone_and_country_to_cited_energy_series_with_vintages_identity_and_monitoring",
+    # The Fisheries and Maritime Activity bundle's offline journey (#2343) composes its record owner with entity
+    # identity decisions, subscriptions and, by citation, sanctions and geospatial places.
+    "Vessel and area to cited fisheries records":
+        "tests/unit/domains/test_fisheries_acceptance.py::"
+        "test_vessel_and_area_to_cited_authorisations_listings_effort_and_catch",
 }
 
 

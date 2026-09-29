@@ -1,0 +1,111 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "fisheries",
+  "version": "1.0.0",
+  "description": "Fisheries and Maritime Activity: from a vessel (IMO, register number, GFW vessel id), flag state, fishing area or species to RFMO authorised-vessel register entries with their history, IUU listings and delistings with verbatim reasons, Global Fishing Watch published fishing-effort aggregates and FAO FishStat catch statistics - each with source, snapshot or release, and as-of time - with reviewable vessel identity and citation links to sanctions, geospatial areas and, when composed, OSINT vessel movements and Agriculture & Food Systems records. No illegal-fishing inference, legality status or enforcement recommendation.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "vessel",
+      "imo number",
+      "flag state",
+      "fishing area",
+      "species",
+      "call sign"
+    ],
+    "sources": [
+      "global fishing watch",
+      "fishstat",
+      "iccat",
+      "wcpfc",
+      "iotc",
+      "iuu vessel list",
+      "rfmo"
+    ],
+    "overview": [
+      "authorised vessels",
+      "iuu listing",
+      "fishing effort",
+      "catch statistics",
+      "fisheries"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "vessel-authorisation-records",
+    "iuu-listing-records",
+    "fishing-effort-aggregates",
+    "catch-observations",
+    "reviewable-vessel-identity",
+    "citation-links",
+    "vessel-status-as-of-date",
+    "area-effort-and-catch",
+    "subscription-monitors"
+  ],
+  "schema_versions": {
+    "fisheries-record": "1.0.0",
+    "fisheries-identity": "1.0.0",
+    "fisheries-link": "1.0.0",
+    "fisheries-answer": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-fisheries-record-v1"
+    ],
+    "object_types": [
+      "vessel",
+      "vessel_authorisation",
+      "iuu_listing",
+      "effort_aggregate",
+      "catch_observation",
+      "fishing_area"
+    ],
+    "relation_types": [
+      "authorised_by",
+      "listed_by",
+      "flagged_in",
+      "observed_in_area",
+      "same_vessel_as",
+      "cited_by"
+    ]
+  },
+  "source_pack": "config/source_packs/fisheries.json",
+  "query_examples": [
+    {
+      "intent": "Authorisations and IUU listings of a vessel on a date",
+      "tool": "fisheries_vessel_status",
+      "arguments": {
+        "namespace": "global",
+        "query": "9000027",
+        "as_of": "2026-09-20"
+      },
+      "semantics": "authorisations and listings with register, snapshot revision and as-of time, the identity match that connected each, the identity history and the registers consulted; a vessel with no record has none on record in the covered registers, never legal or compliant"
+    },
+    {
+      "intent": "Effort and catch for an area",
+      "tool": "fisheries_area_aggregates",
+      "arguments": {
+        "namespace": "global",
+        "area": "34",
+        "period_from": "2021-01-01",
+        "period_to": "2022-12-31"
+      },
+      "semantics": "GFW apparent fishing effort and FishStat catch side by side with releases, status flags, units and method notes; unpublished cells are not published, never zero; never combined into an indicator"
+    }
+  ],
+  "exclusions": [
+    "inferring illegal fishing from movement or effort patterns",
+    "legality or compliance status for any vessel",
+    "enforcement recommendations",
+    "per-vessel tracks or positions",
+    "combined effort-and-catch indicators",
+    "unrestricted register mirroring"
+  ]
+}

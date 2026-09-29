@@ -248,6 +248,11 @@ For the project overview and local setup, start with the
   identity, citation-only links to climate-environment and market, as-of answers with revision history and
   monitors; no forecasting, dispatch modelling, emissions estimation or trading advice;
   [source audit](roadmaps/energy-systems-source-audit.md)
+- [Fisheries and Maritime Activity guide](guides/fisheries-maritime.md) — from a vessel, flag state, fishing area or
+  species to cited ICCAT, WCPFC and IOTC authorisations with register snapshots, IUU listings and delistings (and the
+  Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,
+  with reviewable vessel identity, sanctions and area citations and monitors; no illegal-fishing inference or
+  enforcement recommendation; [source audit](development/fisheries-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

@@ -326,6 +326,11 @@ NATIVE_CONNECTOR_MODULES["energy"] = "src.ingestion.energy_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"energy"})
 
 
+# Fisheries and Maritime Activity: GFW, FAO FishStat, RFMO registers and IUU lists (#2222).
+NATIVE_CONNECTOR_MODULES["fisheries"] = "src.ingestion.fisheries_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fisheries"})
+
+
 def native_connector_module(connector: str) -> Any:
     import importlib
 
