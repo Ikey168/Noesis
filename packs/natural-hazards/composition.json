@@ -96,8 +96,8 @@
     },
     {
       "id": "weather-warnings",
-      "default": true,
-      "description": "Link hazard events to weather warnings by citation once the Weather bundle (#2163) provides them; reported unavailable (omitted) while no provider declares the capability",
+      "default": false,
+      "description": "Link hazard events to weather warnings (Weather bundle, #2163) by citation; a selection of this feature, so disabling Weather never depends on Natural Hazards",
       "requires": [
         {
           "capability": "weather.warnings",

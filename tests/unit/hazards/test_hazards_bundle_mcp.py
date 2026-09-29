@@ -50,6 +50,8 @@ def test_manifest_descriptor_and_composition_view_validate_and_declare_dependenc
     features = {f["id"]: f for f in manifest["optional_features"]}
     assert features["environment-links"]["requires"][0]["capability"] == "environment.records"
     assert features["weather-warnings"]["requires"][0]["capability"] == "weather.warnings"
+    # Opt-in like environment-links, so the Weather bundle never becomes a dependency of Natural Hazards.
+    assert features["weather-warnings"]["default"] is False
     assert features["glofas"]["default"] is False  # behind the NH01 access decision
     assert PROJECTORS["noesis-hazard-record-v1"].__name__ == "_hazard_projector"
     assert all(s["store"].startswith("src.kb.hazards_") for s in descriptor["stores"])
@@ -63,8 +65,9 @@ def test_bundle_resolves_to_its_provider_plus_shared_providers_and_disables_as_a
     plan = coordinator.active()["plan"]
     bound = {b["provider"] for b in plan["bindings"] if "natural-hazards" in b["consumers"]}
     assert bound == {"hazards.core"} | SHARED
-    omitted = {o["feature"]: o for o in plan.get("omissions") or [] if o.get("pack") == "natural-hazards"}
-    assert "weather-warnings" in omitted and "unavailable" in omitted["weather-warnings"]["reason"]
+    # weather-warnings is opt-in: by default Natural Hazards consumes no weather capability.
+    assert not any(b["capability"].startswith("weather.") and "natural-hazards" in b["consumers"]
+                   for b in plan["bindings"])
     owned = {s["store"] for d in provider_descriptors() if d["id"] == "hazards.core" for s in d["stores"]}
     others = {s["store"] for d in provider_descriptors() if d["id"] != "hazards.core" for s in d["stores"]}
     assert not owned & others  # no parallel spatial, entity, subscription or source store
