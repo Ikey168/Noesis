@@ -1,0 +1,117 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "oss.dependency-graphs",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.oss_ecosystem_graph",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "oss.dependency-graphs",
+      "contract": {
+        "name": "noesis-oss-dependency-graph",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "dependency-graph-as-of",
+        "replay-dependency-graph",
+        "package-advisories",
+        "compare-inventory-with-graph"
+      ],
+      "semantic_constraints": {
+        "semantics": "declared-constraint resolution against releases published, acquired and available on the date; not an observed lockfile; unresolved edges listed with reasons",
+        "ordering": "PEP 440, node-semver, Cargo semver and Maven ComparableVersion, each by its own rules",
+        "advisories": "cited from technology.vulnerabilities by revision; never copied",
+        "exclusions": "no code-quality, security-posture, health, popularity or trust verdict; no person profiled; maintainers only as declared organisations"
+      }
+    },
+    {
+      "id": "oss.published-graphs",
+      "contract": {
+        "name": "noesis-oss-published-graph",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "dependency-graph-as-of"
+      ],
+      "semantic_constraints": {
+        "semantics": "graphs a source (deps.dev) resolved with its own resolver, shown beside Noesis's resolution with the differences listed; never merged"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "dependency-graph-as-of",
+      "tool": "noesis-knowledge-engine.dependency_graph_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "replay-dependency-graph",
+      "tool": "noesis-knowledge-engine.replay_dependency_graph",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "package-advisories",
+      "tool": "noesis-knowledge-engine.package_advisories",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:technical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-inventory-with-graph",
+      "tool": "noesis-knowledge-engine.compare_inventory_with_graph",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:technical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "oss_revisions"
+    }
+  ],
+  "source_packs": []
+}

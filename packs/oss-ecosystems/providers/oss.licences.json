@@ -1,0 +1,161 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "oss.licences",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.oss_ecosystem_identity",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "oss.licences",
+      "contract": {
+        "name": "noesis-oss-identity-candidate",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "licence-history",
+        "propose-repository-package-matches",
+        "propose-publisher-organisation-matches",
+        "propose-oss-identity-link",
+        "review-oss-identity-match",
+        "revert-oss-identity-match",
+        "list-oss-identity-candidates"
+      ],
+      "semantic_constraints": {
+        "licences": "declarations quoted and normalised to SPDX expressions against a pinned list version with a receipt; ambiguous or custom licences stay unparseable or LicenseRef; never interpreted",
+        "identity": "repositories and organisation publishers reach a package only through reviewed, revertible entity identity decisions; a repository claimed by two packages is flagged, never resolved",
+        "exclusions": "no code-quality, security-posture, health, popularity or trust verdict; no person profiled; maintainers only as declared organisations"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "licence-history",
+      "tool": "noesis-knowledge-engine.licence_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-repository-package-matches",
+      "tool": "noesis-knowledge-engine.propose_repository_package_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:oss:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-publisher-organisation-matches",
+      "tool": "noesis-knowledge-engine.propose_publisher_organisation_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:oss:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-oss-identity-link",
+      "tool": "noesis-knowledge-engine.propose_oss_identity_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-oss-identity-match",
+      "tool": "noesis-knowledge-engine.review_oss_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-oss-identity-match",
+      "tool": "noesis-knowledge-engine.revert_oss_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-oss-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_oss_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "oss-identity-candidate",
+      "store": "src.kb.oss_ecosystem_identity",
+      "tables": [
+        "oss_identity_candidates"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "oss_revisions"
+    }
+  ],
+  "source_packs": []
+}

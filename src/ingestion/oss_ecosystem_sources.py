@@ -8,13 +8,13 @@ selection per source under :mod:`src.ingestion.source_pack_runtime` and emits
 * **Registries** go through the existing providers in
   :mod:`src.domains.technical.registries` (their endpoints and their
   ``history`` parsers); this module adds no registry client, only the paging.
-* **deps.dev** (optional feature ``oss_deps_dev``) is a second, attributed
+* **deps.dev** (optional feature ``oss-deps-dev``) is a second, attributed
   source: its versions, licences, related source repositories and the graph it
   resolves are kept side by side with the registries', never merged. Advisory
   keys and attestations are dropped.
 * **SPDX License List** pinned releases (licences and exceptions with
   deprecation flags) so each normalisation cites the list version it used.
-* **Software Heritage** (optional feature ``oss_software_heritage``): visits
+* **Software Heritage** (optional feature ``oss-software-heritage``): visits
   and snapshot tag branches for origins that a repository link assertion names
   (the projector refuses any other origin). Release and revision objects,
   which carry author and committer identities, are never fetched. Rate-limit
@@ -126,7 +126,7 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     },
     "deps-dev": {
         "decision": "implement",
-        "feature": "oss_deps_dev",
+        "feature": "oss-deps-dev",
         "format": "deps-dev",
         "auth": "none",
         "endpoints": [
@@ -150,7 +150,7 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     },
     "software-heritage": {
         "decision": "implement",
-        "feature": "oss_software_heritage",
+        "feature": "oss-software-heritage",
         "format": "software-heritage",
         "auth": "optional bearer token (NOESIS_SWH_TOKEN)",
         "endpoints": [

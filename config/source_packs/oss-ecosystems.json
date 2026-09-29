@@ -259,7 +259,7 @@
       "connector": "oss-ecosystem",
       "endpoint": "https://api.deps.dev/v3",
       "publisher": "Open Source Insights (deps.dev)",
-      "scope": "deps.dev versions, licences, related source repositories and its resolved graphs for pinned npm releases (feature oss_deps_dev)",
+      "scope": "deps.dev versions, licences, related source repositories and its resolved graphs for pinned npm releases (feature oss-deps-dev)",
       "license": {
         "id": "CC-BY-4.0",
         "terms_url": "https://docs.deps.dev/api/v3/",
@@ -354,7 +354,7 @@
       "connector": "oss-ecosystem",
       "endpoint": "https://archive.softwareheritage.org/api/1",
       "publisher": "Software Heritage",
-      "scope": "Visits and snapshot tag branches for origins named by repository link assertions (feature oss_software_heritage)",
+      "scope": "Visits and snapshot tag branches for origins named by repository link assertions (feature oss-software-heritage)",
       "license": {
         "id": "swh-terms",
         "terms_url": "https://www.softwareheritage.org/legal/api-terms-of-use/",

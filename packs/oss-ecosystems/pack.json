@@ -1,0 +1,103 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "oss-ecosystems",
+  "version": "1.0.0",
+  "description": "Open-source Software Ecosystems: release, yank, deprecation and unpublish history, declared dependencies and dependency graphs as of a date, licence declarations as SPDX expressions, organisation-level publishers and reviewed repository links with Software Heritage provenance; advisories cited from Technology vulnerabilities.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "overview": [
+      "package",
+      "release",
+      "yank",
+      "deprecated",
+      "dependency graph",
+      "licence",
+      "spdx"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "release-state-history",
+    "declared-dependency-history",
+    "dependency-graph-as-of",
+    "spdx-licence-history",
+    "organisation-publishers",
+    "reviewable-repository-identity",
+    "archive-provenance",
+    "package-monitoring"
+  ],
+  "schema_versions": {
+    "oss-ecosystem-record": "1.0.0",
+    "oss-ecosystem-answer": "1.0.0",
+    "oss-dependency-graph": "1.0.0",
+    "oss-identity-candidate": "1.0.0",
+    "oss-package-notification": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-technical-model-v1",
+      "noesis-temporal-v1",
+      "noesis-entity-identity-decision-v1",
+      "noesis-knowledge-subscription-v1",
+      "noesis-vulnerability-record-v1"
+    ],
+    "object_types": [
+      "release_state_revision",
+      "declared_dependency_set",
+      "licence_declaration_revision",
+      "publisher_organisation",
+      "repository_link_assertion",
+      "archive_provenance",
+      "published_dependency_graph",
+      "spdx_list_release"
+    ],
+    "relation_types": [
+      "declares_dependency",
+      "declares_licence",
+      "published_by_organisation",
+      "asserts_repository",
+      "archived_as"
+    ]
+  },
+  "source_pack": "config/source_packs/oss-ecosystems.json",
+  "query_examples": [
+    {
+      "intent": "Which releases of a package were yanked or deprecated on a date",
+      "tool": "package_release_history",
+      "arguments": {"namespace": "global", "package": "pkg:pypi:fixture-parser", "as_of": "2026-07-01"},
+      "semantics": "each release's state on the date as its registry stated it, reasons verbatim, deps.dev beside, knowledge cutoff and unobserved gaps stated"
+    },
+    {
+      "intent": "What did a release's dependency graph look like on a date",
+      "tool": "dependency_graph_as_of",
+      "arguments": {"namespace": "global", "package": "pkg:cargo:fixture-codec", "version": "0.1.0", "date": "2026-04-01", "depth": 2},
+      "semantics": "declared-constraint resolution against releases published, acquired and available on the date, not an observed lockfile; unresolved edges with reasons; deps.dev's graph beside"
+    },
+    {
+      "intent": "Where did a package's declared licence change",
+      "tool": "licence_history",
+      "arguments": {"namespace": "global", "package": "pkg:pypi:fixture-parser"},
+      "semantics": "raw declarations and SPDX expressions per release with the list version cited; changes compared in normalised form; no licence interpretation"
+    },
+    {
+      "intent": "Which advisories name a package",
+      "tool": "package_advisories",
+      "arguments": {"namespace": "global", "package": "pkg:pypi:fixture-parser", "version": "1.1.0"},
+      "semantics": "advisories cited from technology.vulnerabilities by revision; nothing copied; no risk verdict"
+    }
+  ],
+  "exclusions": [
+    "code-quality, security-posture, health, popularity or trust verdicts or scores",
+    "contributor or maintainer profiling: individual accounts, emails, commit authorship and activity",
+    "scraping of individual user or account pages",
+    "duplicated vulnerability records (advisories are cited from technology.vulnerabilities)",
+    "licence-compliance or legal advice"
+  ]
+}

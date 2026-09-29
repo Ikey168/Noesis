@@ -9308,6 +9308,12 @@ from tools.knowledge_engine_mcp.development_finance import (
 
 register_development_finance_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.oss_ecosystems import (
+    register as register_oss_ecosystem_tools,
+)
+
+register_oss_ecosystem_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

@@ -46,6 +46,7 @@ PROJECTOR_OWNERS = {
     "noesis-bafin-notice-v1": "src.domains.market.bafin_notices",
     "noesis-housing-record-v1": "src.kb.housing",
     "noesis-surveillance-record-v1": "src.kb.surveillance",
+    "noesis-oss-ecosystem-record-v1": "src.kb.oss_ecosystem_store",
 }
 
 

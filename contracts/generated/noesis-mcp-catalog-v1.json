@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1068,
+      "tool_count": 1088,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1048,6 +1048,7 @@
         "noesis-knowledge-engine.compare_formal_snapshots",
         "noesis-knowledge-engine.compare_government_finance_vintages",
         "noesis-knowledge-engine.compare_hypotheses",
+        "noesis-knowledge-engine.compare_inventory_with_graph",
         "noesis-knowledge-engine.compare_land_value_revisions",
         "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
@@ -1096,6 +1097,7 @@
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
         "noesis-knowledge-engine.create_lobbying_monitor",
+        "noesis-knowledge-engine.create_package_monitor",
         "noesis-knowledge-engine.create_paper_family",
         "noesis-knowledge-engine.create_persistent_research_loop",
         "noesis-knowledge-engine.create_practice_pack",
@@ -1135,6 +1137,7 @@
         "noesis-knowledge-engine.demographic_series_citing",
         "noesis-knowledge-engine.demographic_series_values",
         "noesis-knowledge-engine.demographic_source_contracts",
+        "noesis-knowledge-engine.dependency_graph_as_of",
         "noesis-knowledge-engine.derive_redacted_projection",
         "noesis-knowledge-engine.derived_object_generation_delta",
         "noesis-knowledge-engine.derived_object_health",
@@ -1399,6 +1402,7 @@
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.lei_parents_as_of",
+        "noesis-knowledge-engine.licence_history",
         "noesis-knowledge-engine.link_amendment_dossiers",
         "noesis-knowledge-engine.link_budget_acts",
         "noesis-knowledge-engine.link_budget_districts",
@@ -1464,6 +1468,8 @@
         "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_methodology_limitations",
         "noesis-knowledge-engine.list_official_meetings",
+        "noesis-knowledge-engine.list_oss_archive_provenance",
+        "noesis-knowledge-engine.list_oss_identity_candidates",
         "noesis-knowledge-engine.list_ownership_identity_candidates",
         "noesis-knowledge-engine.list_procurement_notices",
         "noesis-knowledge-engine.list_public_finance_identity_candidates",
@@ -1509,12 +1515,17 @@
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.normalise_development_finance_activities",
         "noesis-knowledge-engine.openreview_concern_review_target",
+        "noesis-knowledge-engine.oss_ecosystems_readiness",
+        "noesis-knowledge-engine.oss_source_contracts",
         "noesis-knowledge-engine.ownership_bundle_status",
         "noesis-knowledge-engine.ownership_graph",
         "noesis-knowledge-engine.ownership_provider_contracts",
         "noesis-knowledge-engine.ownership_record_history",
         "noesis-knowledge-engine.ownership_state_as_of",
         "noesis-knowledge-engine.ownership_timeline",
+        "noesis-knowledge-engine.package_advisories",
+        "noesis-knowledge-engine.package_release_history",
+        "noesis-knowledge-engine.packages_by_organisation",
         "noesis-knowledge-engine.patent_family_members",
         "noesis-knowledge-engine.patent_links",
         "noesis-knowledge-engine.patent_source_contracts",
@@ -1535,6 +1546,7 @@
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
+        "noesis-knowledge-engine.poll_package_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
@@ -1603,6 +1615,7 @@
         "noesis-knowledge-engine.propose_lobbying_identity_link",
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
         "noesis-knowledge-engine.propose_math_links",
+        "noesis-knowledge-engine.propose_oss_identity_link",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
         "noesis-knowledge-engine.propose_patent_link",
         "noesis-knowledge-engine.propose_problem_action",
@@ -1611,6 +1624,8 @@
         "noesis-knowledge-engine.propose_product_notice_party_links",
         "noesis-knowledge-engine.propose_public_finance_award_parties",
         "noesis-knowledge-engine.propose_public_finance_identity_matches",
+        "noesis-knowledge-engine.propose_publisher_organisation_matches",
+        "noesis-knowledge-engine.propose_repository_package_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
@@ -1681,6 +1696,7 @@
         "noesis-knowledge-engine.register_jev_intake_intent",
         "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_multimodal_asset",
+        "noesis-knowledge-engine.register_oss_schemas",
         "noesis-knowledge-engine.register_quality_policy",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
@@ -1703,6 +1719,7 @@
         "noesis-knowledge-engine.replay_citation_snapshot",
         "noesis-knowledge-engine.replay_claim_evolution",
         "noesis-knowledge-engine.replay_demographic_query",
+        "noesis-knowledge-engine.replay_dependency_graph",
         "noesis-knowledge-engine.replay_derived_object_generations",
         "noesis-knowledge-engine.replay_document_generation_delta",
         "noesis-knowledge-engine.replay_environment_dossier",
@@ -1764,6 +1781,7 @@
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
+        "noesis-knowledge-engine.revert_oss_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
         "noesis-knowledge-engine.revert_product_notice_party_link",
@@ -1797,6 +1815,7 @@
         "noesis-knowledge-engine.review_lobbying_identity_match",
         "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_multilingual_alias",
+        "noesis-knowledge-engine.review_oss_identity_match",
         "noesis-knowledge-engine.review_ownership_identity_match",
         "noesis-knowledge-engine.review_paper_family_notice_target",
         "noesis-knowledge-engine.review_paper_family_relation",
@@ -1845,6 +1864,7 @@
         "noesis-knowledge-engine.run_lobbying_monitor",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
+        "noesis-knowledge-engine.run_package_monitor",
         "noesis-knowledge-engine.run_persistent_research_loop",
         "noesis-knowledge-engine.run_procurement_monitor",
         "noesis-knowledge-engine.run_product_notice_monitor",
@@ -1996,7 +2016,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1068
+      "visible_tool_count": 1088
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2007,11 +2027,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 120,
+      "available": 121,
       "degraded": 159,
-      "unauthorized": 1099
+      "unauthorized": 1118
     },
-    "tools": 1378
+    "tools": 1398
   },
   "tools": [
     {
@@ -26849,6 +26869,78 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "A pinned technical inventory beside the as-of graph of the same root; pins yanked or deprecated then.",
+      "id": "noesis-knowledge-engine.compare_inventory_with_graph",
+      "input_schema": {
+        "properties": {
+          "depth": {
+            "default": 3,
+            "type": "integer"
+          },
+          "ecosystem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "inventory_date": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "inventory_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "inventory_id",
+          "package",
+          "version"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_inventory_with_graph",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "One zone's values across valuation dates and sources side by side; no change or trend is computed.",
       "id": "noesis-knowledge-engine.compare_land_value_revisions",
@@ -29605,6 +29697,67 @@
     },
     {
       "cost_class": "medium",
+      "description": "Follow a package, a graph root (with a depth) or an organisation publisher through a subscription.",
+      "id": "noesis-knowledge-engine.create_package_monitor",
+      "input_schema": {
+        "properties": {
+          "depth": {
+            "default": 2,
+            "type": "integer"
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_package_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a versioned scholarly family from an exact accessible document revision.",
       "id": "noesis-knowledge-engine.create_paper_family",
       "input_schema": {
@@ -31957,6 +32110,107 @@
       "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A release's dependency graph resolved from declared constraints against releases known on the date.\n\nDeclared-constraint resolution, not an observed lockfile. Unresolved edges are listed with reasons, other\nscopes and markers are reported, deps.dev's graph is shown beside, and a replayable receipt pins revisions.",
+      "id": "noesis-knowledge-engine.dependency_graph_as_of",
+      "input_schema": {
+        "properties": {
+          "acquired_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date": {
+            "type": "string"
+          },
+          "depth": {
+            "default": 3,
+            "type": "integer"
+          },
+          "ecosystem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "environment": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "max_nodes": {
+            "default": 200,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          },
+          "scopes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "version": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "package",
+          "version",
+          "date"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "dependency_graph_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -43787,6 +44041,76 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Declared licence per release as raw text and SPDX expression with the list version; changes highlighted.\n\nRegistry and deps.dev disagreements are shown side by side. Quoted and normalised, never interpreted.",
+      "id": "noesis-knowledge-engine.licence_history",
+      "input_schema": {
+        "properties": {
+          "acquired_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "ecosystem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "list_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "package"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "licence_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Link acquired amendment acts to Bundestag DIP dossiers whose stages state the act's BGBl citation (exact\ncitation match only); unmatched acts stay unlinked with the reason.",
       "id": "noesis-knowledge-engine.link_amendment_dossiers",
@@ -47326,6 +47650,116 @@
     },
     {
       "cost_class": "low",
+      "description": "Software Heritage visits and snapshot tags for asserted origins, cited by revision and SWHID.",
+      "id": "noesis-knowledge-engine.list_oss_archive_provenance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "repository": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_oss_archive_provenance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Repository and organisation candidates, found from either side; shared repository claims are flagged.",
+      "id": "noesis-knowledge-engine.list_oss_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_oss_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Identity candidates with basis, evidence, confidence, state and the recorded decision.",
       "id": "noesis-knowledge-engine.list_ownership_identity_candidates",
       "input_schema": {
@@ -49719,6 +50153,63 @@
     },
     {
       "cost_class": "low",
+      "description": "Bundle selection, optional features and ready/fixture-only/unavailable per source; live kept separate.",
+      "id": "noesis-knowledge-engine.oss_ecosystems_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "oss_ecosystems_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions, terms, limits, dropped personal fields and live-verification state (OS01).",
+      "id": "noesis-knowledge-engine.oss_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "oss_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Declared contributions plus per-provider record presence, live-verification state and readiness.",
       "id": "noesis-knowledge-engine.ownership_bundle_status",
       "input_schema": {
@@ -50009,6 +50500,210 @@
       ],
       "required_scopes": [
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Advisories naming a package, cited from technology.vulnerabilities by revision; nothing is copied.\n\nNo exploitability or risk verdict; the version's position against a cited range is not a verdict.",
+      "id": "noesis-knowledge-engine.package_advisories",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "ecosystem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          },
+          "version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "vulnerability_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "package"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "package_advisories",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:technical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Releases of a package with their state on a date (yank, deprecation, unpublish reasons verbatim).\n\nThe registry's listing first, deps.dev beside it; publishers are organisations only; the repository is\nthe package's only through a reviewed decision. Knowledge cutoff, generation and gaps are stated.",
+      "id": "noesis-knowledge-engine.package_release_history",
+      "input_schema": {
+        "properties": {
+          "acquired_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "ecosystem": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_revisions": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "package": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "package"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "package_release_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Packages an organisation-level publisher declares (or entity:<id> through reviewed matches); never a person.",
+      "id": "noesis-knowledge-engine.packages_by_organisation",
+      "input_schema": {
+        "properties": {
+          "acquired_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "organisation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "organisation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "packages_by_organisation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -50817,6 +51512,44 @@
       "required_scopes": [
         "knowledge:political:lobbying:read",
         "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Delivered package-monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_package_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_package_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read",
+        "knowledge:oss:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -54194,6 +54927,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "A reviewer's own candidate: oss-package:<coordinate> with oss-repository:<key>, or a publisher with entity:<id>.",
+      "id": "noesis-knowledge-engine.propose_oss_identity_link",
+      "input_schema": {
+        "properties": {
+          "left_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "right_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_key",
+          "right_key",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_oss_identity_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose reviewable identity candidates (exact, cross-referenced, name+jurisdiction); nothing is merged.",
       "id": "noesis-knowledge-engine.propose_ownership_identity_matches",
       "input_schema": {
@@ -54568,6 +55346,74 @@
         "knowledge:economic:public-finance:read",
         "knowledge:ownership:read",
         "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose organisation entities for organisation-level publishers; npm scopes and groupIds never.",
+      "id": "noesis-knowledge-engine.propose_publisher_organisation_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_publisher_organisation_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:oss:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose repository candidates from registry links, deps.dev related projects and archive tags. Idempotent.",
+      "id": "noesis-knowledge-engine.propose_repository_package_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_repository_package_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:oss:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -59615,6 +60461,33 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register noesis-oss-ecosystem-record-v1 and noesis-oss-ecosystem-answer-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_oss_schemas",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_oss_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register versioned quality dimensions, defaults, overrides, and calibration.",
       "id": "noesis-knowledge-engine.register_quality_policy",
       "input_schema": {
@@ -61360,6 +62233,40 @@
       ],
       "required_scopes": [
         "knowledge:demographics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Recompute a graph from its receipt; reports whether the pinned revisions and the result still match.",
+      "id": "noesis-knowledge-engine.replay_dependency_graph",
+      "input_schema": {
+        "properties": {
+          "receipt": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "receipt"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_dependency_graph",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63901,6 +64808,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo a decision; the candidate becomes reverted and no earlier decision is reactivated.",
+      "id": "noesis-knowledge-engine.revert_oss_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_oss_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected identity decision; both records stay intact and auditable.",
       "id": "noesis-knowledge-engine.revert_ownership_identity_match",
       "input_schema": {
@@ -65434,6 +66382,51 @@
       ],
       "required_scopes": [
         "knowledge:cross-language:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision; records are never merged.",
+      "id": "noesis-knowledge-engine.review_oss_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_oss_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -68017,6 +69010,52 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a package monitor at a committed watermark; notifications cite old and new revisions.",
+      "id": "noesis-knowledge-engine.run_package_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_package_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
