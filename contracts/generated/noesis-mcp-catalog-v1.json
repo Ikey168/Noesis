@@ -171,7 +171,7 @@
       "pack": null,
       "reason": null,
       "state": "degraded",
-      "tool_count": 37,
+      "tool_count": 38,
       "tools": [
         "noesis-pipeline.article_stats",
         "noesis-pipeline.articles_data",
@@ -184,6 +184,7 @@
         "noesis-pipeline.figure_evidence",
         "noesis-pipeline.forecast_topic",
         "noesis-pipeline.geo_map",
+        "noesis-pipeline.harvest_scholarly",
         "noesis-pipeline.latest_articles",
         "noesis-pipeline.lead_lag",
         "noesis-pipeline.list_connector_types",
@@ -216,7 +217,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 37
+      "visible_tool_count": 38
     },
     {
       "aliases": [
@@ -2176,10 +2177,10 @@
     "servers": 32,
     "states": {
       "available": 123,
-      "degraded": 173,
+      "degraded": 174,
       "unauthorized": 1233
     },
-    "tools": 1529
+    "tools": 1530
   },
   "tools": [
     {
@@ -4011,6 +4012,73 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Preview or ingest papers into the ``papers`` knowledge domain.\n\nThe publication-date window is inclusive. Preview the results, then pass\ntheir selected document IDs with ``apply=True`` to store reviewed records\nand update domain membership. Provider failures are returned\nexplicitly so a rate limit cannot look like an empty literature result.",
+      "id": "noesis-pipeline.harvest_scholarly",
+      "input_schema": {
+        "properties": {
+          "apply": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 25,
+            "type": "integer"
+          },
+          "selected_document_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "since": {
+            "type": "string"
+          },
+          "source": {
+            "type": "string"
+          },
+          "topic": {
+            "type": "string"
+          },
+          "until": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "source",
+          "topic",
+          "since",
+          "until"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "harvest_scholarly",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-pipeline",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Newest articles as compact summaries (title, source, date, sentiment\nlabel) \u2014 never full content.\n\nArgs:\n    topic: Substring match against the title (ILIKE).\n    limit: Max rows (default 10, max 20).",
       "id": "noesis-pipeline.latest_articles",
@@ -4467,7 +4535,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Run a single connector: fetch + parse up to `sample` records from one\nsource and return a SUMMARY only (no warehouse write).\n\nTwo dispatch modes, selected automatically:\n\n1. **RSS feed** (legacy): ``source`` is a feed name from ``list_sources``\n   (e.g. ``\"BBC Technology\"``). ``query`` is ignored.\n\n2. **Document connector**: ``source`` is a source type from\n   ``list_connector_types`` (e.g. ``\"book\"``, ``\"paper\"``, ``\"transcript\"``).\n   ``query`` is a JSON list of paths or IDs to pass to ``discover()``.\n   Examples::\n\n     run_connector(\"book\",       query='[\"/books/foo.epub\"]')\n     run_connector(\"paper\",      query='[\"2312.00752\", \"1706.03762\"]')\n     run_connector(\"transcript\", query='[\"/pods/ep42.mp3\"]')\n     run_connector(\"news\")       # uses DEFAULT_FEEDS, no query needed\n\nArgs:\n    source: RSS feed name OR a source_type from list_connector_types.\n    sample: max records to harvest (1-25).\n    query:  JSON list of paths/IDs for document connectors (ignored for RSS).\n\nReturns a summary: source type, record count, and sample titles/snippets.",
+      "description": "Run a single connector: fetch + parse up to `sample` records from one\nsource and return a SUMMARY only (no warehouse write).\n\nTwo dispatch modes, selected automatically:\n\n1. **RSS feed** (legacy): ``source`` is a feed name from ``list_sources``\n   (e.g. ``\"BBC Technology\"``). ``query`` is ignored.\n\n2. **Document connector**: ``source`` is a source type from\n   ``list_connector_types`` (e.g. ``\"book\"``, ``\"paper\"``, ``\"transcript\"``).\n   ``query`` is JSON passed to ``discover()``. Local document connectors\n   take a list of paths or IDs; scholarly connectors take an object with\n   ``topic``, ``since``, ``until``, and ``limit``.\n   Examples::\n\n     run_connector(\"book\",       query='[\"/books/foo.epub\"]')\n     run_connector(\"paper\",      query='[\"2312.00752\", \"1706.03762\"]')\n     run_connector(\"transcript\", query='[\"/pods/ep42.mp3\"]')\n     run_connector(\"crossref\", query='{\"topic\":\"ternary computer\",\"since\":\"2010-01-01\",\"until\":\"2026-09-23\"}')\n     run_connector(\"news\")       # uses DEFAULT_FEEDS, no query needed\n\nArgs:\n    source: RSS feed name OR a source_type from list_connector_types.\n    sample: max records to harvest (1-25).\n    query:  JSON list of paths/IDs for document connectors (ignored for RSS).\n\nReturns a summary: source type, record count, and sample titles/snippets.",
       "id": "noesis-pipeline.run_connector",
       "input_schema": {
         "properties": {
@@ -6358,7 +6426,7 @@
     },
     {
       "cost_class": "low",
-      "description": "Per-venue credibility over the ingested paper corpus, reusing the\ntransparency-scoring machinery. Each venue carries a credibility interval\nand its component scores.",
+      "description": "Per-venue credibility over the ingested paper corpus, reusing the\ntransparency-scoring machinery. A venue with sufficient inputs carries a\ncredibility interval; otherwise its missing inputs are reported.",
       "id": "noesis-research.venues",
       "input_schema": {
         "properties": {},
@@ -6441,8 +6509,20 @@
                   ],
                   "type": "object"
                 },
+                "missing": {
+                  "items": {
+                    "type": "string"
+                  },
+                  "type": "array"
+                },
                 "papers": {
                   "type": "integer"
+                },
+                "status": {
+                  "enum": [
+                    "scored",
+                    "insufficient_data"
+                  ]
                 },
                 "venue": {
                   "type": "string"

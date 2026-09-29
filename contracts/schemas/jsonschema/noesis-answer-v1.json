@@ -302,6 +302,7 @@
               "one_or_more_statements_unverifiable",
               "one_or_more_evidence_locators_unresolved",
               "output_budget_exhausted",
+              "paper_passages_are_source_statements_not_validated_claims",
               "one_or_more_domains_unavailable"
             ]
           }
@@ -342,7 +343,7 @@
                 "additionalProperties": false,
                 "required": ["kind", "id", "relevance"],
                 "properties": {
-                  "kind": {"enum": ["claim", "document"]},
+                  "kind": {"enum": ["claim", "document", "paper_passage"]},
                   "id": {"type": "string"},
                   "relevance": {"type": "number", "minimum": 0, "maximum": 1},
                   "domains": {

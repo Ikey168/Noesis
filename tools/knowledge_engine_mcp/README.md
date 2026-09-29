@@ -33,3 +33,12 @@ and inspect status, health, generation receipts, deterministic replay, and full
 lineage. Fixture-backed execution remains the default. Operator scope is needed
 to execute work, while schedule and recovery controls require the dedicated
 `knowledge:maintenance:admin` scope (or an operator acting as deployment admin).
+
+For MCP clients that cannot expose this server's full tool catalog, launch a
+separate instance with `NOESIS_MCP_TOOL_PROFILE=research`. It advertises only
+the 16 intake and Deep Research tools needed to preflight, run, inspect, and
+export a bounded research session; the default instance still advertises every
+tool. Give the research instance `knowledge:intake:read/write` and the intended
+`namespace:<name>:read/write` scopes. A project-backed session also needs
+`knowledge:projects:read/write`. The profile narrows discovery only; each tool
+still enforces its normal caller and namespace checks.

@@ -1,8 +1,8 @@
 """Deterministic, extractive answers over a resolved knowledge-domain backing.
 
 The engine deliberately does not generate prose. It selects already-extracted
-claims, or document titles for questions asking which sources exist, and
-renders only those statements. That makes the offline path reproducible
+claims, bounded paper passages, or document titles for questions asking which
+sources exist, and renders only those statements. That makes the offline path reproducible
 and prevents an optional language model from introducing uncited facts.
 """
 
@@ -397,14 +397,23 @@ def _paper_passages(
     }
     if not visible:
         return []
-    placeholders = ", ".join("?" for _ in visible)
-    with backing._lock():
-        rows = backing.conn.execute(
-            f"SELECT document_id, content FROM documents WHERE document_id IN ({placeholders})",
-            list(visible),
-        ).fetchall()
+    # Backings that expose ``answer_documents`` already attach bounded paper
+    # text read through the domain view; only query for documents without it.
+    contents = {
+        document_id: document.get("content")
+        for document_id, document in visible.items()
+        if "content" in document
+    }
+    missing = [document_id for document_id in visible if document_id not in contents]
+    if missing:
+        placeholders = ", ".join("?" for _ in missing)
+        with backing._lock():
+            contents.update(backing.conn.execute(
+                f"SELECT document_id, content FROM documents WHERE document_id IN ({placeholders})",
+                missing,
+            ).fetchall())
     ranked = []
-    for document_id, content in rows:
+    for document_id, content in sorted(contents.items()):
         if not content:
             continue
         plain = html.unescape(re.sub(r"<[^>]+>", " ", content))
@@ -417,7 +426,7 @@ def _paper_passages(
         )
         for index, sentence in enumerate(re.split(r"(?<=[.!?])\s+", protected)):
             sentence = sentence.replace("<period>", ".").strip()
-            if len(sentence) < 30:
+            if not 30 <= len(sentence) <= 1800:
                 continue
             score = _relevance(question_tokens, sentence)
             if score > 0.0 and score >= minimum_relevance:
@@ -536,7 +545,11 @@ def build_answer(
     """Build a ``noesis-answer-v1`` payload from one resolved backing."""
     question = question.strip()
     question_tokens = _tokens(question)
-    documents = backing.documents(limit=500)
+    documents = (
+        backing.answer_documents(limit=500)
+        if hasattr(backing, "answer_documents")
+        else backing.documents(limit=500)
+    )
     documents_by_id = _document_map(documents)
     clusters = backing.claims(limit=500)
     visibility = (
@@ -566,7 +579,7 @@ def build_answer(
         )
         eligible_count = len(ranked_passages)
         selected = [
-            ("passage", score, identity, {"document": document, "text": passage})
+            ("paper_passage", score, identity, {"document": document, "text": passage})
             for score, identity, document, passage in ranked_passages[:limit]
         ]
     # A matching document title establishes that a source exists. It cannot
@@ -597,7 +610,7 @@ def build_answer(
                     question, candidate, documents_by_id, claim_index, backing
                 )
             )
-        elif kind == "passage":
+        elif kind == "paper_passage":
             statements.append(
                 _passage_statement(
                     question, candidate["document"], candidate["text"], _identity, backing
@@ -611,6 +624,8 @@ def build_answer(
         statements = [_refusal_statement(question)]
     partial_reasons = []
     if not refused:
+        if any(item[0] == "paper_passage" for item in selected):
+            partial_reasons.append("paper_passages_are_source_statements_not_validated_claims")
         if any(statement["verdict"] == "unverifiable" for statement in statements):
             partial_reasons.append("one_or_more_statements_unverifiable")
         if any(

@@ -17,6 +17,7 @@ from src.mcp_host.config import (
     LEGACY_SERVER_ALIASES,
     REPO_ROOT,
     _is_project_server,
+    is_tool_profile_entry,
 )
 
 CATALOG_CONTRACT = "noesis-mcp-catalog-v1"
@@ -2265,10 +2266,16 @@ async def build_catalog(
     omitted = Counter()
     conformance_errors = []
     registered_project_paths = set()
+    profile_registrations = {}
 
     for registered_name, entry in raw["mcpServers"].items():
         canonical = aliases.get(str(registered_name), str(registered_name))
         path = _server_path(entry, root) if isinstance(entry, Mapping) else None
+        if path is not None and is_tool_profile_entry(dict(entry)):
+            # A bounded tool profile of another registered server; its tools
+            # are already catalogued under that server's canonical name.
+            profile_registrations[canonical] = path.resolve()
+            continue
         if path is None:
             servers.append(
                 {
@@ -2447,6 +2454,11 @@ async def build_catalog(
     conformance_errors.extend(
         f"stale server registration: {path}" for path in stale_registrations
     )
+    for name, path in sorted(profile_registrations.items()):
+        if path not in registered_project_paths:
+            conformance_errors.append(
+                f"tool profile {name} narrows an unregistered server"
+            )
     for alias, target in aliases.items():
         if target not in {server["name"] for server in servers}:
             conformance_errors.append(f"alias {alias} targets missing server {target}")

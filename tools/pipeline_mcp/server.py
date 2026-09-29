@@ -12,8 +12,9 @@ Tools:
   list_connector_types()               -> all registered document connector source types
   run_connector(source, sample=5,      -> fetch+parse one source, summary only (no write).
                 query?)                   source = RSS feed name OR a source_type from
-                                          list_connector_types(); query = JSON list of paths/
-                                          IDs passed to that connector's discover().
+                                          list_connector_types(); query = JSON passed to
+                                          that connector's discover().
+  harvest_scholarly(source, topic, ...)  -> preview or ingest publication-dated papers.
   run_stage(stage, input_ref?, ...)         -> run one named stage: fetch|sentiment|store|ingest|positions
   trace_article(id)                         -> where an article exists across warehouse / vector / s3
   query_positions(actor?, topic?, ...)      -> query policy_positions table for actor commitments (#110)
@@ -68,6 +69,63 @@ CONTENT_PREVIEW = 200
 # --------------------------------------------------------------------------- #
 # Helpers
 # --------------------------------------------------------------------------- #
+
+def _merge_scholarly_observation(incoming, current):
+    """Retain the best available paper text and both providers' date claims.
+
+    DOI identity is shared across scholarly connectors. A metadata-only hit
+    must not erase an abstract already collected from another provider.
+    """
+    from datetime import datetime, timezone
+    import json
+    from services.ingest.common.document_model import Document
+
+    if current is None or current.get("source_type") != "paper":
+        return incoming
+    existing = Document.from_dict(current)
+    primary, secondary = (incoming, existing) if incoming.content and not existing.content else (existing, incoming)
+
+    def observation(doc):
+        return {
+            "provider": doc.source_id or doc.metadata.get("source_api"),
+            "publication_date": datetime.fromtimestamp(doc.created_at / 1000, timezone.utc).date().isoformat()
+            if doc.created_at is not None else None,
+            "publication_date_precision": doc.metadata.get("publication_date_precision", "unknown"),
+            "content_coverage": doc.metadata.get("content_coverage", "unknown"),
+        }
+
+    metadata = {**secondary.metadata, **primary.metadata}
+    for key in ("references", "tags"):
+        metadata[key] = sorted(set((existing.metadata.get(key) or []) + (incoming.metadata.get(key) or [])))
+        if not metadata[key]:
+            metadata.pop(key)
+    observations = json.loads(existing.metadata.get("scholarly_observations_json", "[]")) or [observation(existing)]
+    incoming_observation = observation(incoming)
+    if incoming_observation not in observations:
+        observations = [*observations, incoming_observation]
+    metadata["scholarly_observations_json"] = json.dumps(observations, sort_keys=True)
+    from calendar import monthrange
+    from datetime import date
+
+    def date_interval(item):
+        if not item["publication_date"]:
+            return None
+        start = date.fromisoformat(item["publication_date"])
+        precision = item["publication_date_precision"]
+        if precision == "year":
+            return date(start.year, 1, 1), date(start.year, 12, 31)
+        if precision == "month":
+            return date(start.year, start.month, 1), date(start.year, start.month, monthrange(start.year, start.month)[1])
+        return start, start
+
+    intervals = [interval for item in observations if (interval := date_interval(item))]
+    metadata["publication_date_conflict"] = bool(intervals) and max(start for start, _ in intervals) > min(end for _, end in intervals)
+    primary.metadata = metadata
+    primary.content_ref = primary.content_ref or secondary.content_ref
+    primary.authors = primary.authors or secondary.authors
+    primary.url = primary.url or secondary.url
+    primary.title = primary.title or secondary.title
+    return primary
 
 def _pipeline():
     """Lazy-import the (light) ingestion pipeline module."""
@@ -186,10 +244,11 @@ def list_connector_types() -> dict:
         "source_types": types,
         "usage": (
             "Pass a source_type as `source` to run_connector(), "
-            "and supply `query` as a JSON list of paths/IDs for that connector "
+            "and supply `query` as JSON for that connector "
             "(e.g. query='[\"/books/foo.epub\"]' for book, "
             "query='[\"2312.00752\"]' for paper arXiv IDs, "
-            "query='[\"/podcasts/ep.mp3\"]' for transcript). "
+            "query='[\"/podcasts/ep.mp3\"]' for transcript, or a topic/date "
+            "object for scholarly sources). "
             "For `news`, omit query to use the default RSS feeds."
         ),
     }
@@ -207,12 +266,15 @@ def run_connector(source: str, sample: int = 5, query: Optional[str] = None) -> 
 
     2. **Document connector**: ``source`` is a source type from
        ``list_connector_types`` (e.g. ``"book"``, ``"paper"``, ``"transcript"``).
-       ``query`` is a JSON list of paths or IDs to pass to ``discover()``.
+       ``query`` is JSON passed to ``discover()``. Local document connectors
+       take a list of paths or IDs; scholarly connectors take an object with
+       ``topic``, ``since``, ``until``, and ``limit``.
        Examples::
 
          run_connector("book",       query='["/books/foo.epub"]')
          run_connector("paper",      query='["2312.00752", "1706.03762"]')
          run_connector("transcript", query='["/pods/ep42.mp3"]')
+         run_connector("crossref", query='{"topic":"ternary computer","since":"2010-01-01","until":"2026-09-23"}')
          run_connector("news")       # uses DEFAULT_FEEDS, no query needed
 
     Args:
@@ -279,7 +341,7 @@ def _run_document_connector(
         try:
             query = _json.loads(query_json)
         except _json.JSONDecodeError as exc:
-            return {"error": f"query must be a JSON list: {exc}", "example": '["path/to/file"]'}
+            return {"error": f"query must be valid JSON: {exc}", "example": '{"topic":"ternary computer"}'}
 
     try:
         connector = get_connector(source_type)
@@ -307,7 +369,7 @@ def _run_document_connector(
             "language": d.language,
         }
         # Include a few type-specific metadata highlights.
-        for key in ("section_path", "start_s", "end_s", "speaker", "arxiv_id", "doi"):
+        for key in ("section_path", "start_s", "end_s", "speaker", "arxiv_id", "doi", "publication_date_precision", "content_coverage"):
             if key in (d.metadata or {}):
                 snippet[key] = d.metadata[key]
         if d.content:
@@ -324,6 +386,184 @@ def _run_document_connector(
     if errors:
         result["errors"] = errors
     return result
+
+
+@mcp.tool
+def harvest_scholarly(
+    source: str,
+    topic: str,
+    since: str,
+    until: str,
+    limit: int = 25,
+    apply: bool = False,
+    selected_document_ids: Optional[list[str]] = None,
+) -> dict:
+    """Preview or ingest papers into the ``papers`` knowledge domain.
+
+    The publication-date window is inclusive. Preview the results, then pass
+    their selected document IDs with ``apply=True`` to store reviewed records
+    and update domain membership. Provider failures are returned
+    explicitly so a rate limit cannot look like an empty literature result.
+    """
+    from datetime import date, datetime, timezone
+    import re
+
+    import src.ingestion.connectors  # noqa: F401 - register scholarly connectors
+    from src.ingestion.connectors.registry import get_connector
+    from src.ingestion.connectors.scholarly.sources import SCHOLARLY_SOURCES
+
+    if source not in SCHOLARLY_SOURCES:
+        return {"error": f"unknown scholarly source {source!r}", "sources": SCHOLARLY_SOURCES}
+    if not isinstance(topic, str) or not topic.strip():
+        return {"error": "topic must be a non-empty string"}
+    try:
+        start, end = date.fromisoformat(since), date.fromisoformat(until)
+        if start > end or start.isoformat() != since or end.isoformat() != until:
+            raise ValueError("invalid date window")
+    except (TypeError, ValueError):
+        return {"error": "since and until must be ordered YYYY-MM-DD publication dates"}
+    if not isinstance(limit, int) or isinstance(limit, bool) or not 1 <= limit <= MAX_LIST:
+        return {"error": f"limit must be an integer between 1 and {MAX_LIST}"}
+    if apply and (
+        not isinstance(selected_document_ids, list)
+        or not selected_document_ids
+        or any(not isinstance(value, str) for value in selected_document_ids)
+    ):
+        return {"error": "apply requires selected_document_ids from a preview"}
+
+    connector = get_connector(source)
+    # Read ahead so weakly matched provider hits do not fill the preview.
+    query = {"topic": topic.strip(), "since": since, "until": until,
+             "limit": min(100, max(25, limit * 3))}
+    def topical(document) -> bool:
+        # Providers differ in how strongly they honor multi-word search. Keep
+        # a result only if its title or abstract actually relates to the query.
+        def words(value: str) -> set[str]:
+            return {
+                word.removesuffix("s") if len(word) > 4 else word
+                for word in re.findall(r"\w+", value.casefold())
+                if word not in {"a", "an", "and", "for", "in", "of", "the", "to", "with"}
+            }
+
+        query_words = words(topic)
+        title_words = words(document.title or "")
+        evidence_words = title_words | words(document.content or "")
+        overlap = query_words & evidence_words
+        # A named invention/person is the discriminating part of a historical
+        # query. Generic engineering terms alone produced false positives such
+        # as hydraulic controllers for "Lukyanov hydraulic integrator".
+        named = [
+            word.casefold() for word in re.findall(r"\w+", topic)
+            if word.casefold() not in {"soviet", "russian"} and (
+                (len(word) >= 5 and word[0].isupper() and len(query_words) >= 3)
+                or (len(word) >= 3 and word.isupper())
+            )
+        ]
+        anchor = named[0] if named else None
+        if anchor and anchor not in evidence_words:
+            return False
+        return bool(overlap) and (
+            len(overlap) >= max(1, (len(query_words) + 1) // 2)
+            or any(len(word) >= 9 for word in query_words & title_words)
+        )
+
+    docs = []
+    errors = []
+    provider_harvested = 0
+    for ref in connector.discover(query):
+        try:
+            batch = connector.parse(connector.fetch(ref))
+        except Exception as exc:
+            errors.append({"source": source, "error": str(exc)})
+            continue
+        provider_harvested += len(batch)
+        docs.extend(doc for doc in batch if topical(doc))
+        if len(docs) >= limit or provider_harvested >= query["limit"]:
+            break
+    matched_count = len(docs)
+    docs = docs[:limit]
+    for doc in docs:
+        doc.metadata["tags"] = sorted(set([*(doc.metadata.get("tags") or []), "papers", "research"]))
+
+    duplicate_keys = {}
+    for doc in docs:
+        if not doc.title or doc.created_at is None:
+            continue
+        key = (
+            " ".join(re.findall(r"\w+", doc.title.casefold())),
+            datetime.fromtimestamp(doc.created_at / 1000, timezone.utc).year,
+        )
+        duplicate_keys.setdefault(key, []).append(doc.document_id)
+    duplicate_candidates = [
+        ids for ids in duplicate_keys.values() if len(ids) > 1
+    ]
+
+    result = {
+        "source": source,
+        "domain": "papers",
+        "topic": topic.strip(),
+        "since": since,
+        "until": until,
+        "harvested": len(docs),
+        "provider_harvested": provider_harvested,
+        "filtered_irrelevant": provider_harvested - matched_count,
+        "matched_before_limit": matched_count,
+        "abstract_count": sum(bool(doc.content) for doc in docs),
+        "metadata_only_count": sum(not doc.content for doc in docs),
+        "possible_duplicate_groups": duplicate_candidates,
+        "documents": [
+            {
+                "document_id": doc.document_id,
+                "title": doc.title,
+                "doi": doc.metadata.get("doi"),
+                "publication_date": datetime.fromtimestamp(doc.created_at / 1000, timezone.utc).date().isoformat()
+                if doc.created_at is not None else None,
+                "publication_date_precision": doc.metadata.get("publication_date_precision"),
+                "content_coverage": doc.metadata.get("content_coverage"),
+            }
+            for doc in docs[:MAX_LIST]
+        ],
+        "errors": errors,
+        "applied": False,
+    }
+    if not docs and errors:
+        result["coverage_warning"] = "provider_error; zero results are not a coverage finding"
+    elif not docs and provider_harvested:
+        result["coverage_warning"] = "provider results did not match the topic in title or abstract"
+    elif docs and not any(doc.content for doc in docs):
+        result["coverage_warning"] = "metadata only; historical or scientific claims need paper content"
+    if not apply or not docs:
+        return result
+    selected = set(selected_document_ids or [])
+    found = {doc.document_id for doc in docs}
+    if selected - found:
+        return {**result, "error": "selected document IDs were not in this harvest", "missing_ids": sorted(selected - found)}
+    docs = [doc for doc in docs if doc.document_id in selected]
+
+    from src.database.local_warehouse_seed import ensure_schema
+    from src.ingestion.document_store import DocumentStore
+    from src.kb.membership import run_membership_pass
+    from src.kb.registry import load_registry
+
+    con = _warehouse_rw()
+    try:
+        registry = load_registry()
+        if registry.get("papers").backing != "corpus-view":
+            return {**result, "error": "papers is not corpus-view backed; use namespace ingest"}
+        ensure_schema(con)
+        store = DocumentStore(con)
+        merged = [_merge_scholarly_observation(doc, store.get(doc.document_id)) for doc in docs]
+        summary = store.upsert(merged)
+        membership = run_membership_pass(con, registry)
+        return {
+            **result,
+            "applied": True,
+            "selected": len(docs),
+            "upsert": {**summary.as_dict(), "updated": summary.updated},
+            "membership": membership["domains"].get("papers", {}),
+        }
+    finally:
+        con.close()
 
 
 @mcp.tool

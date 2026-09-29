@@ -81,6 +81,24 @@ def _is_project_server(entry: dict) -> bool:
     return bool(args) and isinstance(args[0], str) and args[0].startswith("tools/")
 
 
+TOOL_PROFILE_ENV = "NOESIS_MCP_TOOL_PROFILE"
+
+
+def is_tool_profile_entry(entry: dict) -> bool:
+    """True for a client-facing registration that narrows another server.
+
+    Such an entry launches an already-registered server with a bounded tool
+    profile (for example ``NOESIS_MCP_TOOL_PROFILE=research``). It adds no
+    tools of its own, so the host does not supervise a duplicate process and
+    the catalog does not list it as a separate server.
+    """
+    env = entry.get("env") or {}
+    if not isinstance(env, dict):
+        return False
+    profile = str(env.get(TOOL_PROFILE_ENV) or "").strip()
+    return bool(profile) and profile != "all"
+
+
 def load_server_specs(path: Optional[Path] = None) -> List[ServerSpec]:
     """Parse .mcp.json into the list of servers the host supervises.
 
@@ -106,6 +124,8 @@ def load_server_specs(path: Optional[Path] = None) -> List[ServerSpec]:
         )
     for name, entry in servers.items():
         if not isinstance(entry, dict) or not _is_project_server(entry):
+            continue
+        if is_tool_profile_entry(entry):
             continue
         canonical = aliases.get(str(name), str(name))
         if canonical != name:
