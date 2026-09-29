@@ -9,9 +9,10 @@ How the Noesis repository is laid out. For setup and the tech stack, see the
 | Path | Contents |
 |---|---|
 | `src/` | Python backend. Notable packages: `api/` (FastAPI app and routes), `argument_mining/` (claim/stance/frame models), `nlp/`, `knowledge_graph/`, `ingestion/`, `scraper/`, `ml/`, `security/`, `monitoring/`, `reports/`, `domains/`. |
-| `services/` | Standalone services: `api/`, `rag/`, `embeddings/`, `mlops/`, `ingest/`, `monitoring/`, `obs/`, `metrics-api/`. |
+| `services/` | Supporting service libraries: `rag/` (active chunking/retrieval utilities), `embeddings/`, `mlops/`, `ingest/`, `monitoring/`, `obs/`, `metrics-api/`. The retired standalone `/ask` API is under `legacy/services/api/`. |
 | `tools/` | Token-efficient MCP stdio servers for development (`argument_mcp/`, `pipeline_mcp/`, `contract_mcp/`, `lineage_mcp/`, `kg_mcp/`, `blog_mcp/`, `schema_mcp/`, `dataset_mcp/`, `domain_packs_mcp/`, `sources_mcp/`, `security_mcp/`, `monitoring_mcp/`). |
 | `connectors/` | News/data source connector definitions. |
+| `legacy/` | Retired NeuroNews/early-Noesis app surfaces, demos, and evals retained only for reproducibility and regression coverage. |
 
 ## Data, contracts & pipelines
 
@@ -25,7 +26,7 @@ How the Noesis repository is laid out. For setup and the tech stack, see the
 | `data_quality/` | Data-quality checks and expectations. |
 | `migrations/`, `db/` | Database migrations and schema. |
 | `models/` | Model pins and optional fine-tuned checkpoints (weights are fetched locally). |
-| `evals/` | Evaluation harnesses and results. |
+| `src/evaluation/`, `validation/` | Current evaluation runtimes and validation tooling. Retired Issue-era RAG evals live under `legacy/evals/` and `legacy/validation/evals/`. |
 
 ## Orchestration & infrastructure
 

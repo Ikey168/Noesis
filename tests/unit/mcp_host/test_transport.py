@@ -170,7 +170,7 @@ def test_every_tool_server_uses_run_server():
 
     repo_root = Path(__file__).resolve().parents[3]
     servers = sorted((repo_root / "tools").glob("*_mcp/server.py"))
-    assert len(servers) == 27  # 26 plus tools/onchain_mcp (#2058)
+    assert len(servers) == 28  # 26 plus tools/onchain_mcp (#2058) and tools/noesis_mcp
     for server in servers:
         text = server.read_text()
         assert "from src.mcp_host.transport import run_server" in text, server

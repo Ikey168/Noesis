@@ -25,7 +25,7 @@ from fastapi import FastAPI
 # Add project root to path
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-import services.api.routes.ask as ask_mod
+import legacy.services.api.routes.ask as ask_mod
 
 
 # Canonical answers keyed by the question topic so the topic-relevance

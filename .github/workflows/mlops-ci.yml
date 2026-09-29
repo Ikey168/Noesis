@@ -67,7 +67,7 @@ jobs:
         export MLFLOW_ALLOW_FILE_STORE=true
         export NEURONEWS_PIPELINE=rag_evaluation_ci
         export NEURONEWS_DATA_VERSION=v1.0
-        python evals/run_eval.py --tiny
+        python legacy/evals/run_eval.py --tiny
         
     - name: Verify MLflow runs were created
       run: |

@@ -15,6 +15,12 @@ noesis ingest examples/quickstart/moon-mission.md --domain local
 noesis ask "What was the mission result?" --domain local
 ```
 
+Ingestion automatically runs the bounded production path through document
+revisioning, claim extraction, resolution, and indexing. If the claim
+classifier is unavailable, the document is still indexed and the ingest result
+reports degraded coverage; `noesis ask` then answers only from extracted claims
+or paper abstracts and otherwise refuses explicitly.
+
 Claim, stance, and frame classification is local by default. With both
 `NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` set, TypeSafe Jev is tried
 first and the text being classified (document sentences for claims and stance, up to the first 12,000 characters of title and body for frames) is sent to `api.typesafe.ai`; low-confidence or failed Jev
@@ -52,11 +58,36 @@ noesis watch delete WATCH_ID --yes
 Use `--cursor-file PATH` to control cursor storage or `--no-save-cursor` for a
 read without persistence. An explicit `--cursor` overrides the saved value.
 
+Keep configured feed/inbox subscriptions current with the persistent sync loop:
+
+```console
+noesis sync
+noesis sync --dry-run --json
+noesis sync --daemon
+noesis sync --daemon --interval 60 --max-items 200
+```
+
+A normal `sync` is one bounded pass. Daemon mode repeats the same pass, holds a
+single-instance lock at `.noesis/sync.lock`, persists run receipts and per-feed
+revision checkpoints in DuckDB, handles SIGINT/SIGTERM gracefully, and uses
+bounded exponential backoff after partial/failed passes. Only explicitly
+enabled subscriptions are fetched. New revisions enter the same production
+`ingest → extract → resolve → index` workflow as `noesis ingest`; then domain
+membership and watches are advanced. Maintenance is inspect/recovery-only:
+queued source-pack jobs and Deep Research are not executed, and paid acquisition
+is never started implicitly. In daemon mode `--json` emits JSON Lines, one
+`noesis-cli-v1` envelope per pass plus a final shutdown envelope.
+
 The supported server launchers validate the local config and report the bind
-address, auth posture, and enabled surface before starting:
+address, auth posture, endpoint, and enabled surface before starting. The
+default is the curated Noesis MCP gateway:
 
 ```console
 python -m pip install -e ".[server]"
+noesis serve
+# default: http://127.0.0.1:8100/mcp
+
+# explicit advanced/compatibility surfaces:
 noesis serve --surface api
 noesis serve --surface kb-mcp --transport http --port 8100
 ```
