@@ -74,8 +74,8 @@ def test_revisions_append_never_overwrite_and_as_of_selects_the_revision_then_in
     history = store.revisions(NS, rid, scopes=SCOPES)["revisions"]
     assert [h["content"]["status"] for h in history] == ["automatic", "reviewed"]
     changes = {c["parameter"]: c for c in history[1]["changes"]}
-    assert changes["magnitude"]["before"] == {"value": "5.8", "unit": "magnitude"}
-    assert changes["depth"]["after"] == {"value": "12.4", "unit": "km"}
+    assert changes["magnitude"]["before"] == {"value": "5.8", "unit": "magnitude", "qualifier": "mb"}
+    assert changes["depth"]["after"] == {"value": "12.4", "unit": "km", "qualifier": None}
     assert "geometry" in changes and "status" in changes
     early = store.record(NS, rid, scopes=SCOPES, as_of_ms=ms("2099-08-10T05:00:00Z"))
     assert early["revision"] == 1 and early["citation"]["published_at"] == "2099-08-10T03:20:00Z"

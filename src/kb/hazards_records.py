@@ -332,12 +332,20 @@ def parameter_changes(before, after):
 
     changes = []
     old, new = parameter_map(before or {}), parameter_map(after)
+    names = [k[0] for k in old] + [k[0] for k in new]
+    # A parameter is compared by name (a magnitude re-published with another magnitude type is one change);
+    # only a name published several times in one revision is compared per qualifier.
+    single = {n for n in names if sum(1 for k in old if k[0] == n) <= 1 and sum(1 for k in new if k[0] == n) <= 1}
+    old = {(k[0], None if k[0] in single else k[1]): v for k, v in old.items()}
+    new = {(k[0], None if k[0] in single else k[1]): v for k, v in new.items()}
+
+    def shown(p):
+        return None if p is None else {"value": p["value"], "unit": p["unit"], "qualifier": p.get("qualifier")}
+
     for key in sorted(set(old) | set(new), key=lambda k: (k[0], k[1] or "")):
         a, b = old.get(key), new.get(key)
-        if (a or {}).get("value") != (b or {}).get("value") or (a or {}).get("unit") != (b or {}).get("unit"):
-            changes.append({"parameter": key[0], "qualifier": key[1],
-                            "before": None if a is None else {"value": a["value"], "unit": a["unit"]},
-                            "after": None if b is None else {"value": b["value"], "unit": b["unit"]}})
+        if shown(a) != shown(b):
+            changes.append({"parameter": key[0], "qualifier": key[1], "before": shown(a), "after": shown(b)})
     for field in ("geometry", "status", "level", "wording", "valid_from", "valid_to", "estimate", "product_version",
                   "watches_warnings", "forecast_track"):
         if (before or {}).get(field) != after.get(field) and (before is not None or after.get(field) is not None):
