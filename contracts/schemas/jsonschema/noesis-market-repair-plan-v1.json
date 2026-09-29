@@ -1,0 +1,41 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-repair-plan-v1.json",
+  "title": "Noesis bounded market price repair plan v1",
+  "type": "object",
+  "required": ["contract", "plan_id", "namespace", "owner", "request_key", "provider", "listing_id", "interval", "start_date", "end_date", "budget", "status", "checkpoint_request_key", "created_at_ms", "request_hash", "result"],
+  "properties": {
+    "contract": {"const": "noesis-market-repair-plan-v1"},
+    "plan_id": {"type": "string", "minLength": 1},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "request_key": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "listing_id": {"type": "string", "minLength": 1},
+    "interval": {"type": "string", "minLength": 1},
+    "start_date": {"type": "string", "format": "date"},
+    "end_date": {"type": "string", "format": "date"},
+    "budget": {"$ref": "#/definitions/budget"},
+    "status": {"enum": ["planned", "running", "paused", "complete", "failed"]},
+    "checkpoint_request_key": {"type": "string", "minLength": 1},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "request_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "result": {"type": ["object", "null"]},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "budget": {
+      "type": "object",
+      "required": ["requests_per_minute", "max_requests_per_run", "max_records_per_run", "max_records_per_page", "max_backfill_days"],
+      "properties": {
+        "requests_per_minute": {"type": "integer", "minimum": 1},
+        "max_requests_per_run": {"type": "integer", "minimum": 1},
+        "max_records_per_run": {"type": "integer", "minimum": 1},
+        "max_records_per_page": {"type": "integer", "minimum": 1},
+        "max_backfill_days": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "signature": {"source": "NASA/JPL Sentry Data API", "version": "2.0"},
+  "summary": {"des": "2099 AB12", "fullname": "(2099 AB12)", "method": "IOBS", "cdate": "2099-02-05 12:00:00",
+              "ip": "3.1e-07", "ps_cum": "-5.20", "ps_max": "-5.31", "ts_max": "0", "n_imp": 2,
+              "v_inf": "11.2", "h": "18.4", "diameter": "0.61", "first_obs": "2099-01-17", "last_obs": "2099-01-31"},
+  "data": [{"date": "2140-03-01.12", "ip": "2.9e-07", "ps": "-5.31", "ts": "0"}]
+}

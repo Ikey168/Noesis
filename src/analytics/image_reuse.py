@@ -15,6 +15,12 @@ is a ledger entry; below the confidence bar it stays a flagged suggestion.
 Reads ``image_assets`` + ``image_appearances`` from an injected connection, so
 the read-only warehouse (the MCP server) and a writable store both work.
 
+Video (OX04, #2044): keyframes sampled by the media connector are assets too.
+A frame appearance cites its media document plus the offset in seconds and is
+labelled ``video_frame`` apart from ``still_image`` appearances; a video counts
+as one document for the "spans multiple documents" rule, however many of its
+frames match.
+
 See ``docs/architecture/OSINT_IMAGERY_PLAN.md`` §3.2.
 """
 
@@ -63,7 +69,28 @@ def _appearances(conn, sha256: str) -> List[Dict[str, Any]]:
         "SELECT document_id, first_seen_at, context FROM image_appearances WHERE sha256 = ? ORDER BY first_seen_at NULLS LAST, document_id",
         [sha256],
     ).fetchall()
-    return [{"document_id": r[0], "first_seen_at": r[1], "context": r[2], "cited": True} for r in rows]
+    from src.ingestion.assets.store import parse_frame_context
+
+    out = []
+    for document_id, first_seen_at, context in rows:
+        frame = parse_frame_context(context)
+        entry = {"document_id": document_id, "first_seen_at": first_seen_at, "context": context, "cited": True}
+        if frame is None:
+            entry.update(appearance_kind="still_image", citation={"document_id": document_id})
+        else:
+            # OX04: a sampled video frame cites its media document plus the offset.
+            entry.update(
+                appearance_kind="video_frame",
+                offset_s=frame.get("offset_s"),
+                scene_index=frame.get("scene_index"),
+                citation={
+                    "document_id": document_id,
+                    "offset_s": frame.get("offset_s"),
+                    "media_fragment": frame.get("media_fragment"),
+                },
+            )
+        out.append(entry)
+    return out
 
 
 def _cluster(assets: List[Dict[str, Any]], max_distance: int) -> List[List[int]]:
@@ -122,8 +149,11 @@ def find_reuse(conn, max_distance: int = DEFAULT_MAX_DISTANCE, topic: Optional[s
         if topic and not any(topic.lower() in (a.get("context") or "").lower() for a in appearances):
             continue
         total_appearances += len(appearances)
+        frame_docs = sorted({a["document_id"] for a in appearances if a["appearance_kind"] == "video_frame"})
         findings.append({
             "asset_shas": [m["sha256"] for m in members],
+            "video_documents": frame_docs,
+            "includes_video_frames": bool(frame_docs),
             "distinct_document_count": len(distinct_docs),
             "documents": distinct_docs,
             "appearances": appearances,

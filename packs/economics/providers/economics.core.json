@@ -1,0 +1,50 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "tools/kb_mcp",
+    "version": "1.0.0",
+    "server": "noesis-kb"
+  },
+  "capabilities": [
+    {
+      "id": "economics.knowledge",
+      "contract": {
+        "name": "noesis-economic-knowledge",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "query"
+      ],
+      "semantic_constraints": {
+        "scope": "economics knowledge-base views"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "query",
+      "tool": "noesis-kb.kb_economic",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "documents",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "documents",
+      "kind": "table-exists",
+      "target": "documents"
+    }
+  ]
+}

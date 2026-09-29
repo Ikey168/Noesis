@@ -18,7 +18,466 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["blog", "dataset", "declarative-rest", "filings", "git", "manifest", "package-registry", "paper", "web"]},
+          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "linguistics", "lobbying-register", "manifest", "materials", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "wfs": {
+            "type": "object",
+            "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
+            "required": ["version", "type_names", "output_format", "srs_name", "axis_order", "sort_by", "page_size"],
+            "properties": {
+              "version": {"const": "2.0.0"},
+              "type_names": {"type": "string", "minLength": 1},
+              "output_format": {"type": "string", "minLength": 1},
+              "srs_name": {"type": "string", "minLength": 1},
+              "axis_order": {"type": "string", "minLength": 1},
+              "sort_by": {"type": "string", "minLength": 1},
+              "page_size": {"type": "integer", "minimum": 1, "maximum": 10000}
+            }
+          },
+          "geospatial": {
+            "type": "object",
+            "description": "Feature projection settings for wfs/geojson sources (namespace, geometry types, precision, attribution)."
+          },
+          "clinical": {
+            "type": "object",
+            "description": "Clinical Evidence selection: the namespace records belong to plus pinned NCT/EU CT/EudraCT numbers, openFDA products or EMA product numbers (1-50), or one bounded ClinicalTrials.gov query.",
+            "required": ["namespace"],
+            "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
+          },
+          "surveillance": {
+            "type": "object",
+            "description": "Bounded public-health surveillance publications for the surveillance connector (#1917): provider, documented format, namespace and the declared documents (one release each: an RKI release tag and CSV path with its column layout, a WHO GHO indicator and filter, a Eurostat hlth_* dataset and series key, or a GENESIS table), each with the kind of its values, unit, condition, geography code system, case-definition editions, reporting-delay note and citable identifiers.",
+            "required": ["namespace", "provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health"]},
+              "format": {"enum": ["rki-github-csv", "who-gho-odata", "eurostat-sdmx-csv", "destatis-genesis-ffcsv"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "kind"], "properties": {"label": {"type": "string", "minLength": 1}, "kind": {"enum": ["observation", "estimate", "model-output"]}}}}
+            },
+            "additionalProperties": false
+          },
+          "zbmath": {
+            "type": "object",
+            "description": "Pinned zbMATH Open document ids (1-50).",
+            "required": ["document_ids"],
+            "properties": {"document_ids": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{1,12}$"}}}
+          },
+          "oeis": {
+            "type": "object",
+            "description": "Pinned OEIS A-numbers (1-50).",
+            "required": ["a_numbers"],
+            "properties": {"a_numbers": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^A[0-9]{6}$"}}}
+          },
+          "formal": {
+            "type": "object",
+            "description": "One formal library snapshot: system, owner/repository, immutable 40-hex commit, license and 1-50 repository-relative paths.",
+            "required": ["library", "system", "repository", "commit", "license", "paths"],
+            "properties": {"library": {"type": "string", "minLength": 1}, "system": {"enum": ["lean", "isabelle", "coq"]}, "repository": {"type": "string", "pattern": "^[A-Za-z0-9_.-]+/[A-Za-z0-9_.-]+$"}, "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "license": {"type": "string", "minLength": 1}, "paths": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string"}}}
+          },
+          "transit": {
+            "type": "object",
+            "description": "One named GTFS feed: 1-20 pinned route ids, a stop-time ceiling and an optional HTTPS GTFS-Realtime URL.",
+            "required": ["feed", "route_ids", "max_stop_times"],
+            "properties": {"feed": {"type": "string", "minLength": 1}, "route_ids": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "string"}}, "max_stop_times": {"type": "integer", "minimum": 1}, "realtime_url": {"type": "string"}, "namespace": {"type": "string", "minLength": 1}}
+          },
+          "standards": {
+            "type": "object",
+            "description": "Bounded standards catalogue selection: reference prefixes and/or ICS codes with a record ceiling.",
+            "required": ["selection"],
+            "properties": {"namespace": {"type": "string", "minLength": 1}, "selection": {"type": "object"}}
+          },
+          "procurement": {
+            "type": "object",
+            "description": "Bounded public-procurement selection (ted, ocds, sam-gov): the provider, one pinned query or parameter window, page size and the target namespace.",
+            "required": ["provider"],
+            "properties": {
+              "provider": {"enum": ["ted", "uk-fts", "uk-cf", "sam-gov"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "query": {"type": "string", "minLength": 1, "maxLength": 2000},
+              "params": {"type": "object", "additionalProperties": {"type": "string"}},
+              "page_size": {"type": "integer", "minimum": 1, "maximum": 1000}
+            }
+          },
+          "lei": {
+            "type": "object",
+            "description": "Bounded GLEIF selection: 1-50 LEIs and the parts to read (record, parent relationships, reporting exceptions).",
+            "required": ["leis"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "leis": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9A-Z]{18}[0-9]{2}$"}}
+            }
+          },
+          "ownership": {
+            "type": "object",
+            "description": "Bounded corporate-ownership selection: the namespace records project into, 1-25 company numbers (companies-house), 1-25 CIKs plus selected filing documents (sec-edgar-ownership) or 1-10 BODS statement files (bods), and the source's live-verification state.",
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "companies": {"type": "array", "maxItems": 25, "items": {"type": "string", "pattern": "^[A-Z0-9]{8}$"}},
+              "parts": {"type": "array", "items": {"type": "string"}},
+              "ciks": {"type": "array", "maxItems": 25, "items": {"type": "string", "pattern": "^[0-9]{1,10}$"}},
+              "filings": {"type": "array", "maxItems": 25, "items": {"type": "object", "required": ["cik", "accession", "document"]}},
+              "max_filings": {"type": "integer", "minimum": 1, "maximum": 1000},
+              "files": {"type": "array", "maxItems": 10, "items": {"type": "string", "pattern": "^/"}},
+              "live_verification": {"type": "string"}
+            }
+          },
+          "patent": {
+            "type": "object",
+            "description": "Bounded EPO OPS selection: 1-25 docdb publication numbers and the parts to read (biblio, family, legal, claims).",
+            "required": ["publications"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "publications": {"type": "array", "minItems": 1, "maxItems": 25, "items": {"type": "string", "pattern": "^[A-Z]{2}\\.[0-9A-Z]{1,15}\\.[A-Z][0-9]?$"}},
+              "parts": {"type": "array", "items": {"enum": ["biblio", "family", "legal", "claims"]}}
+            }
+          },
+          "cultural": {
+            "type": "object",
+            "description": "Bounded cultural-object query for ddb/europeana sources: namespace, explicit query and filters, rows per page, record ceiling and place-precision policy.",
+            "required": ["query", "rows", "max_records"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "query": {"type": "object", "required": ["q"]},
+              "rows": {"type": "integer", "minimum": 1, "maximum": 100},
+              "max_records": {"type": "integer", "minimum": 1, "maximum": 500}
+            }
+          },
+          "legal": {
+            "type": "object",
+            "description": "Bounded legal selection for cellar/rii/berlin-law sources (namespace and explicit CELEX+languages, doknr list or index window, or official Berlin publications) and the federal-statute sources (gesetze-im-internet, rechtsinformationen-bund, recht-bund: the bounded statute set, expression limits, BGBl items or one bounded listing).",
+            "required": ["selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "selection": {"type": ["object", "array"]}
+            }
+          },
+          "sanctions": {
+            "type": "object",
+            "description": "One full sanctions-list file for the sanctions-list connector: its list, documented format and the namespaces its snapshots and legal-basis links use.",
+            "required": ["list", "format"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "legal_namespace": {"type": "string", "minLength": 1},
+              "list": {"enum": ["eu", "un", "ofac", "uk"]},
+              "format": {"enum": ["eu-fsf-xml-1.1", "un-sc-xml", "ofac-sdn-xml", "uk-sanctions-list-xml"]}
+            },
+            "additionalProperties": false
+          },
+          "lobbying": {
+            "type": "object",
+            "description": "One register export or meeting list for the lobbying-register connector: its register, documented format, namespace, optional bounded selection of native identifiers and position-paper retention (link-only unless the register's terms allow text).",
+            "required": ["register", "format"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "register": {"enum": ["eu-tr", "de-lobbyregister", "uk-orcl", "ep-meetings", "ec-meetings"]},
+              "format": {"enum": ["eu-tr-xml", "de-lobbyregister-json", "ep-meetings-csv", "ec-meetings-json", "uk-orcl-csv"]},
+              "selection": {"type": "object", "properties": {"native_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "maxItems": 500}}, "additionalProperties": false},
+              "documents": {"enum": ["link-only", "text"]}
+            },
+            "additionalProperties": false
+          },
+          "elections": {
+            "type": "object",
+            "description": "One official result file for the election-results connector: its provider, documented format, namespace, the vintage kind when the file does not state one, the jurisdiction rules cited to their source, the provider's geometry reference per unit scheme, and for compiled datasets a bounded selection.",
+            "required": ["provider", "format", "rules"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["bundeswahlleiterin", "berlin-landeswahlleitung", "uk-electoral-commission", "mit-election-lab"]},
+              "format": {"enum": ["de-btw-kerg-csv", "de-be-wahlkreis-csv", "gb-ec-candidates-csv", "us-medsl-county-csv"]},
+              "vintage": {"enum": ["preliminary", "certified", "recount", "corrected"]},
+              "authority": {"type": "string", "minLength": 1},
+              "election": {"type": "object", "required": ["kind", "date"], "properties": {"kind": {"type": "string"}, "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "native_id": {"type": "string"}, "name": {"type": "string"}}, "additionalProperties": false},
+              "election_dates": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}},
+              "rules": {"type": "object", "required": ["source_url"], "properties": {"source_url": {"type": "string", "pattern": "^https://"}}},
+              "geometry": {"type": "object", "additionalProperties": {"type": "object", "required": ["provider", "layer", "vintage", "crs"], "properties": {"provider": {"type": "string"}, "layer": {"type": "string"}, "vintage": {"type": "string"}, "crs": {"type": "string"}, "url": {"type": "string"}, "valid_from": {"type": "string"}}, "additionalProperties": false}},
+              "selection": {"type": "object", "properties": {"years": {"type": "array", "items": {"type": "string"}, "maxItems": 20}, "states": {"type": "array", "items": {"type": "string"}, "maxItems": 60}}, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "demographics": {
+            "type": "object",
+            "description": "Bounded demographic publications for the demographics connector (#1914): provider, documented format, namespace and the declared documents (one release each: an HTTPS resource on the endpoint host - a Eurostat dataset and filters, a GENESIS table or a file URL - with its geography level and code-list version, its definition or definitions per population type or value column, unit, coverage notes, publisher references and expected release).",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["eurostat", "unhcr", "iom-dtm", "destatis", "statistik-bb"]},
+              "format": {"enum": ["eurostat-jsonstat", "unhcr-population-json", "iom-dtm-json", "destatis-genesis-ffcsv", "berlin-district-csv"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "geography_level"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "dataset": {"type": "string"}, "geography": {"type": "string"}, "filters": {"type": "object", "additionalProperties": {"type": "string"}},
+                "table": {"type": "string"}, "geography_attribute": {"type": "string"}, "frequency": {"type": "string"},
+                "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "geography_level": {"type": "object", "required": ["scheme", "level"], "properties": {"scheme": {"enum": ["eu-country", "nuts", "iso3166-1-alpha3", "ags", "berlin-bezirk", "cod-ab-pcode"]}, "level": {"type": "string"}, "code_list_version": {"type": "string"}}, "additionalProperties": false},
+                "definition": {"type": "object"}, "definitions": {"type": "object", "additionalProperties": {"type": "object"}},
+                "unit": {"type": "object", "required": ["label"], "properties": {"code": {"type": "string"}, "label": {"enum": ["persons", "thousand persons", "per 1000 persons", "percent"]}}, "additionalProperties": false},
+                "units": {"type": "object"},
+                "columns": {"type": "object"},
+                "coverage_notes": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+                "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier", "relation"], "properties": {"scheme": {"enum": ["celex", "eli", "ecli", "de-bgbl", "de-drucksache", "eu-procedure"]}, "identifier": {"type": "string", "minLength": 1}, "relation": {"enum": ["defined_by", "reported_under", "referenced_in"]}, "locator": {"type": "string"}, "stated_in": {"type": "string"}}, "additionalProperties": false}},
+                "expected_release": {"type": "object", "required": ["on"], "properties": {"on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "calendar_url": {"type": "string", "pattern": "^https://"}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "housing": {
+            "type": "object",
+            "description": "Geospatial housing declarations (#1912). On a wfs source: the housing layer (land-value, development-plan or residential-area) and which published attribute carries the zone or plan identifier, value, valuation date, stage, category, qualifiers and explicit references, with the declared unit, stage vocabulary and edition. On a housing-connector source: provider, documented format, namespace and the declared documents (one publication each: an HTTPS resource on the endpoint host or a GENESIS table, with edition, qualifying date, publication URL and page, column layout, units and references).",
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "layer": {"enum": ["land-value", "development-plan", "residential-area"]},
+              "attributes": {"type": "object", "additionalProperties": {"type": "string"}},
+              "qualifiers": {"type": "object", "additionalProperties": {"type": "string"}},
+              "unit": {"type": "object", "properties": {"published": {"type": "string"}, "currency": {"type": "string"}}, "additionalProperties": false},
+              "number_format": {"enum": ["plain", "de"]},
+              "stages": {"type": "object", "additionalProperties": {"enum": ["aufstellungsbeschluss", "fruehzeitige_beteiligung", "oeffentliche_auslegung", "festgesetzt", "aufgehoben"]}},
+              "stage_dates": {"type": "object", "additionalProperties": {"type": "string"}},
+              "reference_attributes": {"type": "object", "additionalProperties": {"type": "object", "required": ["scheme"], "properties": {"scheme": {"enum": ["berlin-gvbl", "berlin-amtsblatt", "juris", "de-bgbl", "celex", "eli", "de-drucksache"]}, "relation": {"enum": ["legal_basis", "published_in", "stage_decided_by", "referenced_in"]}, "stage": {"type": "string"}}, "additionalProperties": false}},
+              "edition": {"type": "object", "required": ["edition_id", "valid_from"], "properties": {"edition_id": {"type": "string"}, "edition": {"type": "string"}, "valid_from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+              "provider": {"enum": ["berlin-mietspiegel", "statistik-bb", "destatis"]},
+              "format": {"enum": ["rent-index-table-csv", "statbb-building-csv", "destatis-genesis-ffcsv"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "table": {"type": "string"}, "geography_attribute": {"type": "string"}, "frequency": {"type": "string"},
+                "measures": {"type": "object", "additionalProperties": {"type": "string"}},
+                "statistic": {"enum": ["permits", "completions"]},
+                "edition_id": {"type": "string"}, "edition": {"type": "string"},
+                "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "qualifying_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "qualifying_date_semantics": {"type": "string"},
+                "valid_from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "publication_url": {"type": "string", "pattern": "^https://"},
+                "page": {"type": "string"}, "extraction": {"type": "string"},
+                "unit": {"type": "string"}, "units": {"type": "object", "additionalProperties": {"type": "string"}},
+                "number_format": {"enum": ["plain", "de"]},
+                "columns": {"type": "object"},
+                "total_codes": {"type": "object"},
+                "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier", "relation"], "properties": {"scheme": {"enum": ["berlin-gvbl", "berlin-amtsblatt", "juris", "de-bgbl", "celex", "eli", "de-drucksache"]}, "identifier": {"type": "string", "minLength": 1}, "relation": {"enum": ["legal_basis", "published_in", "stage_decided_by", "referenced_in"]}, "locator": {"type": "string"}}, "additionalProperties": false}}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "astronomy": {
+            "type": "object",
+            "description": "Declared astronomy and space documents for the astronomy connector (#2149): provider, documented format, namespace, the TAP table and declared columns for tabular formats, the bounded object list (MPC/JPL designations), host list (names with TIC or Kepler IDs), launch years or GCAT organisation codes, and the documents (HTTPS URLs on the endpoint host, each with the listing it is).",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["mpc-designations", "mpc-orbits", "jpl-sbdb", "jpl-sentry", "nasa-exoplanet-archive", "gcat", "celestrak-satcat", "noaa-swpc"]},
+              "format": {"enum": ["mpc-identifier-json", "mpcorb-dat", "jpl-sbdb-json", "jpl-sentry-json", "exoplanet-tap-csv", "exoplanet-removed-csv", "gcat-launch-tsv", "gcat-satcat-tsv", "gcat-orgs-tsv", "celestrak-satcat-csv", "swpc-alerts-json"]},
+              "table": {"enum": ["ps", "pscomppars", "toi", "cumulative"]},
+              "columns": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+              "objects": {"type": "array", "maxItems": 50, "items": {"type": "string", "minLength": 1}},
+              "hosts": {"type": "array", "maxItems": 25, "items": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string", "minLength": 1}, "tic": {"type": "string", "pattern": "^[0-9]+$"}, "kepid": {"type": "string", "pattern": "^[0-9]+$"}}, "additionalProperties": false}},
+              "years": {"type": "array", "maxItems": 10, "items": {"type": "string", "pattern": "^\\d{4}$"}},
+              "codes": {"type": "array", "maxItems": 200, "items": {"type": "string", "minLength": 1}},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 60, "items": {"type": "object", "required": ["label", "url", "listing"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "listing": {"enum": ["complete", "partial"]},
+                "object": {"type": "string", "minLength": 1},
+                "source_as_of": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "linguistics": {
+            "type": "object",
+            "description": "Declared documents for the linguistics connector (#2178): provider, documented format (wikidata-lexeme-json, kaikki-jsonl, glottolog-cldf, wals-cldf, cldr-json, iso639-3-tab), namespace and the bounded selection (words per language code, Glottolog roots, WALS features and Glottocodes, CLDR locales and subjects, ISO 639-3 codes, Wikidata derivation-mode items). Each document names its release; nothing beyond the declared bounds is stored.",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["wikidata-lexemes", "kaikki-wiktextract", "glottolog", "wals", "cldr", "sil-iso639-3"]},
+              "format": {"enum": ["wikidata-lexeme-json", "kaikki-jsonl", "glottolog-cldf", "wals-cldf", "cldr-json", "iso639-3-tab"]},
+              "edition": {"type": "string", "pattern": "^[a-z]{2,3}$"},
+              "attribution": {"type": "string", "minLength": 1},
+              "words": {"type": "object", "additionalProperties": {"type": "array", "maxItems": 200, "items": {"type": "string", "minLength": 1}}},
+              "roots": {"type": "array", "maxItems": 3, "items": {"type": "string", "pattern": "^[a-z0-9]{4}[0-9]{4}$"}},
+              "features": {"type": "array", "maxItems": 20, "items": {"type": "string", "pattern": "^[1-9][0-9]{0,2}[A-Z]$"}},
+              "glottocodes": {"type": "array", "maxItems": 500, "items": {"type": "string", "pattern": "^[a-z0-9]{4}[0-9]{4}$"}},
+              "locales": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+              "subjects": {"type": "object", "properties": {"languages": {"type": "array", "items": {"type": "string"}}, "scripts": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false},
+              "codes": {"type": "array", "maxItems": 500, "items": {"type": "string", "pattern": "^[a-z]{3}$"}},
+              "derivation_modes": {"type": "object", "additionalProperties": {"enum": ["inherited", "borrowed", "derived", "calque", "cognate", "compound-of"]}},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "entity": {"type": "string", "pattern": "^[LQ][1-9][0-9]*$"},
+                "language_code": {"type": "string", "minLength": 2},
+                "extract_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "dump_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "release": {"type": "string", "minLength": 1},
+                "release_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "languages_url": {"type": "string", "pattern": "^https://"},
+                "values_url": {"type": "string", "pattern": "^https://"},
+                "parameters_url": {"type": "string", "pattern": "^https://"},
+                "codes_url": {"type": "string", "pattern": "^https://"},
+                "kind": {"enum": ["languages", "scripts", "plurals"]},
+                "table": {"enum": ["codes", "macrolanguages", "retirements"]},
+                "table_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "sports": {
+            "type": "object",
+            "description": "Declared sports publication for the sports-results connector (#2135): provider, documented format, namespace, attribution text, the competition and season (football-data.org, openfootball), the tour (Sackmann), the pinned repository release (commit and date), a bounded list of relative files (StatsBomb), the cited competition rules and the licence obligations that travel with every derived record.",
+            "required": ["provider", "format", "attribution"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["football-data", "statsbomb-open-data", "openfootball", "sackmann-tennis"]},
+              "format": {"enum": ["football-data-v4-matches", "football-data-v4-standings", "football-data-v4-teams", "statsbomb-open-data", "openfootball-json", "sackmann-matches-csv"]},
+              "attribution": {"type": "string", "minLength": 1},
+              "season": {"type": "string", "minLength": 1},
+              "tour": {"enum": ["atp", "wta"]},
+              "competition": {"type": "object", "properties": {"code": {"type": "string"}, "name": {"type": "string"}, "governing_body": {"type": "string"}, "area": {"type": "string"}}, "additionalProperties": false},
+              "release": {"type": "object", "required": ["commit", "committed_at"], "properties": {"commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "committed_at": {"type": "string"}}, "additionalProperties": false},
+              "files": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"type": "string", "pattern": "^[^/][^:]*$"}},
+              "rules": {"type": "object", "required": ["points", "tiebreakers", "source_url"], "properties": {"points": {"type": "object"}, "tiebreakers": {"type": "array", "items": {"type": "string"}}, "valid_from": {"type": "string"}, "source_url": {"type": "string", "pattern": "^https://"}}, "additionalProperties": false},
+              "licence": {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}, "url": {"type": "string"}, "attribution": {"type": "string"}, "non_commercial": {"type": "boolean"}, "share_alike": {"type": "boolean"}}, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "weather": {
+            "type": "object",
+            "description": "Declared bounded selection for the weather connector (#2163): provider, namespace, the environment namespace that owns stations, the User-Agent sent on every request and the provider selection (stations, elements, warncells, points, alert zones or a pinned model grid point).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["dwd-cdc", "dwd-mosmix", "dwd-cap", "aviationweather", "nws", "open-meteo"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "environment_namespace": {"type": "string", "minLength": 1},
+              "user_agent": {"type": "string", "minLength": 1},
+              "live_verification": {"type": "string"},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "bafin": {
+            "type": "object",
+            "description": "Declared BaFin or Bundesanzeiger documents for the bafin-notices connector (#2106): provider, documented format, namespace, the declared column mapping (CSV exports), the bounded issuer set (ISINs with valid check digits), declared BaFin IDs, the publication window, the retention policy after a source removes a notice, title patterns for named entities (RSS) and the documents (HTTPS URLs on the endpoint host, each with the listing it is).",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["bafin-voting-rights", "bafin-managers-transactions", "bundesanzeiger-short-positions", "bafin-company-database", "bafin-warnings-measures"]},
+              "format": {"enum": ["bafin-voting-rights-csv", "bafin-dealings-csv", "bundesanzeiger-short-positions-csv", "bafin-company-csv", "bafin-notices-rss"]},
+              "encoding": {"type": "string", "minLength": 1},
+              "delimiter": {"type": "string", "minLength": 1, "maxLength": 1},
+              "decimal": {"enum": [",", "."]},
+              "retention_policy": {"enum": ["retain", "withdraw-person-data"]},
+              "window": {"type": "object", "properties": {"from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+              "issuers": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["isin"], "properties": {"isin": {"type": "string", "pattern": "^[A-Z]{2}[A-Z0-9]{9}[0-9]$"}, "name": {"type": "string"}, "aliases": {"type": "array", "items": {"type": "string"}}}, "additionalProperties": false}},
+              "bafin_ids": {"type": "array", "maxItems": 500, "items": {"type": "string", "pattern": "^[0-9]+$"}},
+              "columns": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+              "title_entity_patterns": {"type": "array", "maxItems": 10, "items": {"type": "string", "minLength": 1}},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "url", "listing"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "listing": {"enum": ["complete", "current", "history", "partial"]},
+                "issuers": {"type": "array", "items": {"type": "string"}},
+                "kind": {"enum": ["bafin_warning", "bafin_measure"]},
+                "category": {"type": "string"},
+                "source_as_of": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "materials": {
+            "type": "object",
+            "description": "Bounded materials selection for the materials connector (#2060): provider, documented format, namespace, chemical systems, a record ceiling, the declared documents (absolute paths and query on the endpoint host) and the release the operator declares when the response states none.",
+            "required": ["provider", "format", "documents", "max_records"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["materials-project", "jarvis-dft", "oqmd", "nist-webbook", "cod"]},
+              "format": {"enum": ["mp-api-json", "jarvis-dft-json", "oqmd-rest-json", "webbook-html", "cod-json"]},
+              "chemical_systems": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z][a-z]?(-[A-Z][a-z]?)*$"}},
+              "max_records": {"type": "integer", "minimum": 1, "maximum": 50},
+              "release": {"type": "object", "required": ["label"], "properties": {"label": {"type": "string", "minLength": 1}, "released_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 5, "items": {"type": "object", "required": ["kind", "path"], "properties": {
+                "kind": {"type": "string", "minLength": 1},
+                "path": {"type": "string", "pattern": "^/"},
+                "params": {"type": "object", "additionalProperties": {"type": "string"}}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "development_finance": {
+            "type": "object",
+            "description": "Declared OECD CRS series for the development-finance connector (#1932): provider, documented format, namespace and the declared documents (one SDMX dataflow reference, series key and period window each, fetched through the SDMX connector's SDMX-CSV URL builder on the endpoint host, with the release the operator declares when the response states no update time).",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["oecd-crs"]},
+              "format": {"enum": ["oecd-sdmx-csv"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "flow", "key"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "flow": {"type": "string", "pattern": "^[A-Za-z0-9_.]+,[A-Za-z0-9_.@]+,[0-9.]+$"},
+                "key": {"type": "string", "minLength": 1},
+                "params": {"type": "object", "properties": {"startPeriod": {"type": "string"}, "endPeriod": {"type": "string"}}, "additionalProperties": false},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "public_finance": {
+            "type": "object",
+            "description": "Bounded public-finance files for the public-finance connector (#1909): provider, documented format, namespace, the accounting basis the provider publishes, the declared documents (one release each: an HTTPS file on the endpoint host, its amount columns and their figure kinds, the acts and dossiers the plan cites) and, for Berlin, the Bereich-to-district crosswalk.",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["bundeshaushalt", "berlin-senfin", "eu-fts", "eurostat-gfs"]},
+              "format": {"enum": ["de-bundeshaushalt-csv", "de-be-haushalt-csv", "eu-fts-csv", "eurostat-gfs-jsonstat"]},
+              "accounting_basis": {"enum": ["cash", "accrual", "esa2010", "commitment-appropriation", "payment-appropriation", "commitment", "payment"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "properties": {"url": {"type": "string", "pattern": "^https://"}, "label": {"type": "string"}, "fiscal_year": {"type": "string"}, "unit": {"type": "string"}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "amount_kind": {"enum": ["commitment", "payment"]}, "currency": {"type": "string"}, "amounts": {"type": "object", "additionalProperties": {"type": "object", "required": ["kind"], "properties": {"kind": {"enum": ["plan", "supplementary_plan", "outturn"]}, "plan_key": {"type": "string", "minLength": 1}}, "additionalProperties": false}}, "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier"], "properties": {"scheme": {"enum": ["celex", "eli", "de-bgbl", "de-be-gvbl", "de-drucksache", "eu-procedure"]}, "identifier": {"type": "string", "minLength": 1}, "role": {"type": "string"}}, "additionalProperties": false}}, "dataset": {"enum": ["gov_10a_main", "gov_10a_exp", "gov_10dd_edpt1"]}, "geography": {"type": "string", "minLength": 1}, "filters": {"type": "object", "additionalProperties": {"type": "string"}}}, "additionalProperties": false}},
+              "districts": {"type": "object", "additionalProperties": {"type": "object", "required": ["code"], "properties": {"code": {"type": "string"}, "name": {"type": "string"}}, "additionalProperties": false}},
+              "district_collection": {"type": "string"}
+            },
+            "additionalProperties": false
+          },
+          "vulnerabilities": {
+            "type": "object",
+            "description": "One bounded vulnerability source for the vulnerability-feed connector: its documented format, source label, namespace and pinned selection (CVE ids, advisory ids or repository paths, a lastModified window, CPE match strings or CWE ids).",
+            "required": ["format"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "format": {"enum": ["nvd-cve-2.0", "nvd-cve-history-2.0", "nvd-cpe-2.0", "osv", "cve-json-5", "cisa-kev", "first-epss", "cwe-xml"]},
+              "source": {"enum": ["nvd", "nvd-cpe", "osv", "ghsa", "cve-services", "cisa-kev", "first-epss", "cwe"]},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "oss": {
+            "type": "object",
+            "description": "One bounded OSS Ecosystems source for the oss-ecosystem connector: its format (a registry, deps.dev, the SPDX License List or Software Heritage), namespace and pinned selection (1-50 packages with at most 50 explicit versions each, SPDX list versions, or at most 20 origins).",
+            "required": ["format", "selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "format": {"enum": ["pypi-json", "npm-packument", "crates-io", "maven-central", "deps-dev", "spdx-license-list", "software-heritage"]},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "product_safety": {
+            "type": "object",
+            "description": "Bounded notice selection for the safety-gate, cpsc, nhtsa and rasff connectors: namespace, live-verification state and 1-50 explicit selectors (alert, recall, campaign or notification numbers, a Safety Gate week plus category, or a CPSC manufacturer plus date window).",
+            "required": ["selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "product": {
+            "type": "object",
+            "description": "Bounded model selection for icecat/eprel/bmecat sources: namespace, category (a registered product category label), market, language, 1-50 explicit selectors (brand+product_code, gtin, registration_number, or manufacturer+mpn for BMEcat catalogues with their publisher role and publisher_id) and the document retention policy.",
+            "required": ["category", "selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "category": {"type": "object", "required": ["label"]},
+              "documents": {"type": "object"},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            }
+          },
           "endpoint": {"type": "string", "pattern": "^https://"},
           "publisher": {"type": "string", "minLength": 1},
           "scope": {"type": "string", "minLength": 1},
@@ -29,6 +488,27 @@
             "additionalProperties": false
           },
           "update_cadence": {"type": "string"},
+          "engineering_safety": {
+            "type": "object",
+            "description": "Declared engineering-safety coverage for the engineering-safety connector (#2059): the audited provider, namespace and either a bounded selection (1-50 FR document numbers, EASA AD numbers, NTSB numbers or recommendation numbers, CSB investigation pages, complaint vehicles or BFU reports), declared files with their vintage and window (PHMSA, NHTSA ODI) or link-only report entries (BEA).",
+            "required": ["provider", "namespace"],
+            "properties": {
+              "provider": {"enum": ["faa-ad", "easa-ad", "ntsb", "phmsa", "csb", "nhtsa-odi", "nhtsa-complaints", "bfu", "bea"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object"}},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"type": "object", "required": ["url", "vintage"]}},
+              "entries": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["report_id", "url"]}},
+              "window": {"type": "object"},
+              "vehicles": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["make"]}},
+              "columns": {"type": ["object", "array"]},
+              "quantities": {"type": "array", "items": {"type": "object", "required": ["name", "column"]}},
+              "delimiter": {"type": "string"},
+              "encoding": {"type": "string"},
+              "max_complaints": {"type": "integer", "minimum": 1, "maximum": 500},
+              "audit": {"type": "string"}
+            },
+            "additionalProperties": false
+          },
           "temporal_semantics": {"type": "string"},
           "mapping": {"type": "object", "required": ["target_schema", "version"], "properties": {"target_schema": {"type": "string"}, "version": {"type": "string"}}, "additionalProperties": false},
           "extractor_versions": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string"}},

@@ -16,14 +16,20 @@ from __future__ import annotations
 
 import json
 import re
+import hashlib
 from datetime import datetime, timezone
 from typing import Any, Callable, Dict, Iterable, List, Optional, Union
+from urllib.parse import quote, urlencode
 
 from services.ingest.common.series_model import Observation, SeriesRecord
 from src.ingestion.connectors.dataset.base import DatasetConnector, RawSeries, SeriesRef
 from src.ingestion.connectors.dataset.normalize import normalize_frequency, normalize_geography, normalize_unit
 
 _API_BASE = "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data"
+# Comext (international trade in goods) is served by the same dissemination API
+# family under its own path; its cubes use ``reporter`` rather than ``geo``.
+_COMEXT_BASE = "https://ec.europa.eu/eurostat/api/comext/dissemination/statistics/1.0/data"
+_BASES = {"statistics": (_API_BASE, "geo"), "comext": (_COMEXT_BASE, "reporter")}
 _LICENSE = "Eurostat (reuse permitted with attribution)"
 
 # A Eurostat spec is a dataset code plus a geography (and optional extra filters).
@@ -60,6 +66,19 @@ def _strides(size: List[int]) -> List[int]:
     return strides
 
 
+def _seasonal_adjustment(dimensions: Dict[str, Dict[str, Any]]) -> str:
+    for dimension_id, selected in dimensions.items():
+        if dimension_id.casefold() not in {"s_adj", "sa", "seasonal_adjustment", "adjustment"}:
+            continue
+        token = f"{selected.get('code', '')} {selected.get('label', '')}".casefold()
+        code = str(selected.get("code", "")).upper()
+        if "not seasonally adjusted" in token or code in {"NSA", "NNSA"}:
+            return "not_adjusted"
+        if "seasonally adjusted" in token or code in {"SA", "SCA", "SA_WDA", "SCA_WDA"}:
+            return "adjusted"
+    return "unknown"
+
+
 class EurostatConnector(DatasetConnector):
     """Harvest Eurostat series from JSON-stat 2.0 (no key)."""
 
@@ -79,20 +98,35 @@ class EurostatConnector(DatasetConnector):
         for spec in specs:
             dataset = str(spec["dataset"])
             geography = str(spec["geography"])
-            filters = {k: v for k, v in spec.items() if k not in ("dataset", "geography")}
-            yield SeriesRef(
-                locator=f"{dataset}/{geography}",
-                metadata={"dataset": dataset, "geography": geography, "filters": filters},
-            )
+            api = str(spec.get("api") or "statistics")
+            if api not in _BASES:
+                raise ValueError(f"unsupported Eurostat API {api!r}")
+            series_key = spec.get("series_key")
+            if series_key not in (None, "dimensions"):
+                raise ValueError(f"unsupported Eurostat series_key {series_key!r}")
+            filters = {
+                k: v
+                for k, v in spec.items()
+                if k not in ("dataset", "geography", "api", "series_key", "retain_status")
+            }
+            metadata = {"dataset": dataset, "geography": geography, "filters": filters, "api": api}
+            if series_key:
+                metadata["series_key"] = series_key
+            if spec.get("retain_status"):
+                # Opt-in (demographic statistics, #1914): keep each observation's
+                # JSON-stat status flag and the cube's category code lists.
+                metadata["retain_status"] = True
+            yield SeriesRef(locator=f"{dataset}/{geography}", metadata=metadata)
 
-    def _url(self, dataset: str, geography: str, filters: Dict[str, Any]) -> str:
-        params = [f"format=JSON", f"geo={geography}"]
-        for k, v in filters.items():
-            params.append(f"{k}={v}")
-        return f"{_API_BASE}/{dataset}?{'&'.join(params)}"
+    def _url(self, dataset: str, geography: str, filters: Dict[str, Any], api: str = "statistics") -> str:
+        base, geo_dimension = _BASES[api]
+        params = {"format": "JSON", geo_dimension: geography}
+        params.update({str(key): str(value) for key, value in filters.items()})
+        return f"{base}/{quote(dataset, safe='')}?{urlencode(params)}"
 
     def fetch(self, ref: SeriesRef) -> RawSeries:
-        url = self._url(ref.metadata["dataset"], ref.metadata["geography"], ref.metadata.get("filters", {}))
+        url = self._url(ref.metadata["dataset"], ref.metadata["geography"], ref.metadata.get("filters", {}),
+                        ref.metadata.get("api", "statistics"))
         return RawSeries(ref=ref, content=self._http_get(url), content_type="application/json", source_url=url)
 
     def parse(self, raw: RawSeries) -> List[SeriesRecord]:
@@ -108,6 +142,7 @@ class EurostatConnector(DatasetConnector):
         # Fixed index per non-time dimension (singletons; else index 0 with a note).
         fixed: Dict[str, int] = {}
         picked_labels: Dict[str, str] = {}
+        selected_dimensions: Dict[str, Dict[str, Any]] = {}
         multi_dims: List[str] = []
         for d in dim_ids:
             if d == "time":
@@ -124,10 +159,15 @@ class EurostatConnector(DatasetConnector):
             fixed[d] = idx
             label = (cats.get("label", {}) or {}).get(code, code)
             picked_labels[d] = label
+            selected_dimensions[d] = {
+                "code": code,
+                "label": label,
+                "index": idx,
+                "category_count": len(index_map),
+            }
 
         time_cats = dimension.get("time", {}).get("category", {}) or {}
         time_index = time_cats.get("index", {}) or {}
-        time_labels = time_cats.get("label", {}) or {}
         # Frequency from the freq dimension if present, else inferred from labels.
         freq_code = None
         if "freq" in picked_labels:
@@ -137,10 +177,12 @@ class EurostatConnector(DatasetConnector):
         unit = normalize_unit(picked_labels.get("unit"))
         geography = normalize_geography(raw.ref.metadata.get("geography"))
         title = cube.get("label") or raw.ref.metadata["dataset"]
-        as_of = _parse_updated(cube.get("updated")) or raw.fetched_at
+        provider_updated_at = _parse_updated(cube.get("updated"))
+        as_of = provider_updated_at or raw.fetched_at
 
         time_pos = dim_ids.index("time")
         observations: List[Observation] = []
+        status_by_period: Dict[str, Any] = {}
         # Iterate time categories in index order.
         for period_code, t_idx in sorted(time_index.items(), key=lambda kv: kv[1]):
             flat = t_idx * strides[time_pos]
@@ -149,16 +191,83 @@ class EurostatConnector(DatasetConnector):
                     continue
                 flat += fixed[d] * strides[dim_ids.index(d)]
             value = values.get(str(flat))
-            observations.append(
-                Observation(period=_normalize_period(period_code, frequency), value=value if value is not None else None)
-            )
+            period = _normalize_period(period_code, frequency)
+            flag = _status_at(cube.get("status"), flat)
+            if flag is not None:
+                status_by_period[period] = flag
+            observations.append(Observation(period=period, value=value if value is not None else None))
         observations.sort(key=lambda o: o.period)
 
         dataset = raw.ref.metadata["dataset"]
+        filters = raw.ref.metadata.get("filters", {})
+        multi_selection = {
+            dimension_id: selected_dimensions[dimension_id]["code"]
+            for dimension_id in multi_dims
+            if dimension_id in selected_dimensions
+        }
+        selection_hash = (
+            hashlib.sha256(
+                json.dumps(multi_selection, sort_keys=True).encode("utf-8")
+            ).hexdigest()[:12]
+            if multi_selection
+            else None
+        )
         series_id = f"estat:{dataset}:{geography}" if geography else f"estat:{dataset}"
-        metadata: Dict[str, Any] = {"dataset": dataset}
+        if selection_hash:
+            series_id = f"{series_id}:{selection_hash}"
+        if raw.ref.metadata.get("api") == "comext":
+            # A Comext flow is identified by every requested dimension (partner,
+            # product, flow, indicator), not by the reporter alone.
+            series_id = f"estat-comext:{dataset}:{geography}:" + ":".join(
+                f"{key}={value}" for key, value in sorted(filters.items()))
+        elif raw.ref.metadata.get("series_key") == "dimensions":
+            # Opt-in (government finance statistics, #1909): two series of one
+            # dataset and geography that differ only in a filtered dimension
+            # (sector, na_item, unit, cofog99) are two series, never one.
+            series_id = f"estat:{dataset}:{geography}:" + ":".join(
+                f"{key}={value}" for key, value in sorted(filters.items()))
+        requested_filters = {str(key).casefold() for key in filters}
+        unselected_multi_dims = [
+            dimension_id
+            for dimension_id in multi_dims
+            if dimension_id.casefold() not in requested_filters
+        ]
+        metadata: Dict[str, Any] = {
+            "dataset": dataset,
+            "provider_code": dataset,
+            "filters_requested": filters,
+            "selected_dimensions": selected_dimensions,
+            "dimension_coverage": "partial"
+            if unselected_multi_dims
+            else "complete_for_selected_series",
+            "unselected_multi_dimensions": unselected_multi_dims,
+            "provider_release_at_ms": None,
+            "provider_release_time_status": "Eurostat dataset update is not an official release timestamp",
+            "provider_vintage_ms": as_of,
+            "vintage_id": f"{dataset}@{as_of}",
+            "vintage_basis": "eurostat_dataset_updated"
+            if provider_updated_at is not None
+            else "retrieval_time_fallback",
+            "provider_updated_at_ms": provider_updated_at,
+            "acquired_at_ms": raw.fetched_at,
+            "seasonal_adjustment": _seasonal_adjustment(selected_dimensions),
+        }
         if multi_dims:
             metadata["collapsed_dimensions"] = {d: picked_labels.get(d) for d in multi_dims}
+        if raw.ref.metadata.get("retain_status"):
+            extension = cube.get("extension") if isinstance(cube.get("extension"), dict) else {}
+            status_labels = dict(dict((extension or {}).get("status") or {}).get("label") or {})
+            metadata["observation_status"] = status_by_period
+            metadata["status_labels"] = status_labels
+            metadata["dimension_categories"] = {
+                d: {
+                    "label": (dimension.get(d) or {}).get("label"),
+                    "categories": dict(((dimension.get(d) or {}).get("category") or {}).get("label") or {}),
+                }
+                for d in dim_ids
+                if d != "time"
+            }
+            metadata["cube_annotations"] = list((extension or {}).get("annotation") or [])
         return [
             SeriesRecord(
                 series_id=series_id,
@@ -174,6 +283,20 @@ class EurostatConnector(DatasetConnector):
                 metadata=metadata,
             )
         ]
+
+
+def _status_at(status: Any, flat: int) -> Optional[str]:
+    """The JSON-stat status of one flattened cell: a string for every cell, an array by index or a sparse object."""
+    if status is None:
+        return None
+    if isinstance(status, str):
+        return status or None
+    if isinstance(status, list):
+        return status[flat] if flat < len(status) and status[flat] else None
+    if isinstance(status, dict):
+        value = status.get(str(flat))
+        return str(value) if value else None
+    return None
 
 
 def _infer_frequency(time_codes: List[str]) -> str:

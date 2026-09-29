@@ -1,0 +1,4 @@
+BaFin-ID;Name;Ort;Land;LEI;Art des Unternehmens;Erlaubnis;Beginn;Ende;Status
+123456;Fiktiva Invest GmbH;Frankfurt am Main;Deutschland;529900FIKTIVAINV0004;Finanzdienstleistungsinstitut;Finanzportfolioverwaltung;01.05.2019;;erteilt
+123456;Fiktiva Invest GmbH;Frankfurt am Main;Deutschland;529900FIKTIVAINV0004;Finanzdienstleistungsinstitut;Anlageberatung;01.05.2019;;erteilt
+654321;Beispiel Bank AG;Köln;Deutschland;;CRR-Kreditinstitut;Einlagengeschäft;01.01.2001;;erteilt

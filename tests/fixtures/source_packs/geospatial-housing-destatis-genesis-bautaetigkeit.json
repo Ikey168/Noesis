@@ -1,0 +1,48 @@
+{
+ "authored": "authored 2026-09-28 (not a capture)",
+ "captured": null,
+ "license": "dl-de-by-2.0",
+ "native_pages": [
+  {
+   "body": "{\n \"Ident\": {\n  \"Service\": \"metadata\",\n  \"Method\": \"table\"\n },\n \"Status\": {\n  \"Code\": 0,\n  \"Content\": \"erfolgreich\",\n  \"Type\": \"Information\"\n },\n \"Parameter\": {\n  \"name\": \"31111-0004\",\n  \"area\": \"all\",\n  \"language\": \"de\"\n },\n \"Object\": {\n  \"Code\": \"31111-0004\",\n  \"Content\": \"Baugenehmigungen im Hochbau: Bundesländer, Jahre (fiktiv) (authored fixture: fictional values)\",\n  \"Time\": {\n   \"From\": \"2097\",\n   \"To\": \"2098\"\n  },\n  \"Updated\": \"10.04.2099 08:00:00h\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/genesisWS/rest/2020/metadata/table?language=de&name=31111-0004",
+   "status": 200
+  },
+  {
+   "body": "Statistik_Code;Statistik_Label;Zeit_Code;Zeit_Label;Zeit;1_Merkmal_Code;1_Merkmal_Label;1_Auspraegung_Code;1_Auspraegung_Label;BAUGEN__Genehmigte Wohnungen__Anzahl\n31111;Statistik der Baugenehmigungen;JAHR;Jahr;2097;DLAND;Bundesländer;11;Berlin;1390\n31111;Statistik der Baugenehmigungen;JAHR;Jahr;2098;DLAND;Bundesländer;11;Berlin;1480\n31111;Statistik der Baugenehmigungen;JAHR;Jahr;2097;DLAND;Bundesländer;09;Bayern;6100\n31111;Statistik der Baugenehmigungen;JAHR;Jahr;2098;DLAND;Bundesländer;09;Bayern;.\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/genesisWS/rest/2020/data/tablefile?area=all&compress=false&format=ffcsv&language=de&name=31111-0004",
+   "status": 200
+  },
+  {
+   "body": "{\n \"Ident\": {\n  \"Service\": \"metadata\",\n  \"Method\": \"table\"\n },\n \"Status\": {\n  \"Code\": 0,\n  \"Content\": \"erfolgreich\",\n  \"Type\": \"Information\"\n },\n \"Parameter\": {\n  \"name\": \"31231-0003\",\n  \"area\": \"all\",\n  \"language\": \"de\"\n },\n \"Object\": {\n  \"Code\": \"31231-0003\",\n  \"Content\": \"Baufertigstellungen im Hochbau: Bundesländer, Jahre (fiktiv) (authored fixture: fictional values)\",\n  \"Time\": {\n   \"From\": \"2097\",\n   \"To\": \"2098\"\n  },\n  \"Updated\": \"20.05.2099 08:00:00h\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/genesisWS/rest/2020/metadata/table?language=de&name=31231-0003",
+   "status": 200
+  },
+  {
+   "body": "Statistik_Code;Statistik_Label;Zeit_Code;Zeit_Label;Zeit;1_Merkmal_Code;1_Merkmal_Label;1_Auspraegung_Code;1_Auspraegung_Label;BAUFER__Fertiggestellte Wohnungen__Anzahl\n31231;Statistik der Baufertigstellungen;JAHR;Jahr;2097;DLAND;Bundesländer;11;Berlin;1100\n31231;Statistik der Baufertigstellungen;JAHR;Jahr;2098;DLAND;Bundesländer;11;Berlin;1210\n31231;Statistik der Baufertigstellungen;JAHR;Jahr;2097;DLAND;Bundesländer;09;Bayern;5200\n31231;Statistik der Baufertigstellungen;JAHR;Jahr;2098;DLAND;Bundesländer;09;Bayern;5350\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/genesisWS/rest/2020/data/tablefile?area=all&compress=false&format=ffcsv&language=de&name=31231-0003",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers, plan numbers, values and dates are fictional. Not live evidence.",
+ "retrieved": "authored 2026-09-28 (not a capture)",
+ "scenarios": [
+  "genesis-31111",
+  "genesis-31231",
+  "table-updated-stamp",
+  "genesis-sign"
+ ],
+ "source_url": "https://www-genesis.destatis.de/"
+}

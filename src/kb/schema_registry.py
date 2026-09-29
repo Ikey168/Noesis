@@ -229,6 +229,9 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         REPO_ROOT / "contracts/schemas/jsonschema/noesis-knowledge-mutation-v1.json"
     )
     mutation = json.loads(mutation_path.read_text())
+    typed_decision = json.loads(
+        (REPO_ROOT / "contracts/schemas/jsonschema/noesis-typed-decision-v1.json").read_text()
+    )
     ontology = {
         "object_types": [
             "Entity",
@@ -259,13 +262,79 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         "compatibility_policy": "backward",
         "provenance": {"kind": "builtin", "source": "Noesis checkout"},
     }
+    composition = [
+        # Pack/workflow composition contracts (C02.6); dependencies follow what
+        # each contract pins or references.
+        ("pack-composition", "noesis-pack-composition-v1", []),
+        ("provider-descriptor", "noesis-provider-descriptor-v1", []),
+        ("composition-plan", "noesis-composition-plan-v1",
+         [("pack-composition", "^1.0.0"), ("provider-descriptor", "^1.0.0")]),
+        ("composition-readiness", "noesis-composition-readiness-v1", [("composition-plan", "^1.0.0")]),
+        ("composition-activation-receipt", "noesis-composition-activation-receipt-v1",
+         [("composition-plan", "^1.0.0")]),
+        ("workflow-template", "noesis-workflow-template-v1", []),
+    ]
+    composition_modules = [
+        {
+            **common,
+            "name": name,
+            "kind": "schema",
+            "semantic_version": "1.0.0",
+            "content": json.loads(
+                (REPO_ROOT / f"contracts/schemas/jsonschema/{contract}.json").read_text()
+            ),
+            "dependencies": [
+                {"kind": "schema", "name": dep, "version": spec} for dep, spec in deps
+            ],
+        }
+        for name, contract, deps in composition
+    ]
+    # Legal record schema (#2105, FL02): 1.1.0 adds the federal-statute providers and fields additively;
+    # 1.0.0 (CELLAR, court and Berlin records) stays resolvable unchanged.
+    legal = [
+        ("legal-record", "1.0.0", REPO_ROOT / "contracts/schemas/history/noesis-legal-record-1.0.0.json", []),
+        ("legal-record", "1.1.0", REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-record-v1.json", []),
+        ("legal-provision-selection", "1.0.0",
+         REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-provision-selection-v1.json",
+         [("legal-record", "^1.1.0")]),
+        ("legal-provision-comparison", "1.0.0",
+         REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-provision-comparison-v1.json",
+         [("legal-record", "^1.1.0")]),
+    ]
+    legal_modules = [
+        {**common, "owner": "legal-pack", "name": name, "kind": "schema", "semantic_version": version,
+         "content": json.loads(path.read_text()),
+         "dependencies": [{"kind": "schema", "name": dep, "version": spec} for dep, spec in deps]}
+        for name, version, path, deps in legal
+    ]
+    # Product record schema (#2061, PX02): 1.1.0 adds appliance and component fields (source fields,
+    # component identity, SKU aliases, published lifecycle status) additively; 1.0.0 display records stay valid.
+    products = [
+        ("product-record", "1.0.0", REPO_ROOT / "contracts/schemas/history/noesis-product-record-1.0.0.json"),
+        ("product-record", "1.1.0", REPO_ROOT / "contracts/schemas/jsonschema/noesis-product-record-v1.json"),
+    ]
+    product_modules = [
+        {**common, "owner": "products-pack", "name": name, "kind": "schema", "semantic_version": version,
+         "content": json.loads(path.read_text())}
+        for name, version, path in products
+    ]
     return [
+        *composition_modules,
+        *legal_modules,
+        *product_modules,
         {
             **common,
             "name": "knowledge-mutation",
             "kind": "schema",
             "semantic_version": "1.0.0",
             "content": mutation,
+        },
+        {
+            **common,
+            "name": "typed-decision",
+            "kind": "schema",
+            "semantic_version": "1.0.0",
+            "content": typed_decision,
         },
         {
             **common,

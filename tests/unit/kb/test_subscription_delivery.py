@@ -11,7 +11,7 @@ SCOPES = {"knowledge:subscriptions:read", "knowledge:subscriptions:write", "know
 AUTH = {"principal_id": "alice", "scopes": SCOPES}
 
 
-def setup(conn, *, coverage=None):
+def _seed_subscription(conn, *, coverage=None):
     subscriptions = SubscriptionStore(conn)
     sid = subscriptions.create({"namespace": "research", "query": {"operation": "search"},
                                 "delivery": {"kind": "webhook", "destination_ref": "receiver"}}, "one", **AUTH)["subscription_id"]
@@ -29,7 +29,7 @@ def setup(conn, *, coverage=None):
 ])
 def test_removal_reasons_are_visible_to_poll_and_push(coverage, filters, reason, confirmed):
     conn = duckdb.connect()
-    store, sid = setup(conn)
+    store, sid = _seed_subscription(conn)
     if filters:
         store.update(sid, {"filters": filters}, **AUTH)
     store.commit_watermark("research", 2)
@@ -44,7 +44,7 @@ def test_removal_reasons_are_visible_to_poll_and_push(coverage, filters, reason,
 def test_lease_expiry_crash_after_send_and_receiver_deduplication(tmp_path):
     path = str(tmp_path / "delivery.duckdb")
     conn = duckdb.connect(path)
-    setup(conn)
+    _seed_subscription(conn)
     clock = [100]
     store = SubscriptionDeliveryStore(conn, now=lambda: clock[0])
     first = store.claim("worker-1", lease_ms=1000, **AUTH)[0]
@@ -66,7 +66,7 @@ def test_lease_expiry_crash_after_send_and_receiver_deduplication(tmp_path):
 
 def test_backoff_terminal_failure_redrive_and_owner_access():
     conn = duckdb.connect()
-    subscriptions, sid = setup(conn)
+    subscriptions, sid = _seed_subscription(conn)
     clock = [100]
     store = SubscriptionDeliveryStore(conn, now=lambda: clock[0])
     for attempt in range(2):
@@ -90,7 +90,7 @@ def test_backoff_terminal_failure_redrive_and_owner_access():
 def test_competing_workers_claim_each_event_once(tmp_path):
     path = str(tmp_path / "competing.duckdb")
     conn = duckdb.connect(path)
-    setup(conn)
+    _seed_subscription(conn)
     barrier = Barrier(2)
     def claim(worker):
         connection = duckdb.connect(path)

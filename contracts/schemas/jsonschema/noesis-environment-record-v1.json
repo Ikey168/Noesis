@@ -1,0 +1,66 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-environment-record-v1",
+  "title": "Provider-neutral environmental record: station, observation series, facility, grid event or indicator vintage",
+  "description": "Kind (observation, model, forecast) is mandatory for series and grid events and never defaulted; a provider that publishes only model output or forecasts cannot emit an observation. Values are exact decimal strings (or null when the provider publishes a missing value) with their published unit; places are WGS84 points projected by the geospatial owner. Unknowns are listed, never guessed. No record carries an attribution, projection or compliance determination.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "native_id", "title", "source_url", "unknowns"],
+  "definitions": {
+    "decimal": {"type": ["string", "null"], "pattern": "^-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?$"},
+    "instant": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2})?(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2}))?$"},
+    "point": {"type": "object", "required": ["type", "coordinates"], "properties": {
+      "type": {"const": "Point"},
+      "coordinates": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "number"}}}},
+    "kind": {"enum": ["observation", "model", "forecast"]},
+    "value": {"type": "object", "required": ["start", "value", "status"], "properties": {
+      "start": {"$ref": "#/definitions/instant"}, "end": {"$ref": "#/definitions/instant"},
+      "value": {"$ref": "#/definitions/decimal"}, "status": {"enum": ["provisional", "validated", "unknown"]},
+      "quality": {"type": ["string", "null"]}, "flags": {"type": "object"}}}
+  },
+  "properties": {
+    "contract": {"const": "noesis-environment-record-v1"},
+    "record_type": {"enum": ["station", "observation_series", "facility", "grid_event", "indicator_vintage"]},
+    "provider": {"enum": ["openaq", "uba", "entsoe", "smard", "eea-industry", "eu-ets", "umweltatlas", "open-meteo-archive", "open-meteo-forecast", "dwd", "copernicus-cams", "dwd-mosmix", "aviationweather"]},
+    "native_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "source_url": {"type": "string", "pattern": "^https://"},
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "geometry": {"oneOf": [{"$ref": "#/definitions/point"}, {"type": "null"}]},
+    "crs": {"const": "EPSG:4326"},
+    "identifiers": {"type": "object"},
+    "kind": {"$ref": "#/definitions/kind"},
+    "unit": {"type": "string"},
+    "unit_pint": {"type": ["string", "null"]},
+    "interval": {"type": ["string", "null"]},
+    "aggregation": {"enum": ["instant", "mean", "sum", "total", "max", "min", "unknown"]},
+    "location": {"type": "object", "required": ["kind", "ref"], "properties": {
+      "kind": {"enum": ["station", "grid-cell", "facility", "bidding-zone"]}, "ref": {"type": "string"}}},
+    "indicator": {"type": "object", "required": ["code"]},
+    "model": {"type": ["object", "null"], "properties": {
+      "name": {"type": "string"}, "issue_time": {"$ref": "#/definitions/instant"},
+      "grid_resolution_m": {"type": ["number", "null"]}}},
+    "values": {"type": "array", "items": {"$ref": "#/definitions/value"}},
+    "points": {"type": "array", "items": {"$ref": "#/definitions/value"}},
+    "event_type": {"enum": ["generation", "load", "unavailability"]},
+    "bidding_zone": {"type": "object", "required": ["code"]},
+    "unavailability": {"type": ["object", "null"], "properties": {
+      "kind": {"enum": ["planned", "unplanned", "unknown"]}, "start": {"$ref": "#/definitions/instant"},
+      "end": {"$ref": "#/definitions/instant"}, "nominal_capacity": {"$ref": "#/definitions/decimal"},
+      "reason": {"type": "array", "items": {"type": "object"}}}},
+    "operator": {"type": "object", "required": ["name"], "properties": {"name": {"type": ["string", "null"]}}},
+    "permits": {"type": "array", "items": {"type": "object"}},
+    "releases": {"type": "array", "items": {"type": "object", "required": ["year", "pollutant", "value", "unit", "kind"],
+      "properties": {"year": {"type": "integer"}, "value": {"$ref": "#/definitions/decimal"}, "kind": {"$ref": "#/definitions/kind"}}}},
+    "status": {"enum": ["provisional", "validated", "unknown"]}
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"enum": ["observation_series", "grid_event"]}}},
+     "then": {"required": ["kind", "unit"]}},
+    {"if": {"properties": {"record_type": {"const": "observation_series"}}},
+     "then": {"required": ["location", "indicator", "values", "aggregation"]}},
+    {"if": {"properties": {"kind": {"const": "forecast"}, "record_type": {"const": "observation_series"}}},
+     "then": {"properties": {"model": {"type": "object", "required": ["name", "issue_time"]}}}},
+    {"if": {"properties": {"record_type": {"const": "station"}}},
+     "then": {"required": ["geometry", "identifiers"]}}
+  ]
+}

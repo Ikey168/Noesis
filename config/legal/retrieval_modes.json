@@ -1,0 +1,35 @@
+{
+  "contract": "noesis-legal-retrieval-modes-v1",
+  "decided_at": "2026-09-26",
+  "modes": {
+    "exact-identifier": {
+      "state": "enabled",
+      "scope": "lookup by CELEX, ELI, ECLI, doknr, docket or official ID",
+      "basis": "deterministic identity match; not a relevance claim"
+    },
+    "exact-locator-or-substring": {
+      "state": "enabled",
+      "scope": "passages of one chosen version by locator fragment or exact substring",
+      "basis": "deterministic filter inside one version; not a relevance ranking"
+    },
+    "lexical-bm25": {"state": "deferred", "basis": "no accepted independent human-judged legal evaluation"},
+    "semantic": {"state": "deferred", "basis": "no accepted independent human-judged legal evaluation"},
+    "hybrid": {"state": "deferred", "basis": "no accepted independent human-judged legal evaluation"},
+    "reranked": {"state": "deferred", "basis": "no accepted independent human-judged legal evaluation"}
+  },
+  "thresholds": {
+    "min_queries_per_stratum": 20,
+    "min_assessors_per_query": 2,
+    "min_cohen_kappa": 0.6,
+    "recall_at_10": 0.8,
+    "ndcg_at_10": 0.6,
+    "supported_passage_precision_at_5": 0.7,
+    "min_gain_over_keyword_baseline": 0.05,
+    "max_p95_latency_ms": 1500
+  },
+  "evidence": [
+    "docs/development/workflow-review-evidence/legal-reference-retrieval-2026-09-09.json",
+    "docs/development/workflow-review-evidence/legal-reference-small-corpus-rejection-2026-09-09.json"
+  ],
+  "evidence_note": "Existing runs used publisher-identifier and exact-membership labels; they cannot enable a mode."
+}

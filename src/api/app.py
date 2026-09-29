@@ -24,6 +24,7 @@ ARGUMENT_ROUTES_AVAILABLE = False
 KG_STREAM_ROUTES_AVAILABLE = False
 ENTITY_CORRECTION_ROUTES_AVAILABLE = False
 SOURCE_COMPARISON_ROUTES_AVAILABLE = False
+MARKET_ROUTES_AVAILABLE = False
 METRICS_ROUTES_AVAILABLE = False
 PRIVACY_ROUTES_AVAILABLE = False
 SECURITY_ROUTES_AVAILABLE = False
@@ -305,6 +306,19 @@ def try_import_source_comparison_routes():
         return False
 
 
+def try_import_market_routes():
+    """Try to import point-in-time market analytics routes."""
+    global MARKET_ROUTES_AVAILABLE
+    try:
+        from src.api.routes import market_routes
+        _imported_modules['market_routes'] = market_routes
+        MARKET_ROUTES_AVAILABLE = True
+        return True
+    except ImportError:
+        MARKET_ROUTES_AVAILABLE = False
+        return False
+
+
 def try_import_metrics_routes():
     """Try to import resource metrics routes (issue #334)."""
     global METRICS_ROUTES_AVAILABLE
@@ -423,6 +437,7 @@ def check_all_imports():
     try_import_kg_stream_routes()
     try_import_entity_correction_routes()
     try_import_source_comparison_routes()
+    try_import_market_routes()
     try_import_metrics_routes()
     try_import_privacy_routes()
     try_import_security_routes()
@@ -707,6 +722,12 @@ def include_optional_routers(app):
             app.include_router(source_comparison_routes.router)
             routers_included += 1
 
+    if MARKET_ROUTES_AVAILABLE:
+        market_routes = _imported_modules.get('market_routes')
+        if market_routes:
+            app.include_router(market_routes.router)
+            routers_included += 1
+
     # Include resource metrics routes (issue #334)
     if METRICS_ROUTES_AVAILABLE:
         metrics_routes = _imported_modules.get('metrics_routes')
@@ -848,6 +869,7 @@ async def root():
             "kg_stream": KG_STREAM_ROUTES_AVAILABLE,
             "entity_corrections": ENTITY_CORRECTION_ROUTES_AVAILABLE,
             "source_comparison": SOURCE_COMPARISON_ROUTES_AVAILABLE,
+            "market": MARKET_ROUTES_AVAILABLE,
             "resource_metrics": METRICS_ROUTES_AVAILABLE,
             "privacy": PRIVACY_ROUTES_AVAILABLE,
             "local_storage_security": SECURITY_ROUTES_AVAILABLE,

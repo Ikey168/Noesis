@@ -1,0 +1,102 @@
+{
+  "contract": "noesis-market-asset-class-acceptance-index-v1",
+  "status": "partial",
+  "recorded_at": "2026-09-24",
+  "completion_rule": "An asset class is complete only when contract, reference calculation, historical replay, entitlement, live-source and user-workflow checks all pass. Fixture success cannot upgrade a blocked live or human check.",
+  "required_checks": [
+    "contract",
+    "reference_calculation",
+    "historical_replay",
+    "entitlement",
+    "live_source",
+    "user_workflow"
+  ],
+  "asset_classes": [
+    {
+      "asset_class": "us_equities_eod",
+      "fixture_status": "verified",
+      "live_source_status": "incomplete",
+      "entitlement_status": "pending_commercial_rights",
+      "user_workflow_status": "pending_human_review",
+      "evidence": ["fixture-pack.json", "live-price-provider.json", "live-sec-statements.json", "live-sec-materials.json"],
+      "guide": "docs/guides/market-price-history.md"
+    },
+    {
+      "asset_class": "economic_releases",
+      "fixture_status": "verified",
+      "live_source_status": "verified_for_recorded_sample",
+      "entitlement_status": "provider_terms_apply",
+      "user_workflow_status": "pending_human_review",
+      "evidence": ["fixture-pack.json", "live-macro-sources.json"],
+      "guide": "docs/guides/economic-provider-vintages.md"
+    },
+    {
+      "asset_class": "international_equities",
+      "fixture_status": "verified",
+      "live_source_status": "credential_blocked",
+      "entitlement_status": "not_selected",
+      "user_workflow_status": "not_run",
+      "evidence": ["fixture-pack.json"],
+      "guide": "docs/guides/market-specialized-analytics.md"
+    },
+    {
+      "asset_class": "fixed_income",
+      "fixture_status": "verified",
+      "live_source_status": "credential_blocked",
+      "entitlement_status": "not_selected",
+      "user_workflow_status": "not_run",
+      "evidence": ["fixture-pack.json"],
+      "guide": "docs/guides/market-specialized-analytics.md"
+    },
+    {
+      "asset_class": "fx_commodities",
+      "fixture_status": "verified",
+      "live_source_status": "credential_blocked",
+      "entitlement_status": "not_selected",
+      "user_workflow_status": "not_run",
+      "evidence": ["fixture-pack.json"],
+      "guide": "docs/guides/market-specialized-analytics.md"
+    },
+    {
+      "asset_class": "options_derivatives",
+      "fixture_status": "verified",
+      "live_source_status": "credential_blocked",
+      "entitlement_status": "not_selected",
+      "user_workflow_status": "not_run",
+      "evidence": ["fixture-pack.json"],
+      "guide": "docs/guides/market-specialized-analytics.md"
+    },
+    {
+      "asset_class": "digital_assets",
+      "fixture_status": "verified",
+      "live_source_status": "credential_blocked",
+      "entitlement_status": "not_selected",
+      "user_workflow_status": "not_run",
+      "evidence": ["fixture-pack.json"],
+      "guide": "docs/guides/market-specialized-analytics.md"
+    },
+    {
+      "asset_class": "intraday",
+      "fixture_status": "verified",
+      "live_source_status": "credential_blocked",
+      "entitlement_status": "not_selected",
+      "user_workflow_status": "not_run",
+      "evidence": ["fixture-pack.json"],
+      "guide": "docs/guides/market-specialized-analytics.md"
+    },
+    {
+      "asset_class": "market_operations",
+      "fixture_status": "verified",
+      "live_source_status": "local_benchmark_only",
+      "entitlement_status": "not_applicable_to_local_benchmark",
+      "user_workflow_status": "operator_drill_fixture_verified",
+      "evidence": ["fixture-pack.json", "local-operations-benchmark.json"],
+      "guide": "docs/guides/market-operations.md"
+    }
+  ],
+  "migration_notes": [
+    "FMP was added as a disabled-by-default technical EOD adapter; no production entitlement is inferred from the evaluation key.",
+    "Market quality page metadata now reports authorized quarantine exclusions and downstream dashboards/calculations surface degraded state.",
+    "The operations acceptance pack now distinguishes measured local capacity from unmeasured production capacity and infrastructure cost."
+  ]
+}

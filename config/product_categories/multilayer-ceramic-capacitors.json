@@ -1,0 +1,66 @@
+{
+  "contract": "noesis-product-category-v1",
+  "category": "multilayer-ceramic-capacitors",
+  "version": "1.0.0",
+  "family": "component",
+  "labels": ["multilayer ceramic capacitors"],
+  "identity": "manufacturer-mpn",
+  "normalization_version": "products-category-normalization-v1",
+  "attributes": {
+    "capacitance": {"kind": "quantity", "canonical_units": ["pF"], "units": ["pF", "nF", "uF", "F"], "precision": 3,
+                    "tolerance": "capacitance_tolerance", "label": "Nominal capacitance"},
+    "capacitance_tolerance": {"kind": "tolerance", "canonical_units": ["percent", "pF"], "units": ["percent", "pF"],
+                              "precision": 2, "label": "Capacitance tolerance"},
+    "rated_voltage": {"kind": "quantity", "canonical_units": ["V"], "units": ["V", "kV", "mV"], "precision": 3,
+                      "label": "Rated DC voltage"},
+    "dielectric": {"kind": "enum", "values": {"C0G": ["NP0", "C0G (NP0)", "NP0 (C0G)"], "X5R": [], "X6S": [], "X7R": [],
+                                              "X7S": [], "X8R": [], "Y5V": [], "Z5U": []},
+                   "label": "Dielectric (EIA temperature characteristic)"},
+    "package": {"kind": "code", "modes": ["eia-imperial", "eia-metric"], "label": "Case code"},
+    "operating_temperature_min": {"kind": "quantity", "canonical_units": ["C"], "units": ["C"], "precision": 0},
+    "operating_temperature_max": {"kind": "quantity", "canonical_units": ["C"], "units": ["C"], "precision": 0},
+    "height": {"kind": "quantity", "canonical_units": ["mm"], "units": ["mm"], "precision": 2, "label": "Height"}
+  },
+  "label_schemes": {},
+  "comparison": {
+    "attributes": ["capacitance", "rated_voltage", "dielectric", "package", "operating_temperature_min",
+                   "operating_temperature_max", "height"],
+    "notice": "Values are manufacturer-published and supplier catalogue data, not independent measurements; nominal values are shown with their published tolerance, and this comparison is neither a buying recommendation nor a cross-reference or drop-in replacement suggestion."
+  },
+  "matching": {
+    "providers": "distinct",
+    "identifier": "component",
+    "corroboration": [
+      {"attribute": "capacitance", "mode": null, "rule": "within", "tolerance": "0", "evidence": "capacitance_pf",
+       "required": true, "missing_reason": "capacitance missing on at least one side",
+       "contradiction": "capacitance differs by {gap} pF"},
+      {"attribute": "rated_voltage", "mode": null, "rule": "within", "tolerance": "0", "evidence": "rated_voltage_v",
+       "required": true, "missing_reason": "rated voltage missing on at least one side",
+       "contradiction": "rated voltage differs by {gap} V"},
+      {"attribute": "package", "mode": "eia-imperial", "rule": "overlap", "evidence": "package_eia_imperial",
+       "required": true, "missing_reason": "EIA (inch) case code missing on at least one side",
+       "contradiction": "case code differs"},
+      {"attribute": "dielectric", "mode": null, "rule": "overlap", "evidence": "dielectric", "required": false,
+       "contradiction": "dielectric differs"}
+    ]
+  },
+  "providers": {
+    "bmecat": {
+      "feature_groups": ["27-26-01-02"],
+      "features": [
+        ["capacitance", "capacitance", null],
+        ["capacitance tolerance", "capacitance_tolerance", null],
+        ["rated voltage", "rated_voltage", null],
+        ["dielectric", "dielectric", null],
+        ["case code (inch)", "package", "eia-imperial"],
+        ["case code (mm)", "package", "eia-metric"],
+        ["operating temperature min", "operating_temperature_min", null],
+        ["operating temperature max", "operating_temperature_max", null],
+        ["height", "height", null]
+      ],
+      "unit_signs": {"pf": "pF", "nf": "nF", "µf": "uF", "μf": "uF", "uf": "uF", "f": "F", "v": "V", "vlt": "V",
+                     "kv": "kV", "mv": "mV", "%": "percent", "p1": "percent", "°c": "C", "cel": "C", "mm": "mm",
+                     "mmt": "mm"}
+    }
+  }
+}

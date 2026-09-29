@@ -1,0 +1,33 @@
+{
+ "captured_at": "authored 2026-09-28 (not a capture)",
+ "endpoint": "https://gdi.berlin.de/services/wfs/wohnlagen",
+ "license": "dl-de/zero-2-0",
+ "native_pages": [
+  {
+   "body": "{\"crs\": {\"properties\": {\"name\": \"urn:ogc:def:crs:EPSG::25833\"}, \"type\": \"name\"}, \"features\": [{\"geometry\": {\"coordinates\": [[[391000.0, 5820000.0], [392000.0, 5820000.0], [392000.0, 5821000.0], [391000.0, 5821000.0], [391000.0, 5820000.0]]], \"type\": \"Polygon\"}, \"id\": \"wohnlagen_2099.blk-0001\", \"properties\": {\"blk\": \"blk-0001\", \"wol\": \"mittel\"}, \"type\": \"Feature\"}, {\"geometry\": {\"coordinates\": [[[392000.0, 5820000.0], [393000.0, 5820000.0], [393000.0, 5821000.0], [392000.0, 5821000.0], [392000.0, 5820000.0]]], \"type\": \"Polygon\"}, \"id\": \"wohnlagen_2099.blk-0002\", \"properties\": {\"blk\": \"blk-0002\", \"wol\": \"gut\"}, \"type\": \"Feature\"}], \"numberMatched\": 2, \"numberReturned\": 2, \"timeStamp\": \"2099-06-01T08:00:00Z\", \"totalFeatures\": 2, \"type\": \"FeatureCollection\"}",
+   "body_sha256": "98c77e1201a90109033c37de0748e47738b87d4a042915aa2483bdc9ee51e8ef",
+   "params": {
+    "COUNT": 50,
+    "OUTPUTFORMAT": "application/json",
+    "REQUEST": "GetFeature",
+    "SERVICE": "WFS",
+    "SORTBY": "blk",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25833",
+    "STARTINDEX": 0,
+    "TYPENAMES": "wohnlagen:wohnlagen_2099",
+    "VERSION": "2.0.0"
+   },
+   "start_index": 0,
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers, plan numbers, values and dates are fictional. Not live evidence. Geometries are boxes in EPSG:25833.",
+ "provider": "Geoportal Berlin (FIS-Broker) - authored fixture",
+ "retrieved": "authored 2026-09-28 (not a capture)",
+ "scenarios": [
+  "projected-crs-epsg-25833",
+  "complete-snapshot",
+  "edition-category"
+ ],
+ "source_url": "https://gdi.berlin.de/services/wfs/wohnlagen"
+}

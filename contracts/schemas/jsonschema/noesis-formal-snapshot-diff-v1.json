@@ -1,0 +1,80 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-formal-snapshot-diff-v1.json",
+  "title": "Noesis formal snapshot comparison v1",
+  "description": "Declarations added, removed or changed (statement hash) between two commits of one library, rename candidates by statement similarity and module import changes.",
+  "type": "object",
+  "required": [
+    "contract",
+    "library",
+    "from_commit",
+    "to_commit",
+    "added",
+    "removed",
+    "changed",
+    "rename_candidates",
+    "import_changes",
+    "unchanged"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-formal-snapshot-diff-v1"
+    },
+    "library": {
+      "type": "string"
+    },
+    "from_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "to_commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "added": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "removed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "changed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "rename_candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "from",
+          "to",
+          "similarity",
+          "basis"
+        ]
+      }
+    },
+    "import_changes": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "module",
+          "added",
+          "removed"
+        ]
+      }
+    },
+    "unchanged": {
+      "type": "integer",
+      "minimum": 0
+    }
+  }
+}

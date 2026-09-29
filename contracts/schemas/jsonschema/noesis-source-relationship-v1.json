@@ -12,7 +12,7 @@
     "revision": {"type": "integer", "minimum": 1},
     "from_source_id": {"type": "string", "pattern": "^source-identity:"},
     "to_source_id": {"type": "string", "pattern": "^source-identity:"},
-    "relationship_type": {"enum": ["ownership", "funding", "editorial-control", "state-affiliation", "syndication", "authorship", "reporting-origin"]},
+    "relationship_type": {"enum": ["ownership", "funding", "editorial-control", "state-affiliation", "syndication", "authorship", "reporting-origin", "shared-infrastructure"]},
     "lifecycle": {"enum": ["active", "retracted"]},
     "valid_from_ms": {"type": ["integer", "null"]},
     "valid_to_ms": {"type": ["integer", "null"]},

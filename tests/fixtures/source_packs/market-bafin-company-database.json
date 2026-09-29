@@ -1,0 +1,19 @@
+{
+  "captured": false,
+  "provider": "bafin-company-database",
+  "note": "Authored exports naming fictional issuers, companies and persons only, served for the production document URLs. The production issuer set (DAX 40, verify) is therefore out of scope for every row and no notice is emitted for it; parsing is exercised with the fictional issuer set in tests/unit/bafin_harness.py.",
+  "native_pages": [
+    {
+      "request": "/database/InstInfo/sucheForm.do?6578706f7274=1&d-4012550-e=1",
+      "status": 200,
+      "body": "BaFin-ID;Name;Ort;Land;LEI;Art des Unternehmens;Erlaubnis;Beginn;Ende;Status\n123456;Fiktiva Invest GmbH;Frankfurt am Main;Deutschland;529900FIKTIVAINV0004;Finanzdienstleistungsinstitut;Finanzportfolioverwaltung;01.05.2019;;erteilt\n123456;Fiktiva Invest GmbH;Frankfurt am Main;Deutschland;529900FIKTIVAINV0004;Finanzdienstleistungsinstitut;Anlageberatung;01.05.2019;;erteilt\n654321;Beispiel Bank AG;Köln;Deutschland;;CRR-Kreditinstitut;Einlagengeschäft;01.01.2001;;erteilt\n",
+      "authored": true,
+      "body_encoding": "windows-1252"
+    }
+  ],
+  "scenarios": [
+    "bounded-issuer-set",
+    "out-of-scope-rows-counted",
+    "declared-column-mapping"
+  ]
+}

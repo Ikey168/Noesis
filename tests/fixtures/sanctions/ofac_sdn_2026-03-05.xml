@@ -1,0 +1,27 @@
+<?xml version="1.0" standalone="yes"?>
+<sdnList xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://tempuri.org/sdnList.xsd">
+  <publshInformation>
+    <Publish_Date>03/05/2026</Publish_Date>
+    <Record_Count>2</Record_Count>
+  </publshInformation>
+  <sdnEntry>
+    <uid>99001</uid>
+    <lastName>FICTIONAL STAR</lastName>
+    <sdnType>Vessel</sdnType>
+    <programList><program>FIXTURE-EO</program></programList>
+    <idList>
+      <id><uid>990011</uid><idType>Vessel Registration Identification</idType><idNumber>IMO 9999991</idNumber></id>
+    </idList>
+    <vesselInfo><callSign>ZZFS1</callSign><vesselType>Crude Oil Tanker</vesselType><vesselFlag>Fictionland</vesselFlag></vesselInfo>
+  </sdnEntry>
+  <sdnEntry>
+    <uid>99002</uid>
+    <lastName>EXAMPLAR FREIGHT LLC</lastName>
+    <sdnType>Entity</sdnType>
+    <programList><program>FIXTURE-EO</program></programList>
+    <idList>
+      <id><uid>990021</uid><idType>Registration Number</idType><idNumber>1027700000001</idNumber><idCountry>Russia</idCountry></id>
+    </idList>
+    <addressList><address><uid>990022</uid><city>Fictionville</city><country>Russia</country></address></addressList>
+  </sdnEntry>
+</sdnList>

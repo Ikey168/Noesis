@@ -1,0 +1,96 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "weather.verification",
+  "version": "1.0.0",
+  "description": "Verification of published forecasts against recorded observations: stated pairing rule, bias/MAE/RMSE, Brier score and user-threshold contingency metrics with definitions, sample sizes and exclusions; no ranking.",
+  "implementation": {
+    "name": "src.kb.weather_verification",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "weather.verification",
+      "contract": {
+        "name": "noesis-weather-verification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "verify",
+        "replay-verification"
+      ],
+      "semantic_constraints": {
+        "pairs": "same, equivalent or declared station; same parameter after exact unit normalisation; nearest observation within the stated tolerance",
+        "exclusions": "failed/suspect QC, missing values, forecasts captured after their valid time; all counted",
+        "verdicts": "none; no best-provider ranking"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "verify",
+      "tool": "noesis-knowledge-engine.verify_published_forecasts",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request + pinned revisions"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "replay-verification",
+      "tool": "noesis-knowledge-engine.replay_weather_verification",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "verification",
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "weather-verification-run",
+      "store": "src.kb.weather_verification",
+      "tables": [
+        "weather_verification_runs",
+        "weather_verification_pairs"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "weather_revisions"
+    },
+    {
+      "id": "verification",
+      "kind": "table-exists",
+      "target": "weather_verification_runs"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "weather-operational",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

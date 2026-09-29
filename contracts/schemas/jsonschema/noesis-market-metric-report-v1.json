@@ -1,0 +1,112 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-metric-report-v1.json",
+  "title": "Noesis market metric report v1",
+  "description": "Deterministic point-in-time price and filed-fact metrics with formula versions, exact source revision lineage, and current derivation rights decisions.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "calculation_id", "formula_version", "quantitative_calculation_id", "calculation_hash", "recorded_at_ms", "public_cutoff_ms", "acquired_cutoff_ms", "input_revision_ids", "formula_versions", "metrics", "source_entitlements"],
+  "properties": {
+    "contract": {"const": "noesis-market-metric-report-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "calculation_id": {"type": "string", "pattern": "^quantitative-calculation:"},
+    "formula_version": {"type": "string", "minLength": 1},
+    "quantitative_calculation_id": {"type": "string", "pattern": "^quantitative-calculation:"},
+    "calculation_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "public_cutoff_ms": {"type": "integer", "minimum": 0},
+    "acquired_cutoff_ms": {"type": "integer", "minimum": 0},
+    "input_revision_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "formula_versions": {"type": "object", "minProperties": 1, "additionalProperties": {"type": "string", "minLength": 1}},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "issuer_revision_id": {"type": "string", "minLength": 1},
+    "action_revision_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "currency_conversion": {"type": "string"},
+    "conversion_calculation_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^quantitative-calculation:"}},
+    "formula_calculation_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "pattern": "^quantitative-calculation:"}},
+    "formula_registry_revisions": {"type": "object", "additionalProperties": {"type": "string", "pattern": "^quantitative-metric-revision:"}},
+    "metrics": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "value", "unit", "status", "formula_version"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1},
+          "value": {"oneOf": [{"$ref": "#/definitions/decimal"}, {"type": "null"}]},
+          "unit": {"type": "string", "minLength": 1},
+          "status": {"enum": ["available", "unavailable"]},
+          "reason_code": {"type": "string", "minLength": 1},
+          "formula_version": {"type": "string", "minLength": 1},
+          "formula_revision_id": {"type": "string", "pattern": "^quantitative-metric-revision:"},
+          "formula_calculation_id": {"type": "string", "pattern": "^quantitative-calculation:"},
+          "observation_count": {"type": "integer", "minimum": 0},
+          "periods_per_year": {"type": "integer", "minimum": 1},
+          "estimator": {"type": "string"},
+          "alignment": {"type": "string"},
+          "numerator_fact_revision_id": {"type": "string"},
+          "denominator_fact_revision_id": {"type": "string"},
+          "numerator_unit": {"type": "string"},
+          "denominator_unit": {"type": "string"},
+          "period": {"type": "object"}
+        },
+        "additionalProperties": true
+      }
+    },
+    "series": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["period", "period_start", "period_end", "input_revision_ids", "calendar_days_elapsed", "price_return", "total_return"],
+        "properties": {
+          "period": {"type": "string", "format": "date"},
+          "period_start": {"type": "string", "format": "date"},
+          "period_end": {"type": "string", "format": "date"},
+          "input_revision_ids": {"type": "array", "minItems": 2, "maxItems": 2, "items": {"type": "string", "minLength": 1}},
+          "calendar_days_elapsed": {"type": "integer", "minimum": 1},
+          "price_return": {"oneOf": [{"$ref": "#/definitions/decimal"}, {"type": "null"}]},
+          "total_return": {"oneOf": [{"$ref": "#/definitions/decimal"}, {"type": "null"}]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "assumptions": {"type": "object"},
+    "quality": {"type": "object"},
+    "source_entitlements": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["source_ref_id", "provider", "license_id", "entitlement_id", "policy_revision_id", "authorized_operation"],
+            "properties": {
+              "source_ref_id": {"type": "string", "minLength": 1},
+              "provider": {"type": "string", "minLength": 1},
+              "license_id": {"type": "string", "minLength": 1},
+              "entitlement_id": {"type": "string", "minLength": 1},
+              "retrieved_at_ms": {"type": "integer", "minimum": 0},
+              "policy_revision_id": {"type": "string", "minLength": 1},
+              "authorized_operation": {"const": "derive"}
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": ["rate_id", "from", "to", "value"],
+            "properties": {
+              "rate_id": {"type": "string", "minLength": 1},
+              "from": {"type": "string", "minLength": 1},
+              "to": {"type": "string", "minLength": 1},
+              "value": {"type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?$"},
+              "conversion_calculation_id": {"type": "string"}
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "decimal": {"type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?$"}
+  },
+  "additionalProperties": false
+}

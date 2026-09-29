@@ -15,12 +15,47 @@ from __future__ import annotations
 import json
 import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Any, Dict, List, Optional
 
 from src.domains.base import DomainPack
 
 _REGISTRY: Dict[str, DomainPack] = {}
 _ENABLED: set = set()
+# Composition authority (C05.5): after a bundle is cut over to composition
+# management the lifecycle coordinator is the only authority for its
+# enablement. Legacy calls for such bundles delegate to it or raise
+# CompositionAuthorityError; no second enabled-state ledger is kept.
+_AUTHORITY: Optional[Any] = None
+
+
+class CompositionAuthorityError(RuntimeError):
+    """A legacy enablement call targeted a composition-managed bundle."""
+
+    code = "composition_managed"
+
+
+def set_authority(authority: Optional[Any]) -> None:
+    """Install (or clear) the composition authority.
+
+    The object provides ``manages(name) -> bool`` and ``legacy_enable(name)`` /
+    ``legacy_disable(name)``, which either leave the state the coordinator
+    would produce or raise :class:`CompositionAuthorityError`.
+    """
+    global _AUTHORITY
+    _AUTHORITY = authority
+
+
+def _managed(name: str) -> bool:
+    return _AUTHORITY is not None and bool(_AUTHORITY.manages(name))
+
+
+def apply_enabled(name: str, enabled: bool) -> None:
+    """Set enablement on behalf of the composition coordinator (its only writer)."""
+    if enabled:
+        _ENABLED.add(name)
+    else:
+        _ENABLED.discard(name)
+
 
 _DEFAULT_CONFIG_PATH = Path(__file__).parent.parent.parent / "config" / "domain_packs.json"
 
@@ -35,11 +70,17 @@ def register_pack(pack: DomainPack) -> None:
 
 def enable_pack(name: str) -> None:
     """Mark the named pack as enabled (without requiring it to be registered yet)."""
+    if _managed(name):
+        _AUTHORITY.legacy_enable(name)
+        return
     _ENABLED.add(name)
 
 
 def disable_pack(name: str) -> None:
     """Mark the named pack as disabled."""
+    if _managed(name):
+        _AUTHORITY.legacy_disable(name)
+        return
     _ENABLED.discard(name)
 
 
@@ -91,9 +132,14 @@ def load_config(path: Optional[str] = None) -> List[str]:
     if env_override:
         enabled = [p.strip() for p in env_override.split(",") if p.strip()]
 
+    # The config file is authoritative only for bundles still under legacy
+    # authority; composition-managed enablement is left as the coordinator set it.
+    managed_enabled = {name for name in _ENABLED if _managed(name)}
     _ENABLED.clear()
+    _ENABLED.update(managed_enabled)
     for name in enabled:
-        enable_pack(name)
+        if not _managed(name):
+            enable_pack(name)
     return list(enabled)
 
 
@@ -101,3 +147,4 @@ def reset() -> None:
     """Clear all registered packs and enabled flags. For test use only."""
     _REGISTRY.clear()
     _ENABLED.clear()
+    set_authority(None)

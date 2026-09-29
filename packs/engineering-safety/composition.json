@@ -1,0 +1,195 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "engineering-safety.directives",
+        "provider": "engineering-safety.directives",
+        "contract": {
+          "name": "noesis-engineering-safety-directive",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "engineering-safety.investigations",
+        "provider": "engineering-safety.investigations",
+        "contract": {
+          "name": "noesis-engineering-safety-dossier",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "engineering-safety.recommendations",
+        "provider": "engineering-safety.recommendations",
+        "contract": {
+          "name": "noesis-engineering-safety-recommendation",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "engineering-safety.defects",
+        "provider": "engineering-safety.defects",
+        "contract": {
+          "name": "noesis-engineering-safety-defect-investigation",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "engineering-safety.subject-identity",
+        "provider": "engineering-safety.identity",
+        "contract": {
+          "name": "noesis-engineering-safety-subject-match",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "engineering-safety.directives",
+        "version": "1.0.0"
+      },
+      {
+        "id": "engineering-safety.investigations",
+        "version": "1.0.0"
+      },
+      {
+        "id": "engineering-safety.recommendations",
+        "version": "1.0.0"
+      },
+      {
+        "id": "engineering-safety.defects",
+        "version": "1.0.0"
+      },
+      {
+        "id": "engineering-safety.identity",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "engineering-safety",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "engineering-safety.record",
+        "description": "Authority-record vocabulary: quoted, revisioned, never a verdict",
+        "vocabulary": {
+          "directive": "an airworthiness directive as the authority published it",
+          "finding": "a finding quoted from the investigating body",
+          "none on record": "no record on file, never 'safe'"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "engineering-safety.directives",
+      "contract": "noesis-engineering-safety-directive",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "engineering-safety.investigations",
+      "contract": "noesis-engineering-safety-dossier",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "engineering-safety.recommendations",
+      "contract": "noesis-engineering-safety-recommendation",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "engineering-safety.defects",
+      "contract": "noesis-engineering-safety-defect-investigation",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "engineering-safety.subject-identity",
+      "contract": "noesis-engineering-safety-subject-match",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "FAA, EASA, NTSB, PHMSA, CSB, ODI, BFU and BEA sources run through the source-pack runtime"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "engineering-safety monitors are subscriptions"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "accepted entity matches are entity identity decisions; records are never merged"
+    },
+    {
+      "capability": "technology.standards",
+      "contract": "noesis-standard-catalogue",
+      "range": "^1.0.0",
+      "reason": "cited standards resolve to catalogue editions by exact reference"
+    },
+    {
+      "capability": "legal.works",
+      "contract": "noesis-legal-record",
+      "range": "^1.0.0",
+      "reason": "cited CFR parts and EU acts resolve to Legal works by exact identifier"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "products",
+      "default": false,
+      "description": "Vehicle and component subjects matched to Products models through reviewed matches, and ODI recall campaigns linked to the Products safety feature's NHTSA notices by campaign number",
+      "requires": [
+        {
+          "capability": "products.identities",
+          "contract": "noesis-product-record",
+          "range": "^1.0.0",
+          "reason": "subjects match Products models only through reviewed matches"
+        },
+        {
+          "capability": "products.safety-notices",
+          "contract": "noesis-product-safety-notice",
+          "range": "^1.0.0",
+          "reason": "recall campaigns are owned by products.safety and linked by number"
+        }
+      ]
+    },
+    {
+      "id": "ownership",
+      "default": false,
+      "description": "Operator and manufacturer names offered to Corporate Ownership's reviewable identity state machine",
+      "requires": [
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "operator candidates share the ownership identity review"
+        }
+      ]
+    },
+    {
+      "id": "places",
+      "default": false,
+      "description": "Occurrence coordinates as published, for place context through Geospatial (never geocoded from a place name)",
+      "requires": [
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "occurrence places resolve through the spatial owner"
+        }
+      ]
+    }
+  ]
+}

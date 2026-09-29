@@ -1,0 +1,75 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "sports.olympics",
+  "version": "1.0.0",
+  "description": "Olympic event results transcribed from official publications, each row cited; a disqualification or medal reallocation is a result revision naming the deciding body.",
+  "implementation": {
+    "name": "src.kb.sports_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "sports.olympic-results",
+      "contract": {
+        "name": "noesis-sports-olympic-result",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "olympic-event-results",
+        "import-olympic-results"
+      ],
+      "semantic_constraints": {
+        "source": "operator transcription of an official publication; olympics.com is cited, never scraped",
+        "revisions": "a reallocation names the deciding body and cites its decision"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "olympic-event-results",
+      "tool": "noesis-knowledge-engine.sports_olympic_event_results",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "import-olympic-results",
+      "tool": "noesis-knowledge-engine.import_sports_olympic_results",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "sports_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "sports-records",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

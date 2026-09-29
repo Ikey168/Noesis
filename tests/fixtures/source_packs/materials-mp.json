@@ -1,0 +1,36 @@
+{
+ "authored": true,
+ "provider": "Materials Project",
+ "note": "Authored in the provider's documented response shape for fictional IDs and values; not a capture.",
+ "scenarios": [
+  "summary+thermo+elasticity merged per material_id",
+  "two thermo types kept separate",
+  "polymorph pair"
+ ],
+ "native_pages": [
+  {
+   "request": "/materials/summary/?_fields=material_id%2Cformula_pretty%2Csymmetry%2Cstructure%2Cnsites%2Cvolume%2Cdensity%2Cband_gap%2Cdatabase_IDs%2Cdeprecated%2Clast_updated&_limit=50&chemsys=O-Ti%2CAl-O",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "{\"data\": [{\"material_id\": \"mp-990001\", \"formula_pretty\": \"TiO2\", \"symmetry\": {\"crystal_system\": \"Tetragonal\", \"symbol\": \"P4_2/mnm\", \"number\": 136}, \"structure\": {\"lattice\": {\"a\": 4.640, \"b\": 4.640, \"c\": 2.978, \"alpha\": 90.0, \"beta\": 90.0, \"gamma\": 90.0}}, \"nsites\": 6, \"volume\": 64.10, \"density\": 4.130, \"band_gap\": 1.780, \"database_IDs\": {\"icsd\": [\"icsd-99001\"]}, \"deprecated\": false, \"last_updated\": \"2099-01-10 00:00:00\"}, {\"material_id\": \"mp-990002\", \"formula_pretty\": \"TiO2\", \"symmetry\": {\"crystal_system\": \"Tetragonal\", \"symbol\": \"I4_1/amd\", \"number\": 141}, \"structure\": {\"lattice\": {\"a\": 3.806, \"b\": 3.806, \"c\": 9.600, \"alpha\": 90.0, \"beta\": 90.0, \"gamma\": 90.0}}, \"nsites\": 12, \"volume\": 139.00, \"density\": 3.820, \"band_gap\": 2.050, \"database_IDs\": {\"icsd\": []}, \"deprecated\": false, \"last_updated\": \"2099-01-10 00:00:00\"}, {\"material_id\": \"mp-990003\", \"formula_pretty\": \"Al2O3\", \"symmetry\": {\"crystal_system\": \"Trigonal\", \"symbol\": \"R-3c\", \"number\": 167}, \"structure\": {\"lattice\": {\"a\": 4.810, \"b\": 4.810, \"c\": 13.120, \"alpha\": 90.0, \"beta\": 90.0, \"gamma\": 120.0}}, \"nsites\": 10, \"volume\": 86.00, \"density\": 3.940, \"band_gap\": 5.850, \"database_IDs\": {\"icsd\": []}, \"deprecated\": false, \"last_updated\": \"2099-01-10 00:00:00\"}], \"meta\": {\"api_version\": \"0.99.0\", \"db_version\": \"2099.1.0\", \"total_doc\": 3}}"
+  },
+  {
+   "request": "/materials/thermo/?_fields=material_id%2Cthermo_type%2Cformation_energy_per_atom%2Cenergy_above_hull&_limit=50&chemsys=O-Ti%2CAl-O",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "{\"data\": [{\"material_id\": \"mp-990001\", \"thermo_type\": \"GGA_GGA+U\", \"formation_energy_per_atom\": -3.510, \"energy_above_hull\": 0.0}, {\"material_id\": \"mp-990001\", \"thermo_type\": \"R2SCAN\", \"formation_energy_per_atom\": -3.620, \"energy_above_hull\": 0.0}, {\"material_id\": \"mp-990002\", \"thermo_type\": \"GGA_GGA+U\", \"formation_energy_per_atom\": -3.500, \"energy_above_hull\": 0.010}, {\"material_id\": \"mp-990003\", \"thermo_type\": \"GGA_GGA+U\", \"formation_energy_per_atom\": -3.430, \"energy_above_hull\": 0.0}], \"meta\": {\"api_version\": \"0.99.0\", \"db_version\": \"2099.1.0\", \"total_doc\": 3}}"
+  },
+  {
+   "request": "/materials/elasticity/?_fields=material_id%2Cbulk_modulus%2Cshear_modulus&_limit=50&chemsys=O-Ti%2CAl-O",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "{\"data\": [{\"material_id\": \"mp-990001\", \"bulk_modulus\": {\"voigt\": 212.0, \"reuss\": 208.0, \"vrh\": 210.0}, \"shear_modulus\": {\"voigt\": 115.0, \"reuss\": 109.0, \"vrh\": 112.0}}], \"meta\": {\"api_version\": \"0.99.0\", \"db_version\": \"2099.1.0\", \"total_doc\": 3}}"
+  }
+ ]
+}

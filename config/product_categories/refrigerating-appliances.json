@@ -1,0 +1,67 @@
+{
+  "contract": "noesis-product-category-v1",
+  "category": "refrigerating-appliances",
+  "version": "1.0.0",
+  "family": "appliance",
+  "labels": ["refrigerating appliances"],
+  "identity": "brand-designation",
+  "normalization_version": "products-category-normalization-v1",
+  "attributes": {
+    "total_volume": {"kind": "quantity", "canonical_units": ["L"], "units": ["L"], "precision": 0,
+                     "label": "Total volume"},
+    "annual_energy_consumption": {"kind": "quantity", "canonical_units": ["kWh/annum"], "units": ["kWh/annum"],
+                                  "precision": 0, "label": "Annual energy consumption"},
+    "energy_class": {"kind": "label_class", "label": "Energy efficiency class"},
+    "noise": {"kind": "quantity", "canonical_units": ["dB(A)"], "units": ["dB(A)"], "precision": 0,
+              "label": "Airborne acoustical noise emission"},
+    "noise_class": {"kind": "label_class", "classes": ["A", "B", "C", "D"], "label": "Airborne noise emission class"},
+    "climate_class": {"kind": "code_set", "values": ["SN", "N", "ST", "T"], "label": "Climate classes"}
+  },
+  "label_schemes": {
+    "EU_2019_2016": {"regulation": "Commission Delegated Regulation (EU) 2019/2016 (refrigerating appliances)",
+                     "classes": ["A", "B", "C", "D", "E", "F", "G"]}
+  },
+  "comparison": {
+    "attributes": ["total_volume", "energy_class", "annual_energy_consumption", "noise", "noise_class",
+                   "climate_class"],
+    "notice": "Values are brand-authorised content (Icecat) and supplier registrations (EPREL), not independent measurements, and this comparison is not a buying recommendation."
+  },
+  "matching": {
+    "providers": [["icecat", "eprel"]],
+    "identifier": "designation",
+    "corroboration": [
+      {"attribute": "total_volume", "mode": null, "rule": "within", "tolerance": "2", "evidence": "total_volume_l",
+       "required": true, "missing_reason": "total volume missing on at least one side",
+       "contradiction": "total volume differs by {gap} L"},
+      {"attribute": "annual_energy_consumption", "mode": null, "rule": "within", "tolerance": "1",
+       "evidence": "annual_energy_consumption_kwh", "required": false,
+       "contradiction": "annual energy consumption differs by {gap} kWh/annum"},
+      {"attribute": "energy_class", "mode": null, "rule": "same_scheme_overlap", "evidence": "energy_class",
+       "required": false, "contradiction": "energy class differs under the same label scheme"}
+    ]
+  },
+  "providers": {
+    "eprel": {
+      "product_groups": ["refrigeratingappliances2019"],
+      "fields": [
+        ["totalVolume", "total_volume", null, "L"],
+        ["energyConsumptionAnnual", "annual_energy_consumption", null, "kWh/annum"],
+        ["energyClass", "energy_class", null, null],
+        ["noise", "noise", null, "dB(A)"],
+        ["noiseClass", "noise_class", null, null],
+        ["climateClasses", "climate_class", null, null]
+      ]
+    },
+    "icecat": {
+      "features": [
+        ["total net capacity", "total_volume", null],
+        ["annual energy consumption", "annual_energy_consumption", null, {"kwh": "kWh/annum", "kwh/year": "kWh/annum"}],
+        ["energy efficiency class", "energy_class", null],
+        ["noise level", "noise", null],
+        ["noise level class", "noise_class", null],
+        ["climate class", "climate_class", null]
+      ],
+      "unit_signs": {"l": "L", "db": "dB(A)", "db(a)": "dB(A)"}
+    }
+  }
+}

@@ -1,0 +1,12 @@
+{
+  "contract": "noesis-market-derivatives-analytics-v1",
+  "asset_class": "derivatives",
+  "formula_version": "noesis-market-specialized-v1",
+  "status": "complete",
+  "contract_terms": {"underlying": "listing:fixture", "strike": 100, "exercise_style": "european", "multiplier": 100},
+  "model": {"price": 5.0, "delta": 0.5, "gamma": 0.02, "vega": 0.2, "theta": -0.01, "rho": 0.1},
+  "quote_status": "not_provided",
+  "source_revision_ids": ["fixture:option:1"],
+  "source_rights": {"status": "rights_unverified", "decisions": []},
+  "limitations": ["Fixture only."]
+}

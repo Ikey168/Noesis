@@ -1,0 +1,43 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "# Bundeshaushalt 2099 - Haushaltsplan (authored fixture: fictional Einzelplan, Kapitel and Titel)\n# Stand: 01.12.2098\n# Betragsangaben in 1.000 EUR\nHaushaltsjahr;Einzelplan;Einzelplantext;Kapitel;Kapiteltext;Titel;Titeltext;Einnahme/Ausgabe;Soll\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;68101;Zuschüsse an Beispielträger;A;125.000\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;53201;Beispielgutachten;A;4.250,5\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;11901;Beispielerlöse;E;\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/static/daten/2025/soll/hh_2025_soll.csv",
+   "status": 200
+  },
+  {
+   "body": "# Bundeshaushalt 2099 - 1. Nachtragshaushalt (authored fixture: fictional Einzelplan, Kapitel and Titel)\n# Stand: 15.06.2099\n# Betragsangaben in 1.000 EUR\nHaushaltsjahr;Einzelplan;Einzelplantext;Kapitel;Kapiteltext;Titel;Titeltext;Einnahme/Ausgabe;Soll\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;68101;Zuschüsse an Beispielträger;A;140.000\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;53201;Beispielgutachten;A;4.250,5\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;11901;Beispielerlöse;E;\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/static/daten/2025/soll/hh_2025_nachtrag_1.csv",
+   "status": 200
+  },
+  {
+   "body": "# Bundeshaushalt 2099 - vorläufiges Ist (authored fixture: fictional Einzelplan, Kapitel and Titel)\n# Stand: 20.01.2100\n# Betragsangaben in 1.000 EUR\nHaushaltsjahr;Einzelplan;Einzelplantext;Kapitel;Kapiteltext;Titel;Titeltext;Einnahme/Ausgabe;Ist\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;68101;Zuschüsse an Beispielträger;A;131.200,4\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;53201;Beispielgutachten;A;3.990\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;11901;Beispielerlöse;E;12,5\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/static/daten/2025/ist/hh_2025_ist_vorlaeufig.csv",
+   "status": 200
+  },
+  {
+   "body": "# Bundeshaushalt 2099 - Haushaltsrechnung (authored fixture: fictional Einzelplan, Kapitel and Titel)\n# Stand: 30.04.2100\n# Betragsangaben in 1.000 EUR\nHaushaltsjahr;Einzelplan;Einzelplantext;Kapitel;Kapiteltext;Titel;Titeltext;Einnahme/Ausgabe;Ist\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;68101;Zuschüsse an Beispielträger;A;131.350,4\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;53201;Beispielgutachten;A;3.990\n2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;11901;Beispielerlöse;E;12,5\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/static/daten/2025/ist/hh_2025_haushaltsrechnung.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored files in the documented shape; every budget line, beneficiary and figure is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

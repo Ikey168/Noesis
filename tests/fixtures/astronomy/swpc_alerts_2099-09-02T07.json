@@ -1,0 +1,17 @@
+[
+ {
+  "product_id": "A20F",
+  "issue_datetime": "2099-09-02 06:00:00.000",
+  "message": "Space Weather Message Code: WATA20\r\nSerial Number: 9004\r\nIssue Time: 2099 Sep 02 0600 UTC\r\n\r\nCANCEL WATCH: Geomagnetic Storm Category G2 Predicted\r\nCancel Serial Number: 9001\r\nOriginal Issue Time: 2099 Sep 01 0030 UTC\r\n\r\nNOAA Space Weather Scale descriptions can be found at\r\nwww.swpc.noaa.gov/noaa-scales-explanation\r\n\r\nFictional authored message for tests."
+ },
+ {
+  "product_id": "K05W",
+  "issue_datetime": "2099-09-01 17:50:00.000",
+  "message": "Space Weather Message Code: WARK05\r\nSerial Number: 9003\r\nIssue Time: 2099 Sep 01 1750 UTC\r\n\r\nEXTENDED WARNING: Geomagnetic K-index of 5 expected\r\nExtension to Serial Number: 9002\r\nValid From: 2099 Sep 01 1200 UTC\r\nNow Valid Until: 2099 Sep 02 0300 UTC\r\nWarning Condition: Persistence\r\nNOAA Scale: G1 - Minor\r\n\r\nNOAA Space Weather Scale descriptions can be found at\r\nwww.swpc.noaa.gov/noaa-scales-explanation\r\n\r\nFictional authored message for tests."
+ },
+ {
+  "product_id": "K05W",
+  "issue_datetime": "2099-09-01 12:00:00.000",
+  "message": "Space Weather Message Code: WARK05\r\nSerial Number: 9002\r\nIssue Time: 2099 Sep 01 1200 UTC\r\n\r\nWARNING: Geomagnetic K-index of 5 expected\r\nValid From: 2099 Sep 01 1200 UTC\r\nValid To: 2099 Sep 01 1800 UTC\r\nWarning Condition: Onset\r\nNOAA Scale: G1 - Minor\r\n\r\nNOAA Space Weather Scale descriptions can be found at\r\nwww.swpc.noaa.gov/noaa-scales-explanation\r\n\r\nFictional authored message for tests."
+ }
+]

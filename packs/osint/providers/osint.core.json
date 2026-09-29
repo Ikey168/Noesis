@@ -1,0 +1,133 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "osint.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.osint",
+    "version": "1.0.0",
+    "server": "noesis-osint"
+  },
+  "capabilities": [
+    {
+      "id": "osint.corroboration",
+      "contract": {
+        "name": "noesis-osint-corroboration",
+        "version": "1.1.0"
+      },
+      "operations": [
+        "corroborate",
+        "source-reliability"
+      ],
+      "semantic_constraints": {
+        "independence": "origin-aware; never collapses to one confidence",
+        "grading": "Admiralty source reliability (A-F) and information credibility (1-6) are independent axes, never fused"
+      }
+    },
+    {
+      "id": "osint.media-provenance",
+      "contract": {
+        "name": "noesis-media-provenance",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "image-provenance"
+      ],
+      "semantic_constraints": {
+        "purpose": "review-gated imagery provenance",
+        "gated_tier": "chronolocate_image and reference_imagery are served only under NOESIS_OSINT_GATED_TOOLS and are therefore not catalog operations"
+      }
+    },
+    {
+      "id": "osint.source-infrastructure",
+      "contract": {
+        "name": "noesis-osint-source-infrastructure",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "infrastructure-pivot"
+      ],
+      "semantic_constraints": {
+        "keys": "organization-keyed; e-mail, username, IP and person identifiers refused",
+        "status": "shared infrastructure is probable, never a same-operator verdict"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "corroborate",
+      "tool": "noesis-osint.corroborate",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "claims",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "image-provenance",
+      "tool": "noesis-osint.image_provenance",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "claims",
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "gates": [
+        "osint-review"
+      ]
+    },
+    {
+      "id": "source-reliability",
+      "tool": "noesis-osint.source_reliability",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "readiness_probe": "claims"
+    },
+    {
+      "id": "infrastructure-pivot",
+      "tool": "noesis-osint.infrastructure_pivot",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "readiness_probe": "source-relationships"
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "claims",
+      "kind": "table-exists",
+      "target": "argument_claims"
+    },
+    {
+      "id": "source-relationships",
+      "kind": "table-exists",
+      "target": "source_relationship_current"
+    }
+  ]
+}

@@ -48,6 +48,10 @@ def test_native_eurostat_dimensions_codelists_and_baseline_agree():
         series.metadata["provider_prepared_at"]
         and series.metadata["provider_release_at"] is None
     )
+    assert series.as_of == series.metadata["provider_vintage_ms"] == 100
+    assert series.metadata["acquired_at_ms"] == 100
+    assert series.metadata["vintage_basis"] == "retrieval_time_current_response"
+    assert "not asserted as release time" in series.metadata["provider_release_time_status"]
     assert connector.parse(raw, structure=structure)[0].series_id == series.series_id
 
 
@@ -63,6 +67,8 @@ def test_native_ecb_and_bundesbank_attribute_units_and_frequency():
         assert len(series.observations) == 2
         assert len(series.metadata["original_values"]) == 2
         assert series.metadata["common_attributes"]
+        assert series.metadata["acquired_at_ms"] == series.as_of
+        assert series.metadata["seasonal_adjustment"] == "unknown"
 
 
 def test_provider_diagnostics_limits_and_missing_status():

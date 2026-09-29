@@ -270,6 +270,16 @@ class ForecastStore:
         result = {"forecast_id": forecast_id, "forecast_revision": state["revision"], "status": "unresolved",
                   "proposed_outcome": None, "evidence": [], "requires_review": True, "published": False}
         if not rule:
+            # An election forecast resolves by its pinned certified-result rule (Political elections feature).
+            from src.kb.elections_forecasts import propose_for_forecast
+            election = propose_for_forecast(self.conn, state, result, now=self.now(), scopes=scopes)
+            if election is not None:
+                return election
+            # A sports forecast resolves by its pinned official-result rule (Sports pack).
+            from src.kb.sports_forecasts import propose_for_forecast as propose_sports
+            sports = propose_sports(self.conn, state, result, now=self.now(), scopes=scopes)
+            if sports is not None:
+                return sports
             return {**result, "reason": "manual-rule-requires-review"}
         if self.now() < state["resolution_at_ms"]:
             return {**result, "reason": "resolution-not-due"}

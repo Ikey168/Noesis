@@ -1,0 +1,6 @@
+HealthTopic,Population,Indicator,Unit,Time,RegionCode,RegionName,NumValue,TxtValue
+Tuberculosis,All cases,Notification rate,N/100000,2097,DE,Germany,5.1,
+Tuberculosis,All cases,Notification rate,N/100000,2098,DE,Germany,5.4,
+Tuberculosis,All cases,Reported cases,N,2098,DE,Germany,4480,
+Tuberculosis,All cases,Notification rate,N/100000,2098,EU_EEA31,EU/EEA,8.9,
+Legionnaires' disease,All cases,Reported cases,N,2098,DE,Germany,-,Not reported

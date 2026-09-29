@@ -1,0 +1,63 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "materials.experimental",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.materials_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "materials.citations",
+      "contract": {
+        "name": "noesis-material-dossier",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "properties"
+      ],
+      "semantic_constraints": {
+        "citations": "value-level and dataset-level kept apart; DOI to Science records and designations to standards editions only; never by topic or text similarity",
+        "provenance": "measured and evaluated values keep technique or evaluation as the source states"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "properties",
+      "tool": "noesis-knowledge-engine.material_properties",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "materials_releases"
+    },
+    {
+      "id": "materials-source",
+      "kind": "source-pack-enabled",
+      "target": "materials"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "materials",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,101 @@
+{
+ "captured": false,
+ "native_pages": [
+  {
+   "body": {
+    "main": {
+     "de": {
+      "identity": {
+       "language": "de",
+       "version": {
+        "_cldrVersion": "45"
+       }
+      },
+      "localeDisplayNames": {
+       "languages": {
+        "de": "Deutsch",
+        "en": "Englisch",
+        "fr": "Französisch"
+       }
+      }
+     }
+    }
+   },
+   "request": "/unicode-org/cldr-json/45.0.0/cldr-json/cldr-localenames-full/main/de/languages.json"
+  },
+  {
+   "body": {
+    "main": {
+     "en": {
+      "identity": {
+       "language": "en",
+       "version": {
+        "_cldrVersion": "45"
+       }
+      },
+      "localeDisplayNames": {
+       "languages": {
+        "de": "German",
+        "en": "English",
+        "fr": "French"
+       }
+      }
+     }
+    }
+   },
+   "request": "/unicode-org/cldr-json/45.0.0/cldr-json/cldr-localenames-full/main/en/languages.json"
+  },
+  {
+   "body": {
+    "main": {
+     "de": {
+      "identity": {
+       "language": "de",
+       "version": {
+        "_cldrVersion": "45"
+       }
+      },
+      "localeDisplayNames": {
+       "scripts": {
+        "Cyrl": "Kyrillisch",
+        "Grek": "Griechisch",
+        "Latn": "Lateinisch"
+       }
+      }
+     }
+    }
+   },
+   "request": "/unicode-org/cldr-json/45.0.0/cldr-json/cldr-localenames-full/main/de/scripts.json"
+  },
+  {
+   "body": {
+    "supplemental": {
+     "plurals-type-cardinal": {
+      "de": {
+       "pluralRule-count-one": "i = 1 and v = 0 @integer 1",
+       "pluralRule-count-other": " @integer 0, 2~16, 100, 1000, 10000, 100000, 1000000, …"
+      },
+      "en": {
+       "pluralRule-count-one": "i = 1 and v = 0 @integer 1",
+       "pluralRule-count-other": " @integer 0, 2~16, 100, 1000, 10000, 100000, 1000000, …"
+      },
+      "fr": {
+       "pluralRule-count-one": "i = 0,1 @integer 0, 1"
+      }
+     },
+     "version": {
+      "_cldrVersion": "45"
+     }
+    }
+   },
+   "request": "/unicode-org/cldr-json/45.0.0/cldr-json/cldr-core/supplemental/plurals.json"
+  }
+ ],
+ "note": "Authored documents in the documented format naming a fictional language family (Veltic); synthetic identifiers only. See tests/unit/linguistics_harness.py.",
+ "provider": "cldr",
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-counted",
+  "attributed-licence"
+ ]
+}

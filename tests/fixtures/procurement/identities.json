@@ -1,0 +1,9 @@
+{
+ "authored": true,
+ "note": "Fictional LEIs with valid ISO 17442 check digits.",
+ "leis": {
+  "nordlicht": "529900NORDLICHTFX038",
+  "helpdesk": "529900HELPDESKFIX010",
+  "uk_digital": "213800FIXTUREDIGI007"
+ }
+}

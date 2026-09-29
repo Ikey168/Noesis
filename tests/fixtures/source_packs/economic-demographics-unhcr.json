@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/population/v1/population/?cf_type=ISO&coa=DEU&coo=XXO&limit=100&yearFrom=2097&yearTo=2098",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"page\": 1,\n \"maxPages\": 1,\n \"total\": 2,\n \"items\": [\n  {\n   \"year\": 2097,\n   \"coo_id\": 999,\n   \"coo_name\": \"Fictional Republic of Origin\",\n   \"coo\": \"XXO\",\n   \"coo_iso\": \"XXO\",\n   \"coa_id\": 998,\n   \"coa_name\": \"Germany\",\n   \"coa\": \"GFR\",\n   \"coa_iso\": \"DEU\",\n   \"refugees\": 500100,\n   \"asylum_seekers\": 60200,\n   \"returned_refugees\": 0,\n   \"idps\": 0,\n   \"returned_idps\": 0,\n   \"stateless\": 0,\n   \"ooc\": 0,\n   \"oip\": 0,\n   \"hst\": 0\n  },\n  {\n   \"year\": 2098,\n   \"coo_id\": 999,\n   \"coo_name\": \"Fictional Republic of Origin\",\n   \"coo\": \"XXO\",\n   \"coo_iso\": \"XXO\",\n   \"coa_id\": 998,\n   \"coa_name\": \"Germany\",\n   \"coa\": \"GFR\",\n   \"coa_iso\": \"DEU\",\n   \"refugees\": 510300,\n   \"asylum_seekers\": \"-\",\n   \"returned_refugees\": 0,\n   \"idps\": 0,\n   \"returned_idps\": 0,\n   \"stateless\": 0,\n   \"ooc\": 0,\n   \"oip\": 0,\n   \"hst\": 0\n  }\n ]\n}\n"
+  }
+ ],
+ "note": "Authored responses in the documented shape; every value, origin and area is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

@@ -1,0 +1,17 @@
+{
+  "captured": false,
+  "provider": "nhtsa-odi",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/odi/ffdd/inv/FLAT_INV.txt",
+      "status": 200,
+      "body": "PE26003\tVELOMARK\tCITYRUNNER\t2025\tELECTRICAL SYSTEM: 12V/24V/48V BATTERY\tVelomark Mobility LLC\t20260112\t20260520\t\tBattery fire while parked\tODI opened this Preliminary Evaluation after 14 complaints alleging battery fires while parked. This PE was upgraded to Engineering Analysis (EA26002).\nPE26003\tVELOMARK\tCITYRUNNER\t2026\tELECTRICAL SYSTEM: 12V/24V/48V BATTERY\tVelomark Mobility LLC\t20260112\t20260520\t\tBattery fire while parked\tODI opened this Preliminary Evaluation after 14 complaints alleging battery fires while parked. This PE was upgraded to Engineering Analysis (EA26002).\nEA26002\tVELOMARK\tCITYRUNNER\t2025\tELECTRICAL SYSTEM: 12V/24V/48V BATTERY\tVelomark Mobility LLC\t20260521\t\t26V104000\tBattery fire while parked\tOpened from Preliminary Evaluation (PE26003). Velomark Mobility LLC filed recall 26V104000 covering the 12V battery module.\nEA26002\tVELOMARK\tCITYRUNNER\t2026\tELECTRICAL SYSTEM: 12V/24V/48V BATTERY\tVelomark Mobility LLC\t20260521\t\t26V104000\tBattery fire while parked\tOpened from Preliminary Evaluation (PE26003). Velomark Mobility LLC filed recall 26V104000 covering the 12V battery module.\nDP26010\tOTHERMAKE\tROADSTER\t2024\tSEATS\tOthermake Inc\t20260301\t\t\tSeat recliner\tDefect petition.\n"
+    }
+  ],
+  "scenarios": [
+    "declared-makes",
+    "pe-to-ea-upgrade",
+    "cited-recall-campaign"
+  ]
+}

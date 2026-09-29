@@ -1,0 +1,411 @@
+{
+ "authored": true,
+ "provider": "TED API v3 (POST /v3/notices/search, eForms fields)",
+ "note": "Second authored observation: a change notice (BT-758) moves the lot deadlines and relaxes the lot 1 certification; the canteen procedure is closed without a winner (cancellation).",
+ "scenarios": [
+  "corrigendum-moves-deadline",
+  "cancelled-procedure"
+ ],
+ "native_pages": [
+  {
+   "request": {
+    "token": null
+   },
+   "body": {
+    "notices": [
+     {
+      "publication-number": "00650001-2026",
+      "notice-type": "cn-standard",
+      "BT-701-notice": "7c1f0a52-0000-4a00-8000-00000000b002",
+      "BT-757-notice": "01",
+      "BT-04-procedure": "0f5a2c1e-1111-4b11-9111-000000000001",
+      "publication-date": "2026-10-02+02:00",
+      "notice-title": {
+       "eng": "IT service desk and cloud migration for the district office",
+       "deu": "IT-Servicedesk und Cloud-Migration für das Bezirksamt"
+      },
+      "buyer-name": {
+       "deu": [
+        "Bezirksamt Fixture-Mitte von Berlin"
+       ],
+       "eng": [
+        "District Office Fixture-Mitte of Berlin"
+       ]
+      },
+      "buyer-identifier": [
+       "DE-FIX-991-0012345"
+      ],
+      "buyer-country": [
+       "DEU"
+      ],
+      "procedure-type": "open",
+      "classification-cpv": [
+       "72000000"
+      ],
+      "estimated-value-proc": "1300000",
+      "estimated-value-cur-proc": "EUR",
+      "place-of-performance-country-proc": [
+       "DEU"
+      ],
+      "BT-5071-Procedure": [
+       "DE300"
+      ],
+      "BT-67(a)-Procedure": [
+       "crime-org",
+       "corruption",
+       "tax-pay",
+       "socsec-pay",
+       "bankruptcy",
+       "prof-misconduct"
+      ],
+      "BT-67(b)-Procedure": {
+       "eng": [
+        "Participation in a criminal organisation (final conviction) excludes the tenderer.",
+        "Corruption (final conviction) excludes the tenderer.",
+        "Breach of obligations relating to the payment of taxes excludes the tenderer.",
+        "Breach of obligations relating to the payment of social security contributions excludes the tenderer.",
+        "Bankruptcy excludes the tenderer.",
+        "Grave professional misconduct excludes the tenderer."
+       ]
+      },
+      "BT-137-Lot": [
+       "LOT-0001",
+       "LOT-0002"
+      ],
+      "BT-21-Lot": {
+       "eng": [
+        "Service desk operation",
+        "Cloud migration"
+       ],
+       "deu": [
+        "Betrieb des Servicedesks",
+        "Cloud-Migration"
+       ]
+      },
+      "BT-262-Lot": [
+       "72253000",
+       "72222300"
+      ],
+      "BT-27-Lot": [
+       "400000",
+       "900000"
+      ],
+      "BT-27-Lot-Currency": [
+       "EUR",
+       "EUR"
+      ],
+      "BT-131(d)-Lot": [
+       "2026-11-17+01:00",
+       "2026-11-17+01:00"
+      ],
+      "BT-131(t)-Lot": [
+       "12:00:00+01:00",
+       "12:00:00+01:00"
+      ],
+      "BT-13(d)-Lot": [
+       "2026-10-20+02:00",
+       "2026-10-20+02:00"
+      ],
+      "BT-13(t)-Lot": [
+       "23:59:59+02:00",
+       "23:59:59+02:00"
+      ],
+      "BT-132(d)-Lot": [
+       "2026-11-17+01:00",
+       "2026-11-17+01:00"
+      ],
+      "BT-132(t)-Lot": [
+       "12:30:00+01:00",
+       "12:30:00+01:00"
+      ],
+      "BT-747-Lot": [
+       [
+        "ef-stand",
+        "tp-abil",
+        "tp-abil"
+       ],
+       [
+        "ef-stand",
+        "tp-abil",
+        "tp-abil"
+       ]
+      ],
+      "BT-750-Lot": {
+       "eng": [
+        [
+         "Minimum annual turnover of EUR 800 000 in each of the last three financial years.",
+         "At least three comparable references from the last three years.",
+         "ISO/IEC 20000-1 certification of the service management system, or equivalent evidence, is required."
+        ],
+        [
+         "Minimum annual turnover of EUR 2 000 000 in the IT services sector.",
+         "Certification to ISO/IEC 27001 is required.",
+         "Key staff must hold a German security clearance (Ü2 Sicherheitsüberprüfung)."
+        ]
+       ]
+      },
+      "BT-15-Lot": [
+       "https://vergabe.fixture-mitte.berlin.example/docs/2026-017",
+       "https://vergabe.fixture-mitte.berlin.example/docs/2026-017"
+      ],
+      "BT-758-notice": "7c1f0a52-0000-4a00-8000-00000000b001-01",
+      "BT-140-notice": "cor-buy",
+      "BT-141(a)-notice": {
+       "eng": "Submission deadline extended by two weeks; certification requirement for lot 1 now accepts equivalent evidence.",
+       "deu": "Angebotsfrist um zwei Wochen verlängert; für Los 1 werden gleichwertige Nachweise anerkannt."
+      }
+     },
+     {
+      "publication-number": "00613000-2026",
+      "notice-type": "pin-only",
+      "BT-701-notice": "7c1f0a52-0000-4a00-8000-00000000b010",
+      "BT-757-notice": "01",
+      "BT-04-procedure": "0f5a2c1e-1111-4b11-9111-000000000002",
+      "publication-date": "2026-09-12+02:00",
+      "notice-title": {
+       "eng": "Data analytics platform for port operations (planned)",
+       "deu": "Datenanalyseplattform für den Hafenbetrieb (geplant)"
+      },
+      "buyer-name": {
+       "deu": [
+        "Hafenbehörde Fixture-Hamburg AöR"
+       ]
+      },
+      "buyer-identifier": [
+       "DE-FIX-200-0098765"
+      ],
+      "buyer-country": [
+       "DEU"
+      ],
+      "procedure-type": "open",
+      "classification-cpv": [
+       "72300000"
+      ],
+      "estimated-value-proc": "1500000",
+      "estimated-value-cur-proc": "EUR",
+      "place-of-performance-country-proc": [
+       "DEU"
+      ]
+     },
+     {
+      "publication-number": "00598765-2026",
+      "notice-type": "cn-standard",
+      "BT-701-notice": "7c1f0a52-0000-4a00-8000-00000000b020",
+      "BT-757-notice": "01",
+      "BT-04-procedure": "0f5a2c1e-1111-4b11-9111-000000000003",
+      "publication-date": "2026-07-20+02:00",
+      "notice-title": {
+       "eng": "Office software licences",
+       "deu": "Bürosoftware-Lizenzen"
+      },
+      "buyer-name": {
+       "deu": [
+        "Bezirksamt Fixture-Mitte von Berlin"
+       ],
+       "eng": [
+        "District Office Fixture-Mitte of Berlin"
+       ]
+      },
+      "buyer-identifier": [
+       "DE-FIX-991-0012345"
+      ],
+      "buyer-country": [
+       "DEU"
+      ],
+      "procedure-type": "open",
+      "classification-cpv": [
+       "48000000"
+      ],
+      "estimated-value-proc": "250000",
+      "estimated-value-cur-proc": "EUR",
+      "place-of-performance-country-proc": [
+       "DEU"
+      ],
+      "BT-137-Lot": [
+       "LOT-0001"
+      ],
+      "BT-21-Lot": {
+       "eng": [
+        "Licences"
+       ]
+      },
+      "BT-262-Lot": [
+       "48000000"
+      ],
+      "BT-27-Lot": [
+       "250000"
+      ],
+      "BT-27-Lot-Currency": [
+       "EUR"
+      ],
+      "BT-131(d)-Lot": [
+       "2026-09-01+02:00"
+      ],
+      "BT-131(t)-Lot": [
+       "10:00:00+02:00"
+      ],
+      "BT-747-Lot": [
+       [
+        "ef-stand"
+       ]
+      ],
+      "BT-750-Lot": {
+       "eng": [
+        [
+         "Minimum annual turnover of EUR 500 000."
+        ]
+       ]
+      }
+     },
+     {
+      "publication-number": "00587654-2024",
+      "notice-type": "can-standard",
+      "BT-701-notice": "7c1f0a52-0000-4a00-8000-00000000a001",
+      "BT-757-notice": "01",
+      "BT-04-procedure": "0f5a2c1e-1111-4b11-9111-000000000900",
+      "publication-date": "2024-03-28+01:00",
+      "notice-title": {
+       "eng": "Service desk operation 2024-2026",
+       "deu": "Servicedesk-Betrieb 2024-2026"
+      },
+      "buyer-name": {
+       "deu": [
+        "Bezirksamt Fixture-Mitte von Berlin"
+       ],
+       "eng": [
+        "District Office Fixture-Mitte of Berlin"
+       ]
+      },
+      "buyer-identifier": [
+       "DE-FIX-991-0012345"
+      ],
+      "buyer-country": [
+       "DEU"
+      ],
+      "procedure-type": "open",
+      "classification-cpv": [
+       "72253000"
+      ],
+      "BT-13713-LotResult": [
+       "LOT-0001"
+      ],
+      "BT-142-LotResult": [
+       "selec-w"
+      ],
+      "BT-720-Tender": [
+       "380000"
+      ],
+      "BT-720-Tender-Currency": [
+       "EUR"
+      ],
+      "winner-name": {
+       "deu": [
+        "Helpdesk Fixture Services GmbH"
+       ]
+      },
+      "winner-identifier": [
+       "HRB 000777 B"
+      ],
+      "winner-country": [
+       "DEU"
+      ],
+      "BT-1451-Contract": [
+       "2024-03-15+01:00"
+      ]
+     },
+     {
+      "publication-number": "00543210-2025",
+      "notice-type": "can-standard",
+      "BT-701-notice": "7c1f0a52-0000-4a00-8000-00000000a002",
+      "BT-757-notice": "01",
+      "BT-04-procedure": "0f5a2c1e-1111-4b11-9111-000000000901",
+      "publication-date": "2025-05-06+02:00",
+      "notice-title": {
+       "eng": "Migration of municipal file services to a sovereign cloud"
+      },
+      "buyer-name": {
+       "deu": [
+        "Stadt Fixturestadt"
+       ]
+      },
+      "buyer-identifier": [
+       "DE-FIX-300-0000042"
+      ],
+      "buyer-country": [
+       "DEU"
+      ],
+      "procedure-type": "open",
+      "classification-cpv": [
+       "72222300"
+      ],
+      "BT-13713-LotResult": [
+       "LOT-0001"
+      ],
+      "BT-142-LotResult": [
+       "selec-w"
+      ],
+      "BT-720-Tender": [
+       "210000"
+      ],
+      "BT-720-Tender-Currency": [
+       "EUR"
+      ],
+      "winner-name": {
+       "deu": [
+        "Nordlicht Fixture IT GmbH"
+       ]
+      },
+      "winner-identifier": [
+       "HRB 000001 B"
+      ],
+      "winner-country": [
+       "DEU"
+      ],
+      "BT-1451-Contract": [
+       "2025-04-30+02:00"
+      ]
+     },
+     {
+      "publication-number": "00650002-2026",
+      "notice-type": "can-standard",
+      "BT-701-notice": "7c1f0a52-0000-4a00-8000-00000000b031",
+      "BT-757-notice": "01",
+      "BT-04-procedure": "0f5a2c1e-1111-4b11-9111-000000000004",
+      "publication-date": "2026-10-03+02:00",
+      "notice-title": {
+       "eng": "Canteen and catering services",
+       "deu": "Kantinen- und Verpflegungsdienstleistungen"
+      },
+      "buyer-name": {
+       "deu": [
+        "Bezirksamt Fixture-Mitte von Berlin"
+       ],
+       "eng": [
+        "District Office Fixture-Mitte of Berlin"
+       ]
+      },
+      "buyer-identifier": [
+       "DE-FIX-991-0012345"
+      ],
+      "buyer-country": [
+       "DEU"
+      ],
+      "procedure-type": "open",
+      "classification-cpv": [
+       "55520000"
+      ],
+      "BT-13713-LotResult": [
+       "LOT-0001"
+      ],
+      "BT-142-LotResult": [
+       "clos-nw"
+      ]
+     }
+    ],
+    "totalNoticeCount": 6,
+    "iterationNextToken": null,
+    "timedOut": false
+   }
+  }
+ ]
+}

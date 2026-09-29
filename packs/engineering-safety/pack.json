@@ -1,0 +1,136 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "engineering-safety",
+  "version": "1.0.0",
+  "description": "Engineering Safety: airworthiness directives (FAA, EASA) with applicability and supersession, accident and incident investigations (NTSB, CSB, BFU, BEA link-only) with quoted findings and probable causes, safety recommendations with dated status, PHMSA pipeline incidents and NHTSA ODI defect investigations with linked recalls. Quoted as published; never a verdict, risk score or compliance determination.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "aircraft",
+      "airworthiness directive",
+      "operator",
+      "pipeline",
+      "vehicle",
+      "facility"
+    ],
+    "sources": [
+      "faa",
+      "easa",
+      "ntsb",
+      "phmsa",
+      "csb",
+      "nhtsa",
+      "bfu",
+      "bea",
+      "federal register"
+    ],
+    "overview": [
+      "directive",
+      "investigation",
+      "probable cause",
+      "safety recommendation",
+      "defect"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "airworthiness-directives-with-supersession",
+    "directives-as-of-a-date",
+    "quoted-investigation-findings",
+    "dated-recommendation-status",
+    "pipeline-incident-records",
+    "defect-investigations-with-linked-recalls",
+    "reviewable-subject-identity",
+    "citation-links-by-identifier",
+    "engineering-safety-monitors",
+    "subject-safety-dossiers"
+  ],
+  "schema_versions": {
+    "engineering-safety-record": "1.0.0",
+    "engineering-safety-dossier": "1.0.0",
+    "engineering-safety-subject-match": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-engineering-safety-record-v1",
+      "noesis-engineering-safety-dossier-v1"
+    ],
+    "object_types": [
+      "directive",
+      "directive_revision",
+      "applicability",
+      "occurrence",
+      "investigation",
+      "finding",
+      "probable_cause_statement",
+      "safety_recommendation",
+      "recommendation_response",
+      "defect_investigation",
+      "complaint"
+    ],
+    "relation_types": [
+      "supersedes",
+      "revises",
+      "cross_reference",
+      "upgraded_from",
+      "upgraded_to",
+      "issued_recommendation",
+      "recommendation_of",
+      "cites_recall",
+      "names_subject"
+    ]
+  },
+  "source_pack": "config/source_packs/engineering-safety.json",
+  "query_examples": [
+    {
+      "intent": "Which directives applied to this aircraft model on a date",
+      "tool": "directives_as_of",
+      "arguments": {
+        "namespace": "global",
+        "subject": {
+          "kind": "aircraft_model",
+          "model": "EX-100"
+        },
+        "as_of": "2026-06-01"
+      },
+      "semantics": "directives whose published applicability names the model and that were effective and not superseded on the date, each with the revision used and its supersession chain; unparsed applicability is 'possibly applicable - see text'; as published, not a compliance determination"
+    },
+    {
+      "intent": "What have authorities published about this vehicle",
+      "tool": "engineering_safety_dossier",
+      "arguments": {
+        "namespace": "global",
+        "subject": {
+          "kind": "vehicle",
+          "make": "VELOMARK",
+          "model": "CITYRUNNER"
+        }
+      },
+      "semantics": "directives, investigations with verbatim findings, recommendations with dated status, defect investigations with linked recalls and complaints, each citing its record revision and the reviewable match that connected it; a subject with no records is 'none on record', never 'safe'"
+    },
+    {
+      "intent": "Which recommendations are addressed to this manufacturer and what is their status",
+      "tool": "search_safety_recommendations",
+      "arguments": {
+        "namespace": "global",
+        "addressee": "Examplar Aircraft Company",
+        "as_of": "2026-09-01"
+      },
+      "semantics": "recommendations addressed to the named body with the status published as of the date and the full dated response history"
+    }
+  ],
+  "exclusions": [
+    "consumer product recalls and food/feed notices (Products safety feature, #1916)",
+    "causal inference across occurrences",
+    "risk scores or safety rankings of manufacturers, operators or models",
+    "compliance determinations, maintenance advice or advice beyond quoting the required action",
+    "mirroring full investigation dockets, media or non-public data"
+  ]
+}

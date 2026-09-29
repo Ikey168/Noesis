@@ -85,3 +85,73 @@ def test_credibility_weighting_uses_outlet_scores(seed):
 def test_unknown_claim_errors(seed):
     _base(seed)
     assert "error" in corroborate(seed.conn, "nope")
+
+
+# --- OX01 (#2041): Admiralty information-credibility grade -------------------
+
+
+def test_well_corroborated_claim_grades_1_or_2(seed):
+    _base(seed)
+    seed.evidence(
+        [
+            ("e1", "k1", "d2", "news", "supports", 0.9),
+            ("e2", "k1", "d3", "news", "supports", 0.7),
+        ]
+    )
+    out = corroborate(seed.conn, "k1")
+    assert out["credibility_grade"]["grade"] in (1, 2)
+    assert out["credibility_grade"]["grade"] == 1
+    assert out["grading"]["independent_axes"] is True
+    assert "independent" in out["grading"]["note"]
+    # Source reliability of the carrying source is reported beside it, separately.
+    assert out["source_reliability_grade"]["axis"] == "source_reliability"
+    assert out["grading"]["source_reliability"] == out["source_reliability_grade"]["grade"]
+
+
+def test_single_sourced_claim_grades_5_or_6(seed):
+    _base(seed)
+    lonely = corroborate(seed.conn, "lonely")
+    assert lonely["credibility_grade"]["grade"] == 6
+    # Single-sourced and fact-checked as disputed reads as improbable.
+    disputed = corroborate(seed.conn, "k2")
+    assert disputed["single_sourced"] is True
+    assert disputed["credibility_grade"]["grade"] == 5
+
+
+def test_contested_claim_grades_by_weighted_balance(seed):
+    _base(seed)
+    seed.evidence([("e1", "k1", "d2", "news", "supports", 0.9)])
+    seed.conflicts([("k1", "k2", "contradicts", 0.8, "emissions")])
+    out = corroborate(seed.conn, "k1")
+    # Beta (0.81) supports, Delta (0.42) contradicts -> support < 2x -> 3.
+    assert out["credibility_grade"]["grade"] == 3
+    assert out["credibility_grade"]["derivation"]["inputs"]["probable_origin_contradict_count"] == 1
+
+
+def test_only_contradicted_claim_grades_5(seed):
+    _base(seed)
+    seed.conflicts([("k1", "k2", "contradicts", 0.8, "emissions")])
+    assert corroborate(seed.conn, "k1")["credibility_grade"]["grade"] == 5
+
+
+def test_unresolved_lineage_grades_6():
+    from src.osint.corroboration import credibility_grade
+
+    g = credibility_grade(
+        support_origins=0, contradict_origins=0, weighted_support=0.5,
+        weighted_contradict=0.0, single_sourced=False, unresolved=2,
+    )
+    assert g["grade"] == 6
+    assert g["derivation"]["inputs"]["lineage_unresolved"] is True
+
+
+def test_no_fused_score_field(seed):
+    _base(seed)
+    seed.evidence([("e1", "k1", "d2", "news", "supports", 0.9)])
+    out = corroborate(seed.conn, "k1")
+    fused = {"confidence", "fused_confidence", "overall_confidence", "admiralty_code", "rating"}
+    assert not fused & set(out)
+    assert not fused & set(out["grading"])
+    assert set(out["grading"]) == {
+        "source_reliability", "information_credibility", "independent_axes", "note"
+    }

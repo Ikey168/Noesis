@@ -1,0 +1,20 @@
+{
+  "captured": false,
+  "provider": "gesetze-im-internet.de",
+  "note": "Authored table of contents listing fictional statutes only; the production selection (the FL01 statute set) is therefore not in it and every selected statute is a not_found outcome. Statute parsing is exercised with the fictional MPHG fixtures in tests/fixtures/federal_statutes.",
+  "native_pages": [
+    {
+      "request": "/gii-toc.xml",
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/xml"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<items>\n  <item><title>Gesetz über den Handel mit Musterpapieren (fiktiv)</title><link>http://www.gesetze-im-internet.de/mphg/xml.zip</link></item>\n  <item><title>Musterbörsengesetz (fiktiv)</title><link>http://www.gesetze-im-internet.de/mbg/xml.zip</link></item>\n</items>\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "selected-statutes-absent-from-toc",
+    "bounded-statute-set"
+  ]
+}

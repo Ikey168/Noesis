@@ -1,0 +1,61 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-formal-references-v1.json",
+  "title": "Noesis formal references bundle v1",
+  "description": "A reproducible export of formal declaration references pinned to one library commit, hashed for verification.",
+  "type": "object",
+  "required": [
+    "contract",
+    "library",
+    "repository",
+    "commit",
+    "system",
+    "license",
+    "references",
+    "bundle_sha256"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-formal-references-v1"
+    },
+    "library": {
+      "type": "string"
+    },
+    "repository": {
+      "type": "string"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "system": {
+      "enum": [
+        "lean",
+        "isabelle",
+        "coq"
+      ]
+    },
+    "license": {
+      "type": "string"
+    },
+    "references": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "name",
+          "kind",
+          "path",
+          "line_start",
+          "line_end",
+          "statement_sha256",
+          "permalink"
+        ]
+      }
+    },
+    "bundle_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    }
+  }
+}

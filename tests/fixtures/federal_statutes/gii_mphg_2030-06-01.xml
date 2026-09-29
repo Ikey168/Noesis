@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<dokumente builddate="20300531120000" doknr="BJNR999010029">
+  <norm builddate="20300531120000" doknr="BJNR999010029">
+    <metadaten>
+      <jurabk>MPHG</jurabk>
+      <amtabk>MPHG</amtabk>
+      <ausfertigung-datum manuell="nein">2029-05-04</ausfertigung-datum>
+      <fundstelle typ="amtlich"><periodikum>BGBl I</periodikum><zitstelle>2029, Nr. 101</zitstelle></fundstelle>
+      <kurzue>Musterpapierhandelsgesetz</kurzue>
+      <langue>Gesetz über den Handel mit Musterpapieren (Musterpapierhandelsgesetz - MPHG) (fiktiv)</langue>
+      <standangabe checked="ja"><standtyp>Stand</standtyp><standkommentar>Zuletzt geändert durch Art. 1 G v. 12.3.2030 I Nr. 45</standkommentar></standangabe>
+    </metadaten>
+    <textdaten>
+      <fussnoten><Content><P>Dieses Gesetz dient der Umsetzung der Richtlinie (EU) 2029/1234 des Europäischen Parlaments und des Rates vom 1. März 2029 über Musterpapiermärkte (ABl. L 12 vom 2.3.2029, S. 1).</P></Content></fussnoten>
+    </textdaten>
+  </norm>
+  <norm builddate="20300531120000" doknr="BJNR999010029BJNG000100000">
+    <metadaten><jurabk>MPHG</jurabk><gliederungseinheit><gliederungskennzahl>010</gliederungskennzahl><gliederungsbez>Abschnitt 1</gliederungsbez><gliederungstitel>Allgemeine Vorschriften</gliederungstitel></gliederungseinheit></metadaten>
+  </norm>
+  <norm builddate="20300531120000" doknr="BJNR999010029BJNE000100000">
+    <metadaten><jurabk>MPHG</jurabk><enbez>§ 1</enbez><titel format="parat">Anwendungsbereich</titel></metadaten>
+    <textdaten><text format="XML"><Content><P>(1) Dieses Gesetz gilt für den Handel mit Musterpapieren.</P><P>(2) Es gilt nicht für Staatsanleihen.</P></Content></text></textdaten>
+  </norm>
+  <norm builddate="20300531120000" doknr="BJNR999010029BJNE000500000">
+    <metadaten><jurabk>MPHG</jurabk><enbez>§ 5</enbez><titel format="parat">Meldepflichten</titel></metadaten>
+    <textdaten><text format="XML"><Content><P>(1) Wer Musterpapiere erwirbt, hat dies der Aufsichtsstelle zu melden.</P><P>(2) Die Meldung ist innerhalb von fünf Handelstagen abzugeben.</P></Content></text></textdaten>
+  </norm>
+  <norm builddate="20300531120000" doknr="BJNR999010029BJNE000800000">
+    <metadaten><jurabk>MPHG</jurabk><enbez>§ 8</enbez><titel format="parat">Aufsicht</titel></metadaten>
+    <textdaten><text format="XML"><Content><P>Die Aufsichtsstelle überwacht die Einhaltung dieses Gesetzes.</P></Content></text></textdaten>
+  </norm>
+  <norm builddate="20300531120000" doknr="BJNR999010029BJNE000810000">
+    <metadaten><jurabk>MPHG</jurabk><enbez>§ 8a</enbez><titel format="parat">Übergangsvorschrift</titel></metadaten>
+    <textdaten><text format="XML"><Content><P>Für Erwerbe vor dem 1. April 2030 gilt § 5 Absatz 2 in der bis zum 31. März 2030 geltenden Fassung.</P></Content></text></textdaten>
+  </norm>
+</dokumente>

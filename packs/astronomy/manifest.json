@@ -1,0 +1,249 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "astronomy",
+  "version": "0.1.0",
+  "description": "Astronomy and Space: from a small body, exoplanet, launch or date to what the responsible bodies published and when - MPC designations and identifications, MPC and JPL orbit solution vintages, quoted Sentry listings, NASA Exoplanet Archive dispositions per table, GCAT and CelesTrak launches and objects and NOAA SWPC alerts - each with source, revision and as-of time and linked to Science papers by bibcode or DOI. Noesis determines no orbit and issues no risk verdict.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "astronomy.small-bodies",
+        "provider": "astronomy.small-bodies",
+        "contract": {
+          "name": "noesis-astronomy-small-body",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.identity",
+        "provider": "astronomy.small-bodies",
+        "contract": {
+          "name": "noesis-astronomy-identity-candidate",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.citations",
+        "provider": "astronomy.small-bodies",
+        "contract": {
+          "name": "noesis-astronomy-citation-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.monitoring",
+        "provider": "astronomy.small-bodies",
+        "contract": {
+          "name": "noesis-astronomy-monitor",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.exoplanets",
+        "provider": "astronomy.exoplanets",
+        "contract": {
+          "name": "noesis-astronomy-exoplanet-status",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.launches",
+        "provider": "astronomy.launches",
+        "contract": {
+          "name": "noesis-astronomy-launch",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.space-weather",
+        "provider": "astronomy.space-weather",
+        "contract": {
+          "name": "noesis-astronomy-space-weather",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "astronomy.small-bodies",
+        "version": "1.0.0"
+      },
+      {
+        "id": "astronomy.exoplanets",
+        "version": "1.0.0"
+      },
+      {
+        "id": "astronomy.launches",
+        "version": "1.0.0"
+      },
+      {
+        "id": "astronomy.space-weather",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "astronomy-and-space",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "astronomy.published-record",
+        "description": "Published-record vocabulary: solutions, dispositions and alerts are quoted",
+        "vocabulary": {
+          "solution": "an orbit solution as one publisher states it (a vintage)",
+          "disposition": "the archive's status of a planet or candidate per table",
+          "identification": "designations the MPC states are one object"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "astronomy.small-bodies",
+      "contract": "noesis-astronomy-small-body",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.exoplanets",
+      "contract": "noesis-astronomy-exoplanet-status",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.identity",
+      "contract": "noesis-astronomy-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.citations",
+      "contract": "noesis-astronomy-citation-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.monitoring",
+      "contract": "noesis-astronomy-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0",
+      "reason": "papers cited by bibcode or DOI are Science literature records; the Science pack owns them"
+    },
+    {
+      "capability": "science.paper-families",
+      "contract": "noesis-paper-family",
+      "range": "^1.0.0",
+      "reason": "paper identifiers (DOI) follow the Science pack's paper-family normalisation"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "identity candidates are reviewed, reversible entity identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the astronomy-and-space source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "astronomy-launches",
+      "default": false,
+      "description": "GCAT and CelesTrak SATCAT launches, outcomes and orbital objects, with launch sites resolved through Geospatial review",
+      "requires": [
+        {
+          "capability": "astronomy.launches",
+          "contract": "noesis-astronomy-launch",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "launch sites resolve to Geospatial places reviewably"
+        }
+      ]
+    },
+    {
+      "id": "astronomy-space-weather",
+      "default": false,
+      "description": "NOAA SWPC alerts, watches and warnings kept as an issued history",
+      "requires": [
+        {
+          "capability": "astronomy.space-weather",
+          "contract": "noesis-astronomy-space-weather",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        }
+      ]
+    }
+  ],
+  "compatibility_aliases": {
+    "astronomy-and-space": "astronomy"
+  },
+  "advisory": {
+    "exclusions": [
+      "orbit determination, propagation-based prediction, close-approach computation or conjunction screening",
+      "impact-risk, hazard or collision verdicts (only published Sentry listings are quoted with their date)",
+      "exoplanet validation or disposition by Noesis (the archive's disposition is quoted)",
+      "classified, export-controlled or account-restricted catalogue data (Space-Track is not implemented)",
+      "operational space-weather advice (alerts are quoted as issued)"
+    ],
+    "never": [
+      "determine or propagate an orbit",
+      "compute a close approach or conjunction",
+      "issue an impact-risk verdict",
+      "disposition an exoplanet",
+      "give operational space-weather advice",
+      "average or merge values from different solutions"
+    ],
+    "schema_versions": {
+      "noesis-astronomy-record": "1.0.0"
+    },
+    "query_examples": [
+      {
+        "intent": "Which designations and identifications did the MPC publish for this small body by a date",
+        "tool": "noesis-knowledge-engine.small_body_history",
+        "semantics": "cited designations and identifications at the cutoff; not_yet_published before the first publication"
+      },
+      {
+        "intent": "Which orbit solution had JPL published by a date",
+        "tool": "noesis-knowledge-engine.orbit_solution_as_of",
+        "semantics": "the latest published solution with epoch, arc, observation count and solution ID; other publishers listed separately, never averaged"
+      },
+      {
+        "intent": "What was this planet's or candidate's status on a date",
+        "tool": "noesis-knowledge-engine.exoplanet_status_as_of",
+        "semantics": "the archive's disposition per table with its reference; later changes shown as later"
+      },
+      {
+        "intent": "Which launches did this provider fly and how did they end",
+        "tool": "noesis-knowledge-engine.lookup_launches",
+        "semantics": "outcomes as coded by GCAT with payloads; sites resolved only through review"
+      },
+      {
+        "intent": "Which space-weather alerts were issued in this window",
+        "tool": "noesis-knowledge-engine.space_weather_alerts",
+        "semantics": "SWPC messages verbatim, cancellations and extensions threaded; no advice"
+      }
+    ]
+  },
+  "content_hash": "sha256:30a5100e16d34acbe262c6b5da91a61d0830dd27509cab78fcb2f28111194546"
+}

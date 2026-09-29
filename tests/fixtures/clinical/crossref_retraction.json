@@ -1,0 +1,37 @@
+{
+ "status": "ok",
+ "message-type": "work-list",
+ "message": {
+  "items": [
+   {
+    "DOI": "10.5555/noetic2.2021.retraction",
+    "title": [
+     "Retraction notice: Noetiglutide dose finding in type 2 diabetes (NOETIC-2) (fixture)"
+    ],
+    "indexed": {
+     "date-time": "2023-02-01T00:00:00Z"
+    },
+    "language": "en",
+    "update-to": [
+     {
+      "DOI": "10.5555/noetic2.2021",
+      "type": "retraction",
+      "source": "publisher",
+      "record-id": "fixture-1",
+      "updated": {
+       "date-parts": [
+        [
+         2023,
+         1,
+         30
+        ]
+       ]
+      }
+     }
+    ]
+   }
+  ],
+  "next-cursor": "fixture-cursor-2",
+  "total-results": 1
+ }
+}

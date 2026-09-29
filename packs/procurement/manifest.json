@@ -1,0 +1,231 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "procurement",
+  "version": "0.1.0",
+  "description": "Public Procurement: owner-scoped supplier and buyer profiles, TED/UK OCDS/SAM.gov notice discovery, per-lot eligibility with cited passages, explained shortlists with award history as context, bid workspaces and monitoring, over the Funding & Grants machinery (funding.core), market.lei and shared platform providers.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "procurement.notices",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "procurement.profiles",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-profile",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "procurement.eligibility",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-eligibility",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "procurement.shortlists",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-shortlist",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "procurement.award-history",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-award-history",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "procurement.workspaces",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-workspace",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "procurement.monitoring",
+        "provider": "procurement.core",
+        "contract": {
+          "name": "noesis-procurement-monitor",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.profiles",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-profile",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.eligibility",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-eligibility",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.shortlists",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-shortlist",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "funding.workspaces",
+        "provider": "funding.core",
+        "contract": {
+          "name": "noesis-funding-workspace",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "procurement.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "procurement",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "procurement.supplier",
+        "description": "Supplier vocabulary; supplier facts stay owner-scoped",
+        "vocabulary": {
+          "opportunity": "procurement procedure or lot",
+          "applicant": "supplier (profile owner)"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "procurement.notices",
+      "contract": "noesis-procurement-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "procurement.profiles",
+      "contract": "noesis-procurement-profile",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "procurement.eligibility",
+      "contract": "noesis-procurement-eligibility",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "procurement.shortlists",
+      "contract": "noesis-procurement-shortlist",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "procurement.award-history",
+      "contract": "noesis-procurement-award-history",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "procurement.workspaces",
+      "contract": "noesis-procurement-workspace",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "procurement.monitoring",
+      "contract": "noesis-procurement-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "funding.profiles",
+      "contract": "noesis-funding-profile",
+      "range": "^1.0.0",
+      "reason": "Funding & Grants profile, eligibility, ranking and workspace machinery reused, never duplicated"
+    },
+    {
+      "capability": "funding.eligibility",
+      "contract": "noesis-funding-eligibility",
+      "range": "^1.0.0",
+      "reason": "Funding & Grants profile, eligibility, ranking and workspace machinery reused, never duplicated"
+    },
+    {
+      "capability": "funding.shortlists",
+      "contract": "noesis-funding-shortlist",
+      "range": "^1.0.0",
+      "reason": "Funding & Grants profile, eligibility, ranking and workspace machinery reused, never duplicated"
+    },
+    {
+      "capability": "funding.workspaces",
+      "contract": "noesis-funding-workspace",
+      "range": "^1.0.0",
+      "reason": "Funding & Grants profile, eligibility, ranking and workspace machinery reused, never duplicated"
+    },
+    {
+      "capability": "market.legal-entities",
+      "contract": "noesis-lei-part",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.research-projects",
+      "contract": "noesis-research-project",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.authored-reports",
+      "contract": "noesis-authored-report",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    }
+  ],
+  "compatibility_aliases": {
+    "public-procurement": "procurement"
+  },
+  "advisory": {
+    "never": [
+      "submit bids",
+      "contact buyers or procurement portals",
+      "scrape portals without supported machine access",
+      "guarantee eligibility or winning"
+    ]
+  },
+  "content_hash": "sha256:144761065b6f060c18933447cbf6644fe333650d7e55b7f46535854aa45b1240"
+}

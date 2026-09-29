@@ -1,0 +1,33 @@
+{
+ "captured": false,
+ "provider": "dwd-mosmix",
+ "note": "Authored bodies served for the production URLs. They name fictional stations, warncells and alerts only, so the production selection is out of scope for every item; parsing is exercised with fictional selections in tests/unit/weather/harness.py.",
+ "native_pages": [
+  {
+   "url": "https://www.dwd.de/DE/leistungen/met_verfahren_mosmix/mosmix_stationskatalog.cfg",
+   "params": {},
+   "status": 200,
+   "body_base64": "SUQgICAgSUNBTyBOQU1FICAgICAgICAgICAgICAgICBMQVQgICAgTE9OICAgICBFTEVWCi0tLS0tIC0tLS0gLS0tLS0tLS0tLS0tLS0tLS0tLS0gLS0tLS0gIC0tLS0tLS0gLS0tLS0KMTA5OTkgRURYTSBNVVNURVJTVEFEVC9GTFVHRkVMRCA1Mi4yMyAgIDEzLjMyICAgIDQxCjEwOTk4IC0tLS0gQkVJU1BJRUxIRUlNICAgICAgICAgNTIuMTAgICAxMy4xMCAgICA2MAo=",
+   "authored": true
+  },
+  {
+   "url": "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/10384/kml/MOSMIX_L_LATEST_10384.kmz",
+   "params": {},
+   "status": 200,
+   "body_base64": "UEsDBBQAAAAIAAAAIVzp/pFPAAIAALAEAAAdAAAATU9TTUlYX0xfMjAyNjA2MTAwM18xMDk5OS5rbWyllF1v2jAUhv+K5WvwRxgdIEg1KVAhlbWCtJ12g7z4tEQNNoqdQv997TgttBHbxSIi+Ry/5/GbY5vx5WFboBcoTa7VBHPCMAKVaZmrpwmer266g0F/2OUYGSuUFIVWMMGvYPBlPH7eFiP3IodQZiT3coI31u7MiFK9A6e2grgskUD3IOwGSlrkf+hO58o+6hIyYezaCdZwsKC8g/U9XzNyMBI3UIcPUMfc7/fEc59yQxRY6uZoRCIcjCQ6q7agbIimnihBJs5DPHZrjG5LLavMJvCYq9y6tUJ6bkwFZZxAZU3mHKIHsBZKmTtDdkxPJKeUeRIvblaL+a+gOGZr0RUoKIV1LXQTGRgTJw8JCgVoo6uyeO2g+9Bz5FoeIO2qo8E030Icseiiyy66nKWsN2LM/Qhj7PeJy1pXl82a/vrMysKuob2HpzAetWAfsvNFbQfHInrGAT2zEbS9ZT5zW4gMtqJ8DqES7uM4Gw6HoaCO6xkJJivzXQ1b3K3S6XKV/khSOru+u5pNr5OgP1WdOSTvnpEPoAB/oH66ZSY4TVMcNC+iqCBG/omGnPT6zTAivB++MCg+d+Ff/CVnvL0A9/2tR9/96D/wS5618R90Rnp/hZ/bIH+TwzDT2l0aJSyYmPdIPxoMOv2I9AY86nyrz/hXVcg0CPplv+nnK02bv5r4DVBLAQIUAxQAAAAIAAAAIVzp/pFPAAIAALAEAAAdAAAAAAAAAAAAAACAAQAAAABNT1NNSVhfTF8yMDI2MDYxMDAzXzEwOTk5LmttbFBLBQYAAAAAAQABAEsAAAA7AgAAAAA=",
+   "authored": true
+  },
+  {
+   "url": "https://opendata.dwd.de/weather/local_forecasts/mos/MOSMIX_L/single_stations/10379/kml/MOSMIX_L_LATEST_10379.kmz",
+   "params": {},
+   "status": 200,
+   "body_base64": "UEsDBBQAAAAIAAAAIVzp/pFPAAIAALAEAAAdAAAATU9TTUlYX0xfMjAyNjA2MTAwM18xMDk5OS5rbWyllF1v2jAUhv+K5WvwRxgdIEg1KVAhlbWCtJ12g7z4tEQNNoqdQv997TgttBHbxSIi+Ry/5/GbY5vx5WFboBcoTa7VBHPCMAKVaZmrpwmer266g0F/2OUYGSuUFIVWMMGvYPBlPH7eFiP3IodQZiT3coI31u7MiFK9A6e2grgskUD3IOwGSlrkf+hO58o+6hIyYezaCdZwsKC8g/U9XzNyMBI3UIcPUMfc7/fEc59yQxRY6uZoRCIcjCQ6q7agbIimnihBJs5DPHZrjG5LLavMJvCYq9y6tUJ6bkwFZZxAZU3mHKIHsBZKmTtDdkxPJKeUeRIvblaL+a+gOGZr0RUoKIV1LXQTGRgTJw8JCgVoo6uyeO2g+9Bz5FoeIO2qo8E030Icseiiyy66nKWsN2LM/Qhj7PeJy1pXl82a/vrMysKuob2HpzAetWAfsvNFbQfHInrGAT2zEbS9ZT5zW4gMtqJ8DqES7uM4Gw6HoaCO6xkJJivzXQ1b3K3S6XKV/khSOru+u5pNr5OgP1WdOSTvnpEPoAB/oH66ZSY4TVMcNC+iqCBG/omGnPT6zTAivB++MCg+d+Ff/CVnvL0A9/2tR9/96D/wS5618R90Rnp/hZ/bIH+TwzDT2l0aJSyYmPdIPxoMOv2I9AY86nyrz/hXVcg0CPplv+nnK02bv5r4DVBLAQIUAxQAAAAIAAAAIVzp/pFPAAIAALAEAAAdAAAAAAAAAAAAAACAAQAAAABNT1NNSVhfTF8yMDI2MDYxMDAzXzEwOTk5LmttbFBLBQYAAAAAAQABAEsAAAA7AgAAAAA=",
+   "authored": true
+  }
+ ],
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-items-counted",
+  "user-agent-sent"
+ ]
+}

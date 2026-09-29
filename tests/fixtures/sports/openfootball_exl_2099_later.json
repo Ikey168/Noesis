@@ -1,0 +1,69 @@
+{
+ "name": "Example League 2099/00",
+ "matches": [
+  {
+   "round": "Matchday 1",
+   "date": "2099-08-10",
+   "time": "15:00",
+   "team1": "Northbridge Rovers FC",
+   "team2": "Eastfield Athletic",
+   "score": {
+    "ht": [
+     1,
+     0
+    ],
+    "ft": [
+     2,
+     1
+    ]
+   }
+  },
+  {
+   "round": "Matchday 1",
+   "date": "2099-08-10",
+   "time": "15:00",
+   "team1": "Southport United",
+   "team2": "Westvale City",
+   "score": {
+    "ht": [
+     0,
+     0
+    ],
+    "ft": [
+     0,
+     0
+    ]
+   }
+  },
+  {
+   "round": "Matchday 2",
+   "date": "2099-08-17",
+   "time": "15:00",
+   "team1": "Northbridge Rovers FC",
+   "team2": "Southport United",
+   "score": {
+    "ht": [
+     0,
+     1
+    ],
+    "ft": [
+     1,
+     1
+    ]
+   }
+  },
+  {
+   "round": "Matchday 2",
+   "date": "2099-09-03",
+   "time": "19:30",
+   "team1": "Eastfield Athletic",
+   "team2": "Westvale City",
+   "score": {
+    "ft": [
+     3,
+     0
+    ]
+   }
+  }
+ ]
+}

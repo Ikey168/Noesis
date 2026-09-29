@@ -1,0 +1,50 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-event-dossier-v1.json",
+  "type": "object",
+  "required": ["contract", "dossier_id", "namespace", "event_id", "event_revision_id", "revision", "owner", "event", "event_history", "resolution_operations", "membership_overrides", "mentions", "sources", "account_groups", "coverage", "created_at_ms", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-event-dossier-v1"},
+    "dossier_id": {"type": "string", "minLength": 1},
+    "namespace": {"type": "string", "minLength": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "event_revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "event": {"type": "object"},
+    "event_history": {"type": "array"},
+    "resolution_operations": {"type": "array", "maxItems": 100},
+    "membership_overrides": {"type": "array", "maxItems": 200},
+    "mentions": {"type": "array", "maxItems": 200},
+    "sources": {"type": "array", "maxItems": 200, "items": {"$ref": "#/definitions/source"}},
+    "account_groups": {"type": "array", "maxItems": 200, "items": {"$ref": "#/definitions/group"}},
+    "coverage": {"enum": ["complete_for_retained_sources", "incomplete"]},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  }, "additionalProperties": true,
+  "definitions": {
+    "source": {
+      "type": "object", "required": ["document_revision_id", "document_id", "status", "membership", "representation", "text_coverage"],
+      "properties": {
+        "document_revision_id": {"type": "string", "minLength": 1},
+        "document_id": {"type": ["string", "null"]},
+        "status": {"enum": ["available", "unavailable"]},
+        "membership": {"type": "object", "required": ["decision", "rationale", "reviewed_by"], "properties": {"decision": {"enum": ["include", "exclude", "ambiguous"]}, "rationale": {"type": "string"}, "reviewed_by": {"type": ["string", "null"]}}, "additionalProperties": false},
+        "representation": {"type": ["string", "null"]},
+        "text_coverage": {"type": "string"}
+      }, "additionalProperties": true
+    },
+    "group": {
+      "type": "object", "required": ["attribute_type", "role", "accounts", "publication_count", "supported_independent_origin_count", "probable_origin_count", "lineage", "conflicts", "uncertainty"],
+      "properties": {
+        "attribute_type": {"type": "string"}, "role": {"type": ["string", "null"]},
+        "accounts": {"type": "array"},
+        "publication_count": {"type": "integer", "minimum": 0},
+        "supported_independent_origin_count": {"type": "integer", "minimum": 0},
+        "probable_origin_count": {"type": "integer", "minimum": 0},
+        "lineage": {"type": "object"}, "conflicts": {"type": "array"},
+        "uncertainty": {"enum": ["incomplete_lineage_or_sources", "bounded_origin_evidence"]}
+      }, "additionalProperties": true
+    }
+  }
+}

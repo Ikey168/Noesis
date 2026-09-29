@@ -14,6 +14,15 @@ carries its own citation, so an analyst can answer "where did this come from,
 and what happened to it" without leaving the panel. An artifact whose document
 does not resolve to the corpus is flagged ``cited: false`` rather than hidden.
 
+OX05/OX06 (#2045, #2046): an ``osint-observation-v1`` record (RDAP or
+certificate transparency, id prefix ``osint-obs:``) traces as its own chain:
+the declared source-pack source, the acquisition receipt, the observation, and
+every source-identity revision and relationship that cites it.
+
+On-chain Observations (#2056): an ``onchain-obs:`` observation traces the
+same way through :func:`src.kb.onchain.trace_observation` - source-pack
+source, acquisition receipt, observation, and the record revisions citing it.
+
 Stdlib-only; the connection is injected read-only.
 """
 
@@ -109,6 +118,69 @@ def _routed_namespaces(conn, document_id: str) -> List[Dict[str, Any]]:
     return out
 
 
+def _observation_chain(conn, observation_id: str) -> Dict[str, Any]:
+    """The provenance chain of one registry observation (OX05/OX06)."""
+    import json
+
+    if not common.table_exists(conn, "osint_observations"):
+        return {"error": "no registry observations available", "code": "not_found"}
+    row = conn.execute(
+        "SELECT record_json FROM osint_observations WHERE observation_id = ?", [observation_id]
+    ).fetchone()
+    if row is None:
+        return {"error": f"observation {observation_id!r} not found", "code": "not_found"}
+    record = json.loads(row[0])
+    receipt = None
+    if common.table_exists(conn, "osint_acquisitions"):
+        hit = conn.execute(
+            "SELECT receipt_json FROM osint_acquisitions WHERE request_id = ?", [record["request_id"]]
+        ).fetchone()
+        receipt = json.loads(hit[0]) if hit else None
+    revisions: List[Dict[str, Any]] = []
+    relationships: List[Dict[str, Any]] = []
+    needle = f"%{observation_id}%"
+    if common.table_exists(conn, "source_identity_revisions"):
+        revisions = [
+            {"source_id": r[0], "revision": int(r[1]), "revision_id": r[2]}
+            for r in conn.execute(
+                "SELECT source_id, revision, revision_id FROM source_identity_revisions "
+                "WHERE native_ids_json LIKE ? ORDER BY source_id, revision",
+                [needle],
+            ).fetchall()
+        ]
+    if common.table_exists(conn, "source_relationship_revisions"):
+        relationships = [
+            {"relationship_id": r[0], "revision": int(r[1]), "relationship_type": r[2],
+             "from_source_id": r[3], "to_source_id": r[4], "lifecycle": r[5]}
+            for r in conn.execute(
+                "SELECT relationship_id, revision, relationship_type, from_source_id, to_source_id, lifecycle "
+                "FROM source_relationship_revisions WHERE evidence_json LIKE ? ORDER BY relationship_id, revision",
+                [needle],
+            ).fetchall()
+        ]
+    cite = {"observation_id": observation_id, "locator": record.get("locator"),
+            "archive_at": record.get("archive_at"), "cited": True}
+    chain: List[Dict[str, Any]] = [
+        {"stage": "source", "source_pack_source": record["source_id"], "publisher": record.get("publisher"),
+         "license": record.get("license"), "redistribution": record.get("redistribution"), "cite": cite},
+        {"stage": "acquisition", "request_id": record.get("request_id"),
+         "status": (receipt or {}).get("status"), "adapter_version": (receipt or {}).get("adapter_version"),
+         "retries": (receipt or {}).get("retries"), "receipt": receipt},
+        {"stage": "observation", "observation_id": observation_id, "contract": record.get("contract"),
+         "subject": record.get("subject"), "archive_at": record.get("archive_at"),
+         "temporal_semantics": record.get("temporal_semantics"), "raw_sha256": record.get("raw_sha256"),
+         "cite": cite},
+        {"stage": "projection", "identity_revisions": revisions, "relationships": relationships},
+    ]
+    return {
+        "artifact": {"type": "observation", "id": observation_id},
+        "cited": True,
+        "chain": chain,
+        "stage_count": len(chain),
+        "claims": [],
+    }
+
+
 def trace_artifact(
     conn,
     claim_id: Optional[str] = None,
@@ -121,6 +193,12 @@ def trace_artifact(
     (when tracing a claim), and any provisioned KG namespace it was routed
     into. ``cited`` is False when the document does not resolve to the corpus.
     """
+    if claim_id is None and document_id and str(document_id).startswith("osint-obs:"):
+        return _observation_chain(conn, str(document_id))
+    if claim_id is None and document_id and str(document_id).startswith("onchain-obs:"):
+        from src.kb.onchain import trace_observation
+
+        return trace_observation(conn, str(document_id))
     claim: Optional[Dict[str, Any]] = None
     if claim_id is not None:
         if not common.table_exists(conn, "argument_claims"):

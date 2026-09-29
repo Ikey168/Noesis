@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "phmsa",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/sites/phmsa.dot.gov/files/data_statistics/pipeline/incident_hl_2010_present.txt",
+      "status": 200,
+      "body": "REPORT_NUMBER\tOPERATOR_ID\tNAME\tLOCAL_DATETIME\tIYEAR\tONSHORE_CITY_NAME\tONSHORE_STATE_ABBREVIATION\tLOCATION_LATITUDE\tLOCATION_LONGITUDE\tCOMMODITY_RELEASED_TYPE\tUNINTENTIONAL_RELEASE_BBLS\tFATAL\tINJURE\tTOTAL_COST_CURRENT\tCAUSE\tCAUSE_DETAILS\tSIGNIFICANT\tNARRATIVE\n20260045\t39999\tExamplar Pipeline Company LP\t03/14/2026 06:40\t2026\tRiverbend\tTX\t29.7512\t-95.3698\tCRUDE OIL\t125.5\t0\t0\t412000\tCORROSION FAILURE\tEXTERNAL CORROSION\tYES\tOperator personnel discovered crude oil at a valve site. The pipe was excavated and a corrosion pit was found. Integrity management followed API RP 1160.\n20190123\t39999\tExamplar Pipeline Company LP\t05/02/2019 11:00\t2019\tRiverbend\tTX\t29.7501\t-95.3602\tCRUDE OIL\t2.0\t0\t0\t15000\tEQUIPMENT FAILURE\tPUMP OR PUMP-RELATED EQUIPMENT\tNO\tSeal leak at a pump station.\n20260051\t40001\tNorthwind Midstream LLC\t04/02/2026 13:15\t2026\tKettle Falls\tND\t\t\tREFINED AND/OR PETROLEUM PRODUCT (NON-HVL), LIQUID\t30\t0\t1\t98000\tEQUIPMENT FAILURE\tTHREADED CONNECTION/COUPLING FAILURE\tYES\tA threaded coupling failed at a meter skid.\n"
+    }
+  ],
+  "scenarios": [
+    "year-window",
+    "out-of-window-row",
+    "native-units",
+    "missing-coordinates"
+  ]
+}

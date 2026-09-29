@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "registrant_id,registrant_name,company_number,address,quarter,client_name,return_submitted_on\nORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2098 Q4,Fictional Grid Association,2099-01-20\nORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2098 Q4,Sample Charging Operator SA,2099-01-20\nORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2099 Q1,Fictional Grid Association,2099-04-25\nORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2099 Q1,Other Example GmbH,2099-04-25\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/register/export.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored export in the documented uk-orcl-csv shape; every organisation, person and reference is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

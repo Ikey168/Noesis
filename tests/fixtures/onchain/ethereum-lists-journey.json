@@ -1,0 +1,43 @@
+{
+ "description": "Authored offline fixture in the provider's documented response shape; every address and hash is fictional (derived from a label) and values are invented. Not live evidence.",
+ "provider": "ethereum-lists-tokens",
+ "responses": {
+  "raw.githubusercontent.com/MyEtherWallet/ethereum-lists/master/src/tokens/eth/0x9319b0f0E77b0c8d673cA5c599b545C2138f3d79.json": {
+   "body": {
+    "address": "0x9319b0f0E77b0c8d673cA5c599b545C2138f3d79",
+    "decimals": 18,
+    "ens_address": "",
+    "logo": {
+     "height": "",
+     "ipfs_hash": "",
+     "src": "",
+     "width": ""
+    },
+    "name": "Exampla Token",
+    "social": {
+     "blog": "",
+     "chat": "",
+     "facebook": "",
+     "forum": "",
+     "github": "",
+     "gitter": "",
+     "instagram": "",
+     "linkedin": "",
+     "reddit": "",
+     "slack": "",
+     "telegram": "",
+     "twitter": "exampla_token",
+     "youtube": ""
+    },
+    "support": {
+     "email": "support@exampla-token.example",
+     "url": ""
+    },
+    "symbol": "EXA",
+    "type": "ERC20",
+    "website": "https://exampla-token.example"
+   },
+   "status": 200
+  }
+ }
+}

@@ -1,0 +1,151 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "linguistics.languoids",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.linguistics_identity",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "linguistics.languoids",
+      "contract": {
+        "name": "noesis-linguistic-identity-candidate",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "languoid-profile",
+        "identity-candidates",
+        "propose-languoid-matches",
+        "review-identity-match",
+        "record-iso-events",
+        "project-locations"
+      ],
+      "semantic_constraints": {
+        "resolution": "only source-stated Glottocodes and ISO 639-3 codes resolve deterministically",
+        "ambiguity": "macrolanguages, retired or split codes and shared codes stay proposed until reviewed",
+        "identity": "decisions are entity-history decisions; lexemes and languoids are never merged",
+        "places": "Glottolog points project into Geospatial through resolutions awaiting review"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "languoid-profile",
+      "tool": "noesis-knowledge-engine.languoid_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-candidates",
+      "tool": "noesis-knowledge-engine.list_linguistic_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-languoid-matches",
+      "tool": "noesis-knowledge-engine.propose_languoid_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-identity-match",
+      "tool": "noesis-knowledge-engine.review_linguistic_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "record-iso-events",
+      "tool": "noesis-knowledge-engine.record_iso_code_events",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "project-locations",
+      "tool": "noesis-knowledge-engine.project_languoid_locations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "linguistic-identity-candidate",
+      "store": "src.kb.linguistics_identity",
+      "tables": [
+        "ling_identity_candidates",
+        "ling_place_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "linguistic-records",
+      "kind": "table-exists",
+      "target": "ling_sightings"
+    }
+  ]
+}

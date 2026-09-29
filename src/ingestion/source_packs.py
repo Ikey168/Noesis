@@ -14,19 +14,42 @@ from urllib.parse import urlparse
 
 SOURCE_PACK_CONTRACT = "noesis-source-pack-v1"
 CONFORMANCE_CONTRACT = "noesis-source-pack-conformance-v1"
+UPGRADE_PREVIEW_CONTRACT = "noesis-source-pack-upgrade-preview-v1"
 SUPPORTED_CONNECTORS = frozenset(
     {
+        "berlin-law",
         "blog",
+        "bods",
+        "companies-house",
+        "cellar",
         "dataset",
+        "ddb",
         "declarative-rest",
+        "environment",
+        "epo-ops",
+        "eprel",
+        "europeana",
         "filings",
+        "formal-library",
+        "geojson",
         "git",
+        "gleif",
+        "gtfs",
+        "icecat",
+        "iso-open-data",
         "manifest",
+        "oeis",
         "package-registry",
         "paper",
+        "rii",
+        "sec-edgar-ownership",
         "web",
+        "wfs",
+        "zbmath",
     }
 )
+# Clinical Evidence native connectors (src/ingestion/clinical_providers.py).
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines"})
 AUTH_KINDS = frozenset({"none", "optional-secret", "required-secret"})
 _SEMVER = re.compile(
     r"^(0|[1-9]\d*)\.(0|[1-9]\d*)\.(0|[1-9]\d*)(?:[-+][0-9A-Za-z.-]+)?$"
@@ -166,6 +189,140 @@ def _contains_secret(value: Any, *, parent: str = "") -> bool:
     elif isinstance(value, list):
         return any(_contains_secret(item, parent=parent) for item in value)
     return False
+
+
+# Native connectors implemented outside the generic HTTPS adapter. Each module
+# exposes ADAPTERS, fixture_transport(pages), replay_native_fixture(source,
+# fixture) and FIXTURE_SECRET (the credential its fixtures expect, or None).
+NATIVE_CONNECTOR_MODULES = {
+    "icecat": "src.ingestion.product_sources",
+    "eprel": "src.ingestion.product_sources",
+    "cellar": "src.ingestion.legal_sources",
+    "rii": "src.ingestion.legal_sources",
+    "berlin-law": "src.ingestion.legal_sources",
+    "ddb": "src.ingestion.cultural_sources",
+    "europeana": "src.ingestion.cultural_sources",
+    "epo-ops": "src.ingestion.patent_sources",
+    "gleif": "src.ingestion.lei_sources",
+    "iso-open-data": "src.ingestion.standards_sources",
+    "gtfs": "src.ingestion.transit_sources",
+    "zbmath": "src.ingestion.math_sources",
+    "oeis": "src.ingestion.math_sources",
+    "formal-library": "src.ingestion.math_sources",
+    # Corporate Ownership and Registries (#1846)
+    "companies-house": "src.ingestion.ownership_providers",
+    "sec-edgar-ownership": "src.ingestion.ownership_providers",
+    "bods": "src.ingestion.ownership_providers",
+    "environment": "src.ingestion.environment_providers",
+}
+NATIVE_CONNECTOR_MODULES.update({
+    connector: "src.ingestion.clinical_providers"
+    for connector in ("ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines")
+})
+
+# Public Procurement native connectors (TED eForms, UK OCDS, SAM.gov).
+_PROCUREMENT_CONNECTORS = {"ted": "src.ingestion.procurement_providers", "ocds": "src.ingestion.procurement_providers",
+                           "sam-gov": "src.ingestion.procurement_providers"}
+NATIVE_CONNECTOR_MODULES.update(_PROCUREMENT_CONNECTORS)
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset(_PROCUREMENT_CONNECTORS)
+
+# Legal sanctions lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List; #1907).
+NATIVE_CONNECTOR_MODULES["sanctions-list"] = "src.ingestion.sanctions_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sanctions-list"})
+
+# Legal federal statutes (gesetze-im-internet.de, rechtsinformationen.bund.de, recht.bund.de; #2105).
+NATIVE_CONNECTOR_MODULES.update({connector: "src.ingestion.legal_sources"
+                                 for connector in ("gesetze-im-internet", "rechtsinformationen-bund", "recht-bund")})
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"gesetze-im-internet", "rechtsinformationen-bund",
+                                                         "recht-bund"})
+
+# Technology vulnerability and advisory sources (NVD, OSV, GitHub, CISA KEV, EPSS, CVE Services, CPE, CWE; #1913).
+NATIVE_CONNECTOR_MODULES["vulnerability-feed"] = "src.ingestion.vulnerability_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"vulnerability-feed"})
+
+# Political lobbying and transparency registers (EU TR, Lobbyregister, EP/Commission meetings, UK ORCL; #1911).
+NATIVE_CONNECTOR_MODULES["lobbying-register"] = "src.ingestion.lobbying_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"lobbying-register"})
+
+# Political election results (Bundeswahlleiterin, Berlin, UK Electoral Commission, MIT Election Lab; #1908).
+NATIVE_CONNECTOR_MODULES["election-results"] = "src.ingestion.election_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"election-results"})
+
+# Economics public finance (Bundeshaushalt, Berlin budget, EU FTS, Eurostat GFS; #1909).
+NATIVE_CONNECTOR_MODULES["public-finance"] = "src.ingestion.public_finance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"public-finance"})
+
+# Economics migration and demographic statistics (Eurostat, UNHCR, IOM DTM, Destatis, Statistik BB; #1914).
+NATIVE_CONNECTOR_MODULES["demographics"] = "src.ingestion.demographic_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"demographics"})
+
+# Geospatial housing publications (Mietspiegel tables, Statistik BB building activity, GENESIS 31111/31231; #1912).
+NATIVE_CONNECTOR_MODULES["housing"] = "src.ingestion.housing_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"housing"})
+
+# Clinical Evidence public-health surveillance series (RKI, WHO GHO, Eurostat health, Destatis; #1917).
+NATIVE_CONNECTOR_MODULES["surveillance"] = "src.ingestion.surveillance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"surveillance"})
+
+# Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
+NATIVE_CONNECTOR_MODULES.update({
+    connector: "src.ingestion.product_sources" for connector in ("safety-gate", "cpsc", "nhtsa", "rasff")
+})
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", "nhtsa", "rasff"})
+
+# Funding & Grants development finance: OECD CRS aggregates through the SDMX connector (#1932).
+NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
+
+# Market BaFin capital-market notices (voting rights, dealings, net short positions, company DB, warnings; #2106).
+NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
+
+# Linguistics: Wikidata lexemes, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 tables (#2178).
+NATIVE_CONNECTOR_MODULES["linguistics"] = "src.ingestion.linguistics_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"linguistics"})
+
+# Products expansion: manufacturer and supplier BMEcat catalogues for electronic components (#2061, #2098).
+NATIVE_CONNECTOR_MODULES["bmecat"] = "src.ingestion.product_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bmecat"})
+
+# Engineering Safety: FAA/EASA ADs, NTSB, PHMSA, CSB, NHTSA ODI, BFU and BEA (#2059).
+NATIVE_CONNECTOR_MODULES["engineering-safety"] = "src.ingestion.engineering_safety_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"engineering-safety"})
+# Materials property and structure sources (Materials Project, JARVIS-DFT, OQMD, NIST WebBook, COD; #2060).
+NATIVE_CONNECTOR_MODULES["materials"] = "src.ingestion.materials_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"materials"})
+
+# Astronomy and Space (MPC, JPL SBDB/Sentry, NASA Exoplanet Archive, GCAT, CelesTrak SATCAT, NOAA SWPC; #2149).
+NATIVE_CONNECTOR_MODULES["astronomy"] = "src.ingestion.astronomy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy"})
+# Sports results, fixtures, tables and tennis archives (football-data.org, StatsBomb, openfootball, Sackmann; #2135).
+NATIVE_CONNECTOR_MODULES["sports-results"] = "src.ingestion.sports_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sports-results"})
+# Weather operational sources (DWD CDC/MOSMIX/CAP, aviationweather.gov, NWS API, Open-Meteo; #2163).
+NATIVE_CONNECTOR_MODULES["weather"] = "src.ingestion.weather_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
+# Open-source Software Ecosystems: registry history, deps.dev, SPDX list releases, Software Heritage (#2192).
+NATIVE_CONNECTOR_MODULES["oss-ecosystem"] = "src.ingestion.oss_ecosystem_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
+
+
+def native_connector_module(connector: str) -> Any:
+    import importlib
+
+    return importlib.import_module(NATIVE_CONNECTOR_MODULES[connector])
+
+
+def replay_native_fixture(
+    source: Mapping[str, Any], fixture: Mapping[str, Any]
+) -> list[dict[str, Any]]:
+    """Replay captured or authored native envelopes through the connector's real adapter."""
+
+    if source["connector"] in NATIVE_CONNECTOR_MODULES:
+        replay = native_connector_module(source["connector"]).replay_native_fixture
+    else:
+        from src.ingestion.wfs_api import replay_native_fixture as replay
+    return replay(source, fixture)
 
 
 def validate_source_pack(
@@ -320,6 +477,62 @@ def load_source_packs(root: Path) -> list[dict[str, Any]]:
     ]
 
 
+def _source_capabilities(source: Mapping[str, Any]) -> dict[str, Any]:
+    """Return declared capabilities, never fixture data or resolved secrets."""
+
+    return {
+        field: source[field]
+        for field in sorted(source)
+        if field not in {"source_id", "source_hash"}
+    }
+
+
+def _semantic_upgrade_diff(
+    installed: Mapping[str, Any], candidate: Mapping[str, Any]
+) -> dict[str, Any]:
+    old = {item["source_id"]: item for item in installed["sources"]}
+    new = {item["source_id"]: item for item in candidate["sources"]}
+    changes = []
+    for source_id in sorted(old.keys() & new.keys()):
+        before = _source_capabilities(old[source_id])
+        after = _source_capabilities(new[source_id])
+        fields = {
+            field: {"before": before[field], "after": after[field]}
+            for field in before
+            if before[field] != after[field]
+        }
+        if fields:
+            changes.append({"source_id": source_id, "fields": fields})
+    old_domains = set(installed["domains"])
+    new_domains = set(candidate["domains"])
+    return {
+        "domains": {
+            "added": sorted(new_domains - old_domains),
+            "removed": sorted(old_domains - new_domains),
+        },
+        "sources": {
+            "added": [
+                {
+                    "source_id": source_id,
+                    "capabilities": _source_capabilities(new[source_id]),
+                }
+                for source_id in sorted(new.keys() - old.keys())
+            ],
+            "removed": [
+                {
+                    "source_id": source_id,
+                    "capabilities": _source_capabilities(old[source_id]),
+                }
+                for source_id in sorted(old.keys() - new.keys())
+            ],
+            "changed": changes,
+        },
+        "description": None
+        if installed["description"] == candidate["description"]
+        else {"before": installed["description"], "after": candidate["description"]},
+    }
+
+
 class SourcePackStore:
     """Install and activate immutable pack versions with an audit trail."""
 
@@ -348,6 +561,51 @@ class SourcePackStore:
                 now_ms,
             ],
         )
+
+    def preview_upgrade(self, candidate: Mapping[str, Any]) -> dict[str, Any]:
+        """Compare a candidate against the current immutable version without writes."""
+
+        value = validate_source_pack(candidate)
+        row = self.conn.execute(
+            "SELECT v.manifest_json,v.manifest_hash FROM source_pack_current c "
+            "JOIN source_pack_versions v ON v.pack_id=c.pack_id AND v.version=c.version "
+            "WHERE c.pack_id=?",
+            [value["pack_id"]],
+        ).fetchone()
+        if row is None:
+            raise SourcePackError("not_found", "source pack is not installed")
+        installed = _load(row[0], {})
+        if _version(value["version"]) < _version(installed["version"]):
+            raise SourcePackError(
+                "version_downgrade", "source packs cannot be downgraded in place"
+            )
+        if (
+            value["version"] == installed["version"]
+            and value["manifest_hash"] != row[1]
+        ):
+            raise SourcePackError(
+                "immutable_version", "installed pack version has different content"
+            )
+        existing = self.conn.execute(
+            "SELECT manifest_hash FROM source_pack_versions WHERE pack_id=? AND version=?",
+            [value["pack_id"], value["version"]],
+        ).fetchone()
+        if existing is not None and existing[0] != value["manifest_hash"]:
+            raise SourcePackError(
+                "immutable_version", "installed pack version has different content"
+            )
+        diff = _semantic_upgrade_diff(installed, value)
+        return {
+            "contract": UPGRADE_PREVIEW_CONTRACT,
+            "pack_id": value["pack_id"],
+            "installed_version": installed["version"],
+            "installed_hash": row[1],
+            "candidate_version": value["version"],
+            "candidate_hash": value["manifest_hash"],
+            "preview_hash": _digest([row[1], value["manifest_hash"], diff]),
+            "changes": diff,
+            "idempotent": value["manifest_hash"] == row[1],
+        }
 
     def install(
         self,
@@ -457,6 +715,7 @@ class SourcePackStore:
             raise SourcePackError("not_found", "source pack is not installed")
         manifest = _load(row[4], {})
         from src.ingestion.provider_readiness import protocol_status
+
         sources = []
         for source in manifest["sources"]:
             auth = source["auth"]
@@ -625,6 +884,8 @@ class SourcePackConformance:
         for source in pack["sources"]:
             fixture = self._fixture(source)
             runner = (runners or {}).get(source["connector"])
+            if runner is None and fixture.get("native_pages"):
+                runner = replay_native_fixture
             normalized = list(
                 runner(source, fixture) if runner else fixture.get("normalized") or []
             )

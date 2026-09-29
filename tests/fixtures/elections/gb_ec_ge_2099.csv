@@ -1,0 +1,8 @@
+ONS ID,Constituency name,Country name,Candidate first name,Candidate surname,Party name,Party abbreviation,Votes,Share,Electorate,Valid votes,Invalid votes,Elected
+E14099901,Exampleton,England,Alex,Sample,Example Party,EXP,21000,45.2,72000,46500,120,Yes
+E14099901,Exampleton,England,Sam,Placeholder,Demo Union,DU,19500,41.9,72000,46500,120,No
+E14099901,Exampleton,England,Jo,Fictive,Imaginary Greens,IG,6000,12.9,72000,46500,120,No
+E14099902,Sampleford,England,Chris,Mock,Example Party,EXP,15000,40.5,68000,37000,90,No
+E14099902,Sampleford,England,Pat,Dummy,Demo Union,DU,22000,59.5,68000,37000,90,Yes
+W07099903,Aberfictional,Wales,Rhys,Testun,Example Party,EXP,9000,45.0,51000,20000,60,No
+W07099903,Aberfictional,Wales,Ceri,Enghraifft,Demo Union,DU,11000,55.0,51000,20000,60,Yes

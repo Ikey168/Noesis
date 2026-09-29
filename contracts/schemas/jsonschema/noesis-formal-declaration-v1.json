@@ -1,0 +1,97 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-formal-declaration-v1.json",
+  "title": "Noesis formal declaration v1",
+  "description": "A declaration in a formal library at an exact commit, found by a lexical scan (not elaboration), with a permalink to its line span.",
+  "type": "object",
+  "required": [
+    "contract",
+    "library",
+    "system",
+    "repository",
+    "commit",
+    "license",
+    "name",
+    "kind",
+    "path",
+    "line_start",
+    "line_end",
+    "statement",
+    "statement_sha256",
+    "method",
+    "object_status",
+    "permalink"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-formal-declaration-v1"
+    },
+    "library": {
+      "type": "string"
+    },
+    "system": {
+      "enum": [
+        "lean",
+        "isabelle",
+        "coq"
+      ]
+    },
+    "repository": {
+      "type": "string"
+    },
+    "commit": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{40}$"
+    },
+    "license": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "path": {
+      "type": "string"
+    },
+    "module": {
+      "type": "string"
+    },
+    "line_start": {
+      "type": "integer"
+    },
+    "line_end": {
+      "type": "integer"
+    },
+    "statement": {
+      "type": "string"
+    },
+    "statement_sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "doc": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "method": {
+      "const": "lexical-declaration-scan"
+    },
+    "object_status": {
+      "const": "parsed-formal-declaration"
+    },
+    "permalink": {
+      "type": "string",
+      "pattern": "^https://github\\.com/.+/blob/[0-9a-f]{40}/.+#L[0-9]+-L[0-9]+$"
+    },
+    "dependencies": {
+      "type": "object"
+    },
+    "links": {
+      "type": "array"
+    }
+  }
+}

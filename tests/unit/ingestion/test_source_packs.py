@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import asyncio
 import copy
 import json
 from pathlib import Path
@@ -13,6 +14,7 @@ from src.ingestion.source_packs import (
     SourcePackError,
     SourcePackStore,
     load_source_packs,
+    replay_native_fixture,
     validate_source_pack,
 )
 
@@ -33,16 +35,60 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 8
+    # 15 plus the Market bafin-notices feature's bafin-capital-market-notices pack (#2106),
+    # plus the Engineering Safety pack (#2059),
+    # plus the Materials pack's materials source pack (#2060),
+    # plus the Astronomy pack's astronomy-and-space pack (#2149),
+    # plus the Sports pack's sports-records pack (#2135),
+    # plus the Weather pack's weather-operational pack (#2163),
+    # plus the Linguistics pack's linguistics-lexical-typological pack (#2178),
+    # plus the OSS Ecosystems pack (#2192).
+    assert len(packs) == 23
     assert {domain for pack in packs for domain in pack["domains"]} == {
+        "astronomy",
+        "clinical",
+        "corporate-ownership",
         "economic",
+        "engineering-safety",
+        "geospatial",
+        "legal",
+        "linguistics",
+        "market",
+        "materials",
+        "onchain",
         "osint",
+        "oss-ecosystems",
         "political",
+        "procurement",
+        "products",
         "research",
         "scientific",
+        "sports",
         "technical",
+        "weather",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 25
+    # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections,
+    # plus the Technology vulnerabilities feature's eight new sources (#1913; osv-api was reviewed in place),
+    # plus the Political lobbying feature's five register and meeting-declaration sources (#1911),
+    # plus the Political elections feature's four official result sources (#1908),
+    # plus the Economics public-finance feature's four budget, payment and statistics sources (#1909),
+    # plus the Economics demographics feature's five statistics sources (#1914),
+    # plus the Clinical Evidence surveillance feature's four statistics sources (#1917),
+    # plus the Products safety feature's four notice sources and its CELLAR selection of cited acts (#1916),
+    # plus the Funding development-finance feature's OECD CRS source (#1932),
+    # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
+    # plus the Legal federal-statutes feature's gesetze-im-internet, rechtsinformationen and BGBl sources (#2105),
+    # plus the Market bafin-notices feature's voting-rights, dealings, short-position, company and warning sources (#2106),
+    # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061),
+    # plus the Engineering Safety pack's FAA, EASA, NTSB, PHMSA, CSB, ODI, complaint, BFU and BEA sources (#2059),
+    # plus the Materials pack's Materials Project, JARVIS-DFT, OQMD, NIST WebBook and COD sources (#2060),
+    # plus the Astronomy pack's MPC, JPL, Exoplanet Archive, GCAT, CelesTrak and SWPC sources (#2149),
+    # plus the Sports pack's football-data (matches, standings, teams), openfootball, Sackmann ATP/WTA and StatsBomb
+    # sources (#2135),
+    # plus the Weather pack's nine DWD, MOSMIX, CAP, aviationweather.gov, NWS and Open-Meteo sources (#2163),
+    # plus the Linguistics pack's Wikidata, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 sources (#2178),
+    # plus the OSS Ecosystems pack's four registries, deps.dev, the SPDX License List and Software Heritage (#2192).
+    assert sum(len(pack["sources"]) for pack in packs) == 175
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -63,6 +109,9 @@ def test_offline_fixtures_are_pinned_and_replay_deterministically() -> None:
 
         def runner(source, fixture, seen=seen):
             seen.append(source["source_id"])
+            if fixture.get("native_pages"):
+                # Captured native envelopes replay through the real adapter.
+                return replay_native_fixture(source, fixture)
             return fixture["normalized"]
 
         connectors = {
@@ -117,17 +166,29 @@ def test_validation_rejects_unsafe_unbounded_or_unpinned_sources(
 
 def test_fixture_path_escape_and_drift_are_rejected(tmp_path: Path) -> None:
     pack = raw("research")
-    pack["defaults"]["fixture"]["path"] = "../outside.json"
+
+    def point_fixtures(path: str) -> None:
+        # Sources are checked in id order and some declare their own fixture.
+        for holder in [pack["defaults"], *pack["sources"]]:
+            if "fixture" in holder:
+                holder["fixture"]["path"] = path
+
+    point_fixtures("../outside.json")
     with pytest.raises(SourcePackError) as escaped:
         SourcePackConformance(tmp_path).offline(pack)
     assert escaped.value.code == "unsafe_fixture"
 
     fixture = tmp_path / "fixture.json"
     fixture.write_text('{"normalized": []}')
-    pack["defaults"]["fixture"]["path"] = "fixture.json"
+    point_fixtures("fixture.json")
     with pytest.raises(SourcePackError) as drift:
         SourcePackConformance(tmp_path).offline(pack)
     assert drift.value.code == "fixture_drift"
+
+
+def _next_minor(version: str) -> str:
+    major, minor, _patch = (int(part) for part in version.split("."))
+    return f"{major}.{minor + 1}.0"
 
 
 def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
@@ -144,10 +205,10 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     assert store.install(research, principal_id="operator")["idempotent"]
 
     upgrade = copy.deepcopy(research)
-    upgrade["version"] = "1.3.0"
+    upgrade["version"] = _next_minor(research["version"])
     upgrade["description"] += " Upgraded."
     upgraded = store.install(upgrade, principal_id="operator", now_ms=20)
-    assert upgraded["version"] == "1.3.0" and upgraded["enabled"]
+    assert upgraded["version"] == upgrade["version"] and upgraded["enabled"]
     assert conn.execute(
         "SELECT COUNT(*) FROM source_pack_versions WHERE pack_id='research-discovery'"
     ).fetchone() == (2,)
@@ -161,6 +222,99 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     with pytest.raises(SourcePackError) as old:
         store.install(downgrade, principal_id="operator")
     assert old.value.code == "version_downgrade"
+
+
+def test_upgrade_preview_is_semantic_read_only_and_version_checked(conn) -> None:
+    store = SourcePackStore(conn)
+    installed = raw("research")
+    store.install(installed, principal_id="operator", now_ms=10)
+    candidate = copy.deepcopy(installed)
+    candidate["version"] = _next_minor(installed["version"])
+    candidate["domains"].reverse()
+    candidate["sources"].reverse()
+    candidate["sources"] = [
+        source
+        for source in candidate["sources"]
+        if source["source_id"] != "datacite-dois"
+    ]
+    crossref = next(
+        source
+        for source in candidate["sources"]
+        if source["source_id"] == "crossref-works"
+    )
+    crossref["endpoint"] = "https://api.crossref.org/works-v2"
+    crossref["mapping"] = {"target_schema": "scholarly-work-v2", "version": "2.0.0"}
+    crossref["license"]["redistribution"] = "restricted"
+    crossref["auth"] = {"kind": "required-secret", "secret_ref": "NOESIS_CROSSREF_KEY"}
+    added = copy.deepcopy(crossref)
+    added["source_id"] = "crossref-books"
+    candidate["sources"].append(added)
+    preview = store.preview_upgrade(candidate)
+    schema = json.loads(
+        (
+            ROOT
+            / "contracts/schemas/jsonschema/noesis-source-pack-upgrade-preview-v1.json"
+        ).read_text()
+    )
+    assert not list(Draft7Validator(schema).iter_errors(preview))
+    assert preview["contract"] == "noesis-source-pack-upgrade-preview-v1"
+    assert preview["installed_hash"] != preview["candidate_hash"]
+    assert preview["changes"]["sources"]["removed"][0]["source_id"] == "datacite-dois"
+    assert preview["changes"]["sources"]["added"][0]["source_id"] == "crossref-books"
+    changed = preview["changes"]["sources"]["changed"]
+    assert {"endpoint", "mapping", "license", "auth"} <= set(changed[0]["fields"])
+    assert "NOESIS_CROSSREF_KEY" in json.dumps(preview)
+    assert installed["version"] == store.status("research-discovery")["version"]
+    assert conn.execute("SELECT COUNT(*) FROM source_pack_audit").fetchone() == (1,)
+
+    reordered = copy.deepcopy(installed)
+    reordered["sources"].reverse()
+    reordered["sources"][0]["operations"].reverse()
+    assert store.preview_upgrade(reordered)["idempotent"]
+    assert store.preview_upgrade(candidate)["preview_hash"] == preview["preview_hash"]
+
+    conflicting = copy.deepcopy(installed)
+    conflicting["description"] = "Changed without a new version"
+    with pytest.raises(SourcePackError, match="different content") as error:
+        store.preview_upgrade(conflicting)
+    assert error.value.code == "immutable_version"
+    candidate["version"] = "0.1.0"
+    with pytest.raises(SourcePackError) as error:
+        store.preview_upgrade(candidate)
+    assert error.value.code == "version_downgrade"
+    candidate["version"] = "invalid"
+    with pytest.raises(SourcePackError) as error:
+        store.preview_upgrade(candidate)
+    assert error.value.code == "invalid_version"
+
+
+def test_upgrade_preview_through_mcp_is_read_only_and_scoped(
+    tmp_path, monkeypatch
+) -> None:
+    from tools.knowledge_engine_mcp import server
+
+    path = str(tmp_path / "packs.duckdb")
+    with duckdb.connect(path) as database:
+        SourcePackStore(database).install(raw("research"), principal_id="operator")
+    opened = []
+
+    def connection(*, read_only):
+        opened.append(read_only)
+        return duckdb.connect(path, read_only=read_only)
+
+    scopes = {"knowledge:read"}
+    monkeypatch.setattr(server, "_connection", connection)
+    monkeypatch.setattr(server, "_context", lambda: ("reader", scopes))
+    candidate = raw("research")
+    candidate["version"] = _next_minor(candidate["version"])
+    tools = asyncio.run(server.mcp.get_tools())
+    preview = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
+    assert preview["installed_version"] == raw("research")["version"]
+    assert opened == [True]
+    scopes.clear()
+    denied = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
+    assert denied["error"]["code"] == "unauthorized"
+    assert opened == [True]
 
 
 def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
@@ -195,12 +349,27 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     assert "must-not-leak" not in encoded
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
+        "astronomy",
+        "clinical",
+        "corporate-ownership",
         "economic",
+        "engineering-safety",
+        "geospatial",
+        "legal",
+        "linguistics",
+        "market",
+        "materials",
+        "onchain",
         "osint",
+        "oss-ecosystems",
         "political",
+        "procurement",
+        "products",
         "research",
         "scientific",
+        "sports",
         "technical",
+        "weather",
     }
 
 

@@ -1,0 +1,200 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "products.safety",
+  "version": "1.0.0",
+  "description": "Product safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF): notices with every provider revision, verbatim hazard, affected identification and corrective action, issuing authority, cited standards and legal acts, and reviewable matches to Products identities. No safety verdict, risk score or advice.",
+  "implementation": {
+    "name": "src.kb.product_safety",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "products.safety-notices",
+      "contract": {
+        "name": "noesis-product-safety-notice",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lookup-notices",
+        "inspect-notice",
+        "propose-notice-matches",
+        "review-notice-match",
+        "link-notice-citations",
+        "propose-party-links",
+        "review-party-link"
+      ],
+      "semantic_constraints": {
+        "notices": "a notice is what an authority published; every distinct payload is an immutable revision and the current one is chosen by the source's own date",
+        "identity": "GTIN, model, batch and brand stay native; notices reach Products models only through reviewed matches on GTIN, brand and exact designation, never siblings, sizes or regional variants",
+        "citations": "standards by exact reference and legal acts by exact CELEX/ELI, per citing revision; never by topic, category or hazard similarity",
+        "authorities": "notices from different authorities stay side by side, each with its own revisions; nothing is merged",
+        "exclusions": "no safety verdict, risk score or consumer advice; a product without an accepted match has no notice on record"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lookup-notices",
+      "tool": "noesis-knowledge-engine.lookup_product_notices",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-notice",
+      "tool": "noesis-knowledge-engine.inspect_product_notice",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-notice-matches",
+      "tool": "noesis-knowledge-engine.propose_product_notice_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "current notice revisions and Products identities"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:write",
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-notice-match",
+      "tool": "noesis-knowledge-engine.review_product_notice_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and review sequence"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-notice-citations",
+      "tool": "noesis-knowledge-engine.link_product_notice_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "citation and target"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:write",
+        "knowledge:standards:read",
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-party-links",
+      "tool": "noesis-knowledge-engine.propose_product_notice_party_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-party-link",
+      "tool": "noesis-knowledge-engine.review_product_notice_party_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "party key and entity id"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:products:review",
+        "knowledge:entity-history:write",
+        "knowledge:entity-history:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "product-safety-notice",
+      "store": "src.kb.product_safety",
+      "tables": [
+        "product_safety_notices",
+        "product_safety_revisions",
+        "product_safety_current",
+        "product_safety_identifications",
+        "product_safety_hazards",
+        "product_safety_actions",
+        "product_safety_parties",
+        "product_safety_followups",
+        "product_safety_citations",
+        "product_safety_citation_links",
+        "product_safety_selection",
+        "product_safety_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "product-notice-match",
+      "store": "src.kb.product_safety",
+      "tables": [
+        "product_safety_matches",
+        "product_safety_match_reviews",
+        "product_safety_party_links",
+        "product_safety_generation"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "product_safety_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "products-displays",
+      "version": "1.2.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

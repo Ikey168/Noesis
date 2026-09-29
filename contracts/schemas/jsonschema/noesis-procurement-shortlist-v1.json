@@ -1,0 +1,31 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-procurement-shortlist-v1",
+  "title": "Explained per-lot procurement shortlist",
+  "description": "Eligibility and fit stay separate. match_score is a weighted mean of known criteria in [0,1]; it is an ordering aid, not a probability of winning. Award context never makes a procedure open. Pins make the shortlist replayable.",
+  "type": "object",
+  "required": ["contract", "shortlist_id", "profile_id", "profile_revision", "as_of_ms", "weights", "items", "buckets", "pins", "score_semantics"],
+  "properties": {
+    "contract": {"const": "noesis-procurement-shortlist-v1"},
+    "shortlist_id": {"type": "string", "pattern": "^procurement-shortlist:"},
+    "profile_id": {"type": "string"},
+    "profile_revision": {"type": "integer", "minimum": 1},
+    "as_of_ms": {"type": "integer"},
+    "weights": {"type": "object", "additionalProperties": {"type": "number", "minimum": 0}},
+    "score_semantics": {"type": "string", "pattern": "not a probability"},
+    "buckets": {"type": "object", "required": ["apply_now", "consider", "watch", "excluded"]},
+    "pins": {"type": "object", "required": ["procedures", "awards"]},
+    "items": {"type": "array", "items": {
+      "type": "object",
+      "required": ["item_id", "procedure_key", "revision", "lot_id", "notice", "state", "verdict", "bucket", "match_score", "criteria",
+                   "award_context", "award_semantics"],
+      "properties": {
+        "bucket": {"enum": ["apply_now", "consider", "watch", "excluded"]},
+        "verdict": {"enum": ["eligible", "ineligible", "needs_clarification"]},
+        "match_score": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+        "criteria": {"type": "object", "additionalProperties": {"type": "object", "required": ["score", "reasons", "weight", "source"]}},
+        "award_context": {"type": "array"}
+      }
+    }}
+  }
+}

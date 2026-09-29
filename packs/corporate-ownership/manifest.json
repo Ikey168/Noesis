@@ -1,0 +1,167 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "corporate-ownership",
+  "version": "0.1.0",
+  "description": "Corporate Ownership and Registries: from an explicit company identifier to a source-cited ownership dossier over GLEIF Level 2, UK Companies House, SEC EDGAR and Open Ownership BODS, reusing market.lei, entity identity, the source runtime and authored reports.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "ownership.records",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.identity",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-identity-candidate",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.graph",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-graph",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.timeline",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-timeline",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "ownership.dossier",
+        "provider": "ownership.core",
+        "contract": {
+          "name": "noesis-ownership-dossier",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "ownership.core",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "ownership.analyst",
+        "description": "Registry vocabulary; assertions are source statements, not determinations",
+        "vocabulary": {
+          "assertion": "source-stated ownership or control",
+          "entity": "source record group"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "ownership.records",
+      "contract": "noesis-ownership-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.identity",
+      "contract": "noesis-ownership-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.graph",
+      "contract": "noesis-ownership-graph",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.timeline",
+      "contract": "noesis-ownership-timeline",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "ownership.dossier",
+      "contract": "noesis-ownership-dossier",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "market.legal-entities",
+      "contract": "noesis-lei-part",
+      "range": "^1.0.0",
+      "reason": "LEI Level 1/Level 2 records stay in the market.lei owner"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.authored-reports",
+      "contract": "noesis-authored-report",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    }
+  ],
+  "compatibility_aliases": {
+    "ownership": "corporate-ownership"
+  },
+  "advisory": {
+    "never": [
+      "infer beneficial ownership",
+      "make sanctions or AML determinations",
+      "merge entities automatically",
+      "scrape registers whose terms or access forbid it"
+    ]
+  },
+  "content_hash": "sha256:b9e13d185206e77a2000699fb9b3eeb0e33ca20ca57232e6fc2f9b4c71b983f5",
+  "optional_features": [
+    {
+      "id": "bafin-voting-rights",
+      "default": false,
+      "description": "Voting-rights notifications from the Market bafin-notices feature as voting_rights control assertions, as stated by the notifier: one assertion per chain member and stated WpHG basis, citing the notice revision; corrections revise the assertion (earlier statements stay in history), and holders are keyed only through reviewed identity matches. Never combined into a computed ultimate owner beyond the graph's existing rules.",
+      "requires": [
+        {
+          "capability": "market.bafin-notices",
+          "contract": "noesis-bafin-notice",
+          "range": "^1.0.0",
+          "reason": "the projected notifications are market.bafin notice revisions"
+        },
+        {
+          "capability": "ownership.records",
+          "contract": "noesis-ownership-record",
+          "range": "^1.0.0",
+          "reason": "assertions are written through the one ownership record owner"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "notifiers and chain members become keyed holders only through reviewed matches"
+        },
+        {
+          "capability": "ownership.graph",
+          "contract": "noesis-ownership-graph",
+          "range": "^1.0.0",
+          "reason": "the assertions answer ownership-graph queries beside register-sourced ownership"
+        }
+      ]
+    }
+  ]
+}

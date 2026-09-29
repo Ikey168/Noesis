@@ -1,0 +1,100 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "response": {
+     "docs": [
+      {
+       "a": "fixture-core",
+       "developers": [
+        "Ada Example"
+       ],
+       "g": "org.fixturelabs",
+       "id": "org.fixturelabs:fixture-core:1.0",
+       "timestamp": 1764547200000,
+       "v": "1.0"
+      },
+      {
+       "a": "fixture-core",
+       "developers": [
+        "Ada Example"
+       ],
+       "g": "org.fixturelabs",
+       "id": "org.fixturelabs:fixture-core:1.1",
+       "timestamp": 1771113600000,
+       "v": "1.1"
+      }
+     ],
+     "numFound": 2
+    }
+   },
+   "request": "/solrsearch/select?q=g:%22org.fixturelabs%22+AND+a:%22fixture-core%22&core=gav&rows=200&wt=json",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><project xmlns=\"http://maven.apache.org/POM/4.0.0\"><modelVersion>4.0.0</modelVersion><groupId>org.fixturelabs</groupId><artifactId>fixture-core</artifactId><version>1.0</version><organization><name>Fixture Labs</name><url>https://fixture-labs.example</url></organization><licenses><license><name>The Apache Software License, Version 2.0</name></license></licenses><scm><url>https://github.com/fixture-labs/fixture-core</url></scm><developers><developer><id>ada</id><name>Ada Example</name><email>ada@example.invalid</email></developer></developers><dependencies><dependency><groupId>org.fixturelabs</groupId><artifactId>fixture-util</artifactId><version>[1.0,2.0)</version></dependency><dependency><groupId>junit</groupId><artifactId>junit</artifactId><version>4.13.2</version><scope>test</scope></dependency></dependencies></project>",
+   "request": "/maven2/org/fixturelabs/fixture-core/1.0/fixture-core-1.0.pom",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><project xmlns=\"http://maven.apache.org/POM/4.0.0\"><modelVersion>4.0.0</modelVersion><groupId>org.fixturelabs</groupId><artifactId>fixture-core</artifactId><version>1.1</version><organization><name>Fixture Labs</name><url>https://fixture-labs.example</url></organization><licenses><license><name>The Apache Software License, Version 2.0</name></license></licenses><scm><url>https://github.com/fixture-labs/fixture-core</url></scm><developers><developer><id>ada</id><name>Ada Example</name><email>ada@example.invalid</email></developer></developers><dependencies><dependency><groupId>org.fixturelabs</groupId><artifactId>fixture-util</artifactId><version>[1.0,2.0)</version></dependency><dependency><groupId>org.fixturelabs</groupId><artifactId>fixture-extra</artifactId><version>${extra.version}</version><optional>true</optional></dependency></dependencies></project>",
+   "request": "/maven2/org/fixturelabs/fixture-core/1.1/fixture-core-1.1.pom",
+   "status": 200
+  },
+  {
+   "body": "Not Found",
+   "request": "/maven2/org/fixturelabs/fixture-core/2.0/fixture-core-2.0.pom",
+   "status": 404
+  },
+  {
+   "body": {
+    "response": {
+     "docs": [
+      {
+       "a": "fixture-util",
+       "developers": [
+        "Ada Example"
+       ],
+       "g": "org.fixturelabs",
+       "id": "org.fixturelabs:fixture-util:1.0",
+       "timestamp": 1756684800000,
+       "v": "1.0"
+      },
+      {
+       "a": "fixture-util",
+       "developers": [
+        "Ada Example"
+       ],
+       "g": "org.fixturelabs",
+       "id": "org.fixturelabs:fixture-util:1.5",
+       "timestamp": 1767225600000,
+       "v": "1.5"
+      }
+     ],
+     "numFound": 2
+    }
+   },
+   "request": "/solrsearch/select?q=g:%22org.fixturelabs%22+AND+a:%22fixture-util%22&core=gav&rows=200&wt=json",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><project xmlns=\"http://maven.apache.org/POM/4.0.0\"><modelVersion>4.0.0</modelVersion><groupId>org.fixturelabs</groupId><artifactId>fixture-util</artifactId><version>1.0</version><organization><name>Fixture Labs</name><url>https://fixture-labs.example</url></organization><licenses><license><name>The Apache Software License, Version 2.0</name></license></licenses><scm><url>https://github.com/fixture-labs/fixture-util</url></scm><developers><developer><id>ada</id><name>Ada Example</name><email>ada@example.invalid</email></developer></developers><dependencies></dependencies></project>",
+   "request": "/maven2/org/fixturelabs/fixture-util/1.0/fixture-util-1.0.pom",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><project xmlns=\"http://maven.apache.org/POM/4.0.0\"><modelVersion>4.0.0</modelVersion><groupId>org.fixturelabs</groupId><artifactId>fixture-util</artifactId><version>1.5</version><organization><name>Fixture Labs</name><url>https://fixture-labs.example</url></organization><licenses><license><name>The Apache Software License, Version 2.0</name></license></licenses><scm><url>https://github.com/fixture-labs/fixture-util</url></scm><developers><developer><id>ada</id><name>Ada Example</name><email>ada@example.invalid</email></developer></developers><dependencies></dependencies></project>",
+   "request": "/maven2/org/fixturelabs/fixture-util/1.5/fixture-util-1.5.pom",
+   "status": 200
+  },
+  {
+   "body": "Not Found",
+   "request": "/maven2/org/fixturelabs/fixture-util/1.6/fixture-util-1.6.pom",
+   "status": 404
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

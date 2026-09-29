@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-entitlement-purge-report-v1.json",
+  "title": "Noesis bounded market source- and derived-receipt retention purge report v1",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "scanned_by_kind",
+    "purged",
+    "purged_count",
+    "more_to_scan",
+    "next_cursors",
+    "purged_at_ms"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-market-entitlement-purge-report-v1"
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "scanned_by_kind": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer",
+        "minimum": 0
+      }
+    },
+    "purged": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "object_kind",
+          "object_id",
+          "revision_id",
+          "record_hash",
+          "entitlement_ids",
+          "reason_code"
+        ],
+        "properties": {
+          "object_kind": {
+            "enum": [
+              "instrument",
+              "universe_membership",
+              "price_bar",
+              "trading_session",
+              "corporate_action",
+              "financial_fact",
+              "derived:screener_run",
+              "derived:quantitative_run",
+              "derived:specialized_run",
+              "derived:alert_run",
+              "derived:research_artifact",
+              "derived:quality_assessment",
+              "derived:asof_snapshot",
+              "derived:adjustment_calculation"
+            ]
+          },
+          "object_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "revision_id": {
+            "type": "string",
+            "minLength": 1
+          },
+          "record_hash": {
+            "type": "string",
+            "pattern": "^[a-f0-9]{64}$"
+          },
+          "entitlement_ids": {
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "reason_code": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "purged_count": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "more_to_scan": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "next_cursors": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "purged_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "scope": {
+      "enum": [
+        "source_revisions",
+        "derived_receipts"
+      ]
+    }
+  },
+  "additionalProperties": false
+}

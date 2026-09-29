@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "celestrak-satcat",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/pub/satcat.csv",
+      "status": 200,
+      "body": "OBJECT_NAME,OBJECT_ID,NORAD_CAT_ID,OBJECT_TYPE,OPS_STATUS_CODE,OWNER,LAUNCH_DATE,LAUNCH_SITE,DECAY_DATE,PERIOD,INCLINATION,APOGEE,PERIGEE,RCS,DATA_STATUS_CODE,ORBIT_CENTER,ORBIT_TYPE\nFICTSAT 1,2099-001A,99901,PAY,+,FICT,2099-03-03,FKSC,,94.1,51.6,420,410,,,EA,ORB\nFICTRON 2 R/B,2099-001B,99902,R/B,D,FICT,2099-03-03,FKSC,2099-03-10,,,,,,,EA,IMP\nFICTSAT 3,2099-003B,99904,PAY,+,FICT,2099-04-28,FKSC,,96.0,97.5,560,540,,,EA,ORB\nOLDSAT,2098-077A,99877,PAY,+,FICT,2098-12-30,FKSC,,95.0,53.0,500,490,,,EA,ORB\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

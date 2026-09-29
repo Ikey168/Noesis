@@ -1,0 +1,133 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "onchain.core",
+  "version": "1.0.0",
+  "description": "On-chain Observations: cited public-ledger transactions, token transfers, contract deployments, first-inbound funding and quoted label assertions (src.kb.onchain), bounded receipted acquisition for one explicit identifier per request (src.ingestion.onchain), and probable address clustering with declared heuristics, a null model and a measured false-positive rate (src.kb.onchain_clustering). Read-only; no attribution verdicts.",
+  "implementation": {
+    "name": "src.kb.onchain",
+    "version": "1.0.0",
+    "server": "noesis-onchain"
+  },
+  "capabilities": [
+    {
+      "id": "onchain.observations",
+      "contract": {
+        "name": "noesis-onchain-observation",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "address-observations",
+        "contract-origin"
+      ],
+      "semantic_constraints": {
+        "identifiers": "one explicit address, transaction hash or contract per request; CAIP-2 chain ids; names refused",
+        "revisions": "unchanged re-acquisition adds nothing; changed content is a new revision; late older data is history; reorganisations, finality crossings and dropped transactions are explicit changes",
+        "labels": "quoted from their source with licence and attribution; never restated as a finding",
+        "unknowns": "an address no acquisition covered is unknown, never an empty success",
+        "exclusions": "no person attribution, no wallet or key access, no transaction submission, no exchange or KYC data"
+      }
+    },
+    {
+      "id": "onchain.clustering",
+      "contract": {
+        "name": "noesis-onchain-cluster",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "address-cluster"
+      ],
+      "semantic_constraints": {
+        "status": "probable; never an identity or ownership verdict",
+        "heuristics": "common-input, deposit-address-reuse and deployer-funding are separate declared edge types, each edge citing its transactions",
+        "calibration": "served threshold is the smallest level within the target FPR on a labelled synthetic fixture; the measured FPR is reported",
+        "bounds": "traversal depth <= 3 and edge budget <= 200; refuses without a cited transaction"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "address-observations",
+      "tool": "noesis-onchain.address_observations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:onchain:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "contract-origin",
+      "tool": "noesis-onchain.contract_origin",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:onchain:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "address-cluster",
+      "tool": "noesis-onchain.address_cluster",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:onchain:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "onchain-observation",
+      "store": "src.kb.onchain",
+      "tables": [
+        "onchain_observations",
+        "onchain_acquisitions",
+        "onchain_revisions",
+        "onchain_current",
+        "onchain_address_roles",
+        "onchain_coverage"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "onchain-label-reference",
+      "store": "src.kb.onchain",
+      "tables": [
+        "onchain_label_references"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "onchain_current"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "onchain-observations",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

@@ -10,9 +10,11 @@ warehouse responses.
 from __future__ import annotations
 
 import asyncio
+import functools
 import hashlib
 import importlib.util
 import inspect
+import shutil
 from pathlib import Path
 
 import duckdb
@@ -43,6 +45,7 @@ READ_SMOKES = {
     "monitoring_mcp": ("current_metrics", {}),
     "namespaces_mcp": ("namespace_package_context", {}),
     "osint_mcp": ("contradiction_scan", {}),
+    "onchain_mcp": ("address_observations", {"address": "0x0000000000000000000000000000000000000000"}),
     "pipeline_mcp": ("list_connector_types", {}),
     "provisioning_mcp": ("kg_list", {}),
     "research_mcp": ("venues", {}),
@@ -59,6 +62,62 @@ READ_SMOKES = {
 # invoked against an isolated warehouse below, but are excluded from the
 # read-only checksum assertion.
 DOCUMENTED_WRITES = {
+    # KB reads lazily materialize domain membership and document revisions,
+    # and tools/kb_mcp/server.py now releases the shared DuckDB handle after
+    # each call, so those materializations reach disk.  Watches persist state.
+    *{("kb_mcp", name) for name in (
+        "kb_search", "kb_answer", "kb_temporal", "kb_corroborate", "kb_documents",
+        "kb_claims", "kb_entities", "kb_contradictions", "kb_diff", "kb_brief",
+        "kb_coverage", "kb_integrity", "policy_monitor_status", "policy_monitor_bundle",
+        "watch_list", "watch_poll", "watch_pause", "watch_resume", "watch_delete",
+        "watch_scan", "watch_replay", "watch_metrics",
+    )},
+    # Market tools persist calculation/run receipts; tools/market_mcp/server.py
+    # declares each of these operations as a write.
+    ("market_mcp", "build_market_company_dossier"),
+    ("market_mcp", "build_market_industry_model"),
+    ("market_mcp", "calculate_market_fact_metrics"),
+    ("market_mcp", "calculate_market_price_metrics"),
+    ("market_mcp", "calculate_market_sizing"),
+    ("market_mcp", "consume_market_budget"),
+    ("market_mcp", "create_market_backup"),
+    ("market_mcp", "deliver_market_alert"),
+    ("market_mcp", "deliver_market_brief"),
+    ("market_mcp", "evaluate_market_slos"),
+    ("market_mcp", "generate_market_brief"),
+    ("market_mcp", "get_company_research_dashboard"),
+    ("market_mcp", "get_economic_market_dashboard"),
+    ("market_mcp", "market_acceptance_journey"),
+    ("market_mcp", "review_market_acceptance_journey"),
+    ("market_mcp", "prune_market_operations_audit"),
+    ("market_mcp", "record_market_driver_hypotheses"),
+    ("market_mcp", "record_market_operations_measurements"),
+    ("market_mcp", "record_market_portfolio"),
+    ("market_mcp", "record_market_recovery_drill"),
+    ("market_mcp", "record_market_repair"),
+    ("market_mcp", "restore_market_backup"),
+    ("market_mcp", "review_market_thesis"),
+    ("market_mcp", "run_market_alerts"),
+    ("market_mcp", "run_market_backtest"),
+    ("market_mcp", "run_market_brief_schedules"),
+    ("market_mcp", "run_market_derivatives"),
+    ("market_mcp", "run_market_digital_asset"),
+    ("market_mcp", "run_market_event_study"),
+    ("market_mcp", "run_market_factor_analysis"),
+    ("market_mcp", "run_market_fixed_income"),
+    ("market_mcp", "run_market_fx_commodity"),
+    ("market_mcp", "run_market_international_coverage"),
+    ("market_mcp", "run_market_intraday_replay"),
+    ("market_mcp", "run_market_risk_report"),
+    ("market_mcp", "run_market_walk_forward"),
+    ("market_mcp", "save_market_alert_watch"),
+    ("market_mcp", "save_market_budget"),
+    ("market_mcp", "save_market_materials"),
+    ("market_mcp", "save_market_runbook"),
+    ("market_mcp", "save_market_screener_query"),
+    ("market_mcp", "save_market_thesis"),
+    ("market_mcp", "schedule_market_brief"),
+    ("market_mcp", "screen_market_universe"),
     ("argument_mcp", "trigger_actor_batch"),
     ("argument_mcp", "trigger_attribution_batch"),
     ("argument_mcp", "trigger_outlet_clustering"),
@@ -132,10 +191,20 @@ HONEST_ANALYTICS = {
     "osint_mcp": {
         "corroborate", "source_reliability", "image_reuse_findings", "image_reuse",
     },
+    "onchain_mcp": {"address_observations", "contract_origin", "address_cluster"},
 }
 
 
+@functools.cache
 def _load_server(path: Path):
+    """Load each server once per session.
+
+    Executing ``knowledge_engine_mcp/server.py`` registers every pack's tools
+    and takes seconds; reloading it for each of its ~1,200 parametrized cases
+    alone exceeded the unit lane's timeout. The servers resolve their warehouse
+    and config from the environment at call time, so the per-test
+    ``seeded_warehouse`` fixture still isolates every invocation.
+    """
     name = f"mcp_surface_{path.parent.name}"
     spec = importlib.util.spec_from_file_location(name, path)
     assert spec and spec.loader
@@ -200,12 +269,20 @@ def _tool_cases():
 ALL_TOOL_CASES = _tool_cases()
 
 
-@pytest.fixture()
-def seeded_warehouse(tmp_path, monkeypatch):
-    path = tmp_path / "mcp-surface.duckdb"
+@pytest.fixture(scope="session")
+def _seeded_template(tmp_path_factory):
+    """Seed once per session; seeding takes seconds and ~1,300 cases use it."""
+    path = tmp_path_factory.mktemp("mcp-surface-template") / "mcp-surface.duckdb"
     conn = duckdb.connect(str(path))
     ensure_schema_and_seed(conn)
     conn.close()
+    return path
+
+
+@pytest.fixture()
+def seeded_warehouse(_seeded_template, tmp_path, monkeypatch):
+    path = tmp_path / "mcp-surface.duckdb"
+    shutil.copyfile(_seeded_template, path)
     monkeypatch.setenv("NOESIS_DB_PATH", str(path))
     monkeypatch.setenv("NOESIS_DOMAINS_CONFIG", str(REPO_ROOT / "config" / "domains.yml"))
     monkeypatch.setenv("NOESIS_SUBSCRIPTIONS_PATH", str(tmp_path / "subscriptions.json"))
@@ -281,7 +358,7 @@ def test_analytic_output_schemas_advertise_the_honesty_envelope(server_name, too
     module = _load_server(REPO_ROOT / "tools" / server_name / "server.py")
     tool = _tools(module)[tool_name]
     schema = tool.output_schema or {}
-    required = set(schema.get("required", []))
+    required = set(schema.get("anyOf", [{}])[0].get("required", []))
     properties = set(schema.get("properties", {}))
     assert {"n", "method", "assumptions"} <= required
     assert {"n", "method", "assumptions"} <= properties
