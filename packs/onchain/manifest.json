@@ -1,0 +1,122 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "onchain",
+  "version": "0.1.0",
+  "description": "On-chain Observations: from an explicit address, transaction hash or contract address on a public ledger to cited transaction observations (transfers in and out, counterparties, contract deployment and first-funding chain) and probable address clustering with declared heuristics, a null model and a measured false-positive rate. Labels are quoted from their sources; no entity attribution is asserted.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "onchain.observations",
+        "provider": "onchain.core",
+        "contract": {
+          "name": "noesis-onchain-observation",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "onchain.clustering",
+        "provider": "onchain.core",
+        "contract": {
+          "name": "noesis-onchain-cluster",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "onchain.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "onchain-observations",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "onchain.observer",
+        "description": "Ledger-observation vocabulary: facts are cited to explorers, clusters are probable, labels are quotations",
+        "vocabulary": {
+          "observation": "explorer-reported ledger fact at a stated chain head",
+          "cluster": "addresses probably controlled together (never by whom)",
+          "label": "what a named public dataset states, quoted with attribution"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "onchain.observations",
+      "contract": "noesis-onchain-observation",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "onchain.clustering",
+      "contract": "noesis-onchain-cluster",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "label references to organization or contract entities are reviewed, reversible identity decisions"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "acquisition",
+      "default": false,
+      "description": "Bounded, receipted acquisition of explorer observations for one explicit identifier per request; Ethereum stays inert (no_provider_configured) until NOESIS_ETHERSCAN_API_KEY is set",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "sources, licences and budgets are declared in the onchain-observations source pack"
+        }
+      ]
+    }
+  ],
+  "compatibility_aliases": {
+    "onchain-observations": "onchain"
+  },
+  "advisory": {
+    "exclusions": [
+      "person attribution or de-anonymization of an address",
+      "wallet or key access",
+      "transaction signing or submission",
+      "exchange or KYC data",
+      "commercial attribution feeds",
+      "attribution verdicts"
+    ],
+    "never": [
+      "state that an address belongs to anyone",
+      "restate a quoted label as a finding",
+      "link an address to a person entity",
+      "enumerate addresses or resolve names"
+    ],
+    "query_examples": [
+      {
+        "intent": "What moved in and out of this address",
+        "tool": "noesis-onchain.address_observations",
+        "semantics": "cited transactions and transfers with coverage and unknowns; unknown when never acquired"
+      },
+      {
+        "intent": "Who deployed this contract and who funded the deployer",
+        "tool": "noesis-onchain.contract_origin",
+        "semantics": "cited deployer and first-funding chain; unacquired hops stay unknown"
+      },
+      {
+        "intent": "Which addresses are probably controlled together with this one",
+        "tool": "noesis-onchain.address_cluster",
+        "semantics": "probable cluster with heuristic per edge, caveat, null model and measured FPR; no owner field"
+      }
+    ]
+  },
+  "content_hash": "sha256:110bfaeaa32bcc2fcb34fcf8566969f5d36dadb56ce197354836e16a9a626610"
+}

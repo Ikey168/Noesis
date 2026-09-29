@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-investigation-coverage-comparison-v1.json",
+  "title": "Pinned investigation coverage comparison",
+  "type": "object",
+  "required": ["contract", "namespace", "before_id", "after_id", "scope_equal", "pack_versions_equal", "credential_availability_changed", "changes", "denominators"],
+  "properties": {
+    "contract": {"const": "noesis-investigation-coverage-comparison-v1"},
+    "namespace": {"type": "string"},
+    "before_id": {"type": "string"},
+    "after_id": {"type": "string"},
+    "scope_equal": {"type": "boolean"},
+    "pack_versions_equal": {"type": "boolean"},
+    "credential_availability_changed": {"type": "boolean"},
+    "changes": {"type": "array", "maxItems": 128, "items": {"type": "object"}},
+    "denominators": {"type": "object", "required": ["before", "after"]},
+    "scope": {"type": "object"},
+    "assessed_dimensions": {"type": "object"},
+    "receipts": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "report_ready": {"type": "array", "maxItems": 64, "items": {"type": "object"}}
+  }
+}

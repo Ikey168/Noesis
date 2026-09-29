@@ -1,6 +1,6 @@
 {
   "pack_id": "research-discovery",
-  "version": "1.2.0",
+  "version": "1.4.0",
   "description": "Scholarly discovery, authorship, venue, identifier, and citation metadata.",
   "domains": [
     "research"
@@ -92,6 +92,284 @@
         "id": "cc0-metadata",
         "terms_url": "https://support.datacite.org/docs/metadata-license",
         "redistribution": "cc0"
+      }
+    },
+    {
+      "source_id": "epo-ops-patents",
+      "connector": "epo-ops",
+      "publisher": "European Patent Office (Open Patent Services)",
+      "endpoint": "https://ops.epo.org/3.2",
+      "scope": "Explicitly selected EP/DE publications: bibliographic data, INPADOC family, legal events, claims",
+      "update_cadence": "weekly publication cycles; legal events as reported",
+      "temporal_semantics": "publication, priority and legal-event dates as reported; observation time recorded separately; no validity inferred",
+      "mapping": {
+        "target_schema": "noesis-patent-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "patent-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_EPO_OPS_CREDENTIALS"
+      },
+      "license": {
+        "id": "epo-ops-terms",
+        "terms_url": "https://www.epo.org/en/searching-for-patents/data/web-services/ops",
+        "redistribution": "per EPO OPS terms and fair-use policy; bibliographic data reuse with attribution (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "patent": {
+        "namespace": "global",
+        "publications": [
+          "EP.3999001.A1",
+          "DE.102020000001.A1"
+        ],
+        "parts": [
+          "biblio",
+          "family",
+          "legal",
+          "claims"
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/patents-epo-ops.json",
+        "sha256": "d25d912a9af732920f39052ccf7491188f5a0e0f4b4dd1dafa10fad63e0f9069",
+        "expected_output_hash": "58bc4a6bed298f2d31dbdb105f816c12621cba2017fa5b652d8babe600f2227b"
+      }
+    },
+    {
+      "source_id": "zbmath-open",
+      "connector": "zbmath",
+      "publisher": "zbMATH Open (FIZ Karlsruhe)",
+      "endpoint": "https://api.zbmath.org/v1",
+      "scope": "Pinned zbMATH Open documents: authors, MSC classes, identifiers and references (no reviews)",
+      "update_cadence": "continuous; documents carry a datestamp",
+      "temporal_semantics": "publication year and provider datestamp as reported; observation time recorded separately",
+      "mapping": {
+        "target_schema": "noesis-math-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "math-sources:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "documents"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "license": {
+        "id": "cc-by-sa-4.0",
+        "terms_url": "https://zbmath.org/about/#id-open-data",
+        "redistribution": "zbMATH Open metadata under CC BY-SA 4.0 with attribution (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "zbmath": {
+        "document_ids": [
+          "9000001",
+          "9000002",
+          "9000003"
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/math-zbmath.json",
+        "sha256": "d9bb15f5f3b97e29cb0954d2140d3aaa7e33e85408d4f999306c9ad316281240",
+        "expected_output_hash": "67492bdfe008214d37693fd5110d8128093c525f0616a9a5995d9bf5b2162414"
+      }
+    },
+    {
+      "source_id": "oeis-sequences",
+      "connector": "oeis",
+      "publisher": "The OEIS Foundation",
+      "endpoint": "https://oeis.org",
+      "scope": "Pinned OEIS entries: terms, name, references, links, keywords and revision",
+      "update_cadence": "entries are edited continuously; each carries a revision and time",
+      "temporal_semantics": "entry revision and last-modified time as reported; observation time recorded separately",
+      "mapping": {
+        "target_schema": "noesis-math-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "math-sources:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "sequences"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "license": {
+        "id": "oeis-eula",
+        "terms_url": "https://oeis.org/LICENSE",
+        "redistribution": "OEIS End-User License Agreement (CC BY-SA 4.0); attribution required"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "oeis": {
+        "a_numbers": [
+          "A000045",
+          "A003714"
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/math-oeis.json",
+        "sha256": "91683edaa49a1cecafc0d08bac771264b1b92efdc10d9ffce590712583500c66",
+        "expected_output_hash": "db65d8adbf23fd97409489e36a16f93a5e71e1edf28e60447335b0c16b5bf6a8"
+      }
+    },
+    {
+      "source_id": "mathlib4-fib",
+      "connector": "formal-library",
+      "publisher": "Lean mathematical library (mathlib4) community",
+      "endpoint": "https://raw.githubusercontent.com",
+      "scope": "Selected mathlib4 files at one pinned commit (Fibonacci numbers and Zeckendorf's theorem)",
+      "update_cadence": "pinned commit; a new snapshot is a new source revision",
+      "temporal_semantics": "immutable repository revision; declarations are as of that commit",
+      "mapping": {
+        "target_schema": "noesis-math-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "math-sources:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "snapshot"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "license": {
+        "id": "apache-2.0",
+        "terms_url": "https://github.com/leanprover-community/mathlib4/blob/master/LICENSE",
+        "redistribution": "Apache-2.0 with copyright notices retained"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 50
+      },
+      "formal": {
+        "library": "mathlib4",
+        "system": "lean",
+        "repository": "leanprover-community/mathlib4",
+        "commit": "b2bf051988bf69448bce88722cc09a05fea31662",
+        "license": "Apache-2.0",
+        "paths": [
+          "Mathlib/Data/Nat/Fib/Basic.lean",
+          "Mathlib/Data/Nat/Fib/Zeckendorf.lean"
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/math-formal-mathlib.json",
+        "sha256": "37bff04b610810f5ceba88404c60620d6b529e16d509ca9e17b7258f86225f1e",
+        "expected_output_hash": "959bae90d3841328ba9d32431d926c60e426819093931887f2880af932c68fd0"
+      }
+    },
+    {
+      "source_id": "afp-zeckendorf",
+      "connector": "formal-library",
+      "publisher": "Archive of Formal Proofs (GitHub mirror isabelle-prover/mirror-afp-devel)",
+      "endpoint": "https://raw.githubusercontent.com",
+      "scope": "The AFP Zeckendorf entry theory at one pinned mirror commit",
+      "update_cadence": "pinned commit; a new snapshot is a new source revision",
+      "temporal_semantics": "immutable repository revision; declarations are as of that commit",
+      "mapping": {
+        "target_schema": "noesis-math-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "math-sources:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "snapshot"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "license": {
+        "id": "bsd-afp-entry",
+        "terms_url": "https://www.isa-afp.org/help/",
+        "redistribution": "entry licence BSD (per metadata/entries/Zeckendorf.toml)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 50
+      },
+      "formal": {
+        "library": "afp",
+        "system": "isabelle",
+        "repository": "isabelle-prover/mirror-afp-devel",
+        "commit": "5818ae444ceea2858b02b70bb36c3cd6a6a47bea",
+        "license": "BSD",
+        "paths": [
+          "thys/Zeckendorf/Zeckendorf.thy"
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/math-formal-afp.json",
+        "sha256": "77997e79663e75801db73ce0aaed4a7d6a85bca7c973a1b892a93cee3a3534a1",
+        "expected_output_hash": "3e9fdb8385aa97a1781d3fd2656d4645354e0b4bdac4b887f0078cf1a287af5f"
       }
     }
   ]

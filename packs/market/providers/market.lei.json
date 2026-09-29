@@ -1,0 +1,87 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "market.lei",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.lei",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "market.legal-entities",
+      "contract": {
+        "name": "noesis-lei-part",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-entity",
+        "parents-as-of"
+      ],
+      "semantic_constraints": {
+        "identity": "LEI with dated parent assertions"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-entity",
+      "tool": "noesis-knowledge-engine.inspect_lei_entity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "entities",
+      "required_scopes": [
+        "knowledge:companies:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "parents-as-of",
+      "tool": "noesis-knowledge-engine.lei_parents_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "entities",
+      "required_scopes": [
+        "knowledge:companies:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "lei-entity",
+      "store": "src.kb.lei",
+      "tables": [
+        "lei_revisions",
+        "lei_current",
+        "lei_parent_assertions",
+        "lei_reporting",
+        "company_identity_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "entities",
+      "kind": "table-exists",
+      "target": "lei_current"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

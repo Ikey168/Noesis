@@ -383,6 +383,68 @@ class KnowledgeAnomalyStore:
             "status": row[2],
         }
 
+    def record_external_anomaly(
+        self,
+        namespace,
+        *,
+        anomaly_id,
+        watch_id,
+        run_id,
+        signal_key,
+        observed_at_ms,
+        score,
+        severity,
+        value,
+        baseline,
+        payload,
+        principal_id,
+        scopes,
+    ):
+        """Persist an already-evaluated domain anomaly for shared delivery.
+
+        Domain adapters such as market alerts own their typed trigger
+        evaluation, but they must not create a second notification store.  The
+        payload remains opaque to this generic layer while the common anomaly
+        and delivery contracts remain queryable by existing tools.
+        """
+        _require(scopes, EXECUTE_SCOPE)
+        if not isinstance(payload, dict):
+            raise KnowledgeAnomalyError("invalid_anomaly", "anomaly payload must be an object")
+        payload = dict(payload)
+        payload.setdefault("contract", ANOMALY_CONTRACT)
+        payload.setdefault("anomaly_id", anomaly_id)
+        payload.setdefault("namespace", namespace)
+        payload.setdefault("watch_id", watch_id)
+        payload.setdefault("run_id", run_id)
+        payload.setdefault("signal_key", signal_key)
+        payload.setdefault("observed_at_ms", int(observed_at_ms))
+        payload.setdefault("score", float(score))
+        payload.setdefault("severity", severity)
+        payload.setdefault("value", value)
+        payload.setdefault("baseline", baseline)
+        payload.setdefault("explanations", [])
+        payload.setdefault("status", "open")
+        self.conn.execute(
+            "INSERT OR IGNORE INTO knowledge_anomalies VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                anomaly_id,
+                namespace,
+                watch_id,
+                run_id,
+                signal_key,
+                int(observed_at_ms),
+                float(score),
+                severity,
+                value,
+                _canon(baseline),
+                "[]",
+                "open",
+                _canon(payload),
+            ],
+        )
+        self._audit(namespace, "record_external_anomaly", anomaly_id, principal_id)
+        return self.anomaly(namespace, anomaly_id, scopes={READ_SCOPE})
+
     def correlate(
         self, namespace, anomaly_id, candidates, *, principal_id, scopes, limit=100
     ):
@@ -433,22 +495,83 @@ class KnowledgeAnomalyStore:
         scopes,
         delivery_outcome="delivered",
         cancel_requested=False,
+        suppression_reason=None,
     ):
         _require(scopes, DELIVER_SCOPE)
         anomaly = self.anomaly(namespace, anomaly_id, scopes={READ_SCOPE})
         watch = self.watch(namespace, anomaly["watch_id"], scopes={READ_SCOPE})
         policy = watch["notification"]
         group_key = str(policy.get("group_key", anomaly["signal_key"]))
-        bucket = anomaly["observed_at_ms"] // max(
-            int(policy.get("dedupe_window_ms", 300_000)), 1
+        owner_id = policy.get("owner_id")
+        if (
+            owner_id
+            and owner_id != principal_id
+            and "operator" not in scopes
+        ):
+            raise KnowledgeAnomalyError(
+                "unauthorized", "alert delivery belongs to another principal"
+            )
+        cooldown_ms = max(
+            int(policy.get("cooldown_ms", policy.get("dedupe_window_ms", 300_000))),
+            1,
         )
+        bucket = anomaly["observed_at_ms"] // cooldown_ms
         delivery_key = _hash([watch["watch_id"], group_key, subscriber_id, bucket])
         alert_id = "anomaly-alert:" + delivery_key[:24]
         prior = self.conn.execute(
-            "SELECT status,attempts,history_json FROM anomaly_alerts WHERE namespace=? AND delivery_key=?",
+            "SELECT status,attempts,next_attempt_ms,history_json FROM anomaly_alerts WHERE namespace=? AND delivery_key=?",
             [namespace, delivery_key],
         ).fetchone()
         if prior:
+            # A failed notification is retryable after its recorded delay.  A
+            # replay of delivered/suppressed/cancelled work remains a no-op.
+            if (
+                prior[0] == "retrying"
+                and (prior[2] is None or self.now() >= int(prior[2]))
+            ):
+                quiet = policy.get("quiet_until_ms") and self.now() < int(
+                    policy["quiet_until_ms"]
+                )
+                status = (
+                    "cancelled"
+                    if cancel_requested
+                    else "suppressed"
+                    if suppression_reason
+                    else "suppressed"
+                    if quiet
+                    else "delivered"
+                    if delivery_outcome == "delivered"
+                    else "retrying"
+                )
+                attempts = int(prior[1]) + (
+                    0 if status in {"cancelled", "suppressed"} else 1
+                )
+                next_attempt = (
+                    self.now() + int(policy.get("retry_delay_ms", 60_000))
+                    if status == "retrying"
+                    else None
+                )
+                history = _load(prior[3], []) + [
+                    {
+                        "status": status,
+                        "at_ms": self.now(),
+                        "outcome": delivery_outcome,
+                        **({"reason": suppression_reason} if suppression_reason else {}),
+                    }
+                ]
+                self.conn.execute(
+                    "UPDATE anomaly_alerts SET status=?,attempts=?,next_attempt_ms=?,history_json=? WHERE namespace=? AND alert_id=?",
+                    [
+                        status,
+                        attempts,
+                        next_attempt,
+                        _canon(history),
+                        namespace,
+                        alert_id,
+                    ],
+                )
+                self._audit(namespace, "retry_delivery", alert_id, principal_id, {"status": status})
+                return {**self._alert(namespace, alert_id), "deduplicated": False, "retried": True}
             return {**self._alert(namespace, alert_id), "deduplicated": True}
         quiet = policy.get("quiet_until_ms") and self.now() < int(
             policy["quiet_until_ms"]
@@ -456,6 +579,8 @@ class KnowledgeAnomalyStore:
         status = (
             "cancelled"
             if cancel_requested
+            else "suppressed"
+            if suppression_reason
             else "suppressed"
             if quiet
             else "delivered"
@@ -468,7 +593,14 @@ class KnowledgeAnomalyStore:
             if status == "retrying"
             else None
         )
-        history = [{"status": status, "at_ms": self.now(), "outcome": delivery_outcome}]
+        history = [
+            {
+                "status": status,
+                "at_ms": self.now(),
+                "outcome": delivery_outcome,
+                **({"reason": suppression_reason} if suppression_reason else {}),
+            }
+        ]
         self.conn.execute(
             "INSERT INTO anomaly_alerts VALUES (?,?,?,?,?,?,?,?,?,?,?)",
             [
@@ -530,15 +662,23 @@ class KnowledgeAnomalyStore:
         )
         return self._alert(namespace, alert_id)
 
-    def history(self, namespace, *, scopes, limit=100, offset=0):
+    def history(self, namespace, *, scopes, limit=100, offset=0, owner_id=None):
         _require(scopes, READ_SCOPE)
         rows = self.conn.execute(
             "SELECT alert_id FROM anomaly_alerts WHERE namespace=? ORDER BY created_at_ms DESC LIMIT ? OFFSET ?",
             [namespace, _limit(limit, 500), max(int(offset), 0)],
         ).fetchall()
+        alerts = [self._alert(namespace, row[0]) for row in rows]
+        if owner_id is not None:
+            visible = []
+            for alert in alerts:
+                anomaly = self.anomaly(namespace, alert["anomaly_id"], scopes={READ_SCOPE})
+                if anomaly.get("owner") == owner_id:
+                    visible.append(alert)
+            alerts = visible
         return {
             "namespace": namespace,
-            "alerts": [self._alert(namespace, row[0]) for row in rows],
+            "alerts": alerts,
             "limit": _limit(limit, 500),
             "offset": max(int(offset), 0),
         }

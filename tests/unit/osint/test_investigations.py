@@ -144,6 +144,18 @@ def test_gated_tools_appear_only_when_the_flag_is_on(monkeypatch):
 
     on = _served_tool_names(monkeypatch, "on")
     assert "geolocate_claims" in on and "narrative_coordination" in on
+    # OX09/OX10: the new imagery tools follow the same gate.
+    for tool in ("chronolocate_image", "reference_imagery"):
+        assert tool not in off and tool in on
+    # Every gated tool appears with the flag on; nothing gated is ever served off.
+    assert set(GATED_TOOLS) <= on and not set(GATED_TOOLS) & off
+    # The organization-keyed pivot (OX08) is ungated.
+    assert "infrastructure_pivot" in off
+
+
+def test_gated_tool_list_covers_the_imagery_extensions():
+    assert {"chronolocate_image", "reference_imagery"} <= set(GATED_TOOLS)
+    assert not is_gated("infrastructure_pivot")
 
 
 def test_is_gated():

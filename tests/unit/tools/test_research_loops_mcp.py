@@ -4,12 +4,12 @@ import duckdb
 
 from tools.knowledge_engine_mcp import server
 from src.kb.research_loop_runtime import ProductionResearchRuntime
-from tests.unit.kb.test_research_loops import setup, Runtime, AUTH
+from tests.unit.kb.test_research_loops import make_loop_fixture, Runtime, AUTH
 
 
 def test_public_loop_creation_execution_inspection_and_access(tmp_path,monkeypatch):
     path=str(tmp_path/'loop.duckdb')
-    store,project,loop,bindings,limits=setup(duckdb.connect(path))
+    store,project,loop,bindings,limits=make_loop_fixture(duckdb.connect(path))
     principal=['alice']
     scopes=[{'operator'}]
     monkeypatch.setattr(server,'_context',lambda:(principal[0],scopes[0]))

@@ -1,0 +1,26 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "eea-industry",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://discodata.eea.europa.eu/sql",
+ "scenarios": [
+  "eea_industry"
+ ],
+ "native_pages": [
+  {
+   "url": "https://discodata.eea.europa.eu/sql",
+   "params": {
+    "query": "SELECT f.FacilityInspireId, f.facilityName, f.parentCompanyName, f.city, f.countryCode, f.Longitude, f.Latitude, f.EPRTRAnnexIMainActivityCode, f.EPRTRAnnexIMainActivityLabel, f.ETSIdentifier, f.permitURL, f.dateOfGranting, f.permitAuthority, r.reportingYear, r.pollutant, r.medium, r.totalPollutantQuantityKg, r.AccidentalPollutantQuantityKG, r.methodCode FROM [IED].[latest].[Facility] f LEFT JOIN [IED].[latest].[PollutantRelease] r ON r.FacilityInspireId = f.FacilityInspireId AND r.reportingYear = 2024 WHERE f.countryCode = 'DE' AND f.city = 'Berlin' ORDER BY f.FacilityInspireId, r.pollutant, r.medium",
+    "p": "1",
+    "nrOfHits": "500"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "eea_industry",
+   "body_sha256": "14997aa27323ecdde356a6048870d56b67798c48892a4f6224a46aa55e352b3d",
+   "body": "{\n \"results\": [\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000901.FACILITY\",\n   \"facilityName\": \"HKW Mitte (authored fixture)\",\n   \"parentCompanyName\": \"Beispiel Wärme Berlin GmbH\",\n   \"city\": \"Berlin\",\n   \"countryCode\": \"DE\",\n   \"Longitude\": 13.4262,\n   \"Latitude\": 52.5105,\n   \"EPRTRAnnexIMainActivityCode\": \"1(c)\",\n   \"EPRTRAnnexIMainActivityLabel\": \"Thermal power stations and other combustion installations\",\n   \"ETSIdentifier\": \"DE_900201\",\n   \"permitURL\": \"https://www.berlin.de/fixture/permits/hkw-mitte.pdf\",\n   \"dateOfGranting\": \"2019-06-30\",\n   \"permitAuthority\": \"Landesamt für Arbeitsschutz, Gesundheitsschutz und technische Sicherheit (fixture)\",\n   \"reportingYear\": 2024,\n   \"pollutant\": \"CO2\",\n   \"medium\": \"AIR\",\n   \"totalPollutantQuantityKg\": 612000000,\n   \"AccidentalPollutantQuantityKG\": 0,\n   \"methodCode\": \"C\"\n  },\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000901.FACILITY\",\n   \"facilityName\": \"HKW Mitte (authored fixture)\",\n   \"parentCompanyName\": \"Beispiel Wärme Berlin GmbH\",\n   \"city\": \"Berlin\",\n   \"countryCode\": \"DE\",\n   \"Longitude\": 13.4262,\n   \"Latitude\": 52.5105,\n   \"EPRTRAnnexIMainActivityCode\": \"1(c)\",\n   \"EPRTRAnnexIMainActivityLabel\": \"Thermal power stations and other combustion installations\",\n   \"ETSIdentifier\": \"DE_900201\",\n   \"permitURL\": \"https://www.berlin.de/fixture/permits/hkw-mitte.pdf\",\n   \"dateOfGranting\": \"2019-06-30\",\n   \"permitAuthority\": \"Landesamt für Arbeitsschutz, Gesundheitsschutz und technische Sicherheit (fixture)\",\n   \"reportingYear\": 2024,\n   \"pollutant\": \"NOX\",\n   \"medium\": \"AIR\",\n   \"totalPollutantQuantityKg\": 187500.5,\n   \"AccidentalPollutantQuantityKG\": null,\n   \"methodCode\": \"M\"\n  },\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000902.FACILITY\",\n   \"facilityName\": \"HKW Klingenberg (authored fixture)\",\n   \"parentCompanyName\": \"Beispiel Kraftwerke Nord AG\",\n   \"city\": \"Berlin\",\n   \"countryCode\": \"DE\",\n   \"Longitude\": 13.4943,\n   \"Latitude\": 52.4938,\n   \"EPRTRAnnexIMainActivityCode\": \"1(c)\",\n   \"EPRTRAnnexIMainActivityLabel\": \"Thermal power stations and other combustion installations\",\n   \"ETSIdentifier\": null,\n   \"permitURL\": null,\n   \"dateOfGranting\": null,\n   \"permitAuthority\": null,\n   \"reportingYear\": 2024,\n   \"pollutant\": \"CO2\",\n   \"medium\": \"AIR\",\n   \"totalPollutantQuantityKg\": 405000000,\n   \"AccidentalPollutantQuantityKG\": null,\n   \"methodCode\": \"E\"\n  }\n ]\n}\n"
+  }
+ ]
+}

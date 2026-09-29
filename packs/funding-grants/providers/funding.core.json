@@ -1,0 +1,368 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "funding.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.funding_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "funding.opportunities",
+      "contract": {
+        "name": "noesis-funding-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "provider-contracts",
+        "acquire-source",
+        "list-opportunities",
+        "inspect-opportunity"
+      ],
+      "semantic_constraints": {
+        "coverage": "declared per provider; no invented APIs"
+      }
+    },
+    {
+      "id": "funding.profiles",
+      "contract": {
+        "name": "noesis-funding-profile",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-profile"
+      ],
+      "semantic_constraints": {
+        "privacy": "owner-scoped applicant facts"
+      }
+    },
+    {
+      "id": "funding.eligibility",
+      "contract": {
+        "name": "noesis-funding-eligibility",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "assess-eligibility"
+      ],
+      "semantic_constraints": {
+        "semantics": "requirements assessment, not a funder decision"
+      }
+    },
+    {
+      "id": "funding.shortlists",
+      "contract": {
+        "name": "noesis-funding-shortlist",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "build-shortlist"
+      ],
+      "semantic_constraints": {
+        "ranking": "declared criteria weights"
+      }
+    },
+    {
+      "id": "funding.workspaces",
+      "contract": {
+        "name": "noesis-funding-workspace",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-workspace",
+        "draft-application"
+      ],
+      "semantic_constraints": {
+        "submission": "never submits applications"
+      }
+    },
+    {
+      "id": "funding.monitoring",
+      "contract": {
+        "name": "noesis-funding-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor"
+      ],
+      "semantic_constraints": {
+        "delivery": "existing subscription outbox"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "provider-contracts",
+      "tool": "noesis-knowledge-engine.funding_provider_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "opportunities",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-source",
+      "tool": "noesis-knowledge-engine.acquire_funding_source",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": false,
+        "receipt": "funding_provider_state"
+      },
+      "readiness_probe": "opportunities",
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    },
+    {
+      "id": "list-opportunities",
+      "tool": "noesis-knowledge-engine.list_funding_opportunities",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "opportunities",
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-opportunity",
+      "tool": "noesis-knowledge-engine.inspect_funding_opportunity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "opportunities",
+      "required_scopes": [
+        "knowledge:funding:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-profile",
+      "tool": "noesis-knowledge-engine.create_funding_profile",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "command_key"
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "assess-eligibility",
+      "tool": "noesis-knowledge-engine.assess_funding_eligibility",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "funding_assessments"
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "build-shortlist",
+      "tool": "noesis-knowledge-engine.build_funding_shortlist",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "funding_shortlists"
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:funding:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-workspace",
+      "tool": "noesis-knowledge-engine.create_funding_workspace",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "command_key"
+      },
+      "readiness_probe": "workspaces",
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:projects:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "draft-application",
+      "tool": "noesis-knowledge-engine.draft_funding_application",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "funding_drafts"
+      },
+      "readiness_probe": "workspaces",
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:reports:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_funding_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "funding_monitors"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_funding_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "funding_monitors"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:funding:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "funding-opportunity",
+      "store": "src.kb.funding_opportunities",
+      "tables": [
+        "funding_opportunities",
+        "funding_opportunity_revisions",
+        "funding_provider_state",
+        "funding_listing_members"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "funding-profile",
+      "store": "src.kb.funding_profiles",
+      "tables": [
+        "funding_profiles",
+        "funding_profile_revisions",
+        "funding_profile_commands"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "funding-assessment",
+      "store": "src.kb.funding_eligibility",
+      "tables": [
+        "funding_assessments",
+        "funding_rule_interpretations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "funding-shortlist",
+      "store": "src.kb.funding_ranking",
+      "tables": [
+        "funding_shortlists"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "funding-workspace",
+      "store": "src.kb.funding_workspaces",
+      "tables": [
+        "funding_workspaces",
+        "funding_workspace_revisions",
+        "funding_workspace_commands",
+        "funding_drafts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "funding-monitor",
+      "store": "src.kb.funding_monitoring",
+      "tables": [
+        "funding_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "opportunities",
+      "kind": "table-exists",
+      "target": "funding_opportunities"
+    },
+    {
+      "id": "profiles",
+      "kind": "table-exists",
+      "target": "funding_profiles"
+    },
+    {
+      "id": "workspaces",
+      "kind": "table-exists",
+      "target": "funding_workspaces"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "funding_monitors"
+    }
+  ]
+}

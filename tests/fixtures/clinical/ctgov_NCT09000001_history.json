@@ -1,0 +1,41 @@
+{
+ "changes": [
+  {
+   "version": 0,
+   "date": "2015-11-20",
+   "status": "NOT_YET_RECRUITING",
+   "moduleLabels": [
+    "Study Identification",
+    "Study Status",
+    "Outcome Measures"
+   ]
+  },
+  {
+   "version": 1,
+   "date": "2016-06-03",
+   "status": "RECRUITING",
+   "moduleLabels": [
+    "Study Status"
+   ]
+  },
+  {
+   "version": 2,
+   "date": "2017-11-20",
+   "status": "ACTIVE_NOT_RECRUITING",
+   "moduleLabels": [
+    "Study Status",
+    "Outcome Measures"
+   ]
+  },
+  {
+   "version": 3,
+   "date": "2019-02-14",
+   "status": "COMPLETED",
+   "moduleLabels": [
+    "Study Status",
+    "Results",
+    "References"
+   ]
+  }
+ ]
+}

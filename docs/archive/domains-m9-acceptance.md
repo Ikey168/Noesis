@@ -1,5 +1,10 @@
 # M9 acceptance: the domain-pack lifecycle, package to live
 
+> Historical record. The `energy` example pack this harness exercised was
+> retired on 2026-09-26 (`packs/energy/pack.json` removed; it never had a
+> provider implementation). The lifecycle it proved is unchanged and is now
+> covered by the shipped packs under `packs/` and the composition suite.
+
 Milestone M9 (issues #687-#690) turns a domain pack from a code module into a
 distributable, installable unit. This is the acceptance record; its executable
 form is `scripts/domains/m9_acceptance.py`, run in CI by

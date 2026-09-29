@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/opendata/bevoelkerung-bezirke-2098.csv",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "body": "Stichtag;Bezirk;Bezirksname;Einwohner;Auslaender\n31.12.2098;01;Mitte;381.000;110.100\n31.12.2098;02;Friedrichshain-Kreuzberg;382.000;110.200\n31.12.2098;03;Pankow;383.000;110.300\n"
+  },
+  {
+   "request": "/opendata/bevoelkerung-bezirke-2099.csv",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "body": "Stichtag;Bezirk;Bezirksname;Einwohner;Auslaender\n31.12.2099;01;Mitte;379.000;112.100\n31.12.2099;02;Friedrichshain-Kreuzberg;380.000;112.200\n31.12.2099;03;Pankow;381.000;112.300\n"
+  }
+ ],
+ "note": "Authored responses in the documented shape; every value, origin and area is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

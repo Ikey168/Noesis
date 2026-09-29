@@ -1,0 +1,35 @@
+{
+ "authored": "authored 2026-09-28 (not a capture)",
+ "captured": null,
+ "license": "cc-by-3.0-de",
+ "native_pages": [
+  {
+   "body": "Bezirk;Bezirksname;Jahr;Wohnungen;Wohnflaeche\n00;Berlin;2098;1520;98,4\n01;Mitte;2098;310;20,1\n02;Friedrichshain-Kreuzberg;2098;205;13,0\n",
+   "headers": {
+    "Content-Type": "text/csv",
+    "Last-Modified": "Fri, 20 Mar 2099 09:00:00 GMT"
+   },
+   "request": "/downloads/bautaetigkeit/baugenehmigungen-2098-bezirke.csv",
+   "status": 200
+  },
+  {
+   "body": "Bezirk;Bezirksname;Jahr;Wohnungen;Wohnflaeche\n00;Berlin;2098;1210;80,2\n01;Mitte;2098;260;16,9\n02;Friedrichshain-Kreuzberg;2098;150;9,6\n",
+   "headers": {
+    "Content-Type": "text/csv",
+    "Last-Modified": "Sun, 10 May 2099 09:00:00 GMT"
+   },
+   "request": "/downloads/bautaetigkeit/baufertigstellungen-2098-bezirke.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers, plan numbers, values and dates are fictional. Not live evidence.",
+ "retrieved": "authored 2026-09-28 (not a capture)",
+ "scenarios": [
+  "permits",
+  "completions",
+  "bezirk-codes",
+  "land-total-code",
+  "last-modified-vintage"
+ ],
+ "source_url": "https://www.statistik-berlin-brandenburg.de/downloads/bautaetigkeit/baugenehmigungen-2098-bezirke.csv"
+}

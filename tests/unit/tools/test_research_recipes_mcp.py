@@ -96,12 +96,40 @@ def test_recipe_mcp_registry_preview_run_status_replay_export_auth(
         recipe_revision_id=r["recipe_revision_id"],
         parameters=params,
         run_key="k",
-        step_outputs={"search_datasets": {"items": []}},
+        step_outputs={"search": {"items": []}},
         granted_scopes=["knowledge:dataset:read"],
         tool_versions={"search_datasets": "1"},
         secrets={"vault:t": "SECRET"},
     )
     assert "SECRET" not in str(out)
+    assert out["execution_mode"] == "caller-supplied-fixture"
+    assert out["actions_executed"] is False
+    assert out["outputs"]["search"] == {"items": []}
+    assert out["execution_input_hash"]
+    rejected = call(
+        tools["run_research_recipe"],
+        namespace="scientific",
+        recipe_revision_id=r["recipe_revision_id"],
+        parameters=params,
+        run_key="unknown-step",
+        step_outputs={"search_datasets": {"items": []}},
+        granted_scopes=["knowledge:dataset:read"],
+        tool_versions={"search_datasets": "1"},
+    )
+    assert rejected["error"]["code"] == "invalid_fixture_outputs"
+    different_fixture = call(
+        tools["run_research_recipe"],
+        namespace="scientific",
+        recipe_revision_id=r["recipe_revision_id"],
+        parameters=params,
+        run_key="k",
+        step_outputs={"search": {"items": ["changed"]}},
+        granted_scopes=["knowledge:dataset:read"],
+        tool_versions={"search_datasets": "1"},
+        secrets={"vault:t": "SECRET"},
+    )
+    assert different_fixture["run_id"] != out["run_id"]
+    assert different_fixture["outputs"]["search"] == {"items": ["changed"]}
     assert (
         call(
             tools["get_research_recipe_run"],

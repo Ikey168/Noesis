@@ -1,0 +1,157 @@
+{
+  "contract": "noesis-market-provider-sample-evaluation-v1",
+  "pack_id": "market-provider-sample:fmp",
+  "status": "live_incomplete",
+  "evidence_kind": "live_provider",
+  "provider": "fmp",
+  "recorded_at": "2026-09-24T17:10:40.155989Z",
+  "manifest_sha256": "402f23b2546be67c0d5847548ba839d6a1bc67af890a3042f265c38eb176336e",
+  "authorization": {
+    "status": "authorized",
+    "license_reference": "fmp-credential-scoped-technical-access:2026-09-24"
+  },
+  "rights": {
+    "local_retention": "pending",
+    "internal_display": "pending",
+    "external_display": "pending",
+    "derived_data": "pending",
+    "report_export": "pending"
+  },
+  "checks": [
+    {
+      "name": "authorized_sample_access",
+      "status": "passed",
+      "details": {
+        "status": "authorized"
+      }
+    },
+    {
+      "name": "rights_answers_explicit",
+      "status": "failed",
+      "details": {
+        "local_retention": "pending",
+        "internal_display": "pending",
+        "external_display": "pending",
+        "derived_data": "pending",
+        "report_export": "pending"
+      }
+    },
+    {
+      "name": "representative_universe",
+      "status": "passed",
+      "details": {
+        "required_active": [
+          "MSFT",
+          "ORCL",
+          "CRM",
+          "ADBE",
+          "NOW"
+        ],
+        "observed_active": [
+          "ADBE",
+          "CRM",
+          "MSFT",
+          "NOW",
+          "ORCL"
+        ],
+        "edge_identity_count": 2
+      }
+    },
+    {
+      "name": "hashed_request_response_receipts",
+      "status": "passed",
+      "details": {
+        "valid_receipts": 22,
+        "malformed": [],
+        "missing_references": []
+      }
+    },
+    {
+      "name": "price_history_calendar_and_corrections",
+      "status": "failed",
+      "details": {
+        "all_samples_have_prices": false,
+        "history_gaps": [],
+        "correction_observed": false
+      }
+    },
+    {
+      "name": "research_dataset_coverage_declared",
+      "status": "passed",
+      "details": {
+        "malformed": [],
+        "coverage": {
+          "prices": {
+            "available": 2,
+            "unavailable": 5,
+            "not_entitled": 0
+          },
+          "corporate_actions": {
+            "available": 2,
+            "unavailable": 5,
+            "not_entitled": 0
+          },
+          "fundamentals": {
+            "available": 2,
+            "unavailable": 5,
+            "not_entitled": 0
+          },
+          "estimates": {
+            "available": 0,
+            "unavailable": 7,
+            "not_entitled": 0
+          },
+          "transcripts": {
+            "available": 0,
+            "unavailable": 2,
+            "not_entitled": 5
+          },
+          "ownership": {
+            "available": 0,
+            "unavailable": 2,
+            "not_entitled": 5
+          }
+        }
+      }
+    }
+  ],
+  "coverage_comparison": {
+    "prices": {
+      "available": 2,
+      "unavailable": 5,
+      "not_entitled": 0
+    },
+    "corporate_actions": {
+      "available": 2,
+      "unavailable": 5,
+      "not_entitled": 0
+    },
+    "fundamentals": {
+      "available": 2,
+      "unavailable": 5,
+      "not_entitled": 0
+    },
+    "estimates": {
+      "available": 0,
+      "unavailable": 7,
+      "not_entitled": 0
+    },
+    "transcripts": {
+      "available": 0,
+      "unavailable": 2,
+      "not_entitled": 5
+    },
+    "ownership": {
+      "available": 0,
+      "unavailable": 2,
+      "not_entitled": 5
+    }
+  },
+  "receipt_count": 22,
+  "instrument_count": 7,
+  "limitations": [
+    "This receipt stores hashes and normalized findings, not vendor payloads or credentials.",
+    "live_evaluated means the authorized sample was assessed; it is not a procurement decision or production entitlement.",
+    "Fixture evidence cannot satisfy live-provider acceptance."
+  ]
+}

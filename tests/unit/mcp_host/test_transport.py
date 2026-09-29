@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import json
 import sys
 import types
 
@@ -11,6 +12,7 @@ from src.mcp_host.transport import (
     HOST_ENV,
     PORT_ENV,
     TOKEN_ENV,
+    TOKENS_FILE_ENV,
     TRANSPORT_ENV,
     TransportConfigError,
     resolve_transport,
@@ -36,7 +38,7 @@ class _FakeVerifier:
 
 @pytest.fixture()
 def clean_env(monkeypatch):
-    for var in (TRANSPORT_ENV, HOST_ENV, PORT_ENV, TOKEN_ENV):
+    for var in (TRANSPORT_ENV, HOST_ENV, PORT_ENV, TOKEN_ENV, TOKENS_FILE_ENV):
         monkeypatch.delenv(var, raising=False)
         monkeypatch.delenv(var.replace("NOESIS_", "NEURONEWS_"), raising=False)
     return monkeypatch
@@ -105,6 +107,37 @@ def test_http_with_token_attaches_verifier(clean_env):
     assert mcp.run_calls[0]["transport"] == "http"
 
 
+def test_http_caller_token_map_uses_distinct_scoped_identities(clean_env, tmp_path):
+    _install_fake_auth_module(clean_env)
+    mapping = tmp_path / "tokens.json"
+    mapping.write_text(json.dumps({
+        "a" * 32: {"client_id": "alice", "scopes": ["knowledge:intake:read", "namespace:research:read"]},
+        "b" * 32: {"client_id": "bob", "scopes": ["knowledge:intake:read", "namespace:research:read"]},
+    }))
+    mapping.chmod(0o600)
+    clean_env.setenv(TRANSPORT_ENV, "http")
+    clean_env.setenv(TOKENS_FILE_ENV, str(mapping))
+    mcp = _FakeMCP()
+    run_server(mcp)
+    assert mcp.auth.tokens["a" * 32]["client_id"] == "alice"
+    assert mcp.auth.tokens["b" * 32]["client_id"] == "bob"
+
+
+def test_http_caller_token_map_fails_closed_if_public_or_conflicting(clean_env, tmp_path):
+    _install_fake_auth_module(clean_env)
+    mapping = tmp_path / "tokens.json"
+    mapping.write_text(json.dumps({"a" * 32: {"client_id": "alice", "scopes": ["knowledge:intake:read"]}}))
+    mapping.chmod(0o644)
+    clean_env.setenv(TRANSPORT_ENV, "http")
+    clean_env.setenv(TOKENS_FILE_ENV, str(mapping))
+    with pytest.raises(TransportConfigError):
+        run_server(_FakeMCP())
+    mapping.chmod(0o600)
+    clean_env.setenv(TOKEN_ENV, "legacy-token")
+    with pytest.raises(TransportConfigError):
+        resolve_transport()
+
+
 def test_token_without_verifier_fails_closed(clean_env):
     # No fastmcp auth module importable -> startup must raise, never serve open.
     for mod in ("fastmcp", "fastmcp.server", "fastmcp.server.auth",
@@ -132,12 +165,12 @@ def test_bad_port_rejected(clean_env):
 
 
 def test_every_tool_server_uses_run_server():
-    """All 25 servers route their main guard through the shared runner."""
+    """All 27 servers route their main guard through the shared runner."""
     from pathlib import Path
 
     repo_root = Path(__file__).resolve().parents[3]
     servers = sorted((repo_root / "tools").glob("*_mcp/server.py"))
-    assert len(servers) == 25
+    assert len(servers) == 27  # 26 plus tools/onchain_mcp (#2058)
     for server in servers:
         text = server.read_text()
         assert "from src.mcp_host.transport import run_server" in text, server

@@ -1,0 +1,47 @@
+{
+  "contract": "noesis-market-quality-assessment-v1",
+  "assessment_id": "market-quality:a1b2c3d4e5f60718293a4b5c6d7e8f90",
+  "namespace": "market:demo",
+  "owner": "analyst:demo",
+  "request_key": "price-close-check",
+  "request": {
+    "object_kind": "price_range",
+    "listing_id": "listing:demo",
+    "interval": "1d",
+    "publicly_available_by_ms": 1790208000000,
+    "acquired_by_ms": 1790208000000
+  },
+  "status": "degraded",
+  "coverage": {"matched_rows": 1, "status": "unverified", "counts": {}},
+  "freshness": {
+    "status": "stale",
+    "latest_retrieved_at_ms": 1790000000000,
+    "age_ms": 208000000,
+    "stale_after_ms": 86400000
+  },
+  "input_refs": [
+    {
+      "kind": "price_bar",
+      "object_id": "bar:demo:1",
+      "revision_id": "market-bar:demo@1",
+      "record_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "provider": "fixture-only",
+      "public_at_ms": 1790000000000,
+      "retrieved_at_ms": 1790000000000
+    }
+  ],
+  "input_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+  "findings": [
+    {
+      "finding_id": "market-quality-finding:demo-stale",
+      "rule": "stale_price_history",
+      "severity": "warning",
+      "summary": "Latest retained bar exceeds the configured freshness threshold.",
+      "revision_ids": ["market-bar:demo@1"],
+      "evidence": {"age_ms": 208000000, "stale_after_ms": 86400000}
+    }
+  ],
+  "created_at_ms": 1790208000000,
+  "request_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+  "assessment_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd"
+}

@@ -1,0 +1,47 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-source-pack-upgrade-preview-v1.json",
+  "title": "Source-pack upgrade preview",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["contract", "pack_id", "installed_version", "installed_hash", "candidate_version", "candidate_hash", "preview_hash", "changes", "idempotent"],
+  "properties": {
+    "contract": {"const": "noesis-source-pack-upgrade-preview-v1"},
+    "pack_id": {"type": "string", "minLength": 1},
+    "installed_version": {"type": "string"},
+    "installed_hash": {"$ref": "#/definitions/hash"},
+    "candidate_version": {"type": "string"},
+    "candidate_hash": {"$ref": "#/definitions/hash"},
+    "preview_hash": {"$ref": "#/definitions/hash"},
+    "idempotent": {"type": "boolean"},
+    "changes": {
+      "type": "object",
+      "required": ["domains", "sources", "description"],
+      "properties": {
+        "domains": {
+          "type": "object",
+          "required": ["added", "removed"],
+          "properties": {
+            "added": {"$ref": "#/definitions/strings"},
+            "removed": {"$ref": "#/definitions/strings"}
+          }
+        },
+        "sources": {
+          "type": "object",
+          "required": ["added", "removed", "changed"],
+          "properties": {
+            "added": {"type": "array", "items": {"$ref": "#/definitions/source"}},
+            "removed": {"type": "array", "items": {"$ref": "#/definitions/source"}},
+            "changed": {"type": "array", "items": {"type": "object", "required": ["source_id", "fields"], "properties": {"source_id": {"type": "string"}, "fields": {"type": "object"}}}}
+          }
+        },
+        "description": {"type": ["object", "null"]}
+      }
+    }
+  },
+  "definitions": {
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "strings": {"type": "array", "items": {"type": "string"}},
+    "source": {"type": "object", "required": ["source_id", "capabilities"], "properties": {"source_id": {"type": "string"}, "capabilities": {"type": "object"}}}
+  }
+}

@@ -1,0 +1,69 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-patent-publication-v1.json",
+  "title": "Noesis patent publication v1",
+  "description": "A publication with biblio revisions, provider-asserted family, legal events or an explicit not_available state, claims and links. No validity or enforceability is inferred.",
+  "type": "object",
+  "required": [
+    "contract",
+    "publication_id",
+    "docdb",
+    "family",
+    "legal_status",
+    "claims",
+    "links",
+    "notice"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-patent-publication-v1"
+    },
+    "publication_id": {
+      "type": "string",
+      "pattern": "^patent-publication:"
+    },
+    "docdb": {
+      "type": "string",
+      "minLength": 1
+    },
+    "family": {
+      "type": "object",
+      "required": [
+        "state",
+        "asserted_by",
+        "members"
+      ]
+    },
+    "legal_status": {
+      "type": "object",
+      "required": [
+        "state",
+        "events"
+      ],
+      "properties": {
+        "state": {
+          "enum": [
+            "returned",
+            "no_events_reported",
+            "not_available",
+            "not_acquired"
+          ]
+        }
+      }
+    },
+    "claims": {
+      "type": "object",
+      "required": [
+        "state",
+        "items"
+      ]
+    },
+    "links": {
+      "type": "array"
+    },
+    "notice": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

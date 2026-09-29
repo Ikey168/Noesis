@@ -1,0 +1,111 @@
+{
+ "ctNumber": "2023-509001-12-00",
+ "ctStatus": "Ongoing",
+ "lastUpdated": "2026-04-15",
+ "submissionDate": "2023-11-20",
+ "publishDate": "2024-01-10",
+ "startDateEU": "2024-03-01",
+ "decisionDate": "2023-12-20",
+ "authorizedApplication": {
+  "authorizedPartI": {
+   "trialDetails": {
+    "clinicalTrialIdentifiers": {
+     "fullTitle": "A randomised, double-blind trial of noetiglutide versus metformin in early type 2 diabetes (NOETIC-3, fixture)",
+     "shortTitle": "NOETIC-3",
+     "secondaryIdentifyingNumbers": {
+      "nctNumber": {
+       "number": "NCT09000003"
+      }
+     }
+    },
+    "trialInformation": {
+     "trialCategory": {
+      "trialPhase": "Therapeutic confirmatory  (Phase III)"
+     },
+     "medicalCondition": {
+      "partIMedicalConditions": [
+       {
+        "medicalCondition": "T2DM"
+       }
+      ]
+     },
+     "endPoint": {
+      "primaryEndPoints": [
+       {
+        "endPoint": "Change in HbA1c from baseline to week 40"
+       }
+      ],
+      "secondaryEndPoints": [
+       {
+        "endPoint": "Change in body weight"
+       }
+      ]
+     }
+    },
+    "protocolInformation": {
+     "studyDesign": {
+      "periodDetails": [
+       {
+        "allocationMethod": "Randomised controlled trial",
+        "blindingMethod": "Double blind"
+       }
+      ]
+     }
+    }
+   },
+   "sponsors": [
+    {
+     "primary": true,
+     "organisation": {
+      "name": "Fixture Therapeutics GmbH"
+     }
+    }
+   ],
+   "products": [
+    {
+     "productName": "Noetiglutide",
+     "productRole": "Test"
+    },
+    {
+     "productName": "Metformin",
+     "productRole": "Comparator"
+    }
+   ],
+   "rowSubjectCount": 880
+  },
+  "authorizedPartsII": [
+   {
+    "mscInfo": {
+     "mscName": "Germany"
+    },
+    "recruitmentSubjectCount": 400
+   },
+   {
+    "mscInfo": {
+     "mscName": "Spain"
+    },
+    "recruitmentSubjectCount": 480
+   }
+  ]
+ },
+ "memberStatesConcerned": [
+  {
+   "mscName": "Germany",
+   "authority": "BfArM",
+   "decision": "Authorised",
+   "decisionDate": "2023-12-20",
+   "status": "Ongoing, recruiting"
+  },
+  {
+   "mscName": "Spain",
+   "authority": "AEMPS",
+   "decision": "Authorised",
+   "decisionDate": "2024-01-05",
+   "status": "Ongoing, recruiting"
+  }
+ ],
+ "results": {
+  "summaryResults": [],
+  "laypersonResults": []
+ }
+}

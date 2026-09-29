@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-screener-query-v1.json",
+  "title": "Noesis market screener query v1",
+  "type": "object",
+  "required": ["contract", "namespace", "query_id", "revision", "revision_id", "owner", "criteria", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-screener-query-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "query_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "revision_id": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "criteria": {"type": "object"},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false
+}

@@ -803,3 +803,148 @@ class OntologyAlignmentStore:
             "modules": modules,
             "content_hash": "sha256:" + _digest(modules),
         }
+
+
+# ------------------------------------------ descriptor vocabularies (MeSH et al.)
+#
+# Helpers for publishing a controlled vocabulary whose records carry tree
+# numbers (MeSH descriptors) and for crosswalking registry-native terms to it.
+# They only build inputs for ``publish`` / ``register_crosswalk`` and explain
+# ``expand`` results; the alignment semantics above are unchanged.
+
+
+def normalize_label(value: Any) -> str:
+    """Comparison key for labels: casefolded alphanumeric words."""
+    import re
+
+    return " ".join(re.findall(r"[a-z0-9]+", str(value or "").casefold()))
+
+
+def descriptor_concepts(descriptors: Sequence[Mapping[str, Any]]) -> list[dict[str, Any]]:
+    """Descriptor records (ui, name, tree_numbers, entry_terms, scope_note) as concepts.
+
+    ``broader`` is the nearest ancestor tree number that is present in the same
+    set, so a published subset keeps a valid hierarchy without inventing links.
+    """
+    owners = {
+        str(tree): str(item["ui"])
+        for item in descriptors
+        for tree in item.get("tree_numbers") or []
+    }
+    concepts = []
+    for item in descriptors:
+        ui = str(item["ui"])
+        parents = set()
+        for tree in item.get("tree_numbers") or []:
+            parts = str(tree).split(".")
+            for cut in range(len(parts) - 1, 0, -1):
+                parent = owners.get(".".join(parts[:cut]))
+                if parent and parent != ui:
+                    parents.add(parent)
+                    break
+        labels = [{"value": str(item["name"]), "language": "en", "kind": "preferred"}] + [
+            {"value": str(term), "language": "en", "kind": "alternative"}
+            for term in item.get("entry_terms") or []
+        ]
+        concepts.append(
+            {
+                "concept_id": ui,
+                "labels": labels,
+                "definition": str(item.get("scope_note") or item["name"]),
+                "broader": sorted(parents),
+                "tree_numbers": sorted(str(t) for t in item.get("tree_numbers") or []),
+            }
+        )
+    return concepts
+
+
+def label_crosswalk(
+    source_concepts: Sequence[Mapping[str, Any]],
+    target_concepts: Sequence[Mapping[str, Any]],
+    *,
+    curations: Sequence[Mapping[str, Any]] = (),
+) -> tuple[list[dict[str, Any]], list[str]]:
+    """Mappings from exact normalized label matches (``equivalent``) plus reviewed curations.
+
+    Curations keep their declared kind (equivalent, broader, narrower,
+    related, incompatible) and reviewer. A source concept with no mapping other
+    than ``incompatible`` is returned as unmapped; nothing is guessed.
+    """
+    index: dict[str, set[str]] = {}
+    for concept in target_concepts:
+        for label in concept.get("labels") or []:
+            index.setdefault(normalize_label(label.get("value")), set()).add(str(concept["concept_id"]))
+    targets = {str(c["concept_id"]) for c in target_concepts}
+    mappings, unmapped = [], []
+    for concept in source_concepts:
+        source_id = str(concept["concept_id"])
+        found = []
+        matched: dict[str, str] = {}
+        for label in concept.get("labels") or []:
+            for target in index.get(normalize_label(label.get("value")), set()):
+                matched.setdefault(target, str(label.get("value")))
+        for target, label in sorted(matched.items()):
+            found.append(
+                {
+                    "source": source_id,
+                    "target": target,
+                    "kind": "equivalent",
+                    "confidence": 1.0,
+                    "evidence": [{"rule": "normalized-label-match", "label": label}],
+                }
+            )
+        for curation in curations:
+            if str(curation.get("source")) != source_id or str(curation.get("target")) not in targets:
+                continue
+            kind = str(curation.get("kind"))
+            if kind not in MAPPING_KINDS:
+                raise OntologyError("invalid_crosswalk", "curation kind must be a mapping kind")
+            found.append(
+                {
+                    "source": source_id,
+                    "target": str(curation["target"]),
+                    "kind": kind,
+                    "confidence": float(curation.get("confidence", 1.0)),
+                    "evidence": [
+                        {
+                            "rule": "curation",
+                            "reviewer": curation.get("reviewer"),
+                            "rationale": curation.get("rationale"),
+                        }
+                    ],
+                }
+            )
+        mappings.extend(found)
+        if not [m for m in found if m["kind"] != "incompatible"]:
+            unmapped.append(source_id)
+    return mappings, sorted(unmapped)
+
+
+def explain_expansion(expansion: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Human-readable steps for each expanded term, plus blocked (incompatible) pairs."""
+    steps = []
+    for term in expansion.get("terms") or []:
+        if not term.get("path"):
+            continue
+        hops = []
+        for step in term["path"]:
+            via = f" via crosswalk {step['crosswalk_module_id']}" if step.get("crosswalk_module_id") else ""
+            confidence = f" (confidence {step['confidence']})" if "confidence" in step else ""
+            hops.append(f"{step['kind']} -> {step['to']}{via}{confidence}")
+        steps.append(
+            {
+                "concept_id": term["concept_id"],
+                "ontology": term["ontology"],
+                "score": term["score"],
+                "explanation": "; ".join(hops),
+            }
+        )
+    for conflict in expansion.get("conflicts") or []:
+        steps.append(
+            {
+                "concept_id": conflict["target"],
+                "blocked": True,
+                "explanation": f"incompatible mapping {conflict['source']} -> {conflict['target']} blocks expansion",
+            }
+        )
+    return steps

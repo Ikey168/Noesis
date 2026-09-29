@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n  \"source\": \"Lobbyregister beim Deutschen Bundestag (authored fixture)\",\n  \"sourceDate\": \"2099-02-01\",\n  \"totalResultCount\": 2,\n  \"results\": [\n    {\n      \"registerNumber\": \"R009901\",\n      \"registerEntryDetails\": {\"registerEntryId\": 99001, \"version\": 3, \"validFromDate\": \"2099-01-20\", \"firstPublicationDate\": \"2098-03-01\", \"activeLobbyist\": true},\n      \"lobbyistIdentity\": {\n        \"name\": \"Fiktiver Netzverband e.V.\",\n        \"legalForm\": {\"code\": \"EV\", \"de\": \"Eingetragener Verein (e. V.)\"},\n        \"address\": {\"street\": \"Beispielweg 1\", \"zipCode\": \"10999\", \"city\": \"Fiktivstadt\", \"country\": {\"code\": \"DE\"}},\n        \"websites\": [\"https://netzverband.example\"],\n        \"euTransparencyRegisterId\": \"000000000101-01\",\n        \"lei\": \"5299000FIXTURE000017\"\n      },\n      \"activitiesAndInterests\": {\"activity\": \"Interessenverband\", \"fieldsOfInterest\": [{\"code\": \"FOI_ENERGY\", \"de\": \"Energie\"}]},\n      \"financialExpenses\": {\"financialExpensesEuro\": {\"from\": 100001, \"to\": 110000}, \"relatedFiscalYearStart\": \"2098-01-01\", \"relatedFiscalYearEnd\": \"2098-12-31\"},\n      \"clientIdentity\": {\"clientOrganizations\": [], \"principalOrganizations\": []},\n      \"regulatoryProjects\": {\"regulatoryProjects\": [\n        {\"regulatoryProjectNumber\": \"RV0099\", \"title\": \"Fiktives Netzentgeltgesetz\", \"printedMatters\": [{\"printingNumber\": \"21/9901\", \"title\": \"Gesetzentwurf (fiktiv)\"}]}\n      ]},\n      \"statements\": {\"statements\": [\n        {\"statementNumber\": \"SG0099\", \"regulatoryProjectNumber\": \"RV0099\", \"title\": \"Stellungnahme zum fiktiven Netzentgeltgesetz\", \"pdfUrl\": \"https://www.lobbyregister.bundestag.de/fixture/SG0099.pdf\", \"text\": \"Authored fixture text that must not be retained.\"}\n      ]}\n    },\n    {\n      \"registerNumber\": \"R009902\",\n      \"registerEntryDetails\": {\"registerEntryId\": 99002, \"version\": 1, \"validFromDate\": \"2099-01-25\", \"firstPublicationDate\": \"2099-01-25\", \"activeLobbyist\": true},\n      \"lobbyistIdentity\": {\n        \"name\": \"Example Public Affairs SARL\",\n        \"legalForm\": {\"code\": \"OTHER\", \"de\": \"Ausländische Gesellschaft\"},\n        \"address\": {\"street\": \"2 Rue Exemple\", \"zipCode\": \"75999\", \"city\": \"Paris\", \"country\": {\"code\": \"FR\"}},\n        \"websites\": [\"https://public-affairs.example\"],\n        \"euTransparencyRegisterId\": \"000000000202-02\"\n      },\n      \"activitiesAndInterests\": {\"activity\": \"Beratungsunternehmen\", \"fieldsOfInterest\": [{\"code\": \"FOI_ENERGY\", \"de\": \"Energie\"}]},\n      \"financialExpenses\": {\"financialExpensesEuro\": {\"from\": 20001, \"to\": 30000}, \"relatedFiscalYearStart\": \"2098-01-01\", \"relatedFiscalYearEnd\": \"2098-12-31\"},\n      \"clientIdentity\": {\"clientOrganizations\": [{\"name\": \"Fiktiver Netzverband e.V.\", \"registerNumber\": \"R009901\"}, {\"name\": \"Other Example GmbH\"}]},\n      \"regulatoryProjects\": {\"regulatoryProjects\": []},\n      \"statements\": {\"statements\": []}\n    }\n  ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/sucheJson?q=&sort=REGISTRATION_DESC",
+   "status": 200
+  }
+ ],
+ "note": "Authored export in the documented de-lobbyregister-json shape; every organisation, person and reference is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

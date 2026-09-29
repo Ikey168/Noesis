@@ -1,0 +1,55 @@
+# Bundestagswahl 2099 - Endgültiges Ergebnis
+# Stand: 20.03.2099 10:00
+# Authored fixture: fictional areas and parties
+Wahlart;Wahltag;Gebietsart;Gebietsnummer;Gebietsname;UegGebietsart;UegGebietsnummer;Gruppenart;Gruppenname;Gruppenreihenfolge;Stimme;Anzahl;Prozent;VorpAnzahl;VorpProzent;DiffProzent;DiffProzentPkt;Bemerkung
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;System-Gruppe;Wahlberechtigte;1;;140000;;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;System-Gruppe;Wählende;2;;104000;74,3;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;System-Gruppe;Ungültige;3;1;990;1,0;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;System-Gruppe;Gültige;4;1;103010;99,0;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Partei;Beispielpartei;1;1;40990;39,8;;;;;Nachzählung
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Partei;Musterunion;2;1;39020;37,9;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Partei;Fiktive Grüne;3;1;20000;19,4;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Einzelbewerber;Erika Beispiel;4;1;3000;2,9;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;System-Gruppe;Ungültige;3;2;1500;1,4;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;System-Gruppe;Gültige;4;2;102500;98,6;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Partei;Beispielpartei;1;2;38000;37,1;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Partei;Musterunion;2;2;37000;36,1;;;;;
+BT;01.03.2099;Wahlkreis;1;Musterstadt;Land;1;Partei;Fiktive Grüne;3;2;27500;26,8;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;System-Gruppe;Wahlberechtigte;1;;110000;;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;System-Gruppe;Wählende;2;;80500;73,2;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;System-Gruppe;Ungültige;3;1;500;0,6;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;System-Gruppe;Gültige;4;1;80000;99,4;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;Partei;Beispielpartei;1;1;30000;37,5;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;Partei;Musterunion;2;1;36000;45,0;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;Partei;Fiktive Grüne;3;1;14000;17,5;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;System-Gruppe;Ungültige;3;2;1000;1,2;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;System-Gruppe;Gültige;4;2;79500;98,8;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;Partei;Beispielpartei;1;2;29000;36,5;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;Partei;Musterunion;2;2;33000;41,5;;;;;
+BT;01.03.2099;Wahlkreis;2;Beispielkreis;Land;1;Partei;Fiktive Grüne;3;2;17500;22,0;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;System-Gruppe;Wahlberechtigte;1;;250000;;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;System-Gruppe;Wählende;2;;184500;73,8;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;System-Gruppe;Ungültige;3;1;1490;0,8;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;System-Gruppe;Gültige;4;1;183010;99,2;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Partei;Beispielpartei;1;1;70990;38,8;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Partei;Musterunion;2;1;75020;41,0;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Partei;Fiktive Grüne;3;1;34000;18,6;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Einzelbewerber;Erika Beispiel;4;1;3000;1,6;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;System-Gruppe;Ungültige;3;2;2500;1,4;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;System-Gruppe;Gültige;4;2;182000;98,6;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Partei;Beispielpartei;1;2;67000;36,8;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Partei;Musterunion;2;2;70000;38,5;;;;;
+BT;01.03.2099;Land;1;Musterland;Bund;99;Partei;Fiktive Grüne;3;2;45000;24,7;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;System-Gruppe;Wahlberechtigte;1;;250000;;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;System-Gruppe;Wählende;2;;184500;73,8;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;System-Gruppe;Ungültige;3;1;1490;0,8;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;System-Gruppe;Gültige;4;1;183010;99,2;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Partei;Beispielpartei;1;1;70990;38,8;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Partei;Musterunion;2;1;75020;41,0;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Partei;Fiktive Grüne;3;1;34000;18,6;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Einzelbewerber;Erika Beispiel;4;1;3000;1,6;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;System-Gruppe;Ungültige;3;2;2500;1,4;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;System-Gruppe;Gültige;4;2;182000;98,6;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Partei;Beispielpartei;1;2;67000;36,8;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Partei;Musterunion;2;2;70000;38,5;;;;;
+BT;01.03.2099;Bund;99;Bundesgebiet;;;Partei;Fiktive Grüne;3;2;45000;24,7;;;;;

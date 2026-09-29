@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Designations xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <DateGenerated>2026-03-15T08:00:00</DateGenerated>
+  <Designation>
+    <LastUpdated>2025-11-25</LastUpdated>
+    <DateDesignated>2025-11-25</DateDesignated>
+    <UniqueID>RUS9001</UniqueID>
+    <OFSIGroupID>99901</OFSIGroupID>
+    <Names>
+      <Name><Name6>Examplar Freight LLC</Name6><NameType>Primary Name</NameType></Name>
+      <Name><Name6>OOO Examplar Freight</Name6><NameType>Alias</NameType><AliasStrength>Low quality</AliasStrength></Name>
+    </Names>
+    <RegimeName>Fixture Regime (UK)</RegimeName>
+    <IndividualEntityShip>Entity</IndividualEntityShip>
+    <DesignationSource>UK</DesignationSource>
+    <SanctionsImposed>Asset freeze</SanctionsImposed>
+    <OtherInformation>Authored fixture entry; the party is fictional.</OtherInformation>
+    <Addresses><Address><AddressLine1>1 Example Quay</AddressLine1><AddressLine2>Fictionville</AddressLine2><AddressCountry>Russia</AddressCountry></Address></Addresses>
+    <EntityDetails><BusinessRegistrationNumbers><BusinessRegistrationNumber>1027700000001</BusinessRegistrationNumber></BusinessRegistrationNumbers></EntityDetails>
+  </Designation>
+  <Designation>
+    <LastUpdated>2026-02-25</LastUpdated>
+    <DateDesignated>2026-02-25</DateDesignated>
+    <UniqueID>RUS9002</UniqueID>
+    <Names><Name><Name6>FICTIONAL STAR</Name6><NameType>Primary Name</NameType></Name></Names>
+    <RegimeName>Fixture Regime (UK)</RegimeName>
+    <IndividualEntityShip>Ship</IndividualEntityShip>
+    <DesignationSource>UK</DesignationSource>
+    <OtherInformation>Authored fixture entry; the vessel is fictional.</OtherInformation>
+    <ShipDetails><Ship><IMONumbers><IMONumber>9999991</IMONumber></IMONumbers></Ship></ShipDetails>
+  </Designation>
+</Designations>

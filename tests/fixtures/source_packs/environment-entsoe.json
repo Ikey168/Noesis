@@ -1,0 +1,78 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "entsoe",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://web-api.tp.entsoe.eu/api",
+ "scenarios": [
+  "entsoe"
+ ],
+ "native_pages": [
+  {
+   "url": "https://web-api.tp.entsoe.eu/api",
+   "params": {
+    "documentType": "A75",
+    "in_Domain": "10Y1001A1001A82H",
+    "periodStart": "202609240000",
+    "periodEnd": "202609240100",
+    "processType": "A16"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "parse": "entsoe",
+   "body_sha256": "5400abd5fd3f746a28013dd75106bd7296d0701f2f2d56c0f64b96fdeecc2d25",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\">\n  <mRID>fixture-a75-7f3c1d</mRID>\n  <revisionNumber>1</revisionNumber>\n  <type>A75</type>\n  <process.processType>A16</process.processType>\n  <sender_MarketParticipant.mRID codingScheme=\"A01\">10X1001A1001A450</sender_MarketParticipant.mRID>\n  <sender_MarketParticipant.marketRole.type>A32</sender_MarketParticipant.marketRole.type>\n  <receiver_MarketParticipant.mRID codingScheme=\"A01\">10X1001A1001A450</receiver_MarketParticipant.mRID>\n  <receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>\n  <createdDateTime>2026-09-25T07:12:41Z</createdDateTime>\n  <time_Period.timeInterval>\n    <start>2026-09-24T00:00Z</start>\n    <end>2026-09-24T01:00Z</end>\n  </time_Period.timeInterval>\n  <TimeSeries>\n    <mRID>1</mRID>\n    <businessType>A01</businessType>\n    <objectAggregation>A08</objectAggregation>\n    <inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID>\n    <quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name>\n    <curveType>A01</curveType>\n    <MktPSRType>\n      <psrType>B02</psrType>\n    </MktPSRType>\n    <Period>\n      <timeInterval>\n        <start>2026-09-24T00:00Z</start>\n        <end>2026-09-24T01:00Z</end>\n      </timeInterval>\n      <resolution>PT15M</resolution>\n      <Point><position>1</position><quantity>8412</quantity></Point>\n      <Point><position>2</position><quantity>8398</quantity></Point>\n      <Point><position>3</position><quantity>8377</quantity></Point>\n      <Point><position>4</position><quantity>8361</quantity></Point>\n    </Period>\n  </TimeSeries>\n  <TimeSeries>\n    <mRID>2</mRID>\n    <businessType>A01</businessType>\n    <objectAggregation>A08</objectAggregation>\n    <inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID>\n    <quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name>\n    <curveType>A01</curveType>\n    <MktPSRType>\n      <psrType>B19</psrType>\n    </MktPSRType>\n    <Period>\n      <timeInterval>\n        <start>2026-09-24T00:00Z</start>\n        <end>2026-09-24T01:00Z</end>\n      </timeInterval>\n      <resolution>PT15M</resolution>\n      <Point><position>1</position><quantity>14250</quantity></Point>\n      <Point><position>2</position><quantity>14102</quantity></Point>\n      <Point><position>3</position><quantity>13987</quantity></Point>\n      <Point><position>4</position><quantity>13840</quantity></Point>\n    </Period>\n  </TimeSeries>\n</GL_MarketDocument>\n"
+  },
+  {
+   "url": "https://web-api.tp.entsoe.eu/api",
+   "params": {
+    "documentType": "A65",
+    "outBiddingZone_Domain": "10Y1001A1001A82H",
+    "periodStart": "202609240000",
+    "periodEnd": "202609240100",
+    "processType": "A16"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "parse": "entsoe",
+   "body_sha256": "1bc159074b4486c1bb48f10dd806f40ea84d688b7cf0576f2c603246b31f376b",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\">\n  <mRID>fixture-a65-a16-2b90e4</mRID>\n  <revisionNumber>1</revisionNumber>\n  <type>A65</type>\n  <process.processType>A16</process.processType>\n  <sender_MarketParticipant.mRID codingScheme=\"A01\">10X1001A1001A450</sender_MarketParticipant.mRID>\n  <sender_MarketParticipant.marketRole.type>A32</sender_MarketParticipant.marketRole.type>\n  <receiver_MarketParticipant.mRID codingScheme=\"A01\">10X1001A1001A450</receiver_MarketParticipant.mRID>\n  <receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>\n  <createdDateTime>2026-09-25T07:12:44Z</createdDateTime>\n  <time_Period.timeInterval>\n    <start>2026-09-24T00:00Z</start>\n    <end>2026-09-24T01:00Z</end>\n  </time_Period.timeInterval>\n  <TimeSeries>\n    <mRID>1</mRID>\n    <businessType>A04</businessType>\n    <objectAggregation>A01</objectAggregation>\n    <outBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</outBiddingZone_Domain.mRID>\n    <quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name>\n    <curveType>A01</curveType>\n    <Period>\n      <timeInterval>\n        <start>2026-09-24T00:00Z</start>\n        <end>2026-09-24T01:00Z</end>\n      </timeInterval>\n      <resolution>PT15M</resolution>\n      <Point><position>1</position><quantity>44493</quantity></Point>\n      <Point><position>2</position><quantity>43950</quantity></Point>\n      <Point><position>3</position><quantity>43504</quantity></Point>\n      <Point><position>4</position><quantity>43207</quantity></Point>\n    </Period>\n  </TimeSeries>\n</GL_MarketDocument>\n"
+  },
+  {
+   "url": "https://web-api.tp.entsoe.eu/api",
+   "params": {
+    "documentType": "A65",
+    "outBiddingZone_Domain": "10Y1001A1001A82H",
+    "periodStart": "202609240000",
+    "periodEnd": "202609240100",
+    "processType": "A01"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "parse": "entsoe",
+   "body_sha256": "dc32934bcc1ad79740869f509a1757fd02ce25de4f4583d057dfc2cc30d30eeb",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\">\n  <mRID>fixture-a65-a01-c41d77</mRID>\n  <revisionNumber>1</revisionNumber>\n  <type>A65</type>\n  <process.processType>A01</process.processType>\n  <sender_MarketParticipant.mRID codingScheme=\"A01\">10X1001A1001A450</sender_MarketParticipant.mRID>\n  <sender_MarketParticipant.marketRole.type>A32</sender_MarketParticipant.marketRole.type>\n  <receiver_MarketParticipant.mRID codingScheme=\"A01\">10X1001A1001A450</receiver_MarketParticipant.mRID>\n  <receiver_MarketParticipant.marketRole.type>A33</receiver_MarketParticipant.marketRole.type>\n  <createdDateTime>2026-09-23T09:45:02Z</createdDateTime>\n  <time_Period.timeInterval>\n    <start>2026-09-24T00:00Z</start>\n    <end>2026-09-24T01:00Z</end>\n  </time_Period.timeInterval>\n  <TimeSeries>\n    <mRID>1</mRID>\n    <businessType>A04</businessType>\n    <objectAggregation>A01</objectAggregation>\n    <outBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</outBiddingZone_Domain.mRID>\n    <quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name>\n    <curveType>A01</curveType>\n    <Period>\n      <timeInterval>\n        <start>2026-09-24T00:00Z</start>\n        <end>2026-09-24T01:00Z</end>\n      </timeInterval>\n      <resolution>PT15M</resolution>\n      <Point><position>1</position><quantity>44100</quantity></Point>\n      <Point><position>2</position><quantity>43800</quantity></Point>\n      <Point><position>3</position><quantity>43450</quantity></Point>\n      <Point><position>4</position><quantity>43100</quantity></Point>\n    </Period>\n  </TimeSeries>\n</GL_MarketDocument>\n"
+  },
+  {
+   "url": "https://web-api.tp.entsoe.eu/api",
+   "params": {
+    "documentType": "A80",
+    "biddingZone_Domain": "10Y1001A1001A82H",
+    "periodStart": "202609240000",
+    "periodEnd": "202609240100"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "parse": "entsoe",
+   "body_sha256": "fd7a3947e35db9dd322415def7eb97ec6b97e0cb64f97f8199c1a5e60e480fdb",
+   "body_base64": "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"
+  }
+ ]
+}

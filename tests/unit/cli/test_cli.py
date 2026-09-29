@@ -506,6 +506,16 @@ def test_serve_dry_run_reports_surface_address_and_auth(capsys, tmp_path, monkey
     assert report["enabled_surfaces"] == ["kb-mcp"]
     assert "not-reported" not in json.dumps(output)
 
+    monkeypatch.delenv("NOESIS_MCP_AUTH_TOKEN")
+    monkeypatch.setenv("NOESIS_MCP_AUTH_TOKENS_FILE", str(tmp_path / "private-callers.json"))
+    code, mapped = _run_json(
+        capsys, "--config", str(config), "serve", "--surface", "kb-mcp",
+        "--transport", "http", "--dry-run", "--json",
+    )
+    assert code == 0
+    assert mapped["data"]["auth"] == "bearer-token"
+    assert str(tmp_path / "private-callers.json") not in json.dumps(mapped)
+
 
 def test_live_mcp_stdio_rejects_json_status_output(capsys, tmp_path):
     config = _init(capsys, tmp_path)

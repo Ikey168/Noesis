@@ -1,0 +1,81 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.decisions",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.decisions",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.decisions",
+      "contract": {
+        "name": "noesis-research-decision",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-decision",
+        "inspect-decision"
+      ],
+      "semantic_constraints": {
+        "method": "explicit criteria and evidence"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "create-decision",
+      "tool": "noesis-knowledge-engine.create_research_decision",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "decisions",
+      "required_scopes": [
+        "knowledge:decisions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-decision",
+      "tool": "noesis-knowledge-engine.inspect_research_decision",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "decisions",
+      "required_scopes": [
+        "knowledge:decisions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "research-decision",
+      "store": "src.kb.decisions",
+      "tables": [
+        "research_decisions",
+        "research_decision_revisions",
+        "decision_sensitivity_receipts",
+        "decision_evidence_commands"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "decisions",
+      "kind": "table-exists",
+      "target": "research_decisions"
+    }
+  ]
+}

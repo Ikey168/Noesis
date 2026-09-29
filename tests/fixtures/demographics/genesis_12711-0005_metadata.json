@@ -1,0 +1,21 @@
+{
+ "Ident": {
+  "Service": "metadata",
+  "Method": "table"
+ },
+ "Status": {
+  "Code": 0,
+  "Content": "erfolgreich",
+  "Type": "Information"
+ },
+ "Parameter": {
+  "name": "12711-0005",
+  "area": "all",
+  "language": "de"
+ },
+ "Object": {
+  "Code": "12711-0005",
+  "Content": "Wanderungen zwischen Deutschland und dem Ausland: Bundesländer, Jahre, Nationalität (authored fixture: fictional values)",
+  "Updated": "10.07.2099 08:00:00h"
+ }
+}

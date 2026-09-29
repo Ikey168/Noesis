@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Authored fixture in the CWE Weakness_Catalog shape; descriptions are paraphrased, not copied. -->
+<Weakness_Catalog xmlns="http://cwe.mitre.org/cwe-7" Name="CWE" Version="4.15" Date="2099-04-01">
+  <Weaknesses>
+    <Weakness ID="20" Name="Improper Input Validation" Abstraction="Class" Structure="Simple" Status="Stable">
+      <Description>Input is not validated before use (authored fixture text).</Description>
+    </Weakness>
+    <Weakness ID="200" Name="Exposure of Sensitive Information to an Unauthorized Actor" Abstraction="Class" Structure="Simple" Status="Draft">
+      <Description>Information reaches an actor who should not see it (authored fixture text).</Description>
+    </Weakness>
+    <Weakness ID="400" Name="Uncontrolled Resource Consumption" Abstraction="Class" Structure="Simple" Status="Draft">
+      <Description>Resources are consumed without limit (authored fixture text).</Description>
+    </Weakness>
+    <Weakness ID="405" Name="Asymmetric Resource Consumption (Amplification)" Abstraction="Class" Structure="Simple" Status="Incomplete">
+      <Description>Small input causes large resource use (authored fixture text).</Description>
+      <Related_Weaknesses>
+        <Related_Weakness Nature="ChildOf" CWE_ID="400" View_ID="1000" Ordinal="Primary"/>
+      </Related_Weaknesses>
+    </Weakness>
+    <Weakness ID="407" Name="Inefficient Algorithmic Complexity" Abstraction="Class" Structure="Simple" Status="Incomplete">
+      <Description>An algorithm has a worst case that can be triggered (authored fixture text).</Description>
+      <Related_Weaknesses>
+        <Related_Weakness Nature="ChildOf" CWE_ID="405" View_ID="1000" Ordinal="Primary"/>
+      </Related_Weaknesses>
+    </Weakness>
+    <Weakness ID="1333" Name="Inefficient Regular Expression Complexity" Abstraction="Base" Structure="Simple" Status="Draft">
+      <Description>A regular expression can take exponential time on crafted input (authored fixture text, revised in 4.15).</Description>
+      <Related_Weaknesses>
+        <Related_Weakness Nature="ChildOf" CWE_ID="407" View_ID="1000" Ordinal="Primary"/>
+        <Related_Weakness Nature="CanPrecede" CWE_ID="400" View_ID="1000"/>
+      </Related_Weaknesses>
+    </Weakness>
+    <Weakness ID="1999" Name="DEPRECATED: Authored Fixture Duplicate Entry" Abstraction="Base" Structure="Simple" Status="Deprecated">
+      <Description>Authored fixture: this entry was deprecated as a duplicate.</Description>
+    </Weakness>
+  </Weaknesses>
+  <Categories>
+    <Category ID="1226" Name="Complexity Issues" Status="Draft">
+      <Summary>Weaknesses related to complexity (authored fixture text).</Summary>
+    </Category>
+  </Categories>
+</Weakness_Catalog>

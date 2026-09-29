@@ -1,0 +1,62 @@
+{
+  "contract": "noesis-market-asof-snapshot-v1",
+  "snapshot_id": "market-asof:1bf9bd40e49c303a0c5405d6b5084582",
+  "namespace": "market:demo",
+  "owner": "analyst:demo",
+  "request_key": "quarter-close-2026q3",
+  "effective_at_ms": 1790208000000,
+  "publicly_available_by_ms": 1790208000000,
+  "acquired_by_ms": 1790208000000,
+  "availability_policy": "public_and_acquired",
+  "gap_policy": "record",
+  "selection": {
+    "listings": [],
+    "prices": [],
+    "actions": [],
+    "financial_facts": [],
+    "economic_snapshots": [
+      {"namespace": "economics:demo", "snapshot_id": "economic-release:demo-q3"}
+    ],
+    "documents": [{"document_id": "doc:issuer:quarterly-filing"}]
+  },
+  "transformation_selectors": [],
+  "inputs": [
+    {
+      "kind": "economic_snapshot",
+      "object_id": "economic-release:demo-q3",
+      "revision_id": "economic-release:demo-q3",
+      "record_hash": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "public_at_ms": null,
+      "release_cutoff_ms": 1790208000000,
+      "public_time_status": "series_release_time_basis_required",
+      "retrieved_at_ms": 1790207000000,
+      "namespace": "economics:demo",
+      "input_observation_ids": ["economic-observation:demo:1"]
+    },
+    {
+      "kind": "document",
+      "object_id": "doc:issuer:quarterly-filing",
+      "revision_id": "document-revision:demo-1",
+      "record_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "content_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "public_at_ms": 1790100000000,
+      "public_time_basis": "payload.public_at_ms",
+      "retrieved_at_ms": 1790190000000,
+      "lifecycle": "active",
+      "generation": 0
+    }
+  ],
+  "transformations": [],
+  "gaps": [],
+  "coverage": {
+    "status": "complete",
+    "selected_by_kind": {"document": 1, "economic_snapshot": 1},
+    "gap_count": 0,
+    "availability_policy": "public_and_acquired",
+    "unproven_price_ranges": []
+  },
+  "input_hash": "dddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd",
+  "created_at_ms": 1790210000000,
+  "request_hash": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+  "manifest_hash": "ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
+}

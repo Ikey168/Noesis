@@ -591,7 +591,7 @@ def test_schedules_reject_overlap_and_report_runtime_coverage(setup):
     )
     coverage = runtime.runtime_coverage()
     assert coverage["domains"]["research"] == {
-        "configured": 5,
+        "configured": 10,
         "ready": 1,
         "attempted": 1,
         "completed": 1,
@@ -621,23 +621,31 @@ def test_six_domain_offline_execution(setup):
         selected = manifest["sources"][0]
         accept(runtime, manifest, selected)
         fixture = json.loads((ROOT / selected["fixture"]["path"]).read_text())
+        if fixture.get("native_pages"):
+            # Native captures (WFS/GeoJSON) replay through the real adapter.
+            adapter = runtime.fixture_adapters(manifest["pack_id"], ROOT)[selected["source_id"]]
+        else:
+            adapter = FixturePageAdapter(selected, [fixture["normalized"]])
         result = runtime.run(
             request(manifest, selected, key=f"six:{manifest['pack_id']}"),
             principal_id="operator",
-            adapters={
-                selected["source_id"]: FixturePageAdapter(
-                    selected, [fixture["normalized"]]
-                )
-            },
+            adapters={selected["source_id"]: adapter},
             secret_resolver=lambda _: "fixture-credential",
             dns_resolver=lambda _: ["8.8.8.8"],
         )
         assert result["watermark"] == 1
         completed.update(manifest["domains"])
     assert completed == {
+        "clinical",
+        "corporate-ownership",
         "economic",
+        "geospatial",
+        "legal",
+        "onchain",
         "osint",
         "political",
+        "procurement",
+        "products",
         "research",
         "scientific",
         "technical",
