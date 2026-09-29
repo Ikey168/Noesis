@@ -196,6 +196,7 @@ def classify_statement(
         "confidence": 0.8 if matches else 0.55,
         "uncertainty": 0.2 if matches else 0.45,
         "signals": matches or ["unmarked-assertion"],
+        "truth_verified": False,
         "classifier": {
             "kind": "rules",
             "name": "noesis-epistemic-rules",
@@ -215,18 +216,66 @@ def classify_statement(
             raise EpistemicError(
                 "invalid_classification", "classifier returned an unknown status"
             )
-        confidence = min(1.0, max(0.0, float(model.get("confidence", 0.0))))
+        try:
+            raw_confidence = model.get("confidence", 0.0)
+            vendor_confidence = model.get("vendor_confidence")
+            if type(raw_confidence) not in {int, float} or (
+                vendor_confidence is not None
+                and type(vendor_confidence) not in {int, float}
+            ):
+                raise TypeError("probabilities must be numeric, not boolean or text")
+            confidence = float(raw_confidence)
+            vendor_confidence = (
+                float(vendor_confidence)
+                if vendor_confidence is not None
+                else None
+            )
+        except (TypeError, ValueError) as exc:
+            raise EpistemicError(
+                "invalid_classification", "classifier probabilities must be finite numbers from 0 to 1"
+            ) from exc
+        if (
+            not math.isfinite(confidence)
+            or not 0.0 <= confidence <= 1.0
+            or vendor_confidence is not None
+            and (not math.isfinite(vendor_confidence) or not 0.0 <= vendor_confidence <= 1.0)
+        ):
+            raise EpistemicError(
+                "invalid_classification", "classifier probabilities must be finite numbers from 0 to 1"
+            )
         result = {
             "status": status,
             "confidence": confidence,
             "uncertainty": round(1.0 - confidence, 6),
             "signals": list(model.get("signals") or []),
+            "truth_verified": False,
             "classifier": {"kind": "model", **pin},
             "rule_fallback": {
                 "status": rule_status,
                 "signals": matches or ["unmarked-assertion"],
             },
         }
+        if "selected_probability" in model:
+            try:
+                raw_selected = model["selected_probability"]
+                if type(raw_selected) not in {int, float}:
+                    raise TypeError("probability must be numeric, not boolean or text")
+                selected = float(raw_selected)
+            except (TypeError, ValueError) as exc:
+                raise EpistemicError(
+                    "invalid_classification", "selected-label probability must match classifier confidence"
+                ) from exc
+            if not math.isfinite(selected) or not 0.0 <= selected <= 1.0 or selected != confidence:
+                raise EpistemicError(
+                    "invalid_classification", "selected-label probability must match classifier confidence"
+                )
+            result["selected_probability"] = selected
+        if vendor_confidence is not None:
+            result["vendor_confidence"] = vendor_confidence
+        if "decision_run" in model:
+            result["decision_run"] = model["decision_run"]
+        if "availability" in model:
+            result["availability"] = model["availability"]
     return result
 
 

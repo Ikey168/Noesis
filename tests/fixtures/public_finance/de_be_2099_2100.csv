@@ -1,0 +1,9 @@
+# Haushaltsplan von Berlin 2099/2100 (authored fixture: fictional Kapitel and Titel)
+# Stand: 10.01.2099
+# Betragsangaben in EUR
+Typ;Bezeichnung;Bereich;Bereichsbezeichnung;Einzelplan;Einzelplanbezeichnung;Kapitel;Kapitelbezeichnung;Titel;Titelbezeichnung;Titelart;Jahr;BetragTyp;Betrag
+1;Beispielhaushalt;30;Hauptverwaltung;98;Beispielverwaltung (fiktiv);9810;Beispielprogramme;68406;Zuschüsse an Beispielvereine;Ausgabetitel;2099;Soll;2.500.000
+1;Beispielhaushalt;30;Hauptverwaltung;98;Beispielverwaltung (fiktiv);9810;Beispielprogramme;68406;Zuschüsse an Beispielvereine;Ausgabetitel;2100;Soll;2.600.000
+1;Beispielhaushalt;31;Mitte;37;Bezirk Mitte;3710;Beispielschulen (fiktiv);51901;Unterhaltung der Beispielgebäude;Ausgabetitel;2099;Soll;800.000
+1;Beispielhaushalt;31;Mitte;37;Bezirk Mitte;3710;Beispielschulen (fiktiv);51901;Unterhaltung der Beispielgebäude;Ausgabetitel;2099;Ist;765.432,10
+1;Beispielhaushalt;32;Friedrichshain-Kreuzberg;38;Bezirk Friedrichshain-Kreuzberg;3810;Beispielschulen (fiktiv);51901;Unterhaltung der Beispielgebäude;Ausgabetitel;2099;Soll;650.000

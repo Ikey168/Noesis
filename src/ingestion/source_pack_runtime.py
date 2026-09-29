@@ -25,6 +25,7 @@ from src.ingestion.source_packs import (
     SUPPORTED_CONNECTORS,
     SourcePackConformance,
     SourcePackError,
+    SourcePackStore,
     _canonical,
     _contains_secret,
     _digest,
@@ -68,6 +69,173 @@ SAFE_ERROR_CODES = frozenset(
         "source_unavailable",
     }
 )
+
+def _geospatial_projector(conn: Any) -> Any:
+    from src.kb.geospatial_features import GeospatialFeatureProjector
+
+    return GeospatialFeatureProjector(conn)
+
+
+def _product_projector(conn: Any) -> Any:
+    from src.kb.products import ProductProjector
+
+    return ProductProjector(conn)
+
+
+def _legal_projector(conn: Any) -> Any:
+    from src.kb.legal import LegalProjector
+
+    return LegalProjector(conn)
+
+
+def _cultural_projector(conn: Any) -> Any:
+    from src.kb.cultural import CulturalProjector
+
+    return CulturalProjector(conn)
+
+
+def _patent_projector(conn: Any) -> Any:
+    from src.kb.patents import PatentProjector
+
+    return PatentProjector(conn)
+
+
+def _lei_projector(conn: Any) -> Any:
+    from src.kb.lei import LeiProjector
+
+    return LeiProjector(conn)
+
+
+def _standards_projector(conn: Any) -> Any:
+    from src.kb.standards import StandardsProjector
+
+    return StandardsProjector(conn)
+
+
+def _transit_projector(conn: Any) -> Any:
+    from src.kb.transit import TransitProjector
+
+    return TransitProjector(conn)
+
+
+def _math_projector(conn: Any) -> Any:
+    from src.kb.mathematics import MathProjector
+
+    return MathProjector(conn)
+
+
+def _clinical_projector(conn: Any) -> Any:
+    from src.kb.clinical_records import ClinicalProjector
+
+    return ClinicalProjector(conn)
+
+
+def _ownership_projector(conn: Any) -> Any:
+    from src.kb.ownership_store import OwnershipProjector
+
+    return OwnershipProjector(conn)
+
+
+def _procurement_projector(conn: Any) -> Any:
+    from src.kb.procurement_notices import ProcurementProjector
+
+    return ProcurementProjector(conn)
+
+
+def _environment_projector(conn: Any) -> Any:
+    from src.kb.environment_store import EnvironmentProjector
+
+    return EnvironmentProjector(conn)
+
+
+def _sanctions_projector(conn: Any) -> Any:
+    from src.kb.sanctions import SanctionsProjector
+
+    return SanctionsProjector(conn)
+
+
+def _lobbying_projector(conn: Any) -> Any:
+    from src.kb.lobbying import LobbyingProjector
+
+    return LobbyingProjector(conn)
+
+
+def _election_projector(conn: Any) -> Any:
+    from src.kb.elections import ElectionProjector
+
+    return ElectionProjector(conn)
+
+
+def _public_finance_projector(conn: Any) -> Any:
+    from src.kb.public_finance import PublicFinanceProjector
+
+    return PublicFinanceProjector(conn)
+
+
+def _demographic_projector(conn: Any) -> Any:
+    from src.kb.demographics import DemographicProjector
+
+    return DemographicProjector(conn)
+
+
+def _housing_projector(conn: Any) -> Any:
+    from src.kb.housing import HousingProjector
+
+    return HousingProjector(conn)
+
+
+def _surveillance_projector(conn: Any) -> Any:
+    from src.kb.surveillance import SurveillanceProjector
+
+    return SurveillanceProjector(conn)
+
+
+def _product_safety_projector(conn: Any) -> Any:
+    from src.kb.product_safety import ProductSafetyProjector
+
+    return ProductSafetyProjector(conn)
+
+
+def _development_finance_projector(conn: Any) -> Any:
+    from src.kb.development_finance import DevelopmentFinanceProjector
+
+    return DevelopmentFinanceProjector(conn)
+
+
+def _vulnerability_projector(conn: Any) -> Any:
+    from src.kb.vulnerabilities import VulnerabilityProjector
+
+    return VulnerabilityProjector(conn)
+
+
+# Mapping target schemas whose records are also projected into a domain store.
+# A projector receives each committed page before its checkpoint advances and
+# the source outcome afterwards, so replayed pages must project idempotently.
+PROJECTORS: dict[str, Callable[[Any], Any]] = {
+    "noesis-geospatial-feature-v1": _geospatial_projector,
+    "noesis-product-record-v1": _product_projector,
+    "noesis-product-safety-notice-v1": _product_safety_projector,
+    "noesis-legal-record-v1": _legal_projector,
+    "noesis-cultural-object-v1": _cultural_projector,
+    "noesis-patent-part-v1": _patent_projector,
+    "noesis-lei-part-v1": _lei_projector,
+    "noesis-standard-catalogue-v1": _standards_projector,
+    "noesis-transit-feed-v1": _transit_projector,
+    "noesis-math-record-v1": _math_projector,
+    "noesis-clinical-record-v1": _clinical_projector,
+    "noesis-ownership-part-v1": _ownership_projector,
+    "noesis-procurement-record-v1": _procurement_projector,
+    "noesis-environment-record-v1": _environment_projector,
+    "noesis-sanctions-record-v1": _sanctions_projector,
+    "noesis-vulnerability-record-v1": _vulnerability_projector,
+    "noesis-lobbying-record-v1": _lobbying_projector,
+    "noesis-election-record-v1": _election_projector,
+    "noesis-public-finance-record-v1": _public_finance_projector,
+    "noesis-demographic-series-v1": _demographic_projector,
+    "noesis-development-finance-record-v1": _development_finance_projector,
+    "noesis-housing-record-v1": _housing_projector,
+    "noesis-surveillance-record-v1": _surveillance_projector,
+}
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
@@ -122,7 +290,88 @@ CREATE TABLE IF NOT EXISTS source_pack_schedules (
   next_run_at_ms BIGINT NOT NULL, last_run_id TEXT, updated_by TEXT NOT NULL,
   updated_at_ms BIGINT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS source_pack_schedule_owners (
+  pack_id TEXT NOT NULL, owner TEXT NOT NULL, added_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(pack_id,owner)
+);
+CREATE TABLE IF NOT EXISTS source_pack_shared_runs (
+  dedup_key TEXT PRIMARY KEY, run_id TEXT NOT NULL, pack_id TEXT NOT NULL,
+  context_hash TEXT NOT NULL, created_at_ms BIGINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS source_pack_run_consumers (
+  dedup_key TEXT NOT NULL, consumer TEXT NOT NULL, run_id TEXT NOT NULL,
+  receipt_hash TEXT, joined_at_ms BIGINT NOT NULL, PRIMARY KEY(dedup_key,consumer)
+);
+CREATE TABLE IF NOT EXISTS source_pack_account_limits (
+  account TEXT PRIMARY KEY, window_ms BIGINT NOT NULL, max_results BIGINT NOT NULL,
+  max_pages BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS source_pack_account_usage (
+  account TEXT NOT NULL, run_id TEXT NOT NULL, results BIGINT NOT NULL,
+  pages BIGINT NOT NULL, at_ms BIGINT NOT NULL, PRIMARY KEY(account,run_id)
+);
 """
+
+SHARED_RUN_CONTRACT = "noesis-source-pack-shared-run-v1"
+AGGREGATE_BLOCKER = "aggregate_limit_exhausted"
+
+
+def claim_schedule_owner(conn: Any, pack_id: str, owner: str, *, now_ms: int) -> list[str]:
+    """Record ``owner`` as an owner of a source-pack schedule (C06.2).
+
+    A schedule created without owners belongs to the legacy path; the first
+    explicit claim records that legacy owner too, so releasing composition
+    owners can never delete a schedule the legacy path still owns.
+    """
+
+    ensure_runtime_schema(conn)
+    row = conn.execute(
+        "SELECT updated_by FROM source_pack_schedules WHERE pack_id=?", [pack_id]
+    ).fetchone()
+    if not row:
+        raise SourcePackError("not_found", "source pack has no schedule")
+    owners = schedule_owners(conn, pack_id)
+    if not owners:
+        conn.execute(
+            "INSERT INTO source_pack_schedule_owners VALUES (?,?,?) ON CONFLICT DO NOTHING",
+            [pack_id, f"legacy:{row[0]}", now_ms],
+        )
+    conn.execute(
+        "INSERT INTO source_pack_schedule_owners VALUES (?,?,?) ON CONFLICT DO NOTHING",
+        [pack_id, owner, now_ms],
+    )
+    return schedule_owners(conn, pack_id)
+
+
+def schedule_owners(conn: Any, pack_id: str) -> list[str]:
+    ensure_runtime_schema(conn)
+    return [
+        row[0]
+        for row in conn.execute(
+            "SELECT owner FROM source_pack_schedule_owners WHERE pack_id=? ORDER BY owner",
+            [pack_id],
+        ).fetchall()
+    ]
+
+
+def release_schedule_owner(conn: Any, pack_id: str, owner: str) -> dict[str, Any]:
+    """Release one owner; the schedule is removed only when no owner remains.
+
+    Schedules with no recorded owners (legacy) are never removed here.
+    """
+
+    ensure_runtime_schema(conn)
+    before = schedule_owners(conn, pack_id)
+    if owner not in before:
+        return {"pack_id": pack_id, "released": False, "owners": before, "schedule_removed": False}
+    conn.execute(
+        "DELETE FROM source_pack_schedule_owners WHERE pack_id=? AND owner=?", [pack_id, owner]
+    )
+    remaining = schedule_owners(conn, pack_id)
+    if not remaining:
+        conn.execute("DELETE FROM source_pack_schedules WHERE pack_id=?", [pack_id])
+    return {"pack_id": pack_id, "released": True, "owners": remaining,
+            "schedule_removed": not remaining}
 
 
 def ensure_runtime_schema(conn: Any) -> None:
@@ -661,7 +910,19 @@ class RuntimeAdapterFactory:
     def __init__(
         self, builders: Mapping[str, Callable[..., RuntimeSourceAdapter]] | None = None
     ) -> None:
-        self.builders = {kind: HTTPSPageAdapter for kind in SUPPORTED_CONNECTORS}
+        from src.ingestion.geojson_features import GeoJsonFeatureAdapter
+        from src.ingestion.source_packs import (
+            NATIVE_CONNECTOR_MODULES,
+            native_connector_module,
+        )
+        from src.ingestion.wfs_api import WfsFeatureAdapter
+
+        self.builders: dict[str, Callable[..., Any]] = {
+            kind: HTTPSPageAdapter for kind in SUPPORTED_CONNECTORS
+        }
+        self.builders.update({"geojson": GeoJsonFeatureAdapter, "wfs": WfsFeatureAdapter})
+        for connector in NATIVE_CONNECTOR_MODULES:
+            self.builders[connector] = native_connector_module(connector).ADAPTERS[connector]
         self.builders.update(dict(builders or {}))
 
     def compile(
@@ -683,7 +944,7 @@ class RuntimeAdapterFactory:
                 "manifest_drift", "source declaration changed after installation"
             )
         builder = self.builders[kind]
-        if builder is HTTPSPageAdapter:
+        if builder is HTTPSPageAdapter or getattr(builder, "accepts_transport", False):
             return builder(source, transport=transport, secret=secret)
         return builder(source)
 
@@ -709,6 +970,7 @@ class SourcePackRuntime:
             ensure_runtime_schema(conn)
         self.documents = document_store or (DocumentStore(conn) if initialize else None)
         self._cancel: dict[str, threading.Event] = {}
+        self.projectors: dict[str, Any] = {}
 
     def _manifest(self, pack_id: str) -> tuple[dict[str, Any], bool]:
         row = self.conn.execute(
@@ -718,6 +980,36 @@ class SourcePackRuntime:
         if not row:
             raise SourcePackError("not_found", "source pack is not installed")
         return _load(row[1], {}), bool(row[0])
+
+    def release_stale_checkpoint(
+        self, pack_id: str, source_id: str, *, principal_id: str
+    ) -> dict[str, Any]:
+        """Drop a checkpoint left by a superseded pack generation (audited).
+
+        A changed manifest (for example a narrowed selection) must start its
+        cursor afresh; checkpoints of the installed generation are never touched.
+        """
+
+        manifest, _ = self._manifest(pack_id)
+        row = self.conn.execute(
+            "SELECT pack_version,manifest_hash,cursor FROM source_pack_checkpoints WHERE pack_id=? AND source_id=?",
+            [pack_id, source_id],
+        ).fetchone()
+        if row is None:
+            return {"released": False, "reason": "no_checkpoint"}
+        if row[0] == manifest["version"] and row[1] == manifest["manifest_hash"]:
+            raise SourcePackError(
+                "checkpoint_current", "checkpoint belongs to the installed generation"
+            )
+        self.conn.execute(
+            "DELETE FROM source_pack_checkpoints WHERE pack_id=? AND source_id=?",
+            [pack_id, source_id],
+        )
+        detail = {"source_id": source_id, "released_version": row[0], "released_manifest_hash": row[1]}
+        SourcePackStore(self.conn, initialize=False)._audit(
+            pack_id, principal_id, "release_stale_checkpoint", detail, self.now()
+        )
+        return {"released": True, **detail}
 
     def accept_license(
         self,
@@ -887,15 +1179,44 @@ class SourcePackRuntime:
     ) -> dict[str, RuntimeSourceAdapter]:
         """Compile pinned pack fixtures into deterministic, network-free adapters."""
 
+        from src.ingestion.source_packs import (
+            NATIVE_CONNECTOR_MODULES,
+            native_connector_module,
+        )
+
         manifest, _ = self._manifest(pack_id)
         conformance = SourcePackConformance(root)
-        result = {}
+        result: dict[str, RuntimeSourceAdapter] = {}
         for source in manifest["sources"]:
             fixture = conformance._fixture(source)  # validated path and content hash
+            if fixture.get("native_pages") and source["connector"] in {"wfs", "geojson"}:
+                # Replay captured native envelopes through the real adapter.
+                from src.ingestion.wfs_api import fixture_transport
+
+                result[source["source_id"]] = self.factory.compile(
+                    source, transport=fixture_transport(fixture["native_pages"])
+                )
+                continue
+            if fixture.get("native_pages") and source["connector"] in NATIVE_CONNECTOR_MODULES:
+                module = native_connector_module(source["connector"])
+                result[source["source_id"]] = self.factory.compile(
+                    source, transport=module.fixture_transport(fixture["native_pages"]),
+                    secret=module.FIXTURE_SECRET,
+                )
+                continue
             result[source["source_id"]] = FixturePageAdapter(
                 source, [list(fixture.get("normalized") or [])]
             )
         return result
+
+    def _projector(self, source: Mapping[str, Any]) -> Any:
+        """Durable projection for mappings that own a store beyond documents."""
+
+        schema = str(dict(source.get("mapping") or {}).get("target_schema") or "")
+        if schema not in self.projectors:
+            factory = PROJECTORS.get(schema)
+            self.projectors[schema] = factory(self.conn) if factory else None
+        return self.projectors[schema]
 
     def _normalize(
         self,
@@ -907,6 +1228,12 @@ class SourcePackRuntime:
         observed_at_ms: int,
     ) -> dict[str, Any]:
         record = _redact(record)
+        if record.get("rejection"):
+            # Decoders report features without stable identity or supported
+            # geometry explicitly; they are quarantined, never dropped.
+            raise SourcePackError(
+                "mapping_failed", str(dict(record["rejection"]).get("code") or "rejected")
+            )
         raw_id = (
             record.get("document_id")
             or record.get("id")
@@ -1411,6 +1738,19 @@ class SourcePackRuntime:
                                 self.now(),
                             )
                             counts["quarantined"] += 1
+                    projector = self._projector(source)
+                    if projector is not None:
+                        # Before the checkpoint: a crash replays this page and
+                        # the projector deduplicates by source revision.
+                        projector.project_page(
+                            run_id=run_id,
+                            manifest=manifest,
+                            source=source,
+                            records=page.records,
+                            documents=documents,
+                            page_receipt=dict(page.receipt or {}),
+                            principal_id=principal_id,
+                        )
                     chain = _digest(
                         [chain, [_digest(record) for record in page.records]]
                     )
@@ -1467,6 +1807,18 @@ class SourcePackRuntime:
                 circuit = self._circuit(
                     manifest["pack_id"], source["source_id"], source_error, self.now()
                 )
+                projector = self._projector(source)
+                projection = (
+                    None
+                    if projector is None
+                    else projector.finish_source(
+                        run_id=run_id,
+                        manifest=manifest,
+                        source=source,
+                        status=status,
+                        principal_id=principal_id,
+                    )
+                )
                 receipt = {
                     "source_id": source["source_id"],
                     "status": status,
@@ -1482,6 +1834,7 @@ class SourcePackRuntime:
                     "retries": retries,
                     "circuit": circuit,
                     "adapter": description,
+                    **({"projection": projection} if projection is not None else {}),
                 }
                 source_receipts.append(receipt)
                 if source_error:
@@ -1937,6 +2290,184 @@ class SourcePackRuntime:
             "at_ms": at,
             "schedules": items,
         }
+
+    def set_schedule_owned(
+        self,
+        pack_id: str,
+        schedule: Mapping[str, Any],
+        *,
+        principal_id: str,
+        owner: str,
+        enabled: bool = True,
+    ) -> dict[str, Any]:
+        """Create or update a schedule owned by ``owner`` (a pack or composition root)."""
+
+        result = self.set_schedule(
+            pack_id, schedule, principal_id=principal_id, enabled=enabled
+        )
+        self.conn.execute(
+            "INSERT INTO source_pack_schedule_owners VALUES (?,?,?) ON CONFLICT DO NOTHING",
+            [pack_id, owner, self.now()],
+        )
+        return {**result, "owners": schedule_owners(self.conn, pack_id)}
+
+    # ------------------------------------------------------------ C06.3 / C06.4
+
+    def set_account_limit(
+        self, account: str, *, max_results: int, max_pages: int, window_ms: int
+    ) -> dict[str, Any]:
+        """Aggregate ceiling for one provider account across every consumer's runs."""
+
+        if min(max_results, max_pages, window_ms) < 1:
+            raise SourcePackError("invalid_limit", "account limits must be positive")
+        self.conn.execute(
+            "INSERT OR REPLACE INTO source_pack_account_limits VALUES (?,?,?,?,?)",
+            [account, int(window_ms), int(max_results), int(max_pages), self.now()],
+        )
+        return self.account_status(account)
+
+    def account_status(self, account: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT window_ms,max_results,max_pages FROM source_pack_account_limits WHERE account=?",
+            [account],
+        ).fetchone()
+        if not row:
+            return {"account": account, "limited": False, "exhausted": False}
+        since = self.now() - int(row[0])
+        used = self.conn.execute(
+            "SELECT COALESCE(SUM(results),0),COALESCE(SUM(pages),0) FROM source_pack_account_usage "
+            "WHERE account=? AND at_ms>=?",
+            [account, since],
+        ).fetchone()
+        remaining = {"results": max(int(row[1]) - int(used[0]), 0),
+                     "pages": max(int(row[2]) - int(used[1]), 0)}
+        return {"account": account, "limited": True, "window_ms": int(row[0]),
+                "limit": {"results": int(row[1]), "pages": int(row[2])},
+                "used": {"results": int(used[0]), "pages": int(used[1])},
+                "remaining": remaining,
+                "exhausted": remaining["results"] == 0 or remaining["pages"] == 0}
+
+    def dedup_key(
+        self,
+        request: Mapping[str, Any],
+        *,
+        context: Mapping[str, Any],
+        mapping_version: str | None = None,
+    ) -> str:
+        """Source version + query + namespace/access context + mapping (C06.3)."""
+
+        normalized = validate_run_request({**request, "run_key": "dedup"})
+        manifest, _ = self._manifest(normalized["pack_id"])
+        selected = [
+            source for source in manifest["sources"]
+            if not normalized["source_ids"] or source["source_id"] in normalized["source_ids"]
+        ]
+        mapping = mapping_version or [
+            [source["source_id"], source.get("mapping")] for source in selected
+        ]
+        return _digest({
+            "source": [manifest["pack_id"], manifest["version"], manifest["manifest_hash"]],
+            "query": {key: normalized[key] for key in
+                      ("operation", "mode", "source_ids", "parameters", "backfill", "network")},
+            "context": dict(context),
+            "mapping": mapping,
+        })
+
+    def run_shared(
+        self,
+        request: Mapping[str, Any],
+        *,
+        consumer: str,
+        context: Mapping[str, Any],
+        principal_id: str,
+        account: str | None = None,
+        mapping_version: str | None = None,
+        **run_options: Any,
+    ) -> dict[str, Any]:
+        """Run an acquisition once per deduplication key and share it across consumers.
+
+        A second consumer with the same key joins the existing run and gets a
+        reference to the same receipt: no second acquisition, no duplicate
+        ledger. Different access contexts or mappings never share a run. The
+        per-run budget stays authoritative; an account's aggregate limit is an
+        additional ceiling and its exhaustion is a distinct blocker.
+        """
+
+        key = self.dedup_key(request, context=context, mapping_version=mapping_version)
+        now = self.now()
+        existing = self.conn.execute(
+            "SELECT run_id FROM source_pack_shared_runs WHERE dedup_key=?", [key]
+        ).fetchone()
+        if existing:
+            receipt = _load(self.conn.execute(
+                "SELECT receipt_json FROM source_pack_runs WHERE run_id=?", [existing[0]]
+            ).fetchone()[0], {})
+            self.conn.execute(
+                "INSERT INTO source_pack_run_consumers VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+                [key, consumer, existing[0], receipt.get("receipt_hash"), now],
+            )
+            return self._shared_result(key, consumer, existing[0], receipt, joined=True,
+                                       account=account)
+        budgets = {}
+        if account:
+            status = self.account_status(account)
+            if status["exhausted"]:
+                return {"contract": SHARED_RUN_CONTRACT, "dedup_key": key, "consumer": consumer,
+                        "status": "blocked", "run_id": None, "receipt_ref": None,
+                        "blocker": {"kind": AGGREGATE_BLOCKER,
+                                    "detail": f"aggregate limit for account {account} is exhausted"},
+                        "aggregate": status}
+            if status["limited"]:
+                normalized = validate_run_request({**request, "run_key": "budget"})
+                budgets = {
+                    "max_results": min(normalized["budgets"]["max_results"],
+                                       status["remaining"]["results"]),
+                    "max_pages": min(normalized["budgets"]["max_pages"],
+                                     status["remaining"]["pages"]),
+                }
+        receipt = self.run(
+            {**request, **budgets, "run_key": "shared:" + key[:32]},
+            principal_id=principal_id,
+            **run_options,
+        )
+        run_id = receipt["replay"]["run_id"]
+        self.conn.execute(
+            "INSERT INTO source_pack_shared_runs VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+            [key, run_id, receipt.get("pack_id") or request["pack_id"], _digest(dict(context)), now],
+        )
+        self.conn.execute(
+            "INSERT INTO source_pack_run_consumers VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+            [key, consumer, run_id, receipt.get("receipt_hash"), now],
+        )
+        if account:
+            fetched = sum(item["counts"]["fetched"] for item in receipt.get("sources") or [])
+            pages = sum(item["counts"]["pages"] for item in receipt.get("sources") or [])
+            self.conn.execute(
+                "INSERT INTO source_pack_account_usage VALUES (?,?,?,?,?) ON CONFLICT DO NOTHING",
+                [account, run_id, fetched, pages, now],
+            )
+        return self._shared_result(key, consumer, run_id, receipt, joined=False, account=account,
+                                   clamped=budgets)
+
+    def _shared_result(self, key, consumer, run_id, receipt, *, joined, account, clamped=None):
+        consumers = [row[0] for row in self.conn.execute(
+            "SELECT consumer FROM source_pack_run_consumers WHERE dedup_key=? ORDER BY consumer", [key]
+        ).fetchall()]
+        per_run = [
+            {"source_id": item["source_id"], "code": (item.get("failure") or {}).get("code")}
+            for item in receipt.get("sources") or []
+            if (item.get("failure") or {}).get("code") == "budget_exhausted"
+        ]
+        result = {"contract": SHARED_RUN_CONTRACT, "dedup_key": key, "consumer": consumer,
+                  "status": receipt.get("status"), "run_id": run_id, "joined": joined,
+                  "receipt_ref": {"run_id": run_id, "receipt_hash": receipt.get("receipt_hash")},
+                  "consumers": consumers, "blocker": None,
+                  "per_run_budget_blockers": per_run}
+        if account:
+            result["aggregate"] = self.account_status(account)
+            if clamped:
+                result["aggregate"]["clamped_budgets"] = clamped
+        return result
 
     def runtime_coverage(self) -> dict[str, Any]:
         domains: dict[str, dict[str, int]] = {}

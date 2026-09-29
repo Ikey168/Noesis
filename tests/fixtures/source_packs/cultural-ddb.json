@@ -1,0 +1,164 @@
+{
+ "authored": true,
+ "note": "Authored envelopes for fictional Berlin collection records in the documented DDB Solr and Europeana Search API v2 shapes; not provider captures.",
+ "provider": "Deutsche Digitale Bibliothek",
+ "native_pages": [
+  {
+   "page": 0,
+   "status": 200,
+   "body": {
+    "responseHeader": {
+     "status": 0
+    },
+    "response": {
+     "numFound": 4,
+     "start": 0,
+     "docs": [
+      {
+       "id": "FIXTUREDDBA000000000000000000001",
+       "label": "Brandenburger Tor, Ansicht von Osten (fiktiv)",
+       "provider_fct": "Landesarchiv Berlin (fiktiv)",
+       "provider_id": "FIXPROV01",
+       "type_fct": "Fotografie",
+       "place_fct": [
+        "Berlin"
+       ],
+       "time_fct": [
+        "1910"
+       ],
+       "latitude": 52.5163,
+       "longitude": 13.3777,
+       "license": "http://creativecommons.org/publicdomain/mark/1.0/",
+       "language_fct": [
+        "ger"
+       ],
+       "keywords_fct": [
+        "Stadtansicht",
+        "Brandenburger Tor"
+       ],
+       "collection_fct": [
+        "Fotosammlung",
+        "Stadtansichten"
+       ],
+       "creator_fct": [
+        "Unbekannter Fotograf"
+       ],
+       "preview": "https://iiif.example-ddb.de/fixture/A/preview.jpg",
+       "last_update": "2026-05-01"
+      },
+      {
+       "id": "FIXTUREDDBB000000000000000000002",
+       "label": "Stadtplan von Berlin-Mitte (fiktiv)",
+       "provider_fct": "Landesarchiv Berlin (fiktiv)",
+       "provider_id": "FIXPROV01",
+       "type_fct": "Karte",
+       "place_fct": [
+        "Mitte"
+       ],
+       "time_fct": [
+        "1898-1902"
+       ],
+       "license": "http://rightsstatements.org/vocab/InC/1.0/",
+       "language_fct": [
+        "ger"
+       ],
+       "keywords_fct": [
+        "Stadtplan"
+       ],
+       "collection_fct": [
+        "Kartensammlung"
+       ],
+       "preview": "https://iiif.example-ddb.de/fixture/B/preview.jpg"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "page": 2,
+   "status": 200,
+   "body": {
+    "responseHeader": {
+     "status": 0
+    },
+    "response": {
+     "numFound": 4,
+     "start": 2,
+     "docs": [
+      {
+       "id": "FIXTUREDDBA000000000000000000001",
+       "label": "Brandenburger Tor, Ansicht von Osten (fiktiv)",
+       "provider_fct": "Landesarchiv Berlin (fiktiv)",
+       "provider_id": "FIXPROV01",
+       "type_fct": "Fotografie",
+       "place_fct": [
+        "Berlin"
+       ],
+       "time_fct": [
+        "1910"
+       ],
+       "latitude": 52.5163,
+       "longitude": 13.3777,
+       "license": "http://creativecommons.org/publicdomain/mark/1.0/",
+       "language_fct": [
+        "ger"
+       ]
+      },
+      {
+       "id": "FIXTUREDDBC000000000000000000003",
+       "label": "Plakat: Große Berliner Kunstausstellung (fiktiv)",
+       "provider_fct": "Stadtmuseum (fiktiv)",
+       "provider_id": "FIXPROV02",
+       "type_fct": "Plakat",
+       "place_fct": [
+        "Berlin",
+        "Kreuzberg"
+       ],
+       "time_fct": [
+        "1925",
+        "um 1926"
+       ],
+       "language_fct": [
+        "ger"
+       ],
+       "keywords_fct": [
+        "Ausstellung"
+       ]
+      },
+      {
+       "id": "FIXTUREDDBD000000000000000000004",
+       "label": "Postkarte Alexanderplatz (fiktiv)",
+       "provider_fct": "Stadtmuseum (fiktiv)",
+       "provider_id": "FIXPROV02",
+       "type_fct": "Postkarte",
+       "place_fct": [
+        "Berlin"
+       ],
+       "time_fct": [
+        "1929"
+       ],
+       "latitude": 52.5219,
+       "longitude": 13.4132,
+       "license": "http://creativecommons.org/licenses/by-nc/4.0/",
+       "language_fct": [
+        "ger"
+       ],
+       "preview": "https://iiif.example-ddb.de/fixture/D/preview.jpg",
+       "digitalisat_url": "https://iiif.example-ddb.de/fixture/D/full.tif"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "scenarios": [
+  "public-domain-with-coordinates",
+  "in-copyright",
+  "missing-rights",
+  "non-commercial",
+  "name-only-place",
+  "date-range",
+  "conflicting-dates",
+  "duplicate-across-pages"
+ ]
+}

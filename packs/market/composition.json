@@ -1,0 +1,53 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "market.instruments",
+        "provider": "market.core",
+        "contract": {
+          "name": "noesis-market-instrument",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "market.legal-entities",
+        "provider": "market.lei",
+        "contract": {
+          "name": "noesis-lei-part",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "market.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "market.lei",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "economic-statistics-and-filings",
+        "version": "1.1.0",
+        "range": "^1.1.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "market.instruments",
+      "contract": "noesis-market-instrument",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "market.legal-entities",
+      "contract": "noesis-lei-part",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ]
+}

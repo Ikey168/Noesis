@@ -354,10 +354,14 @@ domains:
     )
     payload = response["data"]
     assert payload["answer_status"] == "partial"
+    # A paper passage is a source statement, not a validated claim, so its
+    # verdict stays unverifiable and both partial reasons are reported.
     assert payload["partial_reasons"] == [
-        "paper_passages_are_source_statements_not_validated_claims"
+        "paper_passages_are_source_statements_not_validated_claims",
+        "one_or_more_statements_unverifiable",
     ]
     statement = payload["statements"][0]
+    assert statement["verdict"] == "unverifiable"
     assert statement["text"] == "The BIOS-3 experiments observed elevated carbon dioxide in the crew compartment."
     assert statement["supporting_evidence"][0]["document_id"] == "paper:bios3"
     assert statement["supporting_evidence"][0]["excerpt"] == statement["text"]
@@ -365,6 +369,69 @@ domains:
     assert evaluation["passed"] is True, evaluation["violations"]
     bundle = export_answer(response, inputs={"domain": "papers"}, created_at_ms=0)
     assert verify_bundle(bundle).status == "valid"
+
+
+def test_paper_abstract_answers_with_cited_unverified_passage(tmp_path):
+    conn = duckdb.connect()
+    ensure_schema(conn)
+    config_path = tmp_path / "domains.yml"
+    config_path.write_text(
+        "version: 1\ndomains:\n  - name: papers\n    backing: corpus-view\n"
+        "    embedding_model: fake-embed\n    tags: [papers]\n"
+    )
+    DocumentStore(conn).upsert([{
+        "document_id": "paper:setun",
+        "source_type": "paper",
+        "source_id": "crossref",
+        "language": "en",
+        "ingested_at": 100,
+        "url": "https://doi.org/example",
+        "title": "Ternary Computers: The Setun and Setun 70",
+        "content": "The Setun and Setun 70 were ternary computers developed at Moscow State University.",
+        "metadata": {"tags": ["papers"]},
+    }])
+    run_membership_pass(conn, load_registry(config_path))
+    ensure_cluster_schema(conn)
+    payload = contract.kb_answer(
+        "papers", "What were the Setun and Setun 70 computers?",
+        conn=conn, config_path=config_path,
+    )
+    answer = payload["data"]
+    assert answer["answer_status"] == "partial"
+    statement = answer["statements"][0]
+    assert statement["text"].startswith("The Setun and Setun 70 were")
+    assert statement["verdict"] == "unverifiable"
+    assert statement["supporting_evidence"][0]["document_id"] == "paper:setun"
+    assert statement["supporting_evidence"][0]["cited"] is True
+    assert statement["method"].startswith("extractive selection of a paper")
+
+
+def test_metadata_only_paper_cannot_answer_factual_question(tmp_path):
+    conn = duckdb.connect()
+    ensure_schema(conn)
+    config_path = tmp_path / "domains.yml"
+    config_path.write_text(
+        "version: 1\ndomains:\n  - name: papers\n    backing: corpus-view\n"
+        "    embedding_model: fake-embed\n    tags: [papers]\n"
+    )
+    DocumentStore(conn).upsert([{
+        "document_id": "paper:setun",
+        "source_type": "paper",
+        "source_id": "crossref",
+        "language": "en",
+        "ingested_at": 100,
+        "url": "https://doi.org/example",
+        "title": "Ternary Computers: The Setun and Setun 70",
+        "content": None,
+        "metadata": {"tags": ["papers"]},
+    }])
+    run_membership_pass(conn, load_registry(config_path))
+    ensure_cluster_schema(conn)
+    payload = contract.kb_answer(
+        "papers", "What were the Setun and Setun 70 computers?",
+        conn=conn, config_path=config_path,
+    )
+    assert payload["data"]["answer_status"] == "refused"
 
 
 def test_contradicting_evidence_is_separate_and_changes_verdict(tmp_path):

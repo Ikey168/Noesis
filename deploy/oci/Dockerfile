@@ -13,6 +13,7 @@ RUN apt-get update \
 WORKDIR /app
 COPY deploy/oci/requirements.txt /tmp/requirements.txt
 RUN pip install --no-cache-dir -r /tmp/requirements.txt
+RUN pip install --no-cache-dir httpx==0.28.1
 
 RUN groupadd --gid 10001 noesis \
     && useradd --uid 10001 --gid 10001 --home-dir /app --no-create-home noesis \
@@ -21,6 +22,7 @@ RUN groupadd --gid 10001 noesis \
 
 COPY --chown=noesis:noesis src/ ./src/
 COPY --chown=noesis:noesis services/ ./services/
+COPY --chown=noesis:noesis apps/ ./apps/
 COPY --chown=noesis:noesis config/ ./config/
 COPY --chown=noesis:noesis configs/ ./configs/
 COPY --chown=noesis:noesis contracts/ ./contracts/

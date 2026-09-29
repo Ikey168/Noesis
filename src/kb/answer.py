@@ -9,6 +9,7 @@ and prevents an optional language model from introducing uncited facts.
 from __future__ import annotations
 
 import hashlib
+import html
 import re
 from collections.abc import Iterable, Mapping
 from typing import Any
@@ -378,10 +379,70 @@ def _document_statement(
     }
 
 
-def _paper_passage_statement(
-    question: str, document: Mapping[str, Any], passage: str, backing: Any
+def _paper_passages(
+    backing: Any,
+    documents: Iterable[Mapping[str, Any]],
+    question_tokens: set[str],
+    minimum_relevance: float,
+) -> list[tuple[float, str, Mapping[str, Any], str]]:
+    """Select exact abstract sentences from visible paper documents only.
+
+    Domain membership is resolved before this query. Titles and metadata do not
+    enter the passage text, so they cannot stand in for missing source content.
+    """
+    visible = {
+        str(document["document_id"]): document
+        for document in documents
+        if document.get("document_id") and document.get("source_type") == "paper"
+    }
+    if not visible:
+        return []
+    # Backings that expose ``answer_documents`` already attach bounded paper
+    # text read through the domain view; only query for documents without it.
+    contents = {
+        document_id: document.get("content")
+        for document_id, document in visible.items()
+        if "content" in document
+    }
+    missing = [document_id for document_id in visible if document_id not in contents]
+    if missing:
+        placeholders = ", ".join("?" for _ in missing)
+        with backing._lock():
+            contents.update(backing.conn.execute(
+                f"SELECT document_id, content FROM documents WHERE document_id IN ({placeholders})",
+                missing,
+            ).fetchall())
+    ranked = []
+    for document_id, content in sorted(contents.items()):
+        if not content:
+            continue
+        plain = html.unescape(re.sub(r"<[^>]+>", " ", content))
+        plain = re.sub(r"\s+", " ", plain).strip()
+        # Preserve initials such as "L.O. Yutkin" when splitting abstracts.
+        protected = re.sub(
+            r"\b([A-Z])\.(?=[A-Z]\.|\s+[A-Z])",
+            r"\1<period>",
+            plain,
+        )
+        for index, sentence in enumerate(re.split(r"(?<=[.!?])\s+", protected)):
+            sentence = sentence.replace("<period>", ".").strip()
+            if not 30 <= len(sentence) <= 1800:
+                continue
+            score = _relevance(question_tokens, sentence)
+            if score > 0.0 and score >= minimum_relevance:
+                ranked.append((score, f"{document_id}:{index}", visible[document_id], sentence))
+    ranked.sort(key=lambda item: (-item[0], item[1]))
+    return ranked
+
+
+def _passage_statement(
+    question: str,
+    document: Mapping[str, Any],
+    passage: str,
+    identity: str,
+    backing: Any,
 ) -> dict[str, Any]:
-    document_id = str(document.get("document_id"))
+    document_id = str(document["document_id"])
     visibility = (
         "private"
         if "private" in {str(tag).casefold() for tag in backing.definition.tags}
@@ -393,10 +454,10 @@ def _paper_passage_statement(
     supporting = [locator]
     independence = _independence(supporting, backing.conn)
     return {
-        "id": _stable_id(question, "paper-passage", f"{document_id}:{passage}"),
+        "id": _stable_id(question, "passage", identity),
         "claim_id": None,
         "text": passage,
-        "verdict": "supported" if locator.get("cited") else "unverifiable",
+        "verdict": "unverifiable",
         "supporting_evidence": supporting,
         "contradicting_evidence": [],
         "citation_state": render_state(independence["independent_source_count"]),
@@ -408,7 +469,7 @@ def _paper_passage_statement(
         "quantitative_check": None,
         "integrity": _integrity_evidence(backing, supporting, {document_id: document}),
         "n": 1,
-        "method": "extractive selection of a paper passage; no independent claim validation",
+        "method": "extractive selection of a paper source passage; factual status unverified",
         "assumptions": list(ASSUMPTIONS),
     }
 
@@ -513,27 +574,13 @@ def build_answer(
     ]
     eligible_count = len(ranked_claims)
     if not selected and not _asks_for_sources(question):
-        ranked_passages = []
-        for document in documents:
-            if document.get("source_type") != "paper" or not document.get("content"):
-                continue
-            sentences = re.split(r"(?<=[.!?])\s+|\n+", str(document["content"]))
-            for position, sentence in enumerate(sentences):
-                sentence = " ".join(sentence.split()).strip()
-                if not 20 <= len(sentence) <= 1800:
-                    continue
-                if not (question_tokens & _tokens(sentence)):
-                    continue
-                score = _relevance(question_tokens, sentence)
-                if score >= minimum_relevance:
-                    ranked_passages.append(
-                        (score, str(document.get("document_id") or ""), position, document, sentence)
-                    )
-        ranked_passages.sort(key=lambda item: (-item[0], item[1], item[2]))
+        ranked_passages = _paper_passages(
+            backing, documents, question_tokens, minimum_relevance
+        )
         eligible_count = len(ranked_passages)
         selected = [
-            ("paper_passage", score, f"{identity}:{position}", (document, sentence))
-            for score, identity, position, document, sentence in ranked_passages[:limit]
+            ("paper_passage", score, identity, {"document": document, "text": passage})
+            for score, identity, document, passage in ranked_passages[:limit]
         ]
     # A matching document title establishes that a source exists. It cannot
     # answer an explanatory or factual question about that source's subject.
@@ -563,11 +610,14 @@ def build_answer(
                     question, candidate, documents_by_id, claim_index, backing
                 )
             )
-        elif kind == "document":
-            statements.append(_document_statement(question, candidate, backing))
+        elif kind == "paper_passage":
+            statements.append(
+                _passage_statement(
+                    question, candidate["document"], candidate["text"], _identity, backing
+                )
+            )
         else:
-            document, passage = candidate
-            statements.append(_paper_passage_statement(question, document, passage, backing))
+            statements.append(_document_statement(question, candidate, backing))
 
     refused = not statements
     if refused:

@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-source-pack-upgrade-impact-v1.json",
+  "title": "Source-pack upgrade impact",
+  "type": "object",
+  "required": ["contract", "preview", "impact_hash", "total", "effects", "offset", "next_offset", "inaccessible", "retained_version_count", "applied"],
+  "properties": {
+    "contract": {"const": "noesis-source-pack-upgrade-impact-v1"},
+    "preview": {"type": "object", "required": ["contract", "pack_id", "installed_hash", "candidate_hash", "preview_hash", "changes"], "properties": {"contract": {"const": "noesis-source-pack-upgrade-preview-v1"}}},
+    "impact_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "total": {"type": "integer", "minimum": 0},
+    "effects": {"type": "array", "maxItems": 100, "items": {"type": "object", "required": ["kind", "id", "namespace"], "properties": {"kind": {"enum": ["template", "project", "schedule", "report"]}, "id": {"type": "string"}, "namespace": {"type": ["string", "null"]}}, "additionalProperties": true}},
+    "offset": {"type": "integer", "minimum": 0},
+    "next_offset": {"type": ["integer", "null"], "minimum": 0},
+    "inaccessible": {"type": "object"},
+    "retained_version_count": {"type": "integer", "minimum": 0},
+    "applied": {"const": false}
+  },
+  "additionalProperties": false
+}

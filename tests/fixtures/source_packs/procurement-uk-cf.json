@@ -1,0 +1,82 @@
+{
+ "authored": true,
+ "provider": "Contracts Finder OCDS search (GET /Published/Notices/OCDS/Search)",
+ "note": "Authored below-threshold OCDS release; the value states no gross/net basis, so VAT stays unknown.",
+ "scenarios": [
+  "below-threshold",
+  "vat-unknown"
+ ],
+ "native_pages": [
+  {
+   "request": {
+    "url": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search",
+    "params": {
+     "publishedFrom": "2026-09-01",
+     "size": "100"
+    }
+   },
+   "body": {
+    "uri": "https://example.invalid/package",
+    "version": "1.1",
+    "publishedDate": "2026-09-26T08:00:00Z",
+    "publisher": {
+     "name": "Contracts Finder"
+    },
+    "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+    "releases": [
+     {
+      "ocid": "ocds-b5fd17-fixture-cf-001",
+      "id": "ocds-b5fd17-fixture-cf-001-tender-1",
+      "date": "2026-09-20T09:00:00Z",
+      "tag": [
+       "tender"
+      ],
+      "initiationType": "tender",
+      "language": "en",
+      "parties": [
+       {
+        "id": "GB-CF-FX-77",
+        "name": "Fixture Parish Council",
+        "address": {
+         "countryName": "England"
+        },
+        "roles": [
+         "buyer"
+        ]
+       }
+      ],
+      "buyer": {
+       "id": "GB-CF-FX-77",
+       "name": "Fixture Parish Council"
+      },
+      "tender": {
+       "id": "CF-FX-001",
+       "title": "Website hosting and IT support",
+       "status": "active",
+       "procurementMethod": "open",
+       "procurementMethodDetails": "Open",
+       "value": {
+        "amount": 80000,
+        "currency": "GBP"
+       },
+       "items": [
+        {
+         "id": "1",
+         "classification": {
+          "scheme": "CPV",
+          "id": "72400000-4",
+          "description": "Internet services"
+         }
+        }
+       ],
+       "tenderPeriod": {
+        "endDate": "2026-10-30T17:00:00Z"
+       }
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

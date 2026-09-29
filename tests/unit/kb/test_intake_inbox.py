@@ -104,6 +104,50 @@ def test_feed_inbox_preserves_decisions_across_refresh_and_restart(tmp_path):
     conn.close()
 
 
+def test_explicit_newsletter_input_preserves_message_locator_and_triage(tmp_path):
+    path = str(tmp_path / "newsletter.duckdb")
+    conn = duckdb.connect(path)
+    inbox = IntakeInboxStore(conn)
+    source = inbox.subscribe(
+        "research", "mailto:Brief@Example.org", "Weekly Brief",
+        "newsletter_input", principal_id="alice", scopes=SCOPES)
+    assert source["url"] == "mailto:brief@example.org"
+    first = inbox.ingest_newsletter_message(
+        "research", source["subscription_id"], message_id="<issue-7@example.org>",
+        sender="brief@example.org", subject="Issue seven", body="A sourced update",
+        published_at_ms=1_789_000_000_000,
+        principal_id="alice", scopes=SCOPES)
+    assert first["created"] == 1
+    assert first["authentication_state"] == "caller_supplied_unverified"
+    assert first["original_locator"] == "mid:issue-7%40example.org"
+    item = inbox.list("research", principal_id="alice", scopes=SCOPES)["items"][0]
+    assert item["original_url"] == first["original_locator"]
+    assert item["published_at_ms"] == 1_789_000_000_000
+    inbox.decide("research", item["item_id"], "discard-newsletter",
+                 decision="discard", principal_id="alice", scopes=SCOPES)
+    assert inbox.ingest_newsletter_message(
+        "research", source["subscription_id"], message_id="issue-7@example.org",
+        sender="brief@example.org", subject="Issue seven", body="A sourced update",
+        published_at_ms=1_789_000_000_000,
+        principal_id="alice", scopes=SCOPES)["unchanged"] == 1
+    assert inbox.refresh(
+        "research", principal_id="alice", scopes=SCOPES | {"knowledge:intake:fetch"}
+    )["feeds_checked"] == 0
+    with pytest.raises(IntakeError) as mismatch:
+        inbox.ingest_newsletter_message(
+            "research", source["subscription_id"], message_id="issue-8@example.org",
+            sender="other@example.org", subject="Issue eight", body="Wrong sender",
+            published_at_ms=1_789_000_000_001,
+            principal_id="alice", scopes=SCOPES)
+    assert mismatch.value.code == "sender_mismatch"
+    conn.close()
+    conn = duckdb.connect(path)
+    retained = IntakeInboxStore(conn, initialize=False).inspect(
+        "research", item["item_id"], principal_id="alice", scopes=SCOPES)
+    assert retained["decision"] == "discard" and retained["source_version"] == 1
+    conn.close()
+
+
 def test_feed_scope_and_unsafe_source(tmp_path):
     conn = duckdb.connect(str(tmp_path / "inbox.duckdb"))
     inbox = IntakeInboxStore(conn)

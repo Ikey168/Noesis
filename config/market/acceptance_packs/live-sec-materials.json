@@ -1,0 +1,242 @@
+{
+ "pack_id": "market-live-sec-materials-v1",
+ "status": "live_verified",
+ "evidence_kind": "live_provider",
+ "provider": "sec_edgar",
+ "recorded_at": "2026-09-24T15:32:04+00:00",
+ "check": "company_materials_acquisition",
+ "universe": [
+  "MSFT",
+  "ORCL",
+  "CRM",
+  "ADBE",
+  "NOW"
+ ],
+ "rows": [
+  {
+   "ticker": "MSFT",
+   "cik": "0000789019",
+   "status": "acquired",
+   "coverage": {
+    "earnings_release": 4,
+    "earnings_presentation": 2,
+    "guidance": 1,
+    "segment_disclosure": 1,
+    "insider_transaction": 10,
+    "beneficial_ownership": 10
+   },
+   "unavailable": [
+    "earnings_call_transcript",
+    "analyst_consensus",
+    "institutional_holdings_13f"
+   ],
+   "earnings_periods": [
+    "2025-10-28",
+    "2026-01-28",
+    "2026-04-29",
+    "2026-07-29"
+   ],
+   "guidance_statements": 1,
+   "guidance_example": "Several discrete items impacted our financial results in the quarter when compared to our forward-looking guidance provided on April 29, 2026, resulting in a benefit of $0.27 on diluted earnings per share.",
+   "segment_members": [
+    "country:US",
+    "msft:DynamicsProductsAndCloudServicesMember",
+    "msft:EnterpriseAndPartnerServicesMember",
+    "msft:IntelligentCloudMember",
+    "msft:LinkedInCorporationMember",
+    "msft:MicrosoftThreeSixFiveCommercialProductsAndCloudServicesMember",
+    "msft:MicrosoftThreeSixFiveConsumerProductsAndCloudServicesMember",
+    "msft:MorePersonalComputingMember",
+    "msft:OtherProductsAndServicesMember",
+    "msft:ProductivityAndBusinessProcessesMember",
+    "msft:SearchAdvertisingMember",
+    "msft:ServerProductsAndCloudServicesMember",
+    "msft:WindowsAndDevicesMember",
+    "msft:XBOXMember",
+    "us-gaap:NonUsMember",
+    "us-gaap:ProductMember",
+    "us-gaap:ServiceOtherMember"
+   ],
+   "corrections": 0,
+   "duplicates": 0,
+   "sample_locators": [
+    "https://www.sec.gov/Archives/edgar/data/789019/000119312525256310/msft-ex99_1.htm",
+    "https://www.sec.gov/Archives/edgar/data/789019/000119312526027198/msft-ex99_1.htm"
+   ],
+   "diagnostics": []
+  },
+  {
+   "ticker": "ORCL",
+   "cik": "0001341439",
+   "status": "acquired",
+   "coverage": {
+    "earnings_release": 4,
+    "earnings_presentation": 0,
+    "guidance": 3,
+    "segment_disclosure": 1,
+    "insider_transaction": 10,
+    "beneficial_ownership": 10
+   },
+   "unavailable": [
+    "earnings_call_transcript",
+    "analyst_consensus",
+    "institutional_holdings_13f"
+   ],
+   "earnings_periods": [
+    "2025-12-10",
+    "2026-03-10",
+    "2026-06-10",
+    "2026-09-10"
+   ],
+   "guidance_statements": 16,
+   "guidance_example": "Total revenues are expected to grow between 30% and 34% in constant currency and USD.",
+   "segment_members": [
+    "orcl:CloudApplicationsMember",
+    "orcl:CloudInfrastructureMember",
+    "orcl:CloudRevenuesMember",
+    "orcl:SoftwareLicenseMember",
+    "orcl:SoftwareRevenuesMember",
+    "orcl:SoftwareSupportMember",
+    "srt:AmericasMember",
+    "srt:AsiaPacificMember",
+    "us-gaap:EMEAMember"
+   ],
+   "corrections": 0,
+   "duplicates": 0,
+   "sample_locators": [
+    "https://www.sec.gov/Archives/edgar/data/1341439/000119312525314207/orcl-ex99_1.htm",
+    "https://www.sec.gov/Archives/edgar/data/1341439/000119312526100148/orcl-ex99_1.htm"
+   ],
+   "diagnostics": []
+  },
+  {
+   "ticker": "CRM",
+   "cik": "0001108524",
+   "status": "acquired",
+   "coverage": {
+    "earnings_release": 4,
+    "earnings_presentation": 0,
+    "guidance": 4,
+    "segment_disclosure": 1,
+    "insider_transaction": 10,
+    "beneficial_ownership": 9
+   },
+   "unavailable": [
+    "earnings_call_transcript",
+    "analyst_consensus",
+    "institutional_holdings_13f"
+   ],
+   "earnings_periods": [
+    "2025-12-03",
+    "2026-02-25",
+    "2026-05-27",
+    "2026-08-26"
+   ],
+   "guidance_statements": 44,
+   "guidance_example": "cRPO growth accelerates to 14% Y/Y CC; Raises FY27 revenue guidance by $200M, $300M in CC",
+   "segment_members": [
+    "crm:AgentforceAppsMember",
+    "crm:Data360PlatformAndOtherMember",
+    "crm:ProfessionalServicesandOtherMember",
+    "crm:SubscriptionandSupportMember",
+    "srt:AmericasMember",
+    "srt:AsiaPacificMember",
+    "srt:EuropeMember"
+   ],
+   "corrections": 0,
+   "duplicates": 0,
+   "sample_locators": [
+    "https://www.sec.gov/Archives/edgar/data/1108524/000110852425000234/crm-q3fy26xexhibit991.htm",
+    "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000056/crm-q4fy26xexhibit991.htm"
+   ],
+   "diagnostics": []
+  },
+  {
+   "ticker": "ADBE",
+   "cik": "0000796343",
+   "status": "acquired",
+   "coverage": {
+    "earnings_release": 4,
+    "earnings_presentation": 2,
+    "guidance": 2,
+    "segment_disclosure": 1,
+    "insider_transaction": 10,
+    "beneficial_ownership": 10
+   },
+   "unavailable": [
+    "earnings_call_transcript",
+    "analyst_consensus",
+    "institutional_holdings_13f"
+   ],
+   "earnings_periods": [
+    "2025-12-10",
+    "2026-03-09",
+    "2026-06-08",
+    "2026-09-10"
+   ],
+   "guidance_statements": 2,
+   "guidance_example": "\u201cAdobe delivered record revenue of $6.62 billion in Q2 reflecting strong AI-driven demand across our customer groups and we are raising our full-year fiscal 2026 revenue and non-GAAP EPS targets on the strength of that performance,\u201d said Sh",
+   "segment_members": [
+    "adbe:ReportableSegmentMember",
+    "adbe:SubscriptionRevenueMember",
+    "srt:AmericasMember",
+    "srt:AsiaMember",
+    "us-gaap:EMEAMember",
+    "us-gaap:ProductMember",
+    "us-gaap:ServiceOtherMember"
+   ],
+   "corrections": 0,
+   "duplicates": 0,
+   "sample_locators": [
+    "https://www.sec.gov/Archives/edgar/data/796343/000079634325000135/adbeex991q425.htm",
+    "https://www.sec.gov/Archives/edgar/data/796343/000079634326000048/adbeex991q126.htm"
+   ],
+   "diagnostics": []
+  },
+  {
+   "ticker": "NOW",
+   "cik": "0001373715",
+   "status": "acquired",
+   "coverage": {
+    "earnings_release": 4,
+    "earnings_presentation": 0,
+    "guidance": 2,
+    "segment_disclosure": 1,
+    "insider_transaction": 10,
+    "beneficial_ownership": 10
+   },
+   "unavailable": [
+    "earnings_call_transcript",
+    "analyst_consensus",
+    "institutional_holdings_13f"
+   ],
+   "earnings_periods": [
+    "2025-10-29",
+    "2026-01-28",
+    "2026-04-17",
+    "2026-07-22"
+   ],
+   "guidance_statements": 2,
+   "guidance_example": "ServiceNow hosted its annual Financial Analyst Day on May 4, where the company outlined long-term targets including $30 billion+ in subscription revenues, 30% of ACV to come from AI, and a Rule of 60+ by 20301.",
+   "segment_members": [
+    "now:AsiaPacificAndOtherMember",
+    "srt:NorthAmericaMember",
+    "us-gaap:EMEAMember",
+    "us-gaap:LicenseAndServiceMember",
+    "us-gaap:TechnologyServiceMember"
+   ],
+   "corrections": 0,
+   "duplicates": 0,
+   "sample_locators": [
+    "https://www.sec.gov/Archives/edgar/data/1373715/000137371525000305/erq3fy25.htm",
+    "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000005/erq4fy25.htm"
+   ],
+   "diagnostics": []
+  }
+ ],
+ "limitations": [
+  "Guidance statements are keyword-and-number matched management claims, not verified figures.",
+  "Transcripts, analyst consensus and 13F holdings are recorded unavailable; no licensed provider was used.",
+  "No analyst usefulness review is implied by this pack."
+ ]
+}

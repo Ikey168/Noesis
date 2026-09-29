@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n  \"publicationDate\": \"2099-02-12\",\n  \"meetings\": [\n    {\n      \"meetingId\": \"EC-99001\",\n      \"date\": \"2099-02-09\",\n      \"location\": \"Brussels\",\n      \"official\": {\"id\": \"cab-99\", \"name\": \"Fictional Cabinet Member\", \"role\": \"Cabinet member\", \"portfolio\": \"Energy (fictional)\"},\n      \"organisations\": [{\"name\": \"Example Public Affairs SARL\", \"transparencyRegisterId\": \"000000000202-02\"}],\n      \"subject\": \"Network tariffs regulation\",\n      \"legislativeFiles\": [{\"scheme\": \"eu-procedure\", \"value\": \"2099/0101(COD)\"}]\n    }\n  ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/transparencyinitiative/meetings/export.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored export in the documented ec-meetings-json shape; every organisation, person and reference is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

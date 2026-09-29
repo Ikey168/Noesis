@@ -19,8 +19,9 @@ def test_real_mcp_json_yields_only_project_servers():
     specs = load_server_specs()
     assert DEFAULT_MCP_JSON.exists()
     names = {s.name for s in specs}
-    # All 25 tools/*_mcp servers, and nothing npx-launched.
-    assert len(specs) == 25
+    # All 27 tools/*_mcp servers (26 plus noesis-onchain, #2058), and nothing npx-launched.
+    assert len(specs) == 27
+    assert "noesis-onchain" in names
     assert "noesis-statistics" in names
     assert "noesis-kg" in names
     assert "noesis-kb" in names
@@ -89,6 +90,28 @@ def test_filters_non_project_entries(tmp_path):
         env={"FOO": "bar"},
         cwd=str(tmp_path),
     )
+
+
+def test_tool_profile_entries_are_not_supervised_as_separate_servers(tmp_path):
+    engine = {"type": "stdio", "command": "python3", "args": ["tools/knowledge_engine_mcp/server.py"]}
+    path = _write(
+        tmp_path,
+        {
+            "mcpServers": {
+                "noesis-knowledge-engine": {**engine, "env": {}},
+                "noesis-research-workflow": {
+                    **engine, "env": {"NOESIS_MCP_TOOL_PROFILE": "research"},
+                },
+                "explicit-all": {**engine, "env": {"NOESIS_MCP_TOOL_PROFILE": "all"}},
+            }
+        },
+    )
+    assert [s.name for s in load_server_specs(path)] == [
+        "noesis-knowledge-engine", "explicit-all",
+    ]
+    real = json.loads(DEFAULT_MCP_JSON.read_text(encoding="utf-8"))["mcpServers"]
+    assert real["noesis-research-workflow"]["env"] == {"NOESIS_MCP_TOOL_PROFILE": "research"}
+    assert "noesis-research-workflow" not in {s.name for s in load_server_specs()}
 
 
 def test_type_defaults_to_stdio(tmp_path):

@@ -1,0 +1,20 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<!-- Authored fixture in the CWE Weakness_Catalog shape; descriptions are paraphrased, not copied. -->\n<Weakness_Catalog xmlns=\"http://cwe.mitre.org/cwe-7\" Name=\"CWE\" Version=\"4.14\" Date=\"2099-01-01\">\n  <Weaknesses>\n    <Weakness ID=\"20\" Name=\"Improper Input Validation\" Abstraction=\"Class\" Structure=\"Simple\" Status=\"Stable\">\n      <Description>Input is not validated before use (authored fixture text).</Description>\n    </Weakness>\n    <Weakness ID=\"200\" Name=\"Exposure of Sensitive Information to an Unauthorized Actor\" Abstraction=\"Class\" Structure=\"Simple\" Status=\"Draft\">\n      <Description>Information reaches an actor who should not see it (authored fixture text).</Description>\n    </Weakness>\n    <Weakness ID=\"400\" Name=\"Uncontrolled Resource Consumption\" Abstraction=\"Class\" Structure=\"Simple\" Status=\"Draft\">\n      <Description>Resources are consumed without limit (authored fixture text).</Description>\n    </Weakness>\n    <Weakness ID=\"405\" Name=\"Asymmetric Resource Consumption (Amplification)\" Abstraction=\"Class\" Structure=\"Simple\" Status=\"Incomplete\">\n      <Description>Small input causes large resource use (authored fixture text).</Description>\n      <Related_Weaknesses>\n        <Related_Weakness Nature=\"ChildOf\" CWE_ID=\"400\" View_ID=\"1000\" Ordinal=\"Primary\"/>\n      </Related_Weaknesses>\n    </Weakness>\n    <Weakness ID=\"407\" Name=\"Inefficient Algorithmic Complexity\" Abstraction=\"Class\" Structure=\"Simple\" Status=\"Incomplete\">\n      <Description>An algorithm has a worst case that can be triggered (authored fixture text).</Description>\n      <Related_Weaknesses>\n        <Related_Weakness Nature=\"ChildOf\" CWE_ID=\"405\" View_ID=\"1000\" Ordinal=\"Primary\"/>\n      </Related_Weaknesses>\n    </Weakness>\n    <Weakness ID=\"1333\" Name=\"Inefficient Regular Expression Complexity\" Abstraction=\"Base\" Structure=\"Simple\" Status=\"Draft\">\n      <Description>A regular expression backtracks exponentially on some input (authored fixture text).</Description>\n      <Related_Weaknesses>\n        <Related_Weakness Nature=\"ChildOf\" CWE_ID=\"407\" View_ID=\"1000\" Ordinal=\"Primary\"/>\n        <Related_Weakness Nature=\"CanPrecede\" CWE_ID=\"400\" View_ID=\"1000\"/>\n      </Related_Weaknesses>\n    </Weakness>\n  </Weaknesses>\n  <Categories>\n    <Category ID=\"1226\" Name=\"Complexity Issues\" Status=\"Draft\">\n      <Summary>Weaknesses related to complexity (authored fixture text).</Summary>\n    </Category>\n  </Categories>\n</Weakness_Catalog>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/data/xml/cwec_latest.xml.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the documented cwe-xml shape; packages, vendors and CVE numbers are fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "cwe-catalog-version",
+  "view-1000-hierarchy"
+ ]
+}

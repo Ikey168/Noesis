@@ -1,0 +1,35 @@
+{
+ "captured_at": "authored 2026-09-28 (not a capture)",
+ "endpoint": "https://gdi.berlin.de/services/wfs/bplan",
+ "license": "dl-de/zero-2-0",
+ "native_pages": [
+  {
+   "body": "{\"crs\": {\"properties\": {\"name\": \"urn:ogc:def:crs:EPSG::25833\"}, \"type\": \"name\"}, \"features\": [{\"geometry\": {\"coordinates\": [[[392100.0, 5820100.0], [392900.0, 5820100.0], [392900.0, 5820900.0], [392100.0, 5820900.0], [392100.0, 5820100.0]]], \"type\": \"Polygon\"}, \"id\": \"bplan_geltungsbereiche.1-98\", \"properties\": {\"afs_abl\": \"\", \"afs_beschl\": \"10.01.2095\", \"bereich\": \"Geltungsbereich 1-98 (fiktiv)\", \"bezirk\": \"Mitte\", \"festsg_am\": \"01.02.2097\", \"gvbl\": \"GVBl. 2097 S. 55\", \"planname\": \"1-98\", \"status\": \"festgesetzt\"}, \"type\": \"Feature\"}, {\"geometry\": {\"coordinates\": [[[391200.0, 5820200.0], [391800.0, 5820200.0], [391800.0, 5820800.0], [391200.0, 5820800.0], [391200.0, 5820200.0]]], \"type\": \"Polygon\"}, \"id\": \"bplan_geltungsbereiche.1-99a\", \"properties\": {\"afs_abl\": \"ABl. 2098 S. 777\", \"afs_beschl\": \"15.03.2098\", \"bereich\": \"Geltungsbereich 1-99a (fiktiv)\", \"bezirk\": \"Mitte\", \"festsg_am\": \"\", \"gvbl\": \"\", \"planname\": \"1-99a\", \"status\": \"Aufstellungsbeschluss\"}, \"type\": \"Feature\"}], \"numberMatched\": 2, \"numberReturned\": 2, \"timeStamp\": \"2099-03-01T08:00:00Z\", \"totalFeatures\": 2, \"type\": \"FeatureCollection\"}",
+   "body_sha256": "8bf4695eaac21983ad9d40f38d37111bf72af1199b5d6c7cdd43f540fd935d30",
+   "params": {
+    "COUNT": 50,
+    "OUTPUTFORMAT": "application/json",
+    "REQUEST": "GetFeature",
+    "SERVICE": "WFS",
+    "SORTBY": "planname",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25833",
+    "STARTINDEX": 0,
+    "TYPENAMES": "bplan:bplan_geltungsbereiche",
+    "VERSION": "2.0.0"
+   },
+   "start_index": 0,
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers, plan numbers, values and dates are fictional. Not live evidence. Geometries are boxes in EPSG:25833.",
+ "provider": "Geoportal Berlin (FIS-Broker) - authored fixture",
+ "retrieved": "authored 2026-09-28 (not a capture)",
+ "scenarios": [
+  "projected-crs-epsg-25833",
+  "complete-snapshot",
+  "plan-stage",
+  "stage-date",
+  "explicit-references"
+ ],
+ "source_url": "https://gdi.berlin.de/services/wfs/bplan"
+}

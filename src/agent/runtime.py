@@ -28,7 +28,7 @@ the agents inject a dispatcher. Stdlib-only.
 
 from __future__ import annotations
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Any, Callable, Dict, List, Optional
 
 from src.config.env import resolve_env
@@ -49,6 +49,7 @@ _PROVISIONING_TOOLS = frozenset({
 _OSINT_TOOLS = frozenset({
     "corroborate", "source_reliability", "contradiction_scan", "entity_dossier",
     "relationship_path", "timeline_reconstruct", "trace_artifact", "investigation_audit",
+    "infrastructure_pivot",
 })
 
 

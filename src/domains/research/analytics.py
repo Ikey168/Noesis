@@ -35,9 +35,6 @@ VENUE_ASSUMPTIONS = [
     "needs several papers per venue; sparse venues carry wide intervals",
 ]
 
-_EPS = 1e-9
-
-
 def _table_exists(conn, table: str) -> bool:
     try:
         rows = conn.execute(
@@ -49,65 +46,70 @@ def _table_exists(conn, table: str) -> bool:
         return False
 
 
+def _paper_rows(conn) -> List[Dict[str, Any]]:
+    """Read papers from either the legacy flat table or document-ingest-v1.
+
+    Missing citation counts stay ``None`` (absence is not zero impact), and a
+    missing concept stays ``None`` so callers can report it as missing data.
+    """
+    if not _table_exists(conn, "documents"):
+        return []
+    available = {row[1] for row in conn.execute("PRAGMA table_info('documents')").fetchall()}
+    selected = [name for name in (
+        "id", "document_id", "title", "venue", "concept", "citations", "refs", "metadata",
+    ) if name in available]
+    if not selected:
+        return []
+    rows = conn.execute(
+        f"SELECT {', '.join(selected)} FROM documents WHERE source_type = 'paper'"
+    ).fetchall()
+    papers = []
+    for values in rows:
+        row = dict(zip(selected, values))
+        raw_metadata = row.get("metadata")
+        try:
+            metadata = json.loads(raw_metadata) if isinstance(raw_metadata, str) else raw_metadata
+        except (TypeError, ValueError):
+            metadata = {}
+        if not isinstance(metadata, dict):
+            metadata = {}
+        raw_refs = row.get("refs") or metadata.get("refs") or metadata.get("reference_ids") or metadata.get("references") or []
+        refs = raw_refs.split(",") if isinstance(raw_refs, str) else raw_refs
+        if not isinstance(refs, list):
+            refs = []
+        citations = row.get("citations")
+        if citations is None:
+            citations = metadata.get("citations", metadata.get("cited_by"))
+        if isinstance(citations, bool) or not isinstance(citations, int) or citations < 0:
+            citations = None
+        venue = row.get("venue") or metadata.get("venue") or metadata.get("journal") or metadata.get("booktitle")
+        if isinstance(venue, list):
+            venue = next((item for item in venue if isinstance(item, str) and item.strip()), None)
+        if not isinstance(venue, str) or not venue.strip():
+            venue = None
+        papers.append({
+            "id": row.get("id") or row.get("document_id"),
+            "title": row.get("title") or "",
+            "venue": venue.strip() if venue else None,
+            "concept": row.get("concept") or metadata.get("concept") or metadata.get("primary_category") or None,
+            "citations": citations,
+            "refs": [str(ref).strip() for ref in refs if ref],
+            "doi": metadata.get("doi"),
+            "external_id": metadata.get("external_id"),
+        })
+    return papers
+
+
 def _entropy(counts: List[int]) -> float:
     total = sum(counts)
     if total <= 0:
         return 0.0
-    ent = -sum((c / total) * math.log(c / total + _EPS) for c in counts if c > 0)
-    # Normalize to 0..1 by the max entropy for this many categories.
-    max_ent = math.log(len([c for c in counts if c > 0]) + _EPS) if len(counts) > 1 else 1.0
-    return ent / max_ent if max_ent > _EPS else 0.0
-
-
-def _paper_records(conn) -> List[Dict[str, Any]]:
-    """Read both the current document store and the older research fixture."""
-    if not _table_exists(conn, "documents"):
-        return []
-    columns = {
-        row[0] for row in conn.execute(
-            "SELECT column_name FROM information_schema.columns WHERE table_name = 'documents'"
-        ).fetchall()
-    }
-    if {"document_id", "metadata"} <= columns:
-        rows = conn.execute(
-            "SELECT document_id, title, metadata FROM documents WHERE source_type = 'paper'"
-        ).fetchall()
-        papers = []
-        for identity, title, raw_metadata in rows:
-            try:
-                metadata = json.loads(raw_metadata) if isinstance(raw_metadata, str) else raw_metadata or {}
-            except (TypeError, ValueError):
-                metadata = {}
-            if not isinstance(metadata, dict):
-                metadata = {}
-            venue = metadata.get("venue")
-            if isinstance(venue, list):
-                venue = next((item for item in venue if isinstance(item, str) and item.strip()), None)
-            citations = metadata.get("citations")
-            if type(citations) is not int or citations < 0:
-                citations = None
-            references = metadata.get("references")
-            if not isinstance(references, list):
-                references = []
-            papers.append({
-                "id": identity, "title": title or "", "venue": venue,
-                "concept": metadata.get("concept"), "citations": citations,
-                "references": [str(item) for item in references if item],
-                "doi": metadata.get("doi"), "external_id": metadata.get("external_id"),
-            })
-        return papers
-    if {"id", "venue", "concept", "citations", "refs"} <= columns:
-        rows = conn.execute(
-            "SELECT id, title, venue, concept, citations, refs FROM documents "
-            "WHERE source_type = 'paper'"
-        ).fetchall()
-        return [
-            {"id": identity, "title": title or "", "venue": venue, "concept": concept,
-             "citations": citations, "references": (refs or "").split(",") if refs else [],
-             "doi": None, "external_id": None}
-            for identity, title, venue, concept, citations, refs in rows
-        ]
-    return []
+    active = [c for c in counts if c > 0]
+    if len(active) < 2:
+        return 0.0
+    ent = -sum((c / total) * math.log(c / total) for c in active)
+    # Normalize to 0..1 by the maximum entropy for active categories.
+    return min(1.0, max(0.0, ent / math.log(len(active))))
 
 
 def venue_credibility(conn) -> Dict[str, Any]:
@@ -117,34 +119,28 @@ def venue_credibility(conn) -> Dict[str, Any]:
             n=0, method=VENUE_METHOD, assumptions=VENUE_ASSUMPTIONS,
             venues=[], note="no document corpus ingested",
         )
-    papers = _paper_records(conn)
+    papers = _paper_rows(conn)
     by_venue: Dict[str, List[Dict[str, Any]]] = {}
     for paper in papers:
-        if isinstance(paper["venue"], str) and paper["venue"].strip():
-            by_venue.setdefault(paper["venue"].strip(), []).append(paper)
-    corpus_max = max((paper["citations"] or 0 for paper in papers if paper["citations"] is not None), default=0) or 1
+        if paper["venue"]:
+            by_venue.setdefault(paper["venue"], []).append(paper)
+    corpus_max = max((paper["citations"] for paper in papers if paper["citations"] is not None), default=0) or 1
 
     # Attribution rate per venue from the shared claim layer, when present.
     attribution: Dict[str, float] = {}
-    if _table_exists(conn, "argument_claims"):
+    if papers and _table_exists(conn, "argument_claims"):
         try:
-            id_col = "document_id" if "document_id" in {
-                row[0] for row in conn.execute(
-                    "SELECT column_name FROM information_schema.columns WHERE table_name = 'documents'"
-                ).fetchall()
-            } else "id"
-            arows = conn.execute(
-                f"SELECT c.document_id, AVG(CASE WHEN c.attributed THEN 1.0 ELSE 0.0 END) "
-                f"FROM argument_claims c JOIN documents d ON c.document_id = d.{id_col} "
-                "WHERE d.source_type = 'paper' GROUP BY c.document_id"
-            ).fetchall()
-            by_id = {paper["id"]: paper["venue"] for paper in papers}
-            values: Dict[str, List[float]] = {}
-            for identity, rate in arows:
-                venue = by_id.get(identity)
+            paper_venues = {paper["id"]: paper["venue"] for paper in papers if paper["venue"]}
+            claim_counts: Dict[str, List[int]] = {}
+            for document_id, attributed in conn.execute(
+                "SELECT document_id, attributed FROM argument_claims WHERE source_type = 'paper'"
+            ).fetchall():
+                venue = paper_venues.get(document_id)
                 if venue:
-                    values.setdefault(venue, []).append(float(rate or 0.0))
-            attribution = {venue: sum(items) / len(items) for venue, items in values.items()}
+                    bucket = claim_counts.setdefault(venue, [0, 0])
+                    bucket[0] += int(bool(attributed))
+                    bucket[1] += 1
+            attribution = {venue: good / total for venue, (good, total) in claim_counts.items()}
         except Exception:
             attribution = {}
 
@@ -209,7 +205,7 @@ def citation_graph(conn, topic: Optional[str] = None, limit: int = 40) -> Dict[s
     persisted as a ``references`` column (comma-separated ids)."""
     if not _table_exists(conn, "documents"):
         return {"nodes": [], "edges": [], "note": "no document corpus ingested"}
-    all_papers = _paper_records(conn)
+    all_papers = _paper_rows(conn)
     aliases = {}
     for paper in all_papers:
         for alias in (paper["id"], paper.get("doi"), paper.get("external_id")):
@@ -229,13 +225,13 @@ def citation_graph(conn, topic: Optional[str] = None, limit: int = 40) -> Dict[s
     ]
     edges = []
     for row in rows:
-        for ref in row["references"]:
+        for ref in row["refs"]:
             target = aliases.get(str(ref).lower().removeprefix("https://doi.org/"))
             if target in ids and target != row["id"]:
                 edges.append({"from": row["id"], "to": target})
     result = {
         "nodes": nodes, "edges": edges, "node_count": len(nodes), "edge_count": len(edges),
-        "reference_data_count": sum(bool(row["references"]) for row in rows),
+        "reference_data_count": sum(bool(row["refs"]) for row in rows),
         "citation_count_data_count": sum(row["citations"] is not None for row in rows),
     }
     if rows and not result["reference_data_count"]:

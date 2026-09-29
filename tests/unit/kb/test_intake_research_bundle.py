@@ -20,6 +20,7 @@ from src.kb.intake_research_topic import start_research_topic
 
 SCOPES = {
     "knowledge:intake:read", "knowledge:intake:write",
+    "knowledge:intake:review",
     "knowledge:projects:read", "knowledge:projects:write",
     "knowledge:recipes:read", "namespace:research:read", "namespace:research:write",
 }
@@ -61,7 +62,15 @@ def _fixture(conn):
     document = {
         "cards": cards,
         "claims": [{"id": "claim-1", "statement": "Both sources support the finding",
-                    "supports": ["card-1", "card-2"], "contradicts": [], "confidence": "high"}],
+                    "supports": ["card-1", "card-2"], "contradicts": [], "confidence": "high",
+                    "independence_review": {
+                        "status": "independent",
+                        "basis": "Reviewed the two cited reporting origins; no shared reporting origin identified.",
+                        "groups": [
+                            {"group_id": "origin-alpha", "card_ids": ["card-1"]},
+                            {"group_id": "origin-beta", "card_ids": ["card-2"]},
+                        ],
+                    }}],
         "concepts": [{"id": "concept-1", "name": "Finding", "explanation": "Supported finding",
                       "card_ids": ["card-1"]}],
         "brief": {"text": "Finding in brief", "card_ids": ["card-1", "card-2"]},
@@ -92,10 +101,34 @@ def test_bundle_requires_exact_pinned_spans_and_gates_research_completion(tmp_pa
 
     single_host = copy.deepcopy(document)
     single_host["claims"][0]["supports"] = ["card-1"]
+    single_host["claims"][0]["independence_review"]["groups"] = [
+        {"group_id": "origin-alpha", "card_ids": ["card-1"]},
+    ]
     with pytest.raises(IntakeError) as insufficient:
         store.save("research", project_id, "one-host", single_host,
                    principal_id="alice", scopes=SCOPES)
     assert insufficient.value.code == "insufficient_independence"
+
+    host_count_only = copy.deepcopy(document)
+    del host_count_only["claims"][0]["independence_review"]
+    host_conn = duckdb.connect(":memory:")
+    host_started, _, _, _ = _fixture(host_conn)
+    unreviewed_high = IntakeResearchBundleStore(host_conn).save(
+        "research", host_started["project"]["project_id"], "host-count-only",
+        host_count_only, principal_id="alice", scopes=SCOPES,
+    )
+    assert not unreviewed_high["checks"]["ready"]
+    assert "source_independence_unverified" in unreviewed_high["checks"]["reasons"]
+    host_conn.close()
+
+    one_origin = copy.deepcopy(document)
+    one_origin["claims"][0]["independence_review"]["groups"] = [
+        {"group_id": "origin-alpha", "card_ids": ["card-1", "card-2"]},
+    ]
+    with pytest.raises(IntakeError) as one_group:
+        store.save("research", project_id, "one-origin", one_origin,
+                   principal_id="alice", scopes=SCOPES)
+    assert one_group.value.code == "insufficient_independence"
 
     uncited = copy.deepcopy(document)
     uncited["known"][0]["card_ids"] = []
@@ -109,9 +142,70 @@ def test_bundle_requires_exact_pinned_spans_and_gates_research_completion(tmp_pa
     schema = json.loads((Path(__file__).resolve().parents[3] /
                          "contracts/schemas/jsonschema/noesis-intake-research-bundle-v1.json").read_text())
     jsonschema.validate(saved, schema)
-    assert saved["checks"]["ready"]
-    assert store.save("research", project_id, "first", document,
-                      principal_id="alice", scopes=SCOPES)["idempotent"]
+    assert not saved["checks"]["ready"]
+    assert "source_independence_unverified" in saved["checks"]["reasons"]
+    assert saved["checks"]["source_independence"] == [{
+        "claim_id": "claim-1", "status": "independent", "group_count": 2,
+        "distinct_host_count": 2,
+        "basis": "Reviewed the two cited reporting origins; no shared reporting origin identified.",
+        "verified": False,
+    }]
+    unauthorized = set(SCOPES) - {"knowledge:intake:review"}
+    with pytest.raises(IntakeError) as denied_review:
+        store.review_independence(
+            "research", saved["bundle_id"], 1, "review-1", "claim-1",
+            "independent", "Checked bylines and syndication lineage.",
+            document["claims"][0]["independence_review"]["groups"],
+            principal_id="alice", scopes=unauthorized,
+        )
+    assert denied_review.value.code == "unauthorized"
+    review_result = store.review_independence(
+        "research", saved["bundle_id"], 1, "review-1", "claim-1",
+        "independent", "Checked bylines and syndication lineage.",
+        document["claims"][0]["independence_review"]["groups"],
+        principal_id="alice", scopes=SCOPES,
+    )
+    review_schema = json.loads((Path(__file__).resolve().parents[3] /
+                                "contracts/schemas/jsonschema/noesis-intake-research-independence-review-v1.json").read_text())
+    jsonschema.validate(review_result["review"], review_schema)
+    assert review_result["bundle"]["checks"]["ready"]
+    assert review_result["bundle"]["checks"]["source_independence"][0]["verified"]
+    assert review_result["bundle"]["checks"]["source_independence"][0]["reviewer"] == "alice"
+    assert review_result["review"]["provenance"]["source_pins"]
+    jsonschema.validate(review_result["bundle"], schema)
+    replay = store.review_independence(
+        "research", saved["bundle_id"], 1, "review-1", "claim-1",
+        "independent", "Checked bylines and syndication lineage.",
+        document["claims"][0]["independence_review"]["groups"],
+        principal_id="alice", scopes=SCOPES,
+    )
+    assert replay["idempotent"]
+    with pytest.raises(IntakeError) as replay_conflict:
+        store.review_independence(
+            "research", saved["bundle_id"], 1, "review-1", "claim-1",
+            "independent", "Changed review basis.",
+            document["claims"][0]["independence_review"]["groups"],
+            principal_id="alice", scopes=SCOPES,
+        )
+    assert replay_conflict.value.code == "idempotency_conflict"
+    with pytest.raises(IntakeError) as second_review:
+        store.review_independence(
+            "research", saved["bundle_id"], 1, "review-2", "claim-1",
+            "independent", "A second review command.",
+            document["claims"][0]["independence_review"]["groups"],
+            principal_id="alice", scopes=SCOPES,
+        )
+    assert second_review.value.code == "independence_already_reviewed"
+    with pytest.raises(IntakeError) as caller_forgery:
+        forged = copy.deepcopy(document)
+        forged["claims"][0]["independence_review"]["verified"] = True
+        store.save("research", project_id, "forged-verified", forged,
+                   principal_id="alice", scopes=SCOPES)
+    assert caller_forgery.value.code == "invalid_bundle"
+    replayed_save = store.save("research", project_id, "first", document,
+                               principal_id="alice", scopes=SCOPES)
+    assert replayed_save["idempotent"]
+    assert replayed_save["checks"]["ready"]
     exported = store.export("research", saved["bundle_id"],
                             principal_id="alice", scopes=SCOPES)
     assert verify_research_bundle_export(exported)["valid"]
@@ -139,6 +233,15 @@ def test_bundle_requires_exact_pinned_spans_and_gates_research_completion(tmp_pa
     with pytest.raises(IntakeError, match="not ready"):
         intake.command("research", session_id, "finish", expected_revision=2,
                        action="complete", payload=None, principal_id="alice", scopes=SCOPES)
+    conn.close()
+    with duckdb.connect(str(tmp_path / "research.duckdb")) as reopened:
+        historical = IntakeResearchBundleStore(reopened, initialize=False).inspect(
+            "research", saved["bundle_id"], revision=1,
+            principal_id="alice", scopes=SCOPES,
+        )
+    assert not historical["checks"]["ready"]  # the cited source has since been corrected
+    assert historical["checks"]["source_independence"][0]["verified"]
+    assert historical["checks"]["source_independence"][0]["review_id"] == review_result["review"]["review_id"]
 
 
 def test_bundle_completion_and_owner_access():
@@ -147,6 +250,12 @@ def test_bundle_completion_and_owner_access():
     store = IntakeResearchBundleStore(conn)
     saved = store.save("research", started["project"]["project_id"], "save", document,
                        principal_id="alice", scopes=SCOPES)
+    store.review_independence(
+        "research", saved["bundle_id"], 1, "review", "claim-1", "independent",
+        "Checked two separate reporting origins.",
+        document["claims"][0]["independence_review"]["groups"],
+        principal_id="alice", scopes=SCOPES,
+    )
     with pytest.raises(Exception) as denied:
         store.inspect("research", saved["bundle_id"], principal_id="bob", scopes=SCOPES)
     assert denied.value.code == "unauthorized"
@@ -161,11 +270,46 @@ def test_bundle_completion_and_owner_access():
     assert completed["status"] == "completed"
 
 
+def test_independence_review_is_bound_to_exact_bundle_claim_revision():
+    conn = duckdb.connect(":memory:")
+    started, document, _, _ = _fixture(conn)
+    store = IntakeResearchBundleStore(conn)
+    project_id = started["project"]["project_id"]
+    saved = store.save("research", project_id, "initial", document,
+                       principal_id="alice", scopes=SCOPES)
+    reviewed = store.review_independence(
+        "research", saved["bundle_id"], 1, "review", "claim-1", "independent",
+        "Checked byline and syndication lineage.",
+        document["claims"][0]["independence_review"]["groups"],
+        principal_id="alice", scopes=SCOPES,
+    )
+    assert reviewed["bundle"]["checks"]["ready"]
+
+    revised_document = copy.deepcopy(document)
+    revised_document["claims"][0]["statement"] = "A revised finding statement"
+    revised = store.save("research", project_id, "revised", revised_document,
+                         expected_revision=1, principal_id="alice", scopes=SCOPES)
+    assert revised["revision"] == 2
+    assert not revised["checks"]["ready"]
+    assert store.inspect("research", saved["bundle_id"], revision=1,
+                         principal_id="alice", scopes=SCOPES)["checks"]["ready"]
+    current = store.inspect("research", saved["bundle_id"],
+                            principal_id="alice", scopes=SCOPES)
+    assert not current["checks"]["ready"]
+    assert current["checks"]["source_independence"][0]["verified"] is False
+
+
 def test_research_progress_assessment_is_durable_and_replays_its_snapshot(tmp_path):
     conn = duckdb.connect(str(tmp_path / "research-assessment.duckdb"))
     started, document, _, _ = _fixture(conn)
     saved = IntakeResearchBundleStore(conn).save(
         "research", started["project"]["project_id"], "save", document,
+        principal_id="alice", scopes=SCOPES,
+    )
+    IntakeResearchBundleStore(conn, initialize=False).review_independence(
+        "research", saved["bundle_id"], 1, "review", "claim-1", "independent",
+        "Checked separate reporting origins.",
+        document["claims"][0]["independence_review"]["groups"],
         principal_id="alice", scopes=SCOPES,
     )
     session_id = started["session"]["session_id"]

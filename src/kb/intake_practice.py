@@ -17,9 +17,12 @@ from src.kb.intake_modes import (
     _bounded,
     _hash,
     _json,
+    _plugin_links,
+    _plugin_ref_accessible,
     _reference,
     _text,
 )
+from src.kb.research_projects import ResearchProjectError
 
 CONTRACT = "noesis-intake-practice-v1"
 EXPORT_CONTRACT = "noesis-intake-practice-export-v1"
@@ -92,7 +95,9 @@ def _intervals(values: Any) -> list[int]:
     return values
 
 
-def practice_source_status(conn: Any, card: dict, owner: str) -> str:
+def practice_source_status(
+    conn: Any, card: dict, owner: str, scopes: set[str] | None = None,
+) -> str:
     """Check only authoritative intake snapshots; opaque references stay unassessed."""
     checked = False
     for ref in card["references"]:
@@ -101,6 +106,85 @@ def practice_source_status(conn: Any, card: dict, owner: str) -> str:
             table, identity, version = "intake_exploration_sources", "source_id", "version"
         elif kind == "intake_feed_item":
             table, identity, version = "intake_inbox_items", "item_id", "source_version"
+        elif kind == "research_bundle":
+            checked = True
+            if scopes is None:
+                return "unavailable"
+            tables = conn.execute(
+                "SELECT table_name FROM information_schema.tables "
+                "WHERE table_schema='main' AND table_name IN "
+                "('intake_research_bundles','intake_research_bundle_revisions',"
+                "'research_projects','research_project_revisions')",
+            ).fetchall()
+            if len(tables) != 4:
+                return "unavailable"
+            from src.kb.intake_research_bundle import IntakeResearchBundleStore
+            try:
+                bundle_store = IntakeResearchBundleStore(conn, initialize=False)
+                current = bundle_store.inspect(
+                    ref["namespace"], ref["id"], principal_id=owner,
+                    scopes=scopes,
+                )
+                project = bundle_store._project(
+                    ref["namespace"], current["project_id"], owner, scopes,
+                )
+            except (IntakeError, ResearchProjectError):
+                return "unavailable"
+            if current["revision"] != ref["version"]:
+                return "superseded"
+            if (current["project_revision"] != project["revision"]
+                    or current["question_revision"] != project["question_revision"]):
+                return "superseded"
+            locator = ref.get("locator", {}).get("section")
+            if not isinstance(locator, str) or "/" not in locator:
+                return "unavailable"
+            section, item_id = locator.split("/", 1)
+            if section == "concepts":
+                item = next((value for value in current["document"]["concepts"]
+                             if value["id"] == item_id), None)
+                cited = item.get("card_ids", []) if item else []
+            elif section == "evidence_cards":
+                item = next((value for value in current["document"]["cards"]
+                             if value["id"] == item_id), None)
+                cited = [item_id] if item else []
+            else:
+                return "unavailable"
+            if not item or not cited:
+                return "unavailable"
+            statuses = current["checks"].get("source_status", {})
+            if any(statuses.get(card_id) == "superseded" for card_id in cited):
+                return "superseded"
+            if any(statuses.get(card_id) != "current" for card_id in cited):
+                return "unavailable"
+            continue
+        elif kind == "document":
+            # Ingested documents: a later committed revision or a withdrawn
+            # lifecycle pauses the card for review; history is untouched.
+            checked = True
+            if scopes is None or (
+                "operator" not in scopes and f"document:{ref['id']}:read" not in scopes
+            ):
+                return "unavailable"
+            if not conn.execute(
+                "SELECT 1 FROM information_schema.tables WHERE table_schema='main' "
+                "AND table_name='document_revision_records'",
+            ).fetchone():
+                return "unavailable"
+            pinned = conn.execute(
+                "SELECT lifecycle FROM document_revision_records WHERE document_id=? "
+                "AND revision=? AND committed_watermark IS NOT NULL",
+                [ref["id"], ref["version"]],
+            ).fetchone()
+            latest = conn.execute(
+                "SELECT revision,lifecycle FROM document_revision_records WHERE document_id=? "
+                "AND committed_watermark IS NOT NULL ORDER BY revision DESC LIMIT 1",
+                [ref["id"]],
+            ).fetchone()
+            if pinned is None or latest is None:
+                return "unavailable"
+            if int(latest[0]) != ref["version"] or latest[1] in {"retracted", "deleted", "withdrawn"}:
+                return "superseded"
+            continue
         else:
             continue
         checked = True
@@ -188,10 +272,17 @@ class IntakePracticeStore:
         for card in value.get("cards", []):
             for ref in card["references"]:
                 _reference(ref, value["namespace"], scopes)
+        if any(
+            not _plugin_ref_accessible(link, value["namespace"], scopes)
+            for link in value.get("plugin_links", [])
+        ):
+            raise IntakeError("unauthorized", "current access to plugin-linked practice sources is required")
 
     def create_pack(
         self, namespace: str, request_key: str, title: str, cards: list[dict], *,
         principal_id: str, scopes: set[str], interval_days: list[int] | None = None,
+        plugin_links: list[dict] | None = None,
+        _modulo_import: dict | None = None,
     ) -> dict:
         request_key = _text(request_key, "request_key", limit=256)
         pack_id = "practice-pack:" + _hash([namespace, principal_id, request_key])[:32]
@@ -205,6 +296,11 @@ class IntakePracticeStore:
             ),
             "created_at_ms": self.now(),
         }
+        normalized_plugin_links = _plugin_links(plugin_links or [], namespace, scopes)
+        if normalized_plugin_links:
+            content["plugin_links"] = normalized_plugin_links
+        if _modulo_import is not None:
+            content["modulo_import"] = _bounded(_modulo_import, limit=512_000)
         self._access(content, principal_id, scopes, write=True)
         _bounded(content)
         digest = _hash({key: value for key, value in content.items() if key != "created_at_ms"})
@@ -316,6 +412,13 @@ class IntakePracticeStore:
                 return {**value, "idempotent": True}
             if current["revision"] != expected_revision:
                 raise IntakeError("revision_conflict", "pack changed; inspect before editing")
+            old_cards = {card["id"]: card for card in current["cards"]}
+            old_progress = {
+                row[0]: row[1:] for row in self.conn.execute(
+                    "SELECT card_id,due_at_ms,stage,unassisted_passes,last_assessed_ms "
+                    "FROM intake_practice_progress WHERE pack_id=?", [pack_id],
+                ).fetchall()
+            }
             value = {**current, **patch, "revision": expected_revision + 1,
                      "updated_at_ms": self.now()}
             _bounded(value)
@@ -334,8 +437,12 @@ class IntakePracticeStore:
             ])
             self.conn.execute("DELETE FROM intake_practice_progress WHERE pack_id=?", [pack_id])
             for card in value["cards"]:
+                unchanged = old_cards.get(card["id"]) == card and card["id"] in old_progress
+                progress = old_progress[card["id"]] if unchanged else (
+                    self.now(), 0, 0, None,
+                )
                 self.conn.execute("INSERT INTO intake_practice_progress VALUES (?,?,?,?,?,?,?)", [
-                    pack_id, card["id"], value["revision"], self.now(), 0, 0, None,
+                    pack_id, card["id"], value["revision"], *progress,
                 ])
             self.conn.execute("COMMIT")
         except Exception:
@@ -358,7 +465,12 @@ class IntakePracticeStore:
         for pack_id, card_id, due_at, stage, passes in rows:
             pack = self.inspect_pack(namespace, pack_id, principal_id=principal_id, scopes=scopes)
             card = next(card for card in pack["cards"] if card["id"] == card_id)
-            source_status = practice_source_status(self.conn, card, principal_id)
+            source_status = practice_source_status(self.conn, card, principal_id, scopes)
+            import_records = {
+                item["native_card_id"]: item
+                for item in pack.get("modulo_import", {}).get("records", [])
+            }
+            imported = import_records.get(card_id)
             result.append({"pack_id": pack_id, "pack_revision": pack["revision"],
                            "card_id": card_id, "kind": card["kind"],
                            "prompt": card["prompt"], "references": card["references"],
@@ -366,6 +478,10 @@ class IntakePracticeStore:
                            "overdue": now > due_at,
                            "stage": stage, "self_reported_unassisted_passes": passes,
                            "source_status": source_status,
+                           "schedule_mapping_review_required": bool(
+                               imported and imported["schedule_mapping"]["status"] == "review_required"
+                           ),
+                           "source_card_id": imported["source_card_id"] if imported else None,
                            "reviewable": source_status not in {"superseded", "unavailable"}})
         return {"cards": result, "as_of_ms": now}
 
@@ -379,7 +495,7 @@ class IntakePracticeStore:
         result = {**review, "prompt": card["prompt"], "kind": card["kind"],
                   "references": card["references"],
                   "mastery_criterion": card["mastery_criterion"],
-                  "source_status": practice_source_status(self.conn, card, principal_id)}
+                  "source_status": practice_source_status(self.conn, card, principal_id, scopes)}
         if review["status"] in {"revealed", "assessed"}:
             result["answer"] = card["answer"]
             result["answer_status"] = card["answer_status"]
@@ -407,8 +523,8 @@ class IntakePracticeStore:
         card = next((card for card in pack["cards"] if card["id"] == card_id), None)
         if card is None:
             raise IntakeError("card_not_found", "card is not in the current pack")
-        if practice_source_status(self.conn, card, principal_id) in {"superseded", "unavailable"}:
-            raise IntakeError("stale_practice_source", "revise the card after its intake source changes")
+        if practice_source_status(self.conn, card, principal_id, scopes) in {"superseded", "unavailable"}:
+            raise IntakeError("stale_practice_source", "revise the card after its linked source changes")
         review = {"contract": CONTRACT, "review_id": review_id,
                   "namespace": namespace, "owner": principal_id,
                   "pack_id": pack_id, "pack_revision": pack["revision"],
@@ -473,8 +589,8 @@ class IntakePracticeStore:
                 raise IntakeError("revision_conflict", "review changed; inspect before retry")
             pack = self._pack(namespace, review["pack_id"], review["pack_revision"])
             card = next(card for card in pack["cards"] if card["id"] == review["card_id"])
-            if practice_source_status(self.conn, card, principal_id) in {"superseded", "unavailable"}:
-                raise IntakeError("stale_practice_source", "revise the card after its intake source changes")
+            if practice_source_status(self.conn, card, principal_id, scopes) in {"superseded", "unavailable"}:
+                raise IntakeError("stale_practice_source", "revise the card after its linked source changes")
             if action == "attempt":
                 if review["status"] != "active" or set(payload) != {"answer", "assisted"}:
                     raise IntakeError("invalid_status", "record one answer before reveal")

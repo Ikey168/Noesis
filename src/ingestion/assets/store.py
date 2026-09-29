@@ -16,7 +16,9 @@ bytes live and one identity for an image. This is that place:
 surfaces dereference it to render the actual image next to a citation.
 
 Multi-parent tracking (the same asset appearing in several documents) is Track
-C's ``image_appearances`` table; here an asset records only its first-seen
+C's ``image_appearances`` table (a sampled video keyframe, OX04, is an
+appearance in its media document whose ``context`` carries the offset and
+scene index; see ``src.ingestion.connectors.media.keyframes``); here an asset records only its first-seen
 parent, and re-``put`` of the same bytes is idempotent (it never overwrites it).
 """
 
@@ -56,6 +58,41 @@ CREATE TABLE IF NOT EXISTS image_appearances (
     PRIMARY KEY (sha256, document_id)
 )
 """
+
+
+# ``image_appearances.context`` marker for a sampled video keyframe (OX04).
+FRAME_APPEARANCE_KIND = "video_frame"
+
+
+def frame_context(timestamp_s: float, scene_index: int, media_fragment: Optional[str] = None) -> str:
+    """The appearance ``context`` for one sampled video frame: JSON carrying the
+    offset in seconds and the scene index (and the seekable Media Fragment URI
+    when known), so a reuse finding can cite document + offset."""
+    import json
+
+    payload: Dict[str, Any] = {
+        "kind": FRAME_APPEARANCE_KIND,
+        "offset_s": round(float(timestamp_s), 3),
+        "scene_index": int(scene_index),
+    }
+    if media_fragment:
+        payload["media_fragment"] = media_fragment
+    return json.dumps(payload, sort_keys=True)
+
+
+def parse_frame_context(context: Optional[str]) -> Optional[Dict[str, Any]]:
+    """The frame payload of an appearance context, or None for a still image."""
+    import json
+
+    if not context or not context.startswith("{"):
+        return None
+    try:
+        payload = json.loads(context)
+    except ValueError:
+        return None
+    if isinstance(payload, dict) and payload.get("kind") == FRAME_APPEARANCE_KIND:
+        return payload
+    return None
 
 
 @dataclass
@@ -307,6 +344,14 @@ class ImageAssetStore:
             data = self.read_bytes(sha256)
             if data is None:
                 continue
-            self.enrich(sha256, phash=perceptual_hash(data), exif=extract_exif(data))
+            # A sampled video keyframe (OX04) gets the same dHash; its EXIF is
+            # recorded empty, never extracted or fabricated.
+            exif = {} if self.is_keyframe(sha256) else extract_exif(data)
+            self.enrich(sha256, phash=perceptual_hash(data), exif=exif)
             enriched += 1
         return enriched
+
+    def is_keyframe(self, sha256: str) -> bool:
+        """True when every appearance of an asset is a sampled video frame."""
+        contexts = [a["context"] for a in self.appearances(sha256)]
+        return bool(contexts) and all(parse_frame_context(c) for c in contexts)

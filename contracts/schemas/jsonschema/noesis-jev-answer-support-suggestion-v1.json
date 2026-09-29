@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-answer-support-suggestion-v1.json",
+  "title": "Exact-citation answer support suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "relation", "probabilities", "vendor_confidence", "source_ref", "source_binding", "locator", "citation", "counts_as_independent_source", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-answer-support-suggestion-v1"},
+    "status": {"enum": ["suggested", "abstained"]},
+    "accepted": {"const": false},
+    "relation": {"enum": ["entailment", "contradiction", "neutral", "unavailable", null]},
+    "probabilities": {"type": ["object", "null"], "additionalProperties": {"type": "number", "minimum": 0, "maximum": 1}},
+    "vendor_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "source_ref": {"type": "object"},
+    "source_binding": {"type": "array", "items": {"type": "object"}},
+    "locator": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}}, "additionalProperties": true},
+    "citation": {"type": "object"},
+    "counts_as_independent_source": {"const": false},
+    "decision_run": {"type": "object"}
+  },
+  "additionalProperties": true
+}

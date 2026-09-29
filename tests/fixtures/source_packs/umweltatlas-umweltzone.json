@@ -1,0 +1,32 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "Geoportal Berlin (Umweltatlas) — authored fixture",
+ "license": "dl-de/zero-2-0",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence. Geometries are simplified boxes in EPSG:25833.",
+ "endpoint": "https://gdi.berlin.de/services/wfs/ua_umweltzone",
+ "scenarios": [
+  "projected-crs-epsg-25833",
+  "complete-snapshot",
+  "umweltatlas-layer"
+ ],
+ "native_pages": [
+  {
+   "start_index": 0,
+   "status": 200,
+   "params": {
+    "SERVICE": "WFS",
+    "VERSION": "2.0.0",
+    "REQUEST": "GetFeature",
+    "TYPENAMES": "ua_umweltzone:umweltzone",
+    "OUTPUTFORMAT": "application/json",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25833",
+    "SORTBY": "gml_id",
+    "COUNT": 50,
+    "STARTINDEX": 0
+   },
+   "body_sha256": "4d9fb49ddc868c7be3ba169c8d5848b8c92f515e8b45ebbeef0f6f0c997fc00c",
+   "body": "{\n \"type\": \"FeatureCollection\",\n \"features\": [\n  {\n   \"type\": \"Feature\",\n   \"id\": \"umweltzone.1\",\n   \"geometry\": {\n    \"type\": \"MultiPolygon\",\n    \"coordinates\": [\n     [\n      [\n       [\n        386000.0,\n        5814500.0\n       ],\n       [\n        396500.0,\n        5814500.0\n       ],\n       [\n        396500.0,\n        5824000.0\n       ],\n       [\n        386000.0,\n        5824000.0\n       ],\n       [\n        386000.0,\n        5814500.0\n       ]\n      ]\n     ]\n    ]\n   },\n   \"properties\": {\n    \"gml_id\": \"umweltzone.1\",\n    \"bezeichnung\": \"Umweltzone Berlin (authored fixture outline)\",\n    \"stufe\": \"Stufe 3 (grüne Plakette)\",\n    \"gueltig_ab\": \"2010-01-01\"\n   }\n  }\n ],\n \"totalFeatures\": 1,\n \"numberMatched\": 1,\n \"numberReturned\": 1,\n \"timeStamp\": \"2026-09-20T06:00:00.000Z\",\n \"crs\": {\n  \"type\": \"name\",\n  \"properties\": {\n   \"name\": \"urn:ogc:def:crs:EPSG::25833\"\n  }\n }\n}\n"
+  }
+ ],
+ "features": 1
+}

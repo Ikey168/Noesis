@@ -1,0 +1,461 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "clinical.core",
+  "version": "1.0.0",
+  "description": "Clinical Evidence records, publication links, MeSH term alignment, evidence maps and monitors. No medical advice, dosing or treatment recommendation.",
+  "implementation": {
+    "name": "src.kb.clinical_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "clinical.trials",
+      "contract": {
+        "name": "noesis-clinical-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "provider-contracts",
+        "lookup-trial",
+        "trial-history",
+        "import-review-registration"
+      ],
+      "semantic_constraints": {
+        "records": "registration, results posting and publication stay distinct",
+        "registries": "linked across registries, never merged"
+      }
+    },
+    {
+      "id": "clinical.publication-links",
+      "contract": {
+        "name": "noesis-clinical-publication-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-publications",
+        "review-publication-link",
+        "coverage-gaps"
+      ],
+      "semantic_constraints": {
+        "evidence": "declared identifiers only; mentions are review candidates"
+      }
+    },
+    {
+      "id": "clinical.methodology",
+      "contract": {
+        "name": "noesis-clinical-trial-design",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "record-trial-design",
+        "outcome-switching"
+      ],
+      "semantic_constraints": {
+        "findings": "outcome switching is a finding, not a verdict"
+      }
+    },
+    {
+      "id": "clinical.terms",
+      "contract": {
+        "name": "noesis-clinical-term-alignment",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "align-terms",
+        "expand-question"
+      ],
+      "semantic_constraints": {
+        "mapping_kinds": "equivalent/broader/narrower/related/incompatible preserved"
+      }
+    },
+    {
+      "id": "clinical.evidence-maps",
+      "contract": {
+        "name": "noesis-clinical-evidence-map",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "build-evidence-map",
+        "inspect-evidence-map",
+        "strength-view",
+        "export-evidence-bundle"
+      ],
+      "semantic_constraints": {
+        "strength": "rule-based from recorded methodology; no score; no grade without inputs",
+        "boundary": "not medical advice"
+      }
+    },
+    {
+      "id": "clinical.monitoring",
+      "contract": {
+        "name": "noesis-clinical-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "source-pack runtime schedules; no new scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "provider-contracts",
+      "tool": "noesis-knowledge-engine.clinical_provider_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "lookup-trial",
+      "tool": "noesis-knowledge-engine.lookup_clinical_trial",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "trial-history",
+      "tool": "noesis-knowledge-engine.clinical_trial_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "import-review-registration",
+      "tool": "noesis-knowledge-engine.import_prospero_registration",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "clinical_records"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "link-publications",
+      "tool": "noesis-knowledge-engine.link_clinical_publications",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "clinical_records"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write",
+        "knowledge:paper-family:read",
+        "knowledge:paper-family:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-publication-link",
+      "tool": "noesis-knowledge-engine.review_clinical_publication_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "clinical_records"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "coverage-gaps",
+      "tool": "noesis-knowledge-engine.clinical_coverage_gaps",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-trial-design",
+      "tool": "noesis-knowledge-engine.record_clinical_trial_design",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record_id"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:write",
+        "knowledge:methodology:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "outcome-switching",
+      "tool": "noesis-knowledge-engine.clinical_outcome_switching",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:methodology:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "align-terms",
+      "tool": "noesis-knowledge-engine.align_clinical_terms",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "mesh_version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write",
+        "knowledge:schema:read",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "expand-question",
+      "tool": "noesis-knowledge-engine.expand_clinical_question",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "build-evidence-map",
+      "tool": "noesis-knowledge-engine.build_clinical_evidence_map",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "clinical_evidence_views"
+      },
+      "readiness_probe": "maps",
+      "required_scopes": [
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-evidence-map",
+      "tool": "noesis-knowledge-engine.inspect_clinical_evidence_map",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "maps",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "strength-view",
+      "tool": "noesis-knowledge-engine.clinical_strength_view",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "maps",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_clinical_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "maps",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_clinical_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_clinical_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_clinical_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "clinical-record",
+      "store": "src.kb.clinical_records",
+      "tables": [
+        "clinical_records",
+        "clinical_record_revisions",
+        "clinical_version_conflicts",
+        "clinical_term_annotations",
+        "clinical_provider_state",
+        "clinical_view_dependencies",
+        "clinical_view_invalidations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "clinical-evidence-map",
+      "store": "src.kb.clinical_evidence",
+      "tables": [
+        "clinical_evidence_views"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "clinical-monitor",
+      "store": "src.kb.clinical_monitoring",
+      "tables": [
+        "clinical_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "clinical_records"
+    },
+    {
+      "id": "maps",
+      "kind": "table-exists",
+      "target": "clinical_evidence_views"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "clinical_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "clinical-evidence",
+      "version": "0.1.0",
+      "range": "^0.1.0"
+    }
+  ]
+}

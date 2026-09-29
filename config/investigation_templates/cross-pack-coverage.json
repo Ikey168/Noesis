@@ -1,0 +1,31 @@
+{
+  "name": "Cross-Pack Coverage Assessment",
+  "description": "Compare explicit date, geography, language and topic scope against pinned source-pack runs.",
+  "parameters": {
+    "topic": "Requested research topic",
+    "geography": "Requested geographic scope",
+    "language": "Requested language",
+    "date_window": "Requested date interval"
+  },
+  "questions": [
+    "Which ${topic} evidence is observed for ${geography}, ${language}, and ${date_window}?",
+    "Which scope cells have empty successful searches, unavailable sources, or no attempt?",
+    "Which changes reflect recovered evidence rather than changed scope, pack versions, or credentials?"
+  ],
+  "success_criteria": [
+    "Pin historical pack versions and committed source-pack run receipts",
+    "Cite exact document revisions for observed cells",
+    "State the assessed denominator and missingness reasons without claiming exhaustive recall"
+  ],
+  "scope": {"domains": ["research"], "namespaces": []},
+  "source_packs": [
+    {"pack_id": "research-discovery", "version": "1.2.0"},
+    {"pack_id": "primary-scientific-evidence", "version": "1.0.0"}
+  ],
+  "report_outline": [
+    "Requested ${topic} scope and assessed denominator",
+    "Observed evidence in ${geography} and ${language}",
+    "Empty, unavailable, unattempted, and out-of-scope cells",
+    "Changes across runs, source limitations, and next actions"
+  ]
+}

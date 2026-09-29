@@ -1,6 +1,9 @@
 import copy
+import json
+from pathlib import Path
 
 import duckdb
+import jsonschema
 import pytest
 
 from src.kb.decisions import DecisionStore, DecisionError
@@ -51,6 +54,41 @@ def test_sensitivity_changes_order_preserves_ties_and_records_provenance():
     missing = store.sensitivity("r", decision["decision_id"], 1, **args, **AUTH)
     assert missing["baseline"]["scores"]["a"] is None
     assert missing["baseline"]["missing_inputs"] == {"a": ["quality"]}
+
+
+def test_comparative_matrix_is_pinned_to_decision_revision_and_scope():
+    store, content, decision = setup()
+    receipt = store.sensitivity(
+        "r", decision["decision_id"], 1,
+        weights={"cost": 1, "quality": 1},
+        inputs={"a": {"cost": 1, "quality": None},
+                "b": {"cost": 0, "quality": 1}},
+        scenarios=[{"assumption": "Cost dominates", "weights": {"cost": 3}}],
+        provenance="Author-declared comparable utilities", **AUTH,
+    )
+    matrix = store.comparative_matrix(
+        "r", decision["decision_id"], receipt["receipt_id"], **AUTH,
+    )
+    assert matrix["decision_revision"] == 1
+    assert matrix["selected_action"] == "a"
+    assert matrix["options"][0]["missing_inputs"] == ["quality"]
+    assert matrix["options"][0]["relative_advantages"] == ["cost"]
+    assert matrix["options"][1]["relative_disadvantages"] == ["cost"]
+    assert matrix["assumptions"] == content["assumptions"]
+    assert matrix["scenarios"][0]["assumption"] == "Cost dominates"
+    revised = copy.deepcopy(content)
+    revised["selected_action"] = "b"
+    revised["rationale"] = "New preference"
+    store.revise("r", decision["decision_id"], 1, revised, **AUTH)
+    assert store.comparative_matrix(
+        "r", decision["decision_id"], receipt["receipt_id"], **AUTH,
+    )["selected_action"] == "a"
+    with pytest.raises(DecisionError) as denied:
+        store.comparative_matrix(
+            "r", decision["decision_id"], receipt["receipt_id"],
+            principal_id="bob", scopes=AUTH["scopes"],
+        )
+    assert denied.value.code == "unauthorized"
 
 
 def test_invalid_baseline_and_input_bounds_reject_without_receipts():
@@ -122,3 +160,98 @@ def test_standalone_choice_requires_explicit_bounded_context():
     content["observations"] = [{"kind": "evidence", "id": "other", "namespace": "other", "revision": 1}]
     with pytest.raises(DecisionError, match="namespace scope"):
         store.create("r", "d", content, **AUTH)
+
+
+def test_decision_evidence_is_budgeted_assessed_and_durably_replayed(tmp_path):
+    database = str(tmp_path / "bounded-decision.duckdb")
+    conn = duckdb.connect(database)
+    store = DecisionStore(conn, now=lambda: 1234)
+    auth = {"principal_id": "alice", "scopes": {
+        "knowledge:decisions:read", "knowledge:decisions:write", "namespace:r:write",
+    }}
+    content = {
+        "project": None,
+        "decision_context": {
+            "question": "Renew the service?", "stakes": "One month of cost",
+            "required_confidence": "Moderate", "stop_condition": "Compare current use with renewal cost",
+            "uncertainty": "Next month's usage is unknown", "missing_inputs": ["Future usage"],
+            "deadline_at_ms": None,
+        },
+        "evidence_budget": {
+            "max_items": 1, "criteria": ["current usage"],
+            "stop_condition": "Stop when current usage has been checked once",
+        },
+        "evidence_assessments": [],
+        "options": [{"id": "yes", "description": "Renew"}, {"id": "no", "description": "Cancel"}],
+        "constraints": [], "assumptions": [], "observations": [], "preferences": [],
+        "selected_action": "no", "rationale": "No usage was recorded",
+        "review_conditions": [],
+    }
+    decision = store.create("r", "renewal", content, **auth)
+    assert decision["contract"] == "noesis-decision-v3"
+    reference = {"kind": "evidence", "id": "usage-check", "namespace": "r", "revision": 3}
+    recorded = store.record_evidence(
+        "r", decision["decision_id"], 1, "usage-1", reference, "current usage",
+        "supports", "The source records no service use during the period.", **auth,
+    )
+    assert recorded["revision"] == 2
+    assert recorded["evidence_receipt"]["remaining_items"] == 0
+    schema = json.loads((Path(__file__).resolve().parents[3] /
+                         "contracts/schemas/jsonschema/noesis-decision-evidence-receipt-v1.json").read_text())
+    jsonschema.validate(recorded["evidence_receipt"], schema)
+    with pytest.raises(DecisionError) as full:
+        store.record_evidence(
+            "r", decision["decision_id"], 2, "usage-2",
+            {"kind": "evidence", "id": "usage-check-2", "namespace": "r", "revision": 1},
+            "current usage", "contradicts", "A second item exceeds the declared cap.", **auth,
+        )
+    assert full.value.code == "evidence_budget_exceeded"
+    with pytest.raises(DecisionError) as changed:
+        store.record_evidence(
+            "r", decision["decision_id"], 1, "usage-1", reference, "current usage",
+            "contradicts", "Changed replay payload.", **auth,
+        )
+    assert changed.value.code == "idempotency_conflict"
+    conn.close()
+
+    with duckdb.connect(database) as reopened:
+        replay = DecisionStore(reopened, initialize=False).record_evidence(
+            "r", decision["decision_id"], 1, "usage-1", reference, "current usage",
+            "supports", "The source records no service use during the period.", **auth,
+        )
+        historical = DecisionStore(reopened, initialize=False).inspect(
+            "r", decision["decision_id"], revision=1, **auth,
+        )
+    assert replay["idempotent"]
+    assert replay["evidence_receipt"] == recorded["evidence_receipt"]
+    assert replay["revision"] == 2
+    assert historical["content"]["observations"] == []
+
+
+def test_decision_evidence_requires_exact_relevance_assessment_and_budget():
+    conn = duckdb.connect()
+    store = DecisionStore(conn)
+    content = {
+        "project": None,
+        "decision_context": {
+            "question": "Choose?", "stakes": "Low", "required_confidence": "Moderate",
+            "stop_condition": "One relevant source", "uncertainty": "Some unknowns",
+            "missing_inputs": [], "deadline_at_ms": None,
+        },
+        "evidence_budget": {"max_items": 1, "criteria": ["cost"], "stop_condition": "Stop at one"},
+        "options": [{"id": "a", "description": "A"}, {"id": "b", "description": "B"}],
+        "constraints": [], "assumptions": [],
+        "observations": [{"kind": "evidence", "id": "price", "namespace": "r", "revision": 1}],
+        "evidence_assessments": [], "preferences": [], "selected_action": "a",
+        "rationale": "Current price favors A", "review_conditions": [],
+    }
+    with pytest.raises(DecisionError) as missing:
+        store.create("r", "unassessed", content, **AUTH)
+    assert missing.value.code == "invalid_evidence_assessment"
+    content["evidence_assessments"] = [{
+        "reference": content["observations"][0], "criterion": "price",
+        "assessment": "supports", "rationale": "It informs cost.",
+    }]
+    with pytest.raises(DecisionError) as wrong_criterion:
+        store.create("r", "wrong-criterion", content, **AUTH)
+    assert wrong_criterion.value.code == "invalid_evidence_assessment"

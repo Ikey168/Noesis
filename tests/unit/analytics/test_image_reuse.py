@@ -126,3 +126,62 @@ def test_image_reuse_for_asset(conn):
     assert validate_analytic_output(res) == []
     assert res["near_duplicate_count"] == 1
     assert res["near_duplicates"][0]["appearances"][0]["document_id"] == "doc:b"
+
+
+# --- OX04 (#2044): sampled video keyframes join perceptual-hash reuse --------
+
+
+def test_recycled_video_frame_is_a_finding_citing_document_and_offset(conn, tmp_path):
+    from src.ingestion.connectors.media.keyframes import Keyframe, index_keyframe_assets
+
+    store = ImageAssetStore(conn, root=str(tmp_path / "figs"))
+    photo = _img(shift=3)
+    store.ingest(photo, document_id="news:quake2019", context="quake photo", now_ms=1)
+    # The same photo, rescaled, is a frame in a later broadcast; two other
+    # frames of the same video match it too but the video is one document.
+    frames = [
+        Keyframe(timestamp_s=4.0, image_bytes=_img(shift=200)),
+        Keyframe(timestamp_s=12.5, image_bytes=_rescale(photo, 64)),
+        Keyframe(timestamp_s=13.0, image_bytes=_rescale(photo, 72)),
+    ]
+    indexed = index_keyframe_assets(store, "media:broadcast-2024", frames,
+                                    media_ref="https://ex.com/b.mp4", now_ms=5)
+    assert [i["scene_index"] for i in indexed] == [0, 1, 2]
+    assert store.get(indexed[1]["sha256"]).parent_document_id == "media:broadcast-2024"
+    prov = store.get_provenance(indexed[1]["sha256"])
+    assert prov["phash"] and prov["exif"] == {}
+
+    res = find_reuse(conn)
+    assert validate_analytic_output(res) == []
+    [finding] = [f for f in res["findings"] if "news:quake2019" in f["documents"]]
+    assert finding["documents"] == ["media:broadcast-2024", "news:quake2019"]
+    assert finding["distinct_document_count"] == 2  # the video is one document
+    assert finding["includes_video_frames"] is True
+    kinds = {a["appearance_kind"] for a in finding["appearances"]}
+    assert kinds == {"still_image", "video_frame"}
+    frame = next(a for a in finding["appearances"] if a["appearance_kind"] == "video_frame")
+    assert frame["citation"]["document_id"] == "media:broadcast-2024"
+    assert frame["citation"]["offset_s"] in (12.5, 13.0)
+    assert frame["citation"]["media_fragment"].startswith("https://ex.com/b.mp4#t=")
+
+
+def test_frames_from_one_video_alone_are_not_a_cross_document_finding(conn, tmp_path):
+    from src.ingestion.connectors.media.keyframes import Keyframe, index_keyframe_assets
+
+    store = ImageAssetStore(conn, root=str(tmp_path / "figs"))
+    photo = _img(shift=9)
+    index_keyframe_assets(store, "media:one", [Keyframe(1.0, photo), Keyframe(2.0, _rescale(photo, 60))])
+    assert find_reuse(conn)["findings"] == []
+
+
+def test_backfill_records_empty_exif_for_frames(conn, tmp_path):
+    from src.ingestion.assets.store import frame_context
+
+    store = ImageAssetStore(conn, root=str(tmp_path / "figs"))
+    frame = _img(shift=17)
+    asset = store.put(frame, parent_document_id="media:x", now_ms=1)
+    store.record_appearance(asset.sha256, "media:x", context=frame_context(3.0, 0), now_ms=1)
+    assert store.is_keyframe(asset.sha256) is True
+    assert store.backfill_provenance() == 1
+    prov = store.get_provenance(asset.sha256)
+    assert prov["phash"] and prov["exif"] == {}

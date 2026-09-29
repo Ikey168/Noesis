@@ -5,6 +5,7 @@ from __future__ import annotations
 import json
 import time
 
+from src.kb.coverage_assessments import CoverageAssessmentStore
 from src.kb.intake_modes import IntakeError, IntakeStore, _hash, _json, _text
 from src.kb.intake_research_bundle import IntakeResearchBundleStore
 from src.kb.research_loops import ResearchLoopRuntimeError, ResearchLoopStore
@@ -28,7 +29,10 @@ def _has_table(conn, table):
     ).fetchone())
 
 
-def inspect_research_progress(conn, namespace, session_id, *, principal_id, scopes):
+def inspect_research_progress(
+    conn, namespace, session_id, *, principal_id, scopes,
+    coverage_assessment_id=None,
+):
     session = IntakeStore(conn, initialize=False).inspect(
         namespace, session_id, principal_id=principal_id, scopes=scopes,
     )
@@ -153,6 +157,26 @@ def inspect_research_progress(conn, namespace, session_id, *, principal_id, scop
     if not loops:
         limitations.append("no_accessible_research_loop_receipts")
 
+    coverage = None
+    if coverage_assessment_id is not None:
+        assessment = CoverageAssessmentStore(conn, initialize=False).inspect(
+            namespace, coverage_assessment_id, principal_id=principal_id,
+            scopes=scopes, limit=64,
+        )
+        statuses = {}
+        for cell in assessment["cells"]:
+            statuses[cell["status"]] = statuses.get(cell["status"], 0) + 1
+        coverage = {
+            "assessment_id": assessment["assessment_id"],
+            "denominator": assessment["denominator"],
+            "status_counts": statuses,
+            "scope": assessment["scope"],
+            "limitations": assessment["limitations"],
+        }
+        if statuses.get("unavailable") or statuses.get("unattempted"):
+            blockers.append("coverage_gaps_need_review")
+        limitations.append("coverage_assessment_selected_by_caller_not_project_bound")
+
     dod_reviews = []
     if bundle is not None:
         for review in bundle.get("document", {}).get("definition_of_done", []):
@@ -176,6 +200,7 @@ def inspect_research_progress(conn, namespace, session_id, *, principal_id, scop
                                                 "revision": bundle["revision"],
                                                 "checks": bundle["checks"],
                                                 "definition_of_done": dod_reviews},
+        "coverage_assessment": coverage,
         "loops": loops, "blockers": sorted(set(blockers)),
         "limitations": sorted(set(limitations)),
     }
@@ -219,6 +244,17 @@ def _evaluate_progress(progress):
                 }
                 add(reason, {"kind": "research_bundle", "id": bundle["id"]},
                     actions.get(reason, "Inspect the cited bundle revision and address this readiness check."))
+
+    coverage = progress.get("coverage_assessment")
+    if coverage:
+        statuses = coverage["status_counts"]
+        if statuses.get("unavailable") or statuses.get("unattempted"):
+            add(
+                "coverage_gaps_need_review",
+                {"kind": "coverage_assessment", "id": coverage["assessment_id"],
+                 "status_counts": statuses},
+                "Review unavailable or unattempted coverage cells; gather evidence or record why those cells remain uncovered.",
+            )
 
     for source in progress["project"]["source_status"]:
         if source["status"] != "current":

@@ -22,6 +22,17 @@ def test_research_bundle_mcp_discovery_and_scopes(tmp_path, monkeypatch):
     monkeypatch.setattr(server, "_connection",
                         lambda *, read_only: duckdb.connect(path, read_only=read_only))
     tools = asyncio.run(server.mcp.get_tools())
+    assert "review_research_claim_independence" in tools
+    assert _mutability("review_research_claim_independence") == "write"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "review_research_claim_independence"
+    ) == ["knowledge:intake:read", "knowledge:intake:review", "knowledge:projects:read"]
+    denied_review = tools["review_research_claim_independence"].fn(
+        namespace="research", bundle_id="research-bundle:missing", expected_revision=1,
+        command_key="review", claim_id="claim-1", status="independent",
+        basis="Reviewed origin metadata.", groups=[],
+    )
+    assert denied_review["error"]["code"] == "unauthorized"
     started = tools["start_intake_research_topic"].fn(
         namespace="research", request_key="topic", questions=["Why?"],
         success_criteria=["Explain why"],
@@ -102,8 +113,42 @@ def test_research_bundle_mcp_discovery_and_scopes(tmp_path, monkeypatch):
     )
     assert observed["loops"][0]["coverage"] == {"study": 1}
     assert observed["loops"][0]["actions"][0]["stages"][0]["output_hash"] == "output"
+    assert observed["coverage_assessment"] is None
+    from src.kb.coverage_assessments import CoverageAssessmentStore
+
+    with duckdb.connect(path) as conn:
+        CoverageAssessmentStore(conn)
+        assessment = {
+            "assessment_id": "coverage:fixture", "denominator": 2,
+            "scope": {"topic": ["question"]},
+            "cells": [{"status": "observed", "sources": []},
+                      {"status": "unattempted", "sources": []}],
+            "limitations": ["Selected evidence only"],
+        }
+        conn.execute(
+            "INSERT INTO investigation_coverage_assessments VALUES (?,?,?,?,?,?)",
+            ["coverage:fixture", "research", "alice", "fixture", json.dumps(assessment), 1],
+        )
+    scopes.add("knowledge:coverage:read")
+    with_coverage = tools["inspect_intake_research_progress"].fn(
+        namespace="research", session_id=started["session"]["session_id"],
+        coverage_assessment_id="coverage:fixture",
+    )
+    assert with_coverage["coverage_assessment"]["status_counts"] == {
+        "observed": 1, "unattempted": 1,
+    }
+    assert "coverage_gaps_need_review" in with_coverage["blockers"]
+    assert any(
+        blocker["code"] == "coverage_gaps_need_review"
+        for blocker in with_coverage["assessment"]["blockers"]
+    )
+    scopes.remove("knowledge:coverage:read")
+    assert tools["inspect_intake_research_progress"].fn(
+        namespace="research", session_id=started["session"]["session_id"],
+        coverage_assessment_id="coverage:fixture",
+    )["error"]["code"] == "unauthorized"
     jsonschema.validate(
-        observed,
+        with_coverage,
         json.loads((Path(__file__).resolve().parents[3] /
                     "contracts/schemas/jsonschema/noesis-intake-research-progress-v1.json").read_text()),
     )

@@ -187,13 +187,19 @@ class DynamoDBAPIKeyStore:
                 AttributeDefinitions=[
                     {"AttributeName": "key_id", "AttributeType": "S"},
                     {"AttributeName": "user_id", "AttributeType": "S"},
+                    {"AttributeName": "key_prefix", "AttributeType": "S"},
                 ],
                 GlobalSecondaryIndexes=[
                     {
                         "IndexName": "user-id-index",
                         "KeySchema": [{"AttributeName": "user_id", "KeyType": "HASH"}],
                         "Projection": {"ProjectionType": "ALL"},
-                    }
+                    },
+                    {
+                        "IndexName": "key-prefix-index",
+                        "KeySchema": [{"AttributeName": "key_prefix", "KeyType": "HASH"}],
+                        "Projection": {"ProjectionType": "ALL"},
+                    },
                 ],
                 BillingMode="PAY_PER_REQUEST",
                 Tags=[
@@ -261,6 +267,32 @@ class DynamoDBAPIKeyStore:
         except Exception as e:
             logger.error("Failed to get API keys for user {0}: {1}".format(user_id, e))
             return []
+
+    async def find_by_prefix(self, key_prefix: str) -> List[APIKey]:
+        """Candidate keys sharing a prefix (the hash decides which one matches).
+
+        Uses the ``key-prefix-index`` GSI; tables created before that index
+        existed fall back to a filtered scan.
+        """
+        if not self.table:
+            return []
+        values = {":prefix": key_prefix}
+        try:
+            response = self.table.query(
+                IndexName="key-prefix-index",
+                KeyConditionExpression="key_prefix = :prefix",
+                ExpressionAttributeValues=values,
+            )
+        except Exception:  # noqa: BLE001 - index missing on older tables
+            try:
+                response = self.table.scan(
+                    FilterExpression="key_prefix = :prefix",
+                    ExpressionAttributeValues=values,
+                )
+            except Exception as e:
+                logger.error("Failed to look up API key prefix: {0}".format(e))
+                return []
+        return [APIKey.from_dict(item) for item in response.get("Items", [])]
 
     async def update_api_key_usage(self, key_id: str) -> bool:
         """Update API key last used time and usage count."""
@@ -409,29 +441,31 @@ class APIKeyManager:
         """
         Verify an API key and return key details if valid.
 
+        Candidates are found by the stored 8-character prefix; the PBKDF2 hash
+        comparison (constant time) decides the match. Revoked, inactive and
+        expired keys are rejected.
+
         Args:
             api_key: The API key to verify
 
         Returns:
             APIKey object if valid, None otherwise
         """
-        if not api_key.startswith("nn_"):
+        if not api_key or not api_key.startswith("nn_"):
             return None
-
-        # In a production system, we'd need an index on key_prefix
-        # For now, we'll implement a simple verification approach
-        # This is not optimal but works for the demo
-
-        # We'd need to store a mapping of prefix to key_id for efficiency
-        # For this implementation, we'll simulate the lookup
-
-        # Generate a key_id based on the prefix (this is a simplification)
-        # In reality, we'd have a separate index or use a different approach
-
-        # For demo purposes, let's assume we can find the key
-        # This is where we'd implement the actual lookup logic
-
-        return None  # Placeholder - would implement full lookup
+        now = datetime.now(timezone.utc)
+        for candidate in await self.store.find_by_prefix(api_key[:8]):
+            if candidate.status != APIKeyStatus.ACTIVE:
+                continue
+            expires_at = candidate.expires_at
+            if expires_at is not None:
+                if expires_at.tzinfo is None:
+                    expires_at = expires_at.replace(tzinfo=timezone.utc)
+                if expires_at < now:
+                    continue
+            if APIKeyGenerator.verify_api_key(api_key, candidate.key_hash):
+                return candidate
+        return None
 
     async def get_user_api_keys(self, user_id: str) -> List[Dict[str, Any]]:
         """Get all API keys for a user (without the actual key values)."""

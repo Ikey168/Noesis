@@ -14,6 +14,7 @@ from src.kb.intake_research_progress import (
 
 RESEARCH_INTAKE_WRITES = {
     "save_intake_research_bundle",
+    "review_research_claim_independence",
     "assess_intake_research_progress",
 }
 
@@ -29,12 +30,15 @@ def register(mcp, safe, context):
         )
 
     @mcp.tool()
-    def inspect_intake_research_progress(namespace: str, session_id: str) -> dict:
+    def inspect_intake_research_progress(
+        namespace: str, session_id: str, coverage_assessment_id: str | None = None,
+    ) -> dict:
         """Read a paired topic's project, loop stage receipts, coverage, blockers, and bundle readiness."""
         return safe(
             lambda conn: inspect_research_progress(
                 conn, namespace, session_id,
                 principal_id=context()[0], scopes=context()[1],
+                coverage_assessment_id=coverage_assessment_id,
             ),
             required_scope="knowledge:intake:read",
         )
@@ -78,6 +82,24 @@ def register(mcp, safe, context):
                 principal_id=context()[0], scopes=context()[1],
             ),
             write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def review_research_claim_independence(
+        namespace: str, bundle_id: str, expected_revision: int,
+        command_key: str, claim_id: str, status: str, basis: str,
+        groups: list[dict],
+    ) -> dict:
+        """Record an authorized source-origin review with reviewer and pinned-source provenance."""
+        from src.kb.intake_research_bundle import REVIEW_SCOPE
+
+        return safe(
+            lambda conn: IntakeResearchBundleStore(conn).review_independence(
+                namespace, bundle_id, expected_revision, command_key, claim_id,
+                status, basis, groups,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope=REVIEW_SCOPE,
         )
 
     @mcp.tool()

@@ -1,0 +1,43 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/genesisWS/rest/2020/metadata/table?language=de&name=12411-0010",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"Ident\": {\n  \"Service\": \"metadata\",\n  \"Method\": \"table\"\n },\n \"Status\": {\n  \"Code\": 0,\n  \"Content\": \"erfolgreich\",\n  \"Type\": \"Information\"\n },\n \"Parameter\": {\n  \"name\": \"12411-0010\",\n  \"area\": \"all\",\n  \"language\": \"de\"\n },\n \"Object\": {\n  \"Code\": \"12411-0010\",\n  \"Content\": \"Bevölkerung: Bundesländer, Stichtag, Nationalität (authored fixture: fictional values)\",\n  \"Time\": {\n   \"From\": \"31.12.2096\",\n   \"To\": \"31.12.2098\"\n  },\n  \"Updated\": \"20.06.2099 08:00:00h\"\n }\n}\n"
+  },
+  {
+   "request": "/genesisWS/rest/2020/data/tablefile?area=all&compress=false&format=ffcsv&language=de&name=12411-0010",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "body": "Statistik_Code;Statistik_Label;Zeit_Code;Zeit_Label;Zeit;1_Merkmal_Code;1_Merkmal_Label;1_Auspraegung_Code;1_Auspraegung_Label;2_Merkmal_Code;2_Merkmal_Label;2_Auspraegung_Code;2_Auspraegung_Label;BEVSTD__Bevoelkerungsstand__Anzahl\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2096;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;INSGESAMT;Insgesamt;3890100\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2096;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;NATA;Ausländer;800100\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2096;DLAND;Bundesländer;09;Bayern;NAT;Nationalität;INSGESAMT;Insgesamt;13200100\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2096;DLAND;Bundesländer;09;Bayern;NAT;Nationalität;NATA;Ausländer;2000100\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2097;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;INSGESAMT;Insgesamt;3900200\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2097;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;NATA;Ausländer;820200\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2097;DLAND;Bundesländer;09;Bayern;NAT;Nationalität;INSGESAMT;Insgesamt;13250200\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2097;DLAND;Bundesländer;09;Bayern;NAT;Nationalität;NATA;Ausländer;2050200\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2098;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;INSGESAMT;Insgesamt;3910300\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2098;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;NATA;Ausländer;840300\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2098;DLAND;Bundesländer;09;Bayern;NAT;Nationalität;INSGESAMT;Insgesamt;.\n12411;Fortschreibung des Bevölkerungsstandes;STAG;Stichtag;31.12.2098;DLAND;Bundesländer;09;Bayern;NAT;Nationalität;NATA;Ausländer;2100300\n"
+  },
+  {
+   "request": "/genesisWS/rest/2020/metadata/table?language=de&name=12711-0005",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"Ident\": {\n  \"Service\": \"metadata\",\n  \"Method\": \"table\"\n },\n \"Status\": {\n  \"Code\": 0,\n  \"Content\": \"erfolgreich\",\n  \"Type\": \"Information\"\n },\n \"Parameter\": {\n  \"name\": \"12711-0005\",\n  \"area\": \"all\",\n  \"language\": \"de\"\n },\n \"Object\": {\n  \"Code\": \"12711-0005\",\n  \"Content\": \"Wanderungen zwischen Deutschland und dem Ausland: Bundesländer, Jahre, Nationalität (authored fixture: fictional values)\",\n  \"Updated\": \"10.07.2099 08:00:00h\"\n }\n}\n"
+  },
+  {
+   "request": "/genesisWS/rest/2020/data/tablefile?area=all&compress=false&format=ffcsv&language=de&name=12711-0005",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "body": "Statistik_Code;Statistik_Label;Zeit_Code;Zeit_Label;Zeit;1_Merkmal_Code;1_Merkmal_Label;1_Auspraegung_Code;1_Auspraegung_Label;2_Merkmal_Code;2_Merkmal_Label;2_Auspraegung_Code;2_Auspraegung_Label;BEV081__Zuzuege_aus_dem_Ausland__Anzahl;BEV082__Fortzuege_in_das_Ausland__Anzahl\n12711;Wanderungsstatistik;JAHR;Jahr;2097;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;INSGESAMT;Insgesamt;150100;90100\n12711;Wanderungsstatistik;JAHR;Jahr;2098;DLAND;Bundesländer;11;Berlin;NAT;Nationalität;INSGESAMT;Insgesamt;160200;-\n"
+  }
+ ],
+ "note": "Authored responses in the documented shape; every value, origin and area is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}
