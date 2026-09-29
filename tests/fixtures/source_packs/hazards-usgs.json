@@ -1,0 +1,38 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"type\": \"FeatureCollection\",\n \"metadata\": {\n  \"generated\": 4090089600000,\n  \"title\": \"Authored in the documented FDSN GeoJSON shape; every event, identifier and value is fictional (not USGS data).\",\n  \"status\": 200,\n  \"count\": 2\n },\n \"features\": [\n  {\n   \"type\": \"Feature\",\n   \"properties\": {\n    \"mag\": 6.1,\n    \"place\": \"fictional Aegean Sea location\",\n    \"time\": 4090014765120,\n    \"updated\": 4090035600000,\n    \"url\": \"https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz01\",\n    \"detail\": \"https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz01&format=geojson\",\n    \"alert\": \"orange\",\n    \"status\": \"reviewed\",\n    \"tsunami\": 0,\n    \"net\": \"us\",\n    \"code\": \"7000zz01\",\n    \"ids\": \",us7000zz01,at00zz01,us7000zz03,\",\n    \"sources\": \",us,at,us,\",\n    \"magType\": \"mww\",\n    \"type\": \"earthquake\",\n    \"title\": \"M 6.1 - fictional Aegean Sea event\"\n   },\n   \"geometry\": {\n    \"type\": \"Point\",\n    \"coordinates\": [\n     26.79,\n     37.91,\n     12.4\n    ]\n   },\n   \"id\": \"us7000zz01\"\n  },\n  {\n   \"type\": \"Feature\",\n   \"properties\": {\n    \"mag\": 4.7,\n    \"place\": \"fictional Aegean Sea location\",\n    \"time\": 4090021262000,\n    \"updated\": 4090024800000,\n    \"url\": \"https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz02\",\n    \"detail\": \"https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz02&format=geojson\",\n    \"alert\": null,\n    \"status\": \"deleted\",\n    \"tsunami\": 0,\n    \"net\": \"us\",\n    \"code\": \"7000zz02\",\n    \"ids\": \",us7000zz02,\",\n    \"sources\": \",us,\",\n    \"magType\": \"ml\",\n    \"type\": \"earthquake\",\n    \"title\": \"M 4.7 - fictional western Anatolia event\"\n   },\n   \"geometry\": {\n    \"type\": \"Point\",\n    \"coordinates\": [\n     27.3,\n     38.2,\n     8.2\n    ]\n   },\n   \"id\": \"us7000zz02\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/fdsnws/event/1/query?endtime=2099-08-31&format=geojson&includedeleted=true&limit=200&maxlatitude=43&maxlongitude=45&minlatitude=34&minlongitude=19&minmagnitude=4.5&orderby=time&starttime=2099-08-01",
+   "status": 200
+  },
+  {
+   "body": "{\n \"type\": \"Feature\",\n \"properties\": {\n  \"mag\": 6.1,\n  \"place\": \"fictional Aegean Sea location\",\n  \"time\": 4090014765120,\n  \"updated\": 4090035600000,\n  \"url\": \"https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz01\",\n  \"detail\": \"https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz01&format=geojson\",\n  \"alert\": \"orange\",\n  \"status\": \"reviewed\",\n  \"tsunami\": 0,\n  \"net\": \"us\",\n  \"code\": \"7000zz01\",\n  \"ids\": \",us7000zz01,at00zz01,us7000zz03,\",\n  \"sources\": \",us,at,us,\",\n  \"magType\": \"mww\",\n  \"type\": \"earthquake\",\n  \"title\": \"M 6.1 - fictional Aegean Sea event\",\n  \"products\": {\n   \"losspager\": [\n    {\n     \"id\": \"urn:usgs-product:us:losspager:us7000zz01:4090037400000\",\n     \"type\": \"losspager\",\n     \"code\": \"us7000zz01\",\n     \"source\": \"us\",\n     \"updateTime\": 4090037400000,\n     \"status\": \"UPDATE\",\n     \"properties\": {\n      \"alertlevel\": \"orange\",\n      \"maxmmi\": 7.1,\n      \"eventsource\": \"us\",\n      \"eventsourcecode\": \"7000zz01\"\n     }\n    }\n   ]\n  }\n },\n \"geometry\": {\n  \"type\": \"Point\",\n  \"coordinates\": [\n   26.79,\n   37.91,\n   12.4\n  ]\n },\n \"id\": \"us7000zz01\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/fdsnws/event/1/query?eventid=us7000zz01&format=geojson",
+   "status": 200
+  },
+  {
+   "body": "{\n \"type\": \"Feature\",\n \"properties\": {\n  \"mag\": 6.1,\n  \"place\": \"fictional Aegean Sea location\",\n  \"time\": 4090014765120,\n  \"updated\": 4090035600000,\n  \"url\": \"https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz01\",\n  \"detail\": \"https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz01&format=geojson\",\n  \"alert\": \"orange\",\n  \"status\": \"reviewed\",\n  \"tsunami\": 0,\n  \"net\": \"us\",\n  \"code\": \"7000zz01\",\n  \"ids\": \",us7000zz01,at00zz01,us7000zz03,\",\n  \"sources\": \",us,at,us,\",\n  \"magType\": \"mww\",\n  \"type\": \"earthquake\",\n  \"title\": \"M 6.1 - fictional Aegean Sea event\",\n  \"products\": {\n   \"losspager\": [\n    {\n     \"id\": \"urn:usgs-product:us:losspager:us7000zz01:4090037400000\",\n     \"type\": \"losspager\",\n     \"code\": \"us7000zz01\",\n     \"source\": \"us\",\n     \"updateTime\": 4090037400000,\n     \"status\": \"UPDATE\",\n     \"properties\": {\n      \"alertlevel\": \"orange\",\n      \"maxmmi\": 7.1,\n      \"eventsource\": \"us\",\n      \"eventsourcecode\": \"7000zz01\"\n     }\n    }\n   ]\n  }\n },\n \"geometry\": {\n  \"type\": \"Point\",\n  \"coordinates\": [\n   26.79,\n   37.91,\n   12.4\n  ]\n },\n \"id\": \"us7000zz01\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/fdsnws/event/1/query?eventid=us7000zz03&format=geojson",
+   "status": 200
+  }
+ ],
+ "note": "Authored documents in the provider's documented shape (GloFAS: a declared export shape); every event, storm, fire, identifier and value is fictional and dated 2099 (not provider data).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "reviewed-revision",
+  "deleted-event",
+  "merged-secondary-id",
+  "pager-version"
+ ]
+}

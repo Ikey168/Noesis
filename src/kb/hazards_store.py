@@ -139,7 +139,9 @@ class HazardStore:
 
     def _apply_one(self, namespace, record, *, run_id, principal_id, evidence, observed):
         rid = record_id(namespace, record["record_type"], record["provider"], record["native_id"])
-        content_hash = digest(record)
+        # The locator names the document it was read from; the same published version read through
+        # another document (an event list and its detail) is the same revision.
+        content_hash = digest({k: v for k, v in record.items() if k != "locator"})
         if self.conn.execute("SELECT 1 FROM hazard_record_revisions WHERE record_id=? AND content_hash=?",
                              [rid, content_hash]).fetchone():
             return {"unchanged": 1, "record_id": rid}

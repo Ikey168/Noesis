@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -253,6 +253,24 @@
                 "columns": {"type": "object"},
                 "total_codes": {"type": "object"},
                 "references": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["scheme", "identifier", "relation"], "properties": {"scheme": {"enum": ["berlin-gvbl", "berlin-amtsblatt", "juris", "de-bgbl", "celex", "eli", "de-drucksache"]}, "identifier": {"type": "string", "minLength": 1}, "relation": {"enum": ["legal_basis", "published_in", "stage_decided_by", "referenced_in"]}, "locator": {"type": "string"}}, "additionalProperties": false}}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "natural_hazards": {
+            "type": "object",
+            "description": "Declared hazard documents for the natural-hazards connector (#2207, NH01): provider, namespace, live-verification state and the declared documents (format and URL on the endpoint host; USGS details name the requested event ID, NHC advisories may reference the forecast cone by locator).",
+            "required": ["provider", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["usgs", "emsc", "gdacs", "nhc", "effis", "glofas"]},
+              "live_verification": {"enum": ["unverified-live", "key-gated", "verified-live"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 60, "items": {"type": "object", "required": ["label", "format", "url"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "format": {"enum": ["usgs-fdsn-geojson", "usgs-detail-geojson", "emsc-fdsn-json", "gdacs-geojson", "nhc-tcm", "nhc-tcp", "effis-burnt-area-geojson", "glofas-notification-json"]},
+                "url": {"type": "string", "pattern": "^https://"},
+                "requested_id": {"type": "string", "minLength": 1},
+                "cone_url": {"type": "string", "pattern": "^https://"}
               }, "additionalProperties": false}}
             },
             "additionalProperties": false

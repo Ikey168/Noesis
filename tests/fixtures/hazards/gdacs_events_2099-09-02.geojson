@@ -1,0 +1,158 @@
+{
+ "type": "FeatureCollection",
+ "note": "Authored in the documented GDACS geteventlist GeoJSON shape; events, identifiers and values are fictional.",
+ "features": [
+  {
+   "type": "Feature",
+   "bbox": null,
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     26.79,
+     37.91
+    ]
+   },
+   "properties": {
+    "eventtype": "EQ",
+    "eventid": 1400001,
+    "episodeid": 1500002,
+    "eventname": "",
+    "glide": "EQ-2099-000101-GRC",
+    "name": "Earthquake in Greece (fictional)",
+    "description": "Earthquake in Greece (fictional)",
+    "alertlevel": "Orange",
+    "alertscore": 2.5,
+    "episodealertlevel": "Orange",
+    "episodealertscore": 2.5,
+    "istemporary": "false",
+    "iscurrent": "true",
+    "country": "Greece",
+    "fromdate": "2099-08-10T03:12:45",
+    "todate": "2099-08-10T03:12:45",
+    "datemodified": "2099-08-10T10:00:00",
+    "iso3": "GRC",
+    "source": "NEIC",
+    "sourceid": "us7000zz01",
+    "polygonlabel": "Centroid",
+    "url": {
+     "report": "https://www.gdacs.org/report.aspx?eventid=1400001&episodeid=1500002&eventtype=EQ"
+    },
+    "severitydata": {
+     "severity": 6.1,
+     "severitytext": "Magnitude 6.1M, Depth:12.4km",
+     "severityunit": "M"
+    },
+    "affectedcountries": [
+     {
+      "iso3": "GRC",
+      "countryname": "Greece"
+     },
+     {
+      "iso3": "TUR",
+      "countryname": "Turkey"
+     }
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "bbox": null,
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     -71.9,
+     25.6
+    ]
+   },
+   "properties": {
+    "eventtype": "TC",
+    "eventid": 1000501,
+    "episodeid": 11,
+    "eventname": "",
+    "glide": "TC-2099-000123-BHS",
+    "name": "Tropical Cyclone FICTIA-99 (fictional)",
+    "description": "Tropical Cyclone FICTIA-99 (fictional)",
+    "alertlevel": "Red",
+    "alertscore": 3,
+    "episodealertlevel": "Red",
+    "episodealertscore": 3,
+    "istemporary": "false",
+    "iscurrent": "true",
+    "country": "Bahamas",
+    "fromdate": "2099-08-28T00:00:00",
+    "todate": "2099-09-01T09:00:00",
+    "datemodified": "2099-09-01T09:30:00",
+    "iso3": "BHS",
+    "source": "NOAA",
+    "sourceid": "AL052099",
+    "polygonlabel": "Centroid",
+    "url": {
+     "report": "https://www.gdacs.org/report.aspx?eventid=1000501&episodeid=11&eventtype=TC"
+    },
+    "severitydata": {
+     "severity": 90,
+     "severitytext": "Hurricane (Cat. 2) 90 kt",
+     "severityunit": "kt"
+    },
+    "affectedcountries": [
+     {
+      "iso3": "BHS",
+      "countryname": "Bahamas"
+     },
+     {
+      "iso3": "USA",
+      "countryname": "United States"
+     }
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "bbox": null,
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     26.68,
+     37.77
+    ]
+   },
+   "properties": {
+    "eventtype": "WF",
+    "eventid": 1020001,
+    "episodeid": 1,
+    "eventname": "",
+    "glide": "",
+    "name": "Forest fire in Greece (fictional)",
+    "description": "Forest fire in Greece (fictional)",
+    "alertlevel": "Green",
+    "alertscore": 1,
+    "episodealertlevel": "Green",
+    "episodealertscore": 1,
+    "istemporary": "false",
+    "iscurrent": "true",
+    "country": "Greece",
+    "fromdate": "2099-08-12T00:00:00",
+    "todate": "2099-08-13T00:00:00",
+    "datemodified": "2099-08-13T12:00:00",
+    "iso3": "GRC",
+    "source": "EFFIS",
+    "sourceid": "99001",
+    "polygonlabel": "Centroid",
+    "url": {
+     "report": "https://www.gdacs.org/report.aspx?eventid=1020001&episodeid=1&eventtype=WF"
+    },
+    "severitydata": {
+     "severity": 120,
+     "severitytext": "Burnt area 120 ha",
+     "severityunit": "ha"
+    },
+    "affectedcountries": [
+     {
+      "iso3": "GRC",
+      "countryname": "Greece"
+     }
+    ]
+   }
+  }
+ ]
+}

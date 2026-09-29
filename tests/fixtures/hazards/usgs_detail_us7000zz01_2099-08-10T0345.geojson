@@ -1,0 +1,48 @@
+{
+ "type": "Feature",
+ "properties": {
+  "mag": 5.8,
+  "place": "fictional Aegean Sea location",
+  "time": 4090014765120,
+  "updated": 4090015200000,
+  "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz01",
+  "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz01&format=geojson",
+  "alert": null,
+  "status": "automatic",
+  "tsunami": 0,
+  "net": "us",
+  "code": "7000zz01",
+  "ids": ",us7000zz01,at00zz01,",
+  "sources": ",us,at,",
+  "magType": "mb",
+  "type": "earthquake",
+  "title": "M 5.8 - fictional Aegean Sea event",
+  "products": {
+   "losspager": [
+    {
+     "id": "urn:usgs-product:us:losspager:us7000zz01:4090016400000",
+     "type": "losspager",
+     "code": "us7000zz01",
+     "source": "us",
+     "updateTime": 4090016400000,
+     "status": "UPDATE",
+     "properties": {
+      "alertlevel": "yellow",
+      "maxmmi": 6.2,
+      "eventsource": "us",
+      "eventsourcecode": "7000zz01"
+     }
+    }
+   ]
+  }
+ },
+ "geometry": {
+  "type": "Point",
+  "coordinates": [
+   26.8,
+   37.9,
+   10
+  ]
+ },
+ "id": "us7000zz01"
+}

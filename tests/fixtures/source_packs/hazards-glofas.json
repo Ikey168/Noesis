@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"note\": \"Authored in a declared notification export shape (GloFAS notifications are partner-distributed; no public API is relied on). River point, thresholds and dates are fictional.\",\n \"notifications\": [\n  {\n   \"id\": \"GLOFAS-2099-0042\",\n   \"type\": \"Flood notification\",\n   \"river\": \"Evros (fictional point)\",\n   \"issued_at\": \"2099-08-20T00:00:00Z\",\n   \"valid_from\": \"2099-08-21T00:00:00Z\",\n   \"valid_to\": \"2099-08-25T00:00:00Z\",\n   \"station\": {\n    \"lon\": 26.3,\n    \"lat\": 41.6\n   },\n   \"threshold\": {\n    \"return_period_years\": \"5\",\n    \"exceedance_probability_percent\": \"60\"\n   },\n   \"model\": {\n    \"name\": \"GloFAS\",\n    \"version\": \"4.0\",\n    \"issued_at\": \"2099-08-20T00:00:00Z\"\n   },\n   \"countries\": [\n    \"GRC\",\n    \"TUR\"\n   ],\n   \"wording\": \"Probability of exceeding the 5-year return period discharge above 60% (fictional)\",\n   \"status\": \"issued\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/notifications?issued_from=2099-08-01&issued_to=2099-08-31",
+   "status": 200
+  }
+ ],
+ "note": "Authored documents in the provider's documented shape (GloFAS: a declared export shape); every event, storm, fire, identifier and value is fictional and dated 2099 (not provider data).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "key-gated",
+  "modelled-output"
+ ]
+}
