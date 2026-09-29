@@ -640,6 +640,7 @@ def test_six_domain_offline_execution(setup):
         "corporate-ownership",
         "economic",
         "geospatial",
+        "humanitarian",
         "legal",
         "onchain",
         "osint",
