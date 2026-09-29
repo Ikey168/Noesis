@@ -61,7 +61,7 @@ redis>=8.0.1
 pydantic[email]>=2.0.0
 
 # Observability & Monitoring (Issue #236)
-prometheus_client>=0.17.0
+prometheus_client>=0.26.0
 
 # Utilities
 python-dateutil>=2.8.2
