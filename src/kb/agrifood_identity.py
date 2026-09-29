@@ -409,7 +409,7 @@ class AgrifoodIdentity:
         return out
 
     def resolve_place(self, namespace: str, query: str, *, scopes: Iterable[str], principal_id: str = "system",
-                      geo_namespace: str = "global") -> dict[str, Any]:
+                      geo_namespace: str = "global", save: bool = True) -> dict[str, Any]:
         """A place code (``scheme:code``) or a pack place name to the one geospatial place and all its codes."""
         from src.kb.geospatial import GeospatialStore
 
@@ -430,7 +430,7 @@ class AgrifoodIdentity:
                    "candidates": sorted(p["place_id"] for p in places)}
         input_hash = digest(request)
         resolution_id = "geocode-resolution:" + input_hash[:24]
-        if GEO_WRITE in scopes or "operator" in scopes:
+        if save and (GEO_WRITE in scopes or "operator" in scopes):
             GeospatialStore(self.conn, now=self.now).save_resolution(
                 {"resolution_id": resolution_id, "namespace": geo_namespace, "mention": f"{scheme}:{code}",
                  "context": {"system": scheme, "code": code, "producer": OWNER},
