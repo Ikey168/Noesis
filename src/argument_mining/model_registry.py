@@ -176,13 +176,13 @@ def backend_status() -> Dict[str, str]:
     each would actually use right now, so silently degraded installs stop
     happening.
     """
-    from src.argument_mining.frames import FrameClassifier
-    from src.argument_mining.models import ClaimDetector, StanceClassifier
+    from src.argument_mining.frames import get_frame_classifier
+    from src.argument_mining.models import get_claim_detector, get_stance_classifier
 
     return {
-        "claims": ClaimDetector().prediction_mode,
-        "stance": StanceClassifier().prediction_mode,
-        "frames": FrameClassifier().prediction_mode,
+        "claims": get_claim_detector().prediction_mode,
+        "stance": get_stance_classifier().prediction_mode,
+        "frames": get_frame_classifier().prediction_mode,
     }
 
 

@@ -45,7 +45,7 @@ def validate_rows(rows, columns, *, unique=None, comparisons=(), max_errors=100)
             raise IntegrationError("invalid_comparison", "Unknown column")
         frame_checks.append(
             pa.Check(
-                lambda df, l=left, r=right, o=op: getattr(df[l], o)(df[r]),
+                lambda df, lhs=left, rhs=right, o=op: getattr(df[lhs], o)(df[rhs]),
                 name=f"{left}_{op}_{right}",
             )
         )

@@ -159,7 +159,7 @@ class TestServiceIntegration:
     def mock_api_service(self):
         """Mock API service components"""
         try:
-            from services.api import main
+            from legacy.services.api import main
             return main
         except ImportError:
             return MagicMock()
@@ -197,7 +197,7 @@ class TestRAGService:
     def mock_rag_components(self):
         """Mock RAG service components"""
         try:
-            from services.rag.answer import RAGAnswerService
+            from legacy.services.rag.answer import RAGAnswerService
             return RAGAnswerService
         except ImportError:
             return MagicMock()

@@ -54,9 +54,10 @@ def test_parser_exposes_the_supported_command_surface(capsys):
         "watch",
         "watches",
         "export",
-            "verify",
-            "namespace",
-            "serve",
+        "verify",
+        "namespace",
+        "sync",
+        "serve",
     }
     with pytest.raises(SystemExit) as exc:
         parser.parse_args(["--version"])
@@ -221,11 +222,19 @@ def test_doctor_reports_a_broken_minimal_install(capsys, tmp_path, monkeypatch):
 
 def test_doctor_reports_a_fully_ready_install(capsys, tmp_path, monkeypatch):
     config = _init(capsys, tmp_path)
+    import subprocess
+    from types import SimpleNamespace
+
     from src.argument_mining import model_registry
     from src.noesis_cli import doctor
 
     monkeypatch.setattr(doctor, "_available", lambda _module: True)
     monkeypatch.setattr(model_registry, "verify_pins", lambda **_kwargs: [])
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *_args, **_kwargs: SimpleNamespace(returncode=0),
+    )
     code, output = _run_json(capsys, "--config", str(config), "doctor", "--json")
 
     assert code == 0
@@ -254,7 +263,7 @@ def test_errors_redact_secret_environment_values(capsys, tmp_path, monkeypatch):
     secret = "do-not-print-this-token"
     monkeypatch.setenv("NOESIS_API_KEY", secret)
     monkeypatch.setattr(
-        "src.noesis_cli.app._url_document",
+        "src.gateway._url_document",
         lambda *_args: (_ for _ in ()).throw(
             CLIError("fetch_failed", f"upstream rejected {secret}")
         ),
@@ -302,6 +311,54 @@ def test_explicit_http_url_ingestion(capsys, tmp_path, monkeypatch):
     assert code == 0
     assert output["data"]["documents"][0].startswith("web:")
     assert output["data"]["upsert"]["inserted"] == 1
+
+
+def test_ingest_indexes_documents_when_claim_model_is_unavailable(
+    capsys, tmp_path, monkeypatch
+):
+    config = _init(capsys, tmp_path)
+    base = ("--config", str(config))
+
+    def unavailable():
+        raise RuntimeError("model unavailable")
+
+    monkeypatch.setattr(
+        "src.argument_mining.evidence.get_claim_detector",
+        unavailable,
+    )
+    code, ingested = _run_json(
+        capsys,
+        *base,
+        "ingest",
+        str(FIXTURE),
+        "--domain",
+        "local",
+        "--json",
+    )
+    assert code == 0
+    processing = ingested["data"]["processing"]
+    assert processing["watermark"] == 1
+    assert processing["claims_indexed"] == 0
+    assert processing["coverage"]["complete"] is False
+    assert processing["coverage"]["extraction_failures"] == 1
+    assert processing["warnings"][0]["code"] == "extractor_unavailable"
+
+    code, answer = _run_json(
+        capsys,
+        *base,
+        "ask",
+        "What was the mission result?",
+        "--domain",
+        "local",
+        "--format",
+        "json",
+    )
+    assert code == 0
+    # kb/answer.py answers factual questions only from extracted claims or
+    # paper abstracts; a claim-less note is refused explicitly rather than
+    # paraphrased from its body.
+    assert answer["data"]["data"]["answer_status"] == "refused"
+    assert answer["data"]["data"]["refusal"]["code"] == "insufficient_evidence"
 
 
 def test_private_exports_are_opt_in_and_outputs_are_not_overwritten(capsys, tmp_path):
@@ -479,6 +536,25 @@ def test_claim_and_integrity_exports_use_the_same_offline_verifier(capsys, tmp_p
         assert verified["valid"] is True
 
 
+def test_serve_defaults_to_curated_mcp_gateway(capsys, tmp_path):
+    config = _init(capsys, tmp_path)
+    code, output = _run_json(
+        capsys,
+        "--config",
+        str(config),
+        "serve",
+        "--dry-run",
+        "--json",
+    )
+
+    assert code == 0
+    report = output["data"]
+    assert report["surface"] == "mcp"
+    assert report["transport"] == "http"
+    assert report["endpoint"].endswith(":8100/mcp")
+    assert report["enabled_surfaces"] == ["mcp"]
+
+
 def test_serve_dry_run_reports_surface_address_and_auth(capsys, tmp_path, monkeypatch):
     config = _init(capsys, tmp_path)
     monkeypatch.setenv("NOESIS_MCP_AUTH_TOKEN", "not-reported")
@@ -504,6 +580,7 @@ def test_serve_dry_run_reports_surface_address_and_auth(capsys, tmp_path, monkey
     assert report["address"] == "http://127.0.0.2:9123"
     assert report["auth"] == "bearer-token"
     assert report["enabled_surfaces"] == ["kb-mcp"]
+    assert report["endpoint"] == "http://127.0.0.2:9123/mcp"
     assert "not-reported" not in json.dumps(output)
 
     monkeypatch.delenv("NOESIS_MCP_AUTH_TOKEN")

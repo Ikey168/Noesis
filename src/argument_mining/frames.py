@@ -39,6 +39,7 @@ class FramePrediction:
     frames: Dict[str, float] = field(default_factory=dict)   # frame -> score 0–1
     dominant: str = "other"                                   # highest-scoring frame
     classified_at: datetime = field(default_factory=datetime.now)
+    prediction_mode: str = "unknown"
 
 
 # ---------------------------------------------------------------------------
@@ -254,6 +255,102 @@ def classify_and_store(document: Document, conn) -> FramePrediction:
     return prediction
 
 
+class JevPrimaryFrameClassifier(FrameClassifier):
+    """Jev-first frame classification with the dedicated classifier as fallback."""
+
+    def __init__(self, *, client=None, fallback_factory=None) -> None:
+        from src.integrations.typesafe_jev import JevClient
+
+        self._jev = client or JevClient()
+        self._fallback_factory = fallback_factory or FrameClassifier
+        self._fallback = None
+        self._last_prediction_mode = f"jev:{self._jev.config.model}"
+
+    def _fallback_classifier(self) -> FrameClassifier:
+        if self._fallback is None:
+            self._fallback = self._fallback_factory()
+        return self._fallback
+
+    @property
+    def prediction_mode(self) -> str:
+        return self._last_prediction_mode
+
+    def predict(self, document: Document) -> FramePrediction:
+        from src.integrations.typesafe_jev import JevError, noul_question
+
+        text = _document_text(document)
+        if not text.strip():
+            self._last_prediction_mode = f"jev:{self._jev.config.model}"
+            return FramePrediction(
+                document_id=document.document_id,
+                source_type=document.source_type,
+                frames={frame: 0.0 for frame in FRAME_LABELS},
+                dominant="other",
+                prediction_mode=self._last_prediction_mode,
+            )
+        state = {
+            "source_type": document.source_type,
+            "title": document.title,
+            "text": text[:12000],
+        }
+        questions = {
+            f"frame_{frame}": noul_question(
+                self.NLI_TEMPLATES[frame],
+                true=f"The {frame} frame is materially present in the text.",
+                false=f"The {frame} frame is not materially present in the text.",
+            )
+            for frame in FRAME_LABELS
+        }
+        try:
+            response = self._jev.system_one(state=state, questions=questions)
+            probabilities = {
+                frame: float(response["answers"][f"frame_{frame}"]["noul"])
+                for frame in FRAME_LABELS
+            }
+            if any(not 0.0 <= value <= 1.0 for value in probabilities.values()):
+                raise JevError("invalid_response", "Jev frame probability was invalid")
+        except (JevError, KeyError, TypeError, ValueError) as exc:
+            logger.warning(
+                "Jev frame classification unavailable; using dedicated fallback (%s)",
+                type(exc).__name__,
+            )
+            fallback = self._fallback_classifier()
+            prediction = fallback.predict(document)
+            self._last_prediction_mode = fallback.prediction_mode
+            prediction.prediction_mode = self._last_prediction_mode
+            return prediction
+
+        uncertain = []
+        scores: Dict[str, float] = {}
+        for frame, probability in probabilities.items():
+            threshold = self.NLI_THRESHOLDS.get(frame, self.NLI_DEFAULT_THRESHOLD)
+            if abs(probability - threshold) < self._jev.config.frame_margin:
+                uncertain.append(frame)
+            scores[frame] = round(probability, 4) if probability >= threshold else 0.0
+
+        if uncertain:
+            fallback = self._fallback_classifier()
+            fallback_prediction = fallback.predict(document)
+            for frame in uncertain:
+                scores[frame] = fallback_prediction.frames.get(frame, 0.0)
+            self._last_prediction_mode = (
+                f"jev:{self._jev.last_model}+fallback:{fallback.prediction_mode}"
+            )
+        else:
+            self._last_prediction_mode = f"jev:{self._jev.last_model}"
+
+        dominant = max(scores, key=scores.get)
+        if scores[dominant] <= 0.0:
+            dominant = "other"
+        return FramePrediction(
+            document_id=document.document_id,
+            source_type=document.source_type,
+            frames=scores,
+            dominant=dominant,
+            prediction_mode=self._last_prediction_mode,
+        )
+
+
 # ---------------------------------------------------------------------------
 # Module-level singleton
 # ---------------------------------------------------------------------------
@@ -264,7 +361,13 @@ _frame_classifier: Optional[FrameClassifier] = None
 def get_frame_classifier() -> FrameClassifier:
     global _frame_classifier
     if _frame_classifier is None:
-        _frame_classifier = FrameClassifier()
+        from src.integrations.typesafe_jev import JevClient
+
+        _frame_classifier = (
+            JevPrimaryFrameClassifier()
+            if JevClient.configured()
+            else FrameClassifier()
+        )
     return _frame_classifier
 
 
