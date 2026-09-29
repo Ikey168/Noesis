@@ -1,0 +1,311 @@
+{
+  "description": "ECHA CHEM REACH: registration status, Candidate List events, Annex XIV and XVII entries. Authored offline fixture in the provider's documented (PubChem, CTX) or observed (ECHA CHEM portal) response shape. Identifiers are the substances' public identifiers; classification, list and data-point values are transcribed or authored for illustration and are NOT live evidence. Verify against the live sources before any live run (#2317).",
+  "scenarios": [
+    "SVHC inclusion and amendment dated with reason",
+    "Annex XIV sunset and latest application dates",
+    "Annex XVII conditions verbatim with the amending act",
+    "registration status only; dossier contents dropped",
+    "substances on no list"
+  ],
+  "native_pages": [
+    {
+      "request": "/api-substance/v1/substance/100.001.133",
+      "status": 200,
+      "body": {
+        "echaId": "100.001.133",
+        "name": "4,4'-isopropylidenediphenol",
+        "entryType": "substance",
+        "ecNumbers": [
+          "201-245-8"
+        ],
+        "casNumbers": [
+          "80-05-7"
+        ],
+        "indexNumbers": [
+          "604-030-00-0"
+        ],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-dossier-list/v1/registrations/100.001.133",
+      "status": 200,
+      "body": {
+        "registrations": [
+          {
+            "status": "Active",
+            "registrationType": "Full registration",
+            "tonnageBand": "1 000 000 - 10 000 000 tonnes per annum",
+            "lastUpdated": "2025-11-03",
+            "dossierContents": "authored excluded field: never parsed or stored"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/candidate-list/100.001.133",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "entryId": "SVHC-BPA",
+            "events": [
+              {
+                "type": "inclusion",
+                "date": "2017-01-12",
+                "reason": "Toxic for reproduction (Article 57c)",
+                "decision": "ED/01/2017"
+              },
+              {
+                "type": "amendment",
+                "date": "2017-07-07",
+                "reason": "Toxic for reproduction (Article 57c); Endocrine disrupting properties (Article 57(f) - human health)",
+                "decision": "ED/30/2017"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/authorisation-list/100.001.133",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-lists/v1/restriction-list/100.001.133",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "entryNumber": "66",
+            "designation": "Bisphenol A",
+            "events": [
+              {
+                "type": "inclusion",
+                "date": "2016-12-13",
+                "appliesFrom": "2020-01-02",
+                "legalAct": {
+                  "title": "Commission Regulation (EU) 2016/2235",
+                  "celex": "32016R2235"
+                },
+                "conditions": "Shall not be placed on the market in thermal paper in a concentration equal to or greater than 0,02 % by weight after 2 January 2020."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-substance/v1/substance/100.003.829",
+      "status": 200,
+      "body": {
+        "echaId": "100.003.829",
+        "name": "bis(2-ethylhexyl) phthalate",
+        "entryType": "substance",
+        "ecNumbers": [
+          "204-211-0"
+        ],
+        "casNumbers": [
+          "117-81-7"
+        ],
+        "indexNumbers": [
+          "607-317-00-9"
+        ],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-dossier-list/v1/registrations/100.003.829",
+      "status": 200,
+      "body": {
+        "registrations": [
+          {
+            "status": "Active",
+            "registrationType": "Full registration",
+            "tonnageBand": "100 000 - 1 000 000 tonnes per annum",
+            "lastUpdated": "2025-09-15",
+            "dossierContents": "authored excluded field: never parsed or stored"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/candidate-list/100.003.829",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "entryId": "SVHC-DEHP",
+            "events": [
+              {
+                "type": "inclusion",
+                "date": "2008-10-28",
+                "reason": "Toxic for reproduction (Article 57c)",
+                "decision": "ED/67/2008"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/authorisation-list/100.003.829",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "entryNumber": "4",
+            "events": [
+              {
+                "type": "inclusion",
+                "date": "2011-02-21",
+                "latestApplicationDate": "2013-08-21",
+                "sunsetDate": "2015-02-21",
+                "intrinsicProperty": "Toxic for reproduction (category 1B)",
+                "legalAct": {
+                  "title": "Commission Regulation (EU) No 143/2011",
+                  "celex": "32011R0143"
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/restriction-list/100.003.829",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "entryNumber": "51",
+            "designation": "Bis(2-ethylhexyl) phthalate (DEHP) and other phthalates",
+            "events": [
+              {
+                "type": "amendment",
+                "date": "2018-12-18",
+                "appliesFrom": "2020-07-07",
+                "legalAct": {
+                  "title": "Commission Regulation (EU) 2018/2005",
+                  "celex": "32018R2005"
+                },
+                "conditions": "Shall not be placed on the market in articles, individually or in any combination of the phthalates listed in column 1 of this entry, in a concentration equal to or greater than 0,1 % by weight of the plasticised material in the article."
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-substance/v1/substance/100.000.526",
+      "status": 200,
+      "body": {
+        "echaId": "100.000.526",
+        "name": "ethanol",
+        "entryType": "substance",
+        "ecNumbers": [
+          "200-578-6"
+        ],
+        "casNumbers": [
+          "64-17-5"
+        ],
+        "indexNumbers": [
+          "603-002-00-5"
+        ],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-dossier-list/v1/registrations/100.000.526",
+      "status": 200,
+      "body": {
+        "registrations": [
+          {
+            "status": "Active",
+            "registrationType": "Full registration",
+            "tonnageBand": "1 000 000 - 10 000 000 tonnes per annum",
+            "lastUpdated": "2025-05-20",
+            "dossierContents": "authored excluded field: never parsed or stored"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/candidate-list/100.000.526",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-lists/v1/authorisation-list/100.000.526",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-lists/v1/restriction-list/100.000.526",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-substance/v1/substance/100.000.304",
+      "status": 200,
+      "body": {
+        "echaId": "100.000.304",
+        "name": "sucrose",
+        "entryType": "substance",
+        "ecNumbers": [
+          "200-334-9"
+        ],
+        "casNumbers": [
+          "57-50-1"
+        ],
+        "indexNumbers": [],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-dossier-list/v1/registrations/100.000.304",
+      "status": 200,
+      "body": {
+        "registrations": [
+          {
+            "status": "Active",
+            "registrationType": "Full registration",
+            "tonnageBand": "100 000 - 1 000 000 tonnes per annum",
+            "lastUpdated": "2024-12-02",
+            "dossierContents": "authored excluded field: never parsed or stored"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-lists/v1/candidate-list/100.000.304",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-lists/v1/authorisation-list/100.000.304",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-lists/v1/restriction-list/100.000.304",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    }
+  ]
+}

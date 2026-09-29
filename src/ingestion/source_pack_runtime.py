@@ -237,6 +237,15 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-surveillance-record-v1": _surveillance_projector,
 }
 
+
+def _substance_projector(conn: Any) -> Any:
+    from src.kb.substances_store import SubstanceProjector
+
+    return SubstanceProjector(conn)
+
+
+PROJECTORS["noesis-substance-record-v1"] = _substance_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

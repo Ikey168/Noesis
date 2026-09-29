@@ -1,0 +1,89 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-substance-record-v1",
+  "title": "Substance record statement: what one provider published about one substance",
+  "description": "One statement a Chemicals and Substances adapter emits (PubChem PUG-REST, ECHA CHEM CLP and REACH lists, US EPA CompTox) and src.kb.substances_store keeps as an immutable revision. Record types: substance, identifier, classification (whose revisions are classification-revision records), registration, candidate_listing (SVHC), restriction (REACH Annex XVII), authorisation (REACH Annex XIV) and data_point (published toxicity values). Values are quoted as published with a locator; a later revision never overwrites an earlier one. No statement carries a hazard score, risk or exposure conclusion, safety advice, or synthesis or preparation content.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "subject", "record_key", "as_published", "effective", "source"],
+  "additionalProperties": false,
+  "definitions": {
+    "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "legal_act": {
+      "type": ["object", "null"],
+      "required": ["title"],
+      "properties": {
+        "title": {"type": "string", "minLength": 1},
+        "celex": {"type": ["string", "null"]},
+        "eli": {"type": ["string", "null"]},
+        "atp": {"type": ["string", "null"]},
+        "entry": {"type": ["string", "null"]},
+        "locator": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-substance-record-v1"},
+    "record_type": {"enum": ["substance", "identifier", "classification", "registration", "candidate_listing",
+                             "restriction", "authorisation", "data_point"]},
+    "provider": {"enum": ["pubchem", "echa-clp", "echa-reach", "comptox"]},
+    "subject": {
+      "type": "object",
+      "required": ["key", "kind"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^(pubchem|echa|comptox):[a-z-]+:.+$"},
+        "kind": {"enum": ["single-component", "multi-component", "group", "mixture", "salt", "isomer", "unknown"]},
+        "name": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "record_key": {"type": "string", "minLength": 1},
+    "as_published": {"type": "object"},
+    "effective": {
+      "type": "object",
+      "required": ["event"],
+      "properties": {
+        "from": {"$ref": "#/definitions/date"},
+        "to": {"$ref": "#/definitions/date"},
+        "event": {"enum": ["published", "inclusion", "amendment", "removal", "notified", "status"]},
+        "date_basis": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "legal_act": {"$ref": "#/definitions/legal_act"},
+    "source": {
+      "type": "object",
+      "required": ["url", "locator", "attribution"],
+      "properties": {
+        "url": {"type": "string", "pattern": "^https://"},
+        "locator": {"type": "string"},
+        "attribution": {"type": "string", "minLength": 1},
+        "record_version": {"type": ["string", "null"]},
+        "data_version": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live"]}
+      },
+      "additionalProperties": false
+    },
+    "label": {"type": "string"}
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"const": "identifier"}}},
+     "then": {"properties": {"as_published": {"required": ["scheme", "value"], "properties": {
+       "scheme": {"enum": ["cid", "cas", "ec", "index", "inchi", "inchikey", "dtxsid", "dtxcid", "echa-substance-id",
+                           "preferred-name", "iupac-name", "synonym"]}}}}}},
+    {"if": {"properties": {"record_type": {"const": "classification"}}},
+     "then": {"required": ["legal_act"], "properties": {"legal_act": {"type": "object"}, "as_published": {"required": ["kind", "hazard_classes"], "properties": {
+       "kind": {"enum": ["harmonised", "notified"]},
+       "hazard_classes": {"type": "array", "items": {"type": "object", "required": ["hazard_class_category"]}}}}}}},
+    {"if": {"properties": {"record_type": {"const": "restriction"}}},
+     "then": {"required": ["legal_act"], "properties": {"legal_act": {"type": "object"}, "as_published": {"required": ["entry_number", "conditions"]}}}},
+    {"if": {"properties": {"record_type": {"const": "authorisation"}}},
+     "then": {"required": ["legal_act"], "properties": {"legal_act": {"type": "object"}, "as_published": {"required": ["entry_number", "sunset_date", "latest_application_date"]}}}},
+    {"if": {"properties": {"record_type": {"const": "candidate_listing"}}},
+     "then": {"properties": {"as_published": {"required": ["reason"]}}}},
+    {"if": {"properties": {"record_type": {"const": "registration"}}},
+     "then": {"properties": {"as_published": {"required": ["status"]}}}},
+    {"if": {"properties": {"record_type": {"const": "data_point"}}},
+     "then": {"required": ["label"], "properties": {"as_published": {"required": ["endpoint", "value", "unit", "study_reference", "data_source"]}}}}
+  ]
+}

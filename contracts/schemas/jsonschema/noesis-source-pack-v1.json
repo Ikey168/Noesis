@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["berlin-law", "blog", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "substances", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -299,6 +299,19 @@
               "format": {"enum": ["nvd-cve-2.0", "nvd-cve-history-2.0", "nvd-cpe-2.0", "osv", "cve-json-5", "cisa-kev", "first-epss", "cwe-xml"]},
               "source": {"enum": ["nvd", "nvd-cpe", "osv", "ghsa", "cve-services", "cisa-kev", "first-epss", "cwe"]},
               "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "substances": {
+            "type": "object",
+            "description": "Bounded substance selection for the substances connector (#2212): provider (pubchem, echa-clp, echa-reach, comptox), namespace, live-verification state, an optional published data version and 1-50 explicit substances (a PubChem CID, an ECHA substance id or CLP index number, or a DTXSID, with the CAS/EC/InChIKey that selected it).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["pubchem", "echa-clp", "echa-reach", "comptox"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "data_version": {"type": "string", "minLength": 1},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
             },
             "additionalProperties": false
           },

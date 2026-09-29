@@ -1,0 +1,343 @@
+{
+  "description": "ECHA CHEM CLP: harmonised Annex VI entries with ATP history and notified C&L aggregates. Authored offline fixture in the provider's documented (PubChem, CTX) or observed (ECHA CHEM portal) response shape. Identifiers are the substances' public identifiers; classification, list and data-point values are transcribed or authored for illustration and are NOT live evidence. Verify against the live sources before any live run (#2317).",
+  "scenarios": [
+    "ATP amendment kept as a dated revision beside the prior classification",
+    "harmonised and notified classifications distinguished",
+    "notifier aggregates quoted",
+    "group entry without EC or CAS",
+    "substance with no harmonised entry"
+  ],
+  "native_pages": [
+    {
+      "request": "/api-substance/v1/substance/100.001.133",
+      "status": 200,
+      "body": {
+        "echaId": "100.001.133",
+        "name": "4,4'-isopropylidenediphenol",
+        "entryType": "substance",
+        "ecNumbers": [
+          "201-245-8"
+        ],
+        "casNumbers": [
+          "80-05-7"
+        ],
+        "indexNumbers": [
+          "604-030-00-0"
+        ],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/harmonised/100.001.133",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "indexNumber": "604-030-00-0",
+            "internationalChemicalIdentification": "bisphenol A; 4,4'-isopropylidenediphenol",
+            "entryType": "substance",
+            "history": [
+              {
+                "change": "introduced",
+                "legalAct": {
+                  "title": "Regulation (EC) No 1272/2008 (CLP), Annex VI as adopted",
+                  "celex": "32008R1272"
+                },
+                "publishedOn": "2008-12-31",
+                "appliesFrom": "2009-01-20",
+                "classifications": [
+                  {
+                    "hazardClassAndCategory": "Repr. 2",
+                    "hazardStatement": "H361f"
+                  },
+                  {
+                    "hazardClassAndCategory": "STOT SE 3",
+                    "hazardStatement": "H335"
+                  },
+                  {
+                    "hazardClassAndCategory": "Eye Dam. 1",
+                    "hazardStatement": "H318"
+                  },
+                  {
+                    "hazardClassAndCategory": "Skin Sens. 1",
+                    "hazardStatement": "H317"
+                  }
+                ]
+              },
+              {
+                "change": "amended",
+                "legalAct": {
+                  "title": "Commission Regulation (EU) 2016/1179 (9th ATP)",
+                  "celex": "32016R1179",
+                  "atp": "ATP 9"
+                },
+                "publishedOn": "2016-07-20",
+                "appliesFrom": "2018-03-01",
+                "classifications": [
+                  {
+                    "hazardClassAndCategory": "Repr. 1B",
+                    "hazardStatement": "H360F"
+                  },
+                  {
+                    "hazardClassAndCategory": "STOT SE 3",
+                    "hazardStatement": "H335"
+                  },
+                  {
+                    "hazardClassAndCategory": "Eye Dam. 1",
+                    "hazardStatement": "H318"
+                  },
+                  {
+                    "hazardClassAndCategory": "Skin Sens. 1",
+                    "hazardStatement": "H317"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/notified/100.001.133",
+      "status": 200,
+      "body": {
+        "asOf": "2026-06-30",
+        "aggregates": [
+          {
+            "classifications": [
+              {
+                "hazardClassAndCategory": "Repr. 1B",
+                "hazardStatement": "H360F"
+              },
+              {
+                "hazardClassAndCategory": "STOT SE 3",
+                "hazardStatement": "H335"
+              },
+              {
+                "hazardClassAndCategory": "Eye Dam. 1",
+                "hazardStatement": "H318"
+              },
+              {
+                "hazardClassAndCategory": "Skin Sens. 1",
+                "hazardStatement": "H317"
+              }
+            ],
+            "numberOfNotifiers": 3120,
+            "jointEntry": true
+          },
+          {
+            "classifications": [
+              {
+                "hazardClassAndCategory": "Repr. 1B",
+                "hazardStatement": "H360F"
+              },
+              {
+                "hazardClassAndCategory": "Aquatic Chronic 2",
+                "hazardStatement": "H411"
+              }
+            ],
+            "numberOfNotifiers": 41,
+            "jointEntry": false
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-substance/v1/substance/100.003.829",
+      "status": 200,
+      "body": {
+        "echaId": "100.003.829",
+        "name": "bis(2-ethylhexyl) phthalate",
+        "entryType": "substance",
+        "ecNumbers": [
+          "204-211-0"
+        ],
+        "casNumbers": [
+          "117-81-7"
+        ],
+        "indexNumbers": [
+          "607-317-00-9"
+        ],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/harmonised/100.003.829",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "indexNumber": "607-317-00-9",
+            "internationalChemicalIdentification": "bis(2-ethylhexyl) phthalate; DEHP",
+            "entryType": "substance",
+            "history": [
+              {
+                "change": "introduced",
+                "legalAct": {
+                  "title": "Regulation (EC) No 1272/2008 (CLP), Annex VI as adopted",
+                  "celex": "32008R1272"
+                },
+                "publishedOn": "2008-12-31",
+                "appliesFrom": "2009-01-20",
+                "classifications": [
+                  {
+                    "hazardClassAndCategory": "Repr. 1B",
+                    "hazardStatement": "H360FD"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/notified/100.003.829",
+      "status": 200,
+      "body": {
+        "asOf": "2026-06-30",
+        "aggregates": []
+      }
+    },
+    {
+      "request": "/api-substance/v1/substance/100.000.526",
+      "status": 200,
+      "body": {
+        "echaId": "100.000.526",
+        "name": "ethanol",
+        "entryType": "substance",
+        "ecNumbers": [
+          "200-578-6"
+        ],
+        "casNumbers": [
+          "64-17-5"
+        ],
+        "indexNumbers": [
+          "603-002-00-5"
+        ],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/harmonised/100.000.526",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "indexNumber": "603-002-00-5",
+            "internationalChemicalIdentification": "ethanol; ethyl alcohol",
+            "entryType": "substance",
+            "history": [
+              {
+                "change": "introduced",
+                "legalAct": {
+                  "title": "Regulation (EC) No 1272/2008 (CLP), Annex VI as adopted",
+                  "celex": "32008R1272"
+                },
+                "publishedOn": "2008-12-31",
+                "appliesFrom": "2009-01-20",
+                "classifications": [
+                  {
+                    "hazardClassAndCategory": "Flam. Liq. 2",
+                    "hazardStatement": "H225"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/notified/100.000.526",
+      "status": 200,
+      "body": {
+        "asOf": "2026-06-30",
+        "aggregates": []
+      }
+    },
+    {
+      "request": "/api-substance/v1/substance/100.000.304",
+      "status": 200,
+      "body": {
+        "echaId": "100.000.304",
+        "name": "sucrose",
+        "entryType": "substance",
+        "ecNumbers": [
+          "200-334-9"
+        ],
+        "casNumbers": [
+          "57-50-1"
+        ],
+        "indexNumbers": [],
+        "lastUpdated": "2026-06-30"
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/harmonised/100.000.304",
+      "status": 200,
+      "body": {
+        "entries": []
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/notified/100.000.304",
+      "status": 200,
+      "body": {
+        "asOf": "2026-06-30",
+        "aggregates": []
+      }
+    },
+    {
+      "request": "/api-cnl-inventory/v1/harmonised/by-index/082-001-00-6",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "indexNumber": "082-001-00-6",
+            "entryType": "group",
+            "internationalChemicalIdentification": "lead compounds with the exception of those specified elsewhere in this Annex",
+            "groupNote": "group entry: no EC or CAS number; members are not identified by the entry",
+            "history": [
+              {
+                "change": "introduced",
+                "legalAct": {
+                  "title": "Regulation (EC) No 1272/2008 (CLP), Annex VI as adopted",
+                  "celex": "32008R1272"
+                },
+                "publishedOn": "2008-12-31",
+                "appliesFrom": "2009-01-20",
+                "classifications": [
+                  {
+                    "hazardClassAndCategory": "Repr. 1A",
+                    "hazardStatement": "H360Df"
+                  },
+                  {
+                    "hazardClassAndCategory": "Acute Tox. 4",
+                    "hazardStatement": "H332"
+                  },
+                  {
+                    "hazardClassAndCategory": "Acute Tox. 4",
+                    "hazardStatement": "H302"
+                  },
+                  {
+                    "hazardClassAndCategory": "STOT RE 2",
+                    "hazardStatement": "H373"
+                  },
+                  {
+                    "hazardClassAndCategory": "Aquatic Acute 1",
+                    "hazardStatement": "H400"
+                  },
+                  {
+                    "hazardClassAndCategory": "Aquatic Chronic 1",
+                    "hazardStatement": "H410"
+                  }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

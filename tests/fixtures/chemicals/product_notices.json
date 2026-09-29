@@ -1,0 +1,125 @@
+{
+  "description": "Authored Safety Gate alerts (fictional products, companies and alert numbers) naming substances by CAS number or exact name, and one naming no bounded substance; parsed with the Products pack's own Safety Gate parser.",
+  "alerts": [
+    {
+      "notificationType": "Alert notification",
+      "notifyingCountry": {
+        "code": "FR",
+        "name": "France"
+      },
+      "lastUpdateDate": null,
+      "measures": [
+        {
+          "measureType": "Withdrawal of the product from the market",
+          "takenBy": "Economic operator",
+          "category": "Voluntary measures"
+        }
+      ],
+      "followUps": [],
+      "reference": "SR/07001/26",
+      "publicationDate": "2026-05-08",
+      "product": {
+        "category": "Chemical products",
+        "name": "Till receipt roll",
+        "brand": "Rollex",
+        "typeNumberOfModel": "TR-80",
+        "batchNumber": "unknown",
+        "barcode": "unknown",
+        "description": "Thermal paper till roll, 80 mm.",
+        "countryOfOrigin": {
+          "code": "CN",
+          "name": "China"
+        }
+      },
+      "risk": {
+        "riskType": [
+          "Chemical"
+        ],
+        "level": "Serious risk",
+        "description": "The thermal paper contains bisphenol A (CAS 80-05-7) (measured value: 1,1 % by weight).",
+        "compliance": "The product does not comply with the REACH Regulation (Annex XVII, entry 66)."
+      },
+      "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-07001-26"
+    },
+    {
+      "notificationType": "Alert notification",
+      "notifyingCountry": {
+        "code": "FR",
+        "name": "France"
+      },
+      "lastUpdateDate": null,
+      "measures": [
+        {
+          "measureType": "Withdrawal of the product from the market",
+          "takenBy": "Economic operator",
+          "category": "Voluntary measures"
+        }
+      ],
+      "followUps": [],
+      "reference": "SR/07002/26",
+      "publicationDate": "2026-05-15",
+      "product": {
+        "category": "Toys",
+        "name": "Plastic doll",
+        "brand": "Dollyco",
+        "typeNumberOfModel": "DC-12",
+        "batchNumber": "unknown",
+        "barcode": "unknown",
+        "description": "Soft plastic doll, 30 cm.",
+        "countryOfOrigin": {
+          "code": "CN",
+          "name": "China"
+        }
+      },
+      "risk": {
+        "riskType": [
+          "Chemical"
+        ],
+        "level": "Serious risk",
+        "description": "The plastic material of the doll contains bis(2-ethylhexyl) phthalate (DEHP) (measured value: 12 % by weight).",
+        "compliance": "The product does not comply with the REACH Regulation (Annex XVII, entry 51)."
+      },
+      "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-07002-26"
+    },
+    {
+      "notificationType": "Alert notification",
+      "notifyingCountry": {
+        "code": "FR",
+        "name": "France"
+      },
+      "lastUpdateDate": null,
+      "measures": [
+        {
+          "measureType": "Withdrawal of the product from the market",
+          "takenBy": "Economic operator",
+          "category": "Voluntary measures"
+        }
+      ],
+      "followUps": [],
+      "reference": "SR/07003/26",
+      "publicationDate": "2026-05-22",
+      "product": {
+        "category": "Cosmetics",
+        "name": "Hand gel",
+        "brand": "Cleanly",
+        "typeNumberOfModel": "HG-1",
+        "batchNumber": "unknown",
+        "barcode": "unknown",
+        "description": "Hand gel, 100 ml.",
+        "countryOfOrigin": {
+          "code": "TR",
+          "name": "Turkey"
+        }
+      },
+      "risk": {
+        "riskType": [
+          "Chemical"
+        ],
+        "level": "Serious risk",
+        "description": "The product contains methanol (measured value: 30 % by volume); it also lists bisphenol-like plasticisers without identifying them.",
+        "compliance": "The product does not comply with the Cosmetic Products Regulation."
+      },
+      "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-07003-26"
+    }
+  ]
+}

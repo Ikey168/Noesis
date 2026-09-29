@@ -269,6 +269,11 @@ NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_fin
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
 
+# Chemicals and Substances: PubChem, ECHA CHEM (CLP, REACH lists) and US EPA CompTox (#2212).
+NATIVE_CONNECTOR_MODULES["substances"] = "src.ingestion.substance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"substances"})
+
+
 def native_connector_module(connector: str) -> Any:
     import importlib
 
