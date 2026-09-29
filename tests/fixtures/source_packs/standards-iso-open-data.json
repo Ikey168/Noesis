@@ -1,0 +1,23 @@
+{
+ "authored": true,
+ "provider": "ISO Open Data",
+ "note": "Authored JSONL lines in the documented deliverables-metadata shape for fictional references; not a capture.",
+ "native_pages": [
+  {
+   "lines": [
+    "{\"id\": \"900001\", \"deliverableType\": \"IS\", \"supplementType\": null, \"reference\": \"ISO 99901:2015\", \"publicationDate\": \"2015-09-15\", \"edition\": 1, \"icsCode\": [\"35.030\"], \"ownerCommittee\": \"ISO/TC 999\", \"currentStage\": 9599, \"replaces\": [], \"replacedBy\": [\"900002\"], \"languages\": [\"en\", \"fr\"], \"title\": {\"en\": \"Fictional security management — Requirements (fixture)\", \"fr\": \"Gestion fictive (fixture)\"}, \"scope\": {\"en\": \"Authored fixture scope.\"}}",
+    "{\"id\": \"900002\", \"deliverableType\": \"IS\", \"supplementType\": null, \"reference\": \"ISO 99901:2022\", \"publicationDate\": \"2022-10-25\", \"edition\": 2, \"icsCode\": [\"35.030\"], \"ownerCommittee\": \"ISO/TC 999\", \"currentStage\": 6060, \"replaces\": [\"900001\"], \"replacedBy\": [], \"languages\": [\"en\", \"fr\"], \"title\": {\"en\": \"Fictional security management — Requirements (fixture)\"}, \"scope\": {\"en\": \"Authored fixture scope, second edition.\"}}",
+    "{\"id\": \"900003\", \"deliverableType\": \"IS\", \"supplementType\": \"Amd\", \"reference\": \"ISO 99901:2022/Amd 1:2024\", \"publicationDate\": \"2024-02-01\", \"edition\": 1, \"icsCode\": [\"35.030\"], \"ownerCommittee\": \"ISO/TC 999\", \"currentStage\": 6060, \"replaces\": [], \"replacedBy\": [], \"languages\": [\"en\"], \"title\": {\"en\": \"Fictional security management — Amendment 1 (fixture)\"}}",
+    "{\"id\": \"900004\", \"deliverableType\": \"IS\", \"supplementType\": null, \"reference\": \"ISO 99950:2020\", \"publicationDate\": \"2020-01-01\", \"edition\": 1, \"icsCode\": [\"01.040\"], \"ownerCommittee\": \"ISO/TC 998\", \"currentStage\": 9060, \"replaces\": [], \"replacedBy\": [], \"languages\": [\"en\"], \"title\": {\"en\": \"Out of scope standard (fixture)\"}}",
+    "{not json"
+   ]
+  }
+ ],
+ "scenarios": [
+  "withdrawn-first-edition",
+  "replaced-by-second-edition",
+  "amendment",
+  "out-of-scope-ics",
+  "malformed-line"
+ ]
+}

@@ -1,0 +1,47 @@
+{
+ "page": 1,
+ "maxPages": 1,
+ "total": 2,
+ "items": [
+  {
+   "year": 2097,
+   "coo_id": 999,
+   "coo_name": "Fictional Republic of Origin",
+   "coo": "XXO",
+   "coo_iso": "XXO",
+   "coa_id": 998,
+   "coa_name": "Germany",
+   "coa": "GFR",
+   "coa_iso": "DEU",
+   "refugees": 500100,
+   "asylum_seekers": 60200,
+   "returned_refugees": 0,
+   "idps": 0,
+   "returned_idps": 0,
+   "stateless": 0,
+   "ooc": 0,
+   "oip": 0,
+   "hst": 0
+  },
+  {
+   "year": 2098,
+   "coo_id": 999,
+   "coo_name": "Fictional Republic of Origin",
+   "coo": "XXO",
+   "coo_iso": "XXO",
+   "coa_id": 998,
+   "coa_name": "Germany",
+   "coa": "GFR",
+   "coa_iso": "DEU",
+   "refugees": 510300,
+   "asylum_seekers": "-",
+   "returned_refugees": 0,
+   "idps": 0,
+   "returned_idps": 0,
+   "stateless": 0,
+   "ooc": 0,
+   "oip": 0,
+   "hst": 0
+  }
+ ]
+}

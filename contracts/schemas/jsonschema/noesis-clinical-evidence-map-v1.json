@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-clinical-evidence-map-v1.json",
+  "title": "Noesis Clinical Evidence Map v1",
+  "description": "A question-to-evidence map revision: trials with registry versions, results availability, publications, retractions, outcome-switching findings, regulatory records, reviews, coverage gaps and a rule-based strength view. It carries the non-advice boundary and never a numeric score or an asserted grade.",
+  "type": "object",
+  "required": ["contract", "view_id", "namespace", "revision", "question", "trials", "regulatory", "reviews", "coverage_gaps", "strength", "boundary", "claims", "pins"],
+  "properties": {
+    "contract": {"const": "noesis-clinical-evidence-map-v1"},
+    "view_id": {"type": "string", "pattern": "^clinical-map:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "question": {"type": "object", "required": ["condition", "intervention"]},
+    "trials": {"type": "array", "items": {"type": "object",
+      "required": ["record_id", "revision", "registry", "identifier", "versions", "design", "results", "publications", "retracted", "outcome_switching", "unknowns"],
+      "properties": {
+        "results": {"type": "object", "required": ["state", "rule"], "properties": {"state": {"enum": ["posted", "available-not-acquired", "not-posted", "unknown"]}}},
+        "retracted": {"type": ["boolean", "null"]},
+        "outcome_switching": {"type": "array", "items": {"type": "object", "required": ["kind", "before", "after", "finding", "note"], "properties": {"finding": {"const": true}}}}
+      }}},
+    "regulatory": {"type": "array"},
+    "reviews": {"type": "array"},
+    "coverage_gaps": {"type": "object", "required": ["unlinked_trials", "unregistered_publications", "unmapped_terms"]},
+    "strength": {"type": "object", "required": ["contract", "summary", "trials", "grade", "rules", "score", "boundary"],
+      "properties": {
+        "contract": {"const": "noesis-clinical-strength-view-v1"},
+        "score": {"type": "null"},
+        "grade": {"type": "object", "required": ["asserted"], "properties": {"asserted": {"const": false}}},
+        "summary": {"type": "object", "required": ["rule", "description", "inputs"], "properties": {"rule": {"enum": ["S1", "S2", "S3", "S4", "S5", "S6"]}}}
+      }},
+    "boundary": {"type": "string", "minLength": 40},
+    "claims": {"type": "object", "required": ["included"], "properties": {"included": {"const": false}}},
+    "pins": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 1}}
+  }
+}

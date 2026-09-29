@@ -1,0 +1,25 @@
+{
+ "Ident": {
+  "Service": "metadata",
+  "Method": "table"
+ },
+ "Status": {
+  "Code": 0,
+  "Content": "erfolgreich",
+  "Type": "Information"
+ },
+ "Parameter": {
+  "name": "12411-0010",
+  "area": "all",
+  "language": "de"
+ },
+ "Object": {
+  "Code": "12411-0010",
+  "Content": "Bevölkerung: Bundesländer, Stichtag, Nationalität (authored fixture: fictional values)",
+  "Time": {
+   "From": "31.12.2096",
+   "To": "31.12.2098"
+  },
+  "Updated": "20.06.2099 08:00:00h"
+ }
+}

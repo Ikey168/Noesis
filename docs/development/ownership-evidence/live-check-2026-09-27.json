@@ -1,0 +1,153 @@
+{
+  "contract": "noesis-ownership-live-check-v1",
+  "evidence_kind": "live",
+  "started_at": "2026-09-27T00:34:28.141283+00:00",
+  "environment": "Claude Code cloud session; outbound HTTPS goes through the session's egress proxy, whose policy denies the provider hosts (CONNECT 403); NOESIS_COMPANIES_HOUSE_API_KEY and NOESIS_SEC_CONTACT are not configured in this runtime",
+  "selection": {
+    "gleif-level2": {
+      "lei": {
+        "namespace": "ownership-live-check",
+        "leis": [
+          "HWUPKR0MPOU8FGXBT394"
+        ]
+      }
+    },
+    "companies-house": {
+      "ownership": {
+        "companies": [
+          "00102498"
+        ]
+      }
+    },
+    "sec-edgar-ownership": {
+      "ownership": {
+        "ciks": [
+          "0000320193"
+        ],
+        "filings": [],
+        "max_filings": 20
+      }
+    }
+  },
+  "sources": {
+    "companies-house": {
+      "provider": "companies-house",
+      "access_contract": "Companies House public data REST API: /company/{n}, /officers, /persons-with-significant-control, /persons-with-significant-control-statements, /exemptions, /filing-history",
+      "run_status": "partial",
+      "run_error": null,
+      "source_status": null,
+      "pages": 0,
+      "fetched": 0,
+      "failure": null,
+      "preflight_failures": [
+        {
+          "source_id": "companies-house",
+          "classification": "preflight",
+          "detail": [
+            "credential_missing"
+          ]
+        }
+      ],
+      "elapsed_seconds": 0.07
+    },
+    "gleif-level2": {
+      "provider": "gleif",
+      "access_contract": "GLEIF API v1 JSON:API: /lei-records/{lei}, /direct-parent-relationship, /ultimate-parent-relationship, /direct-parent-reporting-exception, /ultimate-parent-reporting-exception",
+      "run_status": "partial",
+      "run_error": null,
+      "source_status": "failed",
+      "pages": 0,
+      "fetched": 0,
+      "failure": {
+        "classification": "transient-availability",
+        "code": "source_unavailable",
+        "message": "source unavailable"
+      },
+      "preflight_failures": [
+        {
+          "source_id": "gleif-level2",
+          "classification": "transient-availability",
+          "error": {
+            "code": "source_unavailable",
+            "message": "source unavailable"
+          }
+        }
+      ],
+      "elapsed_seconds": 1.18
+    },
+    "sec-edgar-ownership": {
+      "provider": "sec-edgar",
+      "access_contract": "data.sec.gov submissions (/submissions/CIK##########.json) and company facts (/api/xbrl/companyfacts/CIK##########.json); explicitly selected Schedule 13D/13G primary documents under www.sec.gov/Archives/edgar/data",
+      "run_status": "partial",
+      "run_error": null,
+      "source_status": null,
+      "pages": 0,
+      "fetched": 0,
+      "failure": null,
+      "preflight_failures": [
+        {
+          "source_id": "sec-edgar-ownership",
+          "classification": "preflight",
+          "detail": [
+            "credential_missing"
+          ]
+        }
+      ],
+      "elapsed_seconds": 0.04
+    }
+  },
+  "probes": {
+    "gleif": {
+      "url": "https://api.gleif.org/api/v1/lei-records/HWUPKR0MPOU8FGXBT394",
+      "reachable": false,
+      "error_type": "URLError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_seconds": 0.25
+    },
+    "companies-house": {
+      "url": "https://api.company-information.service.gov.uk/",
+      "reachable": false,
+      "error_type": "URLError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_seconds": 0.25
+    },
+    "sec-edgar": {
+      "url": "https://data.sec.gov/",
+      "reachable": false,
+      "error_type": "URLError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_seconds": 0.22
+    },
+    "open-ownership": {
+      "url": "https://bods-data.openownership.org/",
+      "reachable": false,
+      "error_type": "URLError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_seconds": 0.26
+    }
+  },
+  "note": "Live evidence only; offline fixture results are reported separately by the unit and acceptance tests. Nothing here is a beneficial-ownership, sanctions or AML determination.",
+  "ownership_records_by_provider": {},
+  "gleif_projection": {
+    "projected": 0,
+    "counts": {
+      "inserted": 0,
+      "revised": 0,
+      "unchanged": 0
+    },
+    "not_acquired": [
+      "HWUPKR0MPOU8FGXBT394"
+    ]
+  },
+  "open-ownership": {
+    "attempted": false,
+    "reason": "no BODS dataset path has been verified from this runtime; only a host probe is recorded"
+  },
+  "finished_at": "2026-09-27T00:34:30.426732+00:00",
+  "summary": {
+    "companies-house": "preflight:credential_missing",
+    "gleif-level2": "transport:source_unavailable",
+    "sec-edgar-ownership": "preflight:credential_missing",
+    "open-ownership-bods": "not attempted; probe unreachable: URLError"
+  }
+}

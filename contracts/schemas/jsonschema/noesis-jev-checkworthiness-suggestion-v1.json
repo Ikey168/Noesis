@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-checkworthiness-suggestion-v1.json",
+  "title": "Source-bound Jev check-worthiness suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "claim_id", "claim_present", "truth_status", "source_binding", "locator", "raw_dimensions", "priority_score", "priority_policy_id", "scheduler_mutated", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-checkworthiness-suggestion-v1"},
+    "status": {"enum": ["suggested", "abstained"]},
+    "accepted": {"const": false},
+    "claim_id": {"type": "string", "minLength": 1},
+    "claim_present": {"const": true},
+    "truth_status": {"type": "null"},
+    "source_binding": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "locator": {"$ref": "#/$defs/span"},
+    "raw_dimensions": {"type": "object", "required": ["impact", "testability"], "properties": {"impact": {"$ref": "#/$defs/scoreOrNull"}, "testability": {"$ref": "#/$defs/scoreOrNull"}}, "additionalProperties": false},
+    "priority_score": {"$ref": "#/$defs/probabilityOrNull"},
+    "priority_policy_id": {"type": "string", "minLength": 1},
+    "scheduler_mutated": {"const": false},
+    "decision_run": {"type": "object"}
+  },
+  "$defs": {
+    "scoreOrNull": {"type": ["number", "null"], "minimum": 0, "maximum": 3},
+    "probabilityOrNull": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "span": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

@@ -68,6 +68,59 @@ and [official Python API client](https://github.com/openreview/openreview-py/blo
 No optional OpenReview package is required. API v2 and Noesis mapping v1 are the
 recorded protocol versions. Per-note licenses govern redistribution.
 
+### Public review-round investigations
+
+`config/investigation_templates/openreview-round-comparison.json` gives a
+project and report outline for one public forum. After a bounded source-pack
+run, select committed `document_revision_records` for that forum and pin their
+`document_id`/`revision_id` pairs. For example:
+
+```python
+from src.domains.research.openreview_rounds import OpenReviewRoundStore
+
+store = OpenReviewRoundStore(conn)
+snapshot = store.save(
+    "research", "forum-2026-review", "forum-id-from-provider",
+    [{"document_id": review_document_id, "revision_id": review_revision_id},
+     {"document_id": response_document_id, "revision_id": response_revision_id}],
+    principal_id="alice", scopes=scopes,
+)
+round_one = store.inspect_round(
+    "research", snapshot["round_set_id"], "round:1",
+    principal_id="alice", scopes=scopes,
+)
+```
+
+The caller needs `knowledge:openreview:write` or `:read`, a matching
+namespace scope and current `document:<id>:read` access for every note.
+Round membership uses explicit invitation round markers or an unambiguous
+reply parent. Unmarked notes remain ambiguous. Duplicate exact references
+collapse; edited notes keep their own document revisions; removed notes stay
+marked as removed rather than becoming evidence of a complete provider
+withdrawal. Provider signatures are retained as written, including anonymous
+ones.
+
+Save a concern with a verbatim review excerpt, an optional rebuttal excerpt,
+and exact before/after manuscript references. `concern_review_target` returns
+the source-bound target and source list for `ReviewInboxStore.create`. Only a
+resolved task with declared human votes can mark a concern independently
+verified. Author-claimed and machine-proposed correspondence remain separate;
+a response without a manuscript change remains unresolved, and missing
+manuscript text is unassessable. `compare` accepts two selectors such as
+`{"revision": 1, "round_id": "round:1"}` and
+`{"revision": 2, "round_id": "round:2"}`; `export` returns cited concerns,
+responses, manuscript changes and states with interpretation left null.
+
+The Knowledge Engine MCP exposes `save_openreview_round_set`,
+`inspect_openreview_round_set`, `inspect_openreview_round`,
+`compare_openreview_rounds`, `export_openreview_round_comparison`,
+`openreview_concern_review_target`, and `assess_openreview_concern`. Reads are
+paginated at 100 items; snapshots accept at most 100 exact public note
+revisions. A paper-family link is optional and requires an accepted provider
+or human-reviewed identifier relation; a standalone OpenReview investigation
+needs no family. The tests use synthetic public notes and fixture documents,
+not a live OpenReview service or independent human assessment.
+
 ## WARC/ARC exchange (#1497)
 
 ```python

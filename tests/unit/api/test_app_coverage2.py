@@ -33,7 +33,7 @@ _ROUTE_SUBMODULES = [
     "rate_limit_routes", "auth_routes", "rbac_routes", "api_key_routes",
     "waf_security_routes", "search_routes", "document_routes",
     "report_routes", "alert_routes", "argument_routes", "kg_stream_routes",
-    "entity_correction_routes", "source_comparison_routes", "metrics_routes",
+    "entity_correction_routes", "source_comparison_routes", "market_routes", "metrics_routes",
     "privacy_routes", "security_routes",
     "event_routes", "graph_routes", "news_routes", "veracity_routes",
     "knowledge_graph_routes", "sentiment_routes",
@@ -266,6 +266,12 @@ def test_try_import_source_comparison_routes_success(monkeypatch, clean_modules,
     assert appmod.SOURCE_COMPARISON_ROUTES_AVAILABLE is True
 
 
+def test_try_import_market_routes_success(monkeypatch, clean_modules, stub_routes):
+    monkeypatch.setattr(appmod, "MARKET_ROUTES_AVAILABLE", False)
+    assert appmod.try_import_market_routes() is True
+    assert appmod.MARKET_ROUTES_AVAILABLE is True
+
+
 def test_try_import_metrics_routes_success(monkeypatch, clean_modules, stub_routes):
     monkeypatch.setattr(appmod, "METRICS_ROUTES_AVAILABLE", False)
     assert appmod.try_import_metrics_routes() is True
@@ -471,7 +477,7 @@ def test_include_optional_routers_counts_included(monkeypatch):
         "INFLUENCE_ANALYSIS_AVAILABLE", "AUTH_AVAILABLE", "SEARCH_AVAILABLE",
         "ALERT_ROUTES_AVAILABLE", "REPORT_ROUTES_AVAILABLE", "ARGUMENT_ROUTES_AVAILABLE",
         "KG_STREAM_ROUTES_AVAILABLE", "ENTITY_CORRECTION_ROUTES_AVAILABLE",
-        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
+        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "MARKET_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
         "PRIVACY_ROUTES_AVAILABLE", "SECURITY_ROUTES_AVAILABLE",
     ):
         monkeypatch.setattr(appmod, flag, False)
@@ -496,7 +502,7 @@ def test_include_optional_routers_none_available(monkeypatch):
         "INFLUENCE_ANALYSIS_AVAILABLE", "AUTH_AVAILABLE", "SEARCH_AVAILABLE",
         "ALERT_ROUTES_AVAILABLE", "REPORT_ROUTES_AVAILABLE", "ARGUMENT_ROUTES_AVAILABLE",
         "KG_STREAM_ROUTES_AVAILABLE", "ENTITY_CORRECTION_ROUTES_AVAILABLE",
-        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
+        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "MARKET_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
         "PRIVACY_ROUTES_AVAILABLE", "SECURITY_ROUTES_AVAILABLE",
     ):
         monkeypatch.setattr(appmod, flag, False)
@@ -723,6 +729,7 @@ _ROUTE_IMPORT_HELPERS = [
     ("try_import_kg_stream_routes", "KG_STREAM_ROUTES_AVAILABLE"),
     ("try_import_entity_correction_routes", "ENTITY_CORRECTION_ROUTES_AVAILABLE"),
     ("try_import_source_comparison_routes", "SOURCE_COMPARISON_ROUTES_AVAILABLE"),
+    ("try_import_market_routes", "MARKET_ROUTES_AVAILABLE"),
     ("try_import_metrics_routes", "METRICS_ROUTES_AVAILABLE"),
     ("try_import_privacy_routes", "PRIVACY_ROUTES_AVAILABLE"),
     ("try_import_security_routes", "SECURITY_ROUTES_AVAILABLE"),
@@ -767,7 +774,7 @@ def test_check_all_imports_calls_all_helpers(monkeypatch):
         "try_import_search_routes", "try_import_document_routes",
         "try_import_report_routes", "try_import_alert_routes",
         "try_import_argument_routes", "try_import_kg_stream_routes",
-        "try_import_entity_correction_routes", "try_import_source_comparison_routes",
+        "try_import_entity_correction_routes", "try_import_source_comparison_routes", "try_import_market_routes",
         "try_import_metrics_routes", "try_import_privacy_routes",
         "try_import_security_routes",
     ]
@@ -829,7 +836,8 @@ def test_include_optional_routers_all_features_enabled(monkeypatch):
         "search_routes": _RouterHolder(), "alert_routes": _RouterHolder(),
         "report_routes": _RouterHolder(), "argument_routes": _RouterHolder(),
         "kg_stream_routes": _RouterHolder(), "entity_correction_routes": _RouterHolder(),
-        "source_comparison_routes": _RouterHolder(), "metrics_routes": _RouterHolder(),
+        "source_comparison_routes": _RouterHolder(), "market_routes": _RouterHolder(),
+        "metrics_routes": _RouterHolder(),
         "privacy_routes": _RouterHolder(), "security_routes": _RouterHolder(),
     }
     _register(monkeypatch, **feature_routers)
@@ -840,7 +848,7 @@ def test_include_optional_routers_all_features_enabled(monkeypatch):
         "INFLUENCE_ANALYSIS_AVAILABLE", "AUTH_AVAILABLE", "SEARCH_AVAILABLE",
         "ALERT_ROUTES_AVAILABLE", "REPORT_ROUTES_AVAILABLE", "ARGUMENT_ROUTES_AVAILABLE",
         "KG_STREAM_ROUTES_AVAILABLE", "ENTITY_CORRECTION_ROUTES_AVAILABLE",
-        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
+        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "MARKET_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
         "PRIVACY_ROUTES_AVAILABLE", "SECURITY_ROUTES_AVAILABLE",
     ):
         monkeypatch.setattr(appmod, flag, True)
@@ -848,10 +856,10 @@ def test_include_optional_routers_all_features_enabled(monkeypatch):
 
     app = _RecordingApp()
     count = appmod.include_optional_routers(app)
-    # 21 features each increment the counter once.
-    assert count == 21
-    # rate-limiting feature adds 2 routers; the other 20 add 1 each => 22 routers.
-    assert len(app.included) == 22
+    # 22 features each increment the counter once.
+    assert count == 22
+    # rate-limiting adds 2 routers; the other 21 add 1 each => 23 routers.
+    assert len(app.included) == 23
 
 
 def test_include_optional_routers_news_gated_features_off(monkeypatch):
@@ -868,7 +876,7 @@ def test_include_optional_routers_news_gated_features_off(monkeypatch):
         "AUTH_AVAILABLE", "SEARCH_AVAILABLE",
         "ALERT_ROUTES_AVAILABLE", "REPORT_ROUTES_AVAILABLE", "ARGUMENT_ROUTES_AVAILABLE",
         "KG_STREAM_ROUTES_AVAILABLE", "ENTITY_CORRECTION_ROUTES_AVAILABLE",
-        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
+        "SOURCE_COMPARISON_ROUTES_AVAILABLE", "MARKET_ROUTES_AVAILABLE", "METRICS_ROUTES_AVAILABLE",
         "PRIVACY_ROUTES_AVAILABLE", "SECURITY_ROUTES_AVAILABLE",
     ):
         monkeypatch.setattr(appmod, flag, False)

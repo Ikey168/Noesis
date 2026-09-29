@@ -1,0 +1,1 @@
+{"contract":"noesis-market-provider-health-v1","namespace":"market:fixture","window":{"start_ms":0,"end_ms":1000},"providers":{"fixture":{"state":"healthy","measurement_count":1}},"limitations":["fixture"]}

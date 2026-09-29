@@ -85,8 +85,13 @@ def resolve_scope(
     include_private: bool = False,
     limit: int = 20,
     per_domain_limit: int = 20,
+    permitted: Any = None,
 ) -> tuple[list[tuple[str, Any]], dict[str, Any]]:
     """Resolve and authorize an ordered domain scope.
+
+    ``permitted`` optionally narrows the scope for the caller (API-key domain
+    permissions): an explicitly requested unpermitted domain is refused, and
+    ``all_authorized`` skips it and records it in ``excluded_domains``.
 
     Exactly one scope form is accepted: an explicit non-empty ``domains``
     list, or ``all_authorized=True``.  Duplicate explicit names are rejected
@@ -135,6 +140,13 @@ def resolve_scope(
             backing = registry.resolve(name, conn=conn)
         except DomainConfigError as exc:
             raise CrossDomainError("unknown_domain", str(exc)) from exc
+        if permitted is not None and not permitted(name):
+            if explicit:
+                raise CrossDomainError(
+                    "unauthorized", f"API key lacks kb:read:{name}"
+                )
+            excluded.append({"domain": name, "reason": "api_key_not_permitted"})
+            continue
         if _private(backing):
             if not include_private:
                 if explicit:

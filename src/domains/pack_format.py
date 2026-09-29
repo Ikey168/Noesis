@@ -37,6 +37,10 @@ from src.domains.pack_vocab import FACETS
 from src.domains.pack_vocab import MAX_SPAN, MIN_SPAN, SOURCE_TYPES
 
 PACK_FORMAT = "noesis-pack-v1"
+# Versioned successor (pack/workflow composition, C02.1). v1 validation below
+# is unchanged; composition manifests validate in src.composition.contracts.
+COMPOSITION_FORMAT = "noesis-pack-composition-v1"
+PACK_FORMATS = (PACK_FORMAT, COMPOSITION_FORMAT)
 
 # A pack name is a namespace token; a version is semver-ish (major.minor.patch).
 NAME_RE = re.compile(r"^[a-z][a-z0-9_-]{1,31}$")
@@ -275,6 +279,20 @@ def validate_manifest(data: Dict[str, Any]) -> List[str]:
         errors.append("a pack must contribute at least one capability")
 
     return errors
+
+
+def validate_pack_document(data: Dict[str, Any]) -> List[str]:
+    """Validate a manifest of either supported ``pack_format``.
+
+    ``noesis-pack-v1`` goes through :func:`validate_manifest` exactly as before;
+    ``noesis-pack-composition-v1`` through the composition validator, which
+    rejects unknown critical fields instead of dropping them.
+    """
+    if isinstance(data, dict) and data.get("pack_format") == COMPOSITION_FORMAT:
+        from src.composition.contracts import validate_composition_manifest
+
+        return [f"{issue.path}: {issue.message}" for issue in validate_composition_manifest(data)]
+    return validate_manifest(data)
 
 
 class PackFormatError(ValueError):

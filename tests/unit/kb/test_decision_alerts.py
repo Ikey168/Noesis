@@ -83,3 +83,38 @@ def test_metric_threshold_ignores_missing_preliminary_and_conflicting_observatio
     observe('conflicting-final', '90', 200)
     result = store.poll_watch('r', watch['watch_id'], **auth)
     assert result['assessment'][0]['status'] == 'uncertain' and len(result['tasks']) == 1
+
+
+def test_standalone_choice_watch_triggers_without_project_scope():
+    import duckdb
+
+    conn = duckdb.connect()
+    source = DocumentRevisionStore(conn).observe({
+        'document_id': 'renewal-source', 'content': 'No use this month.'})
+    auth = {'principal_id': 'alice', 'scopes': {
+        'knowledge:decisions:read', 'knowledge:decisions:write',
+        'namespace:r:read', 'namespace:r:write', 'document:renewal-source:read',
+        'knowledge:briefs:read', 'knowledge:briefs:write', 'knowledge:briefs:deliver',
+    }}
+    store = DecisionAlertStore(conn, now=lambda: 1000)
+    content = {'project': None, 'decision_context': {
+        'question': 'Renew?', 'stakes': 'One month', 'required_confidence': 'Moderate',
+        'stop_condition': 'Usage known', 'uncertainty': 'Next month unknown',
+        'missing_inputs': [], 'deadline_at_ms': None},
+        'options': [{'id': 'yes', 'description': 'Renew'},
+                    {'id': 'no', 'description': 'Cancel'}],
+        'constraints': [], 'assumptions': [], 'observations': [], 'preferences': [],
+        'selected_action': 'no', 'rationale': 'No current use', 'review_conditions': ['Usage changes']}
+    decision = store.create('r', 'renewal', content, **auth)
+    condition = {'id': 'usage-change', 'kind': 'source_revision', 'dependency': {
+        'kind': 'source', 'namespace': 'r', 'id': 'renewal-source',
+        'revision': source['revision_id'], 'locator': {}}}
+    watch = store.create_watch('r', decision['decision_id'], 1, [condition], **auth)
+    assert store.poll_watch('r', watch['watch_id'], **auth)['tasks'] == []
+    DocumentRevisionStore(conn).observe({
+        'document_id': 'renewal-source', 'content': 'Usage resumed.'})
+    tasks = store.poll_watch('r', watch['watch_id'], **auth)['tasks']
+    assert len(tasks) == 1 and tasks[0]['after']['status'] == 'triggered'
+    with pytest.raises(DecisionError, match='current access'):
+        store.inspect_watch('r', watch['watch_id'], principal_id='alice',
+            scopes=auth['scopes'] - {'document:renewal-source:read'})

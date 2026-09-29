@@ -25,7 +25,9 @@ class Clock:
 
 def setup_pack(clock: Clock):
     conn = duckdb.connect(":memory:")
-    manifest = load_source_packs(ROOT / "config/source_packs")[0]
+    # The economic pack, by id: new packs must not change which pack these tests exercise.
+    manifest = next(pack for pack in load_source_packs(ROOT / "config/source_packs")
+                    if pack["pack_id"] == "economic-statistics-and-filings")
     SourcePackStore(conn).install(
         manifest, principal_id="operator", enable=True, now_ms=1
     )

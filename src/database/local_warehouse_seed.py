@@ -175,7 +175,8 @@ CREATE TABLE IF NOT EXISTS local_api_keys (
     created_at  TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     expires_at  TIMESTAMP,
     last_used_at TIMESTAMP,
-    usage_count INTEGER NOT NULL DEFAULT 0
+    usage_count INTEGER NOT NULL DEFAULT 0,
+    permissions VARCHAR
 );
 
 CREATE TABLE IF NOT EXISTS admin_mfa_secrets (

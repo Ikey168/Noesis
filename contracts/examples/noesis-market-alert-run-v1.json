@@ -1,0 +1,18 @@
+{
+  "contract": "noesis-market-alert-run-v1",
+  "namespace": "market:fixture",
+  "run_id": "market-alert-run:fixture",
+  "watch_id": "anomaly-watch:fixture",
+  "watch_version": 1,
+  "owner": "alice",
+  "generation": 1,
+  "status": "completed",
+  "processed": 1,
+  "triggered": [],
+  "decisions": [],
+  "anomaly_ids": [],
+  "input_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "input_snapshot": [],
+  "cutoffs": {"as_of_ms": 1771057800000, "publicly_available_by_ms": 1771057800000, "acquired_by_ms": 1771057800000},
+  "rule_revision_id": "market-alert:fixture"
+}

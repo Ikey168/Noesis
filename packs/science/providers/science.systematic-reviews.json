@@ -1,0 +1,83 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.systematic-reviews",
+  "version": "1.0.0",
+  "description": "Systematic-review protocols, amendments, independent screening and registrations.",
+  "implementation": {
+    "name": "src.kb.systematic_reviews",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.systematic-reviews",
+      "contract": {
+        "name": "noesis-review-protocol",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-protocol",
+        "inspect-protocol"
+      ],
+      "semantic_constraints": {
+        "screening": "two independent reviewers"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "create-protocol",
+      "tool": "noesis-knowledge-engine.create_review_protocol",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "protocols",
+      "required_scopes": [
+        "knowledge:reviews:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-protocol",
+      "tool": "noesis-knowledge-engine.inspect_review_protocol",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "protocols",
+      "required_scopes": [
+        "knowledge:reviews:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "review-protocol",
+      "store": "src.kb.systematic_reviews",
+      "tables": [
+        "systematic_review_protocols",
+        "systematic_review_protocol_revisions",
+        "systematic_review_candidates",
+        "systematic_review_screening",
+        "systematic_review_registrations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "protocols",
+      "kind": "table-exists",
+      "target": "systematic_review_protocols"
+    }
+  ]
+}

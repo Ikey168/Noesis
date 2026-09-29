@@ -1,0 +1,89 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "laerm_lden.101",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       392200.0,
+       5820150.0
+      ],
+      [
+       392500.0,
+       5820150.0
+      ],
+      [
+       392500.0,
+       5820400.0
+      ],
+      [
+       392200.0,
+       5820400.0
+      ],
+      [
+       392200.0,
+       5820150.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "gml_id": "laerm_lden.101",
+    "lden_klasse": "> 65 - 70",
+    "einheit": "dB(A)",
+    "grundlage": "Strategische Lärmkarte 2022, Berechnung (kein Messwert)"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "laerm_lden.102",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       392500.0,
+       5820150.0
+      ],
+      [
+       392800.0,
+       5820150.0
+      ],
+      [
+       392800.0,
+       5820400.0
+      ],
+      [
+       392500.0,
+       5820400.0
+      ],
+      [
+       392500.0,
+       5820150.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "gml_id": "laerm_lden.102",
+    "lden_klasse": "> 60 - 65",
+    "einheit": "dB(A)",
+    "grundlage": "Strategische Lärmkarte 2022, Berechnung (kein Messwert)"
+   }
+  }
+ ],
+ "totalFeatures": 2,
+ "numberMatched": 2,
+ "numberReturned": 2,
+ "timeStamp": "2026-09-20T06:00:00.000Z",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25833"
+  }
+ }
+}

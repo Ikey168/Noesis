@@ -10,14 +10,49 @@ from __future__ import annotations
 
 from typing import Optional
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 
 from src.api.auth.jwt_auth import require_auth
+from src.api.auth.key_permissions import (
+    PermissionDenied,
+    domain_filter,
+    require_domain,
+    require_domains,
+)
 from src.kb import contract
 from src.kb.contract import KBContractError
 
-router = APIRouter(prefix="/api/v1/kb", tags=["knowledge-base"])
+
+def _forbidden(exc: PermissionDenied) -> HTTPException:
+    return HTTPException(
+        status_code=403,
+        detail={"code": exc.code, "message": str(exc), "required": exc.required},
+    )
+
+
+def _path_domain_guard(http: Request) -> None:
+    """API keys read only the domains named by their ``kb:read:*`` permissions."""
+    domain = http.path_params.get("domain")
+    if domain:
+        try:
+            require_domain(http, domain)
+        except PermissionDenied as exc:
+            raise _forbidden(exc) from exc
+
+
+def _guard(http: Optional[Request], *domains: Optional[str]) -> None:
+    try:
+        require_domains(http, [d for d in domains if d])
+    except PermissionDenied as exc:
+        raise _forbidden(exc) from exc
+
+
+router = APIRouter(
+    prefix="/api/v1/kb",
+    tags=["knowledge-base"],
+    dependencies=[Depends(_path_domain_guard)],
+)
 
 _STATUS = {
     "unknown_domain": 404,
@@ -175,6 +210,7 @@ async def brief(
     domains: Optional[str] = None,
     since: Optional[str] = None,
     budget: int = 15,
+    http: Request = None,
 ):
     """The daily brief (markdown + sections + meta) for external consumers.
 
@@ -185,6 +221,17 @@ async def brief(
         if domains
         else None
     )
+    permitted = domain_filter(http)
+    if domain_list is not None:
+        _guard(http, *domain_list)
+    elif permitted is not None:
+        names = [d["name"] for d in _run(contract.kb_domains)["data"]]
+        domain_list = [name for name in names if permitted(name)]
+        if not domain_list:
+            raise HTTPException(
+                status_code=403,
+                detail={"code": "unauthorized", "message": "API key permits no KB domain"},
+            )
     return _run(contract.kb_brief, domain_list, since, budget)
 
 
@@ -211,7 +258,7 @@ def policy_monitor_public_bundle():
 
 
 @router.post("/cross-domain/search")
-def cross_domain_search(request: CrossDomainSearchRequest):
+def cross_domain_search(request: CrossDomainSearchRequest, http: Request = None):
     """Search explicit or all public domains with rank-fusion provenance."""
     return _run(
         contract.kb_search_domains,
@@ -220,11 +267,12 @@ def cross_domain_search(request: CrossDomainSearchRequest):
         request.all_authorized,
         request.limit,
         request.per_domain_limit,
+        domain_filter=domain_filter(http),
     )
 
 
 @router.post("/cross-domain/answer")
-def cross_domain_answer(request: CrossDomainAnswerRequest):
+def cross_domain_answer(request: CrossDomainAnswerRequest, http: Request = None):
     """Build one cited answer from an explicit or all-public domain scope."""
     return _run(
         contract.kb_answer_domains,
@@ -234,11 +282,12 @@ def cross_domain_answer(request: CrossDomainAnswerRequest):
         request.limit,
         request.per_domain_limit,
         request.minimum_relevance,
+        domain_filter=domain_filter(http),
     )
 
 
 @router.post("/cross-domain/links")
-def cross_domain_links(request: CrossDomainLinksRequest):
+def cross_domain_links(request: CrossDomainLinksRequest, http: Request = None):
     """Inspect public entity equivalences and cross-domain claim links."""
     return _run(
         contract.kb_cross_links,
@@ -247,6 +296,7 @@ def cross_domain_links(request: CrossDomainLinksRequest):
         request.kind,
         request.relation,
         request.limit,
+        domain_filter=domain_filter(http),
     )
 
 
@@ -254,6 +304,7 @@ def cross_domain_links(request: CrossDomainLinksRequest):
 def private_cross_domain_search(
     request: CrossDomainSearchRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     return _run(
         contract.kb_search_domains,
@@ -264,6 +315,7 @@ def private_cross_domain_search(
         request.per_domain_limit,
         _watch_principal(current_user),
         True,
+        domain_filter=domain_filter(http),
     )
 
 
@@ -271,6 +323,7 @@ def private_cross_domain_search(
 def private_cross_domain_answer(
     request: CrossDomainAnswerRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     return _run(
         contract.kb_answer_domains,
@@ -282,6 +335,7 @@ def private_cross_domain_answer(
         request.minimum_relevance,
         _watch_principal(current_user),
         True,
+        domain_filter=domain_filter(http),
     )
 
 
@@ -289,6 +343,7 @@ def private_cross_domain_answer(
 def private_cross_domain_links(
     request: CrossDomainLinksRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     return _run(
         contract.kb_cross_links,
@@ -299,12 +354,14 @@ def private_cross_domain_links(
         request.limit,
         _watch_principal(current_user),
         True,
+        domain_filter=domain_filter(http),
     )
 
 
 @router.post("/temporal")
-def temporal_query(request: TemporalQueryRequest):
+def temporal_query(request: TemporalQueryRequest, http: Request = None):
     """Query public domain history with independent valid/system-time axes."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_temporal,
         request.domain,
@@ -324,8 +381,10 @@ def temporal_query(request: TemporalQueryRequest):
 def private_temporal_query(
     request: TemporalQueryRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     """Query grant-authorized private history without leaking other domains."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_temporal,
         request.domain,
@@ -344,8 +403,9 @@ def private_temporal_query(
 
 
 @router.post("/political")
-def political_query(request: PoliticalQueryRequest):
+def political_query(request: PoliticalQueryRequest, http: Request = None):
     """Run a public cited political-research query."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_political,
         request.domain,
@@ -365,8 +425,10 @@ def political_query(request: PoliticalQueryRequest):
 def private_political_query(
     request: PoliticalQueryRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     """Run the same query against a grant-authorized private domain."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_political,
         request.domain,
@@ -385,8 +447,9 @@ def private_political_query(
 
 
 @router.post("/economic")
-def economic_query(request: EconomicQueryRequest):
+def economic_query(request: EconomicQueryRequest, http: Request = None):
     """Run a public cited economic trend, comparison, vintage, or claim query."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_economic,
         request.domain,
@@ -407,8 +470,10 @@ def economic_query(request: EconomicQueryRequest):
 def private_economic_query(
     request: EconomicQueryRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     """Run the same query against a grant-authorized private domain."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_economic,
         request.domain,
@@ -428,8 +493,9 @@ def private_economic_query(
 
 
 @router.post("/technical")
-def technical_query(request: TechnicalQueryRequest):
+def technical_query(request: TechnicalQueryRequest, http: Request = None):
     """Run a public cited technical-knowledge graph query."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_technical,
         request.domain,
@@ -448,8 +514,10 @@ def technical_query(request: TechnicalQueryRequest):
 def private_technical_query(
     request: TechnicalQueryRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     """Run the same query against a grant-authorized private domain."""
+    _guard(http, request.domain)
     return _run(
         contract.kb_technical,
         request.domain,
@@ -467,7 +535,7 @@ def private_technical_query(
 
 
 @router.post("/context")
-def assemble_public_context(request: ContextAssemblyRequest):
+def assemble_public_context(request: ContextAssemblyRequest, http: Request = None):
     """Assemble cited context from public domains and namespaces."""
     return _run(
         contract.kb_context,
@@ -483,6 +551,7 @@ def assemble_public_context(request: ContextAssemblyRequest):
         request.required_object_types,
         request.allowed_surfaces,
         request.max_candidates,
+        domain_filter=domain_filter(http),
     )
 
 
@@ -490,6 +559,7 @@ def assemble_public_context(request: ContextAssemblyRequest):
 def assemble_private_context(
     request: ContextAssemblyRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
     """Assemble context with explicit grant-authorized private scope."""
     return _run(
@@ -508,6 +578,7 @@ def assemble_private_context(
         request.max_candidates,
         _watch_principal(current_user),
         True,
+        domain_filter=domain_filter(http),
     )
 
 
@@ -525,7 +596,9 @@ def policy_monitor_private_bundle(current_user: dict = Depends(require_auth)):
 def create_watch(
     request: WatchCreateRequest,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
+    _guard(http, request.domain)
     principal_id = _watch_principal(current_user)
     return _run(
         contract.watch_create,
@@ -541,7 +614,9 @@ def create_watch(
 def watches(
     domain: Optional[str] = None,
     current_user: dict = Depends(require_auth),
+    http: Request = None,
 ):
+    _guard(http, domain)
     principal_id = _watch_principal(current_user)
     return _run(contract.watch_list, principal_id, domain)
 

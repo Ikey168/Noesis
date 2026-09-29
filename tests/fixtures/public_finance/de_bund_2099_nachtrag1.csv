@@ -1,0 +1,7 @@
+# Bundeshaushalt 2099 - 1. Nachtragshaushalt (authored fixture: fictional Einzelplan, Kapitel and Titel)
+# Stand: 15.06.2099
+# Betragsangaben in 1.000 EUR
+Haushaltsjahr;Einzelplan;Einzelplantext;Kapitel;Kapiteltext;Titel;Titeltext;Einnahme/Ausgabe;Soll
+2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;68101;Zuschüsse an Beispielträger;A;140.000
+2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;53201;Beispielgutachten;A;4.250,5
+2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;11901;Beispielerlöse;E;

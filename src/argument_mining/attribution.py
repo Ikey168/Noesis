@@ -219,3 +219,10 @@ def run_attribution_batch(conn, lock, limit: int = 500) -> dict:
             pass
 
     return {"updated": updated, "skipped": len(rows) - updated}
+
+
+def suggest_speaker_with_jev(*args, **kwargs) -> dict:
+    """Explicit selection among extracted actors; stored attribution is unchanged."""
+    from src.argument_mining.jev_nlp_adapters import suggest_attribution
+
+    return suggest_attribution(*args, **kwargs)
