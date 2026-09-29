@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Chemicals and Substances bundle's offline journey (#2316) composes its record owner with Legal works,
+    # Products safety notices, entity identity decisions and subscriptions.
+    "Substance to cited regulatory dossier":
+        "tests/unit/domains/test_chemicals_acceptance.py::"
+        "test_substance_name_or_identifier_to_a_cited_regulatory_dossier",
 }
 
 

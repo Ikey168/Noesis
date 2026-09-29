@@ -198,6 +198,11 @@ For the project overview and local setup, start with the
   label assertions and probable address clustering with declared heuristics, a null model and a measured
   false-positive rate; no attribution verdicts, no person linkage, no wallet or submission capability;
   [source access audit](security/onchain-source-access.md)
+- [Chemicals and Substances guide](guides/chemicals-substances.md) — from a substance name, CAS/EC number, InChIKey
+  or DTXSID to a cited dossier: reviewable identity across PubChem, ECHA and CompTox, harmonised and notified CLP
+  classifications with every ATP revision, REACH registration, SVHC and Annex XIV/XVII status as of a date, the
+  regulation text and product notices linked by citation, published data points and monitors; no hazard verdict,
+  safety advice or synthesis information; [source audit](roadmaps/chemicals-substances-source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
