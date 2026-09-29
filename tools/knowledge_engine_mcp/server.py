@@ -9296,6 +9296,10 @@ from tools.knowledge_engine_mcp.development_finance import (
 
 register_development_finance_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.humanitarian import register as register_humanitarian_tools
+
+register_humanitarian_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

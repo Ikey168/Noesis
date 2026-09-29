@@ -1,0 +1,491 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "humanitarian.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.humanitarian_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "humanitarian.records",
+      "contract": {
+        "name": "noesis-humanitarian-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "acquire-source",
+        "register-schemas",
+        "import-boundaries",
+        "bundle-status"
+      ],
+      "semantic_constraints": {
+        "revisions": "appended, never overwritten; source, revision, retrieval and as-of time on every record",
+        "counts": "as published by the coder or publisher; never merged, summed or estimated",
+        "personal_data": "rejected; free text that can name individuals dropped at parse time",
+        "acled": "not acquired (licence)"
+      }
+    },
+    {
+      "id": "humanitarian.dossiers",
+      "contract": {
+        "name": "noesis-humanitarian-dossier",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "dossier",
+        "export-dossier"
+      ],
+      "semantic_constraints": {
+        "as_of": "revision in force at the date, stated per item",
+        "gaps": "none on record and declined sources listed",
+        "assessment": "none; no severity ranking or advice"
+      }
+    },
+    {
+      "id": "humanitarian.conflict-events",
+      "contract": {
+        "name": "noesis-humanitarian-conflict-events",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "query-events",
+        "event-history"
+      ],
+      "semantic_constraints": {
+        "bounds": "bbox <= 5 x 5 degrees or one admin place; window <= 366 days",
+        "coders": "side by side with their own precision codes; never deduplicated",
+        "imprecise": "explicit exact-only/admin/all policy with excluded events listed"
+      }
+    },
+    {
+      "id": "humanitarian.identity",
+      "contract": {
+        "name": "noesis-humanitarian-identity-assertion",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-identity",
+        "review-identity",
+        "revert-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "review": "proposed, reviewed by another principal, reversible; nothing auto-merged",
+        "places": "geospatial admin places with boundary vintage"
+      }
+    },
+    {
+      "id": "humanitarian.links",
+      "contract": {
+        "name": "noesis-humanitarian-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "cite-link",
+        "attach-population",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "basis": "explicit citation, shared identifier or accepted identity match",
+        "population": "denominator by citation with vintage; no per-capita values"
+      }
+    },
+    {
+      "id": "humanitarian.monitoring",
+      "contract": {
+        "name": "noesis-humanitarian-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "committed watermarks; no scheduler",
+        "notices": "record changes with citations, not alerts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.humanitarian_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-source",
+      "tool": "noesis-knowledge-engine.acquire_humanitarian_source",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "run_key",
+        "receipt": "source_pack_runs"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_humanitarian_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "import-boundaries",
+      "tool": "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "p-code + boundary vintage"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.humanitarian_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "dossier",
+      "tool": "noesis-knowledge-engine.humanitarian_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-dossier",
+      "tool": "noesis-knowledge-engine.export_humanitarian_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "query-events",
+      "tool": "noesis-knowledge-engine.query_humanitarian_conflict_events",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "event-history",
+      "tool": "noesis-knowledge-engine.humanitarian_event_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity",
+      "tool": "noesis-knowledge-engine.propose_humanitarian_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject + target"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:humanitarian:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_humanitarian_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:humanitarian:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_humanitarian_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:humanitarian:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_humanitarian_identity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "cite-link",
+      "tool": "noesis-knowledge-engine.cite_humanitarian_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record revision + target + basis"
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:humanitarian:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "attach-population",
+      "tool": "noesis-knowledge-engine.attach_humanitarian_population",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record revision + series + basis"
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:humanitarian:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_humanitarian_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:humanitarian:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_humanitarian_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_humanitarian_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription + committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:humanitarian:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_humanitarian_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:humanitarian:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "humanitarian-record",
+      "store": "src.kb.humanitarian_store",
+      "tables": [
+        "humanitarian_records",
+        "humanitarian_revisions",
+        "humanitarian_receipts",
+        "humanitarian_provider_state"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "humanitarian-identity-assertion",
+      "store": "src.kb.humanitarian_identity",
+      "tables": [
+        "humanitarian_identity_assertions"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "humanitarian-link",
+      "store": "src.kb.humanitarian_links",
+      "tables": [
+        "humanitarian_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "humanitarian-monitor",
+      "store": "src.kb.humanitarian_monitoring",
+      "tables": [
+        "humanitarian_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "humanitarian_records"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "humanitarian_identity_assertions"
+    },
+    {
+      "id": "links",
+      "kind": "table-exists",
+      "target": "humanitarian_links"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "humanitarian_monitors"
+    },
+    {
+      "id": "humanitarian-source",
+      "kind": "source-pack-enabled",
+      "target": "humanitarian-response"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "humanitarian-response",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
