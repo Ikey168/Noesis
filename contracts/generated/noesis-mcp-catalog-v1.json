@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1205,
+      "tool_count": 1207,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1376,6 +1376,7 @@
         "noesis-knowledge-engine.inspect_math_object",
         "noesis-knowledge-engine.inspect_media_provenance",
         "noesis-knowledge-engine.inspect_modulo_intake_migration",
+        "noesis-knowledge-engine.inspect_modulo_intake_reconciliation",
         "noesis-knowledge-engine.inspect_oeis_sequence",
         "noesis-knowledge-engine.inspect_openreview_round",
         "noesis-knowledge-engine.inspect_openreview_round_set",
@@ -1702,6 +1703,7 @@
         "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
         "noesis-knowledge-engine.recheck_modulo_plugin_link",
+        "noesis-knowledge-engine.reconcile_modulo_intake_migration",
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_clinical_trial_design",
         "noesis-knowledge-engine.record_decision_evidence",
@@ -2133,7 +2135,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1205
+      "visible_tool_count": 1207
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2146,9 +2148,9 @@
     "states": {
       "available": 123,
       "degraded": 159,
-      "unauthorized": 1233
+      "unauthorized": 1235
     },
-    "tools": 1515
+    "tools": 1517
   },
   "tools": [
     {
@@ -43462,6 +43464,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Read a stored reconciliation report under current owner and preview access.",
+      "id": "noesis-knowledge-engine.inspect_modulo_intake_reconciliation",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "reconciliation_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "reconciliation_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_modulo_intake_reconciliation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "One OEIS entry (terms, references, revision) with its links.",
       "id": "noesis-knowledge-engine.inspect_oeis_sequence",
       "input_schema": {
@@ -59453,6 +59492,51 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Report migration and conflict outcomes for browser-local records against durable plugin state; writes nothing to Modulo.",
+      "id": "noesis-knowledge-engine.reconcile_modulo_intake_migration",
+      "input_schema": {
+        "properties": {
+          "legacy_preview_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "plugin_state_preview_id": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "legacy_preview_id",
+          "plugin_state_preview_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "reconcile_modulo_intake_migration",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:intake:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

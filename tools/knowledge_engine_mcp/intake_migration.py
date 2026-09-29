@@ -2,8 +2,11 @@
 
 from src.kb.intake_modulo_migration import ModuloMigrationStore
 
-MIGRATION_WRITES = {"preview_modulo_intake_migration", "import_modulo_flashcards"}
-MIGRATION_READS = {"inspect_modulo_intake_migration"}
+MIGRATION_WRITES = {
+    "preview_modulo_intake_migration", "import_modulo_flashcards",
+    "reconcile_modulo_intake_migration",
+}
+MIGRATION_READS = {"inspect_modulo_intake_migration", "inspect_modulo_intake_reconciliation"}
 
 
 def register(mcp, safe, context):
@@ -44,4 +47,30 @@ def register(mcp, safe, context):
                 principal_id=context()[0], scopes=context()[1],
             ),
             write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def reconcile_modulo_intake_migration(
+        namespace: str, request_key: str, legacy_preview_id: str,
+        plugin_state_preview_id: str,
+    ) -> dict:
+        """Report migration and conflict outcomes for browser-local records against durable plugin state; writes nothing to Modulo."""
+        return safe(
+            lambda conn: ModuloMigrationStore(conn).reconcile(
+                namespace, request_key, legacy_preview_id=legacy_preview_id,
+                plugin_state_preview_id=plugin_state_preview_id,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_modulo_intake_reconciliation(namespace: str, reconciliation_id: str) -> dict:
+        """Read a stored reconciliation report under current owner and preview access."""
+        return safe(
+            lambda conn: ModuloMigrationStore(conn, initialize=False).inspect_reconciliation(
+                namespace, reconciliation_id,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
         )

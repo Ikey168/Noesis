@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-modulo-intake-reconciliation-v1",
+  "title": "Browser-local Modulo intake records reconciled against durable plugin state",
+  "description": "Read-only report comparing two stored migration previews. Noesis writes nothing to Modulo and never establishes cross-device replacement here.",
+  "type": "object",
+  "required": ["contract", "reconciliation_id", "namespace", "owner", "workspace_id", "legacy_preview", "plugin_state_preview", "match_basis", "outcomes", "counts", "cross_device_replacement", "cross_device_replacement_claimed", "remote_mutations", "originals_deleted", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-modulo-intake-reconciliation-v1"},
+    "reconciliation_id": {"type": "string", "pattern": "^modulo-reconciliation:[0-9a-f]{24}$"},
+    "namespace": {"type": "string"},
+    "owner": {"type": "string"},
+    "workspace_id": {"type": "string"},
+    "legacy_preview": {"$ref": "#/$defs/preview"},
+    "plugin_state_preview": {"$ref": "#/$defs/preview"},
+    "match_basis": {"const": "plugin_id_and_record_id"},
+    "outcomes": {
+      "type": "array", "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": ["plugin_id", "record_id", "legacy", "durable", "outcome", "action", "collection_differs", "duplicate_local_content"],
+        "properties": {
+          "plugin_id": {"type": "string"},
+          "record_id": {"type": "string"},
+          "legacy": {"$ref": "#/$defs/version"},
+          "durable": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/version"}]},
+          "outcome": {"enum": ["already_durable", "conflict", "import_required"]},
+          "action": {"enum": ["link_durable_record", "owner_resolution_in_modulo", "plugin_import_with_owner_review"]},
+          "collection_differs": {"type": "boolean"},
+          "duplicate_local_content": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["legacy_records", "durable_records", "already_durable", "conflict", "import_required", "durable_only", "duplicate_local_content"],
+      "additionalProperties": {"type": "integer", "minimum": 0}
+    },
+    "cross_device_replacement": {"enum": ["blocked_by_unreconciled_records", "unverified_inventory_source", "pending_modulo_migration_receipt"]},
+    "cross_device_replacement_claimed": {"const": false},
+    "remote_mutations": {"const": 0},
+    "originals_deleted": {"const": false},
+    "limitations": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "preview": {
+      "type": "object",
+      "required": ["preview_id", "source", "inventory_sha256", "observed_at_ms"],
+      "properties": {
+        "preview_id": {"type": "string"},
+        "source": {"enum": ["fixture", "caller_supplied_plugin_state", "authenticated_plugin_state"]},
+        "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "observed_at_ms": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "version": {
+      "type": "object",
+      "required": ["collection", "authoritative_version", "content_sha256"],
+      "properties": {
+        "collection": {"type": "string"},
+        "authoritative_version": {"type": "integer", "minimum": 1},
+        "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

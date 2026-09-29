@@ -13,9 +13,13 @@ from typing import Any
 from src.kb.intake_modes import IntakeError, IntakeStore, _bounded, _hash, _json, _reference, _text
 
 CONTRACT = "noesis-modulo-intake-migration-preview-v1"
+RECONCILIATION_CONTRACT = "noesis-modulo-intake-reconciliation-v1"
 _DDL = """
 CREATE TABLE IF NOT EXISTS intake_modulo_migration_previews(
  preview_id TEXT PRIMARY KEY,namespace TEXT NOT NULL,owner TEXT NOT NULL,
+ request_hash TEXT NOT NULL,state_json TEXT NOT NULL,created_at_ms BIGINT NOT NULL);
+CREATE TABLE IF NOT EXISTS intake_modulo_reconciliations(
+ reconciliation_id TEXT PRIMARY KEY,namespace TEXT NOT NULL,owner TEXT NOT NULL,
  request_hash TEXT NOT NULL,state_json TEXT NOT NULL,created_at_ms BIGINT NOT NULL);
 """
 _COMMON_FIELDS = {
@@ -282,6 +286,161 @@ class ModuloMigrationStore:
         state["next_offset"] = offset + limit if offset + limit < state["counts"]["records"] else None
         return state
 
+    def _full_preview(self, namespace: str, preview_id: str, principal_id: str,
+                      scopes: set[str]) -> tuple[dict, list[dict]]:
+        preview = self.inspect(
+            namespace, preview_id, principal_id=principal_id, scopes=scopes,
+            limit=100, offset=0,
+        )
+        rows = list(preview["records"])
+        next_offset = preview["next_offset"]
+        while next_offset is not None:
+            page = self.inspect(
+                namespace, preview_id, principal_id=principal_id, scopes=scopes,
+                limit=100, offset=next_offset,
+            )
+            rows.extend(page["records"])
+            next_offset = page["next_offset"]
+        return preview, rows
+
+    def reconcile(
+        self, namespace: str, request_key: str, *, legacy_preview_id: str,
+        plugin_state_preview_id: str, principal_id: str, scopes: set[str],
+    ) -> dict:
+        """Compare browser-local plugin records with durable plugin state.
+
+        Both inputs are stored migration previews owned by the caller. Records
+        match on plugin ID and record ID only: equal content hashes mean the
+        durable record already holds the local content, and different hashes
+        are a conflict for the owner to resolve in Modulo. Nothing is imported,
+        written to Modulo, or deleted, and the report never claims that
+        cross-device replacement is established.
+        """
+        namespace = _text(namespace, "namespace", limit=128)
+        request_key = _text(request_key, "request key", limit=256)
+        IntakeStore._authorize({"namespace": namespace, "owner": principal_id},
+                                principal_id, scopes, write=True)
+        if legacy_preview_id == plugin_state_preview_id:
+            raise IntakeError("invalid_reconciliation", "compare two distinct migration previews")
+        legacy, legacy_rows = self._full_preview(namespace, legacy_preview_id, principal_id, scopes)
+        durable, durable_rows = self._full_preview(namespace, plugin_state_preview_id, principal_id, scopes)
+        if legacy["workspace_id"] != durable["workspace_id"]:
+            raise IntakeError("invalid_reconciliation", "previews describe different Modulo workspaces")
+
+        def rows_with(preview: dict, rows: list[dict], persistence: str) -> list[dict]:
+            kinds = {(item["plugin_id"], item["collection"]): item["persistence"]
+                     for item in preview["collections"]}
+            return [row for row in rows
+                    if kinds[(row["plugin_id"], row["collection"])] == persistence]
+
+        local = rows_with(legacy, legacy_rows, "legacy_local")
+        stored = rows_with(durable, durable_rows, "authenticated_plugin_state")
+        if not local:
+            raise IntakeError("invalid_reconciliation", "legacy preview has no browser-local records")
+        if not any(item["persistence"] == "authenticated_plugin_state" for item in durable["collections"]):
+            raise IntakeError("invalid_reconciliation", "plugin-state preview has no durable collections")
+        request_hash = _hash([legacy_preview_id, legacy["inventory_sha256"],
+                              plugin_state_preview_id, durable["inventory_sha256"]])
+        reconciliation_id = "modulo-reconciliation:" + _hash([namespace, principal_id, request_key])[:24]
+        existing = self.conn.execute(
+            "SELECT request_hash,state_json FROM intake_modulo_reconciliations WHERE reconciliation_id=?",
+            [reconciliation_id]).fetchone()
+        if existing:
+            if existing[0] != request_hash:
+                raise IntakeError("idempotency_conflict", "reconciliation key identifies different previews")
+            return {**json.loads(existing[1]), "idempotent": True}
+
+        by_identity = {(row["plugin_id"], row["record_id"]): row for row in stored}
+        local_hashes: dict[tuple[str, str], int] = {}
+        for row in local:
+            key = (row["plugin_id"], row["content_sha256"])
+            local_hashes[key] = local_hashes.get(key, 0) + 1
+        outcomes = []
+        for row in local:
+            counterpart = by_identity.get((row["plugin_id"], row["record_id"]))
+            if counterpart is None:
+                outcome, action = "import_required", "plugin_import_with_owner_review"
+            elif counterpart["content_sha256"] == row["content_sha256"]:
+                outcome, action = "already_durable", "link_durable_record"
+            else:
+                outcome, action = "conflict", "owner_resolution_in_modulo"
+            outcomes.append({
+                "plugin_id": row["plugin_id"], "record_id": row["record_id"],
+                "legacy": {"collection": row["collection"],
+                           "authoritative_version": row["authoritative_version"],
+                           "content_sha256": row["content_sha256"]},
+                "durable": None if counterpart is None else {
+                    "collection": counterpart["collection"],
+                    "authoritative_version": counterpart["authoritative_version"],
+                    "content_sha256": counterpart["content_sha256"],
+                },
+                "outcome": outcome, "action": action,
+                "collection_differs": counterpart is not None and counterpart["collection"] != row["collection"],
+                "duplicate_local_content": local_hashes[(row["plugin_id"], row["content_sha256"])] > 1,
+            })
+        local_ids = {(row["plugin_id"], row["record_id"]) for row in local}
+        counts = {
+            "legacy_records": len(local),
+            "durable_records": len(stored),
+            "already_durable": sum(o["outcome"] == "already_durable" for o in outcomes),
+            "conflict": sum(o["outcome"] == "conflict" for o in outcomes),
+            "import_required": sum(o["outcome"] == "import_required" for o in outcomes),
+            "durable_only": len(set(by_identity) - local_ids),
+            "duplicate_local_content": sum(o["duplicate_local_content"] for o in outcomes),
+        }
+        if counts["conflict"] or counts["import_required"]:
+            replacement = "blocked_by_unreconciled_records"
+        elif durable["source"] != "authenticated_plugin_state":
+            replacement = "unverified_inventory_source"
+        else:
+            replacement = "pending_modulo_migration_receipt"
+        state = {
+            "contract": RECONCILIATION_CONTRACT, "reconciliation_id": reconciliation_id,
+            "namespace": namespace, "owner": principal_id,
+            "workspace_id": legacy["workspace_id"],
+            "legacy_preview": {"preview_id": legacy_preview_id, "source": legacy["source"],
+                               "inventory_sha256": legacy["inventory_sha256"],
+                               "observed_at_ms": legacy["observed_at_ms"]},
+            "plugin_state_preview": {"preview_id": plugin_state_preview_id, "source": durable["source"],
+                                     "inventory_sha256": durable["inventory_sha256"],
+                                     "observed_at_ms": durable["observed_at_ms"]},
+            "match_basis": "plugin_id_and_record_id",
+            "outcomes": outcomes, "counts": counts,
+            "cross_device_replacement": replacement,
+            "cross_device_replacement_claimed": False,
+            "remote_mutations": 0, "originals_deleted": False,
+            "limitations": [
+                "Records match on plugin and record ID; a browser-local record re-created under a new ID is reported as import_required, not as a match.",
+                "Content hashes are compared only on the metadata Noesis received; neither preview proves what every device holds.",
+                "Browser-local and plugin-state versions come from different stores and are not compared numerically.",
+                "Noesis does not import, write, or delete Modulo records; imports and conflict resolution belong to each plugin's own path (#1781).",
+                "Cross-device replacement is never established here; it needs a signed-in Modulo migration receipt and a second-device check.",
+            ],
+        }
+        _bounded(state, limit=4_000_000)
+        self.conn.execute(
+            "INSERT INTO intake_modulo_reconciliations VALUES (?,?,?,?,?,?)",
+            [reconciliation_id, namespace, principal_id, request_hash, _json(state), self.now()])
+        return state
+
+    def inspect_reconciliation(self, namespace: str, reconciliation_id: str, *,
+                               principal_id: str, scopes: set[str]) -> dict:
+        exists = self.conn.execute(
+            "SELECT 1 FROM information_schema.tables WHERE table_schema='main' "
+            "AND table_name='intake_modulo_reconciliations'").fetchone()
+        row = exists and self.conn.execute(
+            "SELECT owner,state_json FROM intake_modulo_reconciliations "
+            "WHERE namespace=? AND reconciliation_id=?", [namespace, reconciliation_id]).fetchone()
+        if not row:
+            raise IntakeError("reconciliation_unavailable", "reconciliation report is unavailable")
+        IntakeStore._authorize({"namespace": namespace, "owner": row[0]}, principal_id, scopes)
+        state = json.loads(row[1])
+        # Re-read both previews so revoked linked access also hides the report.
+        for key in ("legacy_preview", "plugin_state_preview"):
+            self.inspect(namespace, state[key]["preview_id"], principal_id=principal_id,
+                         scopes=scopes, limit=1)
+        return state
+
     def import_flashcards(
         self, namespace: str, preview_id: str, request_key: str, *, title: str,
         source_values: list[dict], principal_id: str, scopes: set[str],
@@ -296,19 +455,7 @@ class ModuloMigrationStore:
         if not isinstance(source_values, list) or not 1 <= len(source_values) <= 100:
             raise IntakeError("invalid_flashcard_import", "select 1–100 complete source flashcards")
         source_values = _bounded(source_values, limit=256_000)
-        preview = self.inspect(
-            namespace, preview_id, principal_id=principal_id, scopes=scopes,
-            limit=100, offset=0,
-        )
-        rows = list(preview["records"])
-        next_offset = preview["next_offset"]
-        while next_offset is not None:
-            page = self.inspect(
-                namespace, preview_id, principal_id=principal_id, scopes=scopes,
-                limit=100, offset=next_offset,
-            )
-            rows.extend(page["records"])
-            next_offset = page["next_offset"]
+        preview, rows = self._full_preview(namespace, preview_id, principal_id, scopes)
         available = {
             (record["plugin_id"], record["collection"], record["record_id"]): record
             for record in rows

@@ -413,3 +413,128 @@ def test_callback_denial_does_not_expose_credentials():
     assert denied.value.code == "modulo_access_denied"
     assert "workload-secret" not in str(denied.value)
     assert "owner-grant-secret" not in str(denied.value)
+
+
+def _plugin_state(records, *, source="caller_supplied_plugin_state",
+                  persistence="authenticated_plugin_state"):
+    return {
+        "workspace_id": "personal", "account_id": "alice-account",
+        "observed_at_ms": 2000, "source": source,
+        "plugins": [{"plugin_id": "flashcards-spaced-repetition", "installed_version": "1.3.0",
+                     "collections": [{"collection": "cards", "schema_id": "modulo.cards",
+                                      "schema_version": 1, "persistence": persistence,
+                                      "records": records}]}],
+    }
+
+
+def _card(identity, digest, version=3):
+    return {**_record(identity, fields=["card_id"], version=version), "content_sha256": digest}
+
+
+def test_reconciliation_reports_migration_and_conflict_outcomes_without_claiming_replacement():
+    conn = duckdb.connect(":memory:")
+    store = ModuloMigrationStore(conn)
+    same, changed, local_only = ("b" * 64, "c" * 64, "d" * 64)
+    legacy = _plugin_state([
+        _card("card-1", same), _card("card-2", changed),
+        _card("card-3", local_only), _card("card-4", local_only),
+    ], source="fixture", persistence="legacy_local")
+    durable = _plugin_state([
+        _card("card-1", same, version=7), _card("card-2", "e" * 64, version=8),
+        _card("card-9", "f" * 64),
+    ])
+    old = store.preview("research", "browser", legacy, [], principal_id="alice", scopes=SCOPES)
+    new = store.preview("research", "plugin", durable, [], principal_id="alice", scopes=SCOPES)
+    report = store.reconcile("research", "reconcile", legacy_preview_id=old["preview_id"],
+                             plugin_state_preview_id=new["preview_id"],
+                             principal_id="alice", scopes=SCOPES)
+    schema = json.loads((
+        ROOT / "contracts/schemas/jsonschema/noesis-modulo-intake-reconciliation-v1.json"
+    ).read_text())
+    Draft202012Validator(schema).validate(report)
+    outcomes = {item["record_id"]: item for item in report["outcomes"]}
+    assert outcomes["card-1"]["outcome"] == "already_durable"
+    assert outcomes["card-1"]["durable"]["authoritative_version"] == 7
+    assert outcomes["card-2"]["outcome"] == "conflict"
+    assert outcomes["card-2"]["action"] == "owner_resolution_in_modulo"
+    assert outcomes["card-3"]["outcome"] == "import_required"
+    assert outcomes["card-3"]["duplicate_local_content"]
+    assert outcomes["card-4"]["duplicate_local_content"]
+    assert report["counts"] == {
+        "legacy_records": 4, "durable_records": 3, "already_durable": 1,
+        "conflict": 1, "import_required": 2, "durable_only": 1,
+        "duplicate_local_content": 2,
+    }
+    assert report["cross_device_replacement"] == "blocked_by_unreconciled_records"
+    assert report["cross_device_replacement_claimed"] is False
+    assert report["remote_mutations"] == 0 and report["originals_deleted"] is False
+    # Replay returns the stored report; the same key cannot describe other previews.
+    assert store.reconcile("research", "reconcile", legacy_preview_id=old["preview_id"],
+                           plugin_state_preview_id=new["preview_id"],
+                           principal_id="alice", scopes=SCOPES)["idempotent"]
+    third = store.preview("research", "plugin-later", _plugin_state([_card("card-3", local_only)]),
+                          [], principal_id="alice", scopes=SCOPES)
+    with pytest.raises(IntakeError) as conflict:
+        store.reconcile("research", "reconcile", legacy_preview_id=old["preview_id"],
+                        plugin_state_preview_id=third["preview_id"],
+                        principal_id="alice", scopes=SCOPES)
+    assert conflict.value.code == "idempotency_conflict"
+    assert store.inspect_reconciliation("research", report["reconciliation_id"],
+                                        principal_id="alice", scopes=SCOPES) == report
+    with pytest.raises(IntakeError) as denied:
+        store.inspect_reconciliation("research", report["reconciliation_id"],
+                                     principal_id="bob", scopes=SCOPES)
+    assert denied.value.code == "unauthorized"
+
+
+def test_reconciled_records_still_need_an_authenticated_source_and_modulo_receipt():
+    conn = duckdb.connect(":memory:")
+    store = ModuloMigrationStore(conn)
+    record = _card("card-1", "b" * 64)
+    old = store.preview("research", "browser", _plugin_state([record], persistence="legacy_local"),
+                        [], principal_id="alice", scopes=SCOPES)
+    new = store.preview("research", "plugin", _plugin_state([record]), [],
+                        principal_id="alice", scopes=SCOPES)
+    report = store.reconcile("research", "all-durable", legacy_preview_id=old["preview_id"],
+                             plugin_state_preview_id=new["preview_id"],
+                             principal_id="alice", scopes=SCOPES)
+    # Every local record is present, but caller-supplied metadata is not a signed-in read.
+    assert report["counts"]["already_durable"] == 1
+    assert report["cross_device_replacement"] == "unverified_inventory_source"
+    with pytest.raises(IntakeError) as no_local:
+        store.reconcile("research", "reversed", legacy_preview_id=new["preview_id"],
+                        plugin_state_preview_id=old["preview_id"],
+                        principal_id="alice", scopes=SCOPES)
+    assert no_local.value.code == "invalid_reconciliation"
+    assert conn.execute("SELECT count(*) FROM intake_modulo_reconciliations").fetchone() == (1,)
+
+
+def test_mcp_reconciliation_is_an_intake_write_and_inspect_is_a_read():
+    conn = duckdb.connect(":memory:")
+    calls = []
+
+    class MCP:
+        def __init__(self):
+            self.tools = {}
+
+        def tool(self):
+            def decorate(fn):
+                self.tools[fn.__name__] = fn
+                return fn
+            return decorate
+
+    def safe(operation, *, write=False, required_scope=None):
+        calls.append((write, required_scope))
+        return operation(conn)
+
+    mcp = MCP()
+    register(mcp, safe, lambda: ("alice", SCOPES))
+    local = _plugin_state([_card("card-1", "b" * 64)], persistence="legacy_local")
+    old = mcp.tools["preview_modulo_intake_migration"]("research", "browser", local, [])
+    new = mcp.tools["preview_modulo_intake_migration"]("research", "plugin", _plugin_state([]), [])
+    report = mcp.tools["reconcile_modulo_intake_migration"](
+        "research", "wrapper", old["preview_id"], new["preview_id"])
+    assert report["counts"]["import_required"] == 1
+    assert mcp.tools["inspect_modulo_intake_reconciliation"](
+        "research", report["reconciliation_id"]) == report
+    assert calls[2:] == [(True, "knowledge:intake:write"), (False, "knowledge:intake:read")]

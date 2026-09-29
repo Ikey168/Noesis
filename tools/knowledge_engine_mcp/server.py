@@ -153,6 +153,7 @@ def knowledge_engine_capabilities() -> dict:
             "noesis-modulo-intake-handoff-v3",
             "noesis-intake-workflow-discovery-v1",
             "noesis-modulo-intake-migration-preview-v1",
+            "noesis-modulo-intake-reconciliation-v1",
             "noesis-jev-record-candidate-v1",
             "noesis-jev-identity-evaluation-v1",
             "noesis-jev-methodology-evaluation-v1",
