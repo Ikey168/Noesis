@@ -225,3 +225,36 @@ def literature_claims(conn, topic: Optional[str] = None, limit: int = 30) -> Dic
         for r in rows
     ]
     return {"claims": claims, "count": len(claims), "topic": topic}
+
+
+def _doi(value: Any) -> str:
+    text = str(value or "").strip().lower()
+    for prefix in ("https://doi.org/", "http://doi.org/", "doi:"):
+        text = text.removeprefix(prefix)
+    return text
+
+
+def papers_by_identifier(conn, *, doi: Optional[str] = None) -> List[Dict[str, Any]]:
+    """Science literature records (``source_type = 'paper'``) whose metadata states this DOI.
+
+    Exact, case-insensitive DOI match only (``https://doi.org/`` and ``doi:``
+    prefixes are ignored); nothing is guessed from titles. Other packs use it to
+    resolve a cited reference to a literature record.
+    """
+    if not doi or not _table_exists(conn, "documents"):
+        return []
+    available = {row[1] for row in conn.execute("PRAGMA table_info('documents')").fetchall()}
+    if not {"document_id", "title", "metadata", "source_type"} <= available:
+        return []
+    wanted, found = _doi(doi), []
+    for document_id, title, raw in conn.execute(
+        "SELECT document_id, title, metadata FROM documents WHERE source_type = 'paper' ORDER BY document_id"
+    ).fetchall():
+        try:
+            metadata = json.loads(raw) if isinstance(raw, str) else (raw or {})
+        except (TypeError, ValueError):
+            continue
+        stated = _doi((metadata or {}).get("doi")) if isinstance(metadata, dict) else ""
+        if stated and stated == wanted:
+            found.append({"document_id": document_id, "title": title or "", "doi": stated})
+    return found

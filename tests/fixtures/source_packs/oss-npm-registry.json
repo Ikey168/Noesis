@@ -1,0 +1,174 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "author": {
+     "name": "Ada Example"
+    },
+    "dist-tags": {
+     "latest": "1.1.0"
+    },
+    "maintainers": [
+     {
+      "email": "ada@example.invalid",
+      "name": "ada-example"
+     }
+    ],
+    "name": "@fixture-labs/tokenizer",
+    "repository": {
+     "type": "git",
+     "url": "git+https://github.com/fixture-labs/tokenizer.git"
+    },
+    "time": {
+     "0.9.0": "2025-08-01T00:00:00.000Z",
+     "1.0.0": "2025-11-01T00:00:00.000Z",
+     "1.1.0": "2026-02-01T00:00:00.000Z",
+     "created": "2025-08-01T00:00:00.000Z",
+     "modified": "2026-02-01T00:00:00.000Z"
+    },
+    "versions": {
+     "0.9.0": {
+      "_npmUser": {
+       "email": "ada@example.invalid",
+       "name": "ada-example"
+      },
+      "license": "MIT",
+      "maintainers": [
+       {
+        "name": "ada-example"
+       }
+      ],
+      "name": "@fixture-labs/tokenizer",
+      "version": "0.9.0"
+     },
+     "1.0.0": {
+      "_npmUser": {
+       "email": "ada@example.invalid",
+       "name": "ada-example"
+      },
+      "dependencies": {
+       "fixture-lexer": "^2.1.0"
+      },
+      "license": "MIT",
+      "maintainers": [
+       {
+        "name": "ada-example"
+       }
+      ],
+      "name": "@fixture-labs/tokenizer",
+      "version": "1.0.0"
+     },
+     "1.1.0": {
+      "_npmUser": {
+       "email": "ada@example.invalid",
+       "name": "ada-example"
+      },
+      "dependencies": {
+       "fixture-lexer": "^2.1.0",
+       "fixture-native": "~1.0.0"
+      },
+      "devDependencies": {
+       "fixture-test": "^1.0.0"
+      },
+      "license": "MIT",
+      "maintainers": [
+       {
+        "name": "ada-example"
+       }
+      ],
+      "name": "@fixture-labs/tokenizer",
+      "optionalDependencies": {
+       "fixture-native": "~1.0.0"
+      },
+      "peerDependencies": {
+       "fixture-host": ">=3"
+      },
+      "peerDependenciesMeta": {
+       "fixture-host": {
+        "optional": true
+       }
+      },
+      "version": "1.1.0"
+     }
+    }
+   },
+   "request": "/%40fixture-labs%2Ftokenizer",
+   "status": 200
+  },
+  {
+   "body": {
+    "author": {
+     "name": "Ada Example"
+    },
+    "dist-tags": {
+     "latest": "3.0.0-beta.1"
+    },
+    "maintainers": [
+     {
+      "email": "ada@example.invalid",
+      "name": "ada-example"
+     }
+    ],
+    "name": "fixture-lexer",
+    "repository": "github:fixture-labs/lexer",
+    "time": {
+     "2.1.0": "2025-10-01T00:00:00.000Z",
+     "2.2.0": "2026-01-15T00:00:00.000Z",
+     "3.0.0-beta.1": "2026-02-20T00:00:00.000Z",
+     "created": "2025-10-01T00:00:00.000Z",
+     "modified": "2026-02-20T00:00:00.000Z"
+    },
+    "versions": {
+     "2.1.0": {
+      "_npmUser": {
+       "email": "ada@example.invalid",
+       "name": "ada-example"
+      },
+      "license": "MIT",
+      "maintainers": [
+       {
+        "name": "ada-example"
+       }
+      ],
+      "name": "fixture-lexer",
+      "version": "2.1.0"
+     },
+     "2.2.0": {
+      "_npmUser": {
+       "email": "ada@example.invalid",
+       "name": "ada-example"
+      },
+      "license": "MIT",
+      "maintainers": [
+       {
+        "name": "ada-example"
+       }
+      ],
+      "name": "fixture-lexer",
+      "version": "2.2.0"
+     },
+     "3.0.0-beta.1": {
+      "_npmUser": {
+       "email": "ada@example.invalid",
+       "name": "ada-example"
+      },
+      "license": "MIT",
+      "maintainers": [
+       {
+        "name": "ada-example"
+       }
+      ],
+      "name": "fixture-lexer",
+      "version": "3.0.0-beta.1"
+     }
+    }
+   },
+   "request": "/fixture-lexer",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

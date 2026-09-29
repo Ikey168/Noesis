@@ -1,7 +1,7 @@
 {
   "pack_id": "legal-research",
-  "version": "1.2.0",
-  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result.",
+  "version": "1.3.0",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result.",
   "domains": [
     "legal"
   ],
@@ -537,6 +537,228 @@
         "path": "tests/fixtures/source_packs/legal-sanctions-uk.json",
         "sha256": "ef6c3ca72f281f0ec7d1da5ff268910933439de94145ce90ed15473d26bb4e1c",
         "expected_output_hash": "f4195fac1b4917d4707995e93676610ca86e5442381b3a55044ff22f549a90c7"
+      }
+    },
+    {
+      "source_id": "gii-federal-statutes",
+      "connector": "gesetze-im-internet",
+      "publisher": "Bundesministerium der Justiz / juris (Gesetze im Internet)",
+      "endpoint": "https://www.gesetze-im-internet.de",
+      "scope": "Current consolidated text of the bounded federal statute set (FL01), one observed version per change",
+      "update_cadence": "consolidations are updated after amendments; each fetch is an observation",
+      "temporal_semantics": "observation time only: the text as seen on the fetch date; the source's 'Stand' note is kept verbatim; no validity interval is inferred and current force is never stated",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "amtliche-werke-gii",
+        "terms_url": "https://www.gesetze-im-internet.de/hinweise.html",
+        "redistribution": "statutes are official works without copyright (§ 5 UrhG); portal notes apply (operator must confirm; verify live)"
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 20,
+        "max_bytes": 60000000,
+        "max_pages": 13
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "toc_path": "/gii-toc.xml",
+          "statutes": [
+            {
+              "jurabk": "BGB",
+              "gii_path": "bgb"
+            },
+            {
+              "jurabk": "HGB",
+              "gii_path": "hgb"
+            },
+            {
+              "jurabk": "GmbHG",
+              "gii_path": "gmbhg"
+            },
+            {
+              "jurabk": "AktG",
+              "gii_path": "aktg"
+            },
+            {
+              "jurabk": "WpHG",
+              "gii_path": "wphg"
+            },
+            {
+              "jurabk": "KWG",
+              "gii_path": "kredwg"
+            },
+            {
+              "jurabk": "VwVfG",
+              "gii_path": "vwvfg"
+            },
+            {
+              "jurabk": "GG",
+              "gii_path": "gg"
+            },
+            {
+              "jurabk": "ZPO",
+              "gii_path": "zpo"
+            },
+            {
+              "jurabk": "InsO",
+              "gii_path": "inso"
+            },
+            {
+              "jurabk": "VwGO",
+              "gii_path": "vwgo"
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-federal-gii.json",
+        "sha256": "a966028f5bdbda4734c01aea86e1cbfd982e29538f9ffdb43341f034df7a6f41",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "ris-federal-statute-versions",
+      "connector": "rechtsinformationen-bund",
+      "publisher": "Bundesministerium der Justiz (Rechtsinformationsportal des Bundes)",
+      "endpoint": "https://testphase.rechtsinformationen.bund.de/v1/legislation",
+      "scope": "Versions (expressions) of the bounded federal statute set with the validity each states, up to 20 per statute",
+      "update_cadence": "trial service; versions appear as the portal publishes them",
+      "temporal_semantics": "source-stated validity (temporalCoverage) as valid time; acquisition time recorded separately; the portal's legal-force label is kept as source metadata only",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "ris-bund-trial",
+        "terms_url": "https://docs.rechtsinformationen.bund.de/",
+        "redistribution": "official works (§ 5 UrhG); trial-service terms and rate limits apply (operator must confirm; verify live)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 20,
+        "max_bytes": 40000000,
+        "max_pages": 13
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "max_expressions": 20,
+          "statutes": [
+            {
+              "jurabk": "BGB"
+            },
+            {
+              "jurabk": "HGB"
+            },
+            {
+              "jurabk": "GmbHG"
+            },
+            {
+              "jurabk": "AktG"
+            },
+            {
+              "jurabk": "WpHG"
+            },
+            {
+              "jurabk": "KWG"
+            },
+            {
+              "jurabk": "VwVfG"
+            },
+            {
+              "jurabk": "GG"
+            },
+            {
+              "jurabk": "ZPO"
+            },
+            {
+              "jurabk": "InsO"
+            },
+            {
+              "jurabk": "VwGO"
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-federal-ris.json",
+        "sha256": "46ed9fbaa9e430622739d97d2ae8c38c716d20b8742fc48b2a6af75ec64677bd",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "bgbl-federal-promulgations",
+      "connector": "recht-bund",
+      "publisher": "Bundesministerium der Justiz (Bundesgesetzblatt, recht.bund.de)",
+      "endpoint": "https://www.recht.bund.de",
+      "scope": "Digital Federal Law Gazette part I promulgations (since 2023) from one bounded listing, acquired only when they amend a statute of the bounded set",
+      "update_cadence": "promulgations on publication days",
+      "temporal_semantics": "promulgation date and the entry-into-force article as published; acquisition time recorded separately; amending instructions are never applied",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "amtliche-werke-bgbl",
+        "terms_url": "https://www.recht.bund.de/",
+        "redistribution": "promulgations are official works (§ 5 UrhG); portal terms apply (operator must confirm; verify live)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 20,
+        "max_bytes": 20000000,
+        "max_pages": 25
+      },
+      "legal": {
+        "namespace": "global",
+        "selection": {
+          "index": {
+            "path": "/rss/bgbl-1.xml",
+            "limit": 20
+          },
+          "document_path": "/eli/bund/bgbl-{part}/{year}/{number}/regelungstext-verkuendung-1.xml",
+          "statutes": [
+            {
+              "jurabk": "BGB"
+            },
+            {
+              "jurabk": "HGB"
+            },
+            {
+              "jurabk": "GmbHG"
+            },
+            {
+              "jurabk": "AktG"
+            },
+            {
+              "jurabk": "WpHG"
+            },
+            {
+              "jurabk": "KWG"
+            },
+            {
+              "jurabk": "VwVfG"
+            },
+            {
+              "jurabk": "GG"
+            },
+            {
+              "jurabk": "ZPO"
+            },
+            {
+              "jurabk": "InsO"
+            },
+            {
+              "jurabk": "VwGO"
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-federal-bgbl.json",
+        "sha256": "0bdd4a8482d9aa749f8c6aa61fb8cd56cb907b49affb72b50dde2c1684e81877",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
       }
     }
   ]

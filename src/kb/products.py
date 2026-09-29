@@ -22,6 +22,14 @@ title and never merges providers on its own:
   from a partial, filtered, failed or entitlement-limited response, or from a
   narrowed selection, never implies discontinuation. A completed-refresh
   marker advances only when every selected model of a complete run projected.
+* **Categories.** Attributes, units, modes, label schemes, comparison rows and
+  matching rules come from the category registry
+  (:mod:`src.kb.product_categories`, #2094): displays, household appliances
+  and electronic components. A record whose pinned category is not registered
+  keeps its native values unnormalised; matching and comparison never cross
+  categories. Components are identified by normalised manufacturer + MPN as
+  published, distributor SKUs stay provider-scoped aliases and a lifecycle
+  status is stored only as its source published it, with the date.
 """
 
 from __future__ import annotations
@@ -35,6 +43,7 @@ from decimal import Decimal, InvalidOperation
 from typing import Any
 
 from src.ingestion.product_sources import RECORD_CONTRACT
+from src.kb import product_categories as registry
 
 READ_SCOPE = "knowledge:products:read"
 WRITE_SCOPE = "knowledge:products:write"
@@ -43,24 +52,12 @@ IDENTITY_CONTRACT = "noesis-product-identity-v1"
 MATCH_CONTRACT = "noesis-product-match-v1"
 COMPARISON_CONTRACT = "noesis-product-comparison-v1"
 DOCUMENT_CONTRACT = "noesis-product-document-v1"
-NORMALIZATION_VERSION = "products-display-normalization-v1"
+NORMALIZATION_VERSION = "products-display-normalization-v1"  # displays; other categories name theirs in the registry
 MATCH_METHOD = "identifier-and-attribute-corroboration-v1"
 DEFAULT_NAMESPACE = "global"
 MATCH_DECISIONS = frozenset({"accepted", "rejected", "deferred"})
-# Attribute -> (target unit, quantitative dimension)
-NORMALIZED_UNITS = {
-    "diagonal": "cm",
-    "width": "mm",
-    "height": "mm",
-    "depth": "mm",
-    "on_mode_power": "W",
-    "energy_consumption_1000h": "kWh",
-}
-# Decimal places kept after conversion: providers publish diagonals in 0.1 cm
-# and whole inches, so 27 in (68.58 cm) and 68.6 cm are the same declaration.
-NORMALIZED_PRECISION = {
-    "diagonal": 1, "width": 0, "height": 0, "depth": 0, "on_mode_power": 1, "energy_consumption_1000h": 1,
-}
+# Provider names used in match reasons.
+PROVIDER_LABELS = {"icecat": "Icecat", "eprel": "EPREL"}
 PRODUCT_UNITS = {
     "cm": ({"length": 1}, "0.01", ["centimetre", "centimeter"]),
     "mm": ({"length": 1}, "0.001", ["millimetre", "millimeter"]),
@@ -68,7 +65,6 @@ PRODUCT_UNITS = {
     "W": ({"length": 2, "mass": 1, "time": -3}, "1", ["watt"]),
     "kWh": ({"length": 2, "mass": 1, "time": -2}, "3600000", ["kilowatt hour"]),
 }
-DIAGONAL_TOLERANCE_CM = Decimal("1.5")
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS product_identities (
@@ -144,6 +140,21 @@ CREATE TABLE IF NOT EXISTS product_matches (
   evidence_json TEXT NOT NULL, reasons_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
   updated_at_ms BIGINT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS product_lifecycle (
+  revision_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, variant_id TEXT NOT NULL, provider TEXT NOT NULL,
+  source_id TEXT NOT NULL, status TEXT NOT NULL, declared TEXT NOT NULL, status_date TEXT, date_basis TEXT,
+  locator_json TEXT NOT NULL
+);
+CREATE TABLE IF NOT EXISTS product_manufacturer_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, manufacturer_key TEXT NOT NULL, name TEXT NOT NULL,
+  entity_id TEXT NOT NULL, decision TEXT NOT NULL, decision_id TEXT NOT NULL, status TEXT NOT NULL,
+  reason TEXT NOT NULL, reviewer TEXT NOT NULL, created_at_ms BIGINT NOT NULL, reverted_by TEXT,
+  PRIMARY KEY(namespace, link_id)
+);
+CREATE TABLE IF NOT EXISTS product_document_pages (
+  content_sha256 TEXT NOT NULL, page INTEGER NOT NULL, chars INTEGER NOT NULL, heading TEXT,
+  PRIMARY KEY(content_sha256, page)
+);
 CREATE TABLE IF NOT EXISTS product_match_reviews (
   review_id TEXT PRIMARY KEY, match_id TEXT NOT NULL, namespace TEXT NOT NULL, sequence INTEGER NOT NULL,
   decision TEXT NOT NULL, reason TEXT NOT NULL, principal_id TEXT NOT NULL, reviewed_at_ms BIGINT NOT NULL
@@ -214,6 +225,81 @@ def _resolution(value: Any) -> tuple[int, int] | None:
     return (int(match.group(1)), int(match.group(2))) if match else None
 
 
+def _category_argument(category: str | None) -> str | None:
+    """A caller-supplied category (id or pinned label) resolved against the registry, or None when not given."""
+    if category in (None, ""):
+        return None
+    resolved = registry.resolve_label(category)
+    if resolved is None:
+        raise ProductError("unknown_category", f"product category {category!r} is not registered",
+                           registered=registry.categories())
+    return resolved
+
+
+def _native_text(value: Any) -> str | None:
+    """A native value as stored text: scalars verbatim, lists and objects as canonical JSON (never a Python repr)."""
+    if value is None:
+        return None
+    return _canonical(value) if isinstance(value, (list, dict)) else str(value)
+
+
+def _table_exists(conn: Any, name: str) -> bool:
+    return bool(conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name=?", [name]).fetchone())
+
+
+def manufacturers_equivalent(conn: Any, left: Any, right: Any, namespace: str | None = None) -> str | None:
+    """The one definition of "same manufacturer" for component lookups, matching and comparison.
+
+    Equal normalised names (legal forms dropped on both sides); both names linked to the same canonical entity
+    by reviewed manufacturer links (entity identity decisions) in the namespace; or both names resolving to the
+    same canonical entity through the shared alias table. Returns the basis, or None when not shown equivalent.
+    """
+    a, b = registry.manufacturer_key(left), registry.manufacturer_key(right)
+    if a is None or b is None:
+        return None
+    if a == b:
+        return "normalised name"
+    if namespace is not None and _table_exists(conn, "product_manufacturer_links"):
+        linked = {
+            row[0]: row[1] for row in conn.execute(
+                "SELECT manufacturer_key, entity_id FROM product_manufacturer_links WHERE namespace=? AND "
+                "manufacturer_key IN (?, ?) AND status='active' AND decision='match'", [namespace, a, b]).fetchall()
+        }
+        if a in linked and linked.get(b) == linked[a]:
+            return f"reviewed links to {linked[a]}"
+    if _table_exists(conn, "entity_aliases") and _table_exists(conn, "canonical_entities"):
+        from src.kb.entities import resolve
+
+        ra, rb = resolve(conn, str(left)), resolve(conn, str(right))
+        if ra and rb and ra["canonical_id"] == rb["canonical_id"]:
+            return f"canonical entity {ra['canonical_id']}"
+    return None
+
+
+def products_feature_enabled(conn: Any, feature: str) -> bool:
+    """Whether an optional Products feature (safety, appliances, components) is selected in the active plan."""
+    try:
+        tables = {
+            r[0] for r in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_name IN "
+                "('composition_authority', 'composition_active', 'composition_generations', 'composition_plans')"
+            ).fetchall()
+        }
+        if len(tables) < 4:
+            return False
+        managed = conn.execute("SELECT authority FROM composition_authority WHERE bundle='products'").fetchone()
+        if not managed or managed[0] != "composition":
+            return False
+        row = conn.execute(
+            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
+            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
+        ).fetchone()
+        plan = json.loads(row[0]) if row else {}
+    except Exception:  # noqa: BLE001 - an unreadable plan never enables a feature
+        return False
+    return feature in ((plan.get("features") or {}).get("products") or [])
+
+
 class ProductStore:
     def __init__(self, conn: Any, *, initialize: bool = True, now: Callable[[], int] | None = None) -> None:
         self.conn = conn
@@ -224,11 +310,18 @@ class ProductStore:
         self.quantitative = QuantitativeStore(conn, initialize=initialize, now=now)
         if initialize:
             conn.execute(_DDL)
-            for symbol, (dimension, factor, aliases) in PRODUCT_UNITS.items():
+            for symbol, (dimension, factor, aliases) in {**PRODUCT_UNITS, **registry.CATEGORY_UNITS}.items():
                 self.quantitative.register_unit(
                     DEFAULT_NAMESPACE, symbol, dimension, scopes={QUANT_WRITE},
                     principal_id="system:products", factor=factor, aliases=aliases,
                 )
+
+    def ready(self) -> bool:
+        return _table_exists(self.conn, "product_identities") and _table_exists(self.conn, "product_current")
+
+    def _require_ready(self) -> None:
+        if not self.ready():
+            raise ProductError("not_ready", "no Products source has run in this deployment yet")
 
     # ------------------------------------------------------------- identities
 
@@ -246,17 +339,31 @@ class ProductStore:
     def _identities_for(self, namespace: str, record: Mapping[str, Any], run_id: str) -> str:
         provider = record["provider"]
         brand = record.get("brand")
+        category_id = registry.resolve(record.get("category"))
+        # Displays keep their original keys (and so their identity ids); every other category is part of the key,
+        # so one provider's records of two categories never share a family or model.
+        scope = [] if category_id in (None, registry.DISPLAY_CATEGORY) else [category_id]
         family_id = None
         if record.get("family") and brand:
-            family_id = self._identity(namespace, "family", [provider, _brand_key(brand), record["family"]],
-                                       {"provider": provider, "brand": brand, "family": record["family"]}, run_id)
+            family_id = self._identity(namespace, "family", [provider, *scope, _brand_key(brand), record["family"]],
+                                       {"provider": provider, "brand": brand, "family": record["family"],
+                                        **({"category_label": dict(record["category"]).get("label")}
+                                           if scope else {})}, run_id)
         designation = record.get("designation")
-        model_key = ([provider, _brand_key(brand), designation] if designation
-                     else [provider, "record", record["provider_record_id"]])
+        model_identifiers: dict[str, Any] = {"mpn": dict(record.get("identifiers") or {}).get("mpn")}
+        component = registry.family(category_id) == "component" and registry.component_key(brand, designation)
+        if component:
+            # Components: normalised manufacturer + MPN as published; SKUs never enter the key.
+            model_key = [provider, "component", *scope, *component.split("|", 1)]
+            model_identifiers["component_key"] = component
+        elif designation:
+            model_key = [provider, *scope, _brand_key(brand), designation]
+        else:
+            model_key = [provider, *scope, "record", record["provider_record_id"]]
         model_id = self._identity(namespace, "model", model_key, {
             "parent_id": family_id, "provider": provider, "brand": brand, "designation": designation,
             "family": record.get("family"), "category_label": dict(record.get("category") or {}).get("label"),
-            "identifiers": {"mpn": dict(record.get("identifiers") or {}).get("mpn")},
+            "identifiers": model_identifiers,
         }, run_id)
         return self._identity(namespace, "variant", [provider, record["provider_record_id"]], {
             "parent_id": model_id, "provider": provider, "brand": brand, "designation": designation,
@@ -267,39 +374,94 @@ class ProductStore:
 
     # ---------------------------------------------------------- normalization
 
-    def _normalize(self, namespace: str, attribute: Mapping[str, Any]) -> dict[str, Any]:
+    def _normalize(self, namespace: str, attribute: Mapping[str, Any],
+                   category: str | None = registry.DISPLAY_CATEGORY) -> dict[str, Any]:
+        """Normalise one native value by its category's registry entry; the native value is always kept.
+
+        States: ``normalized``; ``not_normalized`` (no registry entry, or a part of a derived attribute);
+        ``category_unregistered``; ``unparseable``; ``unit_unknown``; ``unit_not_allowed`` (a unit the
+        category does not accept for this attribute); ``not_in_vocabulary``; ``not_in_label_scheme``;
+        ``asymmetric_tolerance``; or a quantitative error code (``unknown_unit``, ``dimensional_error``).
+        """
         from src.kb.quantitative import CALCULATE_SCOPE, QuantitativeError
 
-        name = attribute["attribute"]
+        def state(code: str, value: Any = None, unit: str | None = None, calculation_id: str | None = None):
+            return {"state": code, "value": value, "unit": unit, "calculation_id": calculation_id}
+
+        if category is None:
+            return state("category_unregistered")
+        spec = registry.attribute_spec(category, attribute["attribute"])
         raw = attribute.get("native_value")
-        if name == "resolution":
+        kind = None if spec is None else spec["kind"]
+        if kind is None or kind == "part":
+            return state("not_normalized")
+        if kind == "resolution":
             pair = _resolution(raw)
-            if pair is None:
-                return {"state": "unparseable", "value": None, "unit": None, "calculation_id": None}
-            return {"state": "normalized", "value": f"{pair[0]}x{pair[1]}", "unit": "px", "calculation_id": None}
-        if name == "energy_class":
+            return state("unparseable") if pair is None else state("normalized", f"{pair[0]}x{pair[1]}", "px")
+        if kind == "label_class":
             text = str(raw or "").strip().upper()
-            valid = re.fullmatch(r"A\+{0,3}|[A-G]", text)
-            return {"state": "normalized" if valid else "unparseable", "value": text if valid else None,
-                    "unit": None, "calculation_id": None}
-        target = NORMALIZED_UNITS.get(name)
-        if target is None:
-            return {"state": "not_normalized", "value": None, "unit": None, "calculation_id": None}
-        number = _decimal(raw)
+            schemes = registry.label_schemes(category)
+            scheme = attribute.get("label_scheme")
+            if spec.get("classes"):
+                allowed = set(spec["classes"])
+            elif scheme in schemes:
+                allowed = set(schemes[scheme]["classes"])
+            else:  # no registered scheme named: the generic EU label classes, as for displays
+                return state("normalized", text) if registry.GENERIC_LABEL_CLASS.fullmatch(text) \
+                    else state("unparseable")
+            if text in allowed:
+                return state("normalized", text)
+            return state("not_in_label_scheme" if text else "unparseable")
+        if kind == "enum":
+            text = re.sub(r"\s+", " ", str(raw or "")).strip().upper()
+            for canonical, aliases in dict(spec.get("values") or {}).items():
+                if text == canonical.upper() or text in {str(a).upper() for a in aliases}:
+                    return state("normalized", canonical)
+            return state("not_in_vocabulary" if text else "unparseable")
+        if kind == "code":
+            text = re.sub(r"\s+", "", str(raw or "")).upper()
+            return state("normalized", text) if text else state("unparseable")
+        if kind == "code_set":
+            items = raw if isinstance(raw, list) else re.split(r"[,;/\s]+", str(raw or ""))
+            tokens = sorted({str(item).strip().upper() for item in items if str(item).strip()})
+            if not tokens:
+                return state("unparseable")
+            known = {str(v).upper() for v in spec.get("values") or []}
+            if known and not set(tokens) <= known:
+                return state("not_in_vocabulary")
+            return state("normalized", ",".join(tokens))
+        # quantity / tolerance
+        text = str(raw).strip() if raw is not None and not isinstance(raw, bool) else ""
+        if kind == "tolerance":
+            symmetric = re.match(r"^(±|\+/-|\+-)\s*", text)
+            if symmetric:
+                text = text[symmetric.end():]
+            elif text[:1] in {"+", "-"}:  # a signed or one-sided bound is not a symmetric tolerance
+                return state("asymmetric_tolerance")
+        number = _decimal(text)
         if number is None:
-            return {"state": "unparseable", "value": None, "unit": None, "calculation_id": None}
+            return state("unparseable")
         unit = attribute.get("native_unit")
         if not unit:
-            return {"state": "unit_unknown", "value": None, "unit": None, "calculation_id": None}
+            return state("unit_unknown")
+        accepted = spec.get("units")
+        if accepted and unit not in accepted:
+            return state("unit_not_allowed")
+        targets = list(spec["canonical_units"])
+        target = targets[0]
         try:
+            if len(targets) > 1:
+                source_dimension = self.quantitative._unit(unit, DEFAULT_NAMESPACE)["dimension"]
+                target = next((t for t in targets
+                               if self.quantitative._unit(t, DEFAULT_NAMESPACE)["dimension"] == source_dimension),
+                              target)
             receipt = self.quantitative.convert(
                 DEFAULT_NAMESPACE, str(number), unit, target, scopes={CALCULATE_SCOPE},
-                principal_id="system:products", precision=NORMALIZED_PRECISION[name],
+                principal_id="system:products", precision=int(spec["precision"]),
             )
         except QuantitativeError as exc:
-            return {"state": exc.code, "value": None, "unit": None, "calculation_id": None}
-        return {"state": "normalized", "value": receipt["result"]["value"], "unit": target,
-                "calculation_id": receipt["calculation_id"]}
+            return state(exc.code)
+        return state("normalized", receipt["result"]["value"], target, receipt["calculation_id"])
 
     def _attributes(self, record: Mapping[str, Any]) -> list[dict[str, Any]]:
         attributes = [dict(item) for item in record.get("attributes") or []]
@@ -341,16 +503,19 @@ class ProductStore:
             record = dict(item.get("product_record") or {})
             if record.get("contract") != RECORD_CONTRACT:
                 raise ProductError("invalid_record", "page record lacks a product record contract")
+            category_id = registry.resolve(record.get("category"))
             attributes = [
-                {**attribute, "normalized": self._normalize(namespace, attribute)}
+                {**attribute, "normalized": self._normalize(namespace, attribute, category_id)}
                 for attribute in self._attributes(record)
             ]
-            prepared.append((item, record, attributes))
+            version = (registry.category(category_id).get("normalization_version") if category_id
+                       else "category-unregistered")
+            prepared.append((item, record, attributes, version))
         before = self.conn.execute(
             "SELECT count(*) FROM product_identities WHERE namespace=?", [namespace]).fetchone()[0]
         self.conn.execute("BEGIN")
         try:
-            for item, record, attributes in prepared:
+            for item, record, attributes, version in prepared:
                 variant_id = self._identities_for(namespace, record, run_id)
                 revision_id = "product-revision:" + _digest([namespace, record["provider"],
                                                              record["provider_record_id"], record["raw_sha256"]])[:24]
@@ -374,7 +539,7 @@ class ProductStore:
                             "observed_at_ms": now,
                             "provider_revision": record.get("provider_revision"),
                             "effective": dict(record.get("lifecycle_claims") or {}),
-                            "normalization_version": NORMALIZATION_VERSION,
+                            "normalization_version": version,
                         }
                         assertion_id = "product-assertion:" + _digest(
                             [revision_id, attribute["attribute"], attribute.get("mode"), attribute["native_name"]])[:24]
@@ -382,7 +547,7 @@ class ProductStore:
                             "INSERT OR IGNORE INTO product_assertions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                             [assertion_id, namespace, variant_id, revision_id, record["provider"],
                              attribute["attribute"], attribute.get("mode"), attribute["native_name"],
-                             None if attribute.get("native_value") is None else str(attribute["native_value"]),
+                             _native_text(attribute.get("native_value")),
                              attribute.get("native_unit"), normalized["value"], normalized["unit"],
                              normalized["state"], normalized["calculation_id"], _canonical(conditions),
                              record.get("assertion_kind") or "provider-assertion",
@@ -399,6 +564,15 @@ class ProductStore:
                              _canonical({k: document.get(k) for k in ("declared_size", "declared_updated", "title")}),
                              _canonical(document.get("locator") or {})],
                         )
+                    lifecycle = dict(record.get("lifecycle_status") or {})
+                    if lifecycle.get("value"):
+                        # Only as the named source published it, with its date; never inferred.
+                        self.conn.execute(
+                            "INSERT OR IGNORE INTO product_lifecycle VALUES (?,?,?,?,?,?,?,?,?,?)",
+                            [revision_id, namespace, variant_id, record["provider"], source["source_id"],
+                             lifecycle["value"], lifecycle.get("declared") or lifecycle["value"],
+                             lifecycle.get("date"), lifecycle.get("date_basis"),
+                             _canonical(lifecycle.get("locator") or {})])
                     for gtin in dict(record.get("identifiers") or {}).get("gtin") or []:
                         if gtin.get("state") == "valid":
                             self.conn.execute(
@@ -509,7 +683,7 @@ class ProductStore:
             "variant_id": row[0], "model_id": row[1], "provider": row[2], "brand": row[3],
             "designation": row[4], "family": row[5], "provider_record_id": row[6],
             "market": _load(row[7], {}), "identifiers": _load(row[8], {}), "category": row[9],
-            "current_revision_id": row[10], "record_state": row[11], "last_seen_run_id": row[12],
+            "category_id": registry.resolve_label(row[9]), "current_revision_id": row[10], "record_state": row[11], "last_seen_run_id": row[12],
             "selection_scope_hash": row[13], "provider_revision": row[14], "observed_at_ms": row[15],
         } for row in rows]
 
@@ -525,8 +699,10 @@ class ProductStore:
 
     def lookup(self, namespace: str, *, scopes, query: str | None = None, brand: str | None = None,
                gtin: str | None = None, designation: str | None = None, provider: str | None = None,
-               limit: int = 25) -> dict[str, Any]:
+               limit: int = 25, category: str | None = None) -> dict[str, Any]:
         _authorize(namespace, scopes, READ_SCOPE, write=False)
+        self._require_ready()
+        category_id = _category_argument(category)
         limit = max(1, min(int(limit), 100))
         clauses, params = [], []
         if brand:
@@ -536,6 +712,8 @@ class ProductStore:
             clauses.append("AND i.provider=?")
             params.append(provider)
         variants = self._variant_rows(namespace, " ".join(clauses), params)
+        if category_id:
+            variants = [v for v in variants if v["category_id"] == category_id]
         if designation:
             key = designation_key(designation)
             variants = [v for v in variants if designation_key(v["designation"]) == key]
@@ -546,7 +724,7 @@ class ProductStore:
             variants = [v for v in variants if needle in " ".join(
                 str(v.get(k) or "") for k in ("brand", "designation", "family", "provider_record_id")).casefold()]
         return {"contract": IDENTITY_CONTRACT, "namespace": namespace, "count": len(variants[:limit]),
-                "truncated": len(variants) > limit,
+                "truncated": len(variants) > limit, **({"category": category_id} if category_id else {}),
                 "variants": [{**v, "identifier_conflicts": self._conflicts(namespace, v["variant_id"]),
                               "matches": self._matches_for(namespace, v["model_id"])} for v in variants[:limit]]}
 
@@ -569,6 +747,7 @@ class ProductStore:
 
     def inspect(self, namespace: str, identity_id: str, *, scopes) -> dict[str, Any]:
         _authorize(namespace, scopes, READ_SCOPE, write=False)
+        self._require_ready()
         row = self.conn.execute(
             "SELECT level, parent_id FROM product_identities WHERE namespace=? AND identity_id=?",
             [namespace, identity_id]).fetchone()
@@ -592,6 +771,8 @@ class ProductStore:
                 "documents": self.documents(namespace, variant["variant_id"]),
                 "identifier_conflicts": self._conflicts(namespace, variant["variant_id"]),
                 "coverage": self.coverage(namespace, variant["variant_id"]),
+                **({"lifecycle_status": self.lifecycle(namespace, variant["variant_id"])}
+                   if registry.family(variant["category_id"]) == "component" else {}),
             })
         return {"contract": IDENTITY_CONTRACT, "namespace": namespace, "identity_id": identity_id, "level": row[0],
                 "parent_id": row[1], "variants": result,
@@ -675,100 +856,215 @@ class ProductStore:
                 [sha, outcome.get("media_type"), int(outcome.get("bytes") or 0),
                  str(dict(extraction or {}).get("state") or "not_attempted"),
                  dict(extraction or {}).get("chars"), now])
+            for page in dict(extraction or {}).get("pages") or []:
+                self.conn.execute("INSERT OR IGNORE INTO product_document_pages VALUES (?,?,?,?)",
+                                  [sha, int(page["page"]), int(page.get("chars") or 0), page.get("heading")])
         return {"fetch_id": fetch_id, "deduplicated_asset": deduplicated, **dict(outcome)}
+
+    def cite_document(self, namespace: str, link_id: str, *, scopes, page: int | None = None,
+                      section: str | None = None) -> dict[str, Any]:
+        """A citation locator into a provider-linked document: the link, the retained content version and a page.
+
+        A page is checked against the pages extracted from that exact content; a section is recorded verbatim
+        as the citing text states it (it is a label, not a search). A link that was never retained can still
+        be cited, but only as the link, with ``page_verified`` false.
+        """
+        _authorize(namespace, scopes, READ_SCOPE, write=False)
+        self._require_ready()
+        row = self.conn.execute(
+            "SELECT link_id, variant_id, first_revision_id, kind, url, language, locator_json FROM "
+            "product_document_links WHERE namespace=? AND link_id=?", [namespace, link_id]).fetchone()
+        if row is None:
+            raise ProductError("not_found", "document link is not visible in this namespace")
+        if page is not None and int(page) < 1:
+            raise ProductError("invalid_locator", "pages are numbered from 1")
+        retained = self.conn.execute(
+            "SELECT content_sha256, fetched_at_ms, media_type FROM product_document_fetches WHERE link_id=? AND "
+            "state='retained' ORDER BY fetched_at_ms DESC, fetch_id DESC LIMIT 1", [link_id]).fetchone()
+        pages = 0
+        if retained and _table_exists(self.conn, "product_document_pages"):
+            pages = int(self.conn.execute("SELECT count(*) FROM product_document_pages WHERE content_sha256=?",
+                                          [retained[0]]).fetchone()[0])
+        if page is not None and pages and int(page) > pages:
+            raise ProductError("invalid_locator", f"the retained version has {pages} pages", pages=pages)
+        text = None if section is None else re.sub(r"\s+", " ", str(section)).strip() or None
+        return {
+            "contract": DOCUMENT_CONTRACT, "link_id": row[0], "variant_id": row[1], "first_revision_id": row[2],
+            "kind": row[3], "url": row[4], "language": row[5], "record_locator": _load(row[6], {}),
+            "content_sha256": retained[0] if retained else None,
+            "retained_at_ms": retained[1] if retained else None,
+            "locator": {**({"page": int(page)} if page is not None else {}),
+                        **({"section": text} if text else {})},
+            "page_count": pages or None,
+            "page_verified": bool(page is not None and pages),
+            "availability": "retained" if retained else "link",
+        }
 
     # --------------------------------------------------------------- matching
 
     def _model_summary(self, namespace: str, model_id: str) -> dict[str, Any] | None:
-        variants = self._variant_rows(namespace, "AND i.parent_id=?", [model_id])
+        row = self.conn.execute("SELECT category_label FROM product_identities WHERE identity_id=?",
+                                [model_id]).fetchone()
+        category_id = registry.resolve_label(row[0] if row else None)
+        # A model summarises only its own category's variants (identity keys already scope them).
+        variants = [v for v in self._variant_rows(namespace, "AND i.parent_id=?", [model_id])
+                    if v["category_id"] == category_id]
         if not variants:
             return None
         attributes: dict[tuple[str, str | None], set[str]] = {}
+        schemes: dict[tuple[str, str | None], set[tuple[str, str | None]]] = {}
         for variant in variants:
             for item in self.assertions(namespace, variant["variant_id"]):
                 if item["normalized_value"] is not None:
-                    attributes.setdefault((item["attribute"], item["mode"]), set()).add(item["normalized_value"])
+                    key = (item["attribute"], item["mode"])
+                    attributes.setdefault(key, set()).add(item["normalized_value"])
+                    schemes.setdefault(key, set()).add((item["normalized_value"],
+                                                        item["conditions"].get("label_scheme")))
         first = variants[0]
         return {"model_id": model_id, "provider": first["provider"], "brand": first["brand"],
                 "designation": first["designation"], "category": first["category"],
+                "category_id": first["category_id"],
                 "markets": sorted({str(v["market"].get("region")) for v in variants if v["market"].get("region")}),
                 "gtins": sorted({g["value"] for v in variants for g in v["identifiers"].get("gtin") or []
                                  if g.get("state") == "valid"}),
-                "attributes": attributes}
+                "attributes": attributes, "schemes": schemes}
 
-    def propose_matches(self, namespace: str, *, scopes, principal_id: str) -> dict[str, Any]:
-        """Deterministic candidates between Icecat and EPREL models; never auto-accepted."""
+    def _related(self, a: Mapping[str, Any], b: Mapping[str, Any], identifier: str,
+                 namespace: str) -> tuple[str, dict] | None:
+        """How two models' identifiers relate under the category's identifier rule, or None."""
+        if not a["designation"] or not b["designation"]:
+            return None
+        if identifier == "component":
+            # Exact MPN (separators and suffixes name different parts) from the same manufacturer.
+            if registry.mpn_key(a["designation"]) != registry.mpn_key(b["designation"]):
+                return None
+            basis = manufacturers_equivalent(self.conn, a["brand"], b["brand"], namespace)
+            if basis is None:
+                return None
+            return "part_number_exact", {"kind": "manufacturer_part_number", "left": a["designation"],
+                                         "right": b["designation"],
+                                         "manufacturer": {"left": a["brand"], "right": b["brand"], "basis": basis}}
+        if _brand_key(a["brand"]) != _brand_key(b["brand"]):
+            return None
+        ka, kb = designation_key(a["designation"]), designation_key(b["designation"])
+        prefix = len(_common_prefix(ka, kb))
+        if ka == kb:
+            return "designation_exact", {"kind": "designation", "left": a["designation"], "right": b["designation"]}
+        if prefix >= 6 and prefix >= max(len(ka), len(kb)) - 4:
+            return "designation_variant_suffix", {}
+        return None
+
+    @staticmethod
+    def _corroborate(rule: Mapping[str, Any], a: Mapping[str, Any], b: Mapping[str, Any],
+                     evidence: list, reasons: list, contradictions: list) -> None:
+        key = (rule["attribute"], rule.get("mode"))
+        left, right = a["attributes"].get(key, set()), b["attributes"].get(key, set())
+        if rule["rule"] == "same_scheme_overlap":
+            # Label classes corroborate only under the same named scheme; an unknown scheme is no evidence.
+            pa, pb = a["schemes"].get(key, set()), b["schemes"].get(key, set())
+            shared = {s for _, s in pa if s} & {s for _, s in pb if s}
+            if not shared:
+                if rule.get("required"):
+                    reasons.append(rule["missing_reason"])
+                return
+            va = {v for v, s in pa if s in shared}
+            vb = {v for v, s in pb if s in shared}
+            if va & vb:
+                evidence.append({"kind": rule["evidence"], "left": sorted(va), "right": sorted(vb)})
+            else:
+                contradictions.append(rule["contradiction"])
+            return
+        if not (left and right):
+            if rule.get("required"):
+                reasons.append(rule["missing_reason"])
+            return
+        if rule["rule"] == "within":
+            gap = min(abs(Decimal(x) - Decimal(y)) for x in left for y in right)
+            if gap <= Decimal(str(rule.get("tolerance") or "0")):
+                evidence.append({"kind": rule["evidence"], "left": sorted(left), "right": sorted(right)})
+            else:
+                contradictions.append(rule["contradiction"].format(gap=gap))
+        elif left & right:
+            evidence.append({"kind": rule["evidence"], "left": sorted(left), "right": sorted(right)})
+        else:
+            contradictions.append(rule["contradiction"])
+
+    def propose_matches(self, namespace: str, *, scopes, principal_id: str,
+                        category: str | None = None) -> dict[str, Any]:
+        """Deterministic candidates between provider models of one category; never auto-accepted.
+
+        Pairs, identifier rule and corroborating attributes come from the category registry. Models are
+        grouped by category first, so a cross-category match cannot be proposed; a model whose category
+        is not registered is never matched.
+        """
 
         _authorize(namespace, scopes, WRITE_SCOPE, write=True)
         del principal_id
+        self._require_ready()
+        wanted = _category_argument(category)
         models = [row[0] for row in self.conn.execute(
             "SELECT identity_id FROM product_identities WHERE namespace=? AND level='model' ORDER BY identity_id",
             [namespace]).fetchall()]
         summaries = [s for s in (self._model_summary(namespace, m) for m in models) if s]
-        left = [s for s in summaries if s["provider"] == "icecat"]
-        right = [s for s in summaries if s["provider"] == "eprel"]
         now = self.now()
         candidates = []
-        for a in left:
-            related = []
-            for b in right:
-                if _brand_key(a["brand"]) != _brand_key(b["brand"]) or not a["designation"] or not b["designation"]:
-                    continue
-                ka, kb = designation_key(a["designation"]), designation_key(b["designation"])
-                prefix = len(_common_prefix(ka, kb))
-                if ka == kb:
-                    related.append((b, "designation_exact"))
-                elif prefix >= 6 and prefix >= max(len(ka), len(kb)) - 4:
-                    related.append((b, "designation_variant_suffix"))
-            exact = [b for b, kind in related if kind == "designation_exact"]
-            for b, kind in related:
-                evidence, reasons, contradictions = [], [], []
-                if kind == "designation_exact":
-                    evidence.append({"kind": "designation", "left": a["designation"], "right": b["designation"]})
-                else:
-                    reasons.append("designations differ only in a suffix (possible regional or bundle variant)")
-                diag_a = a["attributes"].get(("diagonal", None), set())
-                diag_b = b["attributes"].get(("diagonal", None), set())
-                if diag_a and diag_b:
-                    gap = min(abs(Decimal(x) - Decimal(y)) for x in diag_a for y in diag_b)
-                    if gap <= DIAGONAL_TOLERANCE_CM:
-                        evidence.append({"kind": "diagonal_cm", "left": sorted(diag_a), "right": sorted(diag_b)})
-                    else:
-                        contradictions.append(f"diagonal differs by {gap} cm")
-                else:
-                    reasons.append("diagonal missing on at least one side")
-                res_a = a["attributes"].get(("resolution", None), set())
-                res_b = b["attributes"].get(("resolution", None), set())
-                if res_a and res_b:
-                    if res_a & res_b:
-                        evidence.append({"kind": "resolution", "left": sorted(res_a), "right": sorted(res_b)})
-                    else:
-                        contradictions.append("resolution differs")
-                if a["gtins"] and b["gtins"] and not set(a["gtins"]) & set(b["gtins"]):
-                    contradictions.append("GTINs are disjoint")
-                if len(exact) > 1 and kind == "designation_exact":
-                    reasons.append("several EPREL models share this designation")
-                if contradictions:
-                    state, confidence = "contradicted", "none"
-                elif kind != "designation_exact" or reasons:
-                    state, confidence = "ambiguous", "low"
-                else:
-                    state, confidence = "proposed", "high" if len(evidence) >= 3 else "medium"
-                match_id = "product-match:" + _digest([namespace, a["model_id"], b["model_id"]])[:24]
-                payload = {"evidence": evidence, "reasons": reasons + contradictions}
-                existing = self.conn.execute("SELECT evidence_json, reasons_json FROM product_matches WHERE match_id=?",
-                                             [match_id]).fetchone()
-                if existing is None:
-                    self.conn.execute("INSERT INTO product_matches VALUES (?,?,?,?,?,?,?,?,?,?,?)", [
-                        match_id, namespace, a["model_id"], b["model_id"], MATCH_METHOD, state, confidence,
-                        _canonical(evidence), _canonical(payload["reasons"]), now, now])
-                elif (_load(existing[0], []), _load(existing[1], [])) != (evidence, payload["reasons"]):
-                    self.conn.execute(
-                        "UPDATE product_matches SET candidate_state=?, confidence=?, evidence_json=?, reasons_json=?, "
-                        "updated_at_ms=? WHERE match_id=?",
-                        [state, confidence, _canonical(evidence), _canonical(payload["reasons"]), now, match_id])
-                candidates.append(self.match(namespace, match_id))
-        return {"contract": MATCH_CONTRACT, "namespace": namespace, "method": MATCH_METHOD, "candidates": candidates}
+        for category_id in sorted({s["category_id"] for s in summaries if s["category_id"]}):
+            if wanted and category_id != wanted:
+                continue
+            matching = registry.category(category_id)["matching"]
+            group = [s for s in summaries if s["category_id"] == category_id]
+            if matching["providers"] == "distinct":
+                providers = sorted({s["provider"] for s in group})
+                pairs = [(x, y) for i, x in enumerate(providers) for y in providers[i + 1:]]
+            else:
+                pairs = [tuple(pair) for pair in matching["providers"]]
+            for left_provider, right_provider in pairs:
+                left = [s for s in group if s["provider"] == left_provider]
+                right = [s for s in group if s["provider"] == right_provider]
+                for a in left:
+                    related = [(b, found) for b in right
+                               if (found := self._related(a, b, matching["identifier"], namespace)) is not None]
+                    exact = [b for b, (kind, _) in related if kind != "designation_variant_suffix"]
+                    for b, (kind, identity) in related:
+                        candidates.append(self._candidate(
+                            namespace, category_id, matching, a, b, kind, identity, len(exact), right_provider, now))
+        return {"contract": MATCH_CONTRACT, "namespace": namespace, "method": MATCH_METHOD,
+                **({"category": wanted} if wanted else {}), "candidates": candidates}
+
+    def _candidate(self, namespace, category_id, matching, a, b, kind, identity, exact_count, right_provider,
+                   now) -> dict[str, Any]:
+        evidence, reasons, contradictions = [], [], []
+        if identity:
+            evidence.append(identity)
+        else:
+            reasons.append("designations differ only in a suffix (possible regional or bundle variant)")
+        for rule in matching.get("corroboration") or []:
+            self._corroborate(rule, a, b, evidence, reasons, contradictions)
+        if a["gtins"] and b["gtins"] and not set(a["gtins"]) & set(b["gtins"]):
+            contradictions.append("GTINs are disjoint")
+        if exact_count > 1 and kind != "designation_variant_suffix":
+            noun = "part number" if matching["identifier"] == "component" else "designation"
+            reasons.append(f"several {PROVIDER_LABELS.get(right_provider, right_provider)} models share this {noun}")
+        if contradictions:
+            state, confidence = "contradicted", "none"
+        elif kind == "designation_variant_suffix" or reasons:
+            state, confidence = "ambiguous", "low"
+        else:
+            state, confidence = "proposed", "high" if len(evidence) >= 3 else "medium"
+        match_id = "product-match:" + _digest([namespace, a["model_id"], b["model_id"]])[:24]
+        all_reasons = reasons + contradictions
+        existing = self.conn.execute("SELECT evidence_json, reasons_json FROM product_matches WHERE match_id=?",
+                                     [match_id]).fetchone()
+        if existing is None:
+            self.conn.execute("INSERT INTO product_matches VALUES (?,?,?,?,?,?,?,?,?,?,?)", [
+                match_id, namespace, a["model_id"], b["model_id"], MATCH_METHOD, state, confidence,
+                _canonical(evidence), _canonical(all_reasons), now, now])
+        elif (_load(existing[0], []), _load(existing[1], [])) != (evidence, all_reasons):
+            self.conn.execute(
+                "UPDATE product_matches SET candidate_state=?, confidence=?, evidence_json=?, reasons_json=?, "
+                "updated_at_ms=? WHERE match_id=?",
+                [state, confidence, _canonical(evidence), _canonical(all_reasons), now, match_id])
+        return self.match(namespace, match_id)
 
     def match(self, namespace: str, match_id: str) -> dict[str, Any]:
         row = self.conn.execute(
@@ -780,7 +1076,10 @@ class ProductStore:
             "SELECT sequence, decision, reason, principal_id, reviewed_at_ms FROM product_match_reviews "
             "WHERE match_id=? ORDER BY sequence", [match_id]).fetchall()
         history = [dict(zip(("sequence", "decision", "reason", "principal_id", "reviewed_at_ms"), r)) for r in reviews]
+        label = self.conn.execute("SELECT category_label FROM product_identities WHERE identity_id=?",
+                                  [row[0]]).fetchone()
         return {"contract": MATCH_CONTRACT, "match_id": match_id, "left_model_id": row[0], "right_model_id": row[1],
+                "category_id": registry.resolve_label(label[0] if label else None),
                 "method": row[2], "candidate_state": row[3], "confidence": row[4], "evidence": _load(row[5], []),
                 "reasons": _load(row[6], []), "review_state": history[-1]["decision"] if history else "unreviewed",
                 "review_history": history}
@@ -814,51 +1113,267 @@ class ProductStore:
         return {m["right_model_id"] if m["left_model_id"] == model_id else m["left_model_id"]
                 for m in self._matches_for(namespace, model_id) if m["review_state"] == "accepted"}
 
+    # ------------------------------------------------------------- components
+
+    def lifecycle(self, namespace: str, variant_id: str) -> dict[str, Any] | None:
+        """The lifecycle status the variant's current revision published (value, declared text, source, date)."""
+        if not _table_exists(self.conn, "product_lifecycle"):
+            return None
+        row = self.conn.execute(
+            "SELECT l.status, l.declared, l.provider, l.source_id, l.status_date, l.date_basis, l.locator_json, "
+            "l.revision_id FROM product_lifecycle l JOIN product_current c ON c.revision_id=l.revision_id "
+            "WHERE l.namespace=? AND l.variant_id=?", [namespace, variant_id]).fetchone()
+        if row is None:
+            return None
+        return {"value": row[0], "declared": row[1], "provider": row[2], "source_id": row[3], "date": row[4],
+                "date_basis": row[5], "locator": _load(row[6], {}), "revision_id": row[7],
+                "basis": "as published by the named source; never inferred"}
+
+    def lookup_component(self, namespace: str, *, scopes, mpn: str | None = None,
+                         manufacturer: str | None = None, sku: str | None = None,
+                         category: str | None = None, limit: int = 25) -> dict[str, Any]:
+        """Electronic components by MPN (optionally with a manufacturer) or by a provider-scoped distributor SKU.
+
+        One entry per component identity (normalised manufacturer + MPN): every provider's variants with their
+        published lifecycle status, SKU aliases, reviewable matches and link-only records. Nothing is merged and
+        no cross-reference or replacement is suggested.
+        """
+        _authorize(namespace, scopes, READ_SCOPE, write=False)
+        self._require_ready()
+        category_id = _category_argument(category)
+        if category_id and registry.family(category_id) != "component":
+            raise ProductError("unknown_category", f"{category_id} is not an electronic-component category")
+        key = registry.mpn_key(mpn)
+        if key is None and not str(sku or "").strip():
+            raise ProductError("invalid_query", "name an MPN or a distributor SKU")
+        limit = max(1, min(int(limit), 100))
+        variants = [v for v in self._variant_rows(namespace)
+                    if registry.family(v["category_id"]) == "component"
+                    and (category_id is None or v["category_id"] == category_id)]
+        if key is not None:
+            variants = [v for v in variants if registry.mpn_key(v["designation"]) == key]
+        if manufacturer:
+            variants = [v for v in variants
+                        if manufacturers_equivalent(self.conn, manufacturer, v["brand"], namespace)]
+        if str(sku or "").strip():
+            wanted = str(sku).strip()
+            variants = [v for v in variants
+                        if any(str(alias.get("value")) == wanted
+                               for alias in v["identifiers"].get("distributor_skus") or [])]
+        groups: dict[str, list[dict[str, Any]]] = {}
+        for variant in variants:
+            component = registry.component_key(variant["brand"], variant["designation"]) or variant["variant_id"]
+            groups.setdefault(component, []).append(variant)
+        from src.ingestion.product_sources import component_links
+
+        components = []
+        for component, members in sorted(groups.items()):
+            first = members[0]
+            model_ids = sorted({v["model_id"] for v in members})
+            components.append({
+                "component_key": component,
+                "category_id": first["category_id"],
+                "mpn": sorted({v["designation"] for v in members}),
+                "manufacturer": sorted({v["brand"] for v in members if v["brand"]}),
+                "manufacturer_resolution": self._manufacturer_resolution(namespace, first["brand"]),
+                "variants": [{**{k: v[k] for k in ("variant_id", "model_id", "provider", "brand", "designation",
+                                                   "provider_record_id", "record_state", "current_revision_id",
+                                                   "provider_revision")},
+                              "distributor_skus": list(v["identifiers"].get("distributor_skus") or []),
+                              "lifecycle_status": self.lifecycle(namespace, v["variant_id"])} for v in members],
+                # Matches with the model on either side (providers are ordered by name, so a model may be right).
+                "matches": list({m["match_id"]: m for model_id in model_ids
+                                 for m in self._matches_for(namespace, model_id)}.values()),
+                # The one "equivalent models" definition shared with comparison and monitors: accepted matches.
+                "equivalent_models": sorted({e for model_id in model_ids
+                                             for e in (model_id, *self.accepted_equivalents(namespace, model_id))}),
+                "links": component_links(first["brand"], first["designation"]),
+            })
+        return {"contract": IDENTITY_CONTRACT, "namespace": namespace, "count": len(components[:limit]),
+                "truncated": len(components) > limit, "components": components[:limit],
+                "notice": "Lifecycle status is shown only as a named source published it, with its date; "
+                          "no cross-reference, replacement or availability is inferred."}
+
+    def _manufacturer_resolution(self, namespace: str, name: str | None) -> dict[str, Any]:
+        """A published manufacturer name with its reviewed link (if any) and canonical-alias candidates."""
+        key = registry.manufacturer_key(name)
+        link = None
+        if key and _table_exists(self.conn, "product_manufacturer_links"):
+            row = self.conn.execute(
+                "SELECT link_id, entity_id, decision_id, reviewer FROM product_manufacturer_links WHERE namespace=? "
+                "AND manufacturer_key=? AND status='active' AND decision='match' ORDER BY created_at_ms DESC LIMIT 1",
+                [namespace, key]).fetchone()
+            if row:
+                link = {"status": "linked", "link_id": row[0], "entity_id": row[1], "decision_id": row[2],
+                        "reviewer": row[3]}
+        candidates = []
+        if name and _table_exists(self.conn, "entity_aliases") and _table_exists(self.conn, "canonical_entities"):
+            from src.kb.entities import resolve
+
+            match = resolve(self.conn, name)
+            if match:
+                candidates.append({"entity_id": match["canonical_id"], "preferred_name": match["preferred_name"],
+                                   "basis": f"canonical alias match ({match['method']})"})
+        return {"published": name, "manufacturer_key": key, "link": link, "candidates": candidates}
+
+    def decide_manufacturer_link(self, namespace: str, manufacturer: str, entity_id: str, decision: str,
+                                 reason: str, *, scopes, principal_id: str) -> dict[str, Any]:
+        """Link (or refuse) a published component manufacturer name to a canonical entity.
+
+        Recorded as an entity identity decision; never a merge. Linked names count as the same manufacturer
+        for component lookups and matching.
+        """
+        from src.kb.entity_history import REVIEW_SCOPE as ENTITY_REVIEW
+        from src.kb.entity_history import WRITE_SCOPE as ENTITY_WRITE
+        from src.kb.entity_history import EntityHistoryStore
+
+        scopes = set(scopes)
+        _authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        missing = [s for s in (ENTITY_WRITE, ENTITY_REVIEW) if s not in scopes]
+        if missing:
+            raise ProductError("unauthorized", f"{', '.join(missing)} is required for manufacturer links")
+        self._require_ready()
+        if decision not in {"match", "non-match"} or not str(reason or "").strip():
+            raise ProductError("invalid_decision", "decide match or non-match with a reason")
+        key = registry.manufacturer_key(manufacturer)
+        published = next((v["brand"] for v in self._variant_rows(namespace)
+                          if registry.family(v["category_id"]) == "component"
+                          and registry.manufacturer_key(v["brand"]) == key), None) if key else None
+        if published is None:
+            raise ProductError("not_found", "no component record publishes this manufacturer name")
+        if not str(entity_id or "").strip() or not (
+                _table_exists(self.conn, "canonical_entities") and self.conn.execute(
+                    "SELECT 1 FROM canonical_entities WHERE canonical_id=?", [entity_id]).fetchone()):
+            raise ProductError("not_found", "entity_id is not a canonical entity")
+        subject = "product-manufacturer:" + _digest([namespace, key])[:24]
+        history = EntityHistoryStore(self.conn, now=self.now)
+        history.register_entity(namespace, subject, [published], principal_id=principal_id, scopes=scopes)
+        history.register_entity(namespace, entity_id, [], principal_id=principal_id, scopes=scopes)
+        made = history.decide(
+            namespace, decision, [subject, entity_id],
+            {"source": "products.components", "manufacturer": published, "reason": reason.strip(),
+             "policy": {"kind": "link-only", "merge": "never automatic"}},
+            reviewer_id=principal_id, principal_id=principal_id, scopes=scopes,
+            event_key=f"product-manufacturer:{namespace}:{key}:{entity_id}")
+        link_id = "product-manufacturer-link:" + _digest([namespace, key, entity_id])[:24]
+        self.conn.execute(
+            "INSERT INTO product_manufacturer_links VALUES (?,?,?,?,?,?,?,?,?,?,?,NULL) ON CONFLICT (namespace, "
+            "link_id) DO UPDATE SET decision=excluded.decision, decision_id=excluded.decision_id, status='active', "
+            "reason=excluded.reason, reviewer=excluded.reviewer, created_at_ms=excluded.created_at_ms, "
+            "reverted_by=NULL",
+            [namespace, link_id, key, published, entity_id, decision, made["decision_id"], "active",
+             reason.strip(), principal_id, self.now()])
+        return {"link_id": link_id, "manufacturer": published, "manufacturer_key": key, "entity_id": entity_id,
+                "decision": decision, "decision_id": made["decision_id"], "merged": False}
+
+    def revert_manufacturer_link(self, namespace: str, link_id: str, *, scopes, principal_id: str) -> dict[str, Any]:
+        """Undo a manufacturer link; the undo is itself an identity decision and never reactivates an older one."""
+        from src.kb.entity_history import EXECUTE_SCOPE, EntityHistoryStore
+        from src.kb.entity_history import REVIEW_SCOPE as ENTITY_REVIEW
+        from src.kb.entity_history import WRITE_SCOPE as ENTITY_WRITE
+
+        scopes = set(scopes)
+        _authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        missing = [s for s in (ENTITY_WRITE, ENTITY_REVIEW, EXECUTE_SCOPE) if s not in scopes]
+        if missing:
+            raise ProductError("unauthorized", f"{', '.join(missing)} is required to revert a manufacturer link")
+        row = self.conn.execute(
+            "SELECT decision_id, status FROM product_manufacturer_links WHERE namespace=? AND link_id=?",
+            [namespace, link_id]).fetchone() if _table_exists(self.conn, "product_manufacturer_links") else None
+        if not row or row[1] != "active":
+            raise ProductError("not_found", "no active manufacturer link")
+        undo = EntityHistoryStore(self.conn, now=self.now).undo(
+            namespace, row[0], reviewer_id=principal_id, principal_id=principal_id, scopes=scopes)
+        self.conn.execute(
+            "UPDATE product_manufacturer_links SET status='reverted', reverted_by=? WHERE namespace=? AND link_id=?",
+            [undo["decision_id"], namespace, link_id])
+        return {"link_id": link_id, "status": "reverted", "undo_decision_id": undo["decision_id"], "undoes": row[0]}
+
     # ------------------------------------------------------------- comparison
 
     def compare(self, namespace: str, model_ids: Sequence[str], *, scopes,
-                attributes: Sequence[str] | None = None) -> dict[str, Any]:
-        """Evidence-linked comparison of explicitly resolved models.
+                attributes: Sequence[str] | None = None, category: str | None = None) -> dict[str, Any]:
+        """Evidence-linked comparison of explicitly resolved models of one category.
 
         Each column is one requested model plus its *accepted* cross-provider
         equivalents. Cells keep every provider assertion side by side; numeric
         comparison across columns happens only on a shared attribute, mode and
-        normalized unit (and label scheme for energy classes).
+        normalized unit (and label scheme for label classes). Rows come from the
+        category registry; models of different categories are refused with an
+        explicit error, never a partial table. Nominal component values carry
+        their published tolerance. There is no ranking and no "best" pick.
         """
 
         _authorize(namespace, scopes, READ_SCOPE, write=False)
+        self._require_ready()
+        wanted_category = _category_argument(category)
         requested = list(dict.fromkeys(model_ids))
         if not 2 <= len(requested) <= 6:
             raise ProductError("invalid_comparison", "compare 2-6 resolved models")
+        found: dict[str, str | None] = {}
+        for model_id in requested:
+            row = self.conn.execute(
+                "SELECT level, category_label FROM product_identities WHERE namespace=? AND identity_id=?",
+                [namespace, model_id]).fetchone()
+            if row is None:
+                raise ProductError("not_found", f"model {model_id} is not visible in this namespace")
+            if row[0] != "model":
+                raise ProductError("unresolved_identity", "comparison requires resolved model identities, not variants or families")
+            found[model_id] = registry.resolve_label(row[1])
+        if None in found.values():
+            raise ProductError("unregistered_category", "a model's category is not in the category registry",
+                               categories=found)
+        category_id = next(iter(found.values()))
+        if len(set(found.values())) > 1:
+            raise ProductError("mixed_categories", "models of different categories are never compared",
+                               categories=found)
+        if wanted_category and wanted_category != category_id:
+            raise ProductError("category_mismatch", f"the models are {category_id}, not {wanted_category}",
+                               categories=found)
+        spec = registry.category(category_id)
         columns = []
         for model_id in requested:
-            level = self.conn.execute(
-                "SELECT level FROM product_identities WHERE namespace=? AND identity_id=?", [namespace, model_id]).fetchone()
-            if level is None:
-                raise ProductError("not_found", f"model {model_id} is not visible in this namespace")
-            if level[0] != "model":
-                raise ProductError("unresolved_identity", "comparison requires resolved model identities, not variants or families")
             members = [model_id, *sorted(self.accepted_equivalents(namespace, model_id))]
             pending = [m for m in self._matches_for(namespace, model_id)
                        if m["review_state"] in {"unreviewed", "deferred"}]
             rejected = [m for m in self._matches_for(namespace, model_id) if m["review_state"] == "rejected"]
-            variants = [v for member in members for v in self._variant_rows(namespace, "AND i.parent_id=?", [member])]
+            variants = [v for member in members for v in self._variant_rows(namespace, "AND i.parent_id=?", [member])
+                        if v["category_id"] == category_id]
             columns.append({"model_id": model_id, "members": members, "variants": variants,
                             "pending_matches": [m["match_id"] for m in pending],
                             "rejected_matches": [m["match_id"] for m in rejected]})
-        wanted = list(attributes or ["diagonal", "resolution", "width", "height", "depth", "on_mode_power",
-                                     "energy_consumption_1000h", "energy_class"])
+        wanted = list(attributes or spec["comparison"]["attributes"])
+        unknown = [name for name in wanted if registry.attribute_spec(category_id, name) is None]
+        if unknown:
+            raise ProductError("unknown_attribute", f"{', '.join(unknown)} is not an attribute of {category_id}",
+                               attributes=sorted(spec["attributes"]))
+        assertions = {variant["variant_id"]: self.assertions(namespace, variant["variant_id"])
+                      for column in columns for variant in column["variants"]}
+
+        def cite(variant: Mapping[str, Any], a: Mapping[str, Any]) -> dict[str, Any]:
+            return {"variant_id": variant["variant_id"], "revision_id": a["revision_id"],
+                    "provider_revision": a["provider_revision"], "locator": a["locator"],
+                    "document_id": a["document_id"], "observed_at_ms": a["observed_at_ms"]}
+
         rows = []
         for attribute in wanted:
+            attribute_spec = registry.attribute_spec(category_id, attribute) or {}
+            tolerance_attribute = attribute_spec.get("tolerance")
             modes = sorted({a["mode"] for column in columns for variant in column["variants"]
-                            for a in self.assertions(namespace, variant["variant_id"]) if a["attribute"] == attribute},
+                            for a in assertions[variant["variant_id"]] if a["attribute"] == attribute},
                            key=lambda value: "" if value is None else value)
             for mode in modes or [None]:
                 cells = []
                 for column in columns:
-                    values = []
+                    values, tolerances = [], []
                     for variant in column["variants"]:
-                        for a in self.assertions(namespace, variant["variant_id"]):
+                        for a in assertions[variant["variant_id"]]:
+                            if a["attribute"] == tolerance_attribute:
+                                tolerances.append({
+                                    "provider": a["provider"], "native_value": a["native_value"],
+                                    "native_unit": a["native_unit"], "normalized_value": a["normalized_value"],
+                                    "normalized_unit": a["normalized_unit"],
+                                    "normalization_state": a["normalization_state"], "evidence": cite(variant, a)})
                             if a["attribute"] != attribute or a["mode"] != mode:
                                 continue
                             values.append({
@@ -867,32 +1382,37 @@ class ProductStore:
                                 "normalized_value": a["normalized_value"], "normalized_unit": a["normalized_unit"],
                                 "normalization_state": a["normalization_state"], "calculation_id": a["calculation_id"],
                                 "label_scheme": a["conditions"].get("label_scheme"),
-                                "evidence": {"variant_id": variant["variant_id"], "revision_id": a["revision_id"],
-                                             "provider_revision": a["provider_revision"], "locator": a["locator"],
-                                             "document_id": a["document_id"], "observed_at_ms": a["observed_at_ms"]},
+                                "evidence": cite(variant, a),
                                 "record_state": variant["record_state"],
                             })
                     distinct = {v["normalized_value"] for v in values if v["normalized_value"] is not None}
-                    cells.append({"model_id": column["model_id"], "values": values,
-                                  "state": "missing" if not values else "conflict" if len(distinct) > 1
-                                  else "unnormalized" if not distinct else "value",
-                                  "value": next(iter(distinct)) if len(distinct) == 1 else None})
+                    cell = {"model_id": column["model_id"], "values": values,
+                            "state": "missing" if not values else "conflict" if len(distinct) > 1
+                            else "unnormalized" if not distinct else "value",
+                            "value": next(iter(distinct)) if len(distinct) == 1 else None}
+                    if tolerance_attribute:
+                        cell["tolerance"] = tolerances
+                    cells.append(cell)
                 units = {v["normalized_unit"] for c in cells for v in c["values"] if v["normalized_value"] is not None}
-                schemes = {v["label_scheme"] for c in cells for v in c["values"]} if attribute == "energy_class" else set()
+                labelled = attribute_spec.get("kind") == "label_class"
+                schemes = {v["label_scheme"] for c in cells for v in c["values"]} if labelled else set()
                 if any(c["state"] == "missing" for c in cells):
                     comparable, why = False, "missing on at least one model"
                 elif any(c["state"] in {"conflict", "unnormalized"} for c in cells):
                     comparable, why = False, "provider disagreement or unnormalized value"
                 elif len(units) > 1:
                     comparable, why = False, "incompatible units"
-                elif attribute == "energy_class" and (None in schemes or len(schemes) > 1):
+                elif labelled and (None in schemes or len(schemes) > 1):
                     comparable, why = False, "label scheme unknown or different"
                 else:
                     comparable, why = True, None
-                rows.append({"attribute": attribute, "mode": mode, "comparable": comparable,
-                             "not_comparable_reason": why, "cells": cells})
+                row = {"attribute": attribute, "mode": mode, "comparable": comparable,
+                       "not_comparable_reason": why, "cells": cells}
+                if tolerance_attribute:
+                    row["tolerance_attribute"] = tolerance_attribute
+                rows.append(row)
         return {
-            "contract": COMPARISON_CONTRACT, "namespace": namespace,
+            "contract": COMPARISON_CONTRACT, "namespace": namespace, "category": category_id,
             "columns": [{**{k: c[k] for k in ("model_id", "members", "pending_matches", "rejected_matches")},
                          "variants": [{k: v[k] for k in ("variant_id", "provider", "brand", "designation", "market",
                                                          "record_state", "current_revision_id", "provider_revision")}
@@ -900,8 +1420,7 @@ class ProductStore:
                          "documents": [d for v in c["variants"] for d in self.documents(namespace, v["variant_id"])]}
                         for c in columns],
             "rows": rows,
-            "notice": ("Values are brand-authorised content (Icecat) and supplier registrations (EPREL), "
-                       "not independent measurements, and this comparison is not a buying recommendation."),
+            "notice": spec["comparison"]["notice"],
         }
 
 
@@ -1034,8 +1553,11 @@ def _extract_pdf_text(content: bytes, media_type: str | None) -> dict[str, Any]:
     except ImportError:
         return {"state": "extractor_unavailable"}
     with fitz.open(stream=content, filetype="pdf") as document:
-        text = "".join(page.get_text() for page in document)
-    return {"state": "extracted", "chars": len(text)}
+        texts = [page.get_text() for page in document]
+    pages = [{"page": index + 1, "chars": len(text),
+              "heading": next((line.strip()[:200] for line in text.splitlines() if line.strip()), None)}
+             for index, text in enumerate(texts)]
+    return {"state": "extracted", "chars": sum(len(text) for text in texts), "pages": pages}
 
 
 # ---------------------------------------------------------------- readiness
@@ -1047,7 +1569,7 @@ def readiness(conn: Any, *, pack_id: str = "products-displays",
 
     import os
 
-    from src.ingestion.product_sources import PROVIDER_CONTRACTS
+    from src.ingestion.product_sources import COMPONENT_SOURCE_DECISIONS, PROVIDER_CONTRACTS
     from src.ingestion.source_packs import _digest as source_digest
 
     lookup = secrets or (lambda name: os.environ.get(name))
@@ -1059,10 +1581,12 @@ def readiness(conn: Any, *, pack_id: str = "products-displays",
         row = None
     enabled = bool(row and row[0])
     manifest = _load(row[1], {}) if row else {}
-    by_provider = {source["connector"]: source for source in manifest.get("sources") or []}
-    providers = {}
-    for provider, contract in PROVIDER_CONTRACTS.items():
-        source = by_provider.get(provider)
+    sources = [source for source in manifest.get("sources") or [] if "product" in source]
+    by_provider: dict[str, Any] = {}
+    for source in sources:
+        by_provider.setdefault(source["connector"], source)  # the first declared source represents its provider
+
+    def assess(source: Mapping[str, Any] | None) -> tuple[list[dict[str, Any]], bool]:
         blockers: list[dict[str, Any]] = []
         if row is None or source is None:
             blockers.append({"code": "pack_not_installed", "severity": "blocking",
@@ -1086,7 +1610,12 @@ def readiness(conn: Any, *, pack_id: str = "products-displays",
             if not accepted:
                 blockers.append({"code": "license_not_accepted", "source_id": source["source_id"],
                                  "severity": "blocking-live"})
-        fixture_ready = source is not None and enabled
+        return blockers, source is not None and enabled
+
+    providers = {}
+    for provider, contract in PROVIDER_CONTRACTS.items():
+        source = by_provider.get(provider)
+        blockers, fixture_ready = assess(source)
         providers[provider] = {
             "source_id": None if source is None else source["source_id"],
             "fixture": "ready" if fixture_ready else "blocked",
@@ -1094,18 +1623,37 @@ def readiness(conn: Any, *, pack_id: str = "products-displays",
             "live_verification": contract["status"],
             "blockers": blockers,
         }
-    from src.kb.product_safety import feature_enabled, safety_readiness
+    per_source = {}
+    for source in sources:
+        blockers, fixture_ready = assess(source)
+        category_id = registry.resolve(dict(source["product"]).get("category"))
+        per_source[source["source_id"]] = {
+            "provider": source["connector"], "category": category_id, "family": registry.family(category_id),
+            "fixture": "ready" if fixture_ready else "blocked",
+            "live": "ready" if fixture_ready and not blockers else "blocked",
+            "live_verification": dict(PROVIDER_CONTRACTS.get(source["connector"]) or {}).get("status"),
+            "blockers": blockers,
+        }
+    from src.kb.product_safety import safety_readiness
 
     return {
         "pack_id": pack_id,
         "installed": row is not None,
         "enabled": enabled,
         "providers": providers,
+        "sources": per_source,
         "cross_source_validation": "outstanding",
         # The optional safety feature's notice sources, per provider (#1916).
         "notice_providers": safety_readiness(conn, pack_id=pack_id)["providers"],
-        "safety_feature_enabled": feature_enabled(conn),
-        "notice": "Readiness is per provider; cross-provider overlap is validated only by a dated live run of both.",
+        "safety_feature_enabled": products_feature_enabled(conn, "safety"),
+        # Optional features of the Products bundle (#1916, #2061), as selected in the active composition plan.
+        "features": {feature: products_feature_enabled(conn, feature)
+                     for feature in ("safety", "appliances", "components")},
+        "component_link_providers": {name: {"decision": item["decision"], "fetches": False}
+                                     for name, item in COMPONENT_SOURCE_DECISIONS.items()
+                                     if item["decision"] == "link-only"},
+        "notice": "Readiness is per provider and per source; cross-provider overlap is validated only by a dated "
+                  "live run of both.",
     }
 
 

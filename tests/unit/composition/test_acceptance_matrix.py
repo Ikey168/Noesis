@@ -74,6 +74,46 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Products expansion's offline journey (#2103) composes the appliances and components features with the
+    # display bundle, entity identity and the source-pack runtime, with the features off and on.
+    "Multi-category product lookup, match and compare":
+        "tests/unit/domains/test_products_expansion_acceptance.py::"
+        "test_multi_category_lookup_match_compare_and_cite",
+    # The Engineering Safety bundle's offline journey (#2077) composes its record owner, Products models and
+    # recalls, entity identity, subscriptions and the source-pack declarations.
+    "Subject to engineering-safety dossier":
+        "tests/unit/engineering_safety/test_acceptance.py::"
+        "test_subject_to_cited_engineering_safety_dossier_with_reviews_citations_and_monitoring",
+    # The Materials bundle's offline journey (#2091) composes its record owner, the shared identity state machine,
+    # Science literature and technology.standards citations and the source-pack runtime.
+    "Material to cited property dossier":
+        "tests/unit/domains/test_materials_acceptance.py::"
+        "test_material_to_cited_property_dossier_comparison_search_citations_and_release_diff",
+    # The Astronomy and Space bundle's offline journey (#2161) composes its own record owner, science (papers by
+    # bibcode and DOI), entity identity, geospatial (launch sites), subscriptions and the source-pack runtime.
+    "Object to cited astronomy history":
+        "tests/unit/domains/test_astronomy_acceptance.py::"
+        "test_object_to_cited_designations_vintages_dispositions_launches_alerts_and_monitors",
+    # The Sports bundle's offline journey (#2147) composes its record owner, the source-pack runtime, reviewable
+    # identity, the binary forecast ledger and subscriptions.
+    "Competition and date to a cited table":
+        "tests/unit/domains/test_sports_acceptance.py::"
+        "test_competition_and_date_to_a_cited_table_with_revisions_identity_forecast_and_monitor",
+    # The Weather bundle's offline journey (#2176) composes its own record owner, Climate & Environment stations
+    # and series, Geospatial places and containment, entity identity, subscriptions and the source-pack runtime.
+    "Place to cited weather record":
+        "tests/unit/domains/test_weather_acceptance.py::"
+        "test_place_to_cited_observations_forecasts_warnings_verification_links_and_monitors",
+    # The Linguistics pack's offline journey (#2190) composes its record owner, reviewable identity through
+    # entity history, the cross-language records, Geospatial places, subscriptions and the source-pack runtime.
+    "Word to cited lexeme dossier":
+        "tests/unit/domains/test_linguistics_acceptance.py::test_word_to_cited_lexeme_dossier_offline",
+    # The OSS Ecosystems bundle's offline journey (#2204) composes its registries, graph and licence providers with
+    # technology (identities, inventories, vulnerabilities by citation), entity identity, subscriptions and the
+    # source-pack runtime.
+    "Package to release history and dependency graphs":
+        "tests/unit/domains/test_oss_ecosystems_acceptance.py::"
+        "test_package_to_cited_history_graphs_licences_identity_advisories_and_monitoring",
 }
 
 

@@ -1,0 +1,156 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "materials.records",
+        "provider": "materials.computed",
+        "contract": {
+          "name": "noesis-material-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "materials.comparison",
+        "provider": "materials.computed",
+        "contract": {
+          "name": "noesis-material-comparison",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "materials.releases",
+        "provider": "materials.computed",
+        "contract": {
+          "name": "noesis-material-release-changes",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "materials.citations",
+        "provider": "materials.experimental",
+        "contract": {
+          "name": "noesis-material-dossier",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "materials.identity",
+        "provider": "materials.structures",
+        "contract": {
+          "name": "noesis-material-identity-candidate",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "materials.computed",
+        "version": "1.0.0"
+      },
+      {
+        "id": "materials.experimental",
+        "version": "1.0.0"
+      },
+      {
+        "id": "materials.structures",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "materials",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "materials.provenance",
+        "description": "Material property provenance vocabulary",
+        "vocabulary": {
+          "computed": "a source's calculated value with method, functional, code and version",
+          "measured": "an experimental value with its technique as the source states it",
+          "evaluated": "a critically evaluated or recommended value as the source labels it",
+          "unstated": "a condition the source does not state; never defaulted"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "materials.records",
+      "contract": "noesis-material-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "materials.comparison",
+      "contract": "noesis-material-comparison",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "materials.releases",
+      "contract": "noesis-material-release-changes",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "materials.citations",
+      "contract": "noesis-material-dossier",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0",
+      "reason": "cited papers resolve to Science literature records by DOI"
+    },
+    {
+      "capability": "technology.standards",
+      "contract": "noesis-standard-catalogue",
+      "range": "^1.0.0",
+      "reason": "test-method citations resolve to standards editions by designation"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the materials source pack"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "release watches are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "phase-level matches are reviewed, reversible identity decisions"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "phase-identity",
+      "default": false,
+      "description": "Reviewable phase-level identity across sources: candidates from stated ICSD/COD cross-references or equal space group and volume per atom, reviewed in the shared identity state machine; polymorphs are never proposed. Without it every record is its own phase and comparisons align values of one record only.",
+      "requires": [
+        {
+          "capability": "materials.identity",
+          "contract": "noesis-material-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "candidates share the reviewable identity state machine"
+        }
+      ]
+    }
+  ]
+}

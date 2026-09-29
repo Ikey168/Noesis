@@ -1,0 +1,243 @@
+{
+ "pack_id": "materials",
+ "version": "1.0.0",
+ "description": "Materials: condition-aware material properties with measured vs computed provenance for a bounded Ti-O / Al-O selection. Materials Project, JARVIS-DFT and OQMD (computed, with functional and database release), NIST Chemistry WebBook (measured and evaluated thermochemistry with cited references) and the Crystallography Open Database (experimental structures). Values are never merged or averaged across sources or method classes. Source audit and licence decisions: docs/development/materials-evidence/source-audit.md. Every source is live-unverified until a dated run.",
+ "domains": [
+  "materials"
+ ],
+ "defaults": {
+  "connector": "materials",
+  "update_cadence": "per source release; weekly check",
+  "temporal_semantics": "values belong to the source's dataset release (stated by the source, else declared in this pack); retrieval time recorded separately; conditions as the source states them, unstated otherwise",
+  "mapping": {
+   "target_schema": "noesis-material-record-v1",
+   "version": "1.0.0"
+  },
+  "extractor_versions": [
+   "materials-sources:1.0.0"
+  ],
+  "operations": [
+   "properties"
+  ],
+  "schedule": {
+   "kind": "interval",
+   "interval_s": 604800
+  },
+  "auth": {
+   "kind": "none"
+  },
+  "budgets": {
+   "timeout_ms": 60000,
+   "max_results": 100,
+   "max_bytes": 20000000,
+   "max_pages": 1
+  },
+  "health": {
+   "required": false,
+   "max_staleness_s": 2592000
+  }
+ },
+ "sources": [
+  {
+   "source_id": "materials-project-ti-al-oxides",
+   "endpoint": "https://api.materialsproject.org",
+   "publisher": "The Materials Project",
+   "scope": "Chemical systems O-Ti and Al-O: summary (band gap, density, structure), thermo (formation energy and hull distance per thermo_type) and elasticity (VRH moduli) documents; at most 50 materials (verify paths and field names)",
+   "license": {
+    "id": "cc-by-4.0",
+    "terms_url": "https://materialsproject.org/about/terms",
+    "redistribution": "with attribution to the Materials Project and its reference paper (verify licence text)"
+   },
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_MATERIALS_PROJECT_API_KEY"
+   },
+   "materials": {
+    "namespace": "materials",
+    "provider": "materials-project",
+    "format": "mp-api-json",
+    "chemical_systems": [
+     "O-Ti",
+     "Al-O"
+    ],
+    "max_records": 50,
+    "documents": [
+     {
+      "kind": "summary",
+      "path": "/materials/summary/",
+      "params": {
+       "chemsys": "O-Ti,Al-O",
+       "_limit": "50",
+       "_fields": "material_id,formula_pretty,symmetry,structure,nsites,volume,density,band_gap,database_IDs,deprecated,last_updated"
+      }
+     },
+     {
+      "kind": "thermo",
+      "path": "/materials/thermo/",
+      "params": {
+       "chemsys": "O-Ti,Al-O",
+       "_limit": "50",
+       "_fields": "material_id,thermo_type,formation_energy_per_atom,energy_above_hull"
+      }
+     },
+     {
+      "kind": "elasticity",
+      "path": "/materials/elasticity/",
+      "params": {
+       "chemsys": "O-Ti,Al-O",
+       "_limit": "50",
+       "_fields": "material_id,bulk_modulus,shear_modulus"
+      }
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/materials-mp.json",
+    "sha256": "27789d2c329ce36a9dfbe77c9553660f01eb4d814a560bd71666f3535a56535a",
+    "expected_output_hash": "629c54bf96e9ab289082ef48876fc794c7705d08ba185512a57b9f6f5bcd602f"
+   }
+  },
+  {
+   "source_id": "jarvis-dft-3d-snapshot",
+   "endpoint": "https://figshare.com",
+   "publisher": "NIST JARVIS-DFT",
+   "scope": "One pinned dft_3d snapshot file filtered to chemical systems O-Ti and Al-O; at most 50 entries (verify the pinned file id and snapshot name)",
+   "license": {
+    "id": "cc-by-4.0",
+    "terms_url": "https://jarvis.nist.gov/",
+    "redistribution": "NIST data with attribution to JARVIS and its reference paper (verify)"
+   },
+   "materials": {
+    "namespace": "materials",
+    "provider": "jarvis-dft",
+    "format": "jarvis-dft-json",
+    "chemical_systems": [
+     "O-Ti",
+     "Al-O"
+    ],
+    "max_records": 50,
+    "release": {
+     "label": "dft_3d_2099.02.01",
+     "released_on": "2099-02-01"
+    },
+    "documents": [
+     {
+      "kind": "snapshot",
+      "path": "/ndownloader/files/99990001",
+      "params": {}
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/materials-jarvis.json",
+    "sha256": "621d8e13cad2015c4b04a38e3c0ff921b2885c2cc2b1bee9f41e3fc23a63d9c7",
+    "expected_output_hash": "80772d560acdd07d4d137428ecd961e2b8fda2d4580625ef2fdf8a0141e03afb"
+   }
+  },
+  {
+   "source_id": "oqmd-ti-al-oxides",
+   "endpoint": "https://oqmd.org",
+   "publisher": "Open Quantum Materials Database (Northwestern University)",
+   "scope": "formationenergy entries for composition TiO2 (Al2O3 added by a later selection); at most 50 entries (verify scheme, parameters and field names)",
+   "license": {
+    "id": "cc-by-4.0",
+    "terms_url": "https://oqmd.org/documentation/",
+    "redistribution": "with attribution to OQMD and its reference papers (verify)"
+   },
+   "materials": {
+    "namespace": "materials",
+    "provider": "oqmd",
+    "format": "oqmd-rest-json",
+    "chemical_systems": [
+     "O-Ti",
+     "Al-O"
+    ],
+    "max_records": 50,
+    "documents": [
+     {
+      "kind": "formationenergy",
+      "path": "/oqmdapi/formationenergy",
+      "params": {
+       "composition": "TiO2",
+       "limit": "50",
+       "fields": "name,entry_id,icsd_id,spacegroup,natoms,volume,delta_e,stability,band_gap,fit"
+      }
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/materials-oqmd.json",
+    "sha256": "c2a00510689b49ef78f2f5cc739e1b0f820918200364644d5439f44f76b6cf08",
+    "expected_output_hash": "1c10cac65b954417c01668482524eb3ed3522b1ff1f04ac8b06b1683d378ac81"
+   }
+  },
+  {
+   "source_id": "nist-webbook-titanium-oxide",
+   "endpoint": "https://webbook.nist.gov",
+   "publisher": "NIST Chemistry WebBook (SRD 69)",
+   "scope": "One declared species page (condensed-phase thermochemistry, heat capacity and phase-change tables only); the WebBook does not version pages, so values stay in one declared release and changes are corrections (verify species ID and mask)",
+   "license": {
+    "id": "nist-srd-69",
+    "terms_url": "https://www.nist.gov/srd/public-law",
+    "redistribution": "values with citation and link back only; no bulk redistribution (verify SRD terms)"
+   },
+   "materials": {
+    "namespace": "materials",
+    "provider": "nist-webbook",
+    "format": "webbook-html",
+    "max_records": 10,
+    "release": {
+     "label": "srd69-unversioned"
+    },
+    "documents": [
+     {
+      "kind": "species",
+      "path": "/cgi/cbook.cgi",
+      "params": {
+       "ID": "C9990001",
+       "Units": "SI",
+       "Mask": "6"
+      }
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/materials-webbook.json",
+    "sha256": "67cf8dff2372b6e48d4e9fe47c69167bb1587ff2b384256e25d85059d2f97f59",
+    "expected_output_hash": "6293efb9bcaf9eb79ec0cc39b58c496fbbf22176a87f22682f16fc0b6a56778c"
+   }
+  },
+  {
+   "source_id": "cod-titanium-oxide-structures",
+   "endpoint": "https://www.crystallography.net",
+   "publisher": "Crystallography Open Database",
+   "scope": "Search results for formula 'O2 Ti' (cell, space group, measurement temperature/pressure, publication); no CIF files; at most 50 entries (verify the JSON field names)",
+   "license": {
+    "id": "cc0-1.0",
+    "terms_url": "https://www.crystallography.net/cod/",
+    "redistribution": "public domain dedication (verify); cite COD and the original publication"
+   },
+   "materials": {
+    "namespace": "materials",
+    "provider": "cod",
+    "format": "cod-json",
+    "max_records": 50,
+    "documents": [
+     {
+      "kind": "search",
+      "path": "/cod/result",
+      "params": {
+       "formula": "O2 Ti",
+       "format": "json"
+      }
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/materials-cod.json",
+    "sha256": "12ae3fb20150f5f6d7e80a274bdb7244320cfb392c81d852743be8ced339ed15",
+    "expected_output_hash": "70321a7b62a27b472ed0efda5f0524dad9d6a12b35de4b35a4b00fba38a6fe4b"
+   }
+  }
+ ]
+}

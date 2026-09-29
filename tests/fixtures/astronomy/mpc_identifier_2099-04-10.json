@@ -1,0 +1,13 @@
+{
+  "2099 AB12": {
+    "found": 1,
+    "object_type": ["Minor planet", "M"],
+    "permid": "999901",
+    "name": "Fictaria",
+    "unpacked_primary_provisional_designation": "2098 QX7",
+    "packed_primary_provisional_designation": "K98Q07X",
+    "unpacked_secondary_provisional_designations": ["2099 AB12"],
+    "packed_secondary_provisional_designations": ["K99A12B"],
+    "identifications": [{"designation": "2099 AB12", "reference": "MPEC 2099-G42", "date": "2099-04-08"}]
+  }
+}

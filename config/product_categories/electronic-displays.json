@@ -1,0 +1,76 @@
+{
+  "contract": "noesis-product-category-v1",
+  "category": "electronic-displays",
+  "version": "1.0.0",
+  "family": "display",
+  "labels": ["electronic displays"],
+  "identity": "brand-designation",
+  "normalization_version": "products-display-normalization-v1",
+  "attributes": {
+    "diagonal": {"kind": "quantity", "canonical_units": ["cm"], "precision": 1, "label": "Screen diagonal"},
+    "resolution": {"kind": "resolution", "label": "Native resolution (px)"},
+    "resolution_horizontal": {"kind": "part", "part_of": "resolution"},
+    "resolution_vertical": {"kind": "part", "part_of": "resolution"},
+    "width": {"kind": "quantity", "canonical_units": ["mm"], "precision": 0, "modes": ["with-stand", "without-stand"]},
+    "height": {"kind": "quantity", "canonical_units": ["mm"], "precision": 0, "modes": ["with-stand", "without-stand"]},
+    "depth": {"kind": "quantity", "canonical_units": ["mm"], "precision": 0, "modes": ["with-stand", "without-stand"]},
+    "on_mode_power": {"kind": "quantity", "canonical_units": ["W"], "precision": 1, "modes": ["typical", "sdr", "hdr"]},
+    "energy_consumption_1000h": {"kind": "quantity", "canonical_units": ["kWh"], "precision": 1, "modes": ["sdr", "hdr"]},
+    "energy_class": {"kind": "label_class", "modes": ["sdr", "hdr"], "label": "Energy efficiency class"}
+  },
+  "label_schemes": {
+    "EU_2019_2013": {"regulation": "Commission Delegated Regulation (EU) 2019/2013 (electronic displays)",
+                     "classes": ["A", "B", "C", "D", "E", "F", "G"]}
+  },
+  "comparison": {
+    "attributes": ["diagonal", "resolution", "width", "height", "depth", "on_mode_power", "energy_consumption_1000h",
+                   "energy_class"],
+    "notice": "Values are brand-authorised content (Icecat) and supplier registrations (EPREL), not independent measurements, and this comparison is not a buying recommendation."
+  },
+  "matching": {
+    "providers": [["icecat", "eprel"]],
+    "identifier": "designation",
+    "corroboration": [
+      {"attribute": "diagonal", "mode": null, "rule": "within", "tolerance": "1.5", "evidence": "diagonal_cm",
+       "required": true, "missing_reason": "diagonal missing on at least one side",
+       "contradiction": "diagonal differs by {gap} cm"},
+      {"attribute": "resolution", "mode": null, "rule": "overlap", "evidence": "resolution", "required": false,
+       "contradiction": "resolution differs"}
+    ]
+  },
+  "providers": {
+    "eprel": {
+      "product_groups": ["electronicdisplays"],
+      "fields": [
+        ["diagonalCm", "diagonal", null, "cm"],
+        ["diagonalInch", "diagonal", null, "in"],
+        ["resolutionHorizontalPixels", "resolution_horizontal", null, "px"],
+        ["resolutionVerticalPixels", "resolution_vertical", null, "px"],
+        ["powerOnModeSDR", "on_mode_power", "sdr", "W"],
+        ["powerOnModeHDR", "on_mode_power", "hdr", "W"],
+        ["energyConsumption1000hSDR", "energy_consumption_1000h", "sdr", "kWh"],
+        ["energyConsumption1000hHDR", "energy_consumption_1000h", "hdr", "kWh"],
+        ["energyClassSDR", "energy_class", "sdr", null],
+        ["energyClassHDR", "energy_class", "hdr", null]
+      ]
+    },
+    "icecat": {
+      "features": [
+        ["display diagonal", "diagonal", null],
+        ["display resolution", "resolution", null],
+        ["width (with stand)", "width", "with-stand"],
+        ["height (with stand)", "height", "with-stand"],
+        ["depth (with stand)", "depth", "with-stand"],
+        ["width (without stand)", "width", "without-stand"],
+        ["height (without stand)", "height", "without-stand"],
+        ["depth (without stand)", "depth", "without-stand"],
+        ["power consumption (typical)", "on_mode_power", "typical"],
+        ["energy efficiency class (sdr)", "energy_class", "sdr"],
+        ["energy efficiency class (hdr)", "energy_class", "hdr"],
+        ["power consumption (sdr) per 1000 hours", "energy_consumption_1000h", "sdr"],
+        ["power consumption (hdr) per 1000 hours", "energy_consumption_1000h", "hdr"]
+      ],
+      "unit_signs": {"\"": "in", "inch": "in", "cm": "cm", "mm": "mm", "w": "W", "kwh": "kWh"}
+    }
+  }
+}

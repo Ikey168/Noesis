@@ -130,5 +130,38 @@
       "scrape registers whose terms or access forbid it"
     ]
   },
-  "content_hash": "sha256:37e635313e7bfe0ddc48996df1d2e2eb9eecc20168b5a0e08ec0979ffd209650"
+  "content_hash": "sha256:b9e13d185206e77a2000699fb9b3eeb0e33ca20ca57232e6fc2f9b4c71b983f5",
+  "optional_features": [
+    {
+      "id": "bafin-voting-rights",
+      "default": false,
+      "description": "Voting-rights notifications from the Market bafin-notices feature as voting_rights control assertions, as stated by the notifier: one assertion per chain member and stated WpHG basis, citing the notice revision; corrections revise the assertion (earlier statements stay in history), and holders are keyed only through reviewed identity matches. Never combined into a computed ultimate owner beyond the graph's existing rules.",
+      "requires": [
+        {
+          "capability": "market.bafin-notices",
+          "contract": "noesis-bafin-notice",
+          "range": "^1.0.0",
+          "reason": "the projected notifications are market.bafin notice revisions"
+        },
+        {
+          "capability": "ownership.records",
+          "contract": "noesis-ownership-record",
+          "range": "^1.0.0",
+          "reason": "assertions are written through the one ownership record owner"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "notifiers and chain members become keyed holders only through reviewed matches"
+        },
+        {
+          "capability": "ownership.graph",
+          "contract": "noesis-ownership-graph",
+          "range": "^1.0.0",
+          "reason": "the assertions answer ownership-graph queries beside register-sourced ownership"
+        }
+      ]
+    }
+  ]
 }

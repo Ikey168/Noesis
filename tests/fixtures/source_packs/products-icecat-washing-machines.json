@@ -1,0 +1,281 @@
+{
+ "authored": true,
+ "note": "Authored envelopes in the documented provider shape for fictional brands; not provider captures. Field names are unverified until a dated live run (PX12, #2104).",
+ "license": "fixture authored for Noesis tests",
+ "provider": "Open Icecat JSON API",
+ "native_pages": [
+  {
+   "selector": {
+    "brand": "Hausmark",
+    "product_code": "WM-8E14",
+    "label": "8 kg (matched)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "91000001",
+      "Brand": "Hausmark",
+      "BrandPartCode": "WM-8E14",
+      "Title": "Hausmark AquaLine 8 kg front loader",
+      "Category": {
+       "CategoryID": "91001",
+       "Name": {
+        "Value": "Washing machines"
+       }
+      },
+      "GTIN": [
+       "4099990000011"
+      ],
+      "ProductDataUpdated": "2026-04-10 08:00:00",
+      "ReleaseDate": "2025-09-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Washing capacity"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kg"
+           }
+          }
+         },
+         "Value": "8"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Energy efficiency class"
+          }
+         },
+         "Value": "A"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Energy consumption per 100 cycles (washing)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "49"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Water consumption per cycle"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "l"
+           }
+          }
+         },
+         "Value": "48"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Maximum spin speed"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "RPM"
+           }
+          }
+         },
+         "Value": "1400"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Noise level (spinning)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "dB"
+           }
+          }
+         },
+         "Value": "72"
+        },
+        {
+         "Feature": {
+          "ID": 7,
+          "Name": {
+           "Value": "Drum volume"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "l"
+           }
+          }
+         },
+         "Value": "55"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_91000001_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 51200,
+       "Updated": "2026-04-10 08:00:00"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "selector": {
+    "brand": "Hausmark",
+    "product_code": "WM-9E16",
+    "label": "9 kg (per-cycle energy)"
+   },
+   "status": 200,
+   "body": {
+    "msg": "OK",
+    "data": {
+     "GeneralInfo": {
+      "IcecatId": "91000002",
+      "Brand": "Hausmark",
+      "BrandPartCode": "WM-9E16",
+      "Title": "Hausmark AquaLine 9 kg front loader",
+      "Category": {
+       "CategoryID": "91001",
+       "Name": {
+        "Value": "Washing machines"
+       }
+      },
+      "GTIN": [
+       "4099990000028"
+      ],
+      "ProductDataUpdated": "2026-04-11 08:00:00",
+      "ReleaseDate": "2025-09-01"
+     },
+     "FeaturesGroups": [
+      {
+       "FeatureGroup": {
+        "ID": 1
+       },
+       "Features": [
+        {
+         "Feature": {
+          "ID": 1,
+          "Name": {
+           "Value": "Washing capacity"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kg"
+           }
+          }
+         },
+         "Value": "9"
+        },
+        {
+         "Feature": {
+          "ID": 2,
+          "Name": {
+           "Value": "Energy efficiency class"
+          }
+         },
+         "Value": "A"
+        },
+        {
+         "Feature": {
+          "ID": 3,
+          "Name": {
+           "Value": "Energy consumption per cycle (washing)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "kWh"
+           }
+          }
+         },
+         "Value": "0.54"
+        },
+        {
+         "Feature": {
+          "ID": 4,
+          "Name": {
+           "Value": "Maximum spin speed"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "rpm"
+           }
+          }
+         },
+         "Value": "1600"
+        },
+        {
+         "Feature": {
+          "ID": 5,
+          "Name": {
+           "Value": "Noise level (spinning)"
+          },
+          "Measure": {
+           "Signs": {
+            "_": "dB"
+           }
+          }
+         },
+         "Value": "74"
+        },
+        {
+         "Feature": {
+          "ID": 6,
+          "Name": {
+           "Value": "Noise level class (spinning)"
+          }
+         },
+         "Value": "B"
+        }
+       ]
+      }
+     ],
+     "Multimedia": [
+      {
+       "URL": "https://objects.icecat.biz/objects/mmo_91000002_leaflet.pdf",
+       "ContentType": "application/pdf",
+       "Type": "leaflet",
+       "Description": "Product data sheet",
+       "Language": "EN",
+       "Size": 51200,
+       "Updated": "2026-04-11 08:00:00"
+      }
+     ]
+    }
+   }
+  }
+ ],
+ "scenarios": [
+  "matched-models",
+  "per-cycle-energy-exact-conversion",
+  "unmapped-feature-kept",
+  "unknown-label-scheme"
+ ]
+}

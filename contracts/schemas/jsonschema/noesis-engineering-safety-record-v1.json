@@ -1,0 +1,43 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-engineering-safety-record-v1",
+  "title": "Engineering-safety record statement: what one authority published about one native identifier",
+  "description": "Directive, investigation, safety-recommendation, occurrence, defect-investigation and complaint statements. Every verbatim statement, applicability clause, relation and response carries a locator; native identifiers are never rewritten; absent values are omitted. No verdict, risk score, ranking, compliance determination or inferred cause exists in the contract.",
+  "type": "object",
+  "required": ["contract", "provider", "record_kind", "native_id", "authority"],
+  "additionalProperties": true,
+  "not": {"anyOf": [
+    {"required": ["verdict"]}, {"required": ["safe"]}, {"required": ["risk_score"]}, {"required": ["ranking"]},
+    {"required": ["compliant"]}, {"required": ["airworthy"]}, {"required": ["cause_inferred"]}
+  ]},
+  "properties": {
+    "contract": {"const": "noesis-engineering-safety-record-v1"},
+    "provider": {"enum": ["faa-ad", "easa-ad", "ntsb", "phmsa", "csb", "nhtsa-odi", "nhtsa-complaints", "bfu", "bea"]},
+    "record_kind": {"enum": ["directive", "investigation", "safety_recommendation", "occurrence", "defect_investigation", "complaint"]},
+    "native_id": {"type": "string", "minLength": 1},
+    "identifiers": {"type": "object"},
+    "authority": {"type": "object", "required": ["code", "declared"], "properties": {"code": {"type": "string"}, "declared": {"type": "string"}}},
+    "access": {"enum": ["acquired", "link-only"]},
+    "revision_label": {"type": "string"},
+    "revision_date": {"type": "string", "format": "date"},
+    "revision_date_basis": {"enum": ["publication", "issue", "report", "status", "file-vintage", "declared-entry"]},
+    "report_status": {"enum": ["preliminary", "final"]},
+    "effective_date": {"type": "string", "format": "date"},
+    "title": {"type": "string"},
+    "language": {"type": "string"},
+    "url": {"type": "string"},
+    "applicability": {"type": "array", "items": {"type": "object", "required": ["text", "parse_state", "locator"],
+      "properties": {"text": {"type": "string"}, "parse_state": {"enum": ["parsed", "unparsed"]}, "parsed": {"type": "object"}, "locator": {"type": "object"}}}},
+    "statements": {"type": "array", "items": {"type": "object", "required": ["kind", "text", "locator"],
+      "properties": {"kind": {"enum": ["required_action", "compliance_time", "unsafe_condition", "subject_code", "finding", "probable_cause", "root_cause", "summary", "recommendation_text", "cause_category", "incorporated_material", "other"]},
+        "label": {"type": "string"}, "text": {"type": "string"}, "language": {"type": "string"}, "locator": {"type": "object"}}}},
+    "relations": {"type": "array", "items": {"type": "object", "required": ["relation", "target_provider", "target_native_id", "locator"],
+      "properties": {"relation": {"enum": ["supersedes", "revises", "cross_reference", "upgraded_from", "upgraded_to", "issued_recommendation", "recommendation_of", "cites_recall"]}}}},
+    "subjects": {"type": "array", "items": {"type": "object", "required": ["kind", "source_string"],
+      "properties": {"kind": {"enum": ["aircraft_model", "aircraft", "engine_model", "vehicle", "component", "pipeline_operator", "facility", "organisation"]}, "fields": {"type": "object"}, "source_string": {"type": "string"}, "role": {"type": "string"}, "locator": {"type": "object"}}}},
+    "occurrence": {"type": "object", "properties": {"occurred_on": {"type": "string", "format": "date"}, "place": {"type": "string"}, "latitude": {"type": "number"}, "longitude": {"type": "number"}, "severity": {"type": "string"}, "consequences": {"type": "object"}, "locator": {"type": "object"}}},
+    "responses": {"type": "array", "items": {"type": "object", "required": ["status"],
+      "properties": {"status": {"type": "string"}, "status_date": {"type": "string", "format": "date"}, "addressee": {"type": "string"}, "locator": {"type": "object"}}}},
+    "quantities": {"type": "array", "items": {"type": "object", "required": ["name", "value"], "properties": {"name": {"type": "string"}, "value": {"type": "string"}, "unit": {"type": "string"}, "locator": {"type": "object"}}}}
+  }
+}

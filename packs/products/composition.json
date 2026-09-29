@@ -16,6 +16,22 @@
           "name": "noesis-product-safety-notice",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "products.categories",
+        "provider": "products.appliances",
+        "contract": {
+          "name": "noesis-product-category",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "products.components",
+        "provider": "products.components",
+        "contract": {
+          "name": "noesis-product-component",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -26,12 +42,20 @@
       {
         "id": "products.safety",
         "version": "1.0.0"
+      },
+      {
+        "id": "products.appliances",
+        "version": "1.0.0"
+      },
+      {
+        "id": "products.components",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "products-displays",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "range": "^1.0.0"
       }
     ]
@@ -97,6 +121,68 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "Safety Gate, CPSC, NHTSA and RASFF sources run through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "appliances",
+      "default": false,
+      "description": "Household appliances beyond displays: EPREL washing machines and refrigerating appliances and the overlapping Open Icecat categories, with attributes, units, modes and label schemes per category from the category registry, category-aware match proposals and comparisons (never across categories) and page-addressable citations of the linked product information sheets and datasheets. No prices, ratings or buying recommendations.",
+      "requires": [
+        {
+          "capability": "products.categories",
+          "contract": "noesis-product-category",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "products.identities",
+          "contract": "noesis-product-record",
+          "range": "^1.0.0",
+          "reason": "appliance records are Products identities, revisions and assertions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the EPREL and Icecat group sources run through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "components",
+      "default": false,
+      "description": "Electronic components (multilayer ceramic capacitors; chip resistors defined in the registry) from manufacturer and supplier BMEcat catalogues whose terms permit reuse: identity by normalised manufacturer and MPN as published, distributor SKUs as provider-scoped aliases, parametric values with tolerances, lifecycle status only as its source published it with the date, reviewable manufacturer links and link-only Octopart and DigiKey records. No cross-reference or replacement suggestions, prices, stock or availability.",
+      "requires": [
+        {
+          "capability": "products.components",
+          "contract": "noesis-product-component",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "products.categories",
+          "contract": "noesis-product-category",
+          "range": "^1.0.0",
+          "reason": "component categories, units, tolerances and matching rules come from the category registry"
+        },
+        {
+          "capability": "products.identities",
+          "contract": "noesis-product-record",
+          "range": "^1.0.0",
+          "reason": "component records are Products identities, revisions and assertions"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "manufacturer names link to canonical entities through identity decisions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "BMEcat catalogue sources run through the source-pack runtime"
         }
       ]
     }

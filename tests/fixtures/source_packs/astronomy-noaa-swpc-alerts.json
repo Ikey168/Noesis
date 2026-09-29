@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "noaa-swpc",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/products/alerts.json",
+      "status": 200,
+      "body": "[\n {\n  \"product_id\": \"K05W\",\n  \"issue_datetime\": \"2099-09-01 12:00:00.000\",\n  \"message\": \"Space Weather Message Code: WARK05\\r\\nSerial Number: 9002\\r\\nIssue Time: 2099 Sep 01 1200 UTC\\r\\n\\r\\nWARNING: Geomagnetic K-index of 5 expected\\r\\nValid From: 2099 Sep 01 1200 UTC\\r\\nValid To: 2099 Sep 01 1800 UTC\\r\\nWarning Condition: Onset\\r\\nNOAA Scale: G1 - Minor\\r\\n\\r\\nNOAA Space Weather Scale descriptions can be found at\\r\\nwww.swpc.noaa.gov/noaa-scales-explanation\\r\\n\\r\\nFictional authored message for tests.\"\n },\n {\n  \"product_id\": \"A20F\",\n  \"issue_datetime\": \"2099-09-01 00:30:00.000\",\n  \"message\": \"Space Weather Message Code: WATA20\\r\\nSerial Number: 9001\\r\\nIssue Time: 2099 Sep 01 0030 UTC\\r\\n\\r\\nWATCH: Geomagnetic Storm Category G2 Predicted\\r\\nHighest Storm Level Predicted by Day:\\r\\nSep 01:  G2 (Moderate)   Sep 02:  G1 (Minor)\\r\\nNOAA Scale: G2 - Moderate\\r\\n\\r\\nNOAA Space Weather Scale descriptions can be found at\\r\\nwww.swpc.noaa.gov/noaa-scales-explanation\\r\\n\\r\\nFictional authored message for tests.\"\n }\n]",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

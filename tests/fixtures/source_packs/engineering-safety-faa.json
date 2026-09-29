@@ -1,0 +1,166 @@
+{
+  "captured": false,
+  "provider": "faa-ad",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/api/v1/documents/2025-11871.json",
+      "status": 200,
+      "body": {
+        "document_number": "2025-11871",
+        "title": "Airworthiness Directives; Examplar Aircraft Company Airplanes",
+        "type": "Rule",
+        "publication_date": "2025-06-30",
+        "effective_on": "2025-07-15",
+        "agencies": [
+          {
+            "name": "Transportation Department",
+            "slug": "transportation-department"
+          },
+          {
+            "name": "Federal Aviation Administration",
+            "slug": "federal-aviation-administration"
+          }
+        ],
+        "cfr_references": [
+          {
+            "title": 14,
+            "part": 39
+          }
+        ],
+        "html_url": "https://www.federalregister.gov/documents/2025/06/30/2025-11871/airworthiness-directives",
+        "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2025/06/30/2025-11871.txt"
+      }
+    },
+    {
+      "request": "/documents/full_text/text/2025/06/30/2025-11871.txt",
+      "status": 200,
+      "body": "[Federal Register Volume 91 (fictional fixture), June 30, 2025]\n[Rules and Regulations]\n\nDEPARTMENT OF TRANSPORTATION\n\nFederal Aviation Administration\n\n14 CFR Part 39\n\n[Docket No. FAA-2025-0456; Project Identifier AD-2025-00311-A; Amendment 39-23011; AD 2025-12-05]\n\nRIN 2120-AA64\n\nAirworthiness Directives; Examplar Aircraft Company Airplanes\n\nAGENCY: Federal Aviation Administration (FAA), DOT.\n\nACTION: Final rule.\n\nSUMMARY: The FAA is adopting a new airworthiness directive (AD) for certain Examplar Aircraft Company airplanes.\n\nThe Amendment\n\nAccordingly, under the authority delegated to me by the Administrator, the FAA amends 14 CFR part 39 as follows:\n\nPART 39--AIRWORTHINESS DIRECTIVES\n\n1. The authority citation for part 39 continues to read as follows:\n\n    Authority: 49 U.S.C. 106(g), 40113, 44701.\n\n§ 39.13 [Amended]\n\n2. The FAA amends § 39.13 by adding the following new airworthiness directive:\n\n2025-12-05 Examplar Aircraft Company: Amendment 39-23011; Docket No. FAA-2025-0456; Project Identifier AD-2025-00311-A.\n\n(a) Effective Date\n\nThis airworthiness directive (AD) is effective July 15, 2025.\n\n(b) Affected ADs\n\nNone.\n\n(c) Applicability\n\nThis AD applies to Examplar Aircraft Company Models EX-100 and EX-100A airplanes, certificated in any category, serial numbers 1001 through 1250 inclusive.\n\n(d) Subject\n\nJoint Aircraft System Component (JASC) Code 3230, Landing Gear Retraction.\n\n(e) Unsafe Condition\n\nThis AD was prompted by reports of cracked main landing gear actuator rod ends. The FAA is issuing this AD to detect and correct cracking of the actuator rod end, which could result in collapse of the main landing gear.\n\n(f) Compliance\n\nComply with this AD within the compliance times specified, unless already done.\n\n(g) Required Actions\n\n(1) Within 200 hours time-in-service after the effective date of this AD, inspect each main landing gear actuator rod end in accordance with Examplar Service Bulletin EX100-32-0045, Revision 1.\n(i) If any crack is found, before further flight, replace the rod end.\n\n(h) Alternative Methods of Compliance (AMOCs)\n\nThe Manager, Wichita ACO Branch, FAA, has the authority to approve AMOCs for this AD, if requested using the procedures found in 14 CFR 39.19.\n\n(i) Related Information\n\nFor more information about this AD, contact the Wichita ACO Branch.\n\n(j) Material Incorporated by Reference\n\n(1) Examplar Service Bulletin EX100-32-0045, Revision 1, dated March 3, 2025.\n\nIssued on June 24, 2025.\nJane Q. Example,\nDeputy Director, Compliance & Airworthiness Division, Aircraft Certification Service.\n[FR Doc. 2025-11871 Filed; 8:45 am]\n"
+    },
+    {
+      "request": "/api/v1/documents/2026-04512.json",
+      "status": 200,
+      "body": {
+        "document_number": "2026-04512",
+        "title": "Airworthiness Directives; Examplar Aircraft Company Airplanes",
+        "type": "Rule",
+        "publication_date": "2026-03-04",
+        "effective_on": "2026-04-08",
+        "agencies": [
+          {
+            "name": "Transportation Department",
+            "slug": "transportation-department"
+          },
+          {
+            "name": "Federal Aviation Administration",
+            "slug": "federal-aviation-administration"
+          }
+        ],
+        "cfr_references": [
+          {
+            "title": 14,
+            "part": 39
+          }
+        ],
+        "html_url": "https://www.federalregister.gov/documents/2026/03/04/2026-04512/airworthiness-directives",
+        "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/03/04/2026-04512.txt"
+      }
+    },
+    {
+      "request": "/documents/full_text/text/2026/03/04/2026-04512.txt",
+      "status": 200,
+      "body": "[Federal Register Volume 91 (fictional fixture), March 4, 2026]\n[Rules and Regulations]\n\nDEPARTMENT OF TRANSPORTATION\n\nFederal Aviation Administration\n\n14 CFR Part 39\n\n[Docket No. FAA-2026-0123; Project Identifier AD-2025-00987-A; Amendment 39-23456; AD 2026-04-12]\n\nRIN 2120-AA64\n\nAirworthiness Directives; Examplar Aircraft Company Airplanes\n\nAGENCY: Federal Aviation Administration (FAA), DOT.\n\nACTION: Final rule.\n\nSUMMARY: The FAA is adopting a new airworthiness directive (AD) for certain Examplar Aircraft Company airplanes.\n\nThe Amendment\n\nAccordingly, under the authority delegated to me by the Administrator, the FAA amends 14 CFR part 39 as follows:\n\nPART 39--AIRWORTHINESS DIRECTIVES\n\n1. The authority citation for part 39 continues to read as follows:\n\n    Authority: 49 U.S.C. 106(g), 40113, 44701.\n\n§ 39.13 [Amended]\n\n2. The FAA amends § 39.13 by adding the following new airworthiness directive:\n\n2026-04-12 Examplar Aircraft Company: Amendment 39-23456; Docket No. FAA-2026-0123; Project Identifier AD-2025-00987-A.\n\n(a) Effective Date\n\nThis airworthiness directive (AD) is effective April 8, 2026.\n\n(b) Affected ADs\n\nThis AD replaces AD 2025-12-05, Amendment 39-23011 (90 FR 27511, June 30, 2025).\n\n(c) Applicability\n\nThis AD applies to Examplar Aircraft Company Models EX-100 and EX-100A airplanes, certificated in any category, serial numbers 1001 through 1400 inclusive.\n\n(d) Subject\n\nJoint Aircraft System Component (JASC) Code 3230, Landing Gear Retraction.\n\n(e) Unsafe Condition\n\nThis AD was prompted by reports of cracked main landing gear actuator rod ends. The FAA is issuing this AD to detect and correct cracking of the actuator rod end, which could result in collapse of the main landing gear.\n\n(f) Compliance\n\nComply with this AD within the compliance times specified, unless already done.\n\n(g) Required Actions\n\n(1) Within 100 hours time-in-service after the effective date of this AD, inspect each main landing gear actuator rod end in accordance with Examplar Service Bulletin EX100-32-0045, Revision 2.\n(i) If any crack is found, before further flight, replace the rod end.\n(ii) Repeat the inspection at intervals not to exceed 500 hours time-in-service.\n(2) The inspection method must meet SAE ARP5089 as referenced in the service bulletin.\n\n(h) Alternative Methods of Compliance (AMOCs)\n\nThe Manager, Wichita ACO Branch, FAA, has the authority to approve AMOCs for this AD, if requested using the procedures found in 14 CFR 39.19.\n\n(i) Related Information\n\nFor more information about this AD, contact the Wichita ACO Branch. NTSB Safety Recommendation A-26-015 addresses the same actuator.\n\n(j) Material Incorporated by Reference\n\n(1) Examplar Service Bulletin EX100-32-0045, Revision 2, dated January 12, 2026.\n\nIssued on February 26, 2026.\nJane Q. Example,\nDeputy Director, Compliance & Airworthiness Division, Aircraft Certification Service.\n[FR Doc. 2026-04512 Filed; 8:45 am]\n"
+    },
+    {
+      "request": "/api/v1/documents/2026-05120.json",
+      "status": 200,
+      "body": {
+        "document_number": "2026-05120",
+        "title": "Airworthiness Directives; Examplar Aircraft Company Airplanes; Correction",
+        "type": "Rule",
+        "publication_date": "2026-03-20",
+        "effective_on": "2026-04-08",
+        "agencies": [
+          {
+            "name": "Transportation Department",
+            "slug": "transportation-department"
+          },
+          {
+            "name": "Federal Aviation Administration",
+            "slug": "federal-aviation-administration"
+          }
+        ],
+        "cfr_references": [
+          {
+            "title": 14,
+            "part": 39
+          }
+        ],
+        "html_url": "https://www.federalregister.gov/documents/2026/03/20/2026-05120/airworthiness-directives",
+        "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/03/20/2026-05120.txt"
+      }
+    },
+    {
+      "request": "/documents/full_text/text/2026/03/20/2026-05120.txt",
+      "status": 200,
+      "body": "[Federal Register Volume 91 (fictional fixture), March 4, 2026]\n[Rules and Regulations]\n\nDEPARTMENT OF TRANSPORTATION\n\nFederal Aviation Administration\n\n14 CFR Part 39\n\n[Docket No. FAA-2026-0123; Project Identifier AD-2025-00987-A; Amendment 39-23456; AD 2026-04-12]\n\nRIN 2120-AA64\n\nAirworthiness Directives; Examplar Aircraft Company Airplanes; Correction\n\nAGENCY: Federal Aviation Administration (FAA), DOT.\n\nACTION: Final rule.\n\nSUMMARY: The FAA is adopting a new airworthiness directive (AD) for certain Examplar Aircraft Company airplanes.\n\nThe Amendment\n\nAccordingly, under the authority delegated to me by the Administrator, the FAA amends 14 CFR part 39 as follows:\n\nPART 39--AIRWORTHINESS DIRECTIVES\n\n1. The authority citation for part 39 continues to read as follows:\n\n    Authority: 49 U.S.C. 106(g), 40113, 44701.\n\n§ 39.13 [Amended]\n\n2. The FAA amends § 39.13 by adding the following new airworthiness directive:\n\n2026-04-12 Examplar Aircraft Company: Amendment 39-23456; Docket No. FAA-2026-0123; Project Identifier AD-2025-00987-A.\n\n(a) Effective Date\n\nThis airworthiness directive (AD) is effective April 8, 2026.\n\n(b) Affected ADs\n\nThis AD replaces AD 2025-12-05, Amendment 39-23011 (90 FR 27511, June 30, 2025).\n\n(c) Applicability\n\nThis AD applies to Examplar Aircraft Company Models EX-100 and EX-100A airplanes, certificated in any category, serial numbers 1001 through 1400 inclusive.\n\n(d) Subject\n\nJoint Aircraft System Component (JASC) Code 3230, Landing Gear Retraction.\n\n(e) Unsafe Condition\n\nThis AD was prompted by reports of cracked main landing gear actuator rod ends. The FAA is issuing this AD to detect and correct cracking of the actuator rod end, which could result in collapse of the main landing gear.\n\n(f) Compliance\n\nComply with this AD within the compliance times specified, unless already done.\n\n(g) Required Actions\n\n(1) Within 50 hours time-in-service after the effective date of this AD, inspect each main landing gear actuator rod end in accordance with Examplar Service Bulletin EX100-32-0045, Revision 2.\n(i) If any crack is found, before further flight, replace the rod end.\n(ii) Repeat the inspection at intervals not to exceed 500 hours time-in-service.\n(2) The inspection method must meet SAE ARP5089 as referenced in the service bulletin.\n\n(h) Alternative Methods of Compliance (AMOCs)\n\nThe Manager, Wichita ACO Branch, FAA, has the authority to approve AMOCs for this AD, if requested using the procedures found in 14 CFR 39.19.\n\n(i) Related Information\n\nFor more information about this AD, contact the Wichita ACO Branch. NTSB Safety Recommendation A-26-015 addresses the same actuator.\n\n(j) Material Incorporated by Reference\n\n(1) Examplar Service Bulletin EX100-32-0045, Revision 2, dated January 12, 2026.\n\nIssued on February 26, 2026.\nJane Q. Example,\nDeputy Director, Compliance & Airworthiness Division, Aircraft Certification Service.\n[FR Doc. 2026-04512 Filed; 8:45 am]\n"
+    },
+    {
+      "request": "/api/v1/documents/2026-07733.json",
+      "status": 200,
+      "body": {
+        "document_number": "2026-07733",
+        "title": "Airworthiness Directives; Examplar Aircraft Company Airplanes",
+        "type": "Rule",
+        "publication_date": "2026-04-20",
+        "effective_on": "2026-05-25",
+        "agencies": [
+          {
+            "name": "Transportation Department",
+            "slug": "transportation-department"
+          },
+          {
+            "name": "Federal Aviation Administration",
+            "slug": "federal-aviation-administration"
+          }
+        ],
+        "cfr_references": [
+          {
+            "title": 14,
+            "part": 39
+          }
+        ],
+        "html_url": "https://www.federalregister.gov/documents/2026/04/20/2026-07733/airworthiness-directives",
+        "raw_text_url": "https://www.federalregister.gov/documents/full_text/text/2026/04/20/2026-07733.txt"
+      }
+    },
+    {
+      "request": "/documents/full_text/text/2026/04/20/2026-07733.txt",
+      "status": 200,
+      "body": "[Federal Register Volume 91 (fictional fixture), April 20, 2026]\n[Rules and Regulations]\n\nDEPARTMENT OF TRANSPORTATION\n\nFederal Aviation Administration\n\n14 CFR Part 39\n\n[Docket No. FAA-2026-0311; Project Identifier AD-2026-00102-A; Amendment 39-23501; AD 2026-08-02]\n\nRIN 2120-AA64\n\nAirworthiness Directives; Examplar Aircraft Company Airplanes\n\nAGENCY: Federal Aviation Administration (FAA), DOT.\n\nACTION: Final rule.\n\nSUMMARY: The FAA is adopting a new airworthiness directive (AD) for certain Examplar Aircraft Company airplanes.\n\nThe Amendment\n\nAccordingly, under the authority delegated to me by the Administrator, the FAA amends 14 CFR part 39 as follows:\n\nPART 39--AIRWORTHINESS DIRECTIVES\n\n1. The authority citation for part 39 continues to read as follows:\n\n    Authority: 49 U.S.C. 106(g), 40113, 44701.\n\n§ 39.13 [Amended]\n\n2. The FAA amends § 39.13 by adding the following new airworthiness directive:\n\n2026-08-02 Examplar Aircraft Company: Amendment 39-23501; Docket No. FAA-2026-0311; Project Identifier AD-2026-00102-A.\n\n(a) Effective Date\n\nThis airworthiness directive (AD) is effective May 25, 2026.\n\n(b) Affected ADs\n\nNone.\n\n(c) Applicability\n\nThis AD applies to the following Examplar Aircraft Company airplanes, certificated in any category:\n(1) Model EX-100 airplanes, serial numbers 1001 through 1100 inclusive.\n(2) Model EX-200 airplanes, all serial numbers.\n\n(d) Subject\n\nJoint Aircraft System Component (JASC) Code 3230, Landing Gear Retraction.\n\n(e) Unsafe Condition\n\nThis AD was prompted by a report of chafed wiring near the nose landing gear bay.\n\n(f) Compliance\n\nComply with this AD within the compliance times specified, unless already done.\n\n(g) Required Actions\n\n(1) Within 300 hours time-in-service, inspect the nose landing gear bay wiring harness in accordance with Examplar Service Bulletin EX-24-0012.\n\n(h) Alternative Methods of Compliance (AMOCs)\n\nThe Manager, Wichita ACO Branch, FAA, has the authority to approve AMOCs for this AD, if requested using the procedures found in 14 CFR 39.19.\n\n(i) Related Information\n\nFor more information about this AD, contact the Wichita ACO Branch.\n\n(j) Material Incorporated by Reference\n\n(1) Examplar Service Bulletin EX-24-0012, dated February 2, 2026.\n\nIssued on April 14, 2026.\nJane Q. Example,\nDeputy Director, Compliance & Airworthiness Division, Aircraft Certification Service.\n[FR Doc. 2026-07733 Filed; 8:45 am]\n"
+    },
+    {
+      "request": "/api/v1/documents/2026-06001.json",
+      "status": 200,
+      "body": {
+        "document_number": "2026-06001",
+        "title": "Special Conditions: Examplar EX-300; Electronic Flight Controls",
+        "type": "Rule",
+        "publication_date": "2026-04-02",
+        "agencies": [
+          {
+            "name": "Federal Aviation Administration",
+            "slug": "federal-aviation-administration"
+          }
+        ]
+      }
+    }
+  ],
+  "scenarios": [
+    "supersession-chain",
+    "correction-revision",
+    "unparsed-applicability",
+    "out-of-scope-document",
+    "plain-paragraph-headings"
+  ]
+}

@@ -1,0 +1,85 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "sports.forecasts",
+  "version": "1.0.0",
+  "description": "Structured sports rules for user forecasts in the existing binary forecast ledger (src.kb.forecasts), resolved only against official, corrected or forfeit_awarded results; no forecast, odds or tip is produced.",
+  "implementation": {
+    "name": "src.kb.sports_forecasts",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "sports.forecast-rules",
+      "contract": {
+        "name": "noesis-sports-forecast-rule",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "register-forecast",
+        "score-forecasts"
+      ],
+      "semantic_constraints": {
+        "resolution": "official-class revisions only; provisional results never resolve; postponed, cancelled or annulled matches stay unresolved; corrections after resolution are reviewable re-resolutions",
+        "ledger": "no second forecast store: forecasts, revisions, outcomes and scores live in src.kb.forecasts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "register-forecast",
+      "tool": "noesis-knowledge-engine.register_sports_forecast",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:forecasts:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "score-forecasts",
+      "tool": "noesis-knowledge-engine.score_sports_forecasts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read",
+        "knowledge:forecasts:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "sports-forecast-rule",
+      "store": "src.kb.sports_forecasts",
+      "tables": [
+        "sports_forecast_rules"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "sports_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "sports-records",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

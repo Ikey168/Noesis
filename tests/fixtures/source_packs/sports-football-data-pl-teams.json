@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"count\": 4,\n \"competition\": {\n  \"id\": 9900,\n  \"name\": \"Premier League\",\n  \"code\": \"PL\",\n  \"type\": \"LEAGUE\",\n  \"emblem\": \"https://crests.example.org/exl.png\"\n },\n \"season\": {\n  \"id\": 99,\n  \"startDate\": \"2099-08-01\",\n  \"endDate\": \"2100-05-20\",\n  \"currentMatchday\": 3,\n  \"winner\": null\n },\n \"teams\": [\n  {\n   \"id\": 9001,\n   \"name\": \"Northbridge Rovers\",\n   \"shortName\": \"Rovers\",\n   \"tla\": \"NBR\",\n   \"crest\": \"https://crests.example.org/9001.png\",\n   \"address\": \"1 Harbour Road\",\n   \"website\": \"https://rovers.example.org\",\n   \"founded\": 1888,\n   \"clubColors\": \"Blue / White\",\n   \"venue\": \"Harbour Park\",\n   \"area\": {\n    \"id\": 2999,\n    \"name\": \"Exampleland\"\n   },\n   \"coach\": {\n    \"id\": 1,\n    \"name\": \"Carl Coach\",\n    \"dateOfBirth\": \"2050-01-01\",\n    \"nationality\": \"Exampleland\"\n   },\n   \"squad\": [\n    {\n     \"id\": 50001,\n     \"name\": \"Jan Example\",\n     \"position\": \"Midfield\",\n     \"dateOfBirth\": \"2075-04-12\",\n     \"nationality\": \"Exampleland\"\n    },\n    {\n     \"id\": 50002,\n     \"name\": \"Ola Keeper\",\n     \"position\": \"Goalkeeper\",\n     \"dateOfBirth\": \"2074-02-02\",\n     \"nationality\": \"Exampleland\"\n    }\n   ]\n  },\n  {\n   \"id\": 9002,\n   \"name\": \"Eastfield Athletic\",\n   \"shortName\": \"Athletic\",\n   \"tla\": \"EFA\",\n   \"crest\": \"https://crests.example.org/9002.png\",\n   \"founded\": 1901,\n   \"venue\": \"East Ground\",\n   \"area\": {\n    \"id\": 2999,\n    \"name\": \"Exampleland\"\n   },\n   \"squad\": [\n    {\n     \"id\": 50003,\n     \"name\": \"Jan Example\",\n     \"position\": \"Defence\",\n     \"dateOfBirth\": \"2078-09-30\",\n     \"nationality\": \"Exampleland\"\n    }\n   ]\n  },\n  {\n   \"id\": 9003,\n   \"name\": \"Southport United\",\n   \"shortName\": \"United\",\n   \"tla\": \"SPU\",\n   \"crest\": \"https://crests.example.org/9003.png\",\n   \"founded\": 1920,\n   \"venue\": \"South Stadium\",\n   \"area\": {\n    \"id\": 2999,\n    \"name\": \"Exampleland\"\n   },\n   \"squad\": []\n  },\n  {\n   \"id\": 9004,\n   \"name\": \"Westvale Town\",\n   \"shortName\": \"Town\",\n   \"tla\": \"WVT\",\n   \"crest\": \"https://crests.example.org/9004.png\",\n   \"founded\": 1899,\n   \"venue\": \"Vale Road\",\n   \"area\": {\n    \"id\": 2999,\n    \"name\": \"Exampleland\"\n   },\n   \"squad\": []\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v4/competitions/PL/teams?season=2025",
+   "status": 200
+  }
+ ],
+ "note": "Authored publication in the documented provider shape; every club, player, tournament and match is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-participants"
+ ]
+}

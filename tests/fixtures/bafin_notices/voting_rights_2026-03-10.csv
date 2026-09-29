@@ -1,0 +1,5 @@
+Mitteilungs-ID;Emittent;ISIN;LEI des Emittenten;Meldepflichtiger;Art des Meldepflichtigen;Sitz;Land;Berührte Schwellen;Stimmrechte § 33 WpHG (%);Instrumente § 38 Abs. 1 Nr. 1 WpHG (%);Instrumente § 38 Abs. 1 Nr. 2 WpHG (%);Summe Instrumente § 38 WpHG (%);Summe § 39 WpHG (%);Gesamtstimmrechtsanteile letzte Mitteilung (%);Datum der Schwellenberührung;Datum der Mitteilung;Veröffentlichung gemäß § 40 WpHG;Korrektur von;Korrektur der Veröffentlichung vom;Status;Kette der Tochterunternehmen;Grund der Mitteilung
+VR-2026-0001;Musterwerke AG;DE000MSTR014;529900MUSTERWERKE005;Fiktiva Holding SE;juristische Person;Frankfurt am Main;Deutschland;5 %;5,12;0,00;-;0,00;5,12;2,80;02.03.2026;04.03.2026;05.03.2026;;;veröffentlicht;"Fiktiva Holding SE | - | - | -
+Fiktiva Beteiligungs GmbH | - | - | -
+Fiktiva Invest GmbH | 5,12 | - | 5,12";Erwerb/Veräußerung von Aktien mit Stimmrechten
+VR-2026-0002;Beispiel Maschinenbau SE;DE000BSPL026;;Fiktiva Holding SE;juristische Person;Frankfurt am Main;Deutschland;3 %;3,01;-;-;-;3,01;-;01.03.2026;;04.03.2026;;;veröffentlicht;;Erwerb/Veräußerung von Aktien mit Stimmrechten

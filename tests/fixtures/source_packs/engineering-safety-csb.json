@@ -1,0 +1,17 @@
+{
+  "captured": false,
+  "provider": "csb",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/examplar-chemical-fire/",
+      "status": 200,
+      "body": "<!doctype html><html><body>\n<h1>Examplar Chemical Company Reactor Fire</h1>\n<table class=\"investigation-details\">\n<tr><th>Accident Occurred On</th><td>03/09/2025</td></tr>\n<tr><th>Location</th><td>Harbor City, TX</td></tr>\n<tr><th>Accident Type</th><td>Fire and Explosion</td></tr>\n<tr><th>Investigation Status</th><td>The CSB's final report was released on May 20, 2026.</td></tr>\n<tr><th>Final Report Released On</th><td>05/20/2026</td></tr>\n<tr><th>Company</th><td>Examplar Chemical Company</td></tr>\n<tr><th>Facility</th><td>Examplar Harbor City Plant</td></tr>\n</table>\n<h2>Key Findings</h2>\n<ol>\n<li>The reactor's high-temperature interlock had been bypassed for maintenance and was not restored.</li>\n<li>The facility's management of change procedure did not address temporary bypasses of safety instrumented functions.</li>\n</ol>\n<p><strong>Causal Factors</strong></p>\n<ul>\n<li>Inadequate control of safety system bypasses, contrary to the good practice described in API RP 754.</li>\n</ul>\n<h2>Recommendations</h2>\n<table class=\"recommendations\">\n<tr><th>Number</th><th>Recipient</th><th>Status</th><th>Status Date</th><th>Text</th></tr>\n<tr><td>2026-02-I-TX-R1</td><td>Examplar Chemical Company</td><td>Open - Awaiting Response</td><td>05/20/2026</td><td>Implement a bypass authorization program for safety instrumented functions at the Harbor City Plant.</td></tr>\n<tr><td>2026-02-I-TX-R2</td><td>American Petroleum Institute</td><td>Open - Acceptable Response or Alternate Response</td><td>07/01/2026</td><td>Revise API RP 754 to address temporary bypasses of safety instrumented functions.</td></tr>\n</table>\n<h2>Videos</h2>\n<p>Watch the CSB safety video about this incident.</p>\n</body></html>\n"
+    }
+  ],
+  "scenarios": [
+    "paragraph-heading",
+    "section-scoping",
+    "recommendation-table"
+  ]
+}

@@ -1,0 +1,101 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "products.components",
+  "version": "1.0.0",
+  "description": "Electronic components from manufacturer and supplier BMEcat catalogues: identity by normalised manufacturer and MPN as published, distributor SKUs as provider-scoped aliases, parametric attributes with tolerances, lifecycle status only as a named source published it, reviewable manufacturer links and link-only records for Octopart and DigiKey. Records, lifecycle statuses and manufacturer links stay in the one Products store (products.core). No cross-reference, replacement, price, stock or availability.",
+  "implementation": {
+    "name": "src.kb.products",
+    "version": "1.1.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "products.components",
+      "contract": {
+        "name": "noesis-product-component",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lookup-component",
+        "review-manufacturer-link",
+        "revert-manufacturer-link"
+      ],
+      "semantic_constraints": {
+        "identity": "normalised manufacturer + MPN as published; SKUs are provider-scoped aliases, never identity",
+        "lifecycle": "stored only as a named source published it, with its date; never inferred from dates, absence or successors",
+        "sources": "implement: BMEcat catalogues whose terms permit reuse; link-only: Octopart and DigiKey (nothing fetched or cached); not implemented: Mouser and crawling",
+        "manufacturers": "names are one manufacturer when their normalised names agree or reviewed identity decisions link them to one canonical entity",
+        "exclusions": "no cross-reference or drop-in replacement suggestions, prices, stock or availability"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lookup-component",
+      "tool": "noesis-knowledge-engine.lookup_component",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifecycle",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-manufacturer-link",
+      "tool": "noesis-knowledge-engine.review_component_manufacturer_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "manufacturer key and entity id"
+      },
+      "readiness_probe": "lifecycle",
+      "required_scopes": [
+        "knowledge:products:review",
+        "knowledge:entity-history:write",
+        "knowledge:entity-history:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-manufacturer-link",
+      "tool": "noesis-knowledge-engine.revert_component_manufacturer_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "link_id"
+      },
+      "readiness_probe": "lifecycle",
+      "required_scopes": [
+        "knowledge:products:review",
+        "knowledge:entity-history:write",
+        "knowledge:entity-history:review",
+        "knowledge:entity-history:execute"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "lifecycle",
+      "kind": "table-exists",
+      "target": "product_lifecycle"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "products-displays",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

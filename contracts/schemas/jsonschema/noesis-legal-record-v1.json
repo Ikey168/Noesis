@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://noesis.local/schemas/noesis-legal-record-v1.json",
   "title": "Noesis legal record v1",
-  "description": "Runtime page record for the Legal pack: one noesis-native-regional-v1 record (CELLAR, federal court or Berlin) with its page receipt.",
+  "description": "Runtime page record for the Legal pack: one noesis-native-regional-v1 record (CELLAR, federal court, Berlin, or - schema 1.1.0, federal statutes feature - a gesetze-im-internet.de observed statute version, a rechtsinformationen.bund.de source-stated statute version or a recht.bund.de promulgation) with its page receipt.",
   "type": "object",
   "required": [
     "id",
@@ -58,7 +58,10 @@
           "enum": [
             "cellar",
             "german-courts",
-            "berlin-law"
+            "berlin-law",
+            "gesetze-im-internet",
+            "rechtsinformationen-bund",
+            "recht-bund"
           ]
         },
         "is_current_law": {
@@ -72,6 +75,44 @@
               "text",
               "locator"
             ]
+          }
+        },
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "fields": {
+          "type": "object",
+          "description": "Source fields. Federal statute versions state validity_basis (source_stated with validity_from/validity_to as the source states them, or observed with the source's Stand notes verbatim) and text_sha256; promulgations state bgbl_key, promulgation_date, entry_into_force and amendments.",
+          "properties": {
+            "validity_basis": {
+              "enum": [
+                "source_stated",
+                "observed"
+              ]
+            },
+            "validity_from": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "validity_to": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+            },
+            "text_sha256": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "bgbl_key": {
+              "type": "string",
+              "pattern": "^bgbl-[12]/\\d{4}/(nr|s)-\\d+$"
+            }
           }
         }
       }

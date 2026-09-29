@@ -1,0 +1,63 @@
+{
+  "captured": false,
+  "provider": "nhtsa-complaints",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/complaints/complaintsByVehicle?make=VELOMARK&model=CITYRUNNER&modelYear=2025",
+      "status": 200,
+      "body": {
+        "count": 2,
+        "message": "Results returned successfully",
+        "results": [
+          {
+            "odiNumber": 11800101,
+            "manufacturer": "Velomark Mobility LLC",
+            "crash": false,
+            "fire": true,
+            "numberOfInjuries": 0,
+            "numberOfDeaths": 0,
+            "dateOfIncident": "01/03/2026",
+            "dateComplaintFiled": "01/05/2026",
+            "components": "ELECTRICAL SYSTEM",
+            "summary": "THE VEHICLE CAUGHT FIRE WHILE PARKED IN MY DRIVEWAY.",
+            "products": [
+              {
+                "type": "Vehicle",
+                "productYear": "2025",
+                "productMake": "VELOMARK",
+                "productModel": "CITYRUNNER",
+                "manufacturer": "Velomark Mobility LLC"
+              }
+            ]
+          },
+          {
+            "odiNumber": 11800188,
+            "manufacturer": "Velomark Mobility LLC",
+            "crash": false,
+            "fire": false,
+            "numberOfInjuries": 0,
+            "numberOfDeaths": 0,
+            "dateOfIncident": "02/11/2026",
+            "dateComplaintFiled": "02/12/2026",
+            "components": "ELECTRICAL SYSTEM",
+            "summary": "SMOKE FROM UNDER THE REAR SEAT AFTER CHARGING.",
+            "products": [
+              {
+                "type": "Vehicle",
+                "productYear": "2025",
+                "productMake": "VELOMARK",
+                "productModel": "CITYRUNNER",
+                "manufacturer": "Velomark Mobility LLC"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "scenarios": [
+    "count-bound",
+    "unverified-reports"
+  ]
+}

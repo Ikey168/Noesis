@@ -1,0 +1,28 @@
+{
+ "captured": false,
+ "native_pages": [
+  {
+   "body": "ID,Name,Macroarea,Latitude,Longitude,Glottocode,ISO639P3code\nnve,Northern Velan,Eurasia,61.5,24.25,nort3456,qnv\nsve,Southern Velan,Eurasia,59.75,23.5,sout7890,qsv\nels,Elsewhere,Africa,0,0,othr0001,\n",
+   "request": "/cldf-datasets/wals/v2020.3/cldf/languages.csv"
+  },
+  {
+   "body": "ID,Name\n81A,\"Order of Subject, Object and Verb\"\n87A,Order of Adjective and Noun\n1A,Consonant Inventories\n",
+   "request": "/cldf-datasets/wals/v2020.3/cldf/parameters.csv"
+  },
+  {
+   "body": "ID,Parameter_ID,Name,Number\n81A-1,81A,SOV,1\n81A-2,81A,SVO,2\n81A-7,81A,No dominant order,7\n87A-1,87A,Adjective-Noun,1\n87A-2,87A,Noun-Adjective,2\n1A-1,1A,Small,1\n",
+   "request": "/cldf-datasets/wals/v2020.3/cldf/codes.csv"
+  },
+  {
+   "body": "ID,Language_ID,Parameter_ID,Value,Code_ID,Comment,Source\n81A-nve,nve,81A,1,81A-1,,Fictiva-2019[12-14]\n81A-sve,sve,81A,2,81A-2,,Fictiva-2019[15];Imaginus-2021\n87A-nve,nve,87A,2,87A-2,,Fictiva-2019\n1A-nve,nve,1A,1,1A-1,,Fictiva-2019\n",
+   "request": "/cldf-datasets/wals/v2020.3/cldf/values.csv"
+  }
+ ],
+ "note": "Authored documents in the documented format naming a fictional language family (Veltic); synthetic identifiers only. See tests/unit/linguistics_harness.py.",
+ "provider": "wals",
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-counted",
+  "attributed-licence"
+ ]
+}

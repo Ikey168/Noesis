@@ -1,0 +1,74 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "products.appliances",
+  "version": "1.0.0",
+  "description": "The Products category registry and the appliance product groups: EPREL household washing machines and refrigerating appliances and the overlapping Open Icecat categories, with category-scoped attributes, units, modes and label schemes, category-aware matching and comparison, and page-addressable citations of provider-linked datasheets and product information sheets. Records stay in the products.core store; nothing is ranked or recommended.",
+  "implementation": {
+    "name": "src.kb.product_categories",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "products.categories",
+      "contract": {
+        "name": "noesis-product-category",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "category-registry",
+        "cite-document"
+      ],
+      "semantic_constraints": {
+        "registry": "attributes, canonical and accepted units, modes and label schemes are defined per category; a native field no mapping names stays a source field",
+        "units": "exact decimal conversions registered in the quantitative store; units are category-aware and per-cycle or per-annum energy never converts into plain energy",
+        "matching": "candidates only inside one category, from the category's identifier rule and corroborating attributes; never merged without review",
+        "comparison": "rows from the registry; a row compares only on a shared attribute, mode, unit and label scheme; mixed categories are refused",
+        "documents": "provider-linked documents only, cited by link, content hash and page"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "category-registry",
+      "tool": "noesis-knowledge-engine.product_category_registry",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identities",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "cite-document",
+      "tool": "noesis-knowledge-engine.cite_product_document",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identities",
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "identities",
+      "kind": "table-exists",
+      "target": "product_identities"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "products-displays",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

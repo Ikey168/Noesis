@@ -1,0 +1,140 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "weather",
+  "version": "1.0.0",
+  "description": "Operational weather as the national and aviation services published it: station location vintages, observation reports with quality-control flags and corrections, forecast issuance vintages (DWD MOSMIX_L, NWS gridpoint forecasts, TAF, Open-Meteo runs behind a default-off feature), CAP warnings with updates and cancellations, and verification of published forecasts against recorded observations. Composes Climate & Environment stations, Geospatial places, subscriptions and the source-pack runtime.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "station",
+      "metar",
+      "taf",
+      "warning",
+      "warncell",
+      "forecast",
+      "observation",
+      "mosmix"
+    ],
+    "sources": [
+      "dwd",
+      "deutscher wetterdienst",
+      "aviationweather",
+      "nws",
+      "open-meteo",
+      "cap"
+    ],
+    "overview": [
+      "weather",
+      "forecast as issued",
+      "warnings in force",
+      "verification"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "native-dwd-observation-acquisition",
+    "native-mosmix-and-cap-acquisition",
+    "native-metar-taf-and-nws-acquisition",
+    "station-location-vintages",
+    "forecast-issuance-vintages",
+    "cap-warning-chains",
+    "reviewable-station-identity",
+    "published-forecast-verification",
+    "per-provider-readiness"
+  ],
+  "schema_versions": {
+    "weather-record": "1.0.0",
+    "weather-station-match": "1.0.0",
+    "weather-verification": "1.0.0",
+    "weather-monitor": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-weather-record-v1",
+      "noesis-environment-record-v1"
+    ],
+    "object_types": [
+      "station_location_vintage",
+      "observation_report",
+      "forecast_issuance",
+      "forecast_element",
+      "warning",
+      "verification_pair"
+    ],
+    "relation_types": [
+      "located_at",
+      "issued_for",
+      "references",
+      "cancels",
+      "updates",
+      "same_station_as",
+      "verified_against",
+      "cites"
+    ]
+  },
+  "source_pack": "config/source_packs/weather.json",
+  "query_examples": [
+    {
+      "intent": "What was observed at a station over two days, with QC flags",
+      "tool": "weather_observations",
+      "arguments": {
+        "namespace": "weather",
+        "station": "dwd:00433",
+        "window_from": "2026-06-10T00:00:00Z",
+        "window_to": "2026-06-11T00:00:00Z",
+        "knowledge_cutoff": "2026-06-12T00:00:00Z"
+      },
+      "semantics": "current revision per report among revisions acquired by the knowledge cutoff; QC flag verbatim with its common state; the location vintage valid at each report's time; 'no report on record' when empty"
+    },
+    {
+      "intent": "The forecast for 13:00 as issued before 11:00",
+      "tool": "forecast_as_issued",
+      "arguments": {
+        "namespace": "weather",
+        "station": "dwd:00433",
+        "valid_time": "2026-06-10T13:00:00Z",
+        "issued_before": "2026-06-10T11:00:00Z"
+      },
+      "semantics": "per provider, product and model the latest published issuance at or before issued_before that covers the valid time, with lead time; never a Noesis forecast"
+    },
+    {
+      "intent": "Which warnings were in force at a point at 21:00",
+      "tool": "warnings_in_force",
+      "arguments": {
+        "namespace": "weather",
+        "point": [
+          13.4,
+          52.47
+        ],
+        "as_of": "2026-06-10T21:00:00Z"
+      },
+      "semantics": "CAP chains threaded by references, the latest message sent by as_of decides, areas by Geospatial containment; quoted as issued, no advice"
+    },
+    {
+      "intent": "How did published temperature forecasts compare with observations",
+      "tool": "verify_published_forecasts",
+      "arguments": {
+        "namespace": "weather",
+        "station": "dwd:00433",
+        "parameter": "air_temperature",
+        "period_from": "2026-06-01T00:00:00Z",
+        "period_to": "2026-06-30T23:00:00Z"
+      },
+      "semantics": "stated pairing rule and tolerance; bias, MAE, RMSE per provider, lead bucket and period with sample sizes and exclusions; no ranking (optional weather-verification feature)"
+    }
+  ],
+  "exclusions": [
+    "own forecasting, nowcasting, downscaling, ensemble blending or bias correction",
+    "safety, travel, agricultural or aviation advice",
+    "duplicated Climate & Environment record owners (stations, climate series, emissions, reanalysis)",
+    "redistribution beyond each source's terms",
+    "personal weather stations and crowdsourced data"
+  ]
+}

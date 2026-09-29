@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "gcat",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/space/gcat/tsv/cat/satcat.tsv",
+      "status": 200,
+      "body": "#JCAT\tSatcat\tLaunch_Tag\tPiece\tType\tName\tPLName\tLDate\tParent\tSDate\tPrimary\tDDate\tStatus\tDest\tOwner\tState\tManufacturer\tBus\tMotor\tMass\n# Updated 2099 May  1 (fictional authored extract)\nS99901\t99901\t2099-001\tA\tP\tFictsat 1\tFictsat 1\t2099 Mar  3\t-\t-\tEarth\t-\tO\tLEO\tFICTOPS\tUS\tFICTMFR\t-\t-\t250\nS99902\t99902\t2099-001\tB\tR2\tFictron 2 Stage 2\tFictron 2 Stage 2\t2099 Mar  3\t-\t-\tEarth\t2099 Mar 10\tR\tLEO\tFICTSPACE\tUS\tFICTMFR\t-\t-\t250\nS99903\t-\t2099-002\tA\tP\tFictsat 2\tFictsat 2\t2099 Apr 10\t-\t-\tEarth\t2099 Apr 10\tF\tLEO\tFICTOPS\tUS\tFICTMFR\t-\t-\t250\nS99904\t99904\t2099-003\tA\tP\tFictsat 3\tFictsat 3\t2099 Apr 28\t-\t-\tEarth\t-\tO\tLEO\tFICTOPS\tUS\tFICTMFR\t-\t-\t250\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

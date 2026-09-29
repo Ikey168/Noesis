@@ -319,6 +319,26 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.sanctions import SANCTIONS_WRITES
     if name in SANCTIONS_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.federal_statutes import FEDERAL_WRITES
+    if name in FEDERAL_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.bafin_notices import BAFIN_WRITES
+    if name in BAFIN_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.engineering_safety import (
+        ENGINEERING_SAFETY_WRITES,
+    )
+    if name in ENGINEERING_SAFETY_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.astronomy import ASTRONOMY_WRITES
+    if name in ASTRONOMY_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.weather import WEATHER_WRITES
+    if name in WEATHER_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.linguistics import LINGUISTICS_WRITES
+    if name in LINGUISTICS_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
     if name in VULNERABILITY_WRITES:
         return "write"
@@ -327,6 +347,9 @@ def _mutability(name: str) -> str:
         return "write"
     from tools.knowledge_engine_mcp.elections import ELECTION_WRITES
     if name in ELECTION_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.sports import SPORTS_WRITES
+    if name in SPORTS_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_WRITES
     if name in PUBLIC_FINANCE_WRITES:
@@ -341,6 +364,12 @@ def _mutability(name: str) -> str:
         DEVELOPMENT_FINANCE_WRITES,
     )
     if name in DEVELOPMENT_FINANCE_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.materials import MATERIALS_WRITES
+    if name in MATERIALS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.oss_ecosystems import OSS_WRITES
+    if name in OSS_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
@@ -895,6 +924,44 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.sanctions import required_scopes as sanctions_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:
         return sanctions_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.federal_statutes import FEDERAL_TOOLS
+    from tools.knowledge_engine_mcp.federal_statutes import (
+        required_scopes as federal_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in FEDERAL_TOOLS:
+        return federal_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.bafin_notices import BAFIN_TOOLS
+    from tools.knowledge_engine_mcp.bafin_notices import (
+        required_scopes as bafin_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in BAFIN_TOOLS:
+        return bafin_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.engineering_safety import (
+        ENGINEERING_SAFETY_TOOLS,
+    )
+    from tools.knowledge_engine_mcp.engineering_safety import (
+        required_scopes as engineering_safety_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in ENGINEERING_SAFETY_TOOLS:
+        return engineering_safety_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.astronomy import ASTRONOMY_TOOLS
+    from tools.knowledge_engine_mcp.astronomy import (
+        required_scopes as astronomy_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in ASTRONOMY_TOOLS:
+        return astronomy_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.weather import WEATHER_TOOLS
+    from tools.knowledge_engine_mcp.weather import (
+        required_scopes as weather_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in WEATHER_TOOLS:
+        return weather_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.linguistics import LINGUISTICS_TOOLS
+    from tools.knowledge_engine_mcp.linguistics import (
+        required_scopes as linguistics_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in LINGUISTICS_TOOLS:
+        return linguistics_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
     from tools.knowledge_engine_mcp.vulnerabilities import (
         required_scopes as vulnerability_scopes,
@@ -909,6 +976,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.elections import required_scopes as election_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in ELECTION_TOOLS:
         return election_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.sports import SPORTS_TOOLS
+    from tools.knowledge_engine_mcp.sports import required_scopes as sports_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in SPORTS_TOOLS:
+        return sports_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_TOOLS
     from tools.knowledge_engine_mcp.public_finance import (
         required_scopes as public_finance_scopes,
@@ -931,6 +1002,18 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in DEVELOPMENT_FINANCE_TOOLS:
         return development_finance_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.materials import MATERIALS_TOOLS
+    from tools.knowledge_engine_mcp.materials import (
+        required_scopes as materials_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in MATERIALS_TOOLS:
+        return materials_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.oss_ecosystems import OSS_TOOLS
+    from tools.knowledge_engine_mcp.oss_ecosystems import (
+        required_scopes as oss_ecosystem_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in OSS_TOOLS:
+        return oss_ecosystem_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

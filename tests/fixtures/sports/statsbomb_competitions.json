@@ -1,0 +1,14 @@
+[
+ {
+  "competition_id": 9,
+  "season_id": 99,
+  "country_name": "Exampleland",
+  "competition_name": "Example League",
+  "competition_gender": "male",
+  "competition_youth": false,
+  "competition_international": false,
+  "season_name": "2099/2100",
+  "match_updated": "2099-09-01T10:00:00",
+  "match_available": "2099-09-01T10:00:00"
+ }
+]

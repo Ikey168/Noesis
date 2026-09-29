@@ -1,0 +1,246 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "weather.observations",
+  "version": "1.0.0",
+  "description": "Operational weather records as published: station location vintages, observation reports with QC flags and corrections, forecast issuances and CAP warnings (the record owner), reviewable station identity and cited links to Climate & Environment records. Stations stay environment station records.",
+  "implementation": {
+    "name": "src.kb.weather_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "weather.observations",
+      "contract": {
+        "name": "noesis-weather-observation",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "observations",
+        "source-contracts",
+        "register-schemas",
+        "propose-station-matches",
+        "review-station-match",
+        "revert-station-match",
+        "list-station-matches",
+        "attach-evidence",
+        "review-evidence-link"
+      ],
+      "semantic_constraints": {
+        "records": "what a national or aviation service published; every distinct normalised content is an immutable revision; current follows the source's own time, then acquisition order",
+        "time": "reference, valid and acquisition times stay separate UTC instants; as-of reads use revisions acquired by the knowledge cutoff",
+        "identity": "stations link only by source-stated identifiers or reviewed matches; never merged",
+        "exclusions": "no Noesis forecast, no safety/travel/agricultural/aviation advice, no copy of Climate & Environment record owners"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "observations",
+      "tool": "noesis-knowledge-engine.weather_observations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "spatial receipt hash"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.weather_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_weather_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "propose-station-matches",
+      "tool": "noesis-knowledge-engine.propose_weather_station_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "station pair"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-station-match",
+      "tool": "noesis-knowledge-engine.review_weather_station_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate + decision"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-station-match",
+      "tool": "noesis-knowledge-engine.revert_weather_station_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate decision"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-station-matches",
+      "tool": "noesis-knowledge-engine.list_weather_station_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "attach-evidence",
+      "tool": "noesis-knowledge-engine.attach_weather_evidence",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "target + revision"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-evidence-link",
+      "tool": "noesis-knowledge-engine.review_weather_evidence_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "link + decision"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "weather-record",
+      "store": "src.kb.weather_store",
+      "tables": [
+        "weather_records",
+        "weather_revisions",
+        "weather_forecast_elements",
+        "weather_provider_state",
+        "weather_station_identifiers"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "weather-station-match",
+      "store": "src.kb.weather_identity",
+      "tables": [
+        "weather_station_candidates"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "weather-evidence-link",
+      "store": "src.kb.weather_links",
+      "tables": [
+        "weather_evidence_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "weather_revisions"
+    },
+    {
+      "id": "weather-source",
+      "kind": "source-pack-enabled",
+      "target": "weather-operational"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "weather-operational",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

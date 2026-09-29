@@ -1,0 +1,74 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "engineering-safety.investigations",
+  "version": "1.0.0",
+  "description": "Accident and incident investigations (NTSB, CSB, BFU, BEA link-only) with occurrences, verbatim findings and probable causes per report revision, and cited subject dossiers. No cause is inferred or aggregated.",
+  "implementation": {
+    "name": "src.kb.engineering_safety_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "engineering-safety.investigations",
+      "contract": {
+        "name": "noesis-engineering-safety-dossier",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-investigation",
+        "engineering-safety-dossier"
+      ],
+      "semantic_constraints": {
+        "findings": "quoted from the investigating body with locator and report status",
+        "revisions": "a final report ranks above a preliminary one; both are kept; differences side by side",
+        "subjects": "none on record is never 'safe'"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-investigation",
+      "tool": "noesis-knowledge-engine.inspect_investigation",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "engineering-safety-dossier",
+      "tool": "noesis-knowledge-engine.engineering_safety_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "es_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "engineering-safety"
+    }
+  ]
+}

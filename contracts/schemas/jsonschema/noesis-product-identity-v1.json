@@ -48,9 +48,17 @@
             "pattern": "^product-model:"
           },
           "provider": {
-            "enum": [
-              "icecat",
-              "eprel"
+            "anyOf": [
+              {
+                "enum": [
+                  "icecat",
+                  "eprel"
+                ]
+              },
+              {
+                "type": "string",
+                "pattern": "^bmecat:[a-z0-9][a-z0-9-]*$"
+              }
             ]
           },
           "brand": {

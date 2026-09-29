@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "nasa-exoplanet-archive",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/TAP/sync?query=select%20toi%2Ctid%2Ctfopwg_disp%2Crowupdate%2Cpl_orbper%2Cpl_rade%20from%20toi%20where%20tid%20in%20%28278892590%2C150428135%29&format=csv",
+      "status": 200,
+      "body": "toi,tid,tfopwg_disp,rowupdate,pl_orbper,pl_rade\n99901.01,999000101,PC,2099-01-10,4.2499,2.2\n99902.01,999000202,PC,2099-01-12,1.7800,1.1\n99998.01,999999998,PC,2099-01-12,0.9100,0.8\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

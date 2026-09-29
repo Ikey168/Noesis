@@ -39,14 +39,19 @@ from typing import Any
 from urllib.parse import quote
 
 from src.ingestion.source_packs import SourcePackError
+from src.kb import product_categories
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
 RECORD_CONTRACT = "noesis-product-record-v1"
-PRODUCT_CONNECTORS = frozenset({"icecat", "eprel"})  # display models; notice connectors: SAFETY_CONNECTORS
+# Product-record connectors (displays, appliances, components); notice connectors: SAFETY_CONNECTORS.
+PRODUCT_CONNECTORS = frozenset({"icecat", "eprel", "bmecat"})
 MAX_SELECTION = 50
 ASSERTION_KINDS = {
     "icecat": "brand-authorised-content",
     "eprel": "supplier-registration",
+    # BMEcat catalogues by publisher role (PX06): the manufacturer's own data, or a supplier's catalogue content.
+    "bmecat:manufacturer": "manufacturer-published-data",
+    "bmecat:supplier": "supplier-catalogue-content",
 }
 # Provider documentation locations recorded in the source contract.
 PROVIDER_CONTRACTS = {
@@ -64,9 +69,77 @@ PROVIDER_CONTRACTS = {
         "authentication": "x-api-key issued through the EPREL public API request process (operator step)",
         "catalogue_boundary": "Public registration data for the pinned product group only; supplier-only endpoints are never used",
         "formats": ["json"],
+        "product_groups": ["electronicdisplays", "washingmachines2019", "refrigeratingappliances2019"],
+        "status": "unverified-live",
+    },
+    # PX01/PX06 (#2093, #2098): manufacturer and supplier BMEcat 2005 catalogues, decision "implement".
+    "bmecat": {
+        "documentation": "https://www.bmecat.org/ (BMEcat 2005 specification)",
+        "access": "one pinned catalogue file per source on the publisher's documented download host (HTTPS, "
+                  "same-host redirects only); 1-50 manufacturer + MPN selectors read from it",
+        "authentication": "none for published catalogues; a catalogue behind a login uses auth.secret_ref only",
+        "catalogue_boundary": "T_NEW_CATALOG and T_UPDATE_PRODUCTS product entries of the selected MPNs; price, "
+                              "order and logistic blocks are never parsed or stored; images are not documents",
+        "terms": "implemented only where the publisher's terms permit storing and redistributing the parametric "
+                 "data (operator records and confirms them per catalogue in the source licence block)",
+        "formats": ["xml"],
         "status": "unverified-live",
     },
 }
+# PX01 decisions for electronic-component sources (docs/development/products-expansion-evidence/source-audit.md).
+# ``verify`` lists what must be checked against the live terms before a dated live run (#2104).
+COMPONENT_SOURCE_DECISIONS: dict[str, dict[str, Any]] = {
+    "bmecat": {
+        "decision": "implement",
+        "reason": "manufacturer and supplier catalogues published for reuse; terms confirmed per catalogue",
+        "verify": ["the publisher's reuse terms per catalogue", "PRODUCT_STATUS usage", "FNAME/FUNIT vocabulary"],
+    },
+    "octopart": {
+        "publisher": "Nexar (Octopart)",
+        "decision": "link-only",
+        "documentation": "https://nexar.com/api",
+        "link": "https://octopart.com/search?q={mpn}",
+        "reason": "commercial API terms restrict storing, caching and redistributing part data; a link record "
+                  "names where to look, nothing is fetched or cached",
+        "verify": ["caching period and redistribution clause", "plan quotas"],
+    },
+    "digikey": {
+        "publisher": "DigiKey",
+        "decision": "link-only",
+        "documentation": "https://www.digikey.com/en/resources/api-solutions",
+        "link": "https://www.digikey.com/en/products/result?keywords={mpn}",
+        "reason": "Product Information API terms restrict bulk storage and redistribution; a link record names "
+                  "where to look, nothing is fetched or cached",
+        "verify": ["storage and redistribution clause", "rate limits"],
+    },
+    "mouser": {
+        "publisher": "Mouser Electronics",
+        "decision": "not implemented",
+        "documentation": "https://www.mouser.com/api-hub/",
+        "reason": "Search API terms are oriented to purchasing integrations; v1 stores nothing from distributors "
+                  "and two link-only distributors already give readers a place to look",
+        "verify": ["API terms"],
+    },
+    "manufacturer-web": {
+        "decision": "not implemented",
+        "reason": "no crawling of manufacturer sites; datasheets are followed only when a source record links them",
+        "verify": [],
+    },
+}
+
+
+def component_links(manufacturer: Any, mpn: Any) -> list[dict[str, Any]]:
+    """Link records for link-only component sources: where to look up this MPN, without fetching or caching."""
+    text = "" if mpn is None else str(mpn).strip()
+    if not text:
+        return []
+    return [
+        {"provider": name, "publisher": item["publisher"], "decision": "link-only",
+         "url": item["link"].format(mpn=quote(text, safe="")), "manufacturer": manufacturer, "mpn": text,
+         "cached_data": None, "basis": "search link for the MPN as published; no parametric data, price, stock "
+                                        "or lifecycle is fetched or stored"}
+        for name, item in COMPONENT_SOURCE_DECISIONS.items() if item["decision"] == "link-only"
+    ]
 
 
 def _digest(value: Any) -> str:
@@ -102,17 +175,24 @@ def _decimal_text(value: Any) -> str | None:
 
 
 def product_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
+    from src.kb import product_categories
+
     product = dict(source.get("product") or {})
     selection = product.get("selection")
     if not isinstance(selection, list) or not 1 <= len(selection) <= MAX_SELECTION:
         raise SourcePackError(
             "unbounded_source", f"product sources need an explicit selection of 1-{MAX_SELECTION} models"
         )
+    components = source.get("connector") == "bmecat"
     for item in selection:
         if not isinstance(item, Mapping) or not item:
             raise SourcePackError("invalid_mapping", "each product selector must be an object")
         keys = set(item) - {"label"}
-        if keys not in ({"brand", "product_code"}, {"gtin"}, {"registration_number"}):
+        if components:
+            if keys != {"manufacturer", "mpn"} or not product_categories.component_key(item["manufacturer"],
+                                                                                      item["mpn"]):
+                raise SourcePackError("invalid_mapping", "component selectors use manufacturer+mpn")
+        elif keys not in ({"brand", "product_code"}, {"gtin"}, {"registration_number"}):
             raise SourcePackError(
                 "invalid_mapping",
                 "selectors use brand+product_code, gtin or registration_number",
@@ -120,6 +200,15 @@ def product_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
     category = dict(product.get("category") or {})
     if not category.get("label"):
         raise SourcePackError("invalid_mapping", "product sources pin a category label")
+    category_id = product_categories.resolve_label(category["label"])
+    if category_id is None:
+        raise SourcePackError("invalid_mapping", f"category {category['label']!r} is not in the category registry")
+    if components != (product_categories.family(category_id) == "component"):
+        raise SourcePackError("invalid_mapping", "component catalogues pin component categories, and only they do")
+    if components and product.get("role") not in {"manufacturer", "supplier"}:
+        raise SourcePackError("invalid_mapping", "a BMEcat source declares its publisher role")
+    if components and not re.fullmatch(r"[a-z0-9][a-z0-9-]{1,40}", str(product.get("publisher_id") or "")):
+        raise SourcePackError("invalid_mapping", "a BMEcat source declares a publisher_id slug")
     return product
 
 
@@ -138,6 +227,7 @@ class _ProductAdapter:
 
         self.source = json.loads(json.dumps(source))
         self.product = product_declaration(self.source)
+        self.category_id = product_categories.resolve(self.product["category"])
         if transport is None:
             from functools import partial
 
@@ -180,8 +270,44 @@ class _ProductAdapter:
         """Return a per-model outcome (``not_found``/``outside_open_catalogue``) or raise."""
         raise NotImplementedError
 
+    def download(self, selector: Mapping[str, Any]) -> tuple[int, dict[str, Any], bytes, bool]:
+        """One provider response for a selector: (status, casefolded headers, bytes, whether it was fetched now)."""
+        from src.ingestion.source_pack_runtime import _retry_after_ms
+
+        url, params, headers = self.request(selector)
+        response = self.transport(
+            url=url, params=params, headers=headers,
+            timeout=int(self.definition["limits"]["timeout_ms"]) / 1000,
+        )
+        status = int(response.get("status", 200))
+        response_headers = {str(k).casefold(): v for k, v in dict(response.get("headers") or {}).items()}
+        content = response.get("content", b"")
+        raw = content.encode() if isinstance(content, str) else bytes(content)
+        if len(raw) > int(self.definition["limits"]["max_bytes"]):
+            raise SourcePackError("response_too_large", "source response exceeds its byte limit")
+        if status == 429:
+            raise SourcePackError(
+                "rate_limited", "provider quota is temporarily exhausted",
+                retry_after_ms=_retry_after_ms(response_headers.get("retry-after")),
+            )
+        if status in {401, 403} and self.provider == "eprel":
+            raise SourcePackError(
+                "authentication_failed", "EPREL rejected the API key (missing, unapproved or revoked)"
+            )
+        return status, response_headers, raw, True
+
+    def parse(self, raw: bytes) -> Any:
+        try:
+            return json.loads(raw) if raw.strip() else None
+        except (json.JSONDecodeError, UnicodeDecodeError):
+            return None
+
+    def check_payload(self, payload: Any) -> None:
+        if not isinstance(payload, Mapping):
+            raise SourcePackError("schema_drift", f"{self.provider} returned a non-JSON product body")
+
     def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
-        from src.ingestion.source_pack_runtime import RuntimePage, _retry_after_ms
+        from src.ingestion.source_pack_runtime import RuntimePage
 
         operation = str(request.get("operation") or "")
         if operation not in self.definition["operations"]:
@@ -204,30 +330,8 @@ class _ProductAdapter:
         if index >= len(selection):
             return RuntimePage((), None, 0, receipt={"status": 200, "selection_index": index})
         selector = dict(selection[index])
-        url, params, headers = self.request(selector)
-        response = self.transport(
-            url=url, params=params, headers=headers,
-            timeout=int(self.definition["limits"]["timeout_ms"]) / 1000,
-        )
-        status = int(response.get("status", 200))
-        response_headers = {str(k).casefold(): v for k, v in dict(response.get("headers") or {}).items()}
-        content = response.get("content", b"")
-        raw = content.encode() if isinstance(content, str) else bytes(content)
-        if len(raw) > int(self.definition["limits"]["max_bytes"]):
-            raise SourcePackError("response_too_large", "source response exceeds its byte limit")
-        if status == 429:
-            raise SourcePackError(
-                "rate_limited", "provider quota is temporarily exhausted",
-                retry_after_ms=_retry_after_ms(response_headers.get("retry-after")),
-            )
-        if status in {401, 403} and self.provider == "eprel":
-            raise SourcePackError(
-                "authentication_failed", "EPREL rejected the API key (missing, unapproved or revoked)"
-            )
-        try:
-            payload = json.loads(raw) if raw.strip() else None
-        except (json.JSONDecodeError, UnicodeDecodeError):
-            payload = None
+        status, response_headers, raw, fetched = self.download(selector)
+        payload = self.parse(raw)
         outcome = self.classify(status, payload, raw, selector)
         page_info = {
             "selection_index": index,
@@ -240,8 +344,7 @@ class _ProductAdapter:
         }
         records: list[dict[str, Any]] = []
         if outcome is None:
-            if not isinstance(payload, Mapping):
-                raise SourcePackError("schema_drift", f"{self.provider} returned a non-JSON product body")
+            self.check_payload(payload)
             records = [
                 {**item, "product_page": page_info}
                 for item in self.records(payload, selector, raw)
@@ -252,7 +355,7 @@ class _ProductAdapter:
             else None
         )
         return RuntimePage(
-            tuple(records), next_cursor, len(raw),
+            tuple(records), next_cursor, len(raw) if fetched else 0,
             receipt={"status": status, **page_info,
                      "model_outcome": outcome or "returned",
                      "quota_remaining": response_headers.get("x-ratelimit-remaining")},
@@ -265,30 +368,24 @@ def _pointer(*parts: Any) -> str:
 
 # ----------------------------------------------------------------- Open Icecat
 
-# Feature names are the provider's English feature labels; the mapping is part
-# of the pinned source contract and extends only by explicit review.
-ICECAT_FEATURES = {
-    "display diagonal": ("diagonal", None),
-    "display resolution": ("resolution", None),
-    "width (with stand)": ("width", "with-stand"),
-    "height (with stand)": ("height", "with-stand"),
-    "depth (with stand)": ("depth", "with-stand"),
-    "width (without stand)": ("width", "without-stand"),
-    "height (without stand)": ("height", "without-stand"),
-    "depth (without stand)": ("depth", "without-stand"),
-    "power consumption (typical)": ("on_mode_power", "typical"),
-    "energy efficiency class (sdr)": ("energy_class", "sdr"),
-    "energy efficiency class (hdr)": ("energy_class", "hdr"),
-    "power consumption (sdr) per 1000 hours": ("energy_consumption_1000h", "sdr"),
-    "power consumption (hdr) per 1000 hours": ("energy_consumption_1000h", "hdr"),
-}
-_ICECAT_UNITS = {'"': "in", "inch": "in", "cm": "cm", "mm": "mm", "w": "W", "kwh": "kWh"}
+# Feature names are the provider's English feature labels; the mapping is part of the pinned source contract and
+# lives per category in the category registry (config/product_categories/*.json), extended only by explicit review.
+# The display mapping below is the registry's electronic-displays entry, kept under its original names.
+ICECAT_FEATURES = {name: (attribute, mode) for name, (attribute, mode, _units)
+                   in product_categories.feature_map(product_categories.DISPLAY_CATEGORY, "icecat").items()}
+_ICECAT_UNITS = dict(product_categories.provider_mapping(product_categories.DISPLAY_CATEGORY, "icecat")["unit_signs"])
 
 
-def _icecat_unit(feature: Mapping[str, Any]) -> str | None:
+def _icecat_sign(feature: Mapping[str, Any]) -> str | None:
     measure = dict(feature.get("Measure") or {})
     sign = (measure.get("Sign") or dict(measure.get("Signs") or {}).get("_") or feature.get("Sign") or "")
-    return _ICECAT_UNITS.get(str(sign).strip().casefold()) if sign else None
+    return str(sign).strip() or None
+
+
+def _icecat_unit(feature: Mapping[str, Any], category_id: str = product_categories.DISPLAY_CATEGORY,
+                 feature_units: Mapping[str, str] | None = None) -> str | None:
+    """The unit an Icecat feature's measure sign means in this category (feature-specific signs first)."""
+    return product_categories.unit_for_sign(category_id, "icecat", _icecat_sign(feature), feature_units)
 
 
 class IcecatProductAdapter(_ProductAdapter):
@@ -337,14 +434,25 @@ class IcecatProductAdapter(_ProductAdapter):
         category_id = str(category.get("CategoryID") or "")
         pinned = str(self.product["category"].get("provider_category_id") or "")
         attributes: list[dict[str, Any]] = []
+        source_fields: list[dict[str, Any]] = []
+        features = product_categories.feature_map(self.category_id, "icecat")
         for group_index, group in enumerate(data.get("FeaturesGroups") or []):
             for feature_index, feature in enumerate(group.get("Features") or []):
+                if not isinstance(feature, Mapping):
+                    continue
                 definition = dict(feature.get("Feature") or {})
                 name = str(dict(definition.get("Name") or {}).get("Value") or "")
-                mapped = ICECAT_FEATURES.get(name.casefold())
+                locator = {"json_pointer": _pointer("data", "FeaturesGroups", group_index, "Features", feature_index)}
+                mapped = features.get(name.casefold())
                 if not mapped:
+                    # Kept as the provider stated it; never mapped by guess.
+                    source_fields.append({
+                        "native_name": name or None, "native_feature_id": str(definition.get("ID") or "") or None,
+                        "native_value": feature.get("Value"), "presentation_value": feature.get("PresentationValue"),
+                        "native_unit_sign": _icecat_sign(definition), "locator": locator,
+                    })
                     continue
-                attribute, mode = mapped
+                attribute, mode, feature_units = mapped
                 attributes.append({
                     "attribute": attribute,
                     "mode": mode,
@@ -352,8 +460,8 @@ class IcecatProductAdapter(_ProductAdapter):
                     "native_feature_id": str(definition.get("ID") or ""),
                     "native_value": feature.get("Value"),
                     "presentation_value": feature.get("PresentationValue"),
-                    "native_unit": _icecat_unit(definition),
-                    "locator": {"json_pointer": _pointer("data", "FeaturesGroups", group_index, "Features", feature_index)},
+                    "native_unit": _icecat_unit(definition, self.category_id, feature_units),
+                    "locator": locator,
                 })
         documents = []
         for index, item in enumerate(data.get("Multimedia") or []):
@@ -396,6 +504,7 @@ class IcecatProductAdapter(_ProductAdapter):
             "market": {"region": self.product.get("market"), "language": self.product.get("language")},
             "lifecycle_claims": {"release_date": info.get("ReleaseDate"), "end_of_life": info.get("EndOfLifeDate")},
             "attributes": attributes,
+            **({"source_fields": source_fields} if source_fields else {}),
             "documents": documents,
             "record_status": "published",
             "selector": selector,
@@ -414,18 +523,14 @@ class IcecatProductAdapter(_ProductAdapter):
 
 # ----------------------------------------------------------------------- EPREL
 
-EPREL_FIELDS = {
-    "diagonalCm": ("diagonal", None, "cm"),
-    "diagonalInch": ("diagonal", None, "in"),
-    "resolutionHorizontalPixels": ("resolution_horizontal", None, "px"),
-    "resolutionVerticalPixels": ("resolution_vertical", None, "px"),
-    "powerOnModeSDR": ("on_mode_power", "sdr", "W"),
-    "powerOnModeHDR": ("on_mode_power", "hdr", "W"),
-    "energyConsumption1000hSDR": ("energy_consumption_1000h", "sdr", "kWh"),
-    "energyConsumption1000hHDR": ("energy_consumption_1000h", "hdr", "kWh"),
-    "energyClassSDR": ("energy_class", "sdr", None),
-    "energyClassHDR": ("energy_class", "hdr", None),
-}
+# EPREL field -> (attribute, mode, unit) per product group comes from the category registry; this is the
+# electronic-displays entry under its original name.
+EPREL_FIELDS = product_categories.eprel_fields(product_categories.DISPLAY_CATEGORY)
+# Fields every EPREL group publishes that the record carries as identity, status, market or document data.
+EPREL_RECORD_FIELDS = frozenset({
+    "eprelRegistrationNumber", "productGroup", "supplierOrTrademark", "modelIdentifier", "implementingAct",
+    "status", "versionNumber", "onMarketStartDate", "onMarketEndDate", "placementCountries", "energyLabelId",
+})
 EPREL_WITHDRAWN = frozenset({"WITHDRAWN", "DELETED", "REMOVED"})
 
 
@@ -444,6 +549,9 @@ class EprelProductAdapter(_ProductAdapter):
         group = str(self.product["category"].get("product_group") or "")
         if not re.fullmatch(r"[a-z0-9]+", group):
             raise SourcePackError("invalid_mapping", "EPREL sources pin a product group")
+        groups = product_categories.provider_mapping(self.category_id, "eprel").get("product_groups") or []
+        if group not in groups:
+            raise SourcePackError("invalid_mapping", f"EPREL group {group} is not registered for {self.category_id}")
         number = str(selector["registration_number"])
         if not re.fullmatch(r"\d{1,12}", number):
             raise SourcePackError("invalid_mapping", "EPREL registration numbers are numeric")
@@ -468,7 +576,8 @@ class EprelProductAdapter(_ProductAdapter):
         group = str(self.product["category"]["product_group"])
         native_group = str(payload.get("productGroup") or "")
         attributes = []
-        for field, (attribute, mode, unit) in EPREL_FIELDS.items():
+        fields = product_categories.eprel_fields(self.category_id)
+        for field, (attribute, mode, unit) in fields.items():
             if field not in payload:
                 continue
             attributes.append({
@@ -477,6 +586,11 @@ class EprelProductAdapter(_ProductAdapter):
                 "label_scheme": payload.get("implementingAct"),
                 "locator": {"json_pointer": _pointer(field)},
             })
+        # Group fields the registry does not map stay as the supplier registered them; never mapped by guess.
+        source_fields = [
+            {"native_name": field, "native_value": value, "locator": {"json_pointer": _pointer(field)}}
+            for field, value in payload.items() if field not in fields and field not in EPREL_RECORD_FIELDS
+        ]
         status = str(payload.get("status") or "").upper()
         base = f"{self.source['endpoint'].rstrip('/')}/{group}/{number}"
         language = str(self.product.get("language") or "EN")
@@ -514,6 +628,7 @@ class EprelProductAdapter(_ProductAdapter):
                                  "on_market_end": _eprel_date(payload.get("onMarketEndDate"))},
             "label_scheme": payload.get("implementingAct"),
             "attributes": attributes,
+            **({"source_fields": source_fields} if source_fields else {}),
             "documents": documents,
             "record_status": "withdrawn" if status in EPREL_WITHDRAWN else "published",
             "native_status": status or None,
@@ -532,8 +647,291 @@ class EprelProductAdapter(_ProductAdapter):
         }]
 
 
+# ------------------------------------------------------------------ BMEcat components (PX05/PX06)
+#
+# Manufacturer and supplier catalogues in the BMEcat 2005 format, decision "implement" in PX01 (#2093). One
+# pinned catalogue per source; each page answers one manufacturer + MPN selector from it (the catalogue is
+# downloaded once per adapter). Identity is the manufacturer and MPN as published; a supplier's own article
+# number (SUPPLIER_PID) is a provider-scoped SKU alias. Price, order and logistic blocks are never read,
+# stored or hashed. PRODUCT_STATUS of type "others" is the only lifecycle source, dated by the catalogue's
+# generation date; merchandising statuses (new_product, core_product, ...) stay source fields.
+
+BMECAT_TRANSACTIONS = ("T_NEW_CATALOG", "T_UPDATE_PRODUCTS")
+_BMECAT_COMMERCIAL = frozenset({"PRODUCT_PRICE_DETAILS", "PRODUCT_ORDER_DETAILS", "PRODUCT_LOGISTIC_DETAILS"})
+_BMECAT_DOCUMENTS = {"data_sheet": "datasheet", "safety_data_sheet": "safety-data-sheet"}
+
+
+def _local(tag: Any) -> str:
+    return tag.rsplit("}", 1)[-1] if isinstance(tag, str) else ""
+
+
+def _xchildren(element: Any, name: str) -> list[Any]:
+    return [] if element is None else [child for child in element if _local(child.tag) == name]
+
+
+def _xchild(element: Any, name: str) -> Any:
+    found = _xchildren(element, name)
+    return found[0] if found else None
+
+
+def _xtext(element: Any) -> str | None:
+    if element is None:
+        return None
+    text = re.sub(r"\s+", " ", element.text or "").strip()
+    return text or None
+
+
+def parse_bmecat(raw: bytes) -> dict[str, Any]:
+    """The header and product entries of a BMEcat 2005 catalogue (namespaces ignored, entities refused)."""
+    import defusedxml.ElementTree as SafeET
+
+    try:
+        root = SafeET.fromstring(raw)
+    except Exception as exc:  # noqa: BLE001 - malformed XML or a forbidden construct is drift, never partial data
+        raise SourcePackError("schema_drift", "catalogue is not well-formed, safe BMEcat XML") from exc
+    if _local(root.tag) != "BMECAT":
+        raise SourcePackError("schema_drift", "catalogue root is not BMECAT")
+    header = _xchild(root, "HEADER")
+    catalog = _xchild(header, "CATALOG")
+    generation = next((_xtext(_xchild(item, "DATE")) for item in _xchildren(catalog, "DATETIME")
+                       if item.get("type") == "generation_date"), None)
+    products = []
+    for transaction in BMECAT_TRANSACTIONS:
+        for block in _xchildren(root, transaction):
+            for index, product in enumerate(_xchildren(block, "PRODUCT"), start=1):
+                products.append({"xpath": f"/BMECAT/{transaction}/PRODUCT[{index}]", "element": product,
+                                 "transaction": transaction})
+    if header is None or catalog is None:
+        raise SourcePackError("schema_drift", "catalogue lacks HEADER/CATALOG")
+    return {
+        "catalog_id": _xtext(_xchild(catalog, "CATALOG_ID")),
+        "catalog_version": _xtext(_xchild(catalog, "CATALOG_VERSION")),
+        "language": _xtext(_xchild(catalog, "LANGUAGE")),
+        "generation_date_declared": generation,
+        "generation_date": safety_date(generation),
+        "mime_root": _xtext(_xchild(catalog, "MIME_ROOT")),
+        "supplier_name": _xtext(_xchild(_xchild(header, "SUPPLIER"), "SUPPLIER_NAME")),
+        "products": products,
+    }
+
+
+def _bmecat_fingerprint(product: Any) -> str:
+    """SHA-256 of the product entry without its commercial blocks, so prices never make a revision."""
+    import copy
+    from xml.etree.ElementTree import canonicalize, tostring
+
+    clean = copy.deepcopy(product)
+    for child in list(clean):
+        if _local(child.tag) in _BMECAT_COMMERCIAL:
+            clean.remove(child)
+    return hashlib.sha256(canonicalize(tostring(clean), strip_text=True).encode()).hexdigest()
+
+
+class BmecatComponentAdapter(_ProductAdapter):
+    provider = "bmecat"
+
+    def __init__(self, source: Mapping[str, Any], *, transport: Callable[..., Mapping[str, Any]] | None = None,
+                 secret: str | None = None) -> None:
+        super().__init__(source, transport=transport, secret=secret)
+        self.role = str(self.product["role"])
+        self.provider_id = f"bmecat:{self.product['publisher_id']}"
+        self.definition["product"]["provider_id"] = self.provider_id
+        self.definition["product"]["role"] = self.role
+        self._catalogue: tuple[int, dict[str, Any], bytes] | None = None
+        self._parsed: dict[str, Any] | None = None
+
+    def request(self, selector):
+        headers = {"Accept": "application/xml, text/xml"}
+        if self.secret:
+            headers["Authorization"] = f"Bearer {self.secret}"
+        return self.source["endpoint"], {}, headers
+
+    def download(self, selector):
+        from urllib.parse import urlsplit
+
+        if self._catalogue is not None:
+            status, headers, raw = self._catalogue
+            return status, headers, raw, False
+        url, params, headers = self.request(selector)
+        response = self.transport(url=url, params=params, headers=headers,
+                                  timeout=int(self.definition["limits"]["timeout_ms"]) / 1000)
+        if (urlsplit(str(response.get("final_url") or url)).hostname or "").casefold() != \
+                (urlsplit(url).hostname or "").casefold():
+            raise SourcePackError("network_policy", "catalogue was served from another host")
+        status = int(response.get("status", 200))
+        response_headers = {str(k).casefold(): v for k, v in dict(response.get("headers") or {}).items()}
+        content = response.get("content", b"")
+        raw = content.encode() if isinstance(content, str) else bytes(content)
+        if len(raw) > int(self.definition["limits"]["max_bytes"]):
+            raise SourcePackError("response_too_large", "source response exceeds its byte limit")
+        if status == 429:
+            from src.ingestion.source_pack_runtime import _retry_after_ms
+
+            raise SourcePackError("rate_limited", "publisher throttled the catalogue download",
+                                  retry_after_ms=_retry_after_ms(response_headers.get("retry-after")))
+        if status in {401, 403}:
+            raise SourcePackError("authentication_failed", f"publisher refused the catalogue (HTTP {status})")
+        if status >= 500 or status == 404:
+            raise SourcePackError("source_unavailable", f"catalogue unavailable (HTTP {status})")
+        if status >= 400:
+            raise SourcePackError("schema_drift", f"catalogue request returned HTTP {status}")
+        self._catalogue = (status, response_headers, raw)
+        return status, response_headers, raw, True
+
+    def parse(self, raw):
+        if self._parsed is None:
+            self._parsed = parse_bmecat(raw)
+        return self._parsed
+
+    def check_payload(self, payload):
+        if not isinstance(payload, Mapping) or "products" not in payload:
+            raise SourcePackError("schema_drift", "catalogue could not be read")
+
+    def _identity(self, catalogue: Mapping[str, Any], product: Any) -> tuple[str | None, str | None, str | None]:
+        details = _xchild(product, "PRODUCT_DETAILS")
+        supplier_pid = _xtext(_xchild(product, "SUPPLIER_PID"))
+        manufacturer = _xtext(_xchild(details, "MANUFACTURER_NAME"))
+        mpn = _xtext(_xchild(details, "MANUFACTURER_PID"))
+        if self.role == "manufacturer":
+            manufacturer = manufacturer or catalogue.get("supplier_name")
+            mpn = mpn or supplier_pid
+        return supplier_pid, manufacturer, mpn
+
+    def _selected(self, catalogue: Mapping[str, Any], selector: Mapping[str, Any]) -> list[dict[str, Any]]:
+        wanted = product_categories.component_key(selector["manufacturer"], selector["mpn"])
+        return [entry for entry in catalogue["products"]
+                if product_categories.component_key(*self._identity(catalogue, entry["element"])[1:]) == wanted]
+
+    def classify(self, status, payload, raw, selector):
+        self.check_payload(payload)
+        return None if self._selected(payload, selector) else "not_found"
+
+    def records(self, payload, selector, raw):
+        return [self._record(payload, entry, selector) for entry in self._selected(payload, selector)]
+
+    def _record(self, catalogue: Mapping[str, Any], entry: Mapping[str, Any], selector: Mapping[str, Any]):
+        from urllib.parse import urljoin, urlsplit
+
+        product, xpath = entry["element"], entry["xpath"]
+        supplier_pid, manufacturer, mpn = self._identity(catalogue, product)
+        if not supplier_pid:
+            raise SourcePackError("schema_drift", "BMEcat product lacks SUPPLIER_PID")
+        details = _xchild(product, "PRODUCT_DETAILS")
+        features_map = product_categories.feature_map(self.category_id, "bmecat")
+        groups: list[str] = []
+        attributes: list[dict[str, Any]] = []
+        source_fields: list[dict[str, Any]] = []
+        for block_index, block in enumerate(_xchildren(product, "PRODUCT_FEATURES"), start=1):
+            groups += [g for g in (_xtext(item) for item in _xchildren(block, "REFERENCE_FEATURE_GROUP_ID")) if g]
+            system = _xtext(_xchild(block, "REFERENCE_FEATURE_SYSTEM_NAME"))
+            for feature_index, feature in enumerate(_xchildren(block, "FEATURE"), start=1):
+                name = _xtext(_xchild(feature, "FNAME"))
+                values = [v for v in (_xtext(item) for item in _xchildren(feature, "FVALUE")) if v is not None]
+                value: Any = values[0] if len(values) == 1 else values or None
+                sign = _xtext(_xchild(feature, "FUNIT"))
+                locator = {"xpath": f"{xpath}/PRODUCT_FEATURES[{block_index}]/FEATURE[{feature_index}]",
+                           "feature_system": system}
+                mapped = features_map.get((name or "").casefold())
+                if not mapped:
+                    source_fields.append({"native_name": name, "native_value": value, "native_unit_sign": sign,
+                                          "locator": locator})
+                    continue
+                attribute, mode, feature_units = mapped
+                attributes.append({
+                    "attribute": attribute, "mode": mode, "native_name": name, "native_value": value,
+                    "native_unit": product_categories.unit_for_sign(self.category_id, "bmecat", sign, feature_units),
+                    "native_unit_sign": sign, "locator": locator,
+                })
+        lifecycle = None
+        for status_index, element in enumerate(_xchildren(details, "PRODUCT_STATUS"), start=1):
+            declared = _xtext(element)
+            locator = {"xpath": f"{xpath}/PRODUCT_DETAILS/PRODUCT_STATUS[{status_index}]"}
+            published = product_categories.lifecycle_status(declared) if element.get("type") == "others" else None
+            if published and lifecycle is None:
+                lifecycle = {**published, "source": self.source.get("publisher"), "provider": self.provider_id,
+                             "date": catalogue.get("generation_date"),
+                             "date_declared": catalogue.get("generation_date_declared"),
+                             "date_basis": "catalogue generation date" if catalogue.get("generation_date")
+                             else "not stated by the catalogue", "locator": locator}
+            elif declared:
+                source_fields.append({"native_name": f"PRODUCT_STATUS[{element.get('type') or ''}]",
+                                      "native_value": declared, "locator": locator})
+        documents = []
+        root = catalogue.get("mime_root")
+        for mime_index, mime in enumerate(_xchildren(_xchild(product, "MIME_INFO"), "MIME"), start=1):
+            purpose = _xtext(_xchild(mime, "MIME_PURPOSE"))
+            target = _xtext(_xchild(mime, "MIME_SOURCE"))
+            locator = {"xpath": f"{xpath}/MIME_INFO/MIME[{mime_index}]"}
+            kind = _BMECAT_DOCUMENTS.get((purpose or "").casefold())
+            if kind is None or not target:
+                continue  # images and other media are not specification documents
+            url = target if urlsplit(target).scheme else (urljoin(root, target) if root else target)
+            if urlsplit(url).scheme != "https":
+                source_fields.append({"native_name": "MIME_SOURCE", "native_value": target, "locator": locator})
+                continue
+            documents.append({"kind": kind, "url": url, "media_type": _xtext(_xchild(mime, "MIME_TYPE")),
+                              "language": catalogue.get("language"), "title": _xtext(_xchild(mime, "MIME_DESCR")),
+                              "locator": locator})
+        gtins = [gtin_state(_xtext(item)) for item in _xchildren(details, "INTERNATIONAL_PID")
+                 if str(item.get("type") or "").casefold() in {"gtin", "ean"} and _xtext(item)]
+        pinned = {str(g) for g in product_categories.provider_mapping(self.category_id, "bmecat")
+                  .get("feature_groups") or []}
+        if self.product["category"].get("provider_category_id"):
+            pinned.add(str(self.product["category"]["provider_category_id"]))
+        identifiers: dict[str, Any] = {
+            "mpn": mpn, "manufacturer": manufacturer,
+            "component_key": product_categories.component_key(manufacturer, mpn),
+            "supplier_pid": supplier_pid, "gtin": gtins,
+        }
+        if self.role == "supplier":
+            identifiers["distributor_skus"] = [{"provider": self.provider_id, "value": supplier_pid}]
+        deleted = str(product.get("mode") or "").casefold() == "delete"
+        record = {
+            "contract": RECORD_CONTRACT,
+            "provider": self.provider_id,
+            "assertion_kind": ASSERTION_KINDS[f"bmecat:{self.role}"],
+            "provider_record_id": supplier_pid,
+            "provider_revision": catalogue.get("generation_date"),
+            "category": {
+                "label": self.product["category"]["label"],
+                "provider_category_id": groups[0] if groups else None,
+                "provider_category_name": None,
+                "in_pinned_category": bool(set(groups) & pinned),
+            },
+            "brand": manufacturer,
+            "designation": mpn,
+            "title": _xtext(_xchild(details, "DESCRIPTION_SHORT")),
+            "family": None,
+            "series": None,
+            "identifiers": identifiers,
+            "market": {"region": self.product.get("market"), "language": catalogue.get("language")},
+            "lifecycle_claims": {},
+            "attributes": attributes,
+            **({"source_fields": source_fields} if source_fields else {}),
+            **({"lifecycle_status": lifecycle} if lifecycle else {}),
+            "documents": documents,
+            "catalogue": {k: catalogue.get(k) for k in ("catalog_id", "catalog_version", "generation_date",
+                                                        "generation_date_declared")}
+            | {"transaction": entry["transaction"], "role": self.role},
+            "record_status": "withdrawn" if deleted else "published",
+            "native_status": str(product.get("mode") or "") or None,
+            "selector": selector,
+            "raw_sha256": _bmecat_fingerprint(product),
+        }
+        return {
+            "id": f"{self.provider_id}:{supplier_pid}",
+            "title": f"{manufacturer or ''} {mpn or supplier_pid}".strip(),
+            "language": str(catalogue.get("language") or "en")[:3].lower(),
+            **({"updated_at": catalogue["generation_date"]} if catalogue.get("generation_date") else {}),
+            "url": self.source["endpoint"],
+            "status": "withdrawn" if deleted else "active",
+            "product_record": record,
+        }
+
+
 FIXTURE_SECRET = "fixture-credential"
-ADAPTERS: dict[str, Any] = {"icecat": IcecatProductAdapter, "eprel": EprelProductAdapter}
+ADAPTERS: dict[str, Any] = {"icecat": IcecatProductAdapter, "eprel": EprelProductAdapter,
+                            "bmecat": BmecatComponentAdapter}
 
 
 def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
@@ -541,6 +939,8 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
 
     if pages and all("request" in page for page in pages):
         return safety_fixture_transport(pages)
+    if pages and all("url" in page for page in pages):
+        return catalogue_fixture_transport(pages)
     by_key = {_digest(page["selector"]): page for page in pages}
 
     def transport(*, url, params, headers, timeout):
@@ -562,6 +962,26 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
         body = page.get("body")
         content = b"" if body is None else body.encode() if isinstance(body, str) else json.dumps(body, ensure_ascii=False).encode()
         return {"status": int(page.get("status", 200)), "headers": dict(page.get("headers") or {}), "content": content}
+
+    return transport
+
+
+def catalogue_fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
+    """Replay authored catalogue files keyed by their exact URL (BMEcat sources)."""
+
+    by_url = {str(page["url"]): page for page in pages}
+
+    def transport(*, url, params, headers, timeout):
+        del timeout
+        page = by_url.get(url if not params else f"{url}?{json.dumps(params, sort_keys=True)}")
+        if page is None:
+            raise SourcePackError("fixture_missing", f"no authored catalogue for {url}")
+        if page.get("requires_secret") and not headers.get("Authorization"):
+            return {"status": 401, "headers": {}, "content": b""}
+        body = page.get("body")
+        content = b"" if body is None else body.encode() if isinstance(body, str) else bytes(body)
+        return {"status": int(page.get("status", 200)), "headers": dict(page.get("headers") or {}),
+                "content": content, **({"final_url": page["final_url"]} if page.get("final_url") else {})}
 
     return transport
 

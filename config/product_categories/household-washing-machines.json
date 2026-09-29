@@ -1,0 +1,74 @@
+{
+  "contract": "noesis-product-category-v1",
+  "category": "household-washing-machines",
+  "version": "1.0.0",
+  "family": "appliance",
+  "labels": ["household washing machines"],
+  "identity": "brand-designation",
+  "normalization_version": "products-category-normalization-v1",
+  "attributes": {
+    "rated_capacity": {"kind": "quantity", "canonical_units": ["kg"], "units": ["kg"], "precision": 1,
+                       "label": "Rated capacity (eco 40-60 programme)"},
+    "energy_consumption_100_cycles": {"kind": "quantity", "canonical_units": ["kWh/100cycles"],
+                                      "units": ["kWh/100cycles", "kWh/cycle"], "precision": 2,
+                                      "label": "Weighted energy consumption per 100 cycles"},
+    "water_consumption_cycle": {"kind": "quantity", "canonical_units": ["L/cycle"], "units": ["L/cycle"],
+                                "precision": 1, "label": "Weighted water consumption per cycle"},
+    "max_spin_speed": {"kind": "quantity", "canonical_units": ["rpm"], "units": ["rpm"], "precision": 0,
+                       "label": "Maximum spin speed"},
+    "noise_spinning": {"kind": "quantity", "canonical_units": ["dB(A)"], "units": ["dB(A)"], "precision": 0,
+                       "label": "Airborne acoustical noise, spinning phase"},
+    "energy_class": {"kind": "label_class", "label": "Energy efficiency class"},
+    "noise_class": {"kind": "label_class", "classes": ["A", "B", "C", "D"], "label": "Airborne noise emission class"},
+    "spin_drying_class": {"kind": "label_class", "label": "Spin-drying efficiency class"}
+  },
+  "label_schemes": {
+    "EU_2019_2014": {"regulation": "Commission Delegated Regulation (EU) 2019/2014 (household washing machines and washer-dryers)",
+                     "classes": ["A", "B", "C", "D", "E", "F", "G"]}
+  },
+  "comparison": {
+    "attributes": ["rated_capacity", "energy_class", "energy_consumption_100_cycles", "water_consumption_cycle",
+                   "max_spin_speed", "spin_drying_class", "noise_spinning", "noise_class"],
+    "notice": "Values are brand-authorised content (Icecat) and supplier registrations (EPREL), not independent measurements, and this comparison is not a buying recommendation."
+  },
+  "matching": {
+    "providers": [["icecat", "eprel"]],
+    "identifier": "designation",
+    "corroboration": [
+      {"attribute": "rated_capacity", "mode": null, "rule": "within", "tolerance": "0", "evidence": "rated_capacity_kg",
+       "required": true, "missing_reason": "rated capacity missing on at least one side",
+       "contradiction": "rated capacity differs by {gap} kg"},
+      {"attribute": "energy_class", "mode": null, "rule": "same_scheme_overlap", "evidence": "energy_class",
+       "required": false, "contradiction": "energy class differs under the same label scheme"}
+    ]
+  },
+  "providers": {
+    "eprel": {
+      "product_groups": ["washingmachines2019"],
+      "fields": [
+        ["ratedCapacity", "rated_capacity", null, "kg"],
+        ["energyClass", "energy_class", null, null],
+        ["energyConsumption100", "energy_consumption_100_cycles", null, "kWh/100cycles"],
+        ["waterConsumption", "water_consumption_cycle", null, "L/cycle"],
+        ["maxSpinSpeed", "max_spin_speed", null, "rpm"],
+        ["spinDryingEfficiencyClass", "spin_drying_class", null, null],
+        ["noise", "noise_spinning", null, "dB(A)"],
+        ["noiseClass", "noise_class", null, null]
+      ]
+    },
+    "icecat": {
+      "features": [
+        ["washing capacity", "rated_capacity", null],
+        ["energy efficiency class", "energy_class", null],
+        ["energy consumption per 100 cycles (washing)", "energy_consumption_100_cycles", null, {"kwh": "kWh/100cycles"}],
+        ["energy consumption per cycle (washing)", "energy_consumption_100_cycles", null, {"kwh": "kWh/cycle"}],
+        ["water consumption per cycle", "water_consumption_cycle", null, {"l": "L/cycle"}],
+        ["maximum spin speed", "max_spin_speed", null],
+        ["spin-drying efficiency class", "spin_drying_class", null],
+        ["noise level (spinning)", "noise_spinning", null],
+        ["noise level class (spinning)", "noise_class", null]
+      ],
+      "unit_signs": {"kg": "kg", "rpm": "rpm", "db": "dB(A)", "db(a)": "dB(A)"}
+    }
+  }
+}

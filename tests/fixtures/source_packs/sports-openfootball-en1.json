@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"name\": \"Example League 2099/00\",\n \"matches\": [\n  {\n   \"round\": \"Matchday 1\",\n   \"date\": \"2099-08-10\",\n   \"time\": \"15:00\",\n   \"team1\": \"Northbridge Rovers FC\",\n   \"team2\": \"Eastfield Athletic\",\n   \"score\": {\n    \"ht\": [\n     1,\n     0\n    ],\n    \"ft\": [\n     2,\n     1\n    ]\n   }\n  },\n  {\n   \"round\": \"Matchday 1\",\n   \"date\": \"2099-08-10\",\n   \"time\": \"15:00\",\n   \"team1\": \"Southport United\",\n   \"team2\": \"Westvale Town\",\n   \"score\": {\n    \"ht\": [\n     0,\n     0\n    ],\n    \"ft\": [\n     0,\n     0\n    ]\n   }\n  },\n  {\n   \"round\": \"Matchday 2\",\n   \"date\": \"2099-08-17\",\n   \"time\": \"15:00\",\n   \"team1\": \"Northbridge Rovers FC\",\n   \"team2\": \"Southport United\",\n   \"score\": {\n    \"ht\": [\n     0,\n     1\n    ],\n    \"ft\": [\n     1,\n     1\n    ]\n   }\n  },\n  {\n   \"round\": \"Matchday 2\",\n   \"date\": \"2099-08-17\",\n   \"team1\": \"Eastfield Athletic\",\n   \"team2\": \"Westvale Town\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/openfootball/football.json/0000000000000000000000000000000000000000/2025-26/en.1.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored publication in the documented provider shape; every club, player, tournament and match is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-participants"
+ ]
+}

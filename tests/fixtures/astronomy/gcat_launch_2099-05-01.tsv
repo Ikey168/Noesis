@@ -1,0 +1,6 @@
+#Launch_Tag	Launch_JD	Launch_Date	LV_Type	Variant	Flight_ID	Flight	Mission	FlightCode	Platform	Launch_Site	Launch_Pad	Ascent_Site	Ascent_Pad	Apogee	Apoflag	Range	RangeFlag	Dest	Agency	Launch_Code	Group	Category	LTCite	Cite	Notes
+# Updated 2099 May  1 (fictional authored extract)
+2099-001	-	2099 Mar  3 1415:00	Fictron 2	-	-	F2-01	Fictsat demo	-	-	FKSC	LC1	-	-	-	-	-	-	LEO	FICTSPACE	OS	-	Fictional	FICT99	FICT99	Fictional launch
+2099-002	-	2099 Apr 10 0900	Fictron 2	-	-	F2-02	Fictsat 2	-	-	FKSC	LC1	-	-	-	-	-	-	LEO	FICTSPACE	OF	-	Fictional	FICT99	FICT99	Fictional launch
+2099-003	-	2099 Apr 28 2230	Fictron 3	-	-	F3-01	Fictsat 3	-	-	FKSC	LC2	-	-	-	-	-	-	LEO	FICTSPACE/FICTSYS	OP	-	Fictional	FICT99	FICT99	Fictional launch
+2098-077	-	2098 Dec 30 1200	Fictron 1	-	-	F1-09	Old mission	-	-	FKSC	LC1	-	-	-	-	-	-	LEO	FICTSPACE	OS	-	Fictional	FICT99	FICT99	Fictional launch

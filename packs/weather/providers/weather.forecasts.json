@@ -1,0 +1,78 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "weather.forecasts",
+  "version": "1.0.0",
+  "description": "Forecasts as issued: per provider, product and model the latest issuance before a cutoff and every issuance of a valid time, with lead times. Published forecasts only.",
+  "implementation": {
+    "name": "src.kb.weather_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "weather.forecasts",
+      "contract": {
+        "name": "noesis-weather-forecast-issuance",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "forecast-as-issued",
+        "forecast-evolution"
+      ],
+      "semantic_constraints": {
+        "issuance": "each run is its own issuance vintage keyed by the provider's issue time",
+        "location": "station, equivalent station or the station declared for a grid point",
+        "exclusions": "no own forecasting, nowcasting, blending or bias correction"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "forecast-as-issued",
+      "tool": "noesis-knowledge-engine.forecast_as_issued",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "forecast-evolution",
+      "tool": "noesis-knowledge-engine.forecast_evolution",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "weather_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "weather-operational",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

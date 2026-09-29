@@ -1,0 +1,51 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "linguistics.typology",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.linguistics_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "linguistics.typology",
+      "contract": {
+        "name": "noesis-linguistic-typology",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "typological-profile"
+      ],
+      "semantic_constraints": {
+        "values": "WALS values through the Glottocode WALS publishes, each with its references and release",
+        "unknowns": "a feature without a value is 'no value on record'"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "typological-profile",
+      "tool": "noesis-knowledge-engine.typological_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "linguistic-records",
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "linguistic-records",
+      "kind": "table-exists",
+      "target": "ling_sightings"
+    }
+  ]
+}

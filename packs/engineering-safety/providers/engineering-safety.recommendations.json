@@ -1,0 +1,112 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "engineering-safety.recommendations",
+  "version": "1.0.0",
+  "description": "Safety recommendations with addressee and every published status as a dated response, and monitors over new or revised records through platform.subscriptions.",
+  "implementation": {
+    "name": "src.kb.engineering_safety_monitoring",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "engineering-safety.recommendations",
+      "contract": {
+        "name": "noesis-engineering-safety-recommendation",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "search-safety-recommendations",
+        "create-engineering-safety-monitor",
+        "run-engineering-safety-monitor",
+        "poll-engineering-safety-monitor"
+      ],
+      "semantic_constraints": {
+        "status": "as published by the issuing body on each date",
+        "monitoring": "committed watermarks of complete source-pack runs; no new scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "search-safety-recommendations",
+      "tool": "noesis-knowledge-engine.search_safety_recommendations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-engineering-safety-monitor",
+      "tool": "noesis-knowledge-engine.create_engineering_safety_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-engineering-safety-monitor",
+      "tool": "noesis-knowledge-engine.run_engineering_safety_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-engineering-safety-monitor",
+      "tool": "noesis-knowledge-engine.poll_engineering_safety_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "es_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "engineering-safety"
+    }
+  ]
+}

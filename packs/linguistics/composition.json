@@ -1,0 +1,152 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "linguistics.lexicon",
+        "provider": "linguistics.lexicon",
+        "contract": {
+          "name": "noesis-linguistic-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "linguistics.languoids",
+        "provider": "linguistics.languoids",
+        "contract": {
+          "name": "noesis-linguistic-identity-candidate",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "linguistics.typology",
+        "provider": "linguistics.typology",
+        "contract": {
+          "name": "noesis-linguistic-typology",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "linguistics.lexicon",
+        "version": "1.0.0"
+      },
+      {
+        "id": "linguistics.languoids",
+        "version": "1.0.0"
+      },
+      {
+        "id": "linguistics.typology",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "linguistics-lexical-typological",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "linguistics.lexicographer",
+        "description": "Word-centred vocabulary: every definition is a cited revision of one source",
+        "vocabulary": {
+          "lexeme": "a word of one language with its forms and senses, per source",
+          "definition revision": "a definition as one source published it at one revision",
+          "languoid": "a language, dialect or family identified by Glottocode"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "linguistics.lexicon",
+      "contract": "noesis-linguistic-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "linguistics.languoids",
+      "contract": "noesis-linguistic-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "languages and lexemes resolve through reviewable identity"
+    },
+    {
+      "capability": "platform.cross-language",
+      "contract": "noesis-multilingual-record",
+      "range": "^1.0.0",
+      "reason": "cross-language links, aliases, translations and search go through the existing multilingual records"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "identity and ISO code events are entity-history decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "linguistics monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "Wikidata, Glottolog, CLDR and ISO 639-3 sources run through the source-pack runtime"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "languoid points project into Geospatial places"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0",
+      "reason": "etymological and typological references resolve to Science literature records"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "linguistics-wiktionary",
+      "default": false,
+      "description": "Wiktionary entries from kaikki.org Wiktextract extracts: senses, definitions, forms, usage examples, structured etymologies and translation tables. Share-alike gated: every record and answer carries CC BY-SA 4.0 attribution and exports under another licence are refused.",
+      "requires": [
+        {
+          "capability": "linguistics.lexicon",
+          "contract": "noesis-linguistic-record",
+          "range": "^1.0.0",
+          "reason": "the feature's records are lexicon records"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the kaikki-wiktextract source runs through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "linguistics-typology",
+      "default": false,
+      "description": "WALS feature values per languoid with their source references, and cited typological profiles; a feature without a value is 'no value on record'.",
+      "requires": [
+        {
+          "capability": "linguistics.typology",
+          "contract": "noesis-linguistic-typology",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "linguistics.languoids",
+          "contract": "noesis-linguistic-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "WALS languages resolve through their published Glottocode"
+        }
+      ]
+    }
+  ]
+}
