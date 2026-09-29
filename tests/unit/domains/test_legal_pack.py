@@ -250,8 +250,9 @@ def test_run_projects_every_source_and_repeats_idempotently(loaded):
               for t in ("legal_works", "legal_versions", "legal_passages", "legal_citations", "legal_facts")}
     # GDPR, C-362/14, three federal decisions, a Berlin law and judgment; plus (sanctions feature) Regulation
     # 269/2014, Regulation 2021/821, Delegated Regulation 2024/2547 and one consolidated-editions work; plus
-    # (products safety feature) Regulation (EU) 2023/988 and Regulation (EC) No 178/2002.
-    assert counts["legal_works"] == 13
+    # (products safety feature) Regulation (EU) 2023/988 and Regulation (EC) No 178/2002; plus (courts feature,
+    # #2218) one CourtListener docket and two opinion clusters as docket and decision works.
+    assert counts["legal_works"] == 16
     # CELLAR runs are bounded to the captured first page, so an incremental
     # run continues at offset 100, which was never captured.
     resumed = run(runtime, value, "incremental-2")

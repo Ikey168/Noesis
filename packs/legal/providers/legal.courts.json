@@ -1,0 +1,294 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "legal.courts",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.legal_dockets",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "legal.courts",
+      "contract": {
+        "name": "noesis-court-docket",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "courts-justice-source-contracts",
+        "courts-justice-readiness",
+        "lookup-dockets",
+        "dockets-citing-provision",
+        "docket-as-of",
+        "list-court-citation-links",
+        "link-court-citations",
+        "list-court-identity-candidates",
+        "propose-court-party-matches",
+        "review-court-party-match",
+        "revert-court-party-match",
+        "create-courts-justice-monitor",
+        "run-courts-justice-monitor",
+        "poll-courts-justice-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "CourtListener dockets, RECAP docket entries and opinion clusters as published, projected onto Legal works, expressions and versions; one revision per provider modification",
+        "minimisation": "parties keep role as published and an organisation/natural-person flag; organisation names only; natural persons are pseudonymised, never matched, aggregated, queried or monitored; no personal profile",
+        "outcomes": "case outcomes are quoted disposition text with a locator; no derived win/loss label or outcome prediction",
+        "links": "provisions and decisions are linked by exact citation parsing only; unresolved citations stay as source text; the citing relationship is never characterised",
+        "identity": "courts by CourtListener court id; organisational parties only through reviewable, reversible identity candidates, never auto-accepted",
+        "exclusions": "no recidivism or risk scoring, no legal advice, no personal profiles of private individuals"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "courts-justice-source-contracts",
+      "tool": "noesis-knowledge-engine.courts_justice_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "courts-justice-readiness",
+      "tool": "noesis-knowledge-engine.courts_justice_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "lookup-dockets",
+      "tool": "noesis-knowledge-engine.lookup_dockets",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "dockets-citing-provision",
+      "tool": "noesis-knowledge-engine.dockets_citing_provision",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "docket-as-of",
+      "tool": "noesis-knowledge-engine.docket_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-court-citation-links",
+      "tool": "noesis-knowledge-engine.list_court_citation_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-court-citations",
+      "tool": "noesis-knowledge-engine.link_court_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-court-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_court_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-court-party-matches",
+      "tool": "noesis-knowledge-engine.propose_court_party_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-court-party-match",
+      "tool": "noesis-knowledge-engine.review_court_party_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-court-party-match",
+      "tool": "noesis-knowledge-engine.revert_court_party_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-courts-justice-monitor",
+      "tool": "noesis-knowledge-engine.create_courts_justice_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-courts-justice-monitor",
+      "tool": "noesis-knowledge-engine.run_courts_justice_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "poll-courts-justice-monitor",
+      "tool": "noesis-knowledge-engine.poll_courts_justice_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dockets",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "court-docket",
+      "store": "src.kb.legal_dockets",
+      "tables": [
+        "legal_docket_revisions",
+        "legal_docket_entries",
+        "legal_docket_parties",
+        "legal_opinion_revisions",
+        "legal_opinions",
+        "legal_court_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "court-citation-link",
+      "store": "src.kb.legal_court_citations",
+      "tables": [
+        "legal_court_citation_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "dockets",
+      "kind": "table-exists",
+      "target": "legal_docket_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "legal-research",
+      "version": "1.4.0",
+      "range": "^1.4.0"
+    }
+  ]
+}
