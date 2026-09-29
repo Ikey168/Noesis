@@ -285,6 +285,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bmecat"})
 # Engineering Safety: FAA/EASA ADs, NTSB, PHMSA, CSB, NHTSA ODI, BFU and BEA (#2059).
 NATIVE_CONNECTOR_MODULES["engineering-safety"] = "src.ingestion.engineering_safety_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"engineering-safety"})
+# Materials property and structure sources (Materials Project, JARVIS-DFT, OQMD, NIST WebBook, COD; #2060).
+NATIVE_CONNECTOR_MODULES["materials"] = "src.ingestion.materials_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"materials"})
 
 
 def native_connector_module(connector: str) -> Any:

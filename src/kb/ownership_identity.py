@@ -29,7 +29,8 @@ Bases, strongest first:
   identity.
 
 Other record owners (the Legal sanctions, Political lobbying and elections, Economics public-finance,
-Funding development-finance and Market BaFin-notices features) put their own candidates into this same state machine through :meth:`OwnershipIdentityService.offer`;
+Funding development-finance and Market BaFin-notices features, and the Materials pack, whose
+``structure-similarity`` basis is a phase-level match of two material records) put their own candidates into this same state machine through :meth:`OwnershipIdentityService.offer`;
 review, rejection and revert are shared.
 
 Successors and predecessors (mergers, re-registrations) are corporate events,
@@ -48,11 +49,12 @@ from src.kb.ownership_store import OwnershipError, OwnershipStore, authorize, ca
 
 CONTRACT = "noesis-ownership-identity-candidate-v1"
 CONFIDENCE = {"exact-identifier": 0.95, "cross-referenced-identifier": 0.8,
-              "unqualified-identifier": 0.5, "name-jurisdiction": 0.35, "similar-name": 0.1}
+              "unqualified-identifier": 0.5, "structure-similarity": 0.45, "name-jurisdiction": 0.35,
+              "similar-name": 0.1}
 NEVER_ACCEPTED = frozenset({"similar-name"})
 # Record keys owned by other bundles that share this state machine through ``offer``.
 FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:",
-                        "bafin:", "engineering-safety:")
+                        "bafin:", "engineering-safety:", "materials:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """

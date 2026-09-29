@@ -1,0 +1,103 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "materials.structures",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.materials_identity",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "materials.identity",
+      "contract": {
+        "name": "noesis-material-identity-candidate",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-matches",
+        "review-match",
+        "revert-match"
+      ],
+      "semantic_constraints": {
+        "levels": "composition groups are labelled; phase-level matches need equal space groups",
+        "polymorphs": "never proposed at phase level",
+        "review": "candidates stay proposed until reviewed; reverts never reactivate"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "propose-matches",
+      "tool": "noesis-knowledge-engine.propose_material_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record pair"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-match",
+      "tool": "noesis-knowledge-engine.review_material_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "ownership_identity_candidates"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-match",
+      "tool": "noesis-knowledge-engine.revert_material_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "materials_releases"
+    },
+    {
+      "id": "materials-source",
+      "kind": "source-pack-enabled",
+      "target": "materials"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "materials",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
