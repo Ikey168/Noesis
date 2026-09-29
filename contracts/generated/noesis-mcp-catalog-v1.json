@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1242,
+      "tool_count": 1256,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1057,6 +1057,7 @@
         "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
         "noesis-knowledge-engine.compare_material_property",
+        "noesis-knowledge-engine.compare_medicine_labels",
         "noesis-knowledge-engine.compare_openreview_rounds",
         "noesis-knowledge-engine.compare_paper_family_members",
         "noesis-knowledge-engine.compare_product_models",
@@ -1107,6 +1108,7 @@
         "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
         "noesis-knowledge-engine.create_material_watch",
+        "noesis-knowledge-engine.create_medicines_monitor",
         "noesis-knowledge-engine.create_package_monitor",
         "noesis-knowledge-engine.create_paper_family",
         "noesis-knowledge-engine.create_persistent_research_loop",
@@ -1457,6 +1459,7 @@
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
+        "noesis-knowledge-engine.link_medicine_evidence",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_safety_citations",
         "noesis-knowledge-engine.link_sports_venue_place",
@@ -1510,6 +1513,7 @@
         "noesis-knowledge-engine.list_lobbying_identity_candidates",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
+        "noesis-knowledge-engine.list_medicine_identity_matches",
         "noesis-knowledge-engine.list_methodology_limitations",
         "noesis-knowledge-engine.list_official_meetings",
         "noesis-knowledge-engine.list_oss_archive_provenance",
@@ -1568,6 +1572,11 @@
         "noesis-knowledge-engine.materials_source_contracts",
         "noesis-knowledge-engine.math_links",
         "noesis-knowledge-engine.math_source_contracts",
+        "noesis-knowledge-engine.medicine_label_as_of",
+        "noesis-knowledge-engine.medicine_regulatory_timeline",
+        "noesis-knowledge-engine.medicine_safety_communications",
+        "noesis-knowledge-engine.medicine_status_as_of",
+        "noesis-knowledge-engine.medicines_readiness",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.natural_hazards_bundle_status",
@@ -1611,6 +1620,7 @@
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_material_watch",
+        "noesis-knowledge-engine.poll_medicines_monitor",
         "noesis-knowledge-engine.poll_package_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_product_notice_monitor",
@@ -1690,6 +1700,7 @@
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
         "noesis-knowledge-engine.propose_material_matches",
         "noesis-knowledge-engine.propose_math_links",
+        "noesis-knowledge-engine.propose_medicine_identities",
         "noesis-knowledge-engine.propose_oss_identity_link",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
         "noesis-knowledge-engine.propose_patent_link",
@@ -1879,6 +1890,7 @@
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
         "noesis-knowledge-engine.revert_material_match",
+        "noesis-knowledge-engine.revert_medicine_identity",
         "noesis-knowledge-engine.revert_oss_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
@@ -1923,6 +1935,7 @@
         "noesis-knowledge-engine.review_lobbying_identity_match",
         "noesis-knowledge-engine.review_material_match",
         "noesis-knowledge-engine.review_math_link",
+        "noesis-knowledge-engine.review_medicine_identity",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_oss_identity_match",
         "noesis-knowledge-engine.review_ownership_identity_match",
@@ -1984,6 +1997,7 @@
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_material_watch",
+        "noesis-knowledge-engine.run_medicines_monitor",
         "noesis-knowledge-engine.run_package_monitor",
         "noesis-knowledge-engine.run_persistent_research_loop",
         "noesis-knowledge-engine.run_procurement_monitor",
@@ -2170,7 +2184,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1242
+      "visible_tool_count": 1256
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2183,9 +2197,9 @@
     "states": {
       "available": 127,
       "degraded": 159,
-      "unauthorized": 1266
+      "unauthorized": 1280
     },
-    "tools": 1552
+    "tools": 1566
   },
   "tools": [
     {
@@ -27477,6 +27491,105 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Section-by-section changes between two label revisions (two record ids, or a medicine's consecutive or\nchosen versions), quoting both revisions; unaligned sections reported, no significance rating.",
+      "id": "noesis-knowledge-engine.compare_medicine_labels",
+      "input_schema": {
+        "properties": {
+          "document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "from_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "left_record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "medicine": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "to_version": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "compare_medicine_labels",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Compare two pinned public rounds or revisions.",
       "id": "noesis-knowledge-engine.compare_openreview_rounds",
@@ -30446,6 +30559,60 @@
       ],
       "required_scopes": [
         "knowledge:materials:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch a medicine or substance for authorisation changes, label revisions and safety communications.",
+      "id": "noesis-knowledge-engine.create_medicines_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "medicine": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "medicine",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_medicines_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -47355,6 +47522,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link regulatory records to trials and publications they cite, and to FAERS counts by reviewed identity.",
+      "id": "noesis-knowledge-engine.link_medicine_evidence",
+      "input_schema": {
+        "properties": {
+          "document_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "observation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_medicine_evidence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link cited standards (exact reference) and legal acts (exact CELEX/ELI) to the standards catalogue and\nLegal works, per citing revision; never by topic, category or hazard similarity.",
       "id": "noesis-knowledge-engine.link_product_notice_citations",
       "input_schema": {
@@ -50209,6 +50428,50 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "RxNorm crosswalk records (kind, evidence, RxNorm release, review state and decisions).",
+      "id": "noesis-knowledge-engine.list_medicine_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_medicine_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -53378,6 +53641,228 @@
     },
     {
       "cost_class": "low",
+      "description": "The label revision in force on a date per label document: sections verbatim with locators (dosing\nsections are listed as omitted, never quoted).",
+      "id": "noesis-knowledge-engine.medicine_label_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "medicine": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "medicine",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medicine_label_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Authorisations, label revisions with section diffs and safety communications in date order, sources\nside by side, with explicitly cited trials and FAERS reporting counts; none on record is said so.",
+      "id": "noesis-knowledge-engine.medicine_regulatory_timeline",
+      "input_schema": {
+        "properties": {
+          "medicine": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "view_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "medicine"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "medicine_regulatory_timeline",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "FDA Drug Safety Communications naming a substance, with dated updates, quotes and the match used.",
+      "id": "noesis-knowledge-engine.medicine_safety_communications",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "substance": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "substance"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medicine_safety_communications",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Authorisation status per jurisdiction and product on a date, cited, with the identity match used.",
+      "id": "noesis-knowledge-engine.medicine_status_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "medicine": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "medicine",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medicine_status_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the medicines feature is selected, per-source access decisions, freshness and live state.",
+      "id": "noesis-knowledge-engine.medicines_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medicines_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Merge explicitly selected events into one reversible canonical revision.",
       "id": "noesis-knowledge-engine.merge_canonical_events",
       "input_schema": {
@@ -55273,6 +55758,48 @@
       ],
       "required_scopes": [
         "knowledge:materials:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll medicines monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_medicines_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_medicines_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -59065,6 +59592,40 @@
       ],
       "required_scopes": [
         "knowledge:mathematics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Look published medicine and substance names up in RxNav (bounded, receipted) and record crosswalk\ncandidates; EU products match by active substance only and wait for review; unmatched names reported.",
+      "id": "noesis-knowledge-engine.propose_medicine_identities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_medicine_identities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -69994,6 +70555,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Undo the latest review decision of a medicine identity match; decisions are kept.",
+      "id": "noesis-knowledge-engine.revert_medicine_identity",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_medicine_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a decision; the candidate becomes reverted and no earlier decision is reactivated.",
       "id": "noesis-knowledge-engine.revert_oss_identity_match",
       "input_schema": {
@@ -72009,6 +72611,51 @@
       ],
       "required_scopes": [
         "knowledge:mathematics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a medicine identity match with a reason.",
+      "id": "noesis-knowledge-engine.review_medicine_identity",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_medicine_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -75190,6 +75837,56 @@
       ],
       "required_scopes": [
         "knowledge:materials:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a medicines monitor at a committed watermark; unchanged records deliver nothing.",
+      "id": "noesis-knowledge-engine.run_medicines_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_medicines_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

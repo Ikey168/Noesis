@@ -30,13 +30,27 @@ SURVEILLANCE_TOOLS = SURVEILLANCE_WRITES | {
     "surveillance_reporting_delay", "surveillance_pin_status", "surveillance_series_links",
     "surveillance_series_claims", "poll_surveillance_monitor",
 }
-CLINICAL_WRITES = CLINICAL_WRITES | SURVEILLANCE_WRITES
+# The optional ``medicines`` feature's entry points (#2214): authorisation status and label text as of a date, label
+# diffs, safety communications, regulatory timelines, RxNorm identity review, citation links and monitors (records
+# in src/kb/clinical_medicines.py, provider clinical.medicines). Every answer carries the feature's boundary.
+MEDICINES_WRITES = {
+    "propose_medicine_identities", "review_medicine_identity", "revert_medicine_identity", "link_medicine_evidence",
+    "create_medicines_monitor", "run_medicines_monitor",
+    # Label diffs are stored as derived label-section-change records and reused (MR08), so these two write.
+    "compare_medicine_labels", "medicine_regulatory_timeline",
+}
+MEDICINES_TOOLS = MEDICINES_WRITES | {
+    "medicines_readiness", "medicine_status_as_of", "medicine_label_as_of", "medicine_safety_communications",
+    "list_medicine_identity_matches",
+    "poll_medicines_monitor",
+}
+CLINICAL_WRITES = CLINICAL_WRITES | SURVEILLANCE_WRITES | MEDICINES_WRITES
 CLINICAL_TOOLS = CLINICAL_WRITES | {
     "clinical_bundle_status", "clinical_provider_contracts", "lookup_clinical_trial", "clinical_trial_history",
     "clinical_coverage_gaps", "clinical_outcome_switching", "expand_clinical_question",
     "inspect_clinical_evidence_map", "clinical_strength_view", "export_clinical_evidence_bundle",
     "poll_clinical_monitor",
-} | SURVEILLANCE_TOOLS
+} | SURVEILLANCE_TOOLS | MEDICINES_TOOLS
 READ = "knowledge:clinical:read"
 WRITE = "knowledge:clinical:write"
 REVIEW = "knowledge:clinical:review"
@@ -70,6 +84,22 @@ SURVEILLANCE_SCOPES = {
     "create_surveillance_monitor": [READ, SUBSCRIPTIONS_WRITE],
     "run_surveillance_monitor": [READ, SUBSCRIPTIONS_READ, SUBSCRIPTIONS_WRITE],
 }
+MEDICINES_SCOPES = {
+    "medicines_readiness": [READ],
+    "medicine_status_as_of": [READ],
+    "medicine_label_as_of": [READ],
+    "compare_medicine_labels": [READ],
+    "medicine_safety_communications": [READ],
+    "medicine_regulatory_timeline": [READ],
+    "list_medicine_identity_matches": [READ],
+    "poll_medicines_monitor": [READ, SUBSCRIPTIONS_READ],
+    "propose_medicine_identities": [READ, WRITE],
+    "review_medicine_identity": [REVIEW],
+    "revert_medicine_identity": [REVIEW],
+    "link_medicine_evidence": [READ, WRITE],
+    "create_medicines_monitor": [READ, SUBSCRIPTIONS_WRITE],
+    "run_medicines_monitor": [READ, SUBSCRIPTIONS_READ, SUBSCRIPTIONS_WRITE],
+}
 CLINICAL_SCOPES = {
     "set_clinical_bundle_enabled": ["operator"],
     "import_prospero_registration": ["knowledge:clinical:write"],
@@ -96,6 +126,8 @@ def required_scopes(tool_name, mutability):
         return []
     if tool_name in SURVEILLANCE_SCOPES:
         return SURVEILLANCE_SCOPES[tool_name]
+    if tool_name in MEDICINES_SCOPES:
+        return MEDICINES_SCOPES[tool_name]
     return CLINICAL_SCOPES.get(tool_name, ["knowledge:clinical:write" if mutability == "write"
                                            else "knowledge:clinical:read"])
 
@@ -295,6 +327,7 @@ def register(mcp, safe, context):
             subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))
 
     register_surveillance(mcp, gated, who)
+    register_medicines(mcp, gated, who)
 
 
 def register_surveillance(mcp, gated, who):
@@ -527,3 +560,151 @@ def register_surveillance(mcp, gated, who):
 
         return sv(namespace, lambda conn: SurveillanceMonitor(conn).run(
             subscription_id, watermark, principal_id=who()[0], scopes=who()[1]), write=True, scope=READ)
+
+
+def register_medicines(mcp, gated, who):
+    """The optional ``medicines`` feature's tools; each answer carries the feature's boundary sentence."""
+    from src.kb.clinical_medicines import BOUNDARY
+
+    def md(namespace, operation, *, write=False, scope=READ):
+        def run(conn):
+            result = operation(conn)
+            return {**result, "boundary": BOUNDARY} if isinstance(result, dict) else result
+        return gated(namespace, run, write=write, scope=scope)
+
+    @mcp.tool()
+    def medicines_readiness(namespace: str) -> dict:
+        """Whether the medicines feature is selected, per-source access decisions, freshness and live state."""
+        from src.ingestion.medicines_sources import BOUNDED_SET, LIVE_VERIFICATION, PROVIDER_CONTRACTS
+        from src.kb.clinical_medicines import feature_enabled
+        from src.kb.clinical_records import ClinicalRecordStore, _require_read
+
+        def run(conn):
+            _require_read(namespace, who()[1])
+            store = ClinicalRecordStore(conn, initialize=False)
+            return {"feature": "medicines", "selected": feature_enabled(conn), "contracts": PROVIDER_CONTRACTS,
+                    "live_verification": LIVE_VERIFICATION, "bounded_set": BOUNDED_SET,
+                    "providers": {p: store.provider_state(namespace, p) for p in PROVIDER_CONTRACTS}}
+        return md(namespace, run)
+
+    @mcp.tool()
+    def medicine_status_as_of(namespace: str, medicine: str, as_of: str, jurisdiction: str | None = None) -> dict:
+        """Authorisation status per jurisdiction and product on a date, cited, with the identity match used."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).status_as_of(
+            namespace, medicine, as_of, scopes=who()[1], jurisdiction=jurisdiction))
+
+    @mcp.tool()
+    def medicine_label_as_of(namespace: str, medicine: str, as_of: str, provider: str | None = None) -> dict:
+        """The label revision in force on a date per label document: sections verbatim with locators (dosing
+        sections are listed as omitted, never quoted)."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).label_as_of(
+            namespace, medicine, as_of, scopes=who()[1], provider=provider))
+
+    @mcp.tool()
+    def compare_medicine_labels(namespace: str, medicine: str | None = None, left_record_id: str | None = None,
+                                right_record_id: str | None = None, document_id: str | None = None,
+                                from_version: str | None = None, to_version: str | None = None) -> dict:
+        """Section-by-section changes between two label revisions (two record ids, or a medicine's consecutive or
+        chosen versions), quoting both revisions; unaligned sections reported, no significance rating."""
+        from src.kb.clinical_medicines import MedicinesService
+        from src.kb.clinical_records import ClinicalRecordError
+
+        def run(conn):
+            service = MedicinesService(conn, initialize=False)
+            if left_record_id and right_record_id:
+                return service.diff(namespace, left_record_id, right_record_id, scopes=who()[1])
+            if not medicine:
+                raise ClinicalRecordError("invalid_request", "name a medicine or two label-revision record ids")
+            return service.what_changed(namespace, medicine, scopes=who()[1], document_id=document_id,
+                                        from_version=from_version, to_version=to_version)
+        return md(namespace, run, write=True, scope=READ)
+
+    @mcp.tool()
+    def medicine_safety_communications(namespace: str, substance: str) -> dict:
+        """FDA Drug Safety Communications naming a substance, with dated updates, quotes and the match used."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).communications(
+            namespace, substance, scopes=who()[1]))
+
+    @mcp.tool()
+    def medicine_regulatory_timeline(namespace: str, medicine: str, view_id: str | None = None) -> dict:
+        """Authorisations, label revisions with section diffs and safety communications in date order, sources
+        side by side, with explicitly cited trials and FAERS reporting counts; none on record is said so."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).timeline(
+            namespace, medicine, scopes=who()[1], view_id=view_id), write=True, scope=READ)
+
+    @mcp.tool()
+    def list_medicine_identity_matches(namespace: str, state: str | None = None) -> dict:
+        """RxNorm crosswalk records (kind, evidence, RxNorm release, review state and decisions)."""
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: {"matches": MedicineIdentity(conn, initialize=False).matches(
+            namespace, scopes=who()[1], state=state)})
+
+    @mcp.tool()
+    def propose_medicine_identities(namespace: str) -> dict:
+        """Look published medicine and substance names up in RxNav (bounded, receipted) and record crosswalk
+        candidates; EU products match by active substance only and wait for review; unmatched names reported."""
+        from src.ingestion.medicines_sources import RxNavClient
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: MedicineIdentity(conn).propose(
+            namespace, principal_id=who()[0], scopes=who()[1], client=RxNavClient()), write=True, scope=WRITE)
+
+    @mcp.tool()
+    def review_medicine_identity(namespace: str, match_id: str, decision: str, reason: str) -> dict:
+        """Accept or reject a medicine identity match with a reason."""
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: MedicineIdentity(conn).review(
+            namespace, match_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True,
+            scope=REVIEW)
+
+    @mcp.tool()
+    def revert_medicine_identity(namespace: str, match_id: str, reason: str) -> dict:
+        """Undo the latest review decision of a medicine identity match; decisions are kept."""
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: MedicineIdentity(conn).revert(
+            namespace, match_id, reason, principal_id=who()[0], scopes=who()[1]), write=True, scope=REVIEW)
+
+    @mcp.tool()
+    def link_medicine_evidence(namespace: str, observation: str, document_ids: list[str] | None = None) -> dict:
+        """Link regulatory records to trials and publications they cite, and to FAERS counts by reviewed identity."""
+        from src.kb.clinical_publications import PublicationLinker
+
+        return md(namespace, lambda conn: PublicationLinker(conn).link_medicines(
+            namespace, principal_id=who()[0], scopes=who()[1], observation_id=observation,
+            document_ids=document_ids), write=True, scope=WRITE)
+
+    @mcp.tool()
+    def create_medicines_monitor(namespace: str, medicine: str, request_key: str, delivery: dict | None = None) -> dict:
+        """Watch a medicine or substance for authorisation changes, label revisions and safety communications."""
+        from src.kb.clinical_monitoring import MedicinesMonitor
+
+        return md(namespace, lambda conn: MedicinesMonitor(conn).create_medicine(
+            namespace, medicine, request_key, principal_id=who()[0], scopes=who()[1], delivery=delivery),
+            write=True, scope=READ)
+
+    @mcp.tool()
+    def run_medicines_monitor(namespace: str, subscription_id: str, watermark: int | None = None) -> dict:
+        """Evaluate a medicines monitor at a committed watermark; unchanged records deliver nothing."""
+        from src.kb.clinical_monitoring import MedicinesMonitor
+
+        return md(namespace, lambda conn: MedicinesMonitor(conn).run_medicine(
+            subscription_id, watermark, principal_id=who()[0], scopes=who()[1]), write=True, scope=READ)
+
+    @mcp.tool()
+    def poll_medicines_monitor(namespace: str, subscription_id: str, cursor: str = "") -> dict:
+        """Poll medicines monitor events after a cursor."""
+        from src.kb.clinical_monitoring import MedicinesMonitor
+
+        return md(namespace, lambda conn: MedicinesMonitor(conn, initialize=False).poll(
+            subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))

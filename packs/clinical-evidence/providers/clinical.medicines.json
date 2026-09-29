@@ -1,0 +1,333 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "clinical.medicines",
+  "version": "1.0.0",
+  "description": "Medicines regulation of the Clinical Evidence bundle: EMA EPARs and product information, Drugs@FDA submission history (through the openFDA provider), DailyMed SPL versions and FDA Drug Safety Communications as authorisation, label-revision, section-change and safety-communication records with RxNorm identity review, citation links, as-of answers, timelines and monitors. No prescribing, dosing or treatment advice.",
+  "implementation": {
+    "name": "src.kb.clinical_medicines",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "clinical.medicines-regulation",
+      "contract": {
+        "name": "noesis-clinical-medicines-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "medicines-readiness",
+        "status-as-of",
+        "label-as-of",
+        "label-diff",
+        "communications",
+        "timeline",
+        "link-evidence"
+      ],
+      "semantic_constraints": {
+        "records": "medicinal-product, marketing-authorisation event, label-revision, label-section-change and safety-communication records in the clinical record store, each with source, native revision, as-of time and the provider's disclaimer or attribution",
+        "authorisations": "each status change is a new dated record per jurisdiction, authority and procedure or application number; withdrawn medicines keep their withdrawal date and quoted reason",
+        "labels": "sections keyed by the regulator's section codes (LOINC for SPL, SmPC numbers for EMA), verbatim with locators; dosing sections listed as omitted and never quoted",
+        "diffs": "aligned by section code, quoting both revisions; unaligned sections reported; no summary or significance rating",
+        "links": "trials and publications only when the regulator's text cites their identifier; FAERS reporting counts only through accepted substance identity on both sides",
+        "exclusions": "no prescribing, dosing or treatment advice and no efficacy or safety verdict beyond quoting the regulator"
+      }
+    },
+    {
+      "id": "clinical.medicines-identity",
+      "contract": {
+        "name": "noesis-clinical-medicines-identity",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "identity-matches",
+        "propose-identities",
+        "review-identity",
+        "revert-identity"
+      ],
+      "semantic_constraints": {
+        "rxnorm": "RxNav exact-name lookups, bounded and receipted, with the RxNorm release stored on every match",
+        "review": "equivalent/broader/narrower crosswalks with evidence and review state; reviewable, rejectable and revertible; EU products match by active substance only after review",
+        "unmatched": "names without an RxNorm concept are reported; nothing is guessed from similar names"
+      }
+    },
+    {
+      "id": "clinical.medicines-monitoring",
+      "contract": {
+        "name": "noesis-clinical-medicines-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "events": "authorisation status changes, new label revisions with section changes and new or updated safety communications, deduplicated at committed watermarks",
+        "schedule": "source-pack runtime schedules and the maintenance orchestrator; no new scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "medicines-readiness",
+      "tool": "noesis-knowledge-engine.medicines_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "status-as-of",
+      "tool": "noesis-knowledge-engine.medicine_status_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "label-as-of",
+      "tool": "noesis-knowledge-engine.medicine_label_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "label-diff",
+      "tool": "noesis-knowledge-engine.compare_medicine_labels",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "label-revision record ids and revisions"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "communications",
+      "tool": "noesis-knowledge-engine.medicine_safety_communications",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "timeline",
+      "tool": "noesis-knowledge-engine.medicine_regulatory_timeline",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "medicine and view id"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-matches",
+      "tool": "noesis-knowledge-engine.list_medicine_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "matches",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identities",
+      "tool": "noesis-knowledge-engine.propose_medicine_identities",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "RxNorm release and subject names"
+      },
+      "readiness_probe": "matches",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_medicine_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match id and decision"
+      },
+      "readiness_probe": "matches",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_medicine_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match id and decision history"
+      },
+      "readiness_probe": "matches",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-evidence",
+      "tool": "noesis-knowledge-engine.link_medicine_evidence",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "observation id"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_medicines_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_medicines_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription and watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_medicines_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "clinical-medicine-identity-match",
+      "store": "src.kb.clinical_terms",
+      "tables": [
+        "clinical_medicine_matches",
+        "clinical_medicine_match_decisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "clinical_records"
+    },
+    {
+      "id": "matches",
+      "kind": "table-exists",
+      "target": "clinical_medicine_matches"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "clinical_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "clinical-evidence",
+      "version": "0.1.2",
+      "range": "^0.1.2"
+    }
+  ]
+}
