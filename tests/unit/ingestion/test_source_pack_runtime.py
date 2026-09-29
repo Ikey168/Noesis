@@ -643,6 +643,7 @@ def test_six_domain_offline_execution(setup):
         "engineering-safety",
         "geospatial",
         "legal",
+        "linguistics",
         "market",
         "materials",
         "onchain",

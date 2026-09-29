@@ -104,6 +104,10 @@ MATRIX = {
     "Place to cited weather record":
         "tests/unit/domains/test_weather_acceptance.py::"
         "test_place_to_cited_observations_forecasts_warnings_verification_links_and_monitors",
+    # The Linguistics pack's offline journey (#2190) composes its record owner, reviewable identity through
+    # entity history, the cross-language records, Geospatial places, subscriptions and the source-pack runtime.
+    "Word to cited lexeme dossier":
+        "tests/unit/domains/test_linguistics_acceptance.py::test_word_to_cited_lexeme_dossier_offline",
 }
 
 

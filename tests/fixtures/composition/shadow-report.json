@@ -35,6 +35,8 @@
     "geospatial.spatial-relation",
     "geospatial.transit-schedules",
     "legal.works",
+    "linguistics.languoids",
+    "linguistics.lexicon",
     "market.instruments",
     "market.legal-entities",
     "materials.citations",
@@ -51,6 +53,7 @@
     "ownership.records",
     "ownership.timeline",
     "platform.authored-reports",
+    "platform.cross-language",
     "platform.decisions",
     "platform.entity-identity",
     "platform.research-projects",
@@ -90,6 +93,7 @@
     "funding-grants",
     "geospatial",
     "legal",
+    "linguistics",
     "market",
     "materials",
     "news",
@@ -139,6 +143,7 @@
     "noesis-knowledge-engine.create_funding_monitor",
     "noesis-knowledge-engine.create_funding_profile",
     "noesis-knowledge-engine.create_funding_workspace",
+    "noesis-knowledge-engine.create_linguistics_monitor",
     "noesis-knowledge-engine.create_material_watch",
     "noesis-knowledge-engine.create_paper_family",
     "noesis-knowledge-engine.create_procurement_monitor",
@@ -150,6 +155,7 @@
     "noesis-knowledge-engine.create_sports_monitor",
     "noesis-knowledge-engine.create_weather_monitor",
     "noesis-knowledge-engine.decide_procurement_party_link",
+    "noesis-knowledge-engine.definition_changes",
     "noesis-knowledge-engine.directives_as_of",
     "noesis-knowledge-engine.draft_funding_application",
     "noesis-knowledge-engine.draft_procurement_bid",
@@ -159,6 +165,7 @@
     "noesis-knowledge-engine.expand_clinical_question",
     "noesis-knowledge-engine.export_clinical_evidence_bundle",
     "noesis-knowledge-engine.export_environment_dossier",
+    "noesis-knowledge-engine.export_lexeme_dossier",
     "noesis-knowledge-engine.export_ownership_dossier",
     "noesis-knowledge-engine.export_sports_records",
     "noesis-knowledge-engine.forecast_as_issued",
@@ -167,6 +174,7 @@
     "noesis-knowledge-engine.get_entity_identity_history",
     "noesis-knowledge-engine.get_legal_passages",
     "noesis-knowledge-engine.get_methodology_study",
+    "noesis-knowledge-engine.get_original_language_text",
     "noesis-knowledge-engine.impact_risk_listing_as_of",
     "noesis-knowledge-engine.import_prospero_registration",
     "noesis-knowledge-engine.import_sports_olympic_results",
@@ -191,7 +199,11 @@
     "noesis-knowledge-engine.inspect_review_protocol",
     "noesis-knowledge-engine.inspect_safety_record",
     "noesis-knowledge-engine.inspect_standard_edition",
+    "noesis-knowledge-engine.languoid_profile",
     "noesis-knowledge-engine.lei_parents_as_of",
+    "noesis-knowledge-engine.lexeme_cross_language_links",
+    "noesis-knowledge-engine.lexeme_etymology",
+    "noesis-knowledge-engine.linguistics_readiness",
     "noesis-knowledge-engine.link_astronomy_citations",
     "noesis-knowledge-engine.link_clinical_publications",
     "noesis-knowledge-engine.link_safety_citations",
@@ -201,6 +213,7 @@
     "noesis-knowledge-engine.list_environment_grid_events",
     "noesis-knowledge-engine.list_environment_operator_links",
     "noesis-knowledge-engine.list_funding_opportunities",
+    "noesis-knowledge-engine.list_linguistic_identity_candidates",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
     "noesis-knowledge-engine.list_procurement_notices",
     "noesis-knowledge-engine.list_safety_subject_matches",
@@ -209,6 +222,7 @@
     "noesis-knowledge-engine.lookup_clinical_trial",
     "noesis-knowledge-engine.lookup_environment_series",
     "noesis-knowledge-engine.lookup_legal_work",
+    "noesis-knowledge-engine.lookup_lexeme",
     "noesis-knowledge-engine.lookup_material",
     "noesis-knowledge-engine.lookup_ownership_entity",
     "noesis-knowledge-engine.lookup_product_models",
@@ -216,6 +230,7 @@
     "noesis-knowledge-engine.material_release_changes",
     "noesis-knowledge-engine.materials_bundle_status",
     "noesis-knowledge-engine.materials_source_contracts",
+    "noesis-knowledge-engine.multilingual_search",
     "noesis-knowledge-engine.orbit_solution_as_of",
     "noesis-knowledge-engine.ownership_graph",
     "noesis-knowledge-engine.ownership_provider_contracts",
@@ -227,6 +242,7 @@
     "noesis-knowledge-engine.poll_clinical_monitor",
     "noesis-knowledge-engine.poll_engineering_safety_monitor",
     "noesis-knowledge-engine.poll_environment_monitor",
+    "noesis-knowledge-engine.poll_linguistics_monitor",
     "noesis-knowledge-engine.poll_material_watch",
     "noesis-knowledge-engine.poll_sports_monitor",
     "noesis-knowledge-engine.poll_weather_monitor",
@@ -234,8 +250,11 @@
     "noesis-knowledge-engine.procurement_notice_history",
     "noesis-knowledge-engine.procurement_party_candidates",
     "noesis-knowledge-engine.procurement_provider_contracts",
+    "noesis-knowledge-engine.project_languoid_locations",
     "noesis-knowledge-engine.propose_astronomy_identity_matches",
     "noesis-knowledge-engine.propose_environment_operator_links",
+    "noesis-knowledge-engine.propose_languoid_matches",
+    "noesis-knowledge-engine.propose_lexeme_matches",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
     "noesis-knowledge-engine.propose_safety_subject_matches",
     "noesis-knowledge-engine.propose_sports_identity_matches",
@@ -244,6 +263,7 @@
     "noesis-knowledge-engine.record_clinical_trial_design",
     "noesis-knowledge-engine.record_entity_identity_decision",
     "noesis-knowledge-engine.record_geospatial_resolution",
+    "noesis-knowledge-engine.record_iso_code_events",
     "noesis-knowledge-engine.record_ownership_register_document",
     "noesis-knowledge-engine.record_sports_club_lineage",
     "noesis-knowledge-engine.record_sports_decision",
@@ -268,6 +288,7 @@
     "noesis-knowledge-engine.review_clinical_publication_link",
     "noesis-knowledge-engine.review_environment_operator_link",
     "noesis-knowledge-engine.review_geospatial_resolution",
+    "noesis-knowledge-engine.review_linguistic_identity_match",
     "noesis-knowledge-engine.review_ownership_identity_match",
     "noesis-knowledge-engine.review_safety_subject_match",
     "noesis-knowledge-engine.review_sports_identity_match",
@@ -291,6 +312,7 @@
     "noesis-knowledge-engine.search_mathematics",
     "noesis-knowledge-engine.search_methodology_studies",
     "noesis-knowledge-engine.search_safety_recommendations",
+    "noesis-knowledge-engine.sense_history",
     "noesis-knowledge-engine.simplify_geospatial_geometry",
     "noesis-knowledge-engine.small_body_history",
     "noesis-knowledge-engine.sports_fixture_history",
@@ -2719,6 +2741,360 @@
         "tool": "noesis-knowledge-engine.lookup_legal_work"
       }
     ],
+    "linguistics": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_linguistics_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_linguistics_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.definition_changes"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.definition_changes"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_lexeme_dossier"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_lexeme_dossier"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.languoid_profile"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.languoid_profile"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lexeme_cross_language_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lexeme_cross_language_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lexeme_etymology"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lexeme_etymology"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.linguistics_readiness"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.linguistics_readiness"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_linguistic_identity_candidates"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_linguistic_identity_candidates"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lookup_lexeme"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.lookup_lexeme"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_linguistics_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_linguistics_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.project_languoid_locations"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.project_languoid_locations"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_languoid_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_languoid_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_lexeme_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_lexeme_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_iso_code_events"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.record_iso_code_events"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_linguistic_identity_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_linguistic_identity_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "linguistics",
+        "composition": "linguistics",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sense_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "linguistics",
+        "composition": [
+          "linguistic-records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.sense_history"
+      }
+    ],
     "market": [
       {
         "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
@@ -3312,6 +3688,19 @@
         "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
         "bundle": "platform",
         "composition": [
+          "language-texts"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.get_original_language_text"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "platform",
+        "composition": [
           "reports"
         ],
         "field": "required_data",
@@ -3346,6 +3735,19 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.inspect_research_project"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "platform",
+        "composition": [
+          "language-texts"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.multilingual_search"
       },
       {
         "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",

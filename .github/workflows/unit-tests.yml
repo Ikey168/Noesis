@@ -74,6 +74,7 @@ jobs:
             tests/unit/handlers \
             tests/unit/ingestion \
             tests/unit/kb \
+            tests/unit/linguistics \
             tests/unit/logging \
             tests/unit/mcp_host \
             tests/unit/ml \

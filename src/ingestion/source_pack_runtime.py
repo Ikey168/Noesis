@@ -238,6 +238,12 @@ def _weather_projector(conn: Any) -> Any:
     return WeatherProjector(conn)
 
 
+def _linguistics_projector(conn: Any) -> Any:
+    from src.kb.linguistics_store import LinguisticsProjector
+
+    return LinguisticsProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
@@ -277,6 +283,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-engineering-safety-record-v1": _engineering_safety_projector,
     "noesis-material-record-v1": _materials_projector,
     "noesis-sports-record-v1": _sports_projector,
+    "noesis-linguistic-record-v1": _linguistics_projector,
 }
 
 _DDL = """

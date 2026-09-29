@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1163,
+      "tool_count": 1185,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1100,6 +1100,7 @@
         "noesis-knowledge-engine.create_intake_skill",
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
+        "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
         "noesis-knowledge-engine.create_material_watch",
         "noesis-knowledge-engine.create_paper_family",
@@ -1136,6 +1137,7 @@
         "noesis-knowledge-engine.decide_source_alias",
         "noesis-knowledge-engine.decisions_citing_provision",
         "noesis-knowledge-engine.decrypt_research_package",
+        "noesis-knowledge-engine.definition_changes",
         "noesis-knowledge-engine.delete_source_identity",
         "noesis-knowledge-engine.deliver_anomaly_alert",
         "noesis-knowledge-engine.deliver_change_briefs",
@@ -1226,6 +1228,7 @@
         "noesis-knowledge-engine.export_intake_research_bundle",
         "noesis-knowledge-engine.export_investigation_comparison",
         "noesis-knowledge-engine.export_legislative_dossier_changes",
+        "noesis-knowledge-engine.export_lexeme_dossier",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
         "noesis-knowledge-engine.export_openreview_round_comparison",
         "noesis-knowledge-engine.export_ownership_dossier",
@@ -1308,6 +1311,7 @@
         "noesis-knowledge-engine.import_sports_olympic_results",
         "noesis-knowledge-engine.import_surveillance_export",
         "noesis-knowledge-engine.import_technical_inventory",
+        "noesis-knowledge-engine.index_linguistic_texts",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_intake_newsletter_message",
         "noesis-knowledge-engine.ingest_tabular_dataset",
@@ -1410,6 +1414,7 @@
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.instantiate_investigation_template",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
+        "noesis-knowledge-engine.languoid_profile",
         "noesis-knowledge-engine.legal_readiness",
         "noesis-knowledge-engine.legal_retrieval_modes",
         "noesis-knowledge-engine.legal_selection_outcomes",
@@ -1417,6 +1422,9 @@
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.lei_parents_as_of",
+        "noesis-knowledge-engine.lexeme_cross_language_links",
+        "noesis-knowledge-engine.lexeme_etymology",
+        "noesis-knowledge-engine.linguistics_readiness",
         "noesis-knowledge-engine.link_amendment_dossiers",
         "noesis-knowledge-engine.link_astronomy_citations",
         "noesis-knowledge-engine.link_budget_acts",
@@ -1480,6 +1488,7 @@
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
         "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
+        "noesis-knowledge-engine.list_linguistic_identity_candidates",
         "noesis-knowledge-engine.list_lobbying_dossier_links",
         "noesis-knowledge-engine.list_lobbying_identity_candidates",
         "noesis-knowledge-engine.list_maintenance_due_work",
@@ -1521,6 +1530,7 @@
         "noesis-knowledge-engine.lookup_environment_series",
         "noesis-knowledge-engine.lookup_launches",
         "noesis-knowledge-engine.lookup_legal_work",
+        "noesis-knowledge-engine.lookup_lexeme",
         "noesis-knowledge-engine.lookup_material",
         "noesis-knowledge-engine.lookup_ownership_entity",
         "noesis-knowledge-engine.lookup_product_models",
@@ -1569,6 +1579,7 @@
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
+        "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_material_watch",
         "noesis-knowledge-engine.poll_procurement_monitor",
@@ -1615,6 +1626,7 @@
         "noesis-knowledge-engine.products_readiness",
         "noesis-knowledge-engine.project_bafin_voting_rights",
         "noesis-knowledge-engine.project_election_boundaries",
+        "noesis-knowledge-engine.project_languoid_locations",
         "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.promote_intake_work_procedure",
         "noesis-knowledge-engine.promote_problem_playbook",
@@ -1637,7 +1649,10 @@
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
+        "noesis-knowledge-engine.propose_languoid_matches",
         "noesis-knowledge-engine.propose_lei_registry_links",
+        "noesis-knowledge-engine.propose_lexeme_alias",
+        "noesis-knowledge-engine.propose_lexeme_matches",
         "noesis-knowledge-engine.propose_lobbying_dossier_link",
         "noesis-knowledge-engine.propose_lobbying_identity_link",
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
@@ -1682,6 +1697,7 @@
         "noesis-knowledge-engine.record_funding_workspace_outcome",
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_intake_iteration_outcome",
+        "noesis-knowledge-engine.record_iso_code_events",
         "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_maintenance_finding",
         "noesis-knowledge-engine.record_math_object",
@@ -1816,6 +1832,7 @@
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
         "noesis-knowledge-engine.revert_housing_link",
+        "noesis-knowledge-engine.revert_linguistic_identity_match",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
         "noesis-knowledge-engine.revert_material_match",
@@ -1854,6 +1871,8 @@
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_intake_iteration_stability",
+        "noesis-knowledge-engine.review_languoid_location",
+        "noesis-knowledge-engine.review_linguistic_identity_match",
         "noesis-knowledge-engine.review_lobbying_dossier_link",
         "noesis-knowledge-engine.review_lobbying_identity_match",
         "noesis-knowledge-engine.review_material_match",
@@ -1911,6 +1930,7 @@
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
+        "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
@@ -1958,6 +1978,7 @@
         "noesis-knowledge-engine.search_safety_recommendations",
         "noesis-knowledge-engine.select_legal_version_as_of",
         "noesis-knowledge-engine.select_paper_family_citation",
+        "noesis-knowledge-engine.sense_history",
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
         "noesis-knowledge-engine.set_climate_environment_bundle_enabled",
         "noesis-knowledge-engine.set_clinical_bundle_enabled",
@@ -2057,6 +2078,7 @@
         "noesis-knowledge-engine.transition_anomaly_alert",
         "noesis-knowledge-engine.triage_awareness_batch",
         "noesis-knowledge-engine.triage_awareness_item",
+        "noesis-knowledge-engine.typological_profile",
         "noesis-knowledge-engine.undo_entity_identity_change",
         "noesis-knowledge-engine.unified_query_capabilities",
         "noesis-knowledge-engine.update_funding_profile",
@@ -2091,7 +2113,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1163
+      "visible_tool_count": 1185
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2104,9 +2126,9 @@
     "states": {
       "available": 122,
       "degraded": 159,
-      "unauthorized": 1192
+      "unauthorized": 1214
     },
-    "tools": 1473
+    "tools": 1495
   },
   "tools": [
     {
@@ -29906,6 +29928,64 @@
     },
     {
       "cost_class": "medium",
+      "description": "A subscription on a lexeme, sense, languoid (Glottocode) or WALS parameter; events definition_revised,\nsense_added, sense_removed, etymology_changed, classification_changed, iso_code_changed and\nfeature_value_changed cite the old and new revision or release. No new scheduler.",
+      "id": "noesis-knowledge-engine.create_linguistics_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_linguistics_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription on a dossier, a registrant entry, a client or an office holder; no new scheduler.",
       "id": "noesis-knowledge-engine.create_lobbying_monitor",
       "input_schema": {
@@ -32201,6 +32281,43 @@
       ],
       "required_scopes": [
         "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every definition revision of a sense per source, in source order, with the revisions that restated it.",
+      "id": "noesis-knowledge-engine.definition_changes",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "sense": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "sense"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "definition_changes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -36404,6 +36521,66 @@
     },
     {
       "cost_class": "low",
+      "description": "A lexeme dossier for export under ``target_licence``. Refused when it contains CC BY-SA Wiktionary\ncontent and the licence is not share-alike compatible (unless ``exclude_share_alike`` lists and drops it),\nand whenever attribution would be removed.",
+      "id": "noesis-knowledge-engine.export_lexeme_dossier",
+      "input_schema": {
+        "properties": {
+          "exclude_share_alike": {
+            "default": false,
+            "type": "boolean"
+          },
+          "keep_attribution": {
+            "default": true,
+            "type": "boolean"
+          },
+          "languoid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lemma": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target_licence": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lemma",
+          "target_licence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_lexeme_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Project scoped bridge links; v2 also reports recorded session progress.",
       "id": "noesis-knowledge-engine.export_modulo_intake_handoff",
       "input_schema": {
@@ -40356,6 +40533,40 @@
       ],
       "required_scopes": [
         "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Write current definitions and lemmas as noesis-language-text-v1 texts so multilingual_search surfaces\nlexeme senses; idempotent, one text per revision, licence kept in the metadata.",
+      "id": "noesis-knowledge-engine.index_linguistic_texts",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "index_linguistic_texts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:cross-language:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -44742,6 +44953,54 @@
     },
     {
       "cost_class": "low",
+      "description": "A languoid (Glottocode, ISO 639-3 or Wiktionary code) with identifiers, classification path and its\nhistory across releases, location, ISO macrolanguage and retirement context and WALS values with their\nreferences. A feature without a value is 'no value on record'; ambiguous codes are never guessed.",
+      "id": "noesis-knowledge-engine.languoid_profile",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "languoid": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "languoid"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "languoid_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Per-provider/jurisdiction readiness; planned or uninstalled sources are never listed as ready.",
       "id": "noesis-knowledge-engine.legal_readiness",
       "input_schema": {
@@ -45024,6 +45283,124 @@
       ],
       "required_scopes": [
         "knowledge:companies:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Source-stated cross-language links of a lexeme or sense: Wiktionary translation-table rows and senses\nthat state the same Wikidata item, each with its citations. Links, not identity claims.",
+      "id": "noesis-knowledge-engine.lexeme_cross_language_links",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lexeme_cross_language_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The cited etymology chain of a lexeme (and its reviewed equivalents): each link names its relation, the\nsource's native value, its references (DOIs resolved to literature records) and citation. Disputed\netymologies are shown side by side and never resolved; proto-forms stay cited text.",
+      "id": "noesis-knowledge-engine.lexeme_etymology",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lexeme": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lexeme"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lexeme_etymology",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider acquisition state, the selected optional features (linguistics-wiktionary,\nlinguistics-typology), live-verification status (unverified-live until a dated live run) and exclusions.",
+      "id": "noesis-knowledge-engine.linguistics_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "linguistics_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48456,6 +48833,72 @@
     },
     {
       "cost_class": "low",
+      "description": "Languoid and lexeme identity candidates with basis, evidence and state (proposed, accepted, rejected,\nreverted). Candidates are proposals; records are never merged.",
+      "id": "noesis-knowledge-engine.list_linguistic_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_linguistic_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Links and candidates for a dossier with their basis, cited dossier and register revisions and review state.",
       "id": "noesis-knowledge-engine.list_lobbying_dossier_links",
       "input_schema": {
@@ -50671,6 +51114,65 @@
       ],
       "required_scopes": [
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every source's lexeme for a word (NFC, case-folded lemma), optionally in one languoid (Glottocode or\nISO 639-3): forms and paradigm tables grouped by grammatical features, senses, definitions as published,\nusage examples and Leipzig-validated glosses, identity candidates and citations. Sources stay side by side;\nCC BY-SA content is flagged. Noesis translations are labelled and never shown as sourced definitions.",
+      "id": "noesis-knowledge-engine.lookup_lexeme",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "languoid": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lemma": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lemma"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_lexeme",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -52913,6 +53415,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a linguistics monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_linguistics_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_linguistics_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a lobbying monitor's events through the subscription delivery path.",
       "id": "noesis-knowledge-engine.poll_lobbying_monitor",
       "input_schema": {
@@ -55056,6 +55596,45 @@
     },
     {
       "cost_class": "medium",
+      "description": "Store each Glottolog point as a geometry and place and save a resolution awaiting Geospatial review.",
+      "id": "noesis-knowledge-engine.project_languoid_locations",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "project_languoid_locations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Promote an escalated item with its source and annotation references.",
       "id": "noesis-knowledge-engine.promote_awareness_item",
       "input_schema": {
@@ -56259,6 +56838,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose candidates for language references that do not resolve deterministically (macrolanguages,\nretired or split ISO codes, shared ISO codes); stated Glottocodes and ISO codes resolve without a\ncandidate. Candidates stay proposed until reviewed.",
+      "id": "noesis-knowledge-engine.propose_languoid_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_languoid_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Candidates between LEIs and existing OpenCorporates records on jurisdiction + registry number.",
       "id": "noesis-knowledge-engine.propose_lei_registry_links",
       "input_schema": {
@@ -56285,6 +56898,86 @@
       ],
       "required_scopes": [
         "knowledge:companies:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a lexeme's lemma as a candidate multilingual alias of a canonical entity whose Wikidata item a\nsense of the lexeme states; only review_multilingual_alias can accept it.",
+      "id": "noesis-knowledge-engine.propose_lexeme_alias",
+      "input_schema": {
+        "properties": {
+          "entity_id": {
+            "type": "string"
+          },
+          "item": {
+            "type": "string"
+          },
+          "lexeme": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "lexeme",
+          "entity_id",
+          "item"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lexeme_alias",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:cross-language:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose cross-source lexeme candidates (same languoid, lemma and lexical category; a shared\nsource-stated sense item upgrades them). Homographs are never paired and nothing is merged.",
+      "id": "noesis-knowledge-engine.propose_lexeme_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lexeme_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:write",
+        "knowledge:linguistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -58522,6 +59215,39 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record acquired ISO 639-3 retirements, changes and splits as identity-history events (idempotent).",
+      "id": "noesis-knowledge-engine.record_iso_code_events",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_iso_code_events",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -66841,6 +67567,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected candidate; the earlier decision is never reactivated.",
+      "id": "noesis-knowledge-engine.revert_linguistic_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_linguistic_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed dossier-link decision; explicit register fields cannot be reverted.",
       "id": "noesis-knowledge-engine.revert_lobbying_dossier_link",
       "input_schema": {
@@ -68573,6 +69340,97 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or defer a languoid place resolution through the Geospatial owner.",
+      "id": "noesis-knowledge-engine.review_languoid_location",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "resolution_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_languoid_location",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read",
+        "knowledge:geospatial:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed languoid or lexeme candidate; recorded as an entity-history decision.",
+      "id": "noesis-knowledge-engine.review_linguistic_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_linguistic_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -71597,6 +72455,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a linguistics monitor at a committed watermark (the first run is an in_view baseline).",
+      "id": "noesis-knowledge-engine.run_linguistics_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_linguistics_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a monitor at a committed watermark: registrations, deregistrations, spend or client revisions\n(old and new as filed) and meetings, each citing the new and previous register revision.",
       "id": "noesis-knowledge-engine.run_lobbying_monitor",
       "input_schema": {
@@ -74419,6 +75323,47 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The definition revision in force per source (and definition language) for a sense on a date, by the\nsource's own revision date; 'no revision in force' is listed as unknown.",
+      "id": "noesis-knowledge-engine.sense_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "sense": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "sense",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "sense_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -80054,6 +80999,54 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "WALS feature values of a languoid through the Glottocode WALS publishes, each with its source\nreferences and release; a declared feature without a value is 'no value on record'.",
+      "id": "noesis-knowledge-engine.typological_profile",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "languoid": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "languoid"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "typological_profile",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:linguistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

@@ -217,6 +217,11 @@ For the project overview and local setup, start with the
   and CelesTrak launches and objects and NOAA SWPC alerts as of a date, linked to Science papers by bibcode or DOI,
   with reviewable identity and monitors; no orbit determination, risk verdict or disposition by Noesis;
   [source audit](development/astronomy-evidence/source-audit.md)
+- [Linguistics guide](guides/linguistics.md) — word-centred lexemes, forms, senses and definition revisions from
+  Wikidata lexemes and Wiktionary, cited etymology chains, languages and dialects resolved to Glottocode and
+  ISO 639-3 through reviewable identity, WALS typological profiles and monitors; CC BY-SA attribution travels
+  with Wiktionary output, and no machine translation is presented as sourced;
+  [source audit](development/linguistics-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

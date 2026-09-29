@@ -1,0 +1,133 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "linguistics",
+  "version": "1.0.0",
+  "description": "Linguistics: word-centred lexeme, form, sense and definition-revision records from Wikidata lexemes and Wiktionary (kaikki.org Wiktextract), cited etymology chains, languages and dialects resolved through reviewable identity with Glottocodes and ISO 639-3, WALS typological profiles and CLDR locale data. Every definition, gloss and etymology is attributed to its source and revision.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "dialect",
+      "glottocode",
+      "language",
+      "languoid",
+      "lemma",
+      "lexeme",
+      "word"
+    ],
+    "sources": [
+      "cldr",
+      "glottolog",
+      "wals",
+      "wikidata lexeme",
+      "wiktionary"
+    ],
+    "overview": [
+      "definition",
+      "etymology",
+      "meaning",
+      "typology"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "word-centred-lexeme-records",
+    "attributed-definition-revisions",
+    "cited-etymology-chains",
+    "reviewable-languoid-identity",
+    "cited-typological-profiles",
+    "share-alike-aware-exports"
+  ],
+  "schema_versions": {
+    "linguistic-record": "1.0.0",
+    "linguistic-identity-candidate": "1.0.0",
+    "linguistic-etymology": "1.0.0",
+    "linguistic-notification": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-linguistic-record-v1",
+      "noesis-language-text-v1",
+      "noesis-multilingual-alias-v1",
+      "noesis-translation-record-v1",
+      "noesis-entity-identity-decision-v1"
+    ],
+    "object_types": [
+      "lexeme",
+      "form",
+      "sense",
+      "definition_revision",
+      "gloss",
+      "usage_example",
+      "etymology_assertion",
+      "languoid",
+      "typological_value",
+      "locale_data"
+    ],
+    "relation_types": [
+      "inherited",
+      "borrowed",
+      "derived",
+      "calque",
+      "cognate",
+      "compound-of",
+      "form_of",
+      "sense_of",
+      "classified_under",
+      "dialect_of"
+    ]
+  },
+  "source_pack": "config/source_packs/linguistics.json",
+  "query_examples": [
+    {
+      "intent": "What does this word mean according to each source",
+      "tool": "lookup_lexeme",
+      "arguments": {
+        "namespace": "linguistics",
+        "lemma": "tamo",
+        "languoid": "nort3456"
+      },
+      "semantics": "every source's lexeme side by side with forms, paradigms, senses and definitions as published; CC BY-SA content flagged"
+    },
+    {
+      "intent": "What did this sense mean on a date",
+      "tool": "sense_history",
+      "arguments": {
+        "namespace": "linguistics",
+        "sense": "<sense record key>",
+        "as_of": "2026-04-01"
+      },
+      "semantics": "the definition revision in force per source at that date"
+    },
+    {
+      "intent": "Where does this word come from",
+      "tool": "lexeme_etymology",
+      "arguments": {
+        "namespace": "linguistics",
+        "lexeme": "<lexeme record key>"
+      },
+      "semantics": "cited assertions only; disputed etymologies side by side; unresolved endpoints stay cited text"
+    },
+    {
+      "intent": "Which language is this and what is its typology",
+      "tool": "languoid_profile",
+      "arguments": {
+        "namespace": "linguistics",
+        "languoid": "qnv"
+      },
+      "semantics": "identifiers, classification path, location and WALS values with references"
+    }
+  ],
+  "exclusions": [
+    "machine-translated or model-generated definitions, glosses or etymologies presented as sourced",
+    "speaker personal data (recordings of identifiable speakers, informant names, contributor profiles)",
+    "language-status, endangerment or correctness verdicts beyond quoting the source",
+    "mirroring of full dumps beyond the bounded, licensed subsets"
+  ]
+}

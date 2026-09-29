@@ -1,0 +1,340 @@
+{
+  "pack_id": "linguistics-lexical-typological",
+  "version": "1.0.0",
+  "description": "Linguistics pack sources: Wikidata lexemes and language items (CC0), Wiktionary via kaikki.org Wiktextract extracts (CC BY-SA 4.0, share-alike), Glottolog and WALS CLDF releases (CC BY 4.0), Unicode CLDR locale data and the SIL ISO 639-3 code tables. Every record is attributed to its source and revision; nothing machine-translated is stored as sourced; no speaker data is kept; no full dumps are mirrored. Audit: docs/development/linguistics-evidence/source-audit.md.",
+  "domains": [
+    "linguistics"
+  ],
+  "defaults": {
+    "connector": "linguistics",
+    "update_cadence": "per pinned release; Wikidata entities at most daily",
+    "temporal_semantics": "the source's own revision (Wikidata revision id and modified time, kaikki extract and dump dates, CLDF/CLDR release and date, SIL table date) orders revisions; observation time is recorded separately and orders only undated revisions",
+    "mapping": {
+      "target_schema": "noesis-linguistic-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "linguistics:1.0.0"
+    ],
+    "operations": [
+      "documents"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 5000,
+      "max_bytes": 20000000,
+      "max_pages": 20
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 2592000
+    }
+  },
+  "sources": [
+    {
+      "source_id": "wikidata-lexemes",
+      "publisher": "Wikidata (Wikimedia Foundation)",
+      "endpoint": "https://www.wikidata.org/wiki/Special:EntityData/",
+      "scope": "Declared lexemes (L-ids) with lemmas, forms, grammatical features, senses, glosses and etymology statements (P5191, P5238 with P5886), plus the declared language items' stated Glottocode (P1394) and ISO 639-3 (P220). Declared selection is the offline, synthetic fixture selection (tests/unit/linguistics_harness.py); the LG01 production bounds replace it at live validation (#2191).",
+      "license": {
+        "id": "CC0-1.0",
+        "terms_url": "https://www.wikidata.org/wiki/Wikidata:Licensing",
+        "redistribution": "CC0: no restriction; courtesy attribution to Wikidata and the revision"
+      },
+      "linguistics": {
+        "namespace": "linguistics",
+        "provider": "wikidata-lexemes",
+        "format": "wikidata-lexeme-json",
+        "derivation_modes": {
+          "Q900101": "borrowed",
+          "Q900102": "inherited",
+          "Q900103": "calque"
+        },
+        "documents": [
+          {
+            "label": "L90001",
+            "entity": "L90001",
+            "url": "https://www.wikidata.org/wiki/Special:EntityData/L90001.json"
+          },
+          {
+            "label": "L90002",
+            "entity": "L90002",
+            "url": "https://www.wikidata.org/wiki/Special:EntityData/L90002.json"
+          },
+          {
+            "label": "L90003",
+            "entity": "L90003",
+            "url": "https://www.wikidata.org/wiki/Special:EntityData/L90003.json"
+          },
+          {
+            "label": "Q900001",
+            "entity": "Q900001",
+            "url": "https://www.wikidata.org/wiki/Special:EntityData/Q900001.json"
+          },
+          {
+            "label": "Q900002",
+            "entity": "Q900002",
+            "url": "https://www.wikidata.org/wiki/Special:EntityData/Q900002.json"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/linguistics-wikidata-lexemes.json",
+        "sha256": "886689e8197b9434ba3a93a6c6c38a9981ffcd51fa57c11ec17cc1d3e121e389",
+        "expected_output_hash": "5d9afc1e6fe43f2610634d3edacce9abe56372bbae68af461620148ccee6a837"
+      }
+    },
+    {
+      "source_id": "kaikki-wiktextract",
+      "publisher": "kaikki.org Wiktextract extracts of the English Wiktionary",
+      "endpoint": "https://kaikki.org/dictionary/",
+      "scope": "Per-language Wiktextract JSONL extracts bounded to declared words: lexemes, forms, senses with definitions and usage examples, structured etymology templates, verbatim etymology text and translation tables; sounds (speaker recordings) are dropped. Declared selection is the offline, synthetic fixture selection (tests/unit/linguistics_harness.py); the LG01 production bounds replace it at live validation (#2191).",
+      "license": {
+        "id": "CC-BY-SA-4.0",
+        "terms_url": "https://creativecommons.org/licenses/by-sa/4.0/",
+        "redistribution": "share-alike: every derived record and export carries CC BY-SA 4.0 attribution; exports under another licence are refused (GFDL dual licence, verify)"
+      },
+      "linguistics": {
+        "namespace": "linguistics",
+        "provider": "kaikki-wiktextract",
+        "format": "kaikki-jsonl",
+        "edition": "en",
+        "words": {
+          "qnv": [
+            "tamo",
+            "banka"
+          ],
+          "qsv": [
+            "tamu"
+          ],
+          "en": [
+            "river"
+          ]
+        },
+        "documents": [
+          {
+            "label": "kaikki-qnv",
+            "language_code": "qnv",
+            "extract_date": "2026-03-01",
+            "dump_date": "2026-02-20",
+            "url": "https://kaikki.org/dictionary/Northern%20Velan/kaikki.org-dictionary-NorthernVelan.jsonl"
+          },
+          {
+            "label": "kaikki-qsv",
+            "language_code": "qsv",
+            "extract_date": "2026-03-01",
+            "dump_date": "2026-02-20",
+            "url": "https://kaikki.org/dictionary/Southern%20Velan/kaikki.org-dictionary-SouthernVelan.jsonl"
+          },
+          {
+            "label": "kaikki-en",
+            "language_code": "en",
+            "extract_date": "2026-03-01",
+            "dump_date": "2026-02-20",
+            "url": "https://kaikki.org/dictionary/English/kaikki.org-dictionary-English.jsonl"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/linguistics-kaikki-wiktextract.json",
+        "sha256": "e285303d7c5beb5aa61319ae4b467dbacbd3825be8d5adae27094e35efe86efa",
+        "expected_output_hash": "c43a49f73bfe824bb433476f17124eb1f1000c8cbdfa645af13708bd3dd2ff40"
+      }
+    },
+    {
+      "source_id": "glottolog-cldf",
+      "publisher": "Glottolog (Max Planck Institute for Evolutionary Anthropology)",
+      "endpoint": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/",
+      "scope": "Pinned CLDF release: languoids of the declared subtrees with Glottocode, ISO 639-3, level, classification path, coordinates and macroarea; endangerment values are not read. Declared selection is the offline, synthetic fixture selection (tests/unit/linguistics_harness.py); the LG01 production bounds replace it at live validation (#2191).",
+      "license": {
+        "id": "CC-BY-4.0",
+        "terms_url": "https://creativecommons.org/licenses/by/4.0/",
+        "redistribution": "attribution to Glottolog with version and DOI"
+      },
+      "linguistics": {
+        "namespace": "linguistics",
+        "provider": "glottolog",
+        "format": "glottolog-cldf",
+        "roots": [
+          "velt1234"
+        ],
+        "attribution": "Hammarström, Forkel, Haspelmath & Bank. Glottolog. MPI EVA. CC BY 4.0 (fixture release)",
+        "documents": [
+          {
+            "label": "glottolog-cldf",
+            "release": "v5.0",
+            "release_date": "2026-01-10",
+            "languages_url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.0/cldf/languages.csv",
+            "values_url": "https://raw.githubusercontent.com/glottolog/glottolog-cldf/v5.0/cldf/values.csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/linguistics-glottolog-cldf.json",
+        "sha256": "9426d4371081923c14f34d210d069b609f7a4fca405067053fc0bd084e302d90",
+        "expected_output_hash": "da534fbf6a322f0de98838782479bae3d29f4b6c3dc656abc3799c798420690c"
+      }
+    },
+    {
+      "source_id": "wals-cldf",
+      "publisher": "WALS Online (Max Planck Institute for Evolutionary Anthropology)",
+      "endpoint": "https://raw.githubusercontent.com/cldf-datasets/wals/",
+      "scope": "Pinned CLDF release: declared features with their codes and the values of the declared languages (WALS code with Glottocode as published) with source references. Declared selection is the offline, synthetic fixture selection (tests/unit/linguistics_harness.py); the LG01 production bounds replace it at live validation (#2191).",
+      "license": {
+        "id": "CC-BY-4.0",
+        "terms_url": "https://creativecommons.org/licenses/by/4.0/",
+        "redistribution": "attribution to WALS Online with version, DOI and chapter author"
+      },
+      "linguistics": {
+        "namespace": "linguistics",
+        "provider": "wals",
+        "format": "wals-cldf",
+        "features": [
+          "81A",
+          "87A"
+        ],
+        "glottocodes": [
+          "nort3456",
+          "sout7890",
+          "coas1122"
+        ],
+        "attribution": "Dryer & Haspelmath (eds.) WALS Online. Zenodo. CC BY 4.0 (fixture release)",
+        "documents": [
+          {
+            "label": "wals-cldf",
+            "release": "v2020.3",
+            "release_date": "2020-12-01",
+            "languages_url": "https://raw.githubusercontent.com/cldf-datasets/wals/v2020.3/cldf/languages.csv",
+            "parameters_url": "https://raw.githubusercontent.com/cldf-datasets/wals/v2020.3/cldf/parameters.csv",
+            "codes_url": "https://raw.githubusercontent.com/cldf-datasets/wals/v2020.3/cldf/codes.csv",
+            "values_url": "https://raw.githubusercontent.com/cldf-datasets/wals/v2020.3/cldf/values.csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/linguistics-wals-cldf.json",
+        "sha256": "f0e8ed18ae79518c2fe4c0cd1ae1ee77ce2fe97a4d8ea12bf798d8986cebb42c",
+        "expected_output_hash": "6c032a2402c35684812e8a9c682994c6c7b73a7166fc8f6d81cf0701d774e681"
+      }
+    },
+    {
+      "source_id": "cldr-json",
+      "publisher": "Unicode CLDR (Unicode, Inc.)",
+      "endpoint": "https://raw.githubusercontent.com/unicode-org/cldr-json/",
+      "scope": "Pinned CLDR release: language and script display names for the declared locales and subjects, and cardinal plural rules.",
+      "license": {
+        "id": "Unicode-3.0",
+        "terms_url": "https://www.unicode.org/license.txt",
+        "redistribution": "Unicode License v3: the copyright and permission notice travels with copies"
+      },
+      "linguistics": {
+        "namespace": "linguistics",
+        "provider": "cldr",
+        "format": "cldr-json",
+        "locales": [
+          "de",
+          "en"
+        ],
+        "subjects": {
+          "languages": [
+            "de",
+            "en"
+          ],
+          "scripts": [
+            "Latn",
+            "Cyrl"
+          ]
+        },
+        "documents": [
+          {
+            "label": "languages-de",
+            "kind": "languages",
+            "release": "45.0.0",
+            "release_date": "2024-04-17",
+            "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/45.0.0/cldr-json/cldr-localenames-full/main/de/languages.json"
+          },
+          {
+            "label": "languages-en",
+            "kind": "languages",
+            "release": "45.0.0",
+            "release_date": "2024-04-17",
+            "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/45.0.0/cldr-json/cldr-localenames-full/main/en/languages.json"
+          },
+          {
+            "label": "scripts-de",
+            "kind": "scripts",
+            "release": "45.0.0",
+            "release_date": "2024-04-17",
+            "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/45.0.0/cldr-json/cldr-localenames-full/main/de/scripts.json"
+          },
+          {
+            "label": "plurals",
+            "kind": "plurals",
+            "release": "45.0.0",
+            "release_date": "2024-04-17",
+            "url": "https://raw.githubusercontent.com/unicode-org/cldr-json/45.0.0/cldr-json/cldr-core/supplemental/plurals.json"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/linguistics-cldr-json.json",
+        "sha256": "57a378c3256aff53624bc41bba147f7255e16b5a41dc417c15b1b3ce5a055c6d",
+        "expected_output_hash": "9e829a0bb3b399fb3698b44f10856eaef585477e15c303dc1d03651c097482a3"
+      }
+    },
+    {
+      "source_id": "sil-iso639-3",
+      "publisher": "SIL International, ISO 639-3 Registration Authority",
+      "endpoint": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/",
+      "scope": "The code, macrolanguage and retirement tables bounded to declared codes; retirements, changes and splits become identity-history events. Declared selection is the offline, synthetic fixture selection (tests/unit/linguistics_harness.py); the LG01 production bounds replace it at live validation (#2191).",
+      "license": {
+        "id": "SIL-ISO-639-3-terms",
+        "terms_url": "https://iso639-3.sil.org/code_tables/download_tables",
+        "redistribution": "identifiers usable with attribution to SIL as Registration Authority (verify terms of use)"
+      },
+      "linguistics": {
+        "namespace": "linguistics",
+        "provider": "sil-iso639-3",
+        "format": "iso639-3-tab",
+        "codes": [
+          "qnv",
+          "qsv",
+          "qmv",
+          "qrv"
+        ],
+        "documents": [
+          {
+            "label": "iso-639-3-codes",
+            "table": "codes",
+            "table_date": "2026-01-15",
+            "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3.tab"
+          },
+          {
+            "label": "iso-639-3-macrolanguages",
+            "table": "macrolanguages",
+            "table_date": "2026-01-15",
+            "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3-macrolanguages.tab"
+          },
+          {
+            "label": "iso-639-3-retirements",
+            "table": "retirements",
+            "table_date": "2026-01-15",
+            "url": "https://iso639-3.sil.org/sites/iso639-3/files/downloads/iso-639-3_Retirements.tab"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/linguistics-sil-iso639-3.json",
+        "sha256": "a54b1a0909a93c87ae49508c8d930a4e48ca0ee8314936d950584d12aabe0d3c",
+        "expected_output_hash": "10e1042ff96d4bebc3af074d2feb8f4641729d35f7ac089cf8b4f58e19e42098"
+      }
+    }
+  ]
+}
