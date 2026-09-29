@@ -36,7 +36,7 @@ jobs:
           fetch-depth: 0
 
       - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v6
+        uses: actions/setup-python@v7
         with:
           python-version: ${{ matrix.python-version }}
 
@@ -289,7 +289,7 @@ jobs:
       # image, so it moves with the push; the repo/dependency scan in the
       # Security Scanning job still covers vulnerabilities here.
       - name: Build Docker image (validation only)
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: ${{ matrix.service.context }}
           file: ${{ matrix.service.dockerfile }}
