@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1267,
+      "tool_count": 1287,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -995,10 +995,12 @@
         "noesis-knowledge-engine.bafin_warnings_for_entity",
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.beneficiary_dossier",
+        "noesis-knowledge-engine.bill_dossier_as_of",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
         "noesis-knowledge-engine.branch_research_project",
         "noesis-knowledge-engine.budget_line_dossier",
         "noesis-knowledge-engine.budget_line_place",
+        "noesis-knowledge-engine.build_bill_dossier",
         "noesis-knowledge-engine.build_clinical_evidence_map",
         "noesis-knowledge-engine.build_environment_place_dossier",
         "noesis-knowledge-engine.build_funding_shortlist",
@@ -1105,6 +1107,7 @@
         "noesis-knowledge-engine.create_intake_skill",
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
+        "noesis-knowledge-engine.create_legislation_monitor",
         "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
         "noesis-knowledge-engine.create_material_watch",
@@ -1222,6 +1225,7 @@
         "noesis-knowledge-engine.explain_source_independence",
         "noesis-knowledge-engine.explain_study_evidence_strength",
         "noesis-knowledge-engine.export_authored_report",
+        "noesis-knowledge-engine.export_bill_evidence_bundle",
         "noesis-knowledge-engine.export_change_briefs",
         "noesis-knowledge-engine.export_clinical_evidence_bundle",
         "noesis-knowledge-engine.export_coverage_comparison",
@@ -1436,6 +1440,8 @@
         "noesis-knowledge-engine.legal_retrieval_modes",
         "noesis-knowledge-engine.legal_selection_outcomes",
         "noesis-knowledge-engine.legal_source_contracts",
+        "noesis-knowledge-engine.legislation_readiness",
+        "noesis-knowledge-engine.legislation_source_contracts",
         "noesis-knowledge-engine.legislative_dossier_dependencies",
         "noesis-knowledge-engine.legislative_dossier_timeline",
         "noesis-knowledge-engine.lei_parents_as_of",
@@ -1445,6 +1451,8 @@
         "noesis-knowledge-engine.linguistics_readiness",
         "noesis-knowledge-engine.link_amendment_dossiers",
         "noesis-knowledge-engine.link_astronomy_citations",
+        "noesis-knowledge-engine.link_bill_enactment",
+        "noesis-knowledge-engine.link_bill_lobbying",
         "noesis-knowledge-engine.link_budget_acts",
         "noesis-knowledge-engine.link_budget_districts",
         "noesis-knowledge-engine.link_budget_dossier",
@@ -1474,6 +1482,9 @@
         "noesis-knowledge-engine.list_audit_findings",
         "noesis-knowledge-engine.list_bafin_identity_candidates",
         "noesis-knowledge-engine.list_beneficiary_payments",
+        "noesis-knowledge-engine.list_bill_link_candidates",
+        "noesis-knowledge-engine.list_bill_records",
+        "noesis-knowledge-engine.list_bill_votes",
         "noesis-knowledge-engine.list_budget_lines",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_decision_review_tasks",
@@ -1511,6 +1522,7 @@
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
         "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
+        "noesis-knowledge-engine.list_legislation_identity_candidates",
         "noesis-knowledge-engine.list_linguistic_identity_candidates",
         "noesis-knowledge-engine.list_lobbying_dossier_links",
         "noesis-knowledge-engine.list_lobbying_identity_candidates",
@@ -1570,6 +1582,7 @@
         "noesis-knowledge-engine.lookup_product_notices",
         "noesis-knowledge-engine.lookup_sanctions_designation",
         "noesis-knowledge-engine.lookup_source_identity",
+        "noesis-knowledge-engine.lookup_sponsor_bills",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.map_trade_product_code",
@@ -1620,6 +1633,7 @@
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
+        "noesis-knowledge-engine.poll_legislation_monitor",
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_material_watch",
@@ -1695,6 +1709,7 @@
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
         "noesis-knowledge-engine.propose_languoid_matches",
+        "noesis-knowledge-engine.propose_legislation_identity_matches",
         "noesis-knowledge-engine.propose_lei_registry_links",
         "noesis-knowledge-engine.propose_lexeme_alias",
         "noesis-knowledge-engine.propose_lexeme_matches",
@@ -1885,6 +1900,7 @@
         "noesis-knowledge-engine.revert_astronomy_citation",
         "noesis-knowledge-engine.revert_astronomy_identity_match",
         "noesis-knowledge-engine.revert_bafin_identity_match",
+        "noesis-knowledge-engine.revert_bill_record_link",
         "noesis-knowledge-engine.revert_component_manufacturer_link",
         "noesis-knowledge-engine.revert_demographic_comparability",
         "noesis-knowledge-engine.revert_demographic_link",
@@ -1893,6 +1909,7 @@
         "noesis-knowledge-engine.revert_election_news_link",
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
+        "noesis-knowledge-engine.revert_legislation_identity_match",
         "noesis-knowledge-engine.revert_linguistic_identity_match",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
@@ -1914,6 +1931,7 @@
         "noesis-knowledge-engine.review_astronomy_identity_match",
         "noesis-knowledge-engine.review_astronomy_launch_site",
         "noesis-knowledge-engine.review_bafin_identity_match",
+        "noesis-knowledge-engine.review_bill_record_link",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_clinical_publication_link",
@@ -1937,6 +1955,7 @@
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_languoid_location",
+        "noesis-knowledge-engine.review_legislation_identity_match",
         "noesis-knowledge-engine.review_linguistic_identity_match",
         "noesis-knowledge-engine.review_lobbying_dossier_link",
         "noesis-knowledge-engine.review_lobbying_identity_match",
@@ -2000,6 +2019,7 @@
         "noesis-knowledge-engine.run_hazard_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
+        "noesis-knowledge-engine.run_legislation_monitor",
         "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
         "noesis-knowledge-engine.run_maintenance_drain",
@@ -2195,7 +2215,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1267
+      "visible_tool_count": 1287
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2206,11 +2226,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 128,
+      "available": 129,
       "degraded": 159,
-      "unauthorized": 1290
+      "unauthorized": 1309
     },
-    "tools": 1577
+    "tools": 1597
   },
   "tools": [
     {
@@ -24145,6 +24165,82 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "A US or UK bill's stage and text version in force on a date, its sponsors, how members voted in each\nrecorded vote, source disagreements, linked lobbying disclosures and enactment links, every part cited to\nthe record revision used. A bill with no record is none_on_record. No passage prediction, member score or\nlegal-effect summary. Conditional scope: lobbying_namespace also needs knowledge:political:lobbying:read.",
+      "id": "noesis-knowledge-engine.bill_dossier_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "bill_key": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "revision": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key",
+          "dossier_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "bill_dossier_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Branch a workspace while retaining stable hypothesis identities.",
       "id": "noesis-knowledge-engine.branch_hypothesis_workspace",
@@ -24341,6 +24437,49 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Save the bill's dossier revision in the existing legislative dossier store from the current record\nrevisions (idempotent); records whose source names no bill stay review candidates unless accepted.",
+      "id": "noesis-knowledge-engine.build_bill_dossier",
+      "input_schema": {
+        "properties": {
+          "bill_key": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key",
+          "dossier_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "build_bill_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:political:dossier:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -30323,6 +30462,52 @@
       "required_scopes": [
         "knowledge:projects:read",
         "knowledge:projects:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch a bill (bill key) or a sponsor (member key) for new actions, stages, text versions and votes.",
+      "id": "noesis-knowledge-engine.create_legislation_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_legislation_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -36540,6 +36725,60 @@
       ],
       "required_scopes": [
         "knowledge:reports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence bundle for a bill as of a date: assertions each depending on a committed document revision,\nwith a bibliography naming provider, revision stamp, observation time and evidence origin.",
+      "id": "noesis-knowledge-engine.export_bill_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "bill_key": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key",
+          "dossier_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_bill_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -46302,6 +46541,56 @@
     },
     {
       "cost_class": "low",
+      "description": "Whether the legislation-us / legislation-uk features are selected, and acquired records per provider.",
+      "id": "noesis-knowledge-engine.legislation_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "legislation_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider endpoints, API-key handling, licences and attribution, rate limits, revision models, bounded\ncoverage and LIVE_VERIFICATION status for congress.gov, senate.gov, GovInfo and the UK Parliament APIs.",
+      "id": "noesis-knowledge-engine.legislation_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "legislation_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Return existing project/report links and explicit evidence changes.\n\nWith lobbying_namespace, the linked register declarations are returned as source dependencies too.\nConditional scope: passing lobbying_namespace also requires knowledge:political:lobbying:read and\nread access to that namespace; without it only the dossier scopes apply.",
       "id": "noesis-knowledge-engine.legislative_dossier_dependencies",
       "input_schema": {
@@ -46740,6 +47029,110 @@
       "required_scopes": [
         "knowledge:astronomy:read",
         "knowledge:astronomy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link an enacted bill to its Legal work by a published public-law or Act citation; ambiguous, missing and\nLegal-unavailable targets are reported, never dropped.",
+      "id": "noesis-knowledge-engine.link_bill_enactment",
+      "input_schema": {
+        "properties": {
+          "bill_key": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "legal_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key",
+          "dossier_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_bill_enactment",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:legislation:write",
+        "knowledge:political:dossier:read",
+        "knowledge:legal:read",
+        "knowledge:legal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link lobbying disclosures that name the bill (explicit bill numbers; title words stay candidates) and\nreport references to bills without a dossier. Degrades when the lobbying feature is absent; no influence\nis inferred.",
+      "id": "noesis-knowledge-engine.link_bill_lobbying",
+      "input_schema": {
+        "properties": {
+          "bill_key": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "lobbying_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key",
+          "dossier_namespace",
+          "lobbying_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_bill_lobbying",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -48341,6 +48734,134 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Divisions and Hansard references declared for a bill whose source names no bill, with review state.",
+      "id": "noesis-knowledge-engine.list_bill_link_candidates",
+      "input_schema": {
+        "properties": {
+          "bill_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_bill_link_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Acquired records for a bill (linked by the source) and candidate records (declared for it), with the\ncommitted revision, provider revision stamp and evidence origin of each.",
+      "id": "noesis-knowledge-engine.list_bill_records",
+      "input_schema": {
+        "properties": {
+          "bill_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_bill_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Roll calls and divisions on a bill held on or before a date: member positions as published, accepted\nidentity matches only, and divisions still awaiting review listed as unlinked candidates. No member scoring.",
+      "id": "noesis-knowledge-engine.list_bill_votes",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "bill_key": {
+            "type": "string"
+          },
+          "dossier_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "bill_key",
+          "dossier_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_bill_votes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -50332,6 +50853,51 @@
       ],
       "required_scopes": [
         "knowledge:projects:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity candidates and decisions for sponsors and voting members, with method, evidence and confidence.",
+      "id": "noesis-knowledge-engine.list_legislation_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "member_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_legislation_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -53638,6 +54204,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Bills a member (bioguide, Senate LIS or UK Parliament member key) sponsored or cosponsored, per record,\nwith party and place as each record stated them and the member's reviewed identity state.",
+      "id": "noesis-knowledge-engine.lookup_sponsor_bills",
+      "input_schema": {
+        "properties": {
+          "member_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "member_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_sponsor_bills",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Trace a committed generation to pack, source runs, workflow, and artifacts.",
       "id": "noesis-knowledge-engine.maintenance_generation_lineage",
       "input_schema": {
@@ -55850,6 +56454,44 @@
       ],
       "required_scopes": [
         "knowledge:housing:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Delivered legislation monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_legislation_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_legislation_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -59459,6 +60101,53 @@
       "required_scopes": [
         "knowledge:linguistics:write",
         "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose reviewable matches from members' official ids to election candidates and scoped Political pack\npersons in the same jurisdiction; a name alone is never acceptable and nothing is merged.",
+      "id": "noesis-knowledge-engine.propose_legislation_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "political_jurisdictions": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_legislation_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70546,6 +71235,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected record-to-bill link review; the next dossier revision reflects it.",
+      "id": "noesis-knowledge-engine.revert_bill_record_link",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "review_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "review_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_bill_record_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a manufacturer link; the undo is itself an auditable identity decision.",
       "id": "noesis-knowledge-engine.revert_component_manufacturer_link",
       "input_schema": {
@@ -70866,6 +71596,48 @@
       ],
       "required_scopes": [
         "knowledge:housing:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert an accepted or rejected member identity decision.",
+      "id": "noesis-knowledge-engine.revert_legislation_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_legislation_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -71753,6 +72525,72 @@
       "required_scopes": [
         "market:bafin:read",
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a division or debate reference as linked to a bill, recording reviewer and reason.",
+      "id": "noesis-knowledge-engine.review_bill_record_link",
+      "input_schema": {
+        "properties": {
+          "bill_key": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "evidence": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          },
+          "source_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key",
+          "source_id",
+          "bill_key",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_bill_record_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:legislation:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -72860,6 +73698,52 @@
       "required_scopes": [
         "knowledge:linguistics:read",
         "knowledge:geospatial:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a member identity candidate as an entity identity decision; records stay separate.",
+      "id": "noesis-knowledge-engine.review_legislation_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_legislation_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -76150,6 +77034,51 @@
       "required_scopes": [
         "knowledge:housing:read",
         "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a legislation monitor at a committed watermark; notices cite the new and previous revision.",
+      "id": "noesis-knowledge-engine.run_legislation_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_legislation_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:legislation:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

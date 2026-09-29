@@ -13,6 +13,7 @@ import time
 from collections.abc import Mapping, Sequence
 from typing import Any
 
+from src.domains.political import legislation_mapping as legislation
 from src.kb.evidence_changes import EvidenceResolver
 from src.kb.temporal import parse_source_time
 
@@ -125,10 +126,13 @@ class LegislativeDossierStore:
         payload = json.loads(row[2])
         metadata = _metadata(payload)
         source_id = str(row[1] or metadata.get("source_manifest_id") or "")
-        if source_id not in {"de-bundestag-dip", "eu-eurlex-regulatory"}:
-            raise DossierError("unsupported_source", "dossier needs acquired Bundestag DIP or EUR-Lex evidence")
+        if source_id not in {"de-bundestag-dip", "eu-eurlex-regulatory"} and not legislation.is_legislation_source(source_id):
+            raise DossierError("unsupported_source", "dossier needs acquired Bundestag DIP, EUR-Lex, US Congress "
+                                                     "or UK Parliament evidence")
         jurisdiction = str(metadata.get("jurisdiction") or "").upper()
         if (source_id == "de-bundestag-dip" and jurisdiction != "DE") or (source_id == "eu-eurlex-regulatory" and jurisdiction != "EU"):
+            raise DossierError("source_mismatch", "provider and jurisdiction disagree")
+        if legislation.is_legislation_source(source_id) and jurisdiction != legislation.LEGISLATION_SOURCES[source_id][1]:
             raise DossierError("source_mismatch", "provider and jurisdiction disagree")
         raw_identifier = _text(metadata.get("official_identifier"), "official identifier", 256)
         locator = _text(payload.get("url") or metadata.get("canonical_url"), "source locator", 8192)
@@ -170,7 +174,17 @@ class LegislativeDossierStore:
                 if value == procedure_id and link_basis is None:
                     link_basis = kind
         linked = link_basis is not None
-        stage = _TYPE_STAGE.get(source["document_type"])
+        record = None
+        if legislation.is_legislation_source(source["source_id"]):
+            # US Congress / UK Parliament records (#2208): the category comes from the sibling mapping module and
+            # the record as published rides along as the stage's ``legislation`` detail.
+            try:
+                record = legislation.record_from_payload(source["content"])
+                stage = legislation.stage_for(record)
+            except legislation.LegislationMappingError as exc:
+                raise DossierError(exc.code, str(exc)) from exc
+        else:
+            stage = _TYPE_STAGE.get(source["document_type"])
         if not stage:
             raise DossierError("unsupported_stage", "document type has no legislative stage mapping")
         citation = {
@@ -234,6 +248,8 @@ class LegislativeDossierStore:
             "attributable_relationships": relationships,
             "citation": citation,
         }
+        if record is not None:
+            result["legislation"] = legislation.stage_detail(record)
         return result, linked
 
     def _state(self, namespace: str, dossier_id: str, revision: int | None = None) -> dict[str, Any]:
@@ -250,13 +266,19 @@ class LegislativeDossierStore:
         self, namespace: str, request_key: str, jurisdiction: str, procedure_id: str,
         source_refs: Sequence[Mapping[str, Any]], *, principal_id: str,
         scopes: set[str], dossier_id: str | None = None, expected_revision: int | None = None,
+        reviewed_links: Mapping[str, Mapping[str, Any]] | None = None,
     ) -> dict[str, Any]:
+        """Save a dossier revision from pinned sources.
+
+        ``reviewed_links`` maps a legislation document id to an accepted review of its link to this procedure (a
+        division or debate reference whose source states no bill); only such sources are linked by review.
+        """
         namespace = _text(namespace, "namespace", 128)
         principal_id = _text(principal_id, "principal", 256)
         request_key = _text(request_key, "request key", 256)
         jurisdiction = _text(jurisdiction, "jurisdiction", 16).upper()
-        if jurisdiction not in {"DE", "EU"}:
-            raise DossierError("invalid_jurisdiction", "legislative dossiers support DE or EU jurisdiction")
+        if jurisdiction not in legislation.JURISDICTIONS:
+            raise DossierError("invalid_jurisdiction", "legislative dossiers support DE, EU, US or GB jurisdiction")
         raw_procedure_id = _text(procedure_id, "procedure identifier", 256)
         procedure_id = _identifier(raw_procedure_id, "procedure identifier")
         if not isinstance(source_refs, (list, tuple)) or not 1 <= len(source_refs) <= 100:
@@ -271,6 +293,11 @@ class LegislativeDossierStore:
         stages, candidates = [], []
         for source in sources:
             stage, linked = self._stage(source, procedure_id)
+            review = (reviewed_links or {}).get(source["document_id"])
+            if not linked and review is not None and "legislation" in stage:
+                stage["link_basis"] = "reviewed_assertion"
+                stage["link_review"] = dict(review)
+                linked = True
             stage["citation"]["namespace"] = namespace
             for event in stage["legal_events"]:
                 event["citation"]["namespace"] = namespace

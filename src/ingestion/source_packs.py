@@ -318,6 +318,11 @@ NATIVE_CONNECTOR_MODULES["trade-flows"] = "src.ingestion.trade_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
 
 
+# Political legislation: congress.gov, senate.gov, GovInfo and UK Parliament Bills/Votes/Hansard (#2208).
+NATIVE_CONNECTOR_MODULES["legislation"] = "src.ingestion.legislation_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"legislation"})
+
+
 def native_connector_module(connector: str) -> Any:
     import importlib
 

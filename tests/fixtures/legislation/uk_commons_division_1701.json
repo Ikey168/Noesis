@@ -1,0 +1,81 @@
+{
+ "DivisionId": 1701,
+ "Date": "2099-02-01T19:00:00",
+ "PublicationUpdated": "2099-02-01T21:00:00",
+ "Number": 55,
+ "IsDeferred": false,
+ "EVELType": null,
+ "EVELCountry": null,
+ "Title": "Example Heat Networks Bill: Second Reading",
+ "AyeCount": 2,
+ "NoCount": 1,
+ "DoubleMajorityAyeCount": null,
+ "DoubleMajorityNoCount": null,
+ "AyeTellers": [
+  {
+   "MemberId": 4004,
+   "Name": "Pat Teller",
+   "Party": "Example Party",
+   "SubParty": null,
+   "PartyColour": "000000",
+   "PartyAbbreviation": null,
+   "MemberFrom": "Sampleford",
+   "ListAs": "Pat Teller",
+   "ProxyName": null
+  }
+ ],
+ "NoTellers": [
+  {
+   "MemberId": 4005,
+   "Name": "Chris Counter",
+   "Party": "Other Party",
+   "SubParty": null,
+   "PartyColour": "000000",
+   "PartyAbbreviation": null,
+   "MemberFrom": "Fixtureham",
+   "ListAs": "Chris Counter",
+   "ProxyName": null
+  }
+ ],
+ "Ayes": [
+  {
+   "MemberId": 4001,
+   "Name": "Sam Minister",
+   "Party": "Example Party",
+   "SubParty": null,
+   "PartyColour": "000000",
+   "PartyAbbreviation": null,
+   "MemberFrom": "Exampleton North",
+   "ListAs": "Sam Minister",
+   "ProxyName": null
+  },
+  {
+   "MemberId": 4002,
+   "Name": "Alex Sample",
+   "Party": "Example Party",
+   "SubParty": null,
+   "PartyColour": "000000",
+   "PartyAbbreviation": null,
+   "MemberFrom": "Exampleton",
+   "ListAs": "Alex Sample",
+   "ProxyName": null
+  }
+ ],
+ "Noes": [
+  {
+   "MemberId": 4003,
+   "Name": "Robin Opposition",
+   "Party": "Other Party",
+   "SubParty": null,
+   "PartyColour": "000000",
+   "PartyAbbreviation": null,
+   "MemberFrom": "Testbury",
+   "ListAs": "Robin Opposition",
+   "ProxyName": null
+  }
+ ],
+ "FriendlyDescription": null,
+ "FriendlyTitle": null,
+ "RemoteVotingStart": null,
+ "RemoteVotingEnd": null
+}

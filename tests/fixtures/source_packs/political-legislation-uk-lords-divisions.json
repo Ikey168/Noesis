@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"divisionId\": 2701,\n \"date\": \"2099-04-01T17:30:00\",\n \"number\": 3,\n \"title\": \"Example Heat Networks Bill: Amendment 3\",\n \"notes\": null,\n \"isGovernmentContent\": false,\n \"contentCount\": 1,\n \"notContentCount\": 1,\n \"contentTellers\": [],\n \"notContentTellers\": [],\n \"contents\": [\n  {\n   \"memberId\": 5001,\n   \"name\": \"Lord Example\",\n   \"party\": \"Crossbench\",\n   \"memberFrom\": null\n  }\n ],\n \"notContents\": [\n  {\n   \"memberId\": 5002,\n   \"name\": \"Baroness Fixture\",\n   \"party\": \"Example Party\",\n   \"memberFrom\": null\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/data/Divisions/2701",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

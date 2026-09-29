@@ -380,6 +380,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.trade import TRADE_WRITES
     if name in TRADE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
+    if name in LEGISLATION_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -1035,6 +1038,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.trade import required_scopes as trade_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in TRADE_TOOLS:
         return trade_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
+    from tools.knowledge_engine_mcp.legislation import required_scopes as legislation_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LEGISLATION_TOOLS:
+        return legislation_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

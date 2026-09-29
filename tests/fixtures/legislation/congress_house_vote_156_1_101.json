@@ -1,0 +1,30 @@
+{
+ "houseRollCallVote": {
+  "congress": 156,
+  "sessionNumber": 1,
+  "rollCallNumber": 101,
+  "startDate": "2099-03-10T15:02:11-04:00",
+  "updateDate": "2099-03-10T20:00:00Z",
+  "voteQuestion": "On Passage",
+  "result": "Passed",
+  "voteType": "Yea-and-Nay",
+  "legislationType": "HR",
+  "legislationNumber": "9901",
+  "votePartyTotal": [
+   {
+    "party": "D",
+    "yeaTotal": 1,
+    "nayTotal": 1,
+    "presentTotal": 0,
+    "notVotingTotal": 1
+   },
+   {
+    "party": "R",
+    "yeaTotal": 1,
+    "nayTotal": 0,
+    "presentTotal": 0,
+    "notVotingTotal": 0
+   }
+  ]
+ }
+}

@@ -115,7 +115,9 @@ def test_the_bundle_resolves_with_the_feature_off_by_default():
     assert set(features) == {
         "lobbying",
         "elections",
-    }  # two independent optional features (#1911, #1908)
+        "legislation-us",
+        "legislation-uk",
+    }  # independent optional features (#1911, #1908, #2208)
     feature = features["lobbying"]
     assert feature["default"] is False
     assert {r["capability"] for r in feature["requires"]} == {
@@ -142,8 +144,9 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         plan["features"]["political"] == ["lobbying"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    # Only the other optional feature, left unselected, is omitted, plus the consumed Market bafin-notices and
-    # Corporate Ownership bafin-voting-rights features (#2106), also left unselected.
+    # Only the other optional features, left unselected, are omitted (elections #1908, legislation-uk/-us
+    # #2208), plus the consumed Market bafin-notices and Corporate Ownership bafin-voting-rights features
+    # (#2106), also left unselected.
     assert sorted(plan["omissions"], key=lambda o: o["feature"]) == [
         {"pack": "market", "feature": "bafin-notices", "reason": "not selected"},
         {
@@ -152,13 +155,15 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
             "reason": "not selected",
         },
         {"pack": "political", "feature": "elections", "reason": "not selected"},
+        {"pack": "political", "feature": "legislation-uk", "reason": "not selected"},
+        {"pack": "political", "feature": "legislation-us", "reason": "not selected"},
     ]
-    # The bundle ships official-political-records 1.2.0 (the elections feature's result sources, #1908); the
-    # lobbying descriptor's ^1.1.0 range is satisfied by it.
+    # The bundle ships official-political-records 1.3.0 (elections result sources #1908, legislation sources
+    # #2208); the lobbying descriptor's ^1.1.0 range is satisfied by it.
     assert {
         "pack_id": "official-political-records",
-        "version": "1.2.0",
-        "range": "^1.2.0",
+        "version": "1.3.0",
+        "range": "^1.3.0",
     } in plan["source_packs"]
     profiles = {p["id"]: p for p in adapt_all()["political"]["contributes"]["profiles"]}
     defaults = profiles["political.lobbying-review"]["workflow_defaults"]

@@ -1,0 +1,43 @@
+{
+ "billId": 3901,
+ "publications": [
+  {
+   "id": 40001,
+   "house": "Commons",
+   "title": "Bill 101 2098-99 (as introduced)",
+   "displayDate": "2099-01-10T00:00:00",
+   "publicationType": {
+    "id": 5,
+    "name": "Bill"
+   },
+   "links": [
+    {
+     "id": 400010,
+     "title": "Bill 101 2098-99 (as introduced)",
+     "url": "https://publications.parliament.uk/pa/bills/cbill/example/0101/fixture.pdf",
+     "contentType": "application/pdf"
+    }
+   ],
+   "files": []
+  },
+  {
+   "id": 40002,
+   "house": "Commons",
+   "title": "Bill 120 2098-99 (as amended in Public Bill Committee)",
+   "displayDate": "2099-02-18T00:00:00",
+   "publicationType": {
+    "id": 5,
+    "name": "Bill"
+   },
+   "links": [
+    {
+     "id": 400020,
+     "title": "Bill 120 2098-99 (as amended in Public Bill Committee)",
+     "url": "https://publications.parliament.uk/pa/bills/cbill/example/0120/fixture.pdf",
+     "contentType": "application/pdf"
+    }
+   ],
+   "files": []
+  }
+ ]
+}

@@ -9362,6 +9362,11 @@ from tools.knowledge_engine_mcp.trade import (  # noqa: E402 - registration orde
 )
 
 register_trade_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.legislation import (
+    register as register_legislation_tools,
+)
+
+register_legislation_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

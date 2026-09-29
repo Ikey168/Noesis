@@ -1,0 +1,121 @@
+{
+ "items": [
+  {
+   "id": 20001,
+   "stageId": 6,
+   "sessionId": 39,
+   "description": "1st reading",
+   "abbreviation": "1R",
+   "house": "Commons",
+   "stageSittings": [
+    {
+     "id": 200010,
+     "stageId": 6,
+     "billStageId": 20001,
+     "billId": 3901,
+     "date": "2099-01-10T00:00:00"
+    }
+   ],
+   "sortOrder": 1
+  },
+  {
+   "id": 20002,
+   "stageId": 7,
+   "sessionId": 39,
+   "description": "2nd reading",
+   "abbreviation": "2R",
+   "house": "Commons",
+   "stageSittings": [
+    {
+     "id": 200020,
+     "stageId": 7,
+     "billStageId": 20002,
+     "billId": 3901,
+     "date": "2099-02-01T00:00:00"
+    }
+   ],
+   "sortOrder": 2
+  },
+  {
+   "id": 20003,
+   "stageId": 8,
+   "sessionId": 39,
+   "description": "Committee stage",
+   "abbreviation": "CS",
+   "house": "Commons",
+   "stageSittings": [
+    {
+     "id": 200030,
+     "stageId": 8,
+     "billStageId": 20003,
+     "billId": 3901,
+     "date": "2099-02-15T00:00:00"
+    },
+    {
+     "id": 200031,
+     "stageId": 8,
+     "billStageId": 20003,
+     "billId": 3901,
+     "date": "2099-02-17T00:00:00"
+    }
+   ],
+   "sortOrder": 3
+  },
+  {
+   "id": 20004,
+   "stageId": 10,
+   "sessionId": 39,
+   "description": "3rd reading",
+   "abbreviation": "3R",
+   "house": "Commons",
+   "stageSittings": [
+    {
+     "id": 200040,
+     "stageId": 10,
+     "billStageId": 20004,
+     "billId": 3901,
+     "date": "2099-03-01T00:00:00"
+    }
+   ],
+   "sortOrder": 4
+  },
+  {
+   "id": 20005,
+   "stageId": 1,
+   "sessionId": 39,
+   "description": "1st reading",
+   "abbreviation": "1R",
+   "house": "Lords",
+   "stageSittings": [
+    {
+     "id": 200050,
+     "stageId": 1,
+     "billStageId": 20005,
+     "billId": 3901,
+     "date": "2099-03-02T00:00:00"
+    }
+   ],
+   "sortOrder": 5
+  },
+  {
+   "id": 20006,
+   "stageId": 11,
+   "sessionId": 39,
+   "description": "Royal Assent",
+   "abbreviation": "RA",
+   "house": "Unassigned",
+   "stageSittings": [
+    {
+     "id": 200060,
+     "stageId": 11,
+     "billStageId": 20006,
+     "billId": 3901,
+     "date": "2099-05-10T00:00:00"
+    }
+   ],
+   "sortOrder": 6
+  }
+ ],
+ "totalResults": 6,
+ "itemsPerPage": 250
+}

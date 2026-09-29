@@ -24,6 +24,14 @@
           "name": "noesis-election-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "political.legislation",
+        "provider": "political.legislation",
+        "contract": {
+          "name": "noesis-legislation-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -38,13 +46,17 @@
       {
         "id": "political.elections",
         "version": "1.0.0"
+      },
+      {
+        "id": "political.legislation",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "official-political-records",
-        "version": "1.2.0",
-        "range": "^1.2.0"
+        "version": "1.3.0",
+        "range": "^1.3.0"
       }
     ],
     "profiles": [
@@ -208,6 +220,92 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "result files are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "legislation-us",
+      "default": false,
+      "description": "US Congress legislation tracking: congress.gov bills, actions, sponsors and cosponsors and House roll calls, Senate roll calls, GovInfo text versions and BILLSTATUS as separate source assertions, as bill dossiers in the existing legislative dossier store, answered as of a date with reviewable member identity, lobbying-disclosure and enactment links (degrading when those providers are absent) and subscription monitors. No passage prediction, member scoring or legal-effect summary.",
+      "requires": [
+        {
+          "capability": "political.legislation",
+          "contract": "noesis-legislation-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "bills are dossiers in the Political bundle's legislative dossier store"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted member matches are entity identity decisions"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "sponsor and voting-member matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "legislation monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "bills, votes and text versions are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "legislation-uk",
+      "default": false,
+      "description": "UK Parliament legislation tracking: Bills API bills, sponsors, stages with sittings and publications, Commons and Lords divisions and Hansard debate references (unlinked candidates until reviewed), as bill dossiers in the existing legislative dossier store, answered as of a date with reviewable member identity, Act links by citation (degrading when the Legal provider is absent) and subscription monitors. No passage prediction, member scoring or legal-effect summary.",
+      "requires": [
+        {
+          "capability": "political.legislation",
+          "contract": "noesis-legislation-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "political.knowledge",
+          "contract": "noesis-political-knowledge",
+          "range": "^1.0.0",
+          "reason": "bills are dossiers in the Political bundle's legislative dossier store"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted member matches are entity identity decisions"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "sponsor and voting-member matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "legislation monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "bills, divisions and debate references are acquired through the source-pack runtime"
         }
       ]
     }

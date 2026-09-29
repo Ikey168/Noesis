@@ -1,0 +1,18 @@
+{
+ "packageId": "BILLS-156hr9901ih",
+ "lastModified": "2099-02-05T10:00:00Z",
+ "dateIssued": "2099-02-03",
+ "congress": "156",
+ "billType": "hr",
+ "billNumber": "9901",
+ "billVersion": "ih",
+ "title": "Example Grid Reliability Act",
+ "collectionCode": "BILLS",
+ "collectionName": "Congressional Bills",
+ "detailsLink": "https://www.govinfo.gov/app/details/BILLS-156hr9901ih",
+ "download": {
+  "txtLink": "https://api.govinfo.gov/packages/BILLS-156hr9901ih/htm",
+  "xmlLink": "https://api.govinfo.gov/packages/BILLS-156hr9901ih/xml",
+  "pdfLink": "https://api.govinfo.gov/packages/BILLS-156hr9901ih/pdf"
+ }
+}

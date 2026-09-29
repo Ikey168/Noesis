@@ -1,0 +1,382 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "political.legislation",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.legislation",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "political.legislation",
+      "contract": {
+        "name": "noesis-legislation-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "bill-dossier-as-of",
+        "list-bill-votes",
+        "lookup-sponsor-bills",
+        "list-bill-records",
+        "export-bill-evidence-bundle",
+        "build-bill-dossier",
+        "list-bill-link-candidates",
+        "review-bill-record-link",
+        "revert-bill-record-link",
+        "list-identity-candidates",
+        "propose-identity-matches",
+        "review-identity-match",
+        "revert-identity-match",
+        "link-bill-lobbying",
+        "link-bill-enactment",
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "US Congress (congress.gov, senate.gov, GovInfo BILLS and BILLSTATUS) and UK Parliament (Bills, Commons and Lords Votes, Hansard) records as published, keyed by official identifiers, each a committed document revision cited by the existing legislative dossier store",
+        "dossiers": "bills are dossiers in the existing LegislativeDossierStore; no parallel dossier store",
+        "as_of": "stage and text version selected by source dates on or before the day, naming the revision used",
+        "matching": "member identity, record-to-bill candidates and lobbying links are reviewable, reversible decisions; official member ids are external identifiers, never merged by name",
+        "sources": "congress.gov and BILLSTATUS disagreements are shown, never reconciled",
+        "exclusions": "no passage prediction, member scoring, ideology rating or summary presented as legal effect"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "bill-dossier-as-of",
+      "tool": "noesis-knowledge-engine.bill_dossier_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-bill-votes",
+      "tool": "noesis-knowledge-engine.list_bill_votes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "lookup-sponsor-bills",
+      "tool": "noesis-knowledge-engine.lookup_sponsor_bills",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-bill-records",
+      "tool": "noesis-knowledge-engine.list_bill_records",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-bill-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_bill_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "build-bill-dossier",
+      "tool": "noesis-knowledge-engine.build_bill_dossier",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:political:dossier:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-bill-link-candidates",
+      "tool": "noesis-knowledge-engine.list_bill_link_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-bill-record-link",
+      "tool": "noesis-knowledge-engine.review_bill_record_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:legislation:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-bill-record-link",
+      "tool": "noesis-knowledge-engine.revert_bill_record_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_legislation_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_legislation_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity-match",
+      "tool": "noesis-knowledge-engine.review_legislation_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity-match",
+      "tool": "noesis-knowledge-engine.revert_legislation_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-bill-lobbying",
+      "tool": "noesis-knowledge-engine.link_bill_lobbying",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:dossier:read",
+        "knowledge:political:lobbying:read",
+        "knowledge:political:lobbying:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-bill-enactment",
+      "tool": "noesis-knowledge-engine.link_bill_enactment",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:political:legislation:write",
+        "knowledge:political:dossier:read",
+        "knowledge:legal:read",
+        "knowledge:legal:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_legislation_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_legislation_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_legislation_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:legislation:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "legislation-record",
+      "store": "src.kb.legislation",
+      "tables": [
+        "legislation_records",
+        "legislation_record_revisions",
+        "legislation_receipts",
+        "legislation_link_reviews",
+        "legislation_dossier_index"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "legislation-enactment-link",
+      "store": "src.kb.legislation_links",
+      "tables": [
+        "legislation_enactment_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "legislation_records"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "official-political-records",
+      "version": "1.3.0",
+      "range": "^1.3.0"
+    }
+  ]
+}

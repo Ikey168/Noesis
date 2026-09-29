@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<billStatus>
+  <bill>
+    <number>9901</number>
+    <updateDate>2099-03-06T04:00:00Z</updateDate>
+    <type>HR</type>
+    <introducedDate>2099-02-03</introducedDate>
+    <congress>156</congress>
+    <title>Example Grid Reliability Act</title>
+    <actions>
+      <item><actionDate>2099-03-05</actionDate><text>Reported (Amended) by the Committee on Energy and Commerce. H. Rept. 156-10.</text><type>Committee</type><actionCode>H12200</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>
+      <item><actionDate>2099-02-03</actionDate><text>Referred to the House Committee on Energy and Commerce.</text><type>IntroReferral</type><actionCode>H11100</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>
+      <item><actionDate>2099-02-03</actionDate><text>Introduced in House</text><type>IntroReferral</type><actionCode>Intr-H</actionCode><sourceSystem><name>Library of Congress</name></sourceSystem></item>
+    </actions>
+    <sponsors>
+      <item><bioguideId>S009901</bioguideId><fullName>Rep. Sample, Jane [D-CA-99]</fullName><firstName>Jane</firstName><lastName>Sample</lastName><party>D</party><state>CA</state><district>99</district></item>
+    </sponsors>
+    <cosponsors>
+      <item><bioguideId>E009902</bioguideId><fullName>Rep. Example, Robert [R-TX-98]</fullName><firstName>Robert</firstName><lastName>Example</lastName><party>R</party><state>TX</state><district>98</district><sponsorshipDate>2099-02-03</sponsorshipDate><isOriginalCosponsor>True</isOriginalCosponsor></item>
+      <item><bioguideId>P009903</bioguideId><fullName>Rep. Placeholder, Maria [D-NY-97]</fullName><firstName>Maria</firstName><lastName>Placeholder</lastName><party>D</party><state>NY</state><district>97</district><sponsorshipDate>2099-02-20</sponsorshipDate><isOriginalCosponsor>False</isOriginalCosponsor></item>
+    </cosponsors>
+    <laws/>
+    <textVersions>
+      <item><type>Reported in House</type><date>2099-03-05T04:00:00Z</date><formats><item><url>https://www.govinfo.gov/content/pkg/BILLS-156hr9901rh/xml/BILLS-156hr9901rh.xml</url></item></formats></item>
+      <item><type>Introduced in House</type><date>2099-02-03T05:00:00Z</date><formats><item><url>https://www.govinfo.gov/content/pkg/BILLS-156hr9901ih/xml/BILLS-156hr9901ih.xml</url></item></formats></item>
+    </textVersions>
+  </bill>
+</billStatus>

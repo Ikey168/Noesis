@@ -130,6 +130,11 @@ MATRIX = {
     "Package to release history and dependency graphs":
         "tests/unit/domains/test_oss_ecosystems_acceptance.py::"
         "test_package_to_cited_history_graphs_licences_identity_advisories_and_monitoring",
+    # The Political legislation features' offline journey (#2451) composes the political dossier store, the
+    # source-pack runtime, entity identity, the lobbying links, Legal works and subscriptions.
+    "US or UK bill to cited legislative dossier":
+        "tests/unit/domains/test_legislation_acceptance.py::"
+        "test_us_and_uk_bills_to_cited_dossiers_with_stages_versions_votes_and_linked_disclosures",
 }
 
 

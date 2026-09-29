@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"houseRollCallVote\": {\n  \"congress\": 156,\n  \"sessionNumber\": 1,\n  \"rollCallNumber\": 101,\n  \"startDate\": \"2099-03-10T15:02:11-04:00\",\n  \"updateDate\": \"2099-03-10T20:00:00Z\",\n  \"voteQuestion\": \"On Passage\",\n  \"result\": \"Passed\",\n  \"voteType\": \"Yea-and-Nay\",\n  \"legislationType\": \"HR\",\n  \"legislationNumber\": \"9901\",\n  \"votePartyTotal\": [\n   {\n    \"party\": \"D\",\n    \"yeaTotal\": 1,\n    \"nayTotal\": 1,\n    \"presentTotal\": 0,\n    \"notVotingTotal\": 1\n   },\n   {\n    \"party\": \"R\",\n    \"yeaTotal\": 1,\n    \"nayTotal\": 0,\n    \"presentTotal\": 0,\n    \"notVotingTotal\": 0\n   }\n  ]\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v3/house-vote/156/1/101?format=json",
+   "status": 200
+  },
+  {
+   "body": "{\n \"houseRollCallVoteMemberVotes\": {\n  \"congress\": 156,\n  \"sessionNumber\": 1,\n  \"rollCallNumber\": 101,\n  \"results\": [\n   {\n    \"bioguideID\": \"S009901\",\n    \"firstName\": \"Jane\",\n    \"lastName\": \"Sample\",\n    \"voteCast\": \"Yea\",\n    \"voteParty\": \"D\",\n    \"voteState\": \"CA\"\n   },\n   {\n    \"bioguideID\": \"E009902\",\n    \"firstName\": \"Robert\",\n    \"lastName\": \"Example\",\n    \"voteCast\": \"Yea\",\n    \"voteParty\": \"R\",\n    \"voteState\": \"TX\"\n   },\n   {\n    \"bioguideID\": \"P009903\",\n    \"firstName\": \"Maria\",\n    \"lastName\": \"Placeholder\",\n    \"voteCast\": \"Nay\",\n    \"voteParty\": \"D\",\n    \"voteState\": \"NY\"\n   },\n   {\n    \"bioguideID\": \"A009904\",\n    \"firstName\": \"Alex\",\n    \"lastName\": \"Fixture\",\n    \"voteCast\": \"Not Voting\",\n    \"voteParty\": \"D\",\n    \"voteState\": \"WA\"\n   }\n  ]\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v3/house-vote/156/1/101/members?format=json&limit=500",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

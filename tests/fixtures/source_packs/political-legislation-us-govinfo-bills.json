@@ -1,0 +1,59 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"packageId\": \"BILLS-156hr9901ih\",\n \"lastModified\": \"2099-02-05T10:00:00Z\",\n \"dateIssued\": \"2099-02-03\",\n \"congress\": \"156\",\n \"billType\": \"hr\",\n \"billNumber\": \"9901\",\n \"billVersion\": \"ih\",\n \"title\": \"Example Grid Reliability Act\",\n \"collectionCode\": \"BILLS\",\n \"collectionName\": \"Congressional Bills\",\n \"detailsLink\": \"https://www.govinfo.gov/app/details/BILLS-156hr9901ih\",\n \"download\": {\n  \"txtLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901ih/htm\",\n  \"xmlLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901ih/xml\",\n  \"pdfLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901ih/pdf\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/packages/BILLS-156hr9901ih/summary",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\"?>\n<bill><form><congress>156th CONGRESS</congress><legis-num>H. R. 9901</legis-num><current-chamber>ih</current-chamber></form><legis-body><section><text>Synthetic fixture text for version ih; not a real bill.</text></section></legis-body></bill>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/packages/BILLS-156hr9901ih/xml",
+   "status": 200
+  },
+  {
+   "body": "{\n \"packageId\": \"BILLS-156hr9901rh\",\n \"lastModified\": \"2099-03-06T10:00:00Z\",\n \"dateIssued\": \"2099-03-05\",\n \"congress\": \"156\",\n \"billType\": \"hr\",\n \"billNumber\": \"9901\",\n \"billVersion\": \"rh\",\n \"title\": \"Example Grid Reliability Act\",\n \"collectionCode\": \"BILLS\",\n \"collectionName\": \"Congressional Bills\",\n \"detailsLink\": \"https://www.govinfo.gov/app/details/BILLS-156hr9901rh\",\n \"download\": {\n  \"txtLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901rh/htm\",\n  \"xmlLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901rh/xml\",\n  \"pdfLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901rh/pdf\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/packages/BILLS-156hr9901rh/summary",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\"?>\n<bill><form><congress>156th CONGRESS</congress><legis-num>H. R. 9901</legis-num><current-chamber>rh</current-chamber></form><legis-body><section><text>Synthetic fixture text for version rh; not a real bill.</text></section></legis-body></bill>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/packages/BILLS-156hr9901rh/xml",
+   "status": 200
+  },
+  {
+   "body": "{\n \"packageId\": \"BILLS-156hr9901eh\",\n \"lastModified\": \"2099-03-12T10:00:00Z\",\n \"dateIssued\": \"2099-03-11\",\n \"congress\": \"156\",\n \"billType\": \"hr\",\n \"billNumber\": \"9901\",\n \"billVersion\": \"eh\",\n \"title\": \"Example Grid Reliability Act\",\n \"collectionCode\": \"BILLS\",\n \"collectionName\": \"Congressional Bills\",\n \"detailsLink\": \"https://www.govinfo.gov/app/details/BILLS-156hr9901eh\",\n \"download\": {\n  \"txtLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901eh/htm\",\n  \"xmlLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901eh/xml\",\n  \"pdfLink\": \"https://api.govinfo.gov/packages/BILLS-156hr9901eh/pdf\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/packages/BILLS-156hr9901eh/summary",
+   "status": 200
+  },
+  {
+   "body": "<?xml version=\"1.0\"?>\n<bill><form><congress>156th CONGRESS</congress><legis-num>H. R. 9901</legis-num><current-chamber>eh</current-chamber></form><legis-body><section><text>Synthetic fixture text for version eh; not a real bill.</text></section></legis-body></bill>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/packages/BILLS-156hr9901eh/xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

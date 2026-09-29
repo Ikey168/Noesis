@@ -1,0 +1,28 @@
+{
+ "divisionId": 2701,
+ "date": "2099-04-01T17:30:00",
+ "number": 3,
+ "title": "Example Heat Networks Bill: Amendment 3",
+ "notes": null,
+ "isGovernmentContent": false,
+ "contentCount": 1,
+ "notContentCount": 1,
+ "contentTellers": [],
+ "notContentTellers": [],
+ "contents": [
+  {
+   "memberId": 5001,
+   "name": "Lord Example",
+   "party": "Crossbench",
+   "memberFrom": null
+  }
+ ],
+ "notContents": [
+  {
+   "memberId": 5002,
+   "name": "Baroness Fixture",
+   "party": "Example Party",
+   "memberFrom": null
+  }
+ ]
+}
