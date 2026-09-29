@@ -1,0 +1,20 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sex,age,icd10,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:HLTH_CD_ARO(1.0),15/03/99 11:00:00,A,NR,T,TOTAL,A15-A19_B90,DE,2097,301,\nESTAT:HLTH_CD_ARO(1.0),15/03/99 11:00:00,A,NR,T,TOTAL,A15-A19_B90,DE,2098,288,bp\nESTAT:HLTH_CD_ARO(1.0),15/03/99 11:00:00,A,NR,T,TOTAL,A15-A19_B90,DE2,2097,60,\nESTAT:HLTH_CD_ARO(1.0),15/03/99 11:00:00,A,NR,T,TOTAL,A15-A19_B90,DE2,2098,:,c\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/hlth_cd_aro/A.NR.T.TOTAL.A15-A19_B90.DE+DE2?format=SDMX-CSV&startPeriod=2097",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; repository names, indicator codes, table codes and values are fictional. Not live evidence.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

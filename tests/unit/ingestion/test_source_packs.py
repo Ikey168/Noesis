@@ -1,14 +1,12 @@
 from __future__ import annotations
 
-import copy
 import asyncio
+import copy
 import json
 from pathlib import Path
 
 import duckdb
 import pytest
-
-from src.ingestion.wfs_api import replay_native_fixture
 from jsonschema import Draft7Validator
 
 from src.ingestion.source_packs import (
@@ -16,6 +14,7 @@ from src.ingestion.source_packs import (
     SourcePackError,
     SourcePackStore,
     load_source_packs,
+    replay_native_fixture,
     validate_source_pack,
 )
 
@@ -36,17 +35,33 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 9
+    assert len(packs) == 15
     assert {domain for pack in packs for domain in pack["domains"]} == {
+        "clinical",
+        "corporate-ownership",
         "economic",
         "geospatial",
+        "legal",
+        "onchain",
         "osint",
         "political",
+        "procurement",
+        "products",
         "research",
         "scientific",
         "technical",
     }
-    assert sum(len(pack["sources"]) for pack in packs) == 27
+    # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections,
+    # plus the Technology vulnerabilities feature's eight new sources (#1913; osv-api was reviewed in place),
+    # plus the Political lobbying feature's five register and meeting-declaration sources (#1911),
+    # plus the Political elections feature's four official result sources (#1908),
+    # plus the Economics public-finance feature's four budget, payment and statistics sources (#1909),
+    # plus the Economics demographics feature's five statistics sources (#1914),
+    # plus the Clinical Evidence surveillance feature's four statistics sources (#1917),
+    # plus the Products safety feature's four notice sources and its CELLAR selection of cited acts (#1916),
+    # plus the Funding development-finance feature's OECD CRS source (#1932),
+    # plus the On-chain Observations pack's two explorers and one label dataset (#2056).
+    assert sum(len(pack["sources"]) for pack in packs) == 104
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -124,17 +139,29 @@ def test_validation_rejects_unsafe_unbounded_or_unpinned_sources(
 
 def test_fixture_path_escape_and_drift_are_rejected(tmp_path: Path) -> None:
     pack = raw("research")
-    pack["defaults"]["fixture"]["path"] = "../outside.json"
+
+    def point_fixtures(path: str) -> None:
+        # Sources are checked in id order and some declare their own fixture.
+        for holder in [pack["defaults"], *pack["sources"]]:
+            if "fixture" in holder:
+                holder["fixture"]["path"] = path
+
+    point_fixtures("../outside.json")
     with pytest.raises(SourcePackError) as escaped:
         SourcePackConformance(tmp_path).offline(pack)
     assert escaped.value.code == "unsafe_fixture"
 
     fixture = tmp_path / "fixture.json"
     fixture.write_text('{"normalized": []}')
-    pack["defaults"]["fixture"]["path"] = "fixture.json"
+    point_fixtures("fixture.json")
     with pytest.raises(SourcePackError) as drift:
         SourcePackConformance(tmp_path).offline(pack)
     assert drift.value.code == "fixture_drift"
+
+
+def _next_minor(version: str) -> str:
+    major, minor, _patch = (int(part) for part in version.split("."))
+    return f"{major}.{minor + 1}.0"
 
 
 def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
@@ -151,10 +178,10 @@ def test_install_enable_upgrade_and_idempotency_are_pack_scoped(conn) -> None:
     assert store.install(research, principal_id="operator")["idempotent"]
 
     upgrade = copy.deepcopy(research)
-    upgrade["version"] = "1.3.0"
+    upgrade["version"] = _next_minor(research["version"])
     upgrade["description"] += " Upgraded."
     upgraded = store.install(upgrade, principal_id="operator", now_ms=20)
-    assert upgraded["version"] == "1.3.0" and upgraded["enabled"]
+    assert upgraded["version"] == upgrade["version"] and upgraded["enabled"]
     assert conn.execute(
         "SELECT COUNT(*) FROM source_pack_versions WHERE pack_id='research-discovery'"
     ).fetchone() == (2,)
@@ -175,7 +202,7 @@ def test_upgrade_preview_is_semantic_read_only_and_version_checked(conn) -> None
     installed = raw("research")
     store.install(installed, principal_id="operator", now_ms=10)
     candidate = copy.deepcopy(installed)
-    candidate["version"] = "1.3.0"
+    candidate["version"] = _next_minor(installed["version"])
     candidate["domains"].reverse()
     candidate["sources"].reverse()
     candidate["sources"] = [
@@ -210,7 +237,7 @@ def test_upgrade_preview_is_semantic_read_only_and_version_checked(conn) -> None
     changed = preview["changes"]["sources"]["changed"]
     assert {"endpoint", "mapping", "license", "auth"} <= set(changed[0]["fields"])
     assert "NOESIS_CROSSREF_KEY" in json.dumps(preview)
-    assert "1.2.0" == store.status("research-discovery")["version"]
+    assert installed["version"] == store.status("research-discovery")["version"]
     assert conn.execute("SELECT COUNT(*) FROM source_pack_audit").fetchone() == (1,)
 
     reordered = copy.deepcopy(installed)
@@ -252,10 +279,10 @@ def test_upgrade_preview_through_mcp_is_read_only_and_scoped(
     monkeypatch.setattr(server, "_connection", connection)
     monkeypatch.setattr(server, "_context", lambda: ("reader", scopes))
     candidate = raw("research")
-    candidate["version"] = "1.3.0"
+    candidate["version"] = _next_minor(candidate["version"])
     tools = asyncio.run(server.mcp.get_tools())
     preview = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
-    assert preview["installed_version"] == "1.2.0"
+    assert preview["installed_version"] == raw("research")["version"]
     assert opened == [True]
     scopes.clear()
     denied = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
@@ -295,10 +322,16 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     assert "must-not-leak" not in encoded
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
+        "clinical",
+        "corporate-ownership",
         "economic",
         "geospatial",
+        "legal",
+        "onchain",
         "osint",
         "political",
+        "procurement",
+        "products",
         "research",
         "scientific",
         "technical",

@@ -14,6 +14,9 @@ Tools (all annotated for R2 discovery under the `osint` ui_flag):
                                         corroboration hit-rate, corrections
   contradiction_scan(topic?, entity?)-> contradiction ledger: cited CONTRADICTS
                                         pairs, uncited flagged not hidden
+  infrastructure_pivot(identifier)   -> organization-keyed pivot over cited
+                                        RDAP/CT source-identity relations;
+                                        person-keyed identifiers refused
 
 Design constraints (as for every tool server): stdlib + fastmcp (plus the
 stdlib-only honesty helper) at import time, lazy imports inside tools, the
@@ -48,6 +51,22 @@ def _warehouse_ro():
     return duckdb.connect(path, read_only=True)
 
 
+def _context() -> tuple:
+    """Caller principal and scopes (access token, else NOESIS_MCP_PRINCIPAL /
+    NOESIS_MCP_SCOPES), mirroring the knowledge-engine server. Record owners
+    such as the ownership store authorize against these; nothing is granted here."""
+    from fastmcp.server.dependencies import get_access_token
+
+    from src.config.env import resolve_env
+
+    token = get_access_token()
+    if token is not None and token.scopes:
+        return str(token.client_id or ""), set(token.scopes)
+    principal = (resolve_env("MCP_PRINCIPAL", "local-reader") or "").strip()
+    raw = resolve_env("MCP_SCOPES", "knowledge:read") or ""
+    return principal, {value.strip() for value in raw.split(",") if value.strip()}
+
+
 @mcp.tool(
     output_schema=honesty_output_schema(
         {
@@ -66,12 +85,22 @@ def _warehouse_ro():
             "weighted_support": {"type": "number"},
             "weighted_contradict": {"type": "number"},
             "single_sourced": {"type": "boolean"},
+            "credibility_grade": {"type": "object"},
+            "source_reliability_grade": {"type": ["object", "null"]},
+            "grading": {"type": "object"},
         }
     ),
 )
 def corroborate(claim_id: str) -> dict:
     """How many probable origins support or contradict a claim, alongside
     publication counts and credibility. Never collapses to one confidence.
+
+    Two Admiralty-style grades are reported side by side as independent axes,
+    each with its derivation: ``credibility_grade`` rates the information 1-6
+    (1 confirmed by independent origins ... 5 improbable, 6 cannot be judged,
+    e.g. single-sourced or unresolved lineage) and ``source_reliability_grade``
+    rates the carrying source A-F (F when its track record is too thin). They
+    are never fused into one score.
 
     Args:
         claim_id: the claim to corroborate (see argument_mcp.list_claims).
@@ -139,12 +168,19 @@ def evidence_origin_graph(document_ids: Optional[list[str]] = None) -> dict:
             "corrections": {"type": "object"},
             "lineage": {"type": "object"},
             "scored_as_outlet": {"type": "boolean"},
+            "reliability_grade": {"type": "object"},
         }
     ),
 )
 def source_reliability(source: str) -> dict:
     """Reliability card for any source (blog, paper venue, filing, outlet),
     scored the same way outlets are.
+
+    ``reliability_grade`` is an Admiralty source-reliability letter A-F derived
+    from transparency, corroboration hit-rate and correction history with the
+    thresholds shown; F ("cannot be judged") below the minimum track record.
+    It grades the source only; information credibility (1-6) is a separate
+    axis reported per claim by ``corroborate``.
 
     Args:
         source: the source name to vet (see sources_mcp.list_sources).
@@ -218,17 +254,46 @@ def contradiction_scan(
             "last_seen": {"type": ["string", "null"]},
             "mentions": {"type": "array"},
             "connected_entities": {"type": "array"},
+            "ownership": {"type": "object"},
         },
         "additionalProperties": True,
     },
 )
-def entity_dossier(entity: str, entity_type: Optional[str] = None) -> dict:
+def entity_dossier(
+    entity: str,
+    entity_type: Optional[str] = None,
+    ownership_namespace: Optional[str] = None,
+    as_of: Optional[str] = None,
+    designations_namespace: Optional[str] = None,
+    onchain_namespace: Optional[str] = None,
+) -> dict:
     """A cited entity brief from already-ingested public documents only. A
     person entity with no ingested document is refused (person guardrail).
+
+    Optional ``ownership`` feature (off unless ``ownership_namespace`` is
+    given): for an organization, a cited section from the Corporate Ownership
+    bundle (identity, direct/ultimate parents, subsidiaries, officers,
+    conflicts side by side). Resolved only via accepted identity decisions,
+    never by name; inert when the bundle is disabled; never for a person.
+
+    Optional ``designations`` feature (off unless ``designations_namespace``
+    is given): what each sanctions list (EU, UN, OFAC, UK) stated about the
+    entity as of the date, per list, citing snapshots, listing revisions and
+    legal-basis works. Resolved only via accepted identity decisions; inert
+    unless the Legal sanctions feature is enabled. List statements only, not a
+    screening verdict or compliance determination; for a person only the list
+    record's own statement, and only under the person guardrail.
 
     Args:
         entity: the entity name or id (see kg_mcp.list_entities).
         entity_type: optional type hint (e.g. "person") to enforce the guardrail.
+        ownership_namespace: namespace whose ownership records to compose.
+        as_of: as-of date (YYYY-MM-DD) for ownership and designations; today by default.
+        designations_namespace: namespace whose Legal sanctions records to compose.
+        onchain_namespace: namespace whose On-chain Observations records to compose
+            (optional ``onchain`` feature: cited contract-origin facts for an
+            organization given by canonical id, through accepted label references
+            only; never for a person, never an attribution of an address).
     """
     try:
         con = _warehouse_ro()
@@ -237,7 +302,32 @@ def entity_dossier(entity: str, entity_type: Optional[str] = None) -> dict:
     try:
         from src.osint import entity_dossier as _dossier
 
-        return _dossier(con, entity, entity_type=entity_type)
+        ownership = None
+        if ownership_namespace:
+            principal, scopes = _context()
+            ownership = {
+                "namespace": ownership_namespace,
+                "principal_id": principal,
+                "scopes": scopes,
+                "as_of": as_of,
+            }
+        designations = None
+        if designations_namespace:
+            principal, scopes = _context()
+            designations = {
+                "namespace": designations_namespace,
+                "principal_id": principal,
+                "scopes": scopes,
+                "as_of": as_of,
+            }
+        return _dossier(
+            con,
+            entity,
+            entity_type=entity_type,
+            ownership=ownership,
+            designations=designations,
+            onchain={"namespace": onchain_namespace, "scopes": _context()[1]} if onchain_namespace else None,
+        )
     except Exception as exc:
         return {"error": str(exc)}
     finally:
@@ -338,10 +428,13 @@ def trace_artifact(
     """Trace one artifact (a claim or a document) end to end: source to
     connector to document to enrichment to claim to routed namespace, every
     stage cited. Answers "where did this come from and what happened to it".
+    An RDAP / certificate-transparency observation id (``osint-obs:...``) traces
+    source-pack source -> acquisition receipt -> observation -> the
+    source-identity revisions and relationships that cite it.
 
     Args:
         claim_id: trace a claim (see argument_mcp.list_claims).
-        document_id: trace a document (a news_articles id).
+        document_id: trace a document (a news_articles id) or an osint-obs: observation id.
     """
     try:
         con = _warehouse_ro()
@@ -351,6 +444,48 @@ def trace_artifact(
         from src.osint import trace_artifact as _trace
 
         return _trace(con, claim_id=claim_id, document_id=document_id)
+    except Exception as exc:
+        return {"error": str(exc)}
+    finally:
+        con.close()
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "status": {"type": "string"},
+            "identifier": {"type": "string"},
+            "resolution": {"type": "object"},
+            "paths": {"type": "array"},
+            "count": {"type": "integer"},
+            "truncated": {"type": "boolean"},
+            "caveat": {"type": "string"},
+        },
+        "additionalProperties": True,
+    },
+)
+def infrastructure_pivot(identifier: str, namespace: str = "osint", max_depth: int = 2) -> dict:
+    """Organization-keyed infrastructure pivot (domain -> registrant
+    organization -> related domains; shared certificate SAN sets) over cited
+    source-identity relationships. Every hop cites its RDAP / CT observation and
+    carries its status (shared infrastructure is "probable"). No same-operator
+    verdict. Person-keyed identifiers (e-mail, @handle, username, IP address,
+    person: ids) are refused with person_identifier_refused.
+
+    Args:
+        identifier: a domain name or a source-identity id.
+        namespace: the source-identity namespace to read.
+        max_depth: hops to follow (1-3).
+    """
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        from src.osint.infrastructure import infrastructure_pivot as _pivot
+
+        return _pivot(con, identifier, namespace=namespace, max_depth=max_depth)
     except Exception as exc:
         return {"error": str(exc)}
     finally:
@@ -498,6 +633,75 @@ if _gated_enabled():
             return {"error": str(exc)}
         finally:
             con.close()
+            queue.close()
+
+    @mcp.tool
+    def chronolocate_image(
+        sha256: str,
+        date_from: str,
+        date_to: str,
+        suggestion_id: Optional[str] = None,
+        hypothesis_lat: Optional[float] = None,
+        hypothesis_lon: Optional[float] = None,
+        operator: Optional[str] = None,
+    ) -> dict:
+        """Queue a capture-time suggestion for a corpus image from shadow
+        direction/length and local solar geometry (review-gated). The place is
+        a confirmed geolocation suggestion or an explicit operator hypothesis,
+        never inferred. Uncited and unverified until an operator confirms; about
+        the image, never a subject. Needs a shadow estimator; none ships.
+
+        Args:
+            sha256: a corpus image asset hash.
+            date_from: first date (YYYY-MM-DD) to search.
+            date_to: last date (YYYY-MM-DD) to search.
+            suggestion_id: a confirmed geolocate_image suggestion supplying the place.
+            hypothesis_lat: operator place hypothesis latitude (with lon and operator).
+            hypothesis_lon: operator place hypothesis longitude.
+            operator: the operator making the hypothesis.
+        """
+        try:
+            con = _warehouse_ro()
+            queue = _imagery_queue_rw()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            from src.osint.imagery_gated import chronolocate_image as _chrono
+
+            hypothesis = None
+            if hypothesis_lat is not None and hypothesis_lon is not None:
+                hypothesis = {"lat": hypothesis_lat, "lon": hypothesis_lon, "operator": operator}
+            return _chrono(con, sha256, date_from=date_from, date_to=date_to, estimator=None,  # no default
+                           suggestion_id=suggestion_id, hypothesis=hypothesis, queue_conn=queue)
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
+            con.close()
+            queue.close()
+
+    @mcp.tool
+    def reference_imagery(suggestion_id: str, kind: str = "satellite") -> dict:
+        """Attach one satellite or street-level reference image for a queued
+        geolocation suggestion's place (review-gated). Only for a place already
+        attached to a suggestion; no free-form coordinates, no time series.
+        References are review aids in the queue store, never citations. No
+        default provider ships, so this returns no_provider_configured.
+
+        Args:
+            suggestion_id: the queued suggestion whose place to fetch.
+            kind: "satellite" or "street-level".
+        """
+        try:
+            queue = _imagery_queue_rw()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            from src.osint.imagery_gated import fetch_reference_imagery as _ref
+
+            return _ref(queue, kind=kind, suggestion_id=suggestion_id, provider=None)  # no default provider
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
             queue.close()
 
 

@@ -29,7 +29,8 @@ def raw_manifest() -> dict[str, Any]:
 def manifest(**wfs_updates: Any) -> dict[str, Any]:
     value = copy.deepcopy(raw_manifest())
     for source in value["sources"]:
-        source["wfs"].update(wfs_updates)
+        if "wfs" in source:
+            source["wfs"].update(wfs_updates)
     return validate_source_pack(value)
 
 

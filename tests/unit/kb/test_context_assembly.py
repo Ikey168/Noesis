@@ -479,7 +479,7 @@ def test_rest_and_mcp_adapters_share_the_python_contract(monkeypatch):
     }
     calls = []
 
-    def fake_context(*args):
+    def fake_context(*args, **kwargs):
         calls.append(args)
         return sentinel
 

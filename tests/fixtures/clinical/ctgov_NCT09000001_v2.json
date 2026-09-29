@@ -1,0 +1,151 @@
+{
+ "study": {
+  "protocolSection": {
+   "identificationModule": {
+    "nctId": "NCT09000001",
+    "orgStudyIdInfo": {
+     "id": "NTG-3001"
+    },
+    "secondaryIdInfos": [
+     {
+      "id": "2015-900001-10",
+      "type": "EUDRACT_NUMBER"
+     }
+    ],
+    "organization": {
+     "fullName": "Fixture Therapeutics GmbH",
+     "class": "INDUSTRY"
+    },
+    "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+    "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+    "acronym": "NOETIC-1"
+   },
+   "statusModule": {
+    "statusVerifiedDate": "2017-11",
+    "overallStatus": "ACTIVE_NOT_RECRUITING",
+    "startDateStruct": {
+     "date": "2016-03-01",
+     "type": "ACTUAL"
+    },
+    "primaryCompletionDateStruct": {
+     "date": "2017-12",
+     "type": "ESTIMATED"
+    },
+    "completionDateStruct": {
+     "date": "2018-03",
+     "type": "ESTIMATED"
+    },
+    "studyFirstSubmitDate": "2015-11-20",
+    "studyFirstPostDateStruct": {
+     "date": "2015-11-24",
+     "type": "ESTIMATED"
+    },
+    "lastUpdatePostDateStruct": {
+     "date": "2017-11-20",
+     "type": "ACTUAL"
+    }
+   },
+   "sponsorCollaboratorsModule": {
+    "leadSponsor": {
+     "name": "Fixture Therapeutics GmbH",
+     "class": "INDUSTRY"
+    }
+   },
+   "descriptionModule": {
+    "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+   },
+   "conditionsModule": {
+    "conditions": [
+     "Type 2 Diabetes",
+     "T2DM"
+    ],
+    "keywords": [
+     "glycaemic control"
+    ]
+   },
+   "designModule": {
+    "studyType": "INTERVENTIONAL",
+    "phases": [
+     "PHASE3"
+    ],
+    "designInfo": {
+     "allocation": "RANDOMIZED",
+     "interventionModel": "PARALLEL",
+     "primaryPurpose": "TREATMENT",
+     "maskingInfo": {
+      "masking": "QUADRUPLE",
+      "whoMasked": [
+       "PARTICIPANT",
+       "CARE_PROVIDER",
+       "INVESTIGATOR",
+       "OUTCOMES_ASSESSOR"
+      ]
+     }
+    },
+    "enrollmentInfo": {
+     "count": 600,
+     "type": "ESTIMATED"
+    }
+   },
+   "armsInterventionsModule": {
+    "armGroups": [
+     {
+      "label": "Noetiglutide",
+      "type": "EXPERIMENTAL",
+      "description": "Noetiglutide added to metformin",
+      "interventionNames": [
+       "Drug: Noetiglutide"
+      ]
+     },
+     {
+      "label": "Placebo",
+      "type": "PLACEBO_COMPARATOR",
+      "description": "Placebo added to metformin",
+      "interventionNames": [
+       "Drug: Placebo"
+      ]
+     }
+    ],
+    "interventions": [
+     {
+      "type": "DRUG",
+      "name": "Noetiglutide",
+      "description": "Investigational product (fictional)",
+      "armGroupLabels": [
+       "Noetiglutide"
+      ],
+      "otherNames": [
+       "NTG-01"
+      ]
+     },
+     {
+      "type": "DRUG",
+      "name": "Placebo",
+      "armGroupLabels": [
+       "Placebo"
+      ]
+     }
+    ]
+   },
+   "outcomesModule": {
+    "primaryOutcomes": [
+     {
+      "measure": "Change From Baseline in HbA1c",
+      "timeFrame": "Baseline, week 52"
+     }
+    ],
+    "secondaryOutcomes": [
+     {
+      "measure": "Change From Baseline in Body Weight",
+      "timeFrame": "Baseline, week 26"
+     }
+    ]
+   },
+   "eligibilityModule": {
+    "sex": "ALL",
+    "minimumAge": "18 Years",
+    "healthyVolunteers": false
+   }
+  }
+ }
+}

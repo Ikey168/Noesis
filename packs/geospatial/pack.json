@@ -7,9 +7,9 @@
   "ui_flags": {},
   "panels": [],
   "planner_keywords": {
-    "entities": ["boundary", "district", "bezirk", "facility", "feature", "geometry", "place"],
-    "sources": ["attribution", "collection", "dataset revision", "snapshot", "wfs"],
-    "events": ["inside", "within", "bbox", "bounding box", "nearby", "proximity"]
+    "entities": ["boundary", "district", "bezirk", "facility", "feature", "geometry", "place", "bodenrichtwert", "land value", "bebauungsplan", "development plan", "mietspiegel", "rent index", "wohnlage", "parcel", "address"],
+    "sources": ["attribution", "collection", "dataset revision", "snapshot", "wfs", "boris", "fis-broker", "statistik berlin-brandenburg", "genesis 31111", "genesis 31231"],
+    "events": ["inside", "within", "bbox", "bounding box", "nearby", "proximity", "valuation date", "stichtag", "plan stage", "building permits", "completions"]
   },
   "enrichers": [],
   "provisioning_templates": [],
@@ -20,19 +20,28 @@
     "durable-spatial-projection",
     "complete-snapshot-removal-semantics",
     "points-inside-boundary-query",
-    "reviewable-boundary-name-resolution"
+    "reviewable-boundary-name-resolution",
+    "housing-land-value-revisions",
+    "housing-rent-index-editions",
+    "housing-plan-stages",
+    "housing-building-statistics",
+    "housing-as-of-dossiers",
+    "housing-citation-links",
+    "housing-monitoring"
   ],
   "schema_versions": {
     "geospatial-feature": "1.0.0",
     "geospatial-feature-query": "1.0.0",
     "geospatial-geometry": "2.0.0",
+    "housing-record": "1.0.0",
+    "housing-dossier": "1.0.0",
     "source-pack": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
-    "reuses": ["noesis-geospatial-geometry-v2", "noesis-geospatial-place-v1", "noesis-spatial-result-v1"],
-    "object_types": ["feature", "feature_revision", "collection_snapshot", "geometry", "place"],
-    "relation_types": ["located_within", "revision_of", "acquired_from", "projected_as"]
+    "reuses": ["noesis-geospatial-geometry-v2", "noesis-geospatial-place-v1", "noesis-spatial-result-v1", "noesis-housing-record-v1"],
+    "object_types": ["feature", "feature_revision", "collection_snapshot", "geometry", "place", "land_value_revision", "rent_index_cell", "plan_stage", "area_category", "building_statistic", "indicator_vintage"],
+    "relation_types": ["located_within", "revision_of", "acquired_from", "projected_as", "valued_on", "stage_of", "cites", "supersedes"]
   },
   "source_pack": "config/source_packs/geospatial.json",
   "query_examples": [
@@ -51,12 +60,15 @@
     {
       "intent": "Distance between two points",
       "tool": "calculate_spatial_relation",
-      "arguments": {"operation": "proximity", "left_geometry_id": "<point geometry_id>", "right": [13.4105, 52.5208]},
+      "arguments": {"namespace": "global", "operation": "proximity", "left_geometry_id": "<point geometry_id>", "right": [13.4105, 52.5208]},
       "semantics": "haversine distance to the nearest stored vertex; not a distance to an arbitrary boundary edge and not road routing"
     }
   ],
   "exclusions": [
     "OGC API Features", "OSM/Overpass", "global gazetteers", "raster, satellite and terrain processing",
-    "tiles and basemaps", "road-network routing", "new spatial databases", "GIS editing"
+    "tiles and basemaps", "road-network routing", "new spatial databases", "GIS editing",
+    "property valuation, rent or investment advice", "tenancy legal advice",
+    "values interpolated, averaged or merged between zones, cells, sources or editions",
+    "scraped PDF-only or portal-only publications"
   ]
 }

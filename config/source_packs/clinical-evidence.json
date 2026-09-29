@@ -1,0 +1,684 @@
+{
+  "pack_id": "clinical-evidence",
+  "version": "0.1.1",
+  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart; existing sources are unchanged. No medical advice.",
+  "domains": [
+    "clinical"
+  ],
+  "sources": [
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "clinical-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "ctgov-trial-history",
+      "connector": "ctgov",
+      "publisher": "US National Library of Medicine",
+      "endpoint": "https://clinicaltrials.gov/api/v2",
+      "scope": "Pinned ClinicalTrials.gov studies with every registry version and posted results",
+      "update_cadence": "records change when a new registry version is posted",
+      "temporal_semantics": "registry version number and date per revision; observation time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "nct_ids": [
+          "NCT09000001",
+          "NCT09000002"
+        ],
+        "history": true,
+        "max_versions": 20
+      },
+      "license": {
+        "id": "nlm-clinicaltrials-gov-terms",
+        "terms_url": "https://clinicaltrials.gov/about-site/terms-conditions",
+        "redistribution": "US government public-domain data; cite ClinicalTrials.gov and the NCT number"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-ctgov-history.json",
+        "sha256": "9e2554eb90c663dd9ec798c839a38d63d04e81a19ca1066ca655eb3aacdeaf31",
+        "expected_output_hash": "403014d52265b8d2bd38ec49b55eda25a561d3549aa977d35dd3fa03d29650b6"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "clinical-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "ctgov-question-search",
+      "connector": "ctgov",
+      "publisher": "US National Library of Medicine",
+      "endpoint": "https://clinicaltrials.gov/api/v2",
+      "scope": "One bounded ClinicalTrials.gov search (condition + intervention) for the pack's question",
+      "update_cadence": "daily search; current records only (no history)",
+      "temporal_semantics": "current record with its last-update date; observation time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "query": {
+          "cond": "type 2 diabetes",
+          "intr": "noetiglutide"
+        },
+        "page_size": 2
+      },
+      "license": {
+        "id": "nlm-clinicaltrials-gov-terms",
+        "terms_url": "https://clinicaltrials.gov/about-site/terms-conditions",
+        "redistribution": "US government public-domain data; cite ClinicalTrials.gov and the NCT number"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-ctgov-search.json",
+        "sha256": "feb402c25dce58daaa060c6355dee4a4319e1734b1716a610c65e64a9c846622",
+        "expected_output_hash": "4ec6ce986f95c8c71d035c6c069449e0937563ac9214c9799c40dccecd27b59a"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "clinical-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "ctis-trials",
+      "connector": "ctis",
+      "publisher": "European Medicines Agency (CTIS)",
+      "endpoint": "https://euclinicaltrials.eu/ctis-public-api",
+      "scope": "Pinned EU CTIS trials: status, member-state decisions, end points and result summaries",
+      "update_cadence": "weekly at most",
+      "temporal_semantics": "portal lastUpdated date as reported",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "ct_numbers": [
+          "2023-509001-12-00"
+        ]
+      },
+      "license": {
+        "id": "ema-ctis-public",
+        "terms_url": "https://euclinicaltrials.eu/",
+        "redistribution": "public transparency data under Regulation (EU) No 536/2014; cite the EU CT number"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-ctis.json",
+        "sha256": "1ab305429ad6ef6d1e52ca788962c868149331ee2eeb8e5e78290d1991ecea70",
+        "expected_output_hash": "957ef1c116a86c9b7f206dca03dd91fdc321f27953de21d201edaea7b5a00856"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "clinical-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "euctr-trials",
+      "connector": "eu-ctr",
+      "publisher": "European Medicines Agency (EU CTR)",
+      "endpoint": "https://www.clinicaltrialsregister.eu/ctr-search",
+      "scope": "Pinned EU Clinical Trials Register protocols per member state; result availability only",
+      "update_cadence": "monthly at most (legacy register)",
+      "temporal_semantics": "current register content; the register publishes no version history",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "eudract_numbers": [
+          "2015-900001-10"
+        ]
+      },
+      "license": {
+        "id": "ema-eu-ctr-public",
+        "terms_url": "https://www.clinicaltrialsregister.eu/",
+        "redistribution": "public register data; cite the EudraCT number and register URL"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-euctr.json",
+        "sha256": "df250f22c52ebafaae0f1a8e62498abde3f6d538dc2bfce9369d63bb7134bd80",
+        "expected_output_hash": "168ff3c42f36115f89d143d928da7683ba60fdc1b2ceb342d0a1787a0bce5b33"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "clinical-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "openfda-products",
+      "connector": "openfda",
+      "publisher": "US Food and Drug Administration (openFDA)",
+      "endpoint": "https://api.fda.gov",
+      "scope": "Pinned products: current label versions, Drugs@FDA submissions, FAERS report counts",
+      "update_cadence": "weekly at most",
+      "temporal_semantics": "label version and effective date; FAERS meta.last_updated",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_OPENFDA_API_KEY"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 50
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "products": [
+          {
+            "generic_name": "noetiglutide"
+          }
+        ],
+        "endpoints": [
+          "label",
+          "drugsfda",
+          "event-counts"
+        ],
+        "event_count_field": "patient.reaction.reactionmeddrapt.exact",
+        "max_labels": 3
+      },
+      "license": {
+        "id": "openfda-terms",
+        "terms_url": "https://open.fda.gov/terms/",
+        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-openfda.json",
+        "sha256": "869b073cfef7ee763460440d5d238259058de31e751fbce6e152d7ef18691af1",
+        "expected_output_hash": "4655628b4611568a62a45fa266c8d50bcea1e26cbb5abcf013de17ade10dd7b7"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-clinical-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "clinical-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "ema-medicines",
+      "connector": "ema-medicines",
+      "publisher": "European Medicines Agency",
+      "endpoint": "https://www.ema.europa.eu/en/documents",
+      "scope": "Pinned EMA product numbers from the published medicines export: authorisation status and EPAR",
+      "update_cadence": "daily export",
+      "temporal_semantics": "EMA revision number and last-updated date",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 50,
+        "max_bytes": 60000000,
+        "max_pages": 1
+      },
+      "clinical": {
+        "namespace": "clinical",
+        "product_numbers": [
+          "EMEA/H/C/009001"
+        ],
+        "export_path": "/en/documents/report/medicines-output-medicines_json-report_en.json"
+      },
+      "license": {
+        "id": "ema-website-terms",
+        "terms_url": "https://www.ema.europa.eu/en/about-us/legal-notice",
+        "redistribution": "reuse with acknowledgement of EMA as the source"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-ema.json",
+        "sha256": "d19a46410dae672062941e584e26258ee385e1d02fbbabfc3aa7f0fb3370a24a",
+        "expected_output_hash": "fb10daf5bea07f99b5993abdab08ddea3566481da78e58ff7808433935f6f0c1"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "rki-tuberkulose-meldedaten",
+      "connector": "surveillance",
+      "publisher": "Robert Koch-Institut",
+      "endpoint": "https://raw.githubusercontent.com",
+      "scope": "One pinned RKI open-data release (tag) of notified tuberculosis cases by district",
+      "update_cadence": "each release tag is a new vintage; the pinned tag is updated by the operator",
+      "temporal_semantics": "Meldedatum (reporting date) and Refdatum (reference date) per value; release date of the tag as the release clock; retrieval time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "rki-open-data",
+        "format": "rki-github-csv",
+        "documents": [
+          {
+            "label": "RKI Tuberkulose-Meldedaten 2099-01-20 (fictional repository)",
+            "repository": "robert-koch-institut/Fiktive_Tuberkulose-Meldedaten",
+            "tag": "2099-01-20",
+            "path": "Daten/Tuberkulose_Meldedaten.csv",
+            "published_on": "2099-01-20",
+            "condition": {
+              "scheme": "rki-meldekategorie",
+              "code": "Tuberkulose",
+              "label": "Tuberkulose"
+            },
+            "indicator": {
+              "code": "AnzahlFall",
+              "label": "Gemeldete Fälle",
+              "definition_locator": "https://github.com/robert-koch-institut/Fiktive_Tuberkulose-Meldedaten#readme"
+            },
+            "columns": {
+              "reporting_date": "Meldedatum",
+              "reference_date": "Refdatum",
+              "geography": "IdLandkreis",
+              "figure": "AnzahlFall",
+              "reference_known": "IstErkrankungsbeginn",
+              "dimensions": {
+                "Altersgruppe": "age_group"
+              }
+            },
+            "geography": {
+              "system": "ags",
+              "level": "kreis",
+              "code_list_version": "2099-01-01"
+            },
+            "unit": "cases",
+            "interval": "day",
+            "kind": "observation",
+            "case_definitions": [
+              {
+                "key": "tuberkulose",
+                "version": "2019",
+                "valid_from": "2019-01-01",
+                "valid_to": "2098-12-31",
+                "locator": "https://www.rki.de/DE/Content/Infekt/IfSG/Falldefinition/falldefinition_node.html",
+                "icd_scope": [
+                  "A15-A19"
+                ]
+              },
+              {
+                "key": "tuberkulose",
+                "version": "2099",
+                "valid_from": "2099-01-01",
+                "locator": "https://www.rki.de/DE/Content/Infekt/IfSG/Falldefinition/falldefinition_node.html",
+                "icd_scope": [
+                  "A15-A19",
+                  "A31.0"
+                ]
+              }
+            ],
+            "delay_note": {
+              "text": "Meldungen der letzten drei Wochen sind wegen des Meldeverzugs noch unvollständig (fiktive Angabe).",
+              "locator": "https://github.com/robert-koch-institut/Fiktive_Tuberkulose-Meldedaten#meldeverzug",
+              "incomplete_recent": {
+                "interval": "week",
+                "count": 3
+              }
+            },
+            "citations": [
+              {
+                "kind": "doi",
+                "identifier": "10.5281/zenodo.9900001"
+              }
+            ]
+          }
+        ]
+      },
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://creativecommons.org/licenses/by/4.0/",
+        "redistribution": "attribution to the Robert Koch-Institut and the release (verify per repository)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-rki-tuberkulose-meldedaten.json",
+        "sha256": "88345d224926b93677ade573fa9c3de08106abaa4763779f48a224062aeaee42",
+        "expected_output_hash": "959b67100da7dfe52b2b0f6018d78b9c79a82bb7f77b65a1fddce54a3c1bc2f5"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "who-gho-tuberculosis",
+      "connector": "surveillance",
+      "publisher": "World Health Organization (Global Health Observatory)",
+      "endpoint": "https://ghoapi.azureedge.net/api",
+      "scope": "Pinned GHO indicators for Germany (tuberculosis notification rate and estimated incidence)",
+      "update_cadence": "irregular per indicator",
+      "temporal_semantics": "TimeDim (reference year) and Date (reporting date) per value; Last-Modified or the latest value date as the release clock, labelled",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "who-gho",
+        "format": "who-gho-odata",
+        "documents": [
+          {
+            "label": "GHO NOE_TB_NOTIF_RATE Germany (fictional indicator)",
+            "indicator": "NOE_TB_NOTIF_RATE",
+            "filter": "SpatialDim eq 'DEU'",
+            "condition_label": "Tuberculosis",
+            "unit": "per 100 000 population",
+            "kind": "observation",
+            "denominator": "total population (as stated by the indicator)"
+          },
+          {
+            "label": "GHO NOE_TB_INC_EST Germany (fictional indicator)",
+            "indicator": "NOE_TB_INC_EST",
+            "filter": "SpatialDim eq 'DEU'",
+            "condition_label": "Tuberculosis",
+            "unit": "per 100 000 population",
+            "kind": "observation",
+            "denominator": "total population (as stated by the indicator)"
+          }
+        ]
+      },
+      "license": {
+        "id": "who-data-terms",
+        "terms_url": "https://www.who.int/about/policies/publishing/data-policy/terms-and-conditions",
+        "redistribution": "WHO data terms; attribution, non-commercial for CC BY-NC-SA IGO data (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-who-gho-tuberculosis.json",
+        "sha256": "f173074edcc0ed0e89e8fbcd8917d4c693a585e704cb37e3a873e9abd6f98f30",
+        "expected_output_hash": "8033c12b0915eaadff54039c75d618084e185b359e7d9ebe99563b4a9817b599"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "eurostat-causes-of-death-tuberculosis",
+      "connector": "surveillance",
+      "publisher": "Eurostat",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "scope": "Eurostat hlth_cd_aro tuberculosis deaths for Germany and Bayern through the SDMX connector (same dissemination API as economic-statistics-and-filings/eurostat-dissemination)",
+      "update_cadence": "annual",
+      "temporal_semantics": "TIME_PERIOD (reference year); LAST UPDATE as the release clock; no reporting date per value",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "eurostat-health",
+        "format": "eurostat-sdmx-csv",
+        "documents": [
+          {
+            "label": "Eurostat hlth_cd_aro tuberculosis deaths, Germany and Bayern (fictional values)",
+            "dataset": "hlth_cd_aro",
+            "key": "A.NR.T.TOTAL.A15-A19_B90.DE+DE2",
+            "params": {
+              "startPeriod": "2097"
+            },
+            "condition_dimension": "icd10",
+            "condition_labels": {
+              "A15-A19_B90": "Tuberculosis"
+            },
+            "units": {
+              "NR": "deaths"
+            },
+            "indicator": {
+              "code": "hlth_cd_aro",
+              "label": "Causes of death by NUTS 2 regions of residence, absolute numbers (fictional values)"
+            },
+            "geography": {
+              "code_list_version": "NUTS 2021"
+            },
+            "kind": "observation"
+          }
+        ]
+      },
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-eurostat-causes-of-death-tuberculosis.json",
+        "sha256": "3dad7ac13bf170e7e0da71dcfad968ad3c0ad17863bd9e8ff036333257ffaa7b",
+        "expected_output_hash": "e482358974a259e5f47d9124a2746b0ef39d1ad62608c0c593ccfb10877eb4d0"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "destatis-todesursachen-tuberkulose",
+      "connector": "surveillance",
+      "publisher": "Statistisches Bundesamt (Destatis)",
+      "endpoint": "https://www-genesis.destatis.de/genesisWS/rest/2020",
+      "scope": "GENESIS table 23211-0004 tuberculosis deaths by Land through the GENESIS connector (credentialed)",
+      "update_cadence": "annual",
+      "temporal_semantics": "Zeit (reference year); the table's Updated stamp as the release clock; no reporting date per value",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "destatis-health",
+        "format": "destatis-genesis-ffcsv",
+        "documents": [
+          {
+            "label": "23211-0004 Gestorbene: Bundesländer, Jahre, Todesursachen (fictional values)",
+            "table": "23211-0004",
+            "geography_attribute": "DLAND",
+            "condition_attribute": "TODUR4",
+            "measures": {
+              "BEV003": "Gestorbene"
+            },
+            "units": {
+              "Anzahl": "deaths"
+            },
+            "condition_labels": {
+              "A15-A19": "Tuberkulose"
+            },
+            "geography": {
+              "system": "ags",
+              "level": "land",
+              "code_list_version": "2099-01-01"
+            },
+            "kind": "observation"
+          }
+        ]
+      },
+      "license": {
+        "id": "dl-de-by-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/by-2-0",
+        "redistribution": "attribution-required (verify)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_DESTATIS_GENESIS_TOKEN"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/surveillance-destatis-todesursachen-tuberkulose.json",
+        "sha256": "16b1d303a6c431bab697ed0b94eaf6c6c1cca1b164225fb896072ca509a61ead",
+        "expected_output_hash": "9a8f0cd499ab10e75b60e31fa0c668bdb8386d8f016b898719132487c6cc8275"
+      }
+    }
+  ]
+}

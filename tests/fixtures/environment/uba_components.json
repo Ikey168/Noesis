@@ -1,0 +1,31 @@
+{
+ "count": 3,
+ "indices": [
+  "component id",
+  "component code",
+  "component symbol",
+  "component unit",
+  "component name"
+ ],
+ "1": [
+  "1",
+  "PM10",
+  "PM₁₀",
+  "µg/m³",
+  "Particulate matter"
+ ],
+ "3": [
+  "3",
+  "O3",
+  "O₃",
+  "µg/m³",
+  "Ozone"
+ ],
+ "5": [
+  "5",
+  "NO2",
+  "NO₂",
+  "µg/m³",
+  "Nitrogen dioxide"
+ ]
+}

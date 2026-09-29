@@ -1,0 +1,18 @@
+[
+  {"issuer_ca_id": 1001, "issuer_name": "C=US, O=Fixture CA, CN=Fixture CA R1", "common_name": "exampla-news.example",
+   "name_value": "exampla-news.example\nwww.exampla-news.example", "id": 5000001, "entry_timestamp": "2023-01-10T08:00:00.000",
+   "not_before": "2023-01-10T00:00:00", "not_after": "2023-04-10T23:59:59", "serial_number": "0a01", "result_count": 2},
+  {"issuer_ca_id": 1001, "issuer_name": "C=US, O=Fixture CA, CN=Fixture CA R1", "common_name": "exampla-news.example",
+   "name_value": "exampla-news.example\nwww.exampla-news.example", "id": 5000001, "entry_timestamp": "2023-01-10T08:00:00.000",
+   "not_before": "2023-01-10T00:00:00", "not_after": "2023-04-10T23:59:59", "serial_number": "0a01", "result_count": 2},
+  {"issuer_ca_id": 1002, "issuer_name": "C=US, O=Fixture CDN, CN=Fixture CDN CA", "common_name": "sni.fixture-cdn.example",
+   "name_value": "exampla-news.example\nsister-daily.example\n*.sister-daily.example\nsni.fixture-cdn.example", "id": 5000002,
+   "entry_timestamp": "2024-06-01T08:00:00.000", "not_before": "2024-06-01T00:00:00", "not_after": "2024-08-30T23:59:59",
+   "serial_number": "0b02", "result_count": 4},
+  {"issuer_ca_id": 1003, "issuer_name": "C=US, O=Fixture SMIME, CN=Fixture Mail CA", "common_name": "newsdesk@exampla-news.example",
+   "name_value": "newsdesk@exampla-news.example\nexampla-news.example", "id": 5000003, "entry_timestamp": "2025-01-01T00:00:00.000",
+   "not_before": "2025-01-01T00:00:00", "not_after": "2026-01-01T00:00:00", "serial_number": "0c03", "result_count": 2},
+  {"issuer_ca_id": 1001, "issuer_name": "C=US, O=Fixture CA, CN=Fixture CA R1", "common_name": "unrelated.example",
+   "name_value": "unrelated.example", "id": 5000004, "entry_timestamp": "2025-02-01T00:00:00.000",
+   "not_before": "2025-02-01T00:00:00", "not_after": "2025-05-01T00:00:00", "serial_number": "0d04", "result_count": 1}
+]

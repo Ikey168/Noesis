@@ -283,6 +283,65 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.funding import FUNDING_WRITES
     if name in FUNDING_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.procurement import PROCUREMENT_WRITES
+    if name in PROCUREMENT_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.products import PRODUCT_WRITES
+    if name in PRODUCT_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.legal import LEGAL_WRITES
+    if name in LEGAL_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.cultural import CULTURAL_WRITES
+    if name in CULTURAL_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.patents import PATENT_WRITES
+    if name in PATENT_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.companies import COMPANY_WRITES
+    if name in COMPANY_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.standards import STANDARDS_WRITES
+    if name in STANDARDS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.mathematics import MATH_WRITES
+    if name in MATH_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_WRITES
+    if name in CLINICAL_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.ownership import OWNERSHIP_WRITES
+    if name in OWNERSHIP_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.environment import ENVIRONMENT_WRITES
+    if name in ENVIRONMENT_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.sanctions import SANCTIONS_WRITES
+    if name in SANCTIONS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_WRITES
+    if name in VULNERABILITY_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.lobbying import LOBBYING_WRITES
+    if name in LOBBYING_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.elections import ELECTION_WRITES
+    if name in ELECTION_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_WRITES
+    if name in PUBLIC_FINANCE_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.demographics import DEMOGRAPHIC_WRITES
+    if name in DEMOGRAPHIC_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.housing import HOUSING_WRITES
+    if name in HOUSING_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.development_finance import (
+        DEVELOPMENT_FINANCE_WRITES,
+    )
+    if name in DEVELOPMENT_FINANCE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -681,6 +740,10 @@ def _required_data(server_stem: str, tool_name: str) -> list[str]:
 
 
 def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[str]:
+    if server_stem == "onchain_mcp":
+        from tools.onchain_mcp.server import TOOL_SCOPES as ONCHAIN_SCOPES
+
+        return list(ONCHAIN_SCOPES.get(tool_name) or (["operator"] if mutability == "write" else ["knowledge:read"]))
     if server_stem == "market_mcp":
         market_scopes = {
             "market_readiness": ["market:instruments:read"],
@@ -775,6 +838,99 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
         return required_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.procurement import PROCUREMENT_TOOLS
+    from tools.knowledge_engine_mcp.procurement import (
+        required_scopes as procurement_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in PROCUREMENT_TOOLS:
+        return procurement_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.products import PRODUCT_TOOLS
+    from tools.knowledge_engine_mcp.products import required_scopes as product_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PRODUCT_TOOLS:
+        return product_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.legal import LEGAL_TOOLS
+    from tools.knowledge_engine_mcp.legal import required_scopes as legal_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LEGAL_TOOLS:
+        return legal_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.cultural import CULTURAL_TOOLS
+    from tools.knowledge_engine_mcp.cultural import required_scopes as cultural_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in CULTURAL_TOOLS:
+        return cultural_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.patents import PATENT_TOOLS
+    from tools.knowledge_engine_mcp.patents import required_scopes as patent_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in PATENT_TOOLS:
+        return patent_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.companies import COMPANY_TOOLS
+    from tools.knowledge_engine_mcp.companies import required_scopes as company_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in COMPANY_TOOLS:
+        return company_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.standards import STANDARDS_TOOLS
+    from tools.knowledge_engine_mcp.standards import required_scopes as standards_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in STANDARDS_TOOLS:
+        return standards_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.transit import TRANSIT_TOOLS
+    from tools.knowledge_engine_mcp.transit import required_scopes as transit_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in TRANSIT_TOOLS:
+        return transit_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.mathematics import MATH_TOOLS
+    from tools.knowledge_engine_mcp.mathematics import required_scopes as math_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in MATH_TOOLS:
+        return math_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.clinical import CLINICAL_TOOLS
+    from tools.knowledge_engine_mcp.clinical import required_scopes as clinical_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in CLINICAL_TOOLS:
+        return clinical_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.ownership import OWNERSHIP_TOOLS
+    from tools.knowledge_engine_mcp.ownership import required_scopes as ownership_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in OWNERSHIP_TOOLS:
+        return ownership_scopes(tool_name, mutability)
+
+    from tools.knowledge_engine_mcp.environment import ENVIRONMENT_TOOLS
+    from tools.knowledge_engine_mcp.environment import (
+        required_scopes as environment_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
+        return environment_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.sanctions import SANCTIONS_TOOLS
+    from tools.knowledge_engine_mcp.sanctions import required_scopes as sanctions_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:
+        return sanctions_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.vulnerabilities import VULNERABILITY_TOOLS
+    from tools.knowledge_engine_mcp.vulnerabilities import (
+        required_scopes as vulnerability_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in VULNERABILITY_TOOLS:
+        return vulnerability_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.lobbying import LOBBYING_TOOLS
+    from tools.knowledge_engine_mcp.lobbying import required_scopes as lobbying_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LOBBYING_TOOLS:
+        return lobbying_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.elections import ELECTION_TOOLS
+    from tools.knowledge_engine_mcp.elections import required_scopes as election_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in ELECTION_TOOLS:
+        return election_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_TOOLS
+    from tools.knowledge_engine_mcp.public_finance import (
+        required_scopes as public_finance_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in PUBLIC_FINANCE_TOOLS:
+        return public_finance_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.demographics import DEMOGRAPHIC_TOOLS
+    from tools.knowledge_engine_mcp.demographics import (
+        required_scopes as demographic_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in DEMOGRAPHIC_TOOLS:
+        return demographic_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.housing import HOUSING_TOOLS
+    from tools.knowledge_engine_mcp.housing import required_scopes as housing_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in HOUSING_TOOLS:
+        return housing_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_TOOLS
+    from tools.knowledge_engine_mcp.development_finance import (
+        required_scopes as development_finance_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in DEVELOPMENT_FINANCE_TOOLS:
+        return development_finance_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",
@@ -871,6 +1027,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         "legislative_dossier_timeline", "compare_legislative_dossier",
         "export_legislative_dossier_changes", "legislative_dossier_dependencies",
     }:
+        # legislative_dossier_timeline/dependencies additionally require knowledge:political:lobbying:read at
+        # call time, and only when lobbying_namespace is passed (Political lobbying feature); the catalog lists
+        # static requirements only, so dossier-only callers keep these tools.
         return ["knowledge:political:dossier:write" if mutability == "write" else "knowledge:political:dossier:read"]
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "run_hosted_typed_decision",
@@ -1795,7 +1954,15 @@ def _warehouse_rows(conn: Any) -> int | None:
     return None
 
 
-def _data_state(required: list[str], conn: Any) -> tuple[str, str | None]:
+def _data_state(
+    required: list[str], conn: Any, probes: Iterable[Mapping[str, Any]] | None = None
+) -> tuple[str, str | None]:
+    if probes is not None:
+        # Composition-managed tools: prerequisites come from the provider
+        # descriptor's declared readiness probes, not the legacy tables below.
+        from src.composition.readiness import probe_state
+
+        return probe_state(list(probes), conn)
     market_tables = {
         "market-instrument-store": "market_instrument_object_revisions",
         "market-price-store": "market_price_bar_revisions",
@@ -1975,14 +2142,30 @@ async def build_catalog(
     configured_backends: Iterable[str] | None = None,
     host_status: Mapping[str, Any] | None = None,
     include_unusable: bool = True,
+    composition: Any = None,
+    composition_context: Mapping[str, Any] | None = None,
+    shadow_sink: list[dict[str, Any]] | None = None,
 ) -> dict[str, Any]:
-    """Build from real registration and tool discovery, then apply policy."""
+    """Build from real registration and tool discovery, then apply policy.
+
+    ``composition`` is a :class:`src.composition.readiness.CompositionView`.
+    Tools it binds take their pack attribution and data prerequisites from
+    the resolved plan; every other tool keeps the legacy tables. With
+    ``shadow_sink`` set the catalog runs in shadow mode: the returned catalog
+    is exactly the legacy one and each disagreement between legacy and
+    composition state is appended to the sink instead.
+    """
 
     registration_path = Path(mcp_path)
     raw = _read_registration(registration_path)
     root = registration_path.parent
     scopes = set(DEFAULT_SCOPES if granted_scopes is None else granted_scopes)
     packs = _enabled_packs(Path(pack_config), enabled_pack_names)
+    shadow = shadow_sink is not None and composition is not None
+    if composition is not None:
+        from src.composition.adapter import bundle_id
+
+        composed_packs = packs | {bundle_id(name) for name in packs}
     aliases = {
         **LEGACY_SERVER_ALIASES,
         **{
@@ -2051,6 +2234,58 @@ async def build_catalog(
                 backend_ready=backend_ready,
             )
             reason = reason or data_reason
+            binding = (
+                composition.for_tool(f"{canonical}.{tool['name']}")
+                if composition is not None
+                else None
+            )
+            if binding is not None:
+                composed_data = binding.required_data
+                composed_data_state, composed_data_reason = _data_state(
+                    composed_data, conn, binding.probes
+                )
+                composed_state, composed_reason = _state(
+                    authorized=set(required_scopes) <= scopes,
+                    pack_enabled=binding.pack is None or binding.pack in composed_packs,
+                    # A descriptor probe that finds no store makes the
+                    # operation unavailable rather than silently available.
+                    import_error=import_error
+                    or (
+                        composed_data_reason
+                        if composed_data_state == "unavailable"
+                        else None
+                    ),
+                    host_state=host_state,
+                    data_state=composed_data_state,
+                    backend_ready=backend_ready,
+                )
+                composed_reason = composed_reason or composed_data_reason
+                if shadow:
+                    legacy_view = {"state": state, "required_data": required_data, "pack": pack}
+                    composed_view = {
+                        "state": composed_state,
+                        "required_data": composed_data,
+                        "pack": binding.pack,
+                    }
+                    for field_name in ("state", "required_data", "pack"):
+                        if legacy_view[field_name] != composed_view[field_name]:
+                            shadow_sink.append(
+                                {
+                                    "tool": f"{canonical}.{tool['name']}",
+                                    "bundle": binding.pack
+                                    or binding.provider.split(".")[0],
+                                    "field": field_name,
+                                    "legacy": legacy_view[field_name],
+                                    "composition": composed_view[field_name],
+                                    "reason": composed_reason
+                                    if field_name == "state"
+                                    else None,
+                                }
+                            )
+                    binding = None
+                else:
+                    required_data = composed_data
+                    state, reason = composed_state, composed_reason
             cost, latency = _cost(tool["name"], mutability)
             capability = {
                 "id": f"{canonical}.{tool['name']}",
@@ -2068,6 +2303,8 @@ async def build_catalog(
                 "state": state,
                 "reason": reason,
             }
+            if binding is not None:
+                capability["composition"] = binding.as_catalog_field()
             server_states.append(state)
             if include_unusable or state == "available":
                 server_tools.append(capability["id"])
@@ -2136,7 +2373,11 @@ async def build_catalog(
         {path.parent.name for path in (REPO_ROOT / "src/domains").glob("*/__init__.py")}
         | packs
     )
+    extra: dict[str, Any] = {}
+    if composition is not None and not shadow:
+        extra["composition"] = composition.explain(**dict(composition_context or {}))
     return {
+        **extra,
         "catalog_contract": CATALOG_CONTRACT,
         "catalog_version": CATALOG_VERSION,
         "source": ".mcp.json + registered FastMCP tool discovery",

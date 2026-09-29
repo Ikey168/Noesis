@@ -31,14 +31,21 @@ def mcp_env(tmp_path, monkeypatch):
 
 
 def test_declared_contributions_reuse_existing_owners_and_admit_no_runtime():
-    assert BUNDLE["architecture"]["status"].startswith("proposed")
+    assert BUNDLE["architecture"]["status"].startswith("composed")
     assert set(BUNDLE["architecture"]["depends_on"]) == {"C02", "C03", "C04", "C05", "C06", "C07"}
+    assert not any("pending" in v for v in BUNDLE["architecture"]["depends_on"].values())
     workflows = BUNDLE["contributions"]["workflows"]
-    assert set(workflows) == {"discovery", "profile_to_shortlist", "application_preparation", "monitoring"}
+    # The optional development-finance feature (#1932) declares its own workflow and tools.
+    assert set(workflows) == {"discovery", "profile_to_shortlist", "application_preparation", "monitoring",
+                              "development_finance"}
     assert "ResearchProjectStore" in workflows["application_preparation"]["reuses"]
     assert any("SubscriptionStore" in r for r in workflows["monitoring"]["reuses"])
-    declared = {tool for w in workflows.values() for tool in w["tools"]}
+    declared = {tool for name, w in workflows.items() if name != "development_finance" for tool in w["tools"]}
     assert declared <= FUNDING_TOOLS
+    from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_TOOLS
+
+    assert workflows["development_finance"]["feature"] == "development-finance"
+    assert set(workflows["development_finance"]["tools"]) <= DEVELOPMENT_FINANCE_TOOLS
     assert "submit applications" in BUNDLE["never"]
 
 

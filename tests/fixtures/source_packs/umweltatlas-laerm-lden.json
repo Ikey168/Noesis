@@ -1,0 +1,32 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "Geoportal Berlin (Umweltatlas) — authored fixture",
+ "license": "dl-de/zero-2-0",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence. Geometries are simplified boxes in EPSG:25833.",
+ "endpoint": "https://gdi.berlin.de/services/wfs/ua_stratlaerm_2022",
+ "scenarios": [
+  "projected-crs-epsg-25833",
+  "complete-snapshot",
+  "umweltatlas-layer"
+ ],
+ "native_pages": [
+  {
+   "start_index": 0,
+   "status": 200,
+   "params": {
+    "SERVICE": "WFS",
+    "VERSION": "2.0.0",
+    "REQUEST": "GetFeature",
+    "TYPENAMES": "ua_stratlaerm_2022:laerm_lden",
+    "OUTPUTFORMAT": "application/json",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25833",
+    "SORTBY": "gml_id",
+    "COUNT": 50,
+    "STARTINDEX": 0
+   },
+   "body_sha256": "2a4b93714682d1192a578cd9f9522d1dd7f0e7b8c3b6e32e4b51baeca7f2ec5f",
+   "body": "{\n \"type\": \"FeatureCollection\",\n \"features\": [\n  {\n   \"type\": \"Feature\",\n   \"id\": \"laerm_lden.101\",\n   \"geometry\": {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n     [\n      [\n       392200.0,\n       5820150.0\n      ],\n      [\n       392500.0,\n       5820150.0\n      ],\n      [\n       392500.0,\n       5820400.0\n      ],\n      [\n       392200.0,\n       5820400.0\n      ],\n      [\n       392200.0,\n       5820150.0\n      ]\n     ]\n    ]\n   },\n   \"properties\": {\n    \"gml_id\": \"laerm_lden.101\",\n    \"lden_klasse\": \"> 65 - 70\",\n    \"einheit\": \"dB(A)\",\n    \"grundlage\": \"Strategische Lärmkarte 2022, Berechnung (kein Messwert)\"\n   }\n  },\n  {\n   \"type\": \"Feature\",\n   \"id\": \"laerm_lden.102\",\n   \"geometry\": {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n     [\n      [\n       392500.0,\n       5820150.0\n      ],\n      [\n       392800.0,\n       5820150.0\n      ],\n      [\n       392800.0,\n       5820400.0\n      ],\n      [\n       392500.0,\n       5820400.0\n      ],\n      [\n       392500.0,\n       5820150.0\n      ]\n     ]\n    ]\n   },\n   \"properties\": {\n    \"gml_id\": \"laerm_lden.102\",\n    \"lden_klasse\": \"> 60 - 65\",\n    \"einheit\": \"dB(A)\",\n    \"grundlage\": \"Strategische Lärmkarte 2022, Berechnung (kein Messwert)\"\n   }\n  }\n ],\n \"totalFeatures\": 2,\n \"numberMatched\": 2,\n \"numberReturned\": 2,\n \"timeStamp\": \"2026-09-20T06:00:00.000Z\",\n \"crs\": {\n  \"type\": \"name\",\n  \"properties\": {\n   \"name\": \"urn:ogc:def:crs:EPSG::25833\"\n  }\n }\n}\n"
+  }
+ ],
+ "features": 2
+}

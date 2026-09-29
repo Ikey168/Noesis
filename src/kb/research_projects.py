@@ -16,6 +16,10 @@ _KINDS = {
 # Funding references pin an exact revision so a call amendment or profile
 # change is visible as a superseded link, never silently followed.
 _FUNDING_KINDS = {"funding_opportunity", "funding_profile", "funding_shortlist"}
+# Public Procurement bid workspaces pin notice, supplier-profile and shortlist revisions the same way.
+_PROCUREMENT_KINDS = {"procurement_notice", "procurement_profile", "procurement_shortlist"}
+_KINDS |= _PROCUREMENT_KINDS
+_FUNDING_KINDS |= _PROCUREMENT_KINDS
 _COSTS = {"tokens", "requests", "usd_micros"}
 _DDL = """
 CREATE TABLE IF NOT EXISTS research_projects(

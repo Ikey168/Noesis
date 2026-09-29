@@ -219,6 +219,20 @@ class JWTAuth:
             request.state.user = dev_user
             return dev_user
 
+        # A request whose ``nn_`` API key the APIKeyAuthMiddleware already
+        # validated authenticates as that key's principal. The identity carries
+        # no role (API keys never pass admin checks) and its permissions are
+        # enforced per route (src/api/auth/key_permissions.py).
+        if getattr(request.state, "api_key_auth", False):
+            principal = {
+                "sub": str(request.state.user_id),
+                "auth": "api_key",
+                "api_key_id": request.state.api_key_id,
+                "permissions": list(getattr(request.state, "api_key_permissions", None) or []),
+            }
+            request.state.user = principal
+            return principal
+
         credentials: HTTPAuthorizationCredentials = await self.security(request)
 
         if not credentials:

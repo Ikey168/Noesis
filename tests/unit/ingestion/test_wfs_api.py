@@ -44,7 +44,9 @@ def _walk(adapter, *, parameters=None, limit=5000):
 
 def test_manifest_pins_version_format_crs_axis_order_sort_and_terms():
     value = manifest()
-    for item in value["sources"]:
+    wfs_sources = [item for item in value["sources"] if item["connector"] == "wfs"]
+    assert len(wfs_sources) == 2
+    for item in wfs_sources:
         wfs = validate_wfs_declaration(item)
         assert wfs["version"] == "2.0.0"
         assert wfs["output_format"] == "application/json"

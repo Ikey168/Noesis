@@ -1,0 +1,73 @@
+This file contains all protocol information for the query 2015-900001-10.
+
+Summary
+EudraCT Number: 2015-900001-10
+Sponsor's Protocol Code Number: NTG-3001
+National Competent Authority: Germany - BfArM
+Clinical Trial Type: EEA CTA
+Trial Status: Completed
+Date on which this record was first entered in the EudraCT database: 2016-01-12
+Trial results: View results
+
+A. Protocol Information
+A.1 Member State Concerned: Germany - BfArM
+A.2 EudraCT number: 2015-900001-10
+A.3 Full title of the trial: A 52-week randomised, double-blind, placebo-controlled trial of noetiglutide in adults with type 2 diabetes (NOETIC-1, fixture)
+A.4.1 Sponsor's protocol code number: NTG-3001
+A.5.2 US NCT (ClinicalTrials.gov registry) number: NCT09000001
+B. Sponsor Information
+B.1.1 Name of Sponsor: Fixture Therapeutics GmbH
+D. IMP Identification
+D.3.1 Product name: Noetiglutide
+D.3.8 INN - Proposed INN: noetiglutide
+D.8.1 Is a Placebo used in this Trial?: Yes
+E. General Information on the Trial
+E.1.1 Medical condition(s) being investigated: Type 2 diabetes mellitus
+E.5.1 Primary end point(s): Change in HbA1c from baseline
+E.5.1.1 Timepoint(s) of evaluation of this end point: Week 52
+E.5.2 Secondary end point(s): Change in body weight from baseline
+E.7.3 Therapeutic confirmatory (Phase III): Yes
+E.8.1 Controlled: Yes
+E.8.1.1 Randomised: Yes
+E.8.1.2 Open: No
+E.8.1.3 Single blind: No
+E.8.1.4 Double blind: Yes
+F.4.2.2 In the whole clinical trial: 600
+P. End of Trial
+P.End of Trial Status: Completed
+
+Summary
+EudraCT Number: 2015-900001-10
+Sponsor's Protocol Code Number: NTG-3001
+National Competent Authority: France - ANSM
+Clinical Trial Type: EEA CTA
+Trial Status: Completed
+Date on which this record was first entered in the EudraCT database: 2016-01-12
+Trial results: View results
+
+A. Protocol Information
+A.1 Member State Concerned: France - ANSM
+A.2 EudraCT number: 2015-900001-10
+A.3 Full title of the trial: A 52-week randomised, double-blind, placebo-controlled trial of noetiglutide in adults with type 2 diabetes (NOETIC-1, fixture)
+A.4.1 Sponsor's protocol code number: NTG-3001
+A.5.2 US NCT (ClinicalTrials.gov registry) number: NCT09000001
+B. Sponsor Information
+B.1.1 Name of Sponsor: Fixture Therapeutics GmbH
+D. IMP Identification
+D.3.1 Product name: Noetiglutide
+D.3.8 INN - Proposed INN: noetiglutide
+D.8.1 Is a Placebo used in this Trial?: Yes
+E. General Information on the Trial
+E.1.1 Medical condition(s) being investigated: Type 2 diabetes mellitus
+E.5.1 Primary end point(s): Change in HbA1c from baseline
+E.5.1.1 Timepoint(s) of evaluation of this end point: Week 52
+E.5.2 Secondary end point(s): Change in body weight from baseline
+E.7.3 Therapeutic confirmatory (Phase III): Yes
+E.8.1 Controlled: Yes
+E.8.1.1 Randomised: Yes
+E.8.1.2 Open: No
+E.8.1.3 Single blind: No
+E.8.1.4 Double blind: Yes
+F.4.2.2 In the whole clinical trial: 600
+P. End of Trial
+P.End of Trial Status: Completed

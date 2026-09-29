@@ -8235,7 +8235,11 @@ def revise_binary_forecast(namespace: str, forecast_id: str, expected_revision: 
 
 @mcp.tool()
 def propose_forecast_resolution(namespace: str, forecast_id: str) -> dict:
-    """Match registered quantitative rules to sourced observations without settling the forecast."""
+    """Match registered quantitative rules to sourced observations without settling the forecast.
+
+    An election forecast (Political elections feature) is matched to its contest's certified result vintage only;
+    conditional scope: that case also needs knowledge:political:elections:read on the elections namespace.
+    """
     from src.kb.forecasts import READ_SCOPE, ForecastStore
     return _safe(lambda c: ForecastStore(c, initialize=False).propose_resolution(namespace, forecast_id,
         principal_id=_context()[0], scopes=_context()[1]), required_scope=READ_SCOPE)
@@ -9191,6 +9195,106 @@ register_intake_iteration_tools(mcp, _intake_safe, _intake_context)
 from tools.knowledge_engine_mcp.funding import register as register_funding_tools
 
 register_funding_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.products import register as register_product_tools
+
+register_product_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.legal import register as register_legal_tools
+
+register_legal_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.cultural import register as register_cultural_tools
+
+register_cultural_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.patents import register as register_patent_tools
+
+register_patent_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.companies import register as register_company_tools
+
+register_company_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.standards import register as register_standards_tools
+
+register_standards_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.transit import register as register_transit_tools
+
+register_transit_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.mathematics import register as register_math_tools
+
+register_math_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.clinical import register as register_clinical_tools
+
+register_clinical_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.ownership import register as register_ownership_tools
+
+register_ownership_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.procurement import (
+    register as register_procurement_tools,
+)
+
+register_procurement_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.environment import (
+    register as register_environment_tools,
+)
+
+register_environment_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.sanctions import (
+    register as register_sanctions_tools,
+)
+
+register_sanctions_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.lobbying import (
+    register as register_lobbying_tools,
+)
+
+register_lobbying_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.elections import (
+    register as register_election_tools,
+)
+
+register_election_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.public_finance import (
+    register as register_public_finance_tools,
+)
+
+register_public_finance_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.demographics import (
+    register as register_demographic_tools,
+)
+
+register_demographic_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.housing import (
+    register as register_housing_tools,
+)
+
+register_housing_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.vulnerabilities import (
+    register as register_vulnerability_tools,
+)
+
+register_vulnerability_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.development_finance import (
+    register as register_development_finance_tools,
+)
+
+register_development_finance_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

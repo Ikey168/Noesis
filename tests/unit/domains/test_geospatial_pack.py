@@ -54,7 +54,7 @@ def test_source_pack_declares_only_implemented_adapters_and_passes_offline_confo
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {item["source_id"]: item["records"] for item in result["sources"]} == {
-        "berlin-bezirksgrenzen": 12, "berlin-schulen": 930}
+        "berlin-bezirksgrenzen": 12, "berlin-schulen": 930, "vbb-gtfs": 1}
 
 
 def test_readiness_reports_install_terms_and_optional_dependencies():
@@ -66,8 +66,8 @@ def test_readiness_reports_install_terms_and_optional_dependencies():
     runtime = SourcePackRuntime(conn)
     blocked = pack_readiness(conn)
     assert blocked["modes"] == {"fixture": "ready", "live": "blocked"}
-    assert sum(b["code"] == "license_not_accepted" for b in blocked["blockers"]) == 2
-    for source_id in ("berlin-bezirksgrenzen", "berlin-schulen"):
+    assert sum(b["code"] == "license_not_accepted" for b in blocked["blockers"]) == 3
+    for source_id in ("berlin-bezirksgrenzen", "berlin-schulen", "vbb-gtfs"):
         runtime.accept_license("geospatial-berlin", source_id, principal_id="operator")
     ready = pack_readiness(conn)
     assert ready["modes"]["live"] == "ready"
@@ -86,7 +86,7 @@ def berlin():
     adapters = runtime.fixture_adapters(value["pack_id"], ROOT)
     receipt = runtime.run(
         {"pack_id": value["pack_id"], "run_key": "fixture-replay", "operation": "features",
-         "max_results": 5000, "max_bytes": 5_000_000, "timeout_ms": 120_000},
+         "source_ids": ["berlin-bezirksgrenzen", "berlin-schulen"], "max_results": 5000, "max_bytes": 5_000_000, "timeout_ms": 120_000},
         principal_id="operator", adapters=adapters, dns_resolver=PUBLIC_DNS,
     )
     yield conn, value, runtime, receipt

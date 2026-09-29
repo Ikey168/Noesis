@@ -1,0 +1,479 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "clinical.surveillance",
+  "version": "1.0.0",
+  "description": "Public-health surveillance series of the Clinical Evidence bundle: notifiable-disease and health-indicator series with case-definition revisions, reporting and reference dates kept apart, vintages, MeSH/ICD alignment, boundary projections, explicit-citation links and user-threshold monitors. No outbreak prediction, nowcast or health advice.",
+  "implementation": {
+    "name": "src.kb.surveillance",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "clinical.surveillance-series",
+      "contract": {
+        "name": "noesis-surveillance-series",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "surveillance-readiness",
+        "list-series",
+        "series-values",
+        "definition-history",
+        "expand-condition",
+        "boundary-series",
+        "replay-query",
+        "resolutions",
+        "series-links",
+        "series-claims",
+        "import-export",
+        "align-terms",
+        "resolve-geographies",
+        "review-resolution",
+        "link-series"
+      ],
+      "semantic_constraints": {
+        "dates": "every value keeps reporting_date and reference_period as separate fields and lists the unknown one; as-of queries select by reporting date and list values without one apart",
+        "kinds": "observation, estimate and model-output are separate series; a bounded value is an estimate, never an observation",
+        "case_definitions": "first-class revisions with valid-from, valid-to, text or locator and ICD scope; a change is a marked break and earlier values are never restated",
+        "sources": "sources and code systems stay side by side; nothing is merged, averaged or preferred",
+        "terms": "conditions align to MeSH and ICD through the clinical term crosswalks with kinds preserved; unmapped terms are gaps",
+        "geography": "codes resolve to Geospatial boundaries by the published code only, with code-list version and boundary revision; boundary changes are geography breaks, never re-aggregated",
+        "links": "publications and trials by explicit dataset citation only; mentions are review candidates",
+        "exclusions": "no outbreak prediction, nowcast, completeness estimate, threshold suggestion or health advice"
+      }
+    },
+    {
+      "id": "clinical.surveillance-vintages",
+      "contract": {
+        "name": "noesis-surveillance-vintages",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "compare-vintages",
+        "reporting-delay",
+        "pin-status",
+        "pin-vintages"
+      ],
+      "semantic_constraints": {
+        "comparison": "differences between published vintages through the shared environment_vintages logic, both vintages cited; no cause is inferred",
+        "reporting_delay": "first-reported and later values per reference period with the source's own note; incompleteness only as the source states it",
+        "pins": "a pinned view reports stale when a newer vintage exists and never follows it silently"
+      }
+    },
+    {
+      "id": "clinical.surveillance-monitoring",
+      "contract": {
+        "name": "noesis-surveillance-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "thresholds": "user-configured only, unit-checked through pint; never derived, suggested or adjusted",
+        "events": "threshold-exceeded, new-vintage, value-revised, case-definition-changed, geography-break and stale-source; replay-safe at a committed watermark",
+        "schedule": "source-pack runtime schedules and the maintenance orchestrator; no new scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "surveillance-readiness",
+      "tool": "noesis-knowledge-engine.surveillance_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_surveillance_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-values",
+      "tool": "noesis-knowledge-engine.surveillance_series_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "definition-history",
+      "tool": "noesis-knowledge-engine.surveillance_definition_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "expand-condition",
+      "tool": "noesis-knowledge-engine.expand_surveillance_condition",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "boundary-series",
+      "tool": "noesis-knowledge-engine.surveillance_boundary_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "replay-query",
+      "tool": "noesis-knowledge-engine.replay_surveillance_query",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolutions",
+      "tool": "noesis-knowledge-engine.list_surveillance_resolutions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-links",
+      "tool": "noesis-knowledge-engine.surveillance_series_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-claims",
+      "tool": "noesis-knowledge-engine.surveillance_series_claims",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "import-export",
+      "tool": "noesis-knowledge-engine.import_surveillance_export",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "export file digest"
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "align-terms",
+      "tool": "noesis-knowledge-engine.align_surveillance_terms",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "mesh_version"
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-geographies",
+      "tool": "noesis-knowledge-engine.resolve_surveillance_geographies",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived resolution evaluation"
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:write",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-resolution",
+      "tool": "noesis-knowledge-engine.review_surveillance_resolution",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "surveillance_geo_reviews"
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-series",
+      "tool": "noesis-knowledge-engine.link_surveillance_series",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived link id"
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-vintages",
+      "tool": "noesis-knowledge-engine.compare_surveillance_vintages",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "reporting-delay",
+      "tool": "noesis-knowledge-engine.surveillance_reporting_delay",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "pin-status",
+      "tool": "noesis-knowledge-engine.surveillance_pin_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "pin-vintages",
+      "tool": "noesis-knowledge-engine.pin_surveillance_vintages",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "view_key + vintage_id"
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_surveillance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_surveillance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_surveillance_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "surveillance-series",
+      "store": "src.kb.surveillance",
+      "tables": [
+        "surveillance_releases",
+        "surveillance_case_definitions",
+        "surveillance_case_definition_revisions",
+        "surveillance_series",
+        "surveillance_delay_notes",
+        "surveillance_vintages",
+        "surveillance_values",
+        "surveillance_release_members",
+        "surveillance_breaks",
+        "surveillance_pins"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "surveillance-geography-resolution",
+      "store": "src.kb.surveillance_places",
+      "tables": [
+        "surveillance_geo_resolutions",
+        "surveillance_geo_reviews"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "surveillance_vintages"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "clinical_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "clinical-evidence",
+      "version": "0.1.1",
+      "range": "^0.1.1"
+    }
+  ]
+}

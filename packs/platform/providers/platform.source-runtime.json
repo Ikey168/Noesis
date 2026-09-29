@@ -1,0 +1,64 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.source-runtime",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.ingestion.source_pack_runtime",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.source-acquisition",
+      "contract": {
+        "name": "noesis-source-acquisition",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "semantic_constraints": {
+        "budgets": "per-run budgets plus aggregate account limits"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "acquire",
+      "tool": "noesis-knowledge-engine.run_source_pack_execution",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": false,
+        "receipt": "source_pack_runs"
+      },
+      "readiness_probe": "runs",
+      "required_scopes": [
+        "operator"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "source-run",
+      "store": "src.ingestion.source_pack_runtime",
+      "tables": [
+        "source_pack_runs",
+        "source_pack_source_runs",
+        "source_pack_checkpoints"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": false
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "runs",
+      "kind": "table-exists",
+      "target": "source_pack_runs"
+    }
+  ]
+}

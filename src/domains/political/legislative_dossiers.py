@@ -365,9 +365,30 @@ class LegislativeDossierStore:
             self._source({k: stage["citation"][k] for k in ("document_id", "revision_id")}, scopes)
         return state
 
+    def _lobbying(self, lobbying_namespace: str | None, namespace: str, dossier_id: str, revision: int,
+                  scopes: set[str]) -> list[dict[str, Any]] | None:
+        """Declared-interest and meeting entries linked to this dossier revision (Political ``lobbying`` feature).
+
+        Only when a lobbying namespace is requested; reading it needs the lobbying read scope. The entries are
+        separate from the stages and never change stage semantics.
+        """
+        if lobbying_namespace is None:
+            return None
+        from src.kb.lobbying import READ_SCOPE as LOBBYING_READ
+        from src.kb.lobbying import LobbyingError, authorize
+        from src.kb.lobbying_links import LobbyingDossierLinks
+
+        try:
+            # Conditional scope: enforced at call time, only when a lobbying namespace is requested.
+            authorize(lobbying_namespace, scopes, LOBBYING_READ)
+            return LobbyingDossierLinks(self.conn, initialize=False).dossier_entries(
+                lobbying_namespace, namespace, dossier_id, revision, scopes=scopes)
+        except LobbyingError as exc:
+            raise DossierError(exc.code, str(exc)) from exc
+
     def timeline(self, namespace: str, dossier_id: str, *, principal_id: str, scopes: set[str],
                  revision: int | None = None, observed_as_of_ms: int | None = None,
-                 limit: int = 50, offset: int = 0) -> dict[str, Any]:
+                 limit: int = 50, offset: int = 0, lobbying_namespace: str | None = None) -> dict[str, Any]:
         current = self._state(namespace, dossier_id)
         state = self._full(namespace, dossier_id, revision or current["revision"], principal_id, scopes)
         if observed_as_of_ms is not None and (type(observed_as_of_ms) is not int or observed_as_of_ms < 0):
@@ -397,11 +418,15 @@ class LegislativeDossierStore:
                                     e["observed_at_ms"], e["event_kind"], e["source_stage_id"]))
         if type(limit) is not int or not 1 <= limit <= 100 or type(offset) is not int or offset < 0:
             raise DossierError("invalid_page", "limit must be 1–100 and offset nonnegative")
-        return {"contract": TIMELINE_CONTRACT, "dossier_id": dossier_id, "revision": state["revision"],
-                "observed_as_of_ms": observed_as_of_ms, "jurisdiction": state["jurisdiction"],
-                "entries": entries[offset:offset + limit], "total": len(entries),
-                "limit": limit, "offset": offset,
-                "legal_effect_state": "source_supported_events_only" if any(e["legal_fact"] for e in entries) else "unknown"}
+        result = {"contract": TIMELINE_CONTRACT, "dossier_id": dossier_id, "revision": state["revision"],
+                  "observed_as_of_ms": observed_as_of_ms, "jurisdiction": state["jurisdiction"],
+                  "entries": entries[offset:offset + limit], "total": len(entries),
+                  "limit": limit, "offset": offset,
+                  "legal_effect_state": "source_supported_events_only" if any(e["legal_fact"] for e in entries) else "unknown"}
+        lobbying = self._lobbying(lobbying_namespace, namespace, dossier_id, state["revision"], scopes)
+        if lobbying is not None:
+            result["lobbying_entries"] = lobbying
+        return result
 
     def compare(self, namespace: str, dossier_id: str, before_revision: int, after_revision: int,
                 *, principal_id: str, scopes: set[str]) -> dict[str, Any]:
@@ -439,7 +464,8 @@ class LegislativeDossierStore:
         ], "limitations": ["A dossier comparison records acquired source changes; legal interpretation requires review."]}
 
     def dependencies(self, namespace: str, dossier_id: str, *, principal_id: str,
-                     scopes: set[str], revision: int | None = None) -> dict[str, Any]:
+                     scopes: set[str], revision: int | None = None,
+                     lobbying_namespace: str | None = None) -> dict[str, Any]:
         current = self._state(namespace, dossier_id)
         state = self._full(namespace, dossier_id, revision or current["revision"], principal_id, scopes)
         report = []
@@ -452,7 +478,17 @@ class LegislativeDossierStore:
             project.append({"kind": "evidence", "namespace": namespace, "id": citation["document_id"],
                             "revision": citation["revision"], "locator": locator})
         evaluations = [EvidenceResolver(self.conn, scopes).compare(dep) for dep in report]
-        return {"contract": "noesis-legislative-dependencies-v1", "dossier_id": dossier_id,
-                "revision": state["revision"], "report_dependencies": report,
-                "project_links": project, "change_evaluations": evaluations,
-                "existing_alerts": "use CitationAlertStore on an authored report or project revision"}
+        result = {"contract": "noesis-legislative-dependencies-v1", "dossier_id": dossier_id,
+                  "revision": state["revision"], "report_dependencies": report,
+                  "project_links": project, "change_evaluations": evaluations,
+                  "existing_alerts": "use CitationAlertStore on an authored report or project revision"}
+        lobbying = self._lobbying(lobbying_namespace, namespace, dossier_id, state["revision"], scopes)
+        if lobbying is not None:
+            result["lobbying_links"] = [
+                {**entry, "dependency": {"kind": "source", "namespace": lobbying_namespace,
+                                         "id": f"lobbying:{entry['register']}:{entry['native_id']}",
+                                         "revision": entry["register_revision_id"],
+                                         "locator": {"section": entry["link_id"]}}}
+                for entry in lobbying
+            ]
+        return result

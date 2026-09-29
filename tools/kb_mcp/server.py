@@ -322,7 +322,10 @@ def kb_technical(
 ) -> Dict[str, Any]:
     """Query dependency paths, vulnerable versions, fixes, supersession,
     implementations, and breaking changes with exact package coordinates,
-    temporal cutoffs, assumptions, and source citations."""
+    temporal cutoffs, assumptions, and source citations. query_type
+    "advisory" returns, for a CVE/advisory id or a package coordinate, the
+    per-source advisory revisions, ranges, weaknesses, exploitation evidence
+    and scores as they stood at observed_before (no verdict or severity)."""
     from src.kb import contract
 
     return _run(

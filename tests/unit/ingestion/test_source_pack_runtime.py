@@ -591,7 +591,7 @@ def test_schedules_reject_overlap_and_report_runtime_coverage(setup):
     )
     coverage = runtime.runtime_coverage()
     assert coverage["domains"]["research"] == {
-        "configured": 5,
+        "configured": 10,
         "ready": 1,
         "attempted": 1,
         "completed": 1,
@@ -636,10 +636,16 @@ def test_six_domain_offline_execution(setup):
         assert result["watermark"] == 1
         completed.update(manifest["domains"])
     assert completed == {
+        "clinical",
+        "corporate-ownership",
         "economic",
         "geospatial",
+        "legal",
+        "onchain",
         "osint",
         "political",
+        "procurement",
+        "products",
         "research",
         "scientific",
         "technical",

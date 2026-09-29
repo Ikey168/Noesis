@@ -16,6 +16,9 @@
     "source_snapshots": {"type": "array", "maxItems": 500, "items": {"type": "object", "required": ["document_id", "revision_id", "content_hash", "payload_hash"]}},
     "missing_source_documents": {"type": "array"},
     "source_snapshot_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "vulnerability_namespace": {"type": "string", "description": "technology.vulnerabilities namespace assessed alongside technical_advisory_ranges"},
+    "vulnerability_revisions": {"type": "array", "maxItems": 5000, "items": {"type": "object", "required": ["revision_id", "content_digest", "series_id", "source", "native_id"]}},
+    "vulnerability_snapshot_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "coverage_note": {"type": "string"}, "created_at_ms": {"type": "integer"},
     "report_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
     "executed_changes": {"const": false}, "idempotent": {"type": "boolean"}

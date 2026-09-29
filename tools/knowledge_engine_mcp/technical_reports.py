@@ -18,10 +18,14 @@ def register(mcp, safe, context):
     @mcp.tool()
     def create_technical_impact_report(namespace: str, request_key: str, inventory_id: str,
                                        project_id: str | None = None, limit: int = 100,
-                                       offset: int = 0) -> dict:
-        """Pin one bounded dependency assessment and its available source revisions."""
+                                       offset: int = 0, vulnerability_namespace: str | None = None) -> dict:
+        """Pin one bounded dependency assessment and its available source revisions.
+
+        With vulnerability_namespace, reviewed component matches in the vulnerability store are assessed too
+        and their advisory revisions are pinned next to the inventory hash.
+        """
         return call("create", namespace, request_key, inventory_id, project_id=project_id,
-                    limit=limit, offset=offset, write=True)
+                    limit=limit, offset=offset, vulnerability_namespace=vulnerability_namespace, write=True)
 
     @mcp.tool()
     def inspect_technical_impact_report(namespace: str, report_id: str) -> dict:
