@@ -155,19 +155,22 @@ class LinguisticsIdentity:
             )
         }
 
-    def _iso(self, namespace: str) -> dict[str, Any]:
+    def _iso(
+        self, namespace: str, *, as_of: Any = None, acquired_by_ms: int | None = None
+    ) -> dict[str, Any]:
+        cut = {"as_of": as_of, "acquired_by_ms": acquired_by_ms}
         codes = {
             r["body"]["code"]: r
-            for r in self.store.currents(namespace, kind="iso_code")
+            for r in self.store.currents(namespace, kind="iso_code", **cut)
         }
         members: dict[str, list[str]] = {}
-        for record in self.store.currents(namespace, kind="iso_macrolanguage"):
+        for record in self.store.currents(namespace, kind="iso_macrolanguage", **cut):
             if record["body"]["status"] == "active":
                 members.setdefault(record["body"]["macrolanguage"], []).append(
                     record["body"]["member"]
                 )
         changes: dict[str, list[dict[str, Any]]] = {}
-        for record in self.store.currents(namespace, kind="iso_code_change"):
+        for record in self.store.currents(namespace, kind="iso_code_change", **cut):
             changes.setdefault(record["body"]["code"], []).append(record)
         return {
             "codes": codes,
@@ -241,7 +244,7 @@ class LinguisticsIdentity:
                     "mapping": WIKTIONARY_CODE_MAPPING["three-letter"],
                 }
             if len(value) == 2 and value.isalpha():
-                iso = self._iso(namespace)["codes"]
+                iso = self._iso(namespace, as_of=as_of)["codes"]
                 matches = [c for c, r in iso.items() if r["body"].get("part1") == value]
                 if len(matches) == 1:
                     return {
@@ -280,7 +283,7 @@ class LinguisticsIdentity:
             raise LinguisticsError(
                 "invalid_reference", f"unknown language reference scheme {scheme!r}"
             )
-        iso = self._iso(namespace)
+        iso = self._iso(namespace, as_of=as_of)
         record = iso["codes"].get(value)
         if value in iso["changes"]:
             events = [self._change_event(c) for c in iso["changes"][value]]
@@ -647,6 +650,7 @@ class LinguisticsIdentity:
                 if offered["change"]:
                     changes.append(offered)
         return {
+            "n": len(changes),
             "proposed": changes,
             "resolutions": resolutions,
             "candidates": self.candidates(namespace, scopes=scopes, kind="languoid"),
@@ -729,6 +733,7 @@ class LinguisticsIdentity:
                     if offered["change"]:
                         changes.append(offered)
         return {
+            "n": len(changes),
             "proposed": changes,
             "unmatched": unmatched,
             "candidates": self.candidates(namespace, scopes=scopes, kind="lexeme"),
@@ -992,7 +997,7 @@ class LinguisticsIdentity:
                 ],
             )
             links.append(self._place_link(namespace, body["glottocode"], point_hash))
-        return {"links": links}
+        return {"links": links, "n": len(links)}
 
     def _place_link(
         self, namespace: str, glottocode: str, point_hash: str

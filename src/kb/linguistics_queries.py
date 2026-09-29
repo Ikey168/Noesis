@@ -34,8 +34,10 @@ from src.kb.linguistics_records import (
     LinguisticsError,
     authorize,
     citation,
+    date_key,
     fold,
     glossing_vocabulary,
+    iso_from_ms,
     licence_block,
     validate_gloss,
 )
@@ -52,6 +54,13 @@ class LinguisticsQueries:
         self.store = self.identity.store
         self.etymologies = Etymologies(conn, now=now)
         self.crosslang = CrossLanguageLinks(conn, now=now)
+
+    @staticmethod
+    def _on_or_before(record: dict[str, Any], as_of: Any) -> bool:
+        if as_of is None:
+            return True
+        effective = record["revision_date"] or iso_from_ms(record["observed_at_ms"])
+        return date_key(effective) <= date_key(as_of, end_of_day=True)
 
     def _begin(self, namespace: str, scopes: Iterable[str]) -> None:
         authorize(namespace, set(scopes), READ_SCOPE)
@@ -107,25 +116,22 @@ class LinguisticsQueries:
         for lexeme in self.store.currents(
             namespace, kind="lexeme", as_of=as_of, acquired_by_ms=acquired_by_ms
         ):
-            history = self.store.history(
-                namespace, lexeme["record_key"], acquired_by_ms=acquired_by_ms
-            )
-            lemmas = {
-                fold(r["body"]["lemma"]["text"])
-                for r in history
-                if r["body"].get("lemma")
-            }
-            if fold(lemma) not in lemmas:
-                continue
-            # a deleted lexeme keeps the language its last stated revision gave it
-            stated = next(
-                (
+            # the current record per source decides; only a deleted lexeme falls back to its last stated
+            # revision (as of the same cutoff) for its lemma and language
+            stated = lexeme
+            if lexeme["body"].get("status") == "deleted":
+                earlier = [
                     r
-                    for r in reversed(history)
-                    if (r["body"].get("language") or {}).get("scheme")
-                ),
-                lexeme,
-            )
+                    for r in self.store.history(
+                        namespace, lexeme["record_key"], acquired_by_ms=acquired_by_ms
+                    )
+                    if r["body"].get("lemma") and self._on_or_before(r, as_of)
+                ]
+                stated = earlier[-1] if earlier else lexeme
+            if not stated["body"].get("lemma") or fold(
+                stated["body"]["lemma"]["text"]
+            ) != fold(lemma):
+                continue
             resolved = self.identity.lexeme_languoid(namespace, stated, as_of=as_of)
             if languoid and resolved.get("glottocode") != target:
                 if (
@@ -476,7 +482,7 @@ class LinguisticsQueries:
             "glottocode": code,
             **({"iso639_3": body["iso639_3"]} if body.get("iso639_3") else {}),
         }
-        iso = self.identity._iso(namespace)
+        iso = self.identity._iso(namespace, as_of=as_of, acquired_by_ms=acquired_by_ms)
         iso_info: dict[str, Any] = {}
         if body.get("iso639_3"):
             iso_record = iso["codes"].get(body["iso639_3"])
@@ -513,7 +519,12 @@ class LinguisticsQueries:
                 "label": r["body"].get("label"),
                 "citation": citation(r),
             }
-            for r in self.store.currents(namespace, kind="language_item", as_of=as_of)
+            for r in self.store.currents(
+                namespace,
+                kind="language_item",
+                as_of=as_of,
+                acquired_by_ms=acquired_by_ms,
+            )
             if code in {g["value"] for g in r["body"].get("glottocodes") or []}
         ]
         display = [
@@ -522,7 +533,12 @@ class LinguisticsQueries:
                 "name": r["body"]["value"],
                 "citation": citation(r),
             }
-            for r in self.store.currents(namespace, kind="locale_data", as_of=as_of)
+            for r in self.store.currents(
+                namespace,
+                kind="locale_data",
+                as_of=as_of,
+                acquired_by_ms=acquired_by_ms,
+            )
             if r["body"]["field"] == "language_display_name"
             and r["body"]["subject"] in {body.get("iso639_3"), iso_info.get("part1")}
         ]
