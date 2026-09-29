@@ -652,5 +652,6 @@ def test_six_domain_offline_execution(setup):
         "products",
         "research",
         "scientific",
+        "sports",
         "technical",
     }

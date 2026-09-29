@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"filters\": {\n  \"season\": \"2099\"\n },\n \"area\": {\n  \"id\": 2999,\n  \"name\": \"Exampleland\"\n },\n \"competition\": {\n  \"id\": 9900,\n  \"name\": \"Premier League\",\n  \"code\": \"PL\",\n  \"type\": \"LEAGUE\",\n  \"emblem\": \"https://crests.example.org/exl.png\"\n },\n \"season\": {\n  \"id\": 99,\n  \"startDate\": \"2099-08-01\",\n  \"endDate\": \"2100-05-20\",\n  \"currentMatchday\": 3,\n  \"winner\": null\n },\n \"standings\": [\n  {\n   \"stage\": \"REGULAR_SEASON\",\n   \"type\": \"TOTAL\",\n   \"group\": null,\n   \"table\": [\n    {\n     \"position\": 1,\n     \"team\": {\n      \"id\": 9001,\n      \"name\": \"Northbridge Rovers\",\n      \"shortName\": \"Rovers\",\n      \"tla\": \"NBR\",\n      \"crest\": \"https://crests.example.org/9001.png\"\n     },\n     \"playedGames\": 3,\n     \"form\": null,\n     \"won\": 2,\n     \"draw\": 0,\n     \"lost\": 1,\n     \"points\": 6,\n     \"goalsFor\": 4,\n     \"goalsAgainst\": 4,\n     \"goalDifference\": 0\n    },\n    {\n     \"position\": 2,\n     \"team\": {\n      \"id\": 9003,\n      \"name\": \"Southport United\",\n      \"shortName\": \"United\",\n      \"tla\": \"SPU\",\n      \"crest\": \"https://crests.example.org/9003.png\"\n     },\n     \"playedGames\": 3,\n     \"form\": null,\n     \"won\": 1,\n     \"draw\": 1,\n     \"lost\": 1,\n     \"points\": 4,\n     \"goalsFor\": 3,\n     \"goalsAgainst\": 3,\n     \"goalDifference\": 0\n    },\n    {\n     \"position\": 3,\n     \"team\": {\n      \"id\": 9004,\n      \"name\": \"Westvale Town\",\n      \"shortName\": \"Town\",\n      \"tla\": \"WVT\",\n      \"crest\": \"https://crests.example.org/9004.png\"\n     },\n     \"playedGames\": 3,\n     \"form\": null,\n     \"won\": 1,\n     \"draw\": 1,\n     \"lost\": 1,\n     \"points\": 4,\n     \"goalsFor\": 2,\n     \"goalsAgainst\": 3,\n     \"goalDifference\": -1\n    },\n    {\n     \"position\": 4,\n     \"team\": {\n      \"id\": 9002,\n      \"name\": \"Eastfield Athletic\",\n      \"shortName\": \"Athletic\",\n      \"tla\": \"EFA\",\n      \"crest\": \"https://crests.example.org/9002.png\"\n     },\n     \"playedGames\": 3,\n     \"form\": null,\n     \"won\": 1,\n     \"draw\": 0,\n     \"lost\": 2,\n     \"points\": 3,\n     \"goalsFor\": 5,\n     \"goalsAgainst\": 4,\n     \"goalDifference\": 1\n    }\n   ]\n  },\n  {\n   \"stage\": \"REGULAR_SEASON\",\n   \"type\": \"HOME\",\n   \"group\": null,\n   \"table\": []\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json",
+    "Date": "Fri, 04 Sep 2099 21:00:00 GMT"
+   },
+   "request": "/v4/competitions/PL/standings?season=2025",
+   "status": 200
+  }
+ ],
+ "note": "Authored publication in the documented provider shape; every club, player, tournament and match is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-participants"
+ ]
+}

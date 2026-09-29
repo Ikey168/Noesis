@@ -38,8 +38,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # 15 plus the Market bafin-notices feature's bafin-capital-market-notices pack (#2106),
     # plus the Engineering Safety pack (#2059),
     # plus the Materials pack's materials source pack (#2060),
-    # plus the Astronomy pack's astronomy-and-space pack (#2149).
-    assert len(packs) == 19
+    # plus the Astronomy pack's astronomy-and-space pack (#2149),
+    # plus the Sports pack's sports-records pack (#2135).
+    assert len(packs) == 20
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "astronomy",
         "clinical",
@@ -57,6 +58,7 @@ def test_all_production_packs_validate_against_contract() -> None:
         "products",
         "research",
         "scientific",
+        "sports",
         "technical",
     }
     # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections,
@@ -74,8 +76,10 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061),
     # plus the Engineering Safety pack's FAA, EASA, NTSB, PHMSA, CSB, ODI, complaint, BFU and BEA sources (#2059),
     # plus the Materials pack's Materials Project, JARVIS-DFT, OQMD, NIST WebBook and COD sources (#2060),
-    # plus the Astronomy pack's MPC, JPL, Exoplanet Archive, GCAT, CelesTrak and SWPC sources (#2149).
-    assert sum(len(pack["sources"]) for pack in packs) == 146
+    # plus the Astronomy pack's MPC, JPL, Exoplanet Archive, GCAT, CelesTrak and SWPC sources (#2149),
+    # plus the Sports pack's football-data (matches, standings, teams), openfootball, Sackmann ATP/WTA and StatsBomb
+    # sources (#2135).
+    assert sum(len(pack["sources"]) for pack in packs) == 153
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -352,6 +356,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "products",
         "research",
         "scientific",
+        "sports",
         "technical",
     }
 

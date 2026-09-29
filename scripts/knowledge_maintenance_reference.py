@@ -104,8 +104,8 @@ def main() -> int:
         and domains
         == [
             "astronomy", "clinical", "corporate-ownership", "economic", "engineering-safety", "geospatial", "legal",
-            "market", "materials", "onchain", "osint",
-            "political", "procurement", "products", "research", "scientific", "technical",
+            "market", "materials", "onchain", "osint", "political", "procurement", "products", "research",
+            "scientific", "sports", "technical",
         ]
         and statuses == {"complete", "partial"}
         and all(item["matched"] for item in replays)

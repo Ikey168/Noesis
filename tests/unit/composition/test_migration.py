@@ -49,6 +49,7 @@ PROJECTOR_OWNERS = {
     "noesis-surveillance-record-v1": "src.kb.surveillance",
     "noesis-engineering-safety-record-v1": "src.kb.engineering_safety_store",
     "noesis-material-record-v1": "src.kb.materials_store",
+    "noesis-sports-record-v1": "src.kb.sports_store",
 }
 
 

@@ -1,0 +1,156 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "sports",
+  "version": "1.0.0",
+  "description": "Sports records as published: fixtures with reschedule history, results with every correction, forfeit, award or annulment kept as a revision, lineups, and competition tables as of a date replayed under the stated rules beside the published table; reviewable identity, official-result forecast resolution and subscription monitors. No odds, predictions or medical data.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "club",
+      "competition",
+      "fixture",
+      "league",
+      "match",
+      "player",
+      "season",
+      "team",
+      "tournament",
+      "venue"
+    ],
+    "events": [
+      "result",
+      "correction",
+      "forfeit",
+      "postponement",
+      "reschedule",
+      "deduction",
+      "transfer",
+      "medal reallocation"
+    ],
+    "sources": [
+      "football-data.org",
+      "statsbomb",
+      "openfootball",
+      "tennis abstract",
+      "official results"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "fixture-schedule-revisions",
+    "result-revisions-with-corrections",
+    "governing-body-decisions",
+    "published-lineups",
+    "stated-table-rules",
+    "tables-as-of-a-date",
+    "published-table-comparison",
+    "reviewable-sports-identity",
+    "club-lineage-history",
+    "venue-place-resolution",
+    "official-result-forecasts",
+    "news-evidence-links",
+    "open-transfer-assertions",
+    "sports-monitoring",
+    "licence-gated-tennis-archives",
+    "olympic-result-revisions"
+  ],
+  "schema_versions": {
+    "sports-record": "1.0.0",
+    "sports-answer": "1.0.0",
+    "sports-notification": "1.0.0",
+    "sports-acquisition": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-sports-record-v1"
+    ],
+    "object_types": [
+      "competition",
+      "season",
+      "stage",
+      "team",
+      "player",
+      "venue",
+      "fixture",
+      "fixture_schedule_revision",
+      "match_result_revision",
+      "lineup",
+      "table_rule",
+      "standing_snapshot",
+      "transfer_assertion"
+    ],
+    "relation_types": [
+      "season_of",
+      "stage_of",
+      "fixture_in",
+      "plays_in",
+      "revision_of",
+      "corrects",
+      "decided_by",
+      "appears_in",
+      "transferred_to",
+      "played_at",
+      "renamed_to",
+      "phoenix_of"
+    ]
+  },
+  "source_pack": "config/source_packs/sports.json",
+  "query_examples": [
+    {
+      "intent": "What did the league table look like on a date",
+      "tool": "sports_standings_as_of",
+      "arguments": {
+        "namespace": "global",
+        "season_key": "<season_key>",
+        "date": "2099-09-12"
+      },
+      "semantics": "replayed from results published by the end of that date under the stated rule and deductions, beside the nearest published table; corrections and forfeits cited with the deciding body"
+    },
+    {
+      "intent": "Was this result corrected",
+      "tool": "sports_match_history",
+      "arguments": {
+        "namespace": "global",
+        "fixture_key": "<fixture_key>"
+      },
+      "semantics": "every result revision in the source's own date order, other sources side by side"
+    },
+    {
+      "intent": "When was this match moved",
+      "tool": "sports_fixture_history",
+      "arguments": {
+        "namespace": "global",
+        "fixture_key": "<fixture_key>"
+      },
+      "semantics": "postponements and new kickoffs, each move citing both revisions"
+    },
+    {
+      "intent": "Which fixtures did a club play in August",
+      "tool": "sports_team_schedule",
+      "arguments": {
+        "namespace": "global",
+        "team_key": "<team_key>",
+        "date_from": "2099-08-01",
+        "date_to": "2099-08-31"
+      },
+      "semantics": "fixtures and results from every source the club's reviewed identity joins"
+    }
+  ],
+  "exclusions": [
+    "odds, betting markets, tips, value bets or betting advice",
+    "Noesis-produced predictions or probabilities",
+    "player medical, injury-detail, biometric or tracking data",
+    "personal data beyond published sporting records (name as published, team, appearance, published transfer)",
+    "scraping of sites whose terms forbid it",
+    "mirroring of commercial event data",
+    "results inferred for a match without a published result",
+    "merging sources' results or silently resolving a table disagreement"
+  ]
+}

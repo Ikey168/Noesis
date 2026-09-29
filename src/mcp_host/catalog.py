@@ -342,6 +342,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.elections import ELECTION_WRITES
     if name in ELECTION_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.sports import SPORTS_WRITES
+    if name in SPORTS_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_WRITES
     if name in PUBLIC_FINANCE_WRITES:
         return "write"
@@ -952,6 +955,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.elections import required_scopes as election_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in ELECTION_TOOLS:
         return election_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.sports import SPORTS_TOOLS
+    from tools.knowledge_engine_mcp.sports import required_scopes as sports_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in SPORTS_TOOLS:
+        return sports_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.public_finance import PUBLIC_FINANCE_TOOLS
     from tools.knowledge_engine_mcp.public_finance import (
         required_scopes as public_finance_scopes,

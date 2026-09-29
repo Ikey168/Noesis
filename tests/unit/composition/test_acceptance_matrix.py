@@ -94,6 +94,11 @@ MATRIX = {
     "Object to cited astronomy history":
         "tests/unit/domains/test_astronomy_acceptance.py::"
         "test_object_to_cited_designations_vintages_dispositions_launches_alerts_and_monitors",
+    # The Sports bundle's offline journey (#2147) composes its record owner, the source-pack runtime, reviewable
+    # identity, the binary forecast ledger and subscriptions.
+    "Competition and date to a cited table":
+        "tests/unit/domains/test_sports_acceptance.py::"
+        "test_competition_and_date_to_a_cited_table_with_revisions_identity_forecast_and_monitor",
 }
 
 

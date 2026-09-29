@@ -9326,6 +9326,12 @@ from tools.knowledge_engine_mcp.materials import (
 
 register_materials_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.sports import (
+    register as register_sports_tools,
+)
+
+register_sports_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
