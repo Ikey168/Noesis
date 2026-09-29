@@ -79,6 +79,11 @@ MATRIX = {
     "Substance to cited regulatory dossier":
         "tests/unit/domains/test_chemicals_acceptance.py::"
         "test_substance_name_or_identifier_to_a_cited_regulatory_dossier",
+    # The Agriculture and Food Systems bundle's offline journey (#2369) composes its record owner with the Economics
+    # series storage, geospatial place resolution, Products safety notices and subscriptions.
+    "Commodity and place to cited series":
+        "tests/unit/domains/test_agrifood_acceptance.py::"
+        "test_commodity_and_place_to_cited_series_with_vintages_and_flags",
 }
 
 
