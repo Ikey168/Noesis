@@ -139,3 +139,31 @@ class Clock:
     def __call__(self) -> int:
         self.value += 1000
         return self.value
+
+
+def seed_ownership(conn, namespace: str = NS) -> str:
+    """A US ownership legal-entity record named like the docket's plaintiff (test data only)."""
+    from src.kb.ownership_records import record
+    from src.kb.ownership_store import OwnershipStore
+
+    OwnershipStore(conn).apply(namespace, [record(
+        "legal_entity", "sec-edgar:sec-cik:0009990001", {"provider": "sec-edgar", "provider_record_id": "0009990001"},
+        name="Example Data Co.", jurisdiction="US", identifiers=[{"scheme": "sec-cik", "value": "0009990001"}])],
+        run_id="seed", observed_at_ms=1, principal_id="operator")
+    return "sec-edgar:sec-cik:0009990001"
+
+
+def seed_places(conn, namespace: str = NS) -> dict[str, str]:
+    """Geospatial places carrying published codes: Germany and France (NUTS) once, the placeholder state EX twice."""
+    from src.kb.geospatial import GeospatialStore
+
+    geo = GeospatialStore(conn)
+    scopes = {"knowledge:geospatial:write", "knowledge:geospatial:read"}
+    out = {}
+    for label, name, ids in (("DE", "Germany", {"nuts": "DE"}), ("EX-a", "Examplestate", {"us-state": "EX"}),
+                             ("EX-b", "Examplestate (historic)", {"us-state": "EX", "note": "b"}),
+                             ("FR", "France", {"nuts": "FR"})):
+        placed = geo.register_place(namespace, name, "admin", names=[{"value": name, "language": "en"}],
+                                    source_ids=ids, parent_ids=[], principal_id="operator", scopes=scopes)
+        out[label] = placed["place_id"]
+    return out
