@@ -438,8 +438,11 @@ def observation_report(
     precedence: int = 0,
     source_time: str | None = None,
     release: dict[str, Any] | None = None,
+    product_group: str | None = None,
     **extra: Any,
 ) -> dict[str, Any]:
+    """One published report; ``product_group`` (e.g. a DWD parameter group) is part of its identity."""
+
     _guard(extra)
     if extra:
         _fail(f"unsupported observation fields {sorted(extra)}")
@@ -465,7 +468,10 @@ def observation_report(
     names = [p["parameter"] for p in params]
     if len(set(names)) != len(names):
         _fail("a parameter appears twice in one report")
-    key = f"{station_key(station)}|{report_type}|{observed_at}"
+    group = _text(product_group, "product_group", optional=True, limit=80)
+    key = "|".join(
+        [station_key(station), report_type, *([group] if group else []), observed_at]
+    )
     record = _base(
         "observation_report",
         provider,
@@ -483,6 +489,8 @@ def observation_report(
         report_type=report_type,
         parameters=sorted(params, key=lambda p: p["parameter"]),
     )
+    if group:
+        record["product_group"] = group
     if correction is not None:
         record["correction"] = _text(correction, "correction", limit=20)
     if raw_text is not None:
@@ -898,6 +906,7 @@ def validate(record: Any) -> dict[str, Any]:
             record.get("report_type"),
             parameters=record.get("parameters"),
             correction=record.get("correction"),
+            product_group=record.get("product_group"),
             raw_text=record.get("raw_text"),
             precedence=record.get("precedence", 0),
             source_time=record.get("source_time"),

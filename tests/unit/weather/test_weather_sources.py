@@ -70,11 +70,8 @@ def test_dwd_quality_levels_verbatim_missing_values_absent_and_revisions_appende
         "value": "18.6",
         "qc": {"scheme": "dwd-qn", "native": "10"},
     }
-    assert [x["change_kind"] for x in noon["history"]] == [
-        "initial",
-        "correction",
-        "late_history",
-    ]
+    # The late 'recent' copy restates the first revision below the historical one: nothing new is recorded.
+    assert [x["change_kind"] for x in noon["history"]] == ["initial", "correction"]
     assert noon["content"]["release"]["period"] == "historical"
     missing = next(
         p

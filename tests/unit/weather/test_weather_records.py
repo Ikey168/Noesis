@@ -367,3 +367,51 @@ def test_schema_registers_in_the_shared_registry():
         conn, principal_id="svc", scopes={"knowledge:schema:register"}
     )
     assert registered and registered[0]["name"] == "weather-record"
+
+
+def test_product_groups_at_the_same_station_and_time_are_distinct_records():
+    rr = wr.observation_report(
+        "dwd-cdc",
+        STATION,
+        "2026-05-01T10:00:00Z",
+        "dwd-hourly",
+        product_group="precipitation",
+        parameters=[
+            {
+                "parameter": "R1",
+                "unit": "mm",
+                "value": "0.4",
+                "qc": {"scheme": "dwd-qn", "native": "3"},
+            }
+        ],
+        locator=LOC,
+    )
+    tu = wr.observation_report(
+        "dwd-cdc",
+        STATION,
+        "2026-05-01T10:00:00Z",
+        "dwd-hourly",
+        product_group="air_temperature",
+        parameters=[
+            {
+                "parameter": "TT_TU",
+                "unit": "°C",
+                "value": "9.1",
+                "qc": {"scheme": "dwd-qn", "native": "3"},
+            }
+        ],
+        locator=LOC,
+    )
+    assert rr["record_key"] != tu["record_key"]
+    conn = duckdb.connect()
+    store = ws.WeatherStore(conn)
+    for n in range(2):
+        outcome = store.apply(
+            NS,
+            [rr, tu],
+            run_id=f"r{n}",
+            principal_id="p",
+            scopes=SCOPES,
+            retrieved_at_ms=1000 * (n + 1),
+        )
+    assert outcome["unchanged"] == 2 and outcome["corrections"] == 0

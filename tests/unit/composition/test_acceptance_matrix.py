@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Weather bundle's offline journey (#2176) composes its own record owner, Climate & Environment stations
+    # and series, Geospatial places and containment, entity identity, subscriptions and the source-pack runtime.
+    "Place to cited weather record":
+        "tests/unit/domains/test_weather_acceptance.py::"
+        "test_place_to_cited_observations_forecasts_warnings_verification_links_and_monitors",
 }
 
 

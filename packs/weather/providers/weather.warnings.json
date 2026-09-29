@@ -1,0 +1,133 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "weather.warnings",
+  "version": "1.0.0",
+  "description": "Warnings in force at a place as of a time from CAP Alert/Update/Cancel chains over Geospatial containment, and weather monitors through knowledge subscriptions. Warnings quoted as issued.",
+  "implementation": {
+    "name": "src.kb.weather_monitoring",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "weather.warnings",
+      "contract": {
+        "name": "noesis-weather-warning",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "warnings-in-force",
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "chains": "threaded by CAP references in any arrival order; the latest message decides",
+        "areas": "projected by warncell id or UGC zone, never by name",
+        "advice": "none; the issuer's text is quoted with its validity"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "warnings-in-force",
+      "tool": "noesis-knowledge-engine.warnings_in_force",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "containment receipt hash"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_weather_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:weather:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_weather_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_weather_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "weather-monitor",
+      "store": "src.kb.weather_monitoring",
+      "tables": [
+        "weather_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "weather_revisions"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "weather_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "weather-operational",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

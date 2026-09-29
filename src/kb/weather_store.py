@@ -388,16 +388,23 @@ class WeatherStore:
         current = max(revisions, key=order_key) if revisions else None
         if current is not None and current["content_hash"] == chash:
             return "unchanged", current["revision_id"]
-        if any(
-            r["content_hash"] == chash
-            and r["precedence"] == record["precedence"]
-            and r["source_time_ms"] == source_ms
+        seq = (max(r["seq"] for r in revisions) + 1) if revisions else 1
+        candidate = {
+            "precedence": record["precedence"],
+            "source_time_ms": source_ms,
+            "retrieved_at_ms": retrieved,
+            "seq": seq,
+        }
+        below_current = current is not None and order_key(candidate) < order_key(
+            current
+        )
+        if below_current and any(
+            r["content_hash"] == chash and r["precedence"] == record["precedence"]
             for r in revisions
         ):
-            return (
-                "unchanged",
-                None,
-            )  # the same statement from the same source time, acquired again
+            # Older data acquired again: it would not become current and states nothing new. (A statement that
+            # would become current is compared with the current revision only, so a reversion stays a correction.)
+            return "unchanged", None
         if not existing:
             self.conn.execute(
                 "INSERT INTO weather_records VALUES (?,?,?,?,?,?,?,?)",
@@ -412,16 +419,9 @@ class WeatherStore:
                     retrieved,
                 ],
             )
-        seq = (max(r["seq"] for r in revisions) + 1) if revisions else 1
-        candidate = {
-            "precedence": record["precedence"],
-            "source_time_ms": source_ms,
-            "retrieved_at_ms": retrieved,
-            "seq": seq,
-        }
         if current is None:
             change, outcome = "initial", "revisions"
-        elif order_key(candidate) > order_key(current):
+        elif not below_current:
             before = json.loads(
                 self.conn.execute(
                     "SELECT content_json FROM weather_revisions WHERE revision_id=?",
@@ -1118,7 +1118,13 @@ class WeatherProjector:
         page_receipt,
         principal_id,
     ):
-        namespace, env_namespace, _ = self._spec(source)
+        namespace, env_namespace, provider = self._spec(source)
+        if provider == "open-meteo":
+            from src.kb.weather_bundle import require_feature
+
+            require_feature(
+                self.store.conn, "weather-open-meteo"
+            )  # non-commercial terms, default off
         payload = []
         for item in records:
             payload.extend(dict(r) for r in item.get("weather_records") or [])

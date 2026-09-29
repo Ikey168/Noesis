@@ -89,6 +89,7 @@
     "report_type": {"enum": ["dwd-10min", "dwd-hourly", "metar", "speci"]},
     "parameters": {"type": "array", "items": {"$ref": "#/definitions/parameter"}},
     "correction": {"type": "string"},
+    "product_group": {"type": "string"},
     "raw_text": {"type": "string"},
     "product": {"enum": ["MOSMIX_L", "nws-gridpoint-hourly", "TAF", "open-meteo-forecast"]},
     "model": {"type": "string"},
