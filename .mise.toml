@@ -1,0 +1,23 @@
+[tools]
+python = "3.11"
+uv = "0.8.22"
+
+[tasks.bootstrap]
+description = "Create the project-local core verification environment"
+run = [
+  "uv venv --allow-existing --python 3.11 .venv",
+  "uv pip install --python .venv/bin/python --editable '.[server]' pytest==9.1.1 ruff==0.16.0",
+]
+
+[tasks.check]
+description = "Run the maintained Noesis core gateway and contract acceptance gate"
+depends = ["bootstrap"]
+run = [
+  ".venv/bin/python -m pytest -q tests/unit/cli tests/unit/kb/test_source_planner.py tests/unit/kb/test_maintenance.py tests/unit/kb/test_contract.py tests/unit/kb/test_schema_registry.py tests/unit/test_contracts_manual.py",
+  ".venv/bin/ruff check src/integrations tests/unit/integrations",
+]
+
+[tasks.check-full]
+description = "Run the broad dependency suite; requires the repository's full test environment"
+depends = ["bootstrap"]
+run = ".venv/bin/python -m pytest tests -q"

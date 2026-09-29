@@ -221,11 +221,19 @@ def test_doctor_reports_a_broken_minimal_install(capsys, tmp_path, monkeypatch):
 
 def test_doctor_reports_a_fully_ready_install(capsys, tmp_path, monkeypatch):
     config = _init(capsys, tmp_path)
+    import subprocess
+    from types import SimpleNamespace
+
     from src.argument_mining import model_registry
     from src.noesis_cli import doctor
 
     monkeypatch.setattr(doctor, "_available", lambda _module: True)
     monkeypatch.setattr(model_registry, "verify_pins", lambda **_kwargs: [])
+    monkeypatch.setattr(
+        subprocess,
+        "run",
+        lambda *_args, **_kwargs: SimpleNamespace(returncode=0),
+    )
     code, output = _run_json(capsys, "--config", str(config), "doctor", "--json")
 
     assert code == 0
