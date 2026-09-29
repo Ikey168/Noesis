@@ -1,0 +1,112 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "head": {
+     "vars": [
+      "work",
+      "celex",
+      "eli",
+      "ecli",
+      "expression",
+      "language",
+      "title",
+      "manifestation",
+      "format",
+      "item",
+      "document_date",
+      "journal",
+      "published",
+      "effective",
+      "predicate",
+      "related"
+     ]
+    },
+    "results": {
+     "bindings": [
+      {
+       "celex": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "32014R0269"
+       },
+       "document_date": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2014-03-17"
+       },
+       "effective": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2014-03-17"
+       },
+       "eli": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#anyURI",
+        "type": "literal",
+        "value": "http://data.europa.eu/eli/reg/2014/269/oj"
+       },
+       "expression": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/aaaaaaaa-0000-4000-8000-000000000269.0006"
+       },
+       "format": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "xhtml"
+       },
+       "item": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/aaaaaaaa-0000-4000-8000-000000000269.0006.03/DOC_1"
+       },
+       "journal": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/ffffffff-0000-0000-0000-000000000001"
+       },
+       "language": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/authority/language/ENG"
+       },
+       "manifestation": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/aaaaaaaa-0000-4000-8000-000000000269.0006.03"
+       },
+       "published": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2014-03-17"
+       },
+       "title": {
+        "type": "literal",
+        "value": "Council Regulation (EU) No 269/2014 (authored fixture row)"
+       },
+       "work": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/aaaaaaaa-0000-4000-8000-000000000269"
+       }
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/sparql-results+json"
+   },
+   "request": "/webapi/rdf/sparql#offset=0",
+   "status": 200
+  },
+  {
+   "body": "<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Regulation (EU) No 269/2014 (authored fixture text)</title></head>\n<body>\n<p class=\"oj-doc-ti\">COUNCIL REGULATION (EU) No 269/2014 (authored fixture text; not the published act)</p>\n<p class=\"oj-ti-art\">Article 2</p>\n<p class=\"oj-normal\">1. All funds and economic resources belonging to the natural or legal persons, entities or bodies listed in Annex I shall be frozen.</p>\n<p class=\"oj-doc-ti\">ANNEX I</p>\n<p class=\"oj-normal\">List of natural and legal persons, entities and bodies referred to in Article 2</p>\n<p class=\"oj-normal\">Examplar Freight LLC. Registration number 1027700000001. Fictional fixture entry.</p>\n<p class=\"oj-normal\">MV Fictional Star. IMO 9999991. Fictional fixture entry.</p>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "application/xhtml+xml"
+   },
+   "request": "/resource/cellar/aaaaaaaa-0000-4000-8000-000000000269.0006.03/DOC_1",
+   "status": 200
+  }
+ ],
+ "note": "Authored CELLAR SPARQL row and XHTML text for Regulation (EU) No 269/2014; cellar URIs and text are fixture stand-ins naming fictional parties, not captured data.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

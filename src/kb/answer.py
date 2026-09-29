@@ -1,14 +1,15 @@
 """Deterministic, extractive answers over a resolved knowledge-domain backing.
 
-The engine deliberately does not generate prose.  It selects already-extracted
-claims (or, when no claims exist, document titles), preserves their evidence,
-and renders only those statements.  That makes the offline path reproducible
+The engine deliberately does not generate prose. It selects already-extracted
+claims, or document titles for questions asking which sources exist, and
+renders only those statements. That makes the offline path reproducible
 and prevents an optional language model from introducing uncited facts.
 """
 
 from __future__ import annotations
 
 import hashlib
+import html
 import re
 from collections.abc import Iterable, Mapping
 from typing import Any
@@ -60,6 +61,28 @@ _STOPWORDS = {
     "why",
     "with",
 }
+_SOURCE_QUESTION_TERMS = {
+    "article", "articles", "document", "documents", "paper", "papers",
+    "publication", "publications", "source", "sources", "studies", "study",
+}
+
+
+def _asks_for_sources(question: str) -> bool:
+    words = re.findall(r"[^\W_]+", question.casefold(), flags=re.UNICODE)
+    if not words:
+        return False
+    if words[0] == "which" and len(words) > 1:
+        return words[1] in _SOURCE_QUESTION_TERMS
+    if words[0] == "what" and len(words) > 2:
+        return words[1] in _SOURCE_QUESTION_TERMS and words[2] in {
+            "address", "cover", "discuss", "examine", "mention", "study",
+        }
+    if words[0] in {"list", "show", "find", "identify", "name"}:
+        rest = words[1:]
+        while rest and rest[0] in {"me", "the", "any", "some"}:
+            rest = rest[1:]
+        return bool(rest and rest[0] in _SOURCE_QUESTION_TERMS)
+    return False
 
 
 def _tokens(value: str) -> set[str]:
@@ -356,11 +379,97 @@ def _document_statement(
     }
 
 
+def _paper_passages(
+    backing: Any,
+    documents: Iterable[Mapping[str, Any]],
+    question_tokens: set[str],
+    minimum_relevance: float,
+) -> list[tuple[float, str, Mapping[str, Any], str]]:
+    """Select exact abstract sentences from visible paper documents only.
+
+    Domain membership is resolved before this query. Titles and metadata do not
+    enter the passage text, so they cannot stand in for missing source content.
+    """
+    visible = {
+        str(document["document_id"]): document
+        for document in documents
+        if document.get("document_id") and document.get("source_type") == "paper"
+    }
+    if not visible:
+        return []
+    placeholders = ", ".join("?" for _ in visible)
+    with backing._lock():
+        rows = backing.conn.execute(
+            f"SELECT document_id, content FROM documents WHERE document_id IN ({placeholders})",
+            list(visible),
+        ).fetchall()
+    ranked = []
+    for document_id, content in rows:
+        if not content:
+            continue
+        plain = html.unescape(re.sub(r"<[^>]+>", " ", content))
+        plain = re.sub(r"\s+", " ", plain).strip()
+        # Preserve initials such as "L.O. Yutkin" when splitting abstracts.
+        protected = re.sub(
+            r"\b([A-Z])\.(?=[A-Z]\.|\s+[A-Z])",
+            r"\1<period>",
+            plain,
+        )
+        for index, sentence in enumerate(re.split(r"(?<=[.!?])\s+", protected)):
+            sentence = sentence.replace("<period>", ".").strip()
+            if len(sentence) < 30:
+                continue
+            score = _relevance(question_tokens, sentence)
+            if score > 0.0 and score >= minimum_relevance:
+                ranked.append((score, f"{document_id}:{index}", visible[document_id], sentence))
+    ranked.sort(key=lambda item: (-item[0], item[1]))
+    return ranked
+
+
+def _passage_statement(
+    question: str,
+    document: Mapping[str, Any],
+    passage: str,
+    identity: str,
+    backing: Any,
+) -> dict[str, Any]:
+    document_id = str(document["document_id"])
+    visibility = (
+        "private"
+        if "private" in {str(tag).casefold() for tag in backing.definition.tags}
+        else "public"
+    )
+    locator = _locator(
+        document, {document_id: document}, excerpt=passage, visibility=visibility
+    )
+    supporting = [locator]
+    independence = _independence(supporting, backing.conn)
+    return {
+        "id": _stable_id(question, "passage", identity),
+        "claim_id": None,
+        "text": passage,
+        "verdict": "unverifiable",
+        "supporting_evidence": supporting,
+        "contradicting_evidence": [],
+        "citation_state": render_state(independence["independent_source_count"]),
+        "corroboration": independence,
+        "prediction_mode": PREDICTION_MODE,
+        "confidence": None,
+        "confidence_scope": "not_available",
+        "interval": None,
+        "quantitative_check": None,
+        "integrity": _integrity_evidence(backing, supporting, {document_id: document}),
+        "n": 1,
+        "method": "extractive selection of a paper source passage; factual status unverified",
+        "assumptions": list(ASSUMPTIONS),
+    }
+
+
 def _refusal_statement(question: str) -> dict[str, Any]:
     return {
         "id": _stable_id(question, "refusal", "insufficient-evidence"),
         "claim_id": None,
-        "text": "No relevant evidence was found in the selected domain.",
+        "text": "No answerable evidence was found in the selected domain.",
         "verdict": "unverifiable",
         "supporting_evidence": [],
         "contradicting_evidence": [],
@@ -451,7 +560,18 @@ def build_answer(
         for score, identity, cluster in ranked_claims[:limit]
     ]
     eligible_count = len(ranked_claims)
-    if not selected:
+    if not selected and not _asks_for_sources(question):
+        ranked_passages = _paper_passages(
+            backing, documents, question_tokens, minimum_relevance
+        )
+        eligible_count = len(ranked_passages)
+        selected = [
+            ("passage", score, identity, {"document": document, "text": passage})
+            for score, identity, document, passage in ranked_passages[:limit]
+        ]
+    # A matching document title establishes that a source exists. It cannot
+    # answer an explanatory or factual question about that source's subject.
+    if not selected and _asks_for_sources(question):
         ranked_documents = []
         for document in documents:
             text = " ".join(
@@ -475,6 +595,12 @@ def build_answer(
             statements.append(
                 _claim_statement(
                     question, candidate, documents_by_id, claim_index, backing
+                )
+            )
+        elif kind == "passage":
+            statements.append(
+                _passage_statement(
+                    question, candidate["document"], candidate["text"], _identity, backing
                 )
             )
         else:
@@ -508,7 +634,7 @@ def build_answer(
         "refusal": (
             {
                 "code": "insufficient_evidence",
-                "message": "No relevant evidence passed the deterministic relevance threshold.",
+                "message": "No answerable evidence passed the deterministic relevance threshold.",
             }
             if refused
             else None

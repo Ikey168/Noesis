@@ -29,6 +29,7 @@ dependencies = [
 # model weights are downloaded by package installation. Heavy runtimes may use
 # NOESIS_OPTIONAL_PYTHON_<BACKEND> to isolate incompatible Python/SDK versions.
 optional-runtime = ["psutil==7.2.2", "numpy>=2.1,<3", "httpx==0.28.1"]
+optional-typesafe = ["httpx==0.28.1"]
 optional-sources = ["httpx==0.28.1", "defusedxml==0.7.1", "beautifulsoup4>=4.12,<5", "lxml>=5,<7", "PyMuPDF==1.28.2", "mcp==1.28.1"]
 optional-linkage = ["splink==4.0.17", "rapidfuzz==3.14.3", "datasketch==2.0.0"]
 optional-language = ["lingua-language-detector==2.2.0"]

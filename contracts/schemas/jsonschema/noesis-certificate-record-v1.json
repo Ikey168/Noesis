@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-certificate-record-v1.json",
+  "title": "Noesis certificate record v1",
+  "description": "One imported certificate or conformity declaration from a named source; declared status plus the effective status on a date.",
+  "type": "object",
+  "required": [
+    "contract",
+    "record_id",
+    "source",
+    "kind",
+    "issuer",
+    "certificate_number",
+    "declared_status",
+    "effective_status",
+    "locator"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-certificate-record-v1"
+    },
+    "kind": {
+      "enum": [
+        "certificate",
+        "conformity-declaration"
+      ]
+    },
+    "declared_status": {
+      "enum": [
+        "valid",
+        "suspended",
+        "withdrawn",
+        "expired",
+        "unknown"
+      ]
+    },
+    "effective_status": {
+      "enum": [
+        "valid",
+        "suspended",
+        "withdrawn",
+        "expired",
+        "unknown"
+      ]
+    },
+    "issuer": {
+      "type": "string",
+      "minLength": 1
+    },
+    "certificate_number": {
+      "type": "string",
+      "minLength": 1
+    },
+    "source": {
+      "type": "string",
+      "minLength": 1
+    },
+    "locator": {
+      "type": "string",
+      "minLength": 1
+    },
+    "record_id": {
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

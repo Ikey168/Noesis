@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-brief-v1.json",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "report_id",
+    "version",
+    "title",
+    "cutoff_ms",
+    "sections",
+    "formula_versions",
+    "assumptions",
+    "source_locators",
+    "formats",
+    "rights",
+    "limitations",
+    "artifact_id",
+    "owner",
+    "input_manifest",
+    "record_hash"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-market-brief-v1"},
+    "namespace": {"type": "string"},
+    "report_id": {"type": "string"},
+    "version": {"type": "integer", "minimum": 1},
+    "title": {"type": "string"},
+    "cutoff_ms": {"type": "integer", "minimum": 0},
+    "sections": {"type": "array"},
+    "formula_versions": {"type": "array"},
+    "assumptions": {"type": "array"},
+    "source_locators": {"type": "array"},
+    "charts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "accessible_description": {"type": "string", "maxLength": 2000}
+        }
+      }
+    },
+    "artifact_refs": {"type": "array"},
+    "generation_mode": {
+      "enum": ["authored_sections", "artifact_composition"]
+    },
+    "formats": {"type": "object"},
+    "rights": {"type": "object"},
+    "limitations": {"type": "array"},
+    "artifact_id": {"type": "string"},
+    "owner": {"type": "string"},
+    "input_manifest": {"type": "object"},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": true
+}

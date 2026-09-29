@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Authored fixture in the IATI activity standard 2.03 shape: every organisation, activity and amount is fictional.
+     A second publisher reports the same activity identifier with its own title and funds received. -->
+<iati-activities version="2.03" generated-datetime="2098-04-02T06:00:00Z">
+  <iati-activity last-updated-datetime="2098-04-01T12:00:00Z" xml:lang="en" default-currency="EUR" humanitarian="0">
+    <iati-identifier>XM-DAC-99901-FICT-0001</iati-identifier>
+    <reporting-org ref="XI-IATI-FICTNGO" type="21">
+      <narrative>Fictional NGO Alliance</narrative>
+    </reporting-org>
+    <title><narrative>Rural water points, fictional lakeside districts</narrative></title>
+    <participating-org ref="XM-DAC-99901" role="1" type="10">
+      <narrative>Fictional Development Partnership Agency</narrative>
+    </participating-org>
+    <participating-org ref="XI-IATI-FICTNGO" role="4" type="21">
+      <narrative>Fictional NGO Alliance</narrative>
+    </participating-org>
+    <activity-status code="2"/>
+    <recipient-country code="KE" percentage="100"/>
+    <sector code="14030" vocabulary="1" percentage="100"/>
+    <transaction ref="FICTNGO-IN-1">
+      <transaction-type code="1"/>
+      <transaction-date iso-date="2098-02-22"/>
+      <value currency="EUR" value-date="2098-02-22">240000</value>
+      <provider-org ref="XM-DAC-99901" provider-activity-id="XM-DAC-99901-FICT-0001">
+        <narrative>Fictional Development Partnership Agency</narrative>
+      </provider-org>
+    </transaction>
+  </iati-activity>
+</iati-activities>

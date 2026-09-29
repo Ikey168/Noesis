@@ -1,0 +1,59 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2026-10-03",
+  "results": {
+   "skip": 0,
+   "limit": 3,
+   "total": 1
+  }
+ },
+ "results": [
+  {
+   "set_id": "f1x7u2e0-0000-4000-8000-000000000001",
+   "id": "f1x7u2e0-0000-4000-8000-000000000008",
+   "version": "8",
+   "effective_time": "20260930",
+   "openfda": {
+    "brand_name": [
+     "NOETIGLU (FIXTURE)"
+    ],
+    "generic_name": [
+     "NOETIGLUTIDE"
+    ],
+    "application_number": [
+     "NDA299001"
+    ],
+    "manufacturer_name": [
+     "Fixture Therapeutics GmbH"
+    ],
+    "product_type": [
+     "HUMAN PRESCRIPTION DRUG"
+    ],
+    "route": [
+     "SUBCUTANEOUS"
+    ],
+    "substance_name": [
+     "NOETIGLUTIDE"
+    ]
+   },
+   "indications_and_usage": [
+    "1 INDICATIONS AND USAGE NOETIGLU is indicated as an adjunct to diet and exercise to improve glycemic control in adults with type 2 diabetes mellitus (fixture)."
+   ],
+   "warnings_and_cautions": [
+    "5 WARNINGS AND PRECAUTIONS 5.1 Pancreatitis (fixture text)."
+   ],
+   "adverse_reactions": [
+    "6 ADVERSE REACTIONS The most common adverse reactions were nausea, vomiting and diarrhea (fixture text)."
+   ],
+   "dosage_and_administration": [
+    "2 DOSAGE AND ADMINISTRATION (fixture text that the pack never retains)"
+   ],
+   "boxed_warning": [
+    "WARNING: RISK OF THYROID C-CELL TUMORS (fixture text)."
+   ]
+  }
+ ]
+}

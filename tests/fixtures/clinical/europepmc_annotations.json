@@ -1,0 +1,21 @@
+[
+ {
+  "source": "MED",
+  "extId": "99000004",
+  "pmcid": null,
+  "annotations": [
+   {
+    "exact": "NCT09000003",
+    "type": "Accession Numbers",
+    "section": "Abstract",
+    "provider": "Europe PMC",
+    "tags": [
+     {
+      "name": "nct",
+      "uri": "https://clinicaltrials.gov/study/NCT09000003"
+     }
+    ]
+   }
+  ]
+ }
+]

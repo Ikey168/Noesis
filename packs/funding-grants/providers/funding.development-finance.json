@@ -1,0 +1,618 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "funding.development-finance",
+  "version": "1.0.0",
+  "description": "Development finance and aid activity data of the Funding & Grants bundle: IATI activities with publishers, transactions, participating organisations, allocations, results and version history; OECD CRS aggregates as vintaged statistics through the SDMX connector; World Bank projects linked by stated identifiers; normalised codes, places and cited currency conversions beside reported values; reviewable organisation identity with an open-call cross-reference; and monitors on the subscription outbox. No effectiveness or impact judgement and no total across publishers.",
+  "implementation": {
+    "name": "src.kb.development_finance",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "funding.development-finance-activities",
+      "contract": {
+        "name": "noesis-development-finance-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "acquire-iati",
+        "acquire-world-bank",
+        "list-activities",
+        "inspect-activity",
+        "search-transactions",
+        "publisher-coverage",
+        "crs-aggregates",
+        "world-bank-links",
+        "publish-codelists",
+        "normalise",
+        "resolve-places",
+        "review-place",
+        "convert-amount",
+        "record-answer",
+        "attach-answer",
+        "report-citation"
+      ],
+      "semantic_constraints": {
+        "publishers": "a publisher is its own record; the same IATI identifier from two publishers stays two activities side by side; publishers are never merged",
+        "revisions": "a changed activity is a new revision chosen by the publisher's last-updated-datetime; late older versions are history; unchanged re-acquisition adds nothing",
+        "amounts": "transactions keep value, currency, value date and type as reported; unknown stays unknown; no total across publishers; within-publisher totals state type, currency and value-date range",
+        "statistics": "OECD CRS aggregates are vintaged statistics with the OECD as publisher, never decomposed into activities or summed with IATI transactions",
+        "world_bank": "a World Bank project links to an IATI activity only through a stated identifier; similarity is a marked candidate",
+        "currency": "a conversion needs a cited rate, rate date and source and is stored beside the unchanged original",
+        "coverage": "per-publisher coverage is bounded to explicit selections; failures are stale coverage, never ended activities",
+        "exclusions": "no effectiveness or impact judgement"
+      }
+    },
+    {
+      "id": "funding.development-finance-identity",
+      "contract": {
+        "name": "noesis-development-finance-identity",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-identity",
+        "identity-candidates",
+        "review-identity",
+        "revert-identity",
+        "open-calls"
+      ],
+      "semantic_constraints": {
+        "decisions": "organisations are offered to ownership, publisher, canonical and funder records from stated evidence; nothing is linked automatically; reviews and reverts are entity identity decisions",
+        "calls": "open calls are a cross-reference to funding opportunities, never activities, transactions or commitments; no eligibility is inferred"
+      }
+    },
+    {
+      "id": "funding.development-finance-monitoring",
+      "contract": {
+        "name": "noesis-development-finance-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "delivery": "existing subscription outbox",
+        "events": "new activity, new or corrected transaction, withdrawn activity, new result posting, new CRS vintage and coverage change, each citing before and after",
+        "failures": "a failed or partial refresh is stale coverage, never a closed or ended activity"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.development_finance_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.development_finance_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-iati",
+      "tool": "noesis-knowledge-engine.acquire_iati_activities",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "observation (durable request key)"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    },
+    {
+      "id": "acquire-world-bank",
+      "tool": "noesis-knowledge-engine.acquire_world_bank_projects",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "observation (durable request key)"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    },
+    {
+      "id": "list-activities",
+      "tool": "noesis-knowledge-engine.list_development_finance_activities",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-activity",
+      "tool": "noesis-knowledge-engine.inspect_development_finance_activity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search-transactions",
+      "tool": "noesis-knowledge-engine.search_development_finance_transactions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "publisher-coverage",
+      "tool": "noesis-knowledge-engine.development_finance_publisher_coverage",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "crs-aggregates",
+      "tool": "noesis-knowledge-engine.lookup_crs_aggregates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "crs",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "world-bank-links",
+      "tool": "noesis-knowledge-engine.list_world_bank_project_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "publish-codelists",
+      "tool": "noesis-knowledge-engine.publish_development_finance_codelists",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "code list and release"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "normalise",
+      "tool": "noesis-knowledge-engine.normalise_development_finance_activities",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "revision, normaliser and code-list versions"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "resolve-places",
+      "tool": "noesis-knowledge-engine.resolve_development_finance_places",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived resolution"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-place",
+      "tool": "noesis-knowledge-engine.review_development_finance_place",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "geocode_reviews"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:geospatial:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "convert-amount",
+      "tool": "noesis-knowledge-engine.convert_development_finance_amount",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "transaction, rate, rate date, source and citation"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "record-answer",
+      "tool": "noesis-knowledge-engine.record_development_finance_answer",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "query, as-of date and store generation"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:write",
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "attach-answer",
+      "tool": "noesis-knowledge-engine.attach_development_finance_answer",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "research_project_revisions"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:projects:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "report-citation",
+      "tool": "noesis-knowledge-engine.development_finance_report_citation",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity",
+      "tool": "noesis-knowledge-engine.propose_development_finance_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record pair (shared candidate state machine)"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "identity-candidates",
+      "tool": "noesis-knowledge-engine.list_development_finance_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_development_finance_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_development_finance_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "open-calls",
+      "tool": "noesis-knowledge-engine.development_finance_open_calls",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:ownership:read",
+        "knowledge:funding:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_development_finance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "activities",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_development_finance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_development_finance_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:funding:development-finance:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "development-finance-activity",
+      "store": "src.kb.development_finance",
+      "tables": [
+        "devfin_publishers",
+        "devfin_datasets",
+        "devfin_activities",
+        "devfin_activity_revisions",
+        "devfin_participating_orgs",
+        "devfin_transactions",
+        "devfin_allocations",
+        "devfin_results",
+        "devfin_sightings",
+        "devfin_withdrawals",
+        "devfin_coverage",
+        "devfin_coverage_observations",
+        "devfin_generation"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "development-finance-crs-vintage",
+      "store": "src.kb.development_finance",
+      "tables": [
+        "devfin_crs_cells",
+        "devfin_crs_vintages"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "development-finance-world-bank-project",
+      "store": "src.kb.development_finance",
+      "tables": [
+        "devfin_wb_projects",
+        "devfin_wb_revisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "development-finance-normalisation",
+      "store": "src.kb.development_finance_normalise",
+      "tables": [
+        "devfin_normalisations",
+        "devfin_place_links",
+        "devfin_conversions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "development-finance-answer",
+      "store": "src.kb.development_finance_queries",
+      "tables": [
+        "devfin_answers"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "development-finance-monitor",
+      "store": "src.kb.development_finance_monitoring",
+      "tables": [
+        "devfin_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "activities",
+      "kind": "table-exists",
+      "target": "devfin_activity_revisions"
+    },
+    {
+      "id": "crs",
+      "kind": "table-exists",
+      "target": "devfin_crs_vintages"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "devfin_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.4.0",
+      "range": "^1.4.0"
+    }
+  ]
+}

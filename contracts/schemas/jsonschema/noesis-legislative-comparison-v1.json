@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-legislative-comparison-v1.json",
+  "title": "Legislative dossier revision comparison",
+  "type": "object",
+  "required": ["contract", "dossier_id", "before_revision", "after_revision", "changes", "counts", "interpretation"],
+  "properties": {
+    "contract": {"const": "noesis-legislative-comparison-v1"},
+    "dossier_id": {"type": "string"},
+    "before_revision": {"type": "integer", "minimum": 1},
+    "after_revision": {"type": "integer", "minimum": 2},
+    "counts": {
+      "type": "object",
+      "required": ["added", "changed", "unavailable"],
+      "properties": {
+        "added": {"type": "integer", "minimum": 0},
+        "changed": {"type": "integer", "minimum": 0},
+        "unavailable": {"type": "integer", "minimum": 0}
+      }
+    },
+    "interpretation": {"type": "null"},
+    "changes": {
+      "type": "array", "maxItems": 200,
+      "items": {
+        "type": "object",
+        "required": ["kind", "stage", "before_citation", "after_citation"],
+        "properties": {
+          "kind": {"enum": ["added", "changed", "unavailable"]},
+          "stage": {"enum": ["proposal", "amendment", "vote", "adoption", "publication", "commencement", "repeal"]},
+          "before_citation": {"type": ["object", "null"]},
+          "after_citation": {"type": ["object", "null"]}
+        }
+      }
+    }
+  }
+}

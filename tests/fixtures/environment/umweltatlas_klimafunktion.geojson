@@ -1,0 +1,87 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "klimafunktion.7",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       391500.0,
+       5819500.0
+      ],
+      [
+       393500.0,
+       5819500.0
+      ],
+      [
+       393500.0,
+       5821000.0
+      ],
+      [
+       391500.0,
+       5821000.0
+      ],
+      [
+       391500.0,
+       5819500.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "gml_id": "klimafunktion.7",
+    "klimafunktion": "Überwärmungsbereich, hohe Belastung",
+    "grundlage": "Klimaanalysekarte 2022, Modellrechnung (FITNAH 3D)"
+   }
+  },
+  {
+   "type": "Feature",
+   "id": "klimafunktion.8",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       384000.0,
+       5816000.0
+      ],
+      [
+       386000.0,
+       5816000.0
+      ],
+      [
+       386000.0,
+       5818000.0
+      ],
+      [
+       384000.0,
+       5818000.0
+      ],
+      [
+       384000.0,
+       5816000.0
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "gml_id": "klimafunktion.8",
+    "klimafunktion": "Kaltluftentstehungsgebiet",
+    "grundlage": "Klimaanalysekarte 2022, Modellrechnung (FITNAH 3D)"
+   }
+  }
+ ],
+ "totalFeatures": 2,
+ "numberMatched": 2,
+ "numberReturned": 2,
+ "timeStamp": "2026-09-20T06:00:00.000Z",
+ "crs": {
+  "type": "name",
+  "properties": {
+   "name": "urn:ogc:def:crs:EPSG::25833"
+  }
+ }
+}

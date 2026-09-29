@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-geospatial-feature-snapshot-v1.json",
+  "title": "Noesis geospatial collection snapshot evaluation",
+  "description": "Only a complete snapshot of an unbounded scope removes absent features; partial snapshots list the reasons.",
+  "type": "object",
+  "required": [
+    "contract",
+    "snapshot_id",
+    "completeness",
+    "reasons",
+    "namespace",
+    "provider",
+    "collection",
+    "run_id",
+    "source_id",
+    "number_matched",
+    "pages",
+    "observed",
+    "states",
+    "removed",
+    "idempotent"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-geospatial-feature-snapshot-v1"
+    },
+    "snapshot_id": {
+      "type": "string",
+      "pattern": "^geofeature-snapshot:[0-9a-f]{24}$"
+    },
+    "completeness": {
+      "enum": [
+        "complete",
+        "partial"
+      ]
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "source_run_not_complete",
+          "no_pages_recorded",
+          "pages_not_contiguous",
+          "bounded_scope",
+          "final_page_missing",
+          "number_matched_changed",
+          "returned_count_differs_from_matched",
+          "projection_failed",
+          "older_than_current_snapshot"
+        ]
+      }
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "provider": {
+      "type": "string"
+    },
+    "collection": {
+      "type": "string"
+    },
+    "run_id": {
+      "type": "string"
+    },
+    "source_id": {
+      "type": "string"
+    },
+    "number_matched": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "pages": {
+      "type": "integer"
+    },
+    "observed": {
+      "type": "integer"
+    },
+    "states": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "integer"
+      }
+    },
+    "removed": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "provider_timestamp": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "scope": {
+      "type": [
+        "object",
+        "null"
+      ]
+    },
+    "idempotent": {
+      "type": "boolean"
+    }
+  }
+}

@@ -1,6 +1,6 @@
 # Persistent research projects
 
-Projects organize existing plans, runs, hypotheses, evidence, findings, and snapshot references. Their question history and committed expenditure survive process restarts. Creating or reopening a project does not execute research.
+Projects organize existing plans, runs, hypotheses, evidence, findings, snapshot references, and pinned Noesis intake sources. Their question history and committed expenditure survive process restarts. Creating or reopening a project does not execute research.
 
 The `noesis-research-project-v1` contract is exposed through `create_research_project`, `inspect_research_project`, `list_research_projects`, `revise_research_project`, `archive_research_project`, and `record_research_project_expenditure` on the knowledge-engine MCP server.
 

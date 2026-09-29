@@ -76,11 +76,11 @@ def test_publish_refuses_invalid_manifest(root):
 
 
 def test_publish_from_a_packaged_path(root, tmp_path):
-    # The shipped example pack publishes straight from disk.
-    src = REPO / "packs" / "energy" / "pack.json"
+    # A shipped pack publishes straight from disk.
+    src = REPO / "packs" / "legal" / "pack.json"
     pub = pack_registry.publish_path(str(src), root=root)
-    assert pub["name"] == "energy"
-    assert pack_registry.get("energy", root=root).name == "energy"
+    assert pub["name"] == "legal"
+    assert pack_registry.get("legal", root=root).name == "legal"
 
 
 def test_missing_pack_reads_back_as_none(root):

@@ -1,0 +1,46 @@
+{
+  "schema_version": "1.6.0",
+  "id": "PYSEC-2099-1",
+  "modified": "2099-01-10T00:00:00Z",
+  "published": "2099-01-06T00:00:00Z",
+  "aliases": [
+    "CVE-2099-0001",
+    "GHSA-f1x7-aaaa-bbbb"
+  ],
+  "summary": "Authored fixture: regular-expression backtracking in fixture-parser",
+  "details": "Authored fixture advisory in the OSV schema.",
+  "affected": [
+    {
+      "package": {
+        "ecosystem": "PyPI",
+        "name": "fixture-parser",
+        "purl": "pkg:pypi/fixture-parser"
+      },
+      "ranges": [
+        {
+          "type": "ECOSYSTEM",
+          "events": [
+            {
+              "introduced": "1.0.0"
+            },
+            {
+              "fixed": "1.5.0"
+            }
+          ]
+        }
+      ],
+      "versions": [
+        "1.0.0",
+        "1.2.0",
+        "1.3.0",
+        "1.4.0"
+      ]
+    }
+  ],
+  "references": [
+    {
+      "type": "ADVISORY",
+      "url": "https://fixturecorp.example/advisories/2099-001"
+    }
+  ]
+}

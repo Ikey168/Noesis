@@ -135,6 +135,31 @@ def _ensure_canonical(
     return canonical_id
 
 
+def register_canonical_entity(
+    conn, canonical_id: str, preferred_name: str, entity_type: Optional[str] = None
+) -> str:
+    """Register a canonical entity under an explicit identifier-based id.
+
+    Used by record owners whose identity comes from a registry identifier
+    (an LEI, a register number, a CIK) rather than from a surface name: no
+    alias row is written, so two companies that share a name never converge
+    here. Linking such entities is a reviewed identity decision
+    (``src/kb/entity_history.py``), never an automatic merge.
+    """
+    if not re.fullmatch(r"ent-[a-z0-9][a-z0-9-]{1,300}", canonical_id or ""):
+        raise ValueError("canonical_id must be ent-<lowercase identifier>")
+    ensure_entity_schema(conn)
+    conn.execute(
+        """
+        INSERT INTO canonical_entities (canonical_id, preferred_name, entity_type, created_at)
+        VALUES (?, ?, ?, ?)
+        ON CONFLICT (canonical_id) DO NOTHING
+        """,
+        [canonical_id, preferred_name.strip(), entity_type, _now()],
+    )
+    return canonical_id
+
+
 def add_manual_alias(
     conn, surface_form: str, canonical_name: str, entity_type: Optional[str] = None
 ) -> str:

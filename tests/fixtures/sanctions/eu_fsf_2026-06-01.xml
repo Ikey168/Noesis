@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<export xmlns="http://eu.europa.ec/fpi/fsd/export" generationDate="2026-06-01T09:00:00.000+02:00" globalFileId="90002">
+  <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.9001.01" logicalId="9001" designationDate="2025-11-20">
+    <remark>Authored fixture entry; the party is fictional.</remark>
+    <regulation regulationType="amendment" organisationType="council" publicationDate="2025-11-20" entryIntoForceDate="2025-11-21" numberTitle="Regulation (EU) No 269/2014 (fixture citation)" programme="UKR" logicalId="7001">
+      <publicationUrl>https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014R0269</publicationUrl>
+    </regulation>
+    <subjectType code="enterprise" classificationCode="E"/>
+    <nameAlias firstName="" middleName="" lastName="" wholeName="Examplar Freight LLC" function="" gender="" title="" nameLanguage="EN" strong="true" regulationLanguage="en" logicalId="1"/>
+    <nameAlias firstName="" middleName="" lastName="" wholeName="OOO Examplar Freight" function="" gender="" title="" nameLanguage="RU" strong="false" regulationLanguage="en" logicalId="5"/>
+    <identification diplomatic="false" knownExpired="false" knownFalse="false" reportedLost="false" revokedByIssuer="false" number="1027700000001" countryIso2Code="RU" identificationTypeCode="regnumber" identificationTypeDescription="Registration Number" logicalId="11"/>
+    <address city="Fictionville" street="1 Example Quay" poBox="" zipCode="000001" region="" place="" asAtListingTime="false" countryIso2Code="RU" countryDescription="RUSSIAN FEDERATION" logicalId="21"/>
+  </sanctionEntity>
+  <sanctionEntity designationDetails="" unitedNationId="QDi.902" euReferenceNumber="EU.9003.03" logicalId="9003" designationDate="2025-12-01">
+    <remark>Authored fixture entry; the person is fictional.</remark>
+    <regulation regulationType="amendment" organisationType="council" publicationDate="2025-12-01" entryIntoForceDate="2025-12-02" numberTitle="2022/336 (OJ L 58) (fixture citation)" programme="UKR" logicalId="7003">
+      <publicationUrl>https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32022R0336</publicationUrl>
+    </regulation>
+    <subjectType code="person" classificationCode="P"/>
+    <nameAlias firstName="Ivan" middleName="" lastName="Fictional-Example" wholeName="Ivan Fictional-Example" function="" gender="M" title="" nameLanguage="EN" strong="true" regulationLanguage="en" logicalId="3"/>
+    <nameAlias firstName="" middleName="" lastName="" wholeName="Иван Фикционал-Пример" function="" gender="M" title="" nameLanguage="RU" strong="true" regulationLanguage="en" logicalId="4"/>
+    <birthdate birthdate="1970-01-01" dayOfMonth="1" monthOfYear="1" year="1970" city="Fictionville" countryIso2Code="RU" logicalId="31"/>
+    <citizenship region="" countryIso2Code="RU" countryDescription="RUSSIAN FEDERATION" logicalId="41"/>
+    <identification diplomatic="false" knownExpired="false" knownFalse="false" reportedLost="false" revokedByIssuer="false" number="X1234567" countryIso2Code="RU" identificationTypeCode="passport" identificationTypeDescription="National passport" logicalId="13"/>
+  </sanctionEntity>
+  <sanctionEntity designationDetails="" unitedNationId="" euReferenceNumber="EU.9004.04" logicalId="9004" designationDate="2026-05-20">
+    <remark>Authored fixture entry; the party is fictional.</remark>
+    <regulation regulationType="amendment" organisationType="council" publicationDate="2026-05-20" entryIntoForceDate="2026-05-21" numberTitle="Regulation (EU) No 269/2014 (fixture citation)" programme="UKR" logicalId="7004">
+      <publicationUrl>https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:32014R0269</publicationUrl>
+    </regulation>
+    <subjectType code="enterprise" classificationCode="E"/>
+    <nameAlias firstName="" middleName="" lastName="" wholeName="Sample Logistics JSC" function="" gender="" title="" nameLanguage="EN" strong="true" regulationLanguage="en" logicalId="6"/>
+  </sanctionEntity>
+</export>

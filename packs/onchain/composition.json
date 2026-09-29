@@ -1,0 +1,54 @@
+{
+  "description": "Composition view of the On-chain Observations bundle: what it requires from shared providers, its optional acquisition feature, and what it contributes to OSINT. packs/onchain/manifest.json is the authoritative native manifest; tests/unit/onchain/test_onchain_composition.py asserts this file stays equal to it.",
+  "requires": [
+    {
+      "capability": "onchain.observations",
+      "contract": "noesis-onchain-observation",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "onchain.clustering",
+      "contract": "noesis-onchain-cluster",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "label references to organization or contract entities are reviewed, reversible identity decisions"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "acquisition",
+      "default": false,
+      "description": "Bounded, receipted acquisition of explorer observations for one explicit identifier per request; Ethereum stays inert (no_provider_configured) until NOESIS_ETHERSCAN_API_KEY is set",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "sources, licences and budgets are declared in the onchain-observations source pack"
+        }
+      ]
+    }
+  ],
+  "consumed_by": [
+    {
+      "bundle": "osint",
+      "optional_feature": "onchain",
+      "capability": "onchain.observations",
+      "use": "entity_dossier cites contract-origin facts for organization entities through accepted label references; never for persons"
+    }
+  ],
+  "exclusions": [
+    "person attribution or de-anonymization of an address",
+    "wallet or key access",
+    "transaction signing or submission",
+    "exchange or KYC data",
+    "commercial attribution feeds",
+    "attribution verdicts"
+  ]
+}

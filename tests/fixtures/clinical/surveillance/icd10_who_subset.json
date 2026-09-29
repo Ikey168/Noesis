@@ -1,0 +1,22 @@
+{
+ "note": "Authored subset in the shape of ICD-10 (WHO, 2019 version) code records; codes and titles are believed to match ICD-10 but were not verified in this environment.",
+ "system": "who",
+ "version": "2019.0.0",
+ "edition": "ICD-10 (WHO), 2019 version",
+ "codes": [
+  {"code": "A00-B99", "title": "Certain infectious and parasitic diseases"},
+  {"code": "A15-A19", "title": "Tuberculosis", "parent": "A00-B99"},
+  {"code": "A15", "title": "Respiratory tuberculosis, bacteriologically and histologically confirmed", "parent": "A15-A19"},
+  {"code": "A16", "title": "Respiratory tuberculosis, not confirmed bacteriologically or histologically", "parent": "A15-A19"},
+  {"code": "A17", "title": "Tuberculosis of nervous system", "parent": "A15-A19"},
+  {"code": "A18", "title": "Tuberculosis of other organs", "parent": "A15-A19"},
+  {"code": "A19", "title": "Miliary tuberculosis", "parent": "A15-A19"},
+  {"code": "A30-A49", "title": "Other bacterial diseases", "parent": "A00-B99"},
+  {"code": "A31", "title": "Infection due to other mycobacteria", "parent": "A30-A49"},
+  {"code": "A31.0", "title": "Pulmonary mycobacterial infection", "parent": "A31"}
+ ],
+ "mesh_curations": [
+  {"source": "A15", "target": "D014397", "kind": "narrower", "reviewer": "fixture-reviewer", "rationale": "pulmonary tuberculosis is narrower than respiratory tuberculosis"},
+  {"source": "A31.0", "target": "D014376", "kind": "incompatible", "reviewer": "fixture-reviewer", "rationale": "non-tuberculous mycobacterial infection is not tuberculosis"}
+ ]
+}

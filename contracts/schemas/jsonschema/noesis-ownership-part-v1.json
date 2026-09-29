@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-ownership-part-v1",
+  "title": "One bounded provider response projected into ownership records",
+  "description": "Emitted by the corporate-ownership source-pack adapters: the provider, the part read, the response digest, the retained native response and the noesis-ownership-record-v1 records a fail-closed parser produced from it.",
+  "type": "object",
+  "required": ["contract", "provider", "part", "subject", "raw_sha256", "records"],
+  "properties": {
+    "contract": {"const": "noesis-ownership-part-v1"},
+    "provider": {"enum": ["companies-house", "sec-edgar", "open-ownership"]},
+    "part": {"type": "string"},
+    "subject": {"type": "string"},
+    "raw_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "native": {},
+    "records": {"type": "array", "items": {"type": "object", "required": ["contract", "kind", "record_key", "source"]}},
+    "coverage": {"type": "object"},
+    "outcome": {"enum": ["returned", "none_reported"]}
+  },
+  "additionalProperties": false
+}

@@ -15,6 +15,15 @@ version, and revision; it records the model result, features, confidence, and
 the deterministic fallback. Classification is never presented as proof that a
 statement is true.
 
+The optional `suggest_jev_epistemic_kind` MCP tool uses the same classifier
+seam. It requires an authorized exact source version containing the supplied
+statement, sends only that span for hosted processing, and returns an
+unaccepted suggestion with `truth_verified: false`. Its selected-label
+probability and provider confidence remain separate from the assessment of
+supporting evidence. Use `evaluate_jev_epistemic` to compare held-out
+suggestions with the rule baseline; fixture results do not establish task
+readiness.
+
 `assess_epistemic_statement` groups evidence by independence identity so copied
 wire reports do not count as separate confirmation. It combines stance,
 reliability, freshness, and methodology into `supported`, `contested`, or

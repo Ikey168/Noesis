@@ -1,0 +1,78 @@
+{
+  "contract": "noesis-workflow-template-v1",
+  "id": "science.place-evidence",
+  "version": "1.0.0",
+  "pack": "science",
+  "profile": "science.place-review",
+  "description": "Review place-related literature: place the study sites against a named boundary, gather scholarly claims and record the evidence in the session.",
+  "parameters": {
+    "boundary_name": {
+      "type": "string",
+      "required": true,
+      "description": "Study area boundary"
+    },
+    "topic": {
+      "type": "string",
+      "required": true,
+      "description": "Literature topic"
+    }
+  },
+  "requires": [
+    {
+      "capability": "geospatial.feature-query",
+      "contract": "noesis-geospatial-feature-query",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "platform.session-artifacts",
+      "contract": "noesis-intake-session-artifact",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0"
+    }
+  ],
+  "steps": [
+    {
+      "id": "locate",
+      "capability": "geospatial.feature-query",
+      "operation": "features-within",
+      "effect": "read-only",
+      "produces": "feature-membership"
+    },
+    {
+      "id": "literature",
+      "capability": "science.literature-claims",
+      "operation": "literature-claims",
+      "effect": "read-only",
+      "produces": "literature-claims"
+    },
+    {
+      "id": "record",
+      "capability": "platform.session-artifacts",
+      "operation": "record-artifact",
+      "effect": "local-mutation",
+      "depends_on": [
+        "locate",
+        "literature"
+      ],
+      "produces": "session-artifact"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "place-evidence",
+      "kind": "session-artifact",
+      "description": "Study-site membership with feature revision references and cited claims"
+    }
+  ],
+  "questions": [
+    "Which findings concern sites inside ${boundary_name}?"
+  ],
+  "success_criteria": [
+    "Place references match the identities OSINT uses for the same features"
+  ],
+  "content_hash": "sha256:2f9dc3ec4386ab4c1f6654d8498107c59a5eba533e8afe9e970e35088a772e11"
+}

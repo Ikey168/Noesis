@@ -1,0 +1,11 @@
+{
+  "contract": "noesis-economic-market-dashboard-v1",
+  "namespace": "economics",
+  "release_id": "fixture-release",
+  "snapshots": {"initial": {}, "latest": {}, "comparison": null},
+  "release_calendar": [],
+  "consensus_surprises": [{"series_id": "fred:GDPC1:US", "status": "unavailable", "reason": "pre_release_consensus_not_supplied"}],
+  "breadth": {"status": "not_requested", "universe_id": null},
+  "cutoffs": {"release_cutoff_ms": 1756684800000, "acquired_cutoff_ms": 1756684800000},
+  "limitations": ["Surprises require timestamped source references."]
+}

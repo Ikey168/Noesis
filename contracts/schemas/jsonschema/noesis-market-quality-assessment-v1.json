@@ -1,0 +1,53 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-quality-assessment-v1.json",
+  "title": "Noesis market data quality assessment v1",
+  "type": "object",
+  "required": ["contract", "assessment_id", "namespace", "owner", "request_key", "request", "status", "coverage", "freshness", "input_refs", "input_hash", "findings", "created_at_ms", "request_hash", "assessment_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-quality-assessment-v1"},
+    "assessment_id": {"type": "string", "minLength": 1},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "request_key": {"type": "string", "minLength": 1},
+    "request": {"type": "object"},
+    "status": {"enum": ["healthy", "degraded"]},
+    "coverage": {"type": "object"},
+    "freshness": {"type": "object"},
+    "input_refs": {"type": "array", "items": {"$ref": "#/definitions/input_ref"}},
+    "input_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "findings": {"type": "array", "items": {"$ref": "#/definitions/finding"}},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "request_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "assessment_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "input_ref": {
+      "type": "object", "required": ["kind", "object_id"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "object_id": {"type": "string", "minLength": 1},
+        "revision_id": {"type": ["string", "null"]},
+        "record_hash": {"type": ["string", "null"], "pattern": "^([a-f0-9]{64})?$"},
+        "provider": {"type": "string"},
+        "public_at_ms": {"type": ["integer", "null"], "minimum": 0},
+        "retrieved_at_ms": {"type": ["integer", "null"], "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "finding": {
+      "type": "object", "required": ["finding_id", "rule", "severity", "summary", "revision_ids", "evidence"],
+      "properties": {
+        "finding_id": {"type": "string", "minLength": 1},
+        "rule": {"type": "string", "minLength": 1},
+        "severity": {"enum": ["info", "warning", "error", "critical"]},
+        "summary": {"type": "string", "minLength": 1},
+        "revision_ids": {"type": "array", "items": {"type": "string"}},
+        "evidence": {"type": "object"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

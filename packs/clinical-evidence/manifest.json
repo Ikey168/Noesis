@@ -1,0 +1,259 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "clinical-evidence",
+  "version": "0.1.0",
+  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry and regulatory records, linked publications and preprints, trial-design methodology, outcome switching and an explained strength-of-evidence view over the Science providers. Not medical advice.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "clinical.trials",
+        "provider": "clinical.core",
+        "contract": {
+          "name": "noesis-clinical-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.publication-links",
+        "provider": "clinical.core",
+        "contract": {
+          "name": "noesis-clinical-publication-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.methodology",
+        "provider": "clinical.core",
+        "contract": {
+          "name": "noesis-clinical-trial-design",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.terms",
+        "provider": "clinical.core",
+        "contract": {
+          "name": "noesis-clinical-term-alignment",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.evidence-maps",
+        "provider": "clinical.core",
+        "contract": {
+          "name": "noesis-clinical-evidence-map",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.monitoring",
+        "provider": "clinical.core",
+        "contract": {
+          "name": "noesis-clinical-monitor",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.surveillance-series",
+        "provider": "clinical.surveillance",
+        "contract": {
+          "name": "noesis-surveillance-series",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.surveillance-vintages",
+        "provider": "clinical.surveillance",
+        "contract": {
+          "name": "noesis-surveillance-vintages",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.surveillance-monitoring",
+        "provider": "clinical.surveillance",
+        "contract": {
+          "name": "noesis-surveillance-monitor",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "clinical.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "clinical.surveillance",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "clinical-evidence",
+        "version": "0.1.0",
+        "range": "^0.1.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "clinical.evidence-map",
+        "description": "Clinical question vocabulary; non-advice boundary",
+        "vocabulary": {
+          "question": "clinical question (population, condition, intervention, comparator)",
+          "strength": "explained evidence-base description, not a clinical conclusion"
+        }
+      },
+      {
+        "id": "clinical.surveillance-dossier",
+        "description": "Surveillance dossier: a condition and a geography to each source's series with case-definition revisions, reporting and reference dates, vintages, MeSH/ICD alignment, boundary projection and explicitly cited trials and publications, sources side by side",
+        "vocabulary": {
+          "reporting date": "when the case or value was reported to the public-health authority (Meldedatum, GHO Date)",
+          "reference date": "the date or period the value refers to (onset, Refdatum, reference year); never the reporting date",
+          "case definition": "the source's definition revision in force on a value's reference date; a change is a marked break",
+          "kind": "observation, estimate (with bounds where given) or model output; never presented as another kind",
+          "vintage": "one release of a series; earlier vintages stay addressable and pinned views turn stale",
+          "reporting delay": "the source's own statement about incomplete recent periods; no nowcast is computed"
+        },
+        "workflow_defaults": {
+          "as_of": "the vintage released by the requested reporting date; values without a reporting date listed apart",
+          "sources": "side by side; nothing merged, averaged or preferred",
+          "thresholds": "user-configured only; never derived or suggested",
+          "never": "Published surveillance values as each source released them: no outbreak prediction, nowcast, completeness estimate, threshold suggestion or health advice; case-definition changes are marked breaks, never corrections."
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "clinical.trials",
+      "contract": "noesis-clinical-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "clinical.publication-links",
+      "contract": "noesis-clinical-publication-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "clinical.methodology",
+      "contract": "noesis-clinical-trial-design",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "clinical.terms",
+      "contract": "noesis-clinical-term-alignment",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "clinical.evidence-maps",
+      "contract": "noesis-clinical-evidence-map",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "clinical.monitoring",
+      "contract": "noesis-clinical-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0",
+      "reason": "claim conclusions stay a separate Science view"
+    },
+    {
+      "capability": "science.methodology",
+      "contract": "noesis-methodology-study",
+      "range": "^1.0.0",
+      "reason": "trial design extends the Science methodology owner"
+    },
+    {
+      "capability": "science.systematic-reviews",
+      "contract": "noesis-review-protocol",
+      "range": "^1.0.0",
+      "reason": "review registrations link to the Science review store"
+    },
+    {
+      "capability": "science.paper-families",
+      "contract": "noesis-paper-family",
+      "range": "^1.0.0",
+      "reason": "publication families reuse the Science family owner"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources run in the shared source-pack runtime"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "monitoring reuses knowledge subscriptions"
+    }
+  ],
+  "compatibility_aliases": {
+    "clinical": "clinical-evidence"
+  },
+  "advisory": {
+    "never": [
+      "give medical advice",
+      "recommend a dose or a treatment",
+      "assert a GRADE or other grade without its inputs",
+      "treat adverse-event reports as incidence or causation",
+      "merge the same trial across registries"
+    ]
+  },
+  "optional_features": [
+    {
+      "id": "surveillance",
+      "default": false,
+      "description": "Public-health surveillance series: RKI open data, WHO GHO, Eurostat health (SDMX) and Destatis health (GENESIS) series and operator-supplied ECDC Atlas exports with case-definition revisions, reporting and reference dates kept apart, vintages and reporting-delay notes, MeSH/ICD alignment, Geospatial boundary projection, explicit-citation links to trials and publications and user-threshold monitors. No outbreak prediction, nowcast or health advice.",
+      "requires": [
+        {
+          "capability": "clinical.surveillance-series",
+          "contract": "noesis-surveillance-series",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.surveillance-vintages",
+          "contract": "noesis-surveillance-vintages",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.surveillance-monitoring",
+          "contract": "noesis-surveillance-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.feature-query",
+          "contract": "noesis-geospatial-feature-query",
+          "range": "^1.0.0",
+          "reason": "regional series are projected onto boundary features"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "geography codes and boundary names resolve through place resolution"
+        },
+        {
+          "capability": "science.literature-claims",
+          "contract": "noesis-literature-claims",
+          "range": "^1.0.0",
+          "reason": "claims about cited documents are shown beside the series as a separate view"
+        }
+      ]
+    }
+  ],
+  "content_hash": "sha256:cbafd728385ea2683363396247340de8f72252880bc83ecb50b6620a3d96cb20"
+}

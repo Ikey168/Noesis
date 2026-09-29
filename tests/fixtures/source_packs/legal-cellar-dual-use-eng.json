@@ -1,0 +1,348 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "head": {
+     "vars": [
+      "work",
+      "celex",
+      "eli",
+      "ecli",
+      "expression",
+      "language",
+      "title",
+      "manifestation",
+      "format",
+      "item",
+      "document_date",
+      "journal",
+      "published",
+      "effective",
+      "predicate",
+      "related"
+     ]
+    },
+    "results": {
+     "bindings": [
+      {
+       "celex": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "32021R0821"
+       },
+       "document_date": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-05-20"
+       },
+       "effective": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-09-09"
+       },
+       "eli": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#anyURI",
+        "type": "literal",
+        "value": "http://data.europa.eu/eli/reg/2021/821/oj"
+       },
+       "expression": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/bbbbbbbb-0000-4000-8000-000000000821.0006"
+       },
+       "format": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "pdfa2a"
+       },
+       "item": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/bbbbbbbb-0000-4000-8000-000000000821.0006.01/DOC_1"
+       },
+       "journal": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/ffffffff-0000-0000-0000-000000000001"
+       },
+       "language": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/authority/language/ENG"
+       },
+       "manifestation": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/bbbbbbbb-0000-4000-8000-000000000821.0006.01"
+       },
+       "published": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-06-11"
+       },
+       "title": {
+        "type": "literal",
+        "value": "Regulation (EU) 2021/821 (authored fixture row)"
+       },
+       "work": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/bbbbbbbb-0000-4000-8000-000000000821"
+       }
+      },
+      {
+       "celex": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "32024R2547"
+       },
+       "document_date": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2024-09-05"
+       },
+       "effective": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2024-11-15"
+       },
+       "expression": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/cccccccc-0000-4000-8000-000000002547.0006"
+       },
+       "format": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "pdfa2a"
+       },
+       "item": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/cccccccc-0000-4000-8000-000000002547.0006.01/DOC_1"
+       },
+       "journal": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/ffffffff-0000-0000-0000-000000000001"
+       },
+       "language": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/authority/language/ENG"
+       },
+       "manifestation": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/cccccccc-0000-4000-8000-000000002547.0006.01"
+       },
+       "predicate": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/ontology/cdm#resource_legal_amends_resource_legal"
+       },
+       "published": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2024-11-14"
+       },
+       "related": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/bbbbbbbb-0000-4000-8000-000000000821"
+       },
+       "title": {
+        "type": "literal",
+        "value": "Commission Delegated Regulation (EU) 2024/2547 (authored fixture row)"
+       },
+       "work": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/cccccccc-0000-4000-8000-000000002547"
+       }
+      },
+      {
+       "celex": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "02021R0821-20241115"
+       },
+       "document_date": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-05-20"
+       },
+       "effective": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-09-09"
+       },
+       "expression": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006"
+       },
+       "format": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "pdfa2a"
+       },
+       "item": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006.01/DOC_1"
+       },
+       "journal": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/ffffffff-0000-0000-0000-000000000001"
+       },
+       "language": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/authority/language/ENG"
+       },
+       "manifestation": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006.01"
+       },
+       "published": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-06-11"
+       },
+       "title": {
+        "type": "literal",
+        "value": "Regulation (EU) 2021/821 consolidated 2024-11-15 (authored fixture row)"
+       },
+       "work": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115"
+       }
+      },
+      {
+       "celex": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "02021R0821-20241115"
+       },
+       "document_date": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-05-20"
+       },
+       "effective": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-09-09"
+       },
+       "expression": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006"
+       },
+       "format": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "xhtml"
+       },
+       "item": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006.03/DOC_1"
+       },
+       "journal": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/ffffffff-0000-0000-0000-000000000001"
+       },
+       "language": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/authority/language/ENG"
+       },
+       "manifestation": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006.03"
+       },
+       "published": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-06-11"
+       },
+       "title": {
+        "type": "literal",
+        "value": "Regulation (EU) 2021/821 consolidated 2024-11-15 (authored fixture row)"
+       },
+       "work": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020241115"
+       }
+      },
+      {
+       "celex": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "02021R0821-20251115"
+       },
+       "document_date": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-05-20"
+       },
+       "effective": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-09-09"
+       },
+       "expression": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020251115.0006"
+       },
+       "format": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#string",
+        "type": "literal",
+        "value": "xhtml"
+       },
+       "item": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020251115.0006.03/DOC_1"
+       },
+       "journal": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/ffffffff-0000-0000-0000-000000000001"
+       },
+       "language": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/authority/language/ENG"
+       },
+       "manifestation": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020251115.0006.03"
+       },
+       "published": {
+        "datatype": "http://www.w3.org/2001/XMLSchema#date",
+        "type": "literal",
+        "value": "2021-06-11"
+       },
+       "title": {
+        "type": "literal",
+        "value": "Regulation (EU) 2021/821 consolidated 2025-11-15 (authored fixture row)"
+       },
+       "work": {
+        "type": "uri",
+        "value": "http://publications.europa.eu/resource/cellar/dddddddd-0000-4000-8000-000020251115"
+       }
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/sparql-results+json"
+   },
+   "request": "/webapi/rdf/sparql#offset=0",
+   "status": 200
+  },
+  {
+   "body": "<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Regulation (EU) 2021/821 consolidated (authored fixture text)</title></head>\n<body>\n<p>Regulation (EU) 2021/821 setting up a Union regime for the control of exports, brokering, technical assistance, transit and transfer of dual-use items (authored fixture text; not the consolidated text)</p>\n<p>ANNEX I</p>\n<p>LIST OF DUAL-USE ITEMS REFERRED TO IN ARTICLE 3</p>\n<p>CATEGORY 1 — SPECIAL MATERIALS AND RELATED EQUIPMENT</p>\n<p>1A001 Components made from fluorinated compounds, as follows:</p>\n<p>a. Seals, gaskets, sealants or fuel bladders, specially designed for fixture aircraft use.</p>\n<p>1C350 Chemicals which may be used as precursors for toxic chemical agents, as follows:</p>\n<p>1. Fixture chemical A (CAS 000-00-1);</p>\n<p>CATEGORY 5 — TELECOMMUNICATIONS AND INFORMATION SECURITY</p>\n<p>5A002 Information security systems, as follows (fixture text).</p>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "application/xhtml+xml"
+   },
+   "request": "/resource/cellar/dddddddd-0000-4000-8000-000020241115.0006.03/DOC_1",
+   "status": 200
+  },
+  {
+   "body": "<!DOCTYPE html>\n<html xmlns=\"http://www.w3.org/1999/xhtml\"><head><title>Regulation (EU) 2021/821 consolidated (authored fixture text)</title></head>\n<body>\n<p>Regulation (EU) 2021/821 setting up a Union regime for the control of exports, brokering, technical assistance, transit and transfer of dual-use items (authored fixture text; not the consolidated text)</p>\n<p>ANNEX I</p>\n<p>LIST OF DUAL-USE ITEMS REFERRED TO IN ARTICLE 3</p>\n<p>CATEGORY 1 — SPECIAL MATERIALS AND RELATED EQUIPMENT</p>\n<p>1A001 Components made from fluorinated compounds, as follows:</p>\n<p>a. Seals, gaskets, sealants or fuel bladders, specially designed for fixture aircraft use.</p>\n<p>1C350 Chemicals which may be used as precursors for toxic chemical agents, as follows:</p>\n<p>1. Fixture chemical A (CAS 000-00-1);</p>\n<p>2. Fixture chemical B (CAS 000-00-2);</p>\n<p>CATEGORY 5 — TELECOMMUNICATIONS AND INFORMATION SECURITY</p>\n<p>5A002 Information security systems, as follows (fixture text).</p>\n<p>5A004 Systems, equipment and components for defeating, weakening or bypassing information security (fixture text).</p>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "application/xhtml+xml"
+   },
+   "request": "/resource/cellar/dddddddd-0000-4000-8000-000020251115.0006.03/DOC_1",
+   "status": 200
+  }
+ ],
+ "note": "Authored CELLAR SPARQL rows and XHTML annex texts for Regulation (EU) 2021/821, one delegated amendment and two consolidated editions; CELEX consolidation dates, cellar URIs and annex wording are fixture stand-ins.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

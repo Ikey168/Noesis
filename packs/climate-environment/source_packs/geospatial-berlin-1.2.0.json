@@ -1,0 +1,295 @@
+{
+  "pack_id": "geospatial-berlin",
+  "version": "1.2.0",
+  "description": "Official Berlin vector layers (district boundaries and school locations) acquired through native WFS 2.0.0 and projected into the geospatial store, plus a pinned VBB GTFS timetable feed whose stops and route shapes project into the same store. Version 1.2.0 (Climate and Environment) adds selected Berlin Umweltatlas layers (low-emission zone, strategic noise map bands, climate functions) through the same WFS 2.0.0 path; existing sources are unchanged.",
+  "domains": [
+    "geospatial"
+  ],
+  "defaults": {
+    "connector": "wfs",
+    "publisher": "Geoportal Berlin",
+    "temporal_semantics": "provider-snapshot; no declared valid time; acquisition time recorded separately",
+    "mapping": {
+      "target_schema": "noesis-geospatial-feature-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "wfs-2.0.0-geojson:1.0.0",
+      "geospatial-feature-projection:1.0.0"
+    ],
+    "operations": [
+      "features"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "license": {
+      "id": "dl-de-zero-2.0",
+      "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+      "redistribution": "permitted-without-conditions"
+    },
+    "health": {
+      "required": true,
+      "max_staleness_s": 1209600
+    }
+  },
+  "sources": [
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/alkis_bezirke",
+      "scope": "The 12 Berlin districts (ALKIS Bezirksgrenzen); complete collection",
+      "update_cadence": "irregular; follows ALKIS cadastral updates",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "alkis_bezirke:bezirksgrenzen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "name",
+        "page_size": 6
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "namgem",
+        "precision": {
+          "status": "unknown",
+          "basis": "WFS capabilities and the GeoJSON encoding declare no positional accuracy"
+        },
+        "geometry_types": [
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://gdi.berlin.de/geonetwork/srv/ger/csw?service=CSW&request=GetRecordById&version=2.0.2&outputschema=http://www.isotc211.org/2005/gmd&elementsetname=full&id=0a7c53a5-b29d-3f45-9734-1c811045e6c2",
+        "attribution": "Geoportal Berlin / ALKIS Berlin Bezirke (dl-de/zero-2-0; attribution not required)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-bezirksgrenzen.json",
+        "sha256": "fc9bfb719627c64f937faa727c9924930d27f5709a6dac46a602eb8d17143ce4",
+        "expected_output_hash": "d6b465080372930416fbe2797405e3db326c731b19c49fb4aeaac156ae6665e5"
+      }
+    },
+    {
+      "source_id": "berlin-schulen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/schulen",
+      "scope": "Public and private school sites in Berlin (Schulen); complete collection",
+      "update_cadence": "per school year",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 5000,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "schulen:schulen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "bsn",
+        "page_size": 250
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "schulname",
+        "precision": {
+          "status": "unknown",
+          "basis": "WFS capabilities and the GeoJSON encoding declare no positional accuracy"
+        },
+        "geometry_types": [
+          "Point"
+        ],
+        "metadata_url": "https://gdi.berlin.de/geonetwork/srv/ger/csw?service=CSW&request=GetRecordById&version=2.0.2&outputschema=http://www.isotc211.org/2005/gmd&elementsetname=full&id=2656f411-e4e9-3e57-8dc7-b4533426e048",
+        "attribution": "Geoportal Berlin / Schulen (dl-de/zero-2-0; attribution not required)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-schulen.json",
+        "sha256": "c4cd0d3c01fa457079a3b033cd0211276746097e241c9265c6a73c20cf8ca871",
+        "expected_output_hash": "6e9b17de9bccbfb21831b8ab20b1e19df154aa0a8574c470dbbcc82819324680"
+      }
+    },
+    {
+      "source_id": "vbb-gtfs",
+      "connector": "gtfs",
+      "endpoint": "https://www.vbb.de/vbbgtfs",
+      "publisher": "Verkehrsverbund Berlin-Brandenburg (VBB)",
+      "scope": "GTFS Schedule for pinned VBB routes (routes, trips, stop times, stops, calendars, shapes); no realtime endpoint declared",
+      "update_cadence": "irregular; VBB republishes the timetable feed, typically weekly",
+      "temporal_semantics": "schedule as published per feed version (ZIP hash + feed_info); acquisition time recorded; a replaced feed is not evidence of past operations",
+      "license": {
+        "id": "cc-by-vbb",
+        "terms_url": "https://www.vbb.de/vbb-services/api-open-data/datensaetze/",
+        "redistribution": "CC BY per VBB open-data terms with attribution (operator must confirm)"
+      },
+      "mapping": {
+        "target_schema": "noesis-transit-feed-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "transit-sources:1.0.0"
+      ],
+      "operations": [
+        "feed"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 10,
+        "max_bytes": 100000000,
+        "max_pages": 2
+      },
+      "transit": {
+        "namespace": "global",
+        "feed": "vbb",
+        "route_ids": [
+          "R1",
+          "R2"
+        ],
+        "max_stop_times": 20000,
+        "stop_precision_m": 10
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/transit-gtfs.json",
+        "sha256": "c33583bf39ac5f14710acf0f0cd0783731135f395760ec39be0238d217a690da",
+        "expected_output_hash": "7bdb4ee8a9a2c65adc1914d8881dff1feed8440d502a86ff6df957874f2f606a"
+      }
+    },
+    {
+      "source_id": "umweltatlas-umweltzone",
+      "endpoint": "https://gdi.berlin.de/services/wfs/ua_umweltzone",
+      "publisher": "Geoportal Berlin (Umweltatlas)",
+      "scope": "Berlin low-emission zone (Umweltzone) outline; complete collection",
+      "update_cadence": "irregular; per Umweltatlas map edition",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "ua_umweltzone:umweltzone",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "gml_id",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "bezeichnung",
+        "precision": {
+          "status": "unknown",
+          "basis": "Umweltatlas map products declare no positional accuracy in the WFS response"
+        },
+        "geometry_types": [
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Umweltatlas (dl-de/zero-2-0; attribution not required)",
+        "live_verification": "blocked",
+        "layer_kind": "map product (modelled or administrative), not measurements"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/umweltatlas-umweltzone.json",
+        "sha256": "da486dc9f6c546025e02dceb5d858a4acb545a141dd3f3d82b1ff36cb6d94964",
+        "expected_output_hash": "beb5f09e0f00d1be0a3926bbdb3557dda66049c27f522845c646d369c7f1d6d4"
+      }
+    },
+    {
+      "source_id": "umweltatlas-laerm-lden",
+      "endpoint": "https://gdi.berlin.de/services/wfs/ua_stratlaerm_2022",
+      "publisher": "Geoportal Berlin (Umweltatlas)",
+      "scope": "Strategic noise map 2022, road traffic L_DEN bands (computed map, not measurements); complete collection",
+      "update_cadence": "irregular; per Umweltatlas map edition",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "ua_stratlaerm_2022:laerm_lden",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "gml_id",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "lden_klasse",
+        "precision": {
+          "status": "unknown",
+          "basis": "Umweltatlas map products declare no positional accuracy in the WFS response"
+        },
+        "geometry_types": [
+          "Polygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Umweltatlas (dl-de/zero-2-0; attribution not required)",
+        "live_verification": "blocked",
+        "layer_kind": "map product (modelled or administrative), not measurements"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/umweltatlas-laerm-lden.json",
+        "sha256": "48dbfe75148fba09277eec6d340a86eb3daca8a596b69d7c400e252237106cd3",
+        "expected_output_hash": "2a5fbafbdcec64fc5ca3cbeb91ee269d130564e07ae1a41bf19108bdff2789cf"
+      }
+    },
+    {
+      "source_id": "umweltatlas-klimafunktion",
+      "endpoint": "https://gdi.berlin.de/services/wfs/ua_klimaanalyse_2022",
+      "publisher": "Geoportal Berlin (Umweltatlas)",
+      "scope": "Climate analysis map 2022, climate functions (model result, not measurements); complete collection",
+      "update_cadence": "irregular; per Umweltatlas map edition",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "ua_klimaanalyse_2022:klimafunktion",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "gml_id",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "klimafunktion",
+        "precision": {
+          "status": "unknown",
+          "basis": "Umweltatlas map products declare no positional accuracy in the WFS response"
+        },
+        "geometry_types": [
+          "Polygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Umweltatlas (dl-de/zero-2-0; attribution not required)",
+        "live_verification": "blocked",
+        "layer_kind": "map product (modelled or administrative), not measurements"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/umweltatlas-klimafunktion.json",
+        "sha256": "0295584772e83b1ded38d65d8eb071fe0835ea123db2eeb15aa5ccbff04206bd",
+        "expected_output_hash": "27a9cbca4cc4ebad01590a61b7b0233eae667170bc7eff02f20ecf9ae5a0e532"
+      }
+    }
+  ]
+}

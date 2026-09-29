@@ -1,0 +1,8 @@
+{
+ "note": "Authored reviewer curations for the surveillance crosswalk fixtures.",
+ "curations": [
+  {"source": "sv:rki-meldekategorie:Tuberkulose", "target": "D014376", "kind": "equivalent", "reviewer": "fixture-reviewer", "rationale": "German name of the condition"},
+  {"source": "sv:eurostat-icd10:A15-A19_B90", "target_module": "icd", "target": "A15-A19", "kind": "narrower", "reviewer": "fixture-reviewer", "rationale": "the Eurostat group adds B90 (sequelae of tuberculosis), so A15-A19 is narrower"},
+  {"source": "sv:ecdc-health-topic:Legionnaires' disease", "target": "D014376", "kind": "incompatible", "reviewer": "fixture-reviewer", "rationale": "legionellosis is not tuberculosis"}
+ ]
+}
