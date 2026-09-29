@@ -141,3 +141,24 @@ class Env:
         result = self.run()
         assert result["status"] == "complete", result
         return self
+
+
+_TEMPLATE: dict[str, Path] = {}
+
+
+def loaded_env(directory: Path) -> Env:
+    """An Env over a copy of one database loaded once per session with every chemicals fixture."""
+    import shutil
+    import tempfile
+
+    if "path" not in _TEMPLATE:
+        path = Path(tempfile.mkdtemp(prefix="chemicals-template-")) / "loaded.duckdb"
+        conn = duckdb.connect(str(path))
+        Env(conn).loaded()
+        conn.close()
+        _TEMPLATE["path"] = path
+    target = Path(directory) / "chemicals.duckdb"
+    shutil.copy(_TEMPLATE["path"], target)
+    env = Env(duckdb.connect(str(target)))
+    env.clock = iter(range(10_000_000, 10_000_000_000, 1_000))  # after every template timestamp
+    return env
