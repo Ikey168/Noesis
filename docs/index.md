@@ -179,6 +179,11 @@ For the project overview and local setup, start with the
   series with first-class definitions, geography levels and vintages, publishers side by side with comparability
   notes, boundary projections as of a release date and citation links to acts, decisions and dossiers;
   [source audit](roadmaps/economics-demographics-source-audit.md)
+- [Economics trade-flows guide](guides/economics-trade-flows.md) — UN Comtrade and Eurostat Comext flows by reporter,
+  partner and product as of a release, reporter and mirror figures side by side with displayed asymmetries,
+  classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership
+  links by citation and monitors; no estimation, nowcast, reconciliation or evasion inference;
+  [source audit](development/trade-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

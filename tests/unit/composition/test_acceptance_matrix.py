@@ -69,6 +69,12 @@ MATRIX = {
     "Funder to aid activities":
         "tests/unit/domains/test_development_finance_acceptance.py::"
         "test_funder_to_cited_activities_with_coverage_vintages_identity_and_monitoring",
+    # The Economics trade features' offline journey (#2555) composes economics (Comtrade, Comext through the Eurostat
+    # connector, concordances), geospatial place resolution, legal sanctions correlations, subscriptions and the
+    # source-pack runtime.
+    "Country pair to trade flows":
+        "tests/unit/domains/test_trade_flows_acceptance.py::"
+        "test_country_pair_and_product_to_cited_flows_with_release_vintages_and_mirror_asymmetries",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":
