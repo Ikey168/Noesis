@@ -1,0 +1,156 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-transit-departures-v1.json",
+  "title": "Noesis transit departures v1",
+  "description": "Scheduled departures at one stop on one service day from the current feed version, resolved in the agency timezone (times past 24:00 belong to the service day), with the realtime state and only observed realtime changes.",
+  "type": "object",
+  "required": [
+    "contract",
+    "feed",
+    "feed_version",
+    "stop_id",
+    "service_date",
+    "timezone",
+    "active_services",
+    "realtime_state",
+    "realtime_header_timestamp",
+    "departures",
+    "alerts",
+    "notice"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-transit-departures-v1"
+    },
+    "feed": {
+      "type": "string"
+    },
+    "feed_version": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "stop_id": {
+      "type": "string"
+    },
+    "service_date": {
+      "type": "string",
+      "format": "date"
+    },
+    "timezone": {
+      "type": "string"
+    },
+    "active_services": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "realtime_state": {
+      "enum": [
+        "observed",
+        "stale",
+        "missing"
+      ]
+    },
+    "realtime_header_timestamp": {
+      "type": [
+        "integer",
+        "null"
+      ]
+    },
+    "departures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "trip_id",
+          "route_id",
+          "stop_sequence",
+          "gtfs_departure_time",
+          "scheduled_departure",
+          "realtime"
+        ],
+        "properties": {
+          "trip_id": {
+            "type": "string"
+          },
+          "route_id": {
+            "type": "string"
+          },
+          "route_short_name": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "headsign": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "stop_sequence": {
+            "type": "integer"
+          },
+          "gtfs_departure_time": {
+            "type": "string",
+            "pattern": "^[0-9]{1,3}:[0-5][0-9]:[0-5][0-9]$"
+          },
+          "scheduled_departure": {
+            "type": "string"
+          },
+          "realtime": {
+            "type": "object",
+            "required": [
+              "state"
+            ],
+            "properties": {
+              "state": {
+                "enum": [
+                  "observed",
+                  "stale",
+                  "missing"
+                ]
+              },
+              "trip": {
+                "enum": [
+                  "SCHEDULED",
+                  "ADDED",
+                  "UNSCHEDULED",
+                  "CANCELED",
+                  "REPLACEMENT",
+                  "UNKNOWN"
+                ]
+              },
+              "stop": {
+                "enum": [
+                  "SCHEDULED",
+                  "SKIPPED",
+                  "NO_DATA",
+                  "UNKNOWN"
+                ]
+              },
+              "delay_s": {
+                "type": "integer"
+              }
+            }
+          }
+        }
+      }
+    },
+    "alerts": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "effect",
+          "header",
+          "active_period"
+        ]
+      }
+    },
+    "notice": {
+      "type": "string"
+    }
+  }
+}

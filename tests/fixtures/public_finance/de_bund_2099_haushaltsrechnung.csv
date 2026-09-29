@@ -1,0 +1,7 @@
+# Bundeshaushalt 2099 - Haushaltsrechnung (authored fixture: fictional Einzelplan, Kapitel and Titel)
+# Stand: 30.04.2100
+# Betragsangaben in 1.000 EUR
+Haushaltsjahr;Einzelplan;Einzelplantext;Kapitel;Kapiteltext;Titel;Titeltext;Einnahme/Ausgabe;Ist
+2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;68101;Zuschüsse an Beispielträger;A;131.350,4
+2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;53201;Beispielgutachten;A;3.990
+2099;98;Bundesministerium für Beispielangelegenheiten (fiktiv);9801;Beispielförderung;11901;Beispielerlöse;E;12,5

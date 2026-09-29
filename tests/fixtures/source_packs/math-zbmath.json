@@ -1,0 +1,155 @@
+{
+ "authored": true,
+ "provider": "zbMATH Open API v1",
+ "note": "Authored in the documented /v1/document/{id} response shape because api.zbmath.org was unreachable from the build environment. The first record's bibliographic fields are those of Zeckendorf's 1972 article; all zbMATH document ids, Zbl numbers, DOIs (10.5555 test prefix) and arXiv ids are placeholders. Records 2-3 are fictional.",
+ "scenarios": [
+  "explicit-zbmath-citation",
+  "explicit-doi-citation",
+  "latex-in-title",
+  "msc-classification"
+ ],
+ "native_pages": [
+  {
+   "request": "/v1/document/9000001",
+   "status": 200,
+   "body": {
+    "result": {
+     "id": 9000001,
+     "identifier": "0000.00001",
+     "title": {
+      "title": "Représentation des nombres naturels par une somme de nombres de Fibonacci ou de nombres de Lucas",
+      "subtitle": null
+     },
+     "contributors": {
+      "authors": [
+       {
+        "name": "Zeckendorf, E."
+       }
+      ]
+     },
+     "year": 1972,
+     "msc": [
+      {
+       "code": "11B39",
+       "scheme": "msc2020"
+      }
+     ],
+     "links": [
+      {
+       "type": "doi",
+       "identifier": "10.5555/zeckendorf-1972"
+      }
+     ],
+     "references": [],
+     "source": {
+      "source": "Bull. Soc. R. Sci. Liège 41, 179-182 (1972)"
+     },
+     "datestamp": "2026-09-01T00:00:00"
+    },
+    "status": {
+     "status_code": 200
+    }
+   }
+  },
+  {
+   "request": "/v1/document/9000002",
+   "status": 200,
+   "body": {
+    "result": {
+     "id": 9000002,
+     "identifier": "0000.00002",
+     "title": {
+      "title": "A formal proof that every $n \\in \\mathbb{N}$ has a unique Zeckendorf representation (fixture)",
+      "subtitle": null
+     },
+     "contributors": {
+      "authors": [
+       {
+        "name": "Fixture, A."
+       }
+      ]
+     },
+     "year": 2024,
+     "msc": [
+      {
+       "code": "11B39",
+       "scheme": "msc2020"
+      },
+      {
+       "code": "68V15",
+       "scheme": "msc2020"
+      }
+     ],
+     "links": [
+      {
+       "type": "arxiv",
+       "identifier": "0000.00002"
+      }
+     ],
+     "references": [
+      {
+       "zbmath": {
+        "document_id": 9000001
+       },
+       "text": "E. Zeckendorf, Bull. Soc. R. Sci. Liège 41 (1972)"
+      }
+     ],
+     "source": {
+      "source": "Fixture J. Formal. Math. 1, 1-10 (2024)"
+     },
+     "datestamp": "2026-09-01T00:00:00"
+    },
+    "status": {
+     "status_code": 200
+    }
+   }
+  },
+  {
+   "request": "/v1/document/9000003",
+   "status": 200,
+   "body": {
+    "result": {
+     "id": 9000003,
+     "identifier": "0000.00003",
+     "title": {
+      "title": "Divisibility properties of Fibonacci numbers: $\\gcd(F_m, F_n) = F_{\\gcd(m,n)}$ (fixture)",
+      "subtitle": null
+     },
+     "contributors": {
+      "authors": [
+       {
+        "name": "Fixture, B."
+       }
+      ]
+     },
+     "year": 2020,
+     "msc": [
+      {
+       "code": "11B39",
+       "scheme": "msc2020"
+      }
+     ],
+     "links": [
+      {
+       "type": "doi",
+       "identifier": "10.5555/fib-gcd-2020"
+      }
+     ],
+     "references": [
+      {
+       "doi": "10.5555/zeckendorf-1972",
+       "text": "Zeckendorf 1972"
+      }
+     ],
+     "source": {
+      "source": "Fixture Q. 3, 11-20 (2020)"
+     },
+     "datestamp": "2026-09-01T00:00:00"
+    },
+    "status": {
+     "status_code": 200
+    }
+   }
+  }
+ ]
+}

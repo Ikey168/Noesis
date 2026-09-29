@@ -1,0 +1,88 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2099-01-11T08:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-0001",
+        "sourceIdentifier": "security@fixturecorp.example",
+        "published": "2099-01-05T10:15:00.000",
+        "lastModified": "2099-01-10T12:00:00.000",
+        "vulnStatus": "Analyzed",
+        "cveTags": [],
+        "descriptions": [
+          {"lang": "en", "value": "Authored fixture: fixture-parser before 1.4.0 allows regular-expression backtracking on crafted input."},
+          {"lang": "es", "value": "Fixture en espanol."}
+        ],
+        "metrics": {
+          "cvssMetricV31": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {"version": "3.1", "vectorString": "CVSS:3.1/AV:N/AC:L/PR:N/UI:N/S:U/C:N/I:N/A:H", "baseScore": 7.5, "baseSeverity": "HIGH"},
+              "exploitabilityScore": 3.9,
+              "impactScore": 3.6
+            },
+            {
+              "source": "security@fixturecorp.example",
+              "type": "Secondary",
+              "cvssData": {"version": "3.1", "vectorString": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H", "baseScore": 5.9, "baseSeverity": "MEDIUM"},
+              "exploitabilityScore": 2.2,
+              "impactScore": 3.6
+            }
+          ]
+        },
+        "weaknesses": [
+          {"source": "nvd@nist.gov", "type": "Primary", "description": [{"lang": "en", "value": "CWE-1333"}]},
+          {"source": "security@fixturecorp.example", "type": "Secondary", "description": [{"lang": "en", "value": "NVD-CWE-noinfo"}]}
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:fixturecorp:fixture_parser:*:*:*:*:*:python:*:*",
+                    "versionStartIncluding": "1.0.0",
+                    "versionEndExcluding": "1.4.0",
+                    "matchCriteriaId": "A0000000-0000-4000-8000-000000000001"
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "operator": "AND",
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {"vulnerable": true, "criteria": "cpe:2.3:a:fixturecorp:fixture_gateway:2.0.0:*:*:*:*:*:*:*", "matchCriteriaId": "A0000000-0000-4000-8000-000000000002"}
+                ]
+              },
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {"vulnerable": false, "criteria": "cpe:2.3:o:fixtureos:fixture_os:-:*:*:*:*:*:*:*", "matchCriteriaId": "A0000000-0000-4000-8000-000000000003"}
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {"url": "https://fixturecorp.example/advisories/2099-001", "source": "security@fixturecorp.example", "tags": ["Vendor Advisory"]},
+          {"url": "https://www.iso.org/standard/900002.html", "source": "nvd@nist.gov", "tags": ["Technical Description"]}
+        ]
+      }
+    }
+  ]
+}

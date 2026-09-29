@@ -8,7 +8,8 @@
   "panels": [],
   "planner_keywords": {
     "trend": ["indicator", "observation", "revision", "vintage"],
-    "claims": ["release", "filing", "policy", "economy"]
+    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement"],
+    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg"]
   },
   "enrichers": [
     {
@@ -30,23 +31,60 @@
     "release-vintage-history",
     "bitemporal-economic-observations",
     "cited-economic-comparisons",
-    "claim-observation-links"
+    "claim-observation-links",
+    "public-finance-budget-lines",
+    "public-finance-figure-vintages",
+    "public-finance-beneficiary-payments",
+    "public-finance-audit-findings",
+    "public-finance-act-and-dossier-links",
+    "public-finance-basis-aware-comparisons",
+    "public-finance-monitoring",
+    "demographic-series-definitions",
+    "demographic-series-vintages",
+    "demographic-comparability-notes",
+    "demographic-boundary-projections",
+    "demographic-citation-links",
+    "demographic-monitoring"
   ],
   "schema_versions": {
     "dataset-series": "1.0.0",
     "model": "1.0.0",
-    "research": "1.0.0"
+    "research": "1.0.0",
+    "source-pack": "1.3.0",
+    "public-finance-record": "1.0.0",
+    "public-finance-answer": "1.0.0",
+    "public-finance-link": "1.0.0",
+    "public-finance-notification": "1.0.0",
+    "demographic-series": "1.0.0",
+    "demographic-comparability": "1.0.0",
+    "demographic-link": "1.0.0",
+    "demographic-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
     "reuses": ["dataset-series-v1", "noesis-temporal-v1", "noesis-evidence-bundle-v1"],
     "object_types": [
       "company", "geography", "indicator", "institution", "instrument",
-      "observation", "policy", "release", "sector", "vintage"
+      "observation", "policy", "release", "sector", "vintage", "budget_line", "budget_plan",
+      "budget_figure", "beneficiary_payment", "audit_finding", "demographic_series",
+      "definition_revision", "geography_level", "series_break", "comparability_note"
     ],
     "relation_types": [
       "applies_to", "associated_with", "challenges", "issued_by", "measures",
-      "observation_of", "released_by", "reported_by", "revision_of", "supports"
+      "observation_of", "released_by", "reported_by", "revision_of", "supports", "figure_of_line",
+      "line_in_plan", "paid_to", "cites_line", "enacted_by", "debated_in", "defined_by",
+      "reported_under", "referenced_in", "comparable_with", "resolved_to"
     ]
-  }
+  },
+  "exclusions": [
+    "fiscal forecasts",
+    "waste or fraud determinations",
+    "netting figures across accounting bases without a cited method",
+    "merged plan, outturn and payment figures",
+    "scraped budget pages or audit reports",
+    "population projections",
+    "causal claims about migration drivers or policy effects",
+    "merged, averaged, chained or apportioned demographic series",
+    "scraped PDF-only statistics"
+  ]
 }

@@ -1,0 +1,5 @@
+Year,Name of beneficiary,VAT number,Country,City,Budget line name and number,Programme name,Commitment position key,Funding type,Subject of grant or contract,Type of amount,Amount,Currency
+2099,Beispiel Forschung GmbH,DE999999999,DE,Musterstadt,99 01 02 01 - Fictional Research Programme,Fictional Horizon Programme,FTS-2099-000001,Grants,Fictional sensor study,Commitment,"1,250,000.00",EUR
+2099,Exemplo Investigação Lda,PT999999990,PT,Cidade Exemplo,99 01 02 01 - Fictional Research Programme,Fictional Horizon Programme,FTS-2099-000002,Grants,Fictional materials study,Commitment,"480,500.00",EUR
+2099,Beispiel Forschung GmbH,DE999999999,DE,Musterstadt,99 03 01 00 - Fictional Regional Fund,Fictional Cohesion Programme,FTS-2099-000003,Procurement,Fictional evaluation services,Commitment,"95,000.00",EUR
+2099,Beispiel Forschung GmbH,DE999999999,DE,Musterstadt,99 01 02 01 - Fictional Research Programme,Fictional Horizon Programme,FTS-2099-000001,Grants,Fictional sensor study,Payment,"400,000.00",EUR

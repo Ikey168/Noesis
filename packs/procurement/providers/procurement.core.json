@@ -1,0 +1,485 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "procurement.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.procurement_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "procurement.notices",
+      "contract": {
+        "name": "noesis-procurement-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "provider-contracts",
+        "list-notices",
+        "inspect-notice",
+        "notice-history"
+      ],
+      "semantic_constraints": {
+        "coverage": "declared per provider; not-implemented portals are never scraped",
+        "deadlines": "original text and offset kept"
+      }
+    },
+    {
+      "id": "procurement.profiles",
+      "contract": {
+        "name": "noesis-procurement-profile",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-profile",
+        "inspect-profile"
+      ],
+      "semantic_constraints": {
+        "privacy": "owner-scoped supplier and buyer facts; no operator bypass"
+      }
+    },
+    {
+      "id": "procurement.eligibility",
+      "contract": {
+        "name": "noesis-procurement-eligibility",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "assess-eligibility"
+      ],
+      "semantic_constraints": {
+        "semantics": "per-lot requirements assessment with cited notice passages; unknown is never a pass"
+      }
+    },
+    {
+      "id": "procurement.shortlists",
+      "contract": {
+        "name": "noesis-procurement-shortlist",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "build-shortlist",
+        "replay-shortlist"
+      ],
+      "semantic_constraints": {
+        "ranking": "declared criteria weights; fit is not a probability of winning"
+      }
+    },
+    {
+      "id": "procurement.award-history",
+      "contract": {
+        "name": "noesis-procurement-award-history",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "award-history",
+        "party-candidates",
+        "decide-party-link"
+      ],
+      "semantic_constraints": {
+        "identity": "reviewable identity decisions; no automatic merge",
+        "awards": "context only, never evidence of an open procedure"
+      }
+    },
+    {
+      "id": "procurement.workspaces",
+      "contract": {
+        "name": "noesis-procurement-workspace",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-workspace",
+        "draft-bid"
+      ],
+      "semantic_constraints": {
+        "submission": "never submits bids or contacts buyers"
+      }
+    },
+    {
+      "id": "procurement.monitoring",
+      "contract": {
+        "name": "noesis-procurement-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor"
+      ],
+      "semantic_constraints": {
+        "delivery": "existing subscription outbox; source-pack watermarks, no new scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "provider-contracts",
+      "tool": "noesis-knowledge-engine.procurement_provider_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-notices",
+      "tool": "noesis-knowledge-engine.list_procurement_notices",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-notice",
+      "tool": "noesis-knowledge-engine.inspect_procurement_notice",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "notice-history",
+      "tool": "noesis-knowledge-engine.procurement_notice_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-profile",
+      "tool": "noesis-knowledge-engine.create_procurement_profile",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "command_key"
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-profile",
+      "tool": "noesis-knowledge-engine.inspect_procurement_profile",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "assess-eligibility",
+      "tool": "noesis-knowledge-engine.assess_procurement_eligibility",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "procurement_assessments"
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "build-shortlist",
+      "tool": "noesis-knowledge-engine.build_procurement_shortlist",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "procurement_shortlists"
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:procurement:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "replay-shortlist",
+      "tool": "noesis-knowledge-engine.replay_procurement_shortlist",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "profiles",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "award-history",
+      "tool": "noesis-knowledge-engine.procurement_award_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "party-candidates",
+      "tool": "noesis-knowledge-engine.procurement_party_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "knowledge:procurement:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "decide-party-link",
+      "tool": "noesis-knowledge-engine.decide_procurement_party_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "event_key"
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "knowledge:procurement:review",
+        "knowledge:entity-history:review",
+        "knowledge:entity-history:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-workspace",
+      "tool": "noesis-knowledge-engine.create_procurement_workspace",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "workspaces",
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:projects:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "draft-bid",
+      "tool": "noesis-knowledge-engine.draft_procurement_bid",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "procurement_bid_drafts"
+      },
+      "readiness_probe": "workspaces",
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:reports:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_procurement_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "procurement_monitors"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_procurement_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "procurement_monitors"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:procurement:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "procurement-procedure",
+      "store": "src.kb.procurement_notices",
+      "tables": [
+        "procurement_procedures",
+        "procurement_procedure_revisions",
+        "procurement_notice_assertions",
+        "procurement_awards",
+        "procurement_provider_state",
+        "procurement_listing_members",
+        "procurement_run_members",
+        "procurement_view_dependencies",
+        "procurement_view_invalidations"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "procurement-profile",
+      "store": "src.kb.procurement_profiles",
+      "tables": [
+        "procurement_profiles",
+        "procurement_profile_revisions",
+        "procurement_profile_commands"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "procurement-assessment",
+      "store": "src.kb.procurement_eligibility",
+      "tables": [
+        "procurement_assessments"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "procurement-shortlist",
+      "store": "src.kb.procurement_ranking",
+      "tables": [
+        "procurement_shortlists"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "procurement-party-link",
+      "store": "src.kb.procurement_identity",
+      "tables": [
+        "procurement_party_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "procurement-workspace",
+      "store": "src.kb.procurement_workspaces",
+      "tables": [
+        "procurement_workspaces",
+        "procurement_workspace_revisions",
+        "procurement_workspace_commands",
+        "procurement_bid_drafts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "procurement-monitor",
+      "store": "src.kb.procurement_monitoring",
+      "tables": [
+        "procurement_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "notices",
+      "kind": "table-exists",
+      "target": "procurement_procedures"
+    },
+    {
+      "id": "profiles",
+      "kind": "table-exists",
+      "target": "procurement_profiles"
+    },
+    {
+      "id": "workspaces",
+      "kind": "table-exists",
+      "target": "procurement_workspaces"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "procurement_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "procurement",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+{
+  "contract": "noesis-funding-live-check-v1",
+  "evidence_kind": "live",
+  "started_at": "2026-09-25T21:48:50.199539+00:00",
+  "environment": "Claude Code cloud session; organization egress policy denies nlnet.nl, ec.europa.eu, api.tech.ec.europa.eu, www.foerderdatenbank.de and exist.de (proxy CONNECT 403); DurableHTTP does not use environment proxies",
+  "providers": {
+    "nlnet": {
+      "access_contract": "web",
+      "ok": false,
+      "failure": {
+        "provider": "nlnet",
+        "state": "stale",
+        "failure_code": "provider_failed"
+      },
+      "elapsed_seconds": 0.14,
+      "requests": [
+        {
+          "url": "https://nlnet.nl/propose/",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790372930213,
+          "response_headers": null,
+          "execution": "network"
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "eu-ft": {
+      "access_contract": "portal-search-json",
+      "ok": false,
+      "failure": {
+        "provider": "eu-ft",
+        "state": "stale",
+        "failure_code": "provider_failed"
+      },
+      "elapsed_seconds": 0.27,
+      "requests": [
+        {
+          "url": "https://api.tech.ec.europa.eu/search-api/prod/rest/search",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790372930458,
+          "response_headers": null,
+          "execution": "network"
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "foerderdatenbank": {
+      "access_contract": "web",
+      "ok": false,
+      "failure": {
+        "provider": "foerderdatenbank",
+        "state": "stale",
+        "failure_code": "provider_failed"
+      },
+      "elapsed_seconds": 0.07,
+      "requests": [
+        {
+          "url": "https://www.foerderdatenbank.de/FDB/Content/DE/Foerderprogramm/Bund/BMWi/exist-gruendungsstipendium.html",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790372930643,
+          "response_headers": null,
+          "execution": "network"
+        }
+      ],
+      "records": [],
+      "coverage": null
+    },
+    "exist": {
+      "access_contract": "web",
+      "ok": false,
+      "failure": {
+        "provider": "exist",
+        "state": "stale",
+        "failure_code": "provider_failed"
+      },
+      "elapsed_seconds": 0.17,
+      "requests": [
+        {
+          "url": "https://www.exist.de/EXIST/Navigation/EN/Start-up-grant/start-up-grant.html",
+          "state": "failed",
+          "http_status": null,
+          "failure_code": "provider_failed",
+          "failure_type": "ConnectError",
+          "observed_at_ms": 1790372930709,
+          "response_headers": null,
+          "execution": "network"
+        }
+      ],
+      "records": [],
+      "coverage": null
+    }
+  },
+  "note": "Live evidence only; offline fixture results are reported separately by the unit/acceptance tests.",
+  "finished_at": "2026-09-25T21:48:50.876456+00:00",
+  "summary": {
+    "nlnet": "provider_failed",
+    "eu-ft": "provider_failed",
+    "foerderdatenbank": "provider_failed",
+    "exist": "provider_failed"
+  }
+}

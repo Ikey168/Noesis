@@ -1,0 +1,405 @@
+{
+ "description": "Authored offline fixture in the provider's documented response shape; every address and hash is fictional (derived from a label) and values are invented. Not live evidence.",
+ "head_block": 18200000,
+ "provider": "etherscan-v2-mainnet",
+ "responses": {
+  "api.etherscan.io/v2/api?action=eth_blockNumber&chainid=1&module=proxy": {
+   "body": {
+    "id": 1,
+    "jsonrpc": "2.0",
+    "result": "0x115b5c0"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=eth_getBlockByNumber&boolean=false&chainid=1&module=proxy&tag=0x112a8e4": {
+   "body": {
+    "id": 1,
+    "jsonrpc": "2.0",
+    "result": {
+     "hash": "0x039cdcf979f5a292377dfd962935f98aec47fd9e189745a7c67cd3ae4361258b",
+     "number": "0x112a8e4",
+     "timestamp": "0x6507aa70",
+     "transactions": []
+    }
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=eth_getTransactionByHash&chainid=1&module=proxy&txhash=0x67f2f926693542f4f3c6e723f5fa187d5288a0c1703e8a50b17fed3474167ce0": {
+   "body": {
+    "id": 1,
+    "jsonrpc": "2.0",
+    "result": {
+     "blockHash": "0x039cdcf979f5a292377dfd962935f98aec47fd9e189745a7c67cd3ae4361258b",
+     "blockNumber": "0x112a8e4",
+     "chainId": "0x1",
+     "from": "0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957",
+     "gas": "0x2dc6c0",
+     "gasPrice": "0x4a817c800",
+     "hash": "0x67f2f926693542f4f3c6e723f5fa187d5288a0c1703e8a50b17fed3474167ce0",
+     "input": "0x6080",
+     "nonce": "0x0",
+     "to": null,
+     "transactionIndex": "0x1",
+     "type": "0x2",
+     "value": "0x0"
+    }
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=eth_getTransactionReceipt&chainid=1&module=proxy&txhash=0x67f2f926693542f4f3c6e723f5fa187d5288a0c1703e8a50b17fed3474167ce0": {
+   "body": {
+    "id": 1,
+    "jsonrpc": "2.0",
+    "result": {
+     "blockNumber": "0x112a8e4",
+     "contractAddress": "0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79",
+     "gasUsed": "0x1e8480",
+     "logs": [],
+     "status": "0x1",
+     "transactionHash": "0x67f2f926693542f4f3c6e723f5fa187d5288a0c1703e8a50b17fed3474167ce0"
+    }
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=getcontractcreation&chainid=1&contractaddresses=0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79&module=contract": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "contractAddress": "0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79",
+      "contractCreator": "0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957",
+      "txHash": "0x67f2f926693542f4f3c6e723f5fa187d5288a0c1703e8a50b17fed3474167ce0"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=tokentx&address=0xd9753189b4bc3d6977afcf0eabe38f92885e4022&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=0": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "blockHash": "0x2b09b3387d09dc038a185d50f71c5e5c248210b847ab1297b748911de275ad11",
+      "blockNumber": "18120000",
+      "confirmations": "80001",
+      "contractAddress": "0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79",
+      "cumulativeGasUsed": "900000",
+      "from": "0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957",
+      "gas": "60000",
+      "gasPrice": "20000000000",
+      "gasUsed": "52000",
+      "hash": "0xf4127be322b3971ee00ed34644e272c7059c5296f9d77e12e013a6e581083941",
+      "input": "deprecated",
+      "logIndex": "7",
+      "nonce": "4",
+      "timeStamp": "1696440000",
+      "to": "0xd9753189b4bc3d6977afcf0eabe38f92885e4022",
+      "tokenDecimal": "18",
+      "tokenName": "Exampla Token",
+      "tokenSymbol": "EXA",
+      "transactionIndex": "9",
+      "value": "1000000000000000000000"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=tokentx&address=0xf95b9012fd3ce629e3f1043a1c0825cd7d83a1e1&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=0": {
+   "body": {
+    "message": "No transactions found",
+    "result": [],
+    "status": "0"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=txlist&address=0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=0": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "blockHash": "0xaa87e7aa7129da39cf6f17c8c4e7271be0210c45597b3f72ff953d52981535e7",
+      "blockNumber": "18000050",
+      "confirmations": "199951",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0x39fd0e31b09ecb8d5039a7fb865d751045e2e81f",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xf9c65768126b917b5454b3d28f5d50ac65a5bec4227a8816410b66106338e991",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1695000600",
+      "to": "0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "500000000000000000"
+     },
+     {
+      "blockHash": "0x039cdcf979f5a292377dfd962935f98aec47fd9e189745a7c67cd3ae4361258b",
+      "blockNumber": "18000100",
+      "confirmations": "199901",
+      "contractAddress": "0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79",
+      "cumulativeGasUsed": "210000",
+      "from": "0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0x67f2f926693542f4f3c6e723f5fa187d5288a0c1703e8a50b17fed3474167ce0",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1695001200",
+      "to": "",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "0"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=txlist&address=0x39fd0e31b09ecb8d5039a7fb865d751045e2e81f&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=0": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "blockHash": "0xb83032923ae42fe21c9ed22258bb7f64677931265a61f66bad13bb5dd5c3fc58",
+      "blockNumber": "17900000",
+      "confirmations": "300001",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0x9274c248a97b7b40f694233e3073b1c64584e5c9",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xcefe7405e0df5457698dd7204119e9f189b3e92c75d9fded0eb38f8ec9b5ab38",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1693800000",
+      "to": "0x39fd0e31b09ecb8d5039a7fb865d751045e2e81f",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "3000000000000000000"
+     },
+     {
+      "blockHash": "0xaa87e7aa7129da39cf6f17c8c4e7271be0210c45597b3f72ff953d52981535e7",
+      "blockNumber": "18000050",
+      "confirmations": "199951",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0x39fd0e31b09ecb8d5039a7fb865d751045e2e81f",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xf9c65768126b917b5454b3d28f5d50ac65a5bec4227a8816410b66106338e991",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1695000600",
+      "to": "0x191ea3ccda59bb75ddf8461a47c64e0cae4fc957",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "500000000000000000"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=txlist&address=0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=18000100": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "blockHash": "0x4e39571216db8221086deb2ee13aa73e75d59e083b1dc921364044d7252b691c",
+      "blockNumber": "18000200",
+      "confirmations": "199801",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xdf83fe5f348b92a923e53b411a1773fd33b8954f",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0x8c0b159326540017335e36beec65bae9e591dd59c18364f91a06005d2053c236",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1695002400",
+      "to": "0x9319b0f0e77b0c8d673ca5c599b545c2138f3d79",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "1000000000000000000"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=txlist&address=0xd9753189b4bc3d6977afcf0eabe38f92885e4022&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=0": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "blockHash": "0x5362ed8d2bcf80d08dc80924465ae7f5d286047cedb7f557171ecb747871f728",
+      "blockNumber": "18050000",
+      "confirmations": "150001",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xe7d9b89918242b60035273fa44eb10884e01e3c5",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xbc7cf50332bac21cca9744c2b68edfe699acc841b7e59d96c10cbde06e981323",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1695600000",
+      "to": "0xd9753189b4bc3d6977afcf0eabe38f92885e4022",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "2000000000000000000"
+     },
+     {
+      "blockHash": "0xb4eb5cd95df0c75e42bafe63d867f3ff47539540fef8edca6004d8f78ea2cb41",
+      "blockNumber": "18100000",
+      "confirmations": "100001",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xd9753189b4bc3d6977afcf0eabe38f92885e4022",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xed9e6c5a08dc5a5734810efef87fa26cb096381a3ebe2604790afe86a9855e25",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1696200000",
+      "to": "0xf95b9012fd3ce629e3f1043a1c0825cd7d83a1e1",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "1000000000000000000"
+     },
+     {
+      "blockHash": "0xba7802be4314ae01cc2f9dbfa15ceb1e34ed6aee1800dc49dbd83c7a8625300b",
+      "blockNumber": "18100500",
+      "confirmations": "99501",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xd9753189b4bc3d6977afcf0eabe38f92885e4022",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xa4336408c95a4e071806abd8ed4ee442d4bc7ed1541acfed738893ee8bd2c9dc",
+      "input": "0x",
+      "isError": "1",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1696206000",
+      "to": "0xdf83fe5f348b92a923e53b411a1773fd33b8954f",
+      "transactionIndex": "3",
+      "txreceipt_status": "0",
+      "value": "1"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  },
+  "api.etherscan.io/v2/api?action=txlist&address=0xf95b9012fd3ce629e3f1043a1c0825cd7d83a1e1&chainid=1&endblock=18200000&module=account&offset=100&page=1&sort=asc&startblock=0": {
+   "body": {
+    "message": "OK",
+    "result": [
+     {
+      "blockHash": "0xb4eb5cd95df0c75e42bafe63d867f3ff47539540fef8edca6004d8f78ea2cb41",
+      "blockNumber": "18100000",
+      "confirmations": "100001",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xd9753189b4bc3d6977afcf0eabe38f92885e4022",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xed9e6c5a08dc5a5734810efef87fa26cb096381a3ebe2604790afe86a9855e25",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1696200000",
+      "to": "0xf95b9012fd3ce629e3f1043a1c0825cd7d83a1e1",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "1000000000000000000"
+     },
+     {
+      "blockHash": "0xfb3ebc3582c9abb03fcfbe590af8e410a42944776563c2208a54c6114d846904",
+      "blockNumber": "18100100",
+      "confirmations": "99901",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xa097e55f9b5effcd4a909257b3618a60235b4c42",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0x45e9b01067a3d2a87ad2ef8a6e7e00dc010faf9cad363dc41ec5fb077170a017",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1696201200",
+      "to": "0xf95b9012fd3ce629e3f1043a1c0825cd7d83a1e1",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "900000000000000000"
+     },
+     {
+      "blockHash": "0x0815d66e5ffacd239ae9b81869b61a047f7af2ca9fe2c23e9b60eb790ca774b8",
+      "blockNumber": "18100200",
+      "confirmations": "99801",
+      "contractAddress": "",
+      "cumulativeGasUsed": "210000",
+      "from": "0xf95b9012fd3ce629e3f1043a1c0825cd7d83a1e1",
+      "functionName": "",
+      "gas": "21000",
+      "gasPrice": "20000000000",
+      "gasUsed": "21000",
+      "hash": "0xd9f9e09dd5be3a0ebe7cd3c3ce01ddc28b51610ba1942ddce20bbe01dcf4069e",
+      "input": "0x",
+      "isError": "0",
+      "methodId": "0x",
+      "nonce": "1",
+      "timeStamp": "1696202400",
+      "to": "0xa6a51208445e6d80102c99b63c9be36fee293da1",
+      "transactionIndex": "3",
+      "txreceipt_status": "1",
+      "value": "1899958000000000000"
+     }
+    ],
+    "status": "1"
+   },
+   "status": 200
+  }
+ }
+}

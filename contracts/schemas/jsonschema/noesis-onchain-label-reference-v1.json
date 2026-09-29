@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-onchain-label-reference-v1.json",
+  "title": "On-chain label reference",
+  "description": "A reviewed, reversible decision that a label a public dataset states about an address refers to an organization or contract canonical entity (src/kb/onchain.py). It is a statement about the label text, never that the entity controls the address. Person entity types are excluded by this schema.",
+  "type": "object",
+  "required": ["reference_id", "label_record_key", "chain_id", "address", "canonical_id", "entity_type", "state", "review_seq", "evidence", "history"],
+  "properties": {
+    "reference_id": {"type": "string", "pattern": "^onchain-ref:[0-9a-f]{24}$"},
+    "label_record_key": {"type": "string", "minLength": 1},
+    "chain_id": {"enum": ["eip155:1", "bip122:000000000019d6689c085ae165831e93"]},
+    "address": {"type": "string", "minLength": 1},
+    "canonical_id": {"type": "string", "minLength": 1},
+    "entity_type": {"enum": ["organization", "organisation", "org", "company", "contract", "project", "protocol", "software", "product"]},
+    "state": {"enum": ["candidate", "accepted", "rejected"]},
+    "decision_id": {"type": ["string", "null"]},
+    "review_seq": {"type": "integer", "minimum": 0},
+    "evidence": {"type": "object", "required": ["label_record_key", "label", "stated_by", "source_id", "reason"]},
+    "history": {"type": "array", "minItems": 1}
+  },
+  "additionalProperties": false
+}

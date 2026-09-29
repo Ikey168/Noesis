@@ -114,6 +114,11 @@ For the project overview and local setup, start with the
   detection, extraction cascade, escalation, selector self-repair
 - [MCP rearchitecture](architecture/mcp-rearchitecture.md) — the
   capability-plane design and its stages
+- [Pack and workflow composition](architecture/pack-workflow-composition.md) —
+  implemented shared capability architecture: resolver, readiness, lifecycle
+  coordinator and authorized dispatch
+- [Composition migration](architecture/composition-migration.md) — per-bundle
+  ownership statements, projector record owners and the legacy paths kept
 - [Knowledge-engine pivot](architecture/knowledge-engine-pivot.md) —
   claim/triple-centric knowledge-graph design
 - [Exactly-once delivery](architecture/exactly-once-delivery.md) — streaming
@@ -151,6 +156,55 @@ For the project overview and local setup, start with the
   gated behind `NOESIS_OSINT_GATED_TOOLS`
 - [OSINT abuse analysis](security/osint-abuse-analysis.md) — the dual-use
   analysis behind the guardrails (no person identification, fail-closed)
+- [OSINT passive DNS access decision](security/osint-passive-dns-access.md) —
+  per-provider terms review; no passive DNS provider adopted
+- [Legal sanctions guide](guides/legal-sanctions.md) — per-list designation
+  statements as of a date, dual-use annex editions, reviewable identity matches
+  and monitors; [source audit](roadmaps/legal-sanctions-source-audit.md)
+- [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
+  CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
+  monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
+- [Political lobbying guide](guides/political-lobbying.md) — transparency-register declarations and meeting
+  declarations linked to legislative dossiers, declared spend ranges as filed, reviewable identity and dossier
+  links and monitors; [source audit](roadmaps/political-lobbying-source-audit.md)
+- [Political elections guide](guides/political-elections.md) — contest results as published with preliminary and
+  certified vintages kept apart, poll series beside (never blended into) results, reviewable party identity,
+  constituency boundaries as of a date, certified-only forecast resolution, news evidence without causal reading
+  and monitors; [source audit](roadmaps/political-elections-source-audit.md)
+- [Economics public finance guide](guides/economics-public-finance.md) — budget plans, supplementary budgets and
+  outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
+  without verdicts, acts and dossiers linked by citation and basis-aware comparisons;
+  [source audit](roadmaps/economics-public-finance-source-audit.md)
+- [Economics demographics guide](guides/economics-demographics.md) — population, migration, asylum and displacement
+  series with first-class definitions, geography levels and vintages, publishers side by side with comparability
+  notes, boundary projections as of a release date and citation links to acts, decisions and dossiers;
+  [source audit](roadmaps/economics-demographics-source-audit.md)
+- [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
+  series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
+  reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
+  publications; [source audit](roadmaps/clinical-surveillance-source-audit.md)
+- [Products pack guide: safety notices and recalls](guides/products-pack.md#safety-notices-and-recalls) — EU Safety
+  Gate alerts, CPSC and NHTSA recalls and RASFF notifications with every revision, verbatim hazard, affected
+  identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,
+  standards and acts linked by citation, as-of answers and monitors; no safety verdict or advice;
+  [source audit](roadmaps/products-safety-source-audit.md)
+- [Funding development-finance guide](guides/funding-development-finance.md) — IATI aid activities per publisher
+  with transactions, participating organisations, allocations, results and version history, OECD CRS aggregates as
+  vintaged statistics, World Bank projects linked by stated identifiers, reviewable organisation identity with an
+  open-call cross-reference, as-of answers with publisher coverage and monitors; no totals across publishers and no
+  impact judgement; [source audit](roadmaps/development-finance-source-audit.md)
+- [On-chain Observations guide](guides/onchain-observations.md) — cited public-ledger transactions, token
+  transfers, contract deployer and first-funding chains for one explicit address, transaction or contract, quoted
+  label assertions and probable address clustering with declared heuristics, a null model and a measured
+  false-positive rate; no attribution verdicts, no person linkage, no wallet or submission capability;
+  [source access audit](security/onchain-source-access.md)
+- [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
+  editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
+  projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
+  advice and no interpolated value; [source audit](roadmaps/geospatial-housing-source-audit.md)
+- [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
+  dossiers, video reuse, registry and certificate history, infrastructure
+  pivots and the gated imagery tier
 
 ## Subsystems
 

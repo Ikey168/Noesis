@@ -1200,6 +1200,175 @@ def parse_berlin_publication(
     )
 
 
+def cellar_query(celex_ids, *, languages=("DEU", "ENG"), offset=0, limit=100):
+    """The bounded CELLAR SPARQL query for explicit CELEX selections."""
+    if not 1 <= len(celex_ids) <= 20 or any(
+        not re.fullmatch(r"[0-9A-Z()._-]{5,50}", value) for value in celex_ids
+    ):
+        raise ValueError("bounded validated CELEX selections required")
+    if (
+        not 1 <= len(languages) <= 24
+        or any(not re.fullmatch(r"[A-Z]{3}", language) for language in languages)
+        or not 0 <= offset <= 100000
+        or not 1 <= limit <= 1000
+    ):
+        raise ValueError("bounded CELLAR language/window selection required")
+    # CELLAR stores CELEX as xsd:string; its endpoint distinguishes these
+    # from untyped VALUES literals when matching this predicate.
+    values = " ".join(
+        json.dumps(value) + "^^<http://www.w3.org/2001/XMLSchema#string>"
+        for value in celex_ids
+    )
+    langs = ",".join(
+        "<http://publications.europa.eu/resource/authority/language/" + value + ">"
+        for value in languages
+    )
+    query = (
+        """PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
+SELECT DISTINCT ?work ?celex ?eli ?ecli ?expression ?language ?title ?manifestation ?format ?item ?document_date ?journal ?published ?effective ?predicate ?related
+WHERE {
+ VALUES ?celex { %s }
+ ?work cdm:resource_legal_id_celex ?celex .
+ OPTIONAL { ?work cdm:resource_legal_eli ?eli }
+ OPTIONAL { ?work cdm:case-law_ecli ?ecli }
+ ?expression cdm:expression_belongs_to_work ?work ; cdm:expression_uses_language ?language .
+ FILTER (?language IN (%s))
+ OPTIONAL { ?expression cdm:expression_title ?title }
+ OPTIONAL { ?manifestation cdm:manifestation_manifests_expression ?expression ; cdm:manifestation_type ?format .
+            OPTIONAL { ?item cdm:item_belongs_to_manifestation ?manifestation } }
+ OPTIONAL { ?work cdm:work_date_document ?document_date }
+ OPTIONAL { ?work cdm:resource_legal_published_in_official-journal ?journal .
+            ?journal cdm:work_date_document ?published }
+ OPTIONAL { ?work cdm:resource_legal_date_entry-into-force ?effective }
+ OPTIONAL { ?work ?predicate ?related . FILTER (?predicate IN (
+   cdm:work_cites_work, cdm:resource_legal_amends_resource_legal, cdm:resource_legal_corrects_resource_legal)) }
+}
+ORDER BY ?work ?expression ?manifestation ?item ?predicate ?related ?eli ?ecli ?document_date ?journal ?published ?effective ?title ?format
+LIMIT %d OFFSET %d""".replace("%s", values, 1)
+        .replace("%s", langs, 1)
+        .replace("%d", str(limit), 1)
+        .replace("%d", str(offset), 1)
+    )
+    return query
+
+
+def parse_cellar_results(payload, *, celex_ids, languages, offset=0, limit=100):
+    """Group CELLAR SPARQL bindings into work/expression/manifestation records."""
+    rows = (payload.get("results", {}) if isinstance(payload, dict) else {}).get("bindings")
+    if not isinstance(rows, list) or len(rows) > limit:
+        raise ProviderError("schema_drift", "invalid CELLAR SPARQL result envelope")
+    grouped = {}
+    for binding in rows:
+        native = {
+            key: value.get("value")
+            for key, value in binding.items()
+            if isinstance(value, dict)
+        }
+        if (
+            native.get("celex") not in celex_ids
+            or not native.get("work")
+            or not native.get("expression")
+            or str(native.get("language", "")).rsplit("/", 1)[-1] not in languages
+        ):
+            raise ProviderError(
+                "source_identity",
+                "CELLAR row does not match requested work/expression",
+            )
+        identity = (
+            native.get("item")
+            or native.get("manifestation")
+            or native["expression"]
+        )
+        key = (identity, native.get("language"))
+        relationship = (
+            {
+                "relation": native["predicate"],
+                "target": native.get("related"),
+                "basis": "explicit-CDM-triple",
+            }
+            if native.get("predicate")
+            else None
+        )
+        if key in grouped:
+            if relationship and relationship not in grouped[key]["relationships"]:
+                grouped[key]["relationships"].append(relationship)
+            grouped[key]["native"]["bindings"].append(binding)
+            for field in ("eli", "ecli"):
+                if (
+                    native.get(field)
+                    and native[field]
+                    not in grouped[key]["fields"][field + "_identifiers"]
+                ):
+                    grouped[key]["fields"][field + "_identifiers"].append(
+                        native[field]
+                    )
+            continue
+        language_code = {"DEU": "de", "ENG": "en"}.get(
+            str(native.get("language", "")).rsplit("/", 1)[-1], "und"
+        )
+        grouped[key] = _record(
+            "cellar",
+            identity,
+            native.get("title") or native["celex"],
+            native={"bindings": [binding]},
+            source_url=identity,
+            kind="legal-expression-manifestation",
+            language=language_code,
+            publication_date=native.get("published"),
+            fields={
+                "work": native["work"],
+                "celex": native["celex"],
+                "expression": native["expression"],
+                "manifestation": native.get("manifestation"),
+                "item": native.get("item"),
+                "format": native.get("format"),
+                "language_identity": native.get("language"),
+                "effective_from": native.get("effective"),
+                "eli": native.get("eli"),
+                "ecli": native.get("ecli"),
+                "eli_identifiers": [native["eli"]] if native.get("eli") else [],
+                "ecli_identifiers": [native["ecli"]] if native.get("ecli") else [],
+                "relationships_coverage": "bounded-query-page",
+                "selection_offset": offset,
+                "selection_limit": limit,
+                "current_law_verified": False,
+            },
+            relationships=[relationship] if relationship else [],
+        )
+    for record in grouped.values():
+        bindings = record["native"]["bindings"]
+        for native_key, field in (
+            ("effective", "effective_dates"),
+            ("published", "publication_dates"),
+            ("document_date", "document_dates"),
+        ):
+            record["fields"][field] = sorted(
+                {
+                    binding[native_key]["value"]
+                    for binding in bindings
+                    if binding.get(native_key, {}).get("value")
+                }
+            )
+        effective = record["fields"]["effective_dates"]
+        published = record["fields"]["publication_dates"]
+        record["fields"]["effective_from"] = (
+            effective[0] if len(effective) == 1 else None
+        )
+        record["published_at"] = (
+            _date(published[0]) if len(published) == 1 else None
+        )
+        record["missing_fields"] = sorted(
+            key
+            for key, value in record["fields"].items()
+            if value is None or value == "" or value == []
+        )
+    return {
+        "records": list(grouped.values()),
+        "next_offset": offset + limit if len(rows) == limit else None,
+        "coverage": "bounded-selection",
+    }
+
+
 class RegionalEvidenceStore:
     """Store native records through the existing DocumentStore/revision pipeline."""
 
@@ -1996,53 +2165,7 @@ class RegionalClient:
         self, celex_ids, observation, *, languages=("DEU", "ENG"), offset=0, limit=100
     ):
         self._provider("cellar")
-        if not 1 <= len(celex_ids) <= 20 or any(
-            not re.fullmatch(r"[0-9A-Z()._-]{5,50}", value) for value in celex_ids
-        ):
-            raise ValueError("bounded validated CELEX selections required")
-        if (
-            not 1 <= len(languages) <= 24
-            or any(not re.fullmatch(r"[A-Z]{3}", language) for language in languages)
-            or not 0 <= offset <= 100000
-            or not 1 <= limit <= 1000
-        ):
-            raise ValueError("bounded CELLAR language/window selection required")
-        # CELLAR stores CELEX as xsd:string; its endpoint distinguishes these
-        # from untyped VALUES literals when matching this predicate.
-        values = " ".join(
-            json.dumps(value) + "^^<http://www.w3.org/2001/XMLSchema#string>"
-            for value in celex_ids
-        )
-        langs = ",".join(
-            "<http://publications.europa.eu/resource/authority/language/" + value + ">"
-            for value in languages
-        )
-        query = (
-            """PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>
-SELECT DISTINCT ?work ?celex ?eli ?ecli ?expression ?language ?title ?manifestation ?format ?item ?document_date ?journal ?published ?effective ?predicate ?related
-WHERE {
- VALUES ?celex { %s }
- ?work cdm:resource_legal_id_celex ?celex .
- OPTIONAL { ?work cdm:resource_legal_eli ?eli }
- OPTIONAL { ?work cdm:case-law_ecli ?ecli }
- ?expression cdm:expression_belongs_to_work ?work ; cdm:expression_uses_language ?language .
- FILTER (?language IN (%s))
- OPTIONAL { ?expression cdm:expression_title ?title }
- OPTIONAL { ?manifestation cdm:manifestation_manifests_expression ?expression ; cdm:manifestation_type ?format .
-            OPTIONAL { ?item cdm:item_belongs_to_manifestation ?manifestation } }
- OPTIONAL { ?work cdm:work_date_document ?document_date }
- OPTIONAL { ?work cdm:resource_legal_published_in_official-journal ?journal .
-            ?journal cdm:work_date_document ?published }
- OPTIONAL { ?work cdm:resource_legal_date_entry-into-force ?effective }
- OPTIONAL { ?work ?predicate ?related . FILTER (?predicate IN (
-   cdm:work_cites_work, cdm:resource_legal_amends_resource_legal, cdm:resource_legal_corrects_resource_legal)) }
-}
-ORDER BY ?work ?expression ?manifestation ?item ?predicate ?related ?eli ?ecli ?document_date ?journal ?published ?effective ?title ?format
-LIMIT %d OFFSET %d""".replace("%s", values, 1)
-            .replace("%s", langs, 1)
-            .replace("%d", str(limit), 1)
-            .replace("%d", str(offset), 1)
-        )
+        query = cellar_query(celex_ids, languages=languages, offset=offset, limit=limit)
         response = self._fetch(
             observation + f":cellar:{offset}",
             self.CELLAR_SPARQL,
@@ -2050,120 +2173,10 @@ LIMIT %d OFFSET %d""".replace("%s", values, 1)
             headers={"Accept": "application/sparql-results+json"},
             max_bytes=5_000_000,
         )
-        rows = response.json().get("results", {}).get("bindings")
-        if not isinstance(rows, list) or len(rows) > limit:
-            raise ProviderError("schema_drift", "invalid CELLAR SPARQL result envelope")
-        grouped = {}
-        for binding in rows:
-            native = {
-                key: value.get("value")
-                for key, value in binding.items()
-                if isinstance(value, dict)
-            }
-            if (
-                native.get("celex") not in celex_ids
-                or not native.get("work")
-                or not native.get("expression")
-                or str(native.get("language", "")).rsplit("/", 1)[-1] not in languages
-            ):
-                raise ProviderError(
-                    "source_identity",
-                    "CELLAR row does not match requested work/expression",
-                )
-            identity = (
-                native.get("item")
-                or native.get("manifestation")
-                or native["expression"]
-            )
-            key = (identity, native.get("language"))
-            relationship = (
-                {
-                    "relation": native["predicate"],
-                    "target": native.get("related"),
-                    "basis": "explicit-CDM-triple",
-                }
-                if native.get("predicate")
-                else None
-            )
-            if key in grouped:
-                if relationship and relationship not in grouped[key]["relationships"]:
-                    grouped[key]["relationships"].append(relationship)
-                grouped[key]["native"]["bindings"].append(binding)
-                for field in ("eli", "ecli"):
-                    if (
-                        native.get(field)
-                        and native[field]
-                        not in grouped[key]["fields"][field + "_identifiers"]
-                    ):
-                        grouped[key]["fields"][field + "_identifiers"].append(
-                            native[field]
-                        )
-                continue
-            language_code = {"DEU": "de", "ENG": "en"}.get(
-                str(native.get("language", "")).rsplit("/", 1)[-1], "und"
-            )
-            grouped[key] = _record(
-                "cellar",
-                identity,
-                native.get("title") or native["celex"],
-                native={"bindings": [binding]},
-                source_url=identity,
-                kind="legal-expression-manifestation",
-                language=language_code,
-                publication_date=native.get("published"),
-                fields={
-                    "work": native["work"],
-                    "celex": native["celex"],
-                    "expression": native["expression"],
-                    "manifestation": native.get("manifestation"),
-                    "item": native.get("item"),
-                    "format": native.get("format"),
-                    "language_identity": native.get("language"),
-                    "effective_from": native.get("effective"),
-                    "eli": native.get("eli"),
-                    "ecli": native.get("ecli"),
-                    "eli_identifiers": [native["eli"]] if native.get("eli") else [],
-                    "ecli_identifiers": [native["ecli"]] if native.get("ecli") else [],
-                    "relationships_coverage": "bounded-query-page",
-                    "selection_offset": offset,
-                    "selection_limit": limit,
-                    "current_law_verified": False,
-                },
-                relationships=[relationship] if relationship else [],
-            )
-        for record in grouped.values():
-            bindings = record["native"]["bindings"]
-            for native_key, field in (
-                ("effective", "effective_dates"),
-                ("published", "publication_dates"),
-                ("document_date", "document_dates"),
-            ):
-                record["fields"][field] = sorted(
-                    {
-                        binding[native_key]["value"]
-                        for binding in bindings
-                        if binding.get(native_key, {}).get("value")
-                    }
-                )
-            effective = record["fields"]["effective_dates"]
-            published = record["fields"]["publication_dates"]
-            record["fields"]["effective_from"] = (
-                effective[0] if len(effective) == 1 else None
-            )
-            record["published_at"] = (
-                _date(published[0]) if len(published) == 1 else None
-            )
-            record["missing_fields"] = sorted(
-                key
-                for key, value in record["fields"].items()
-                if value is None or value == "" or value == []
-            )
-        return {
-            "records": list(grouped.values()),
-            "next_offset": offset + limit if len(rows) == limit else None,
-            "coverage": "bounded-selection",
-            "query_sha256": digest(query),
-        }, response
+        result = parse_cellar_results(
+            response.json(), celex_ids=celex_ids, languages=languages, offset=offset, limit=limit
+        )
+        return {**result, "query_sha256": digest(query)}, response
 
     def _provider(self, expected):
         if self.http.provider != expected:

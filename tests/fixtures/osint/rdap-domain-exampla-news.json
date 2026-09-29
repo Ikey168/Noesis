@@ -1,0 +1,53 @@
+{
+  "objectClassName": "domain",
+  "handle": "D0000001-EXAMPLE",
+  "ldhName": "EXAMPLA-NEWS.EXAMPLE",
+  "status": ["client transfer prohibited", "active"],
+  "events": [
+    {"eventAction": "registration", "eventDate": "2011-03-14T09:00:00Z"},
+    {"eventAction": "last changed", "eventDate": "2024-02-01T12:30:00Z"},
+    {"eventAction": "expiration", "eventDate": "2027-03-14T09:00:00Z"},
+    {"eventAction": "last update of RDAP database", "eventDate": "2026-09-01T00:00:00Z"}
+  ],
+  "nameservers": [
+    {"objectClassName": "nameserver", "ldhName": "NS2.EXAMPLA-HOSTING.EXAMPLE"},
+    {"objectClassName": "nameserver", "ldhName": "NS1.EXAMPLA-HOSTING.EXAMPLE"}
+  ],
+  "entities": [
+    {
+      "objectClassName": "entity",
+      "handle": "9999",
+      "roles": ["registrar"],
+      "publicIds": [{"type": "IANA Registrar ID", "identifier": "9999"}],
+      "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["fn", {}, "text", "Fixture Registrar GmbH"]]],
+      "entities": [
+        {
+          "objectClassName": "entity",
+          "roles": ["abuse"],
+          "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["fn", {}, "text", "Abuse Desk"],
+                                   ["email", {}, "text", "abuse@fixture-registrar.example"],
+                                   ["tel", {"type": "voice"}, "uri", "tel:+49.30.0000000"]]]
+        }
+      ]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "REG-ORG-1",
+      "roles": ["registrant"],
+      "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "org"],
+                               ["fn", {}, "text", "Exampla Media Holdings Ltd"],
+                               ["org", {}, "text", "Exampla Media Holdings Ltd"],
+                               ["adr", {}, "text", ["", "", "1 Fixture Street", "London", "", "EC1A 1AA", "GB"]],
+                               ["email", {}, "text", "domains@exampla-media.example"],
+                               ["tel", {"type": "voice"}, "uri", "tel:+44.20.0000000"]]]
+    },
+    {
+      "objectClassName": "entity",
+      "handle": "TECH-1",
+      "roles": ["technical", "administrative"],
+      "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "individual"],
+                               ["fn", {}, "text", "Alex Fixture-Person"],
+                               ["email", {}, "text", "alex@exampla-media.example"]]]
+    }
+  ]
+}

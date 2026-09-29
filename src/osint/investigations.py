@@ -33,6 +33,8 @@ GATED_TOOLS = (
     "narrative_coordination",
     "reverse_image_search",
     "geolocate_image",
+    "chronolocate_image",
+    "reference_imagery",
 )
 
 

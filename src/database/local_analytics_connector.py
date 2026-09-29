@@ -86,6 +86,15 @@ def get_shared_connection() -> duckdb.DuckDBPyConnection:
     return _CONNECTION
 
 
+def close_shared_connection() -> None:
+    """Release this process's warehouse handle after a bounded operation."""
+    global _CONNECTION
+    with _LOCK:
+        if _CONNECTION is not None:
+            _CONNECTION.close()
+            _CONNECTION = None
+
+
 @contextmanager
 def locked_connection() -> Iterator[duckdb.DuckDBPyConnection]:
     """Yield the shared warehouse connection while holding the process-wide lock.

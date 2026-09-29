@@ -7,9 +7,16 @@ from src.kb.intake_research_bundle import (
     IntakeResearchBundleStore,
     verify_research_bundle_export,
 )
-from src.kb.intake_research_progress import inspect_research_progress
+from src.kb.intake_research_progress import (
+    ResearchProgressAssessmentStore,
+    inspect_research_progress,
+)
 
-RESEARCH_INTAKE_WRITES = {"save_intake_research_bundle"}
+RESEARCH_INTAKE_WRITES = {
+    "save_intake_research_bundle",
+    "review_research_claim_independence",
+    "assess_intake_research_progress",
+}
 
 
 def register(mcp, safe, context):
@@ -23,11 +30,40 @@ def register(mcp, safe, context):
         )
 
     @mcp.tool()
-    def inspect_intake_research_progress(namespace: str, session_id: str) -> dict:
+    def inspect_intake_research_progress(
+        namespace: str, session_id: str, coverage_assessment_id: str | None = None,
+    ) -> dict:
         """Read a paired topic's project, loop stage receipts, coverage, blockers, and bundle readiness."""
         return safe(
             lambda conn: inspect_research_progress(
                 conn, namespace, session_id,
+                principal_id=context()[0], scopes=context()[1],
+                coverage_assessment_id=coverage_assessment_id,
+            ),
+            required_scope="knowledge:intake:read",
+        )
+
+    @mcp.tool()
+    def assess_intake_research_progress(
+        namespace: str, session_id: str, command_key: str,
+    ) -> dict:
+        """Persist a replayable workflow and Definition of Done assessment for a paired topic."""
+        return safe(
+            lambda conn: ResearchProgressAssessmentStore(conn).assess(
+                namespace, session_id, command_key,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def inspect_intake_research_assessment(
+        namespace: str, assessment_id: str,
+    ) -> dict:
+        """Inspect a saved assessment snapshot while current topic and project access remains valid."""
+        return safe(
+            lambda conn: ResearchProgressAssessmentStore(conn, initialize=False).inspect(
+                namespace, assessment_id,
                 principal_id=context()[0], scopes=context()[1],
             ),
             required_scope="knowledge:intake:read",
@@ -46,6 +82,24 @@ def register(mcp, safe, context):
                 principal_id=context()[0], scopes=context()[1],
             ),
             write=True, required_scope="knowledge:intake:write",
+        )
+
+    @mcp.tool()
+    def review_research_claim_independence(
+        namespace: str, bundle_id: str, expected_revision: int,
+        command_key: str, claim_id: str, status: str, basis: str,
+        groups: list[dict],
+    ) -> dict:
+        """Record an authorized source-origin review with reviewer and pinned-source provenance."""
+        from src.kb.intake_research_bundle import REVIEW_SCOPE
+
+        return safe(
+            lambda conn: IntakeResearchBundleStore(conn).review_independence(
+                namespace, bundle_id, expected_revision, command_key, claim_id,
+                status, basis, groups,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            write=True, required_scope=REVIEW_SCOPE,
         )
 
     @mcp.tool()
@@ -80,6 +134,19 @@ def register(mcp, safe, context):
     @mcp.resource("noesis://intake/research-bundles/{namespace}/{bundle_id}/revisions/{revision}", mime_type="application/json")
     def intake_research_bundle_revision_resource(namespace: str, bundle_id: str, revision: int) -> str:
         value = read(namespace, bundle_id, revision)
+        if value.get("ok") is False:
+            raise IntakeError(value["error"]["code"], value["error"]["message"])
+        return json.dumps(value, sort_keys=True, ensure_ascii=False)
+
+    @mcp.resource("noesis://intake/research-assessments/{namespace}/{assessment_id}", mime_type="application/json")
+    def intake_research_assessment_resource(namespace: str, assessment_id: str) -> str:
+        value = safe(
+            lambda conn: ResearchProgressAssessmentStore(conn, initialize=False).inspect(
+                namespace, assessment_id,
+                principal_id=context()[0], scopes=context()[1],
+            ),
+            required_scope="knowledge:intake:read",
+        )
         if value.get("ok") is False:
             raise IntakeError(value["error"]["code"], value["error"]["message"])
         return json.dumps(value, sort_keys=True, ensure_ascii=False)

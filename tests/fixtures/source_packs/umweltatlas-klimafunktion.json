@@ -1,0 +1,32 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "Geoportal Berlin (Umweltatlas) — authored fixture",
+ "license": "dl-de/zero-2-0",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence. Geometries are simplified boxes in EPSG:25833.",
+ "endpoint": "https://gdi.berlin.de/services/wfs/ua_klimaanalyse_2022",
+ "scenarios": [
+  "projected-crs-epsg-25833",
+  "complete-snapshot",
+  "umweltatlas-layer"
+ ],
+ "native_pages": [
+  {
+   "start_index": 0,
+   "status": 200,
+   "params": {
+    "SERVICE": "WFS",
+    "VERSION": "2.0.0",
+    "REQUEST": "GetFeature",
+    "TYPENAMES": "ua_klimaanalyse_2022:klimafunktion",
+    "OUTPUTFORMAT": "application/json",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25833",
+    "SORTBY": "gml_id",
+    "COUNT": 50,
+    "STARTINDEX": 0
+   },
+   "body_sha256": "b2152533793dd6dad3dbf0b99438349b210e5b2aee9697c07bd7d835bc41e102",
+   "body": "{\n \"type\": \"FeatureCollection\",\n \"features\": [\n  {\n   \"type\": \"Feature\",\n   \"id\": \"klimafunktion.7\",\n   \"geometry\": {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n     [\n      [\n       391500.0,\n       5819500.0\n      ],\n      [\n       393500.0,\n       5819500.0\n      ],\n      [\n       393500.0,\n       5821000.0\n      ],\n      [\n       391500.0,\n       5821000.0\n      ],\n      [\n       391500.0,\n       5819500.0\n      ]\n     ]\n    ]\n   },\n   \"properties\": {\n    \"gml_id\": \"klimafunktion.7\",\n    \"klimafunktion\": \"Überwärmungsbereich, hohe Belastung\",\n    \"grundlage\": \"Klimaanalysekarte 2022, Modellrechnung (FITNAH 3D)\"\n   }\n  },\n  {\n   \"type\": \"Feature\",\n   \"id\": \"klimafunktion.8\",\n   \"geometry\": {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n     [\n      [\n       384000.0,\n       5816000.0\n      ],\n      [\n       386000.0,\n       5816000.0\n      ],\n      [\n       386000.0,\n       5818000.0\n      ],\n      [\n       384000.0,\n       5818000.0\n      ],\n      [\n       384000.0,\n       5816000.0\n      ]\n     ]\n    ]\n   },\n   \"properties\": {\n    \"gml_id\": \"klimafunktion.8\",\n    \"klimafunktion\": \"Kaltluftentstehungsgebiet\",\n    \"grundlage\": \"Klimaanalysekarte 2022, Modellrechnung (FITNAH 3D)\"\n   }\n  }\n ],\n \"totalFeatures\": 2,\n \"numberMatched\": 2,\n \"numberReturned\": 2,\n \"timeStamp\": \"2026-09-20T06:00:00.000Z\",\n \"crs\": {\n  \"type\": \"name\",\n  \"properties\": {\n   \"name\": \"urn:ogc:def:crs:EPSG::25833\"\n  }\n }\n}\n"
+  }
+ ],
+ "features": 2
+}

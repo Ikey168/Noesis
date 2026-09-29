@@ -1,0 +1,125 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.entity-identity",
+  "version": "1.0.0",
+  "description": "Shared canonical entities and immutable, reversible entity identity decisions.",
+  "implementation": {
+    "name": "src.kb.entity_history",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.entity-identity",
+      "contract": {
+        "name": "noesis-entity-identity-decision",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "record-decision",
+        "resolve-entity",
+        "entity-history",
+        "undo-decision"
+      ],
+      "semantic_constraints": {
+        "authority": "reviewed identity decisions; merges and splits are reversible"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "record-decision",
+      "tool": "noesis-knowledge-engine.record_entity_identity_decision",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "decisions",
+      "required_scopes": [
+        "knowledge:entity-history:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "resolve-entity",
+      "tool": "noesis-knowledge-engine.resolve_entity_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "decisions",
+      "required_scopes": [
+        "knowledge:entity-history:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "entity-history",
+      "tool": "noesis-knowledge-engine.get_entity_identity_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "decisions",
+      "required_scopes": [
+        "knowledge:entity-history:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "undo-decision",
+      "tool": "noesis-knowledge-engine.undo_entity_identity_change",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "decisions",
+      "required_scopes": [
+        "knowledge:entity-history:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "entity-identity-decision",
+      "store": "src.kb.entity_history",
+      "tables": [
+        "entity_history_identities",
+        "entity_identity_decisions",
+        "entity_history_redirects",
+        "entity_history_assignments",
+        "entity_history_audit"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "canonical-entity",
+      "store": "src.kb.entities",
+      "tables": [
+        "canonical_entities",
+        "entity_aliases"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": false
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "decisions",
+      "kind": "table-exists",
+      "target": "entity_identity_decisions"
+    }
+  ]
+}

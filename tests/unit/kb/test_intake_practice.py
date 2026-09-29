@@ -72,13 +72,21 @@ def test_corrected_intake_source_pauses_practice_until_card_revision():
 def test_practice_attempt_before_reveal_and_restart_replay(tmp_path):
     path = str(tmp_path / "practice.duckdb")
     store = IntakePracticeStore(duckdb.connect(path), now=lambda: 1_000)
+    plugin_link = {
+        "workspace_id": "personal", "account_id": "alice",
+        "plugin_id": "flashcards-spaced-repetition", "collection": "decks",
+        "record_id": "deck-55", "authoritative_version": 7,
+        "representation": "intentional_snapshot", "authority": "modulo",
+    }
     pack = store.create_pack(
         "research", "pack-key", "Index worker", CARDS,
-        principal_id="alice", scopes=SCOPES,
+        principal_id="alice", scopes=SCOPES, plugin_links=[plugin_link],
     )
+    assert pack["plugin_links"] == [plugin_link]
     pack_id = pack["pack_id"]
     assert store.create_pack("research", "pack-key", "Index worker", CARDS,
-                             principal_id="alice", scopes=SCOPES)["idempotent"]
+                             principal_id="alice", scopes=SCOPES,
+                             plugin_links=[plugin_link])["idempotent"]
     due = store.due("research", principal_id="alice", scopes=SCOPES)
     assert due["cards"][0]["card_id"] == "card-1"
     assert "answer" not in due["cards"][0]
@@ -126,6 +134,7 @@ def test_practice_attempt_before_reveal_and_restart_replay(tmp_path):
     assert store.inspect_review("research", review_id, revision=1,
                                 principal_id="alice", scopes=SCOPES).get("answer") is None
     bundle = store.export_pack("research", pack_id, principal_id="alice", scopes=SCOPES)
+    assert bundle["pack_revisions"][0]["plugin_links"] == [plugin_link]
     assert verify_practice_export(bundle) == {
         "valid": True, "pack_revision_count": 1, "review_count": 1,
     }
@@ -200,3 +209,63 @@ def test_schedule_configuration_and_write_only_mutation_scope():
         store.create_pack("research", "bad", "Worker", CARDS,
                           interval_days=[3, 2], principal_id="alice", scopes=write_scopes)
     store.conn.close()
+
+
+def test_pack_correction_resets_only_changed_cards_and_keeps_review_history():
+    store = IntakePracticeStore(duckdb.connect(":memory:"), now=lambda: 1_000)
+    cards = [CARDS[0], {**CARDS[0], "prompt": "What is the fallback?"}]
+    kwargs = {"principal_id": "alice", "scopes": SCOPES}
+    pack = store.create_pack("research", "two-cards", "Worker", cards, **kwargs)
+    review = store.start_review("research", pack["pack_id"], "card-1", "attempt-1", **kwargs)
+    store.command_review("research", review["review_id"], "answer", 1, "attempt",
+                         {"answer": "Worker", "assisted": False}, **kwargs)
+    store.command_review("research", review["review_id"], "reveal", 2, "reveal", {}, **kwargs)
+    store.command_review("research", review["review_id"], "assess", 3, "assess",
+                         {"passed": True, "notes": "Recalled"}, **kwargs)
+    before = store.conn.execute(
+        "SELECT due_at_ms,stage,unassisted_passes FROM intake_practice_progress "
+        "WHERE pack_id=? AND card_id='card-1'", [pack["pack_id"]],
+    ).fetchone()
+    revised = store.revise_pack(
+        "research", pack["pack_id"], "correct-card-2", 1, "Worker",
+        [cards[0], {**cards[1], "answer": "Use the repair guide."}], [1, 3, 7], **kwargs,
+    )
+    assert revised["revision"] == 2
+    unchanged = store.conn.execute(
+        "SELECT pack_revision,due_at_ms,stage,unassisted_passes FROM intake_practice_progress "
+        "WHERE pack_id=? AND card_id='card-1'", [pack["pack_id"]],
+    ).fetchone()
+    changed = store.conn.execute(
+        "SELECT pack_revision,due_at_ms,stage,unassisted_passes FROM intake_practice_progress "
+        "WHERE pack_id=? AND card_id='card-2'", [pack["pack_id"]],
+    ).fetchone()
+    assert unchanged == (2, *before)
+    assert changed == (2, 1_000, 0, 0)
+    assert store.inspect_review("research", review["review_id"], **kwargs)["answer"] == CARDS[0]["answer"]
+
+
+def test_corrected_or_withdrawn_document_pauses_practice_without_erasing_history():
+    from src.ingestion.revisions import DocumentRevisionStore
+
+    conn = duckdb.connect(":memory:")
+    scopes = SCOPES | {"document:doc-guide:read"}
+    kwargs = {"principal_id": "alice", "scopes": scopes}
+    documents = DocumentRevisionStore(conn)
+    first = documents.observe({"document_id": "doc-guide", "content": "Restart the worker.", "metadata": {}},
+                              committed_watermark=1)
+    ref = {"kind": "document", "id": "doc-guide", "namespace": "research", "version": first["revision"]}
+    practice = IntakePracticeStore(conn, now=lambda: 1_000)
+    pack = practice.create_pack("research", "doc-pack", "Guide", [{**CARDS[0], "references": [ref]}], **kwargs)
+    review = practice.start_review("research", pack["pack_id"], "card-1", "before", **kwargs)
+    assert practice.due("research", **kwargs)["cards"][0]["source_status"] == "current"
+    # Without document read scope the source cannot be assessed.
+    assert practice.due("research", principal_id="alice", scopes=SCOPES)["cards"][0]["source_status"] == "unavailable"
+
+    documents.observe({"document_id": "doc-guide", "content": "Drain the queue, then restart.", "metadata": {}},
+                      committed_watermark=2)
+
+    due = practice.due("research", **kwargs)["cards"][0]
+    assert due["source_status"] == "superseded" and not due["reviewable"]
+    assert practice.inspect_review("research", review["review_id"], **kwargs)["review_id"] == review["review_id"]
+    findings = IntakeMaintenanceStore(conn, now=lambda: 1_000).scan("research", **kwargs)["findings"]
+    assert any(item["reason"] == "superseded_practice_source" for item in findings)

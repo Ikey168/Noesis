@@ -37,15 +37,33 @@ class SubscriptionDeliveryStore:
         require_current(self.conn,row[7],scopes)
         return row
 
-    def pending(self, *, principal_id, scopes, limit=100):
+    def pending(self, *, principal_id, scopes, limit=100, allowed_destinations=None):
         _scope(scopes, DELIVER_SCOPE)
+        if allowed_destinations is not None:
+            allowed_destinations = sorted(allowed_destinations)
+            if not allowed_destinations:
+                return []
+            if len(allowed_destinations) > 32 or any(
+                not isinstance(pair, tuple) or len(pair) != 2 or
+                any(not isinstance(part, str) or not part for part in pair)
+                for pair in allowed_destinations
+            ):
+                raise SubscriptionError("invalid_destinations", "one to 32 configured destination references required")
+            destination_filter = " AND (" + " OR ".join(
+                "(o.delivery_kind=? AND o.destination_ref=?)" for _ in allowed_destinations
+            ) + ")"
+            destination_params = [part for pair in allowed_destinations for part in pair]
+        else:
+            destination_filter, destination_params = "", []
         rows = self.conn.execute("""SELECT o.event_id,o.delivery_kind,o.destination_ref,o.payload_json,
             o.attempts,s.namespace,s.subscription_id FROM knowledge_subscription_outbox o
             JOIN knowledge_subscription_events e ON e.event_id=o.event_id
             JOIN knowledge_subscriptions s ON s.subscription_id=e.subscription_id
             WHERE s.owner_principal=? AND s.status <> 'deleted' AND
-            ((o.status='pending' AND o.available_at_ms<=?) OR (o.status='leased' AND o.lease_until_ms<=?))
-            ORDER BY e.sequence LIMIT ?""", [principal_id, self.now(), self.now(), min(max(int(limit), 1), 500)]).fetchall()
+            ((o.status='pending' AND o.available_at_ms<=?) OR (o.status='leased' AND o.lease_until_ms<=?))"""
+            + destination_filter + " ORDER BY e.sequence LIMIT ?",
+            [principal_id, self.now(), self.now(), *destination_params,
+             min(max(int(limit), 1), 500)]).fetchall()
         result = []
         for event_id, kind, destination, payload, attempts, namespace, subscription_id in rows:
             try:
@@ -58,12 +76,14 @@ class SubscriptionDeliveryStore:
                            "payload": json.loads(payload), "attempts": attempts})
         return result
 
-    def claim(self, worker_id, *, principal_id, scopes, limit=100, lease_ms=30000):
+    def claim(self, worker_id, *, principal_id, scopes, limit=100, lease_ms=30000,
+              allowed_destinations=None):
         if not isinstance(worker_id, str) or not worker_id:
             raise SubscriptionError("invalid_worker", "worker identity is required")
         lease_ms = min(max(int(lease_ms), 1000), 300000)
         claimed = []
-        for item in self.pending(principal_id=principal_id, scopes=scopes, limit=limit):
+        for item in self.pending(principal_id=principal_id, scopes=scopes, limit=limit,
+                                 allowed_destinations=allowed_destinations):
             token, now = secrets.token_hex(24), self.now()
             try:
                 row = self.conn.execute("""UPDATE knowledge_subscription_outbox SET
@@ -133,7 +153,8 @@ def deliver_once(store, worker_id, transports, *, principal_id, scopes, limit=10
     # Acquire immediately before sending, so queued batch members do not lose
     # their leases while the worker is waiting on earlier receivers.
     for _ in range(min(max(int(limit), 0), 500)):
-        claimed = store.claim(worker_id, principal_id=principal_id, scopes=scopes, limit=1)
+        claimed = store.claim(worker_id, principal_id=principal_id, scopes=scopes, limit=1,
+                              allowed_destinations=set(transports))
         if not claimed:
             break
         item = claimed[0]

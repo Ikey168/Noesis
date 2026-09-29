@@ -1,0 +1,101 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-modulo-intake-migration-preview-v1",
+  "title": "Dedicated Modulo Knowledge plugin migration preview",
+  "type": "object",
+  "required": ["contract", "preview_id", "namespace", "owner", "workspace_id", "account_id", "source", "observed_at_ms", "read_receipt", "inventory_sha256", "collections", "records", "counts", "remote_mutations", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-modulo-intake-migration-preview-v1"},
+    "preview_id": {"type": "string"},
+    "namespace": {"type": "string"},
+    "owner": {"type": "string"},
+    "workspace_id": {"type": "string"},
+    "account_id": {"type": ["string", "null"]},
+    "source": {"enum": ["fixture", "caller_supplied_plugin_state", "authenticated_plugin_state"]},
+    "observed_at_ms": {"type": "integer", "minimum": 0},
+    "inventory_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "read_receipt": {
+      "type": ["object", "null"],
+      "required": ["transport", "plugin_id", "storage_generation", "page_count", "record_count", "consistency", "account_identity"],
+      "properties": {
+        "transport": {"const": "modulo_external_plugin_state_callback"},
+        "plugin_id": {"type": "string"},
+        "storage_generation": {"type": "string"},
+        "page_count": {"type": "integer", "minimum": 1, "maximum": 11},
+        "record_count": {"type": "integer", "minimum": 0, "maximum": 1000},
+        "consistency": {"const": "non_atomic_paged_read"},
+        "account_identity": {"const": "not_exposed_by_callback"}
+      },
+      "additionalProperties": false
+    },
+    "collections": {
+      "type": "array", "maxItems": 1500,
+      "items": {
+        "type": "object",
+        "required": ["plugin_id", "installed_version", "collection", "schema_id", "schema_version", "persistence", "record_count"],
+        "properties": {
+          "plugin_id": {"type": "string"},
+          "installed_version": {"type": ["string", "null"]},
+          "collection": {"type": "string"},
+          "schema_id": {"type": ["string", "null"]},
+          "schema_version": {"type": ["integer", "null"], "minimum": 1},
+          "persistence": {"enum": ["authenticated_plugin_state", "legacy_local"]},
+          "record_count": {"type": "integer", "minimum": 0, "maximum": 1000}
+        },
+        "additionalProperties": false
+      }
+    },
+    "records": {
+      "type": "array", "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "required": ["workspace_id", "account_id", "plugin_id", "collection", "record_id", "authoritative_version", "schema_id", "schema_version", "content_sha256", "relation_ids", "attachment_ids", "source_locator", "unsupported_fields", "metadata_gaps", "noesis_reference", "action", "requires_review"],
+        "properties": {
+          "workspace_id": {"type": "string"},
+          "account_id": {"type": ["string", "null"]},
+          "plugin_id": {"type": "string"},
+          "collection": {"type": "string"},
+          "record_id": {"type": "string"},
+          "authoritative_version": {"type": "integer", "minimum": 1},
+          "schema_id": {"type": "string"},
+          "schema_version": {"type": "integer", "minimum": 1},
+          "content_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "relation_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 100},
+          "attachment_ids": {"type": "array", "items": {"type": "string"}, "maxItems": 100},
+          "source_locator": {"type": ["object", "null"]},
+          "unsupported_fields": {"type": "array", "items": {"type": "string"}, "maxItems": 100},
+          "metadata_gaps": {"type": "array", "items": {"type": "string"}, "maxItems": 20},
+          "noesis_reference": {
+            "oneOf": [
+              {"type": "null"},
+              {"type": "object", "required": ["kind", "id", "namespace", "version"], "properties": {
+                "kind": {"type": "string"}, "id": {"type": "string"},
+                "namespace": {"type": "string"}, "version": {"type": "integer", "minimum": 1},
+                "locator": {"type": "object"}
+              }}
+            ]
+          },
+          "action": {"enum": ["link_in_place", "review_mapping"]},
+          "requires_review": {"type": "boolean"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "counts": {
+      "type": "object",
+      "required": ["records", "link_in_place", "legacy_import_required", "review_required"],
+      "properties": {
+        "records": {"type": "integer", "minimum": 0},
+        "link_in_place": {"type": "integer", "minimum": 0},
+        "legacy_import_required": {"type": "integer", "minimum": 0},
+        "review_required": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "remote_mutations": {"const": 0},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "next_offset": {"type": ["integer", "null"]},
+    "idempotent": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

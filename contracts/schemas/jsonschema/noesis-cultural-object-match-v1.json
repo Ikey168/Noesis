@@ -1,0 +1,58 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-cultural-object-match-v1.json",
+  "title": "Noesis cultural object match v1",
+  "description": "A cross-provider object match: explicit identifier (sameAs/shown-at) or conservative multi-field candidate, with append-only review. Provider records stay separate.",
+  "type": "object",
+  "required": [
+    "contract",
+    "match_id",
+    "left_object_id",
+    "right_object_id",
+    "basis",
+    "candidate_state",
+    "review_state",
+    "review_history"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-cultural-object-match-v1"
+    },
+    "match_id": {
+      "type": "string",
+      "pattern": "^cultural-match:"
+    },
+    "left_object_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "right_object_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "basis": {
+      "enum": [
+        "explicit_identifier",
+        "multi-field"
+      ]
+    },
+    "candidate_state": {
+      "enum": [
+        "identifier-match",
+        "candidate",
+        "conflicting-candidate"
+      ]
+    },
+    "review_state": {
+      "enum": [
+        "unreviewed",
+        "accepted",
+        "rejected",
+        "deferred"
+      ]
+    },
+    "review_history": {
+      "type": "array"
+    }
+  }
+}

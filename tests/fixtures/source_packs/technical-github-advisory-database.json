@@ -1,0 +1,161 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "affected": [
+     {
+      "database_specific": {
+       "source": "fixture"
+      },
+      "package": {
+       "ecosystem": "PyPI",
+       "name": "fixture_parser"
+      },
+      "ranges": [
+       {
+        "events": [
+         {
+          "introduced": "1.0.0"
+         },
+         {
+          "fixed": "1.5.0"
+         }
+        ],
+        "type": "ECOSYSTEM"
+       }
+      ]
+     },
+     {
+      "package": {
+       "ecosystem": "npm",
+       "name": "fixture-parser"
+      },
+      "ranges": [
+       {
+        "events": [
+         {
+          "introduced": "0"
+         },
+         {
+          "fixed": "2.1.3"
+         }
+        ],
+        "type": "ECOSYSTEM"
+       }
+      ]
+     },
+     {
+      "package": {
+       "ecosystem": "Hex",
+       "name": "fixture_parser"
+      },
+      "ranges": [
+       {
+        "events": [
+         {
+          "introduced": "0"
+         },
+         {
+          "last_affected": "0.9.0"
+         }
+        ],
+        "type": "ECOSYSTEM"
+       }
+      ]
+     }
+    ],
+    "aliases": [
+     "CVE-2099-0001"
+    ],
+    "database_specific": {
+     "cwe_ids": [
+      "CWE-1333"
+     ],
+     "github_reviewed": true,
+     "github_reviewed_at": "2099-01-11T00:00:00Z",
+     "severity": "MODERATE"
+    },
+    "details": "Authored fixture advisory in the GitHub Advisory Database OSV format.",
+    "id": "GHSA-f1x7-aaaa-bbbb",
+    "modified": "2099-01-11T00:00:00Z",
+    "published": "2099-01-06T12:00:00Z",
+    "references": [
+     {
+      "type": "WEB",
+      "url": "https://fixturecorp.example/advisories/2099-001"
+     }
+    ],
+    "schema_version": "1.4.0",
+    "severity": [
+     {
+      "score": "CVSS:3.1/AV:N/AC:H/PR:N/UI:N/S:U/C:N/I:N/A:H",
+      "type": "CVSS_V3"
+     }
+    ],
+    "summary": "Authored fixture: ReDoS in fixture-parser"
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/github/advisory-database/main/advisories/github-reviewed/2099/01/GHSA-f1x7-aaaa-bbbb/GHSA-f1x7-aaaa-bbbb.json",
+   "status": 200
+  },
+  {
+   "body": {
+    "affected": [
+     {
+      "package": {
+       "ecosystem": "PyPI",
+       "name": "fixture-parser"
+      },
+      "ranges": [
+       {
+        "events": [
+         {
+          "introduced": "0"
+         },
+         {
+          "fixed": "1.1.0"
+         }
+        ],
+        "type": "ECOSYSTEM"
+       }
+      ]
+     }
+    ],
+    "aliases": [
+     "CVE-2099-0002"
+    ],
+    "database_specific": {
+     "cwe_ids": [
+      "CWE-20"
+     ],
+     "severity": "LOW"
+    },
+    "details": "Withdrawn: authored fixture, the maintainer disputed the report.",
+    "id": "GHSA-f1x7-cccc-dddd",
+    "modified": "2099-02-01T00:00:00Z",
+    "published": "2099-01-20T00:00:00Z",
+    "references": [],
+    "schema_version": "1.4.0",
+    "summary": "Authored fixture: withdrawn advisory for fixture-parser",
+    "withdrawn": "2099-02-01T00:00:00Z"
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/github/advisory-database/main/advisories/github-reviewed/2099/01/GHSA-f1x7-cccc-dddd/GHSA-f1x7-cccc-dddd.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the documented osv shape; packages, vendors and CVE numbers are fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "multi-ecosystem",
+  "unsupported-ecosystem",
+  "withdrawn-advisory",
+  "alias-shared-with-nvd"
+ ]
+}

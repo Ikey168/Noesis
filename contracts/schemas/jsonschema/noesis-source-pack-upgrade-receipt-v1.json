@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-source-pack-upgrade-receipt-v1.json",
+  "title": "Applied source-pack upgrade receipt",
+  "type": "object",
+  "required": ["contract", "apply_id", "pack_id", "applied_by", "installed_version", "installed_hash", "candidate_version", "candidate_hash", "preview_hash", "impact_hash", "preflight", "conformance_hash", "retained_old_version", "schedule_migrated", "old_schedule_hash", "new_schedule_hash", "applied_at_ms", "receipt_hash"],
+  "properties": {
+    "contract": {"const": "noesis-source-pack-upgrade-receipt-v1"},
+    "apply_id": {"type": "string"}, "pack_id": {"type": "string"}, "applied_by": {"type": "string"},
+    "installed_version": {"type": "string"}, "installed_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "candidate_version": {"type": "string"}, "candidate_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "preview_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "impact_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "preflight": {"type": "object"}, "conformance_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "retained_old_version": {"const": true}, "schedule_migrated": {"type": "boolean"},
+    "old_schedule_hash": {"type": ["string", "null"]}, "new_schedule_hash": {"type": ["string", "null"]},
+    "applied_at_ms": {"type": "integer", "minimum": 0},
+    "receipt_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "idempotent": {"type": "boolean"}, "current_matches_candidate": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

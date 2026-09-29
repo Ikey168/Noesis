@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-awareness-evaluation-v1.json",
+  "title": "Held-out Awareness triage evaluation",
+  "type": "object",
+  "required": ["contract", "cases", "source_groups", "label_origins", "important_definition", "important_cases", "keyword_preview_important_recall", "semantic_important_recall", "missed_important_items", "false_discard_count", "false_discard_rate", "coverage", "accuracy_over_all_cases", "task_ready", "readiness_requires"],
+  "properties": {
+    "contract": {"const": "noesis-jev-awareness-evaluation-v1"},
+    "cases": {"type": "integer", "minimum": 1},
+    "source_groups": {"type": "integer", "minimum": 1},
+    "label_origins": {"type": "array", "items": {"enum": ["fixture", "independent-human"]}},
+    "important_definition": {"const": ["escalate", "flag"]},
+    "important_cases": {"type": "integer", "minimum": 0},
+    "keyword_preview_important_recall": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "semantic_important_recall": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "missed_important_items": {"type": "integer", "minimum": 0},
+    "false_discard_count": {"type": "integer", "minimum": 0},
+    "false_discard_rate": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "coverage": {"type": "number", "minimum": 0, "maximum": 1},
+    "accuracy_over_all_cases": {"type": "number", "minimum": 0, "maximum": 1},
+    "task_ready": {"const": false},
+    "readiness_requires": {"type": "string"}
+  },
+  "additionalProperties": false
+}

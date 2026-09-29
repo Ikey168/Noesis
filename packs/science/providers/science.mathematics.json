@@ -1,0 +1,91 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.mathematics",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.mathematics",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.math-objects",
+      "contract": {
+        "name": "noesis-math-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "inspect-object",
+        "search"
+      ],
+      "semantic_constraints": {
+        "formal": "independently referenced formal-proof sources"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "inspect-object",
+      "tool": "noesis-knowledge-engine.inspect_math_object",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "objects",
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search",
+      "tool": "noesis-knowledge-engine.search_mathematics",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "objects",
+      "required_scopes": [
+        "knowledge:mathematics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "math-object",
+      "store": "src.kb.mathematics",
+      "tables": [
+        "math_literature",
+        "math_identifiers",
+        "math_sequences",
+        "math_objects",
+        "math_links",
+        "formal_snapshots",
+        "formal_files",
+        "formal_declarations",
+        "formal_dependencies"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "objects",
+      "kind": "table-exists",
+      "target": "math_objects"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "research-discovery",
+      "version": "1.4.0",
+      "range": "^1.4.0"
+    }
+  ]
+}

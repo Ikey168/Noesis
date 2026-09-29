@@ -1,0 +1,81 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "uba",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://www.umweltbundesamt.de/api/air_data/v3",
+ "scenarios": [
+  "uba_components",
+  "uba_measures",
+  "uba_stations"
+ ],
+ "native_pages": [
+  {
+   "url": "https://www.umweltbundesamt.de/api/air_data/v3/stations/json",
+   "params": {
+    "use": "airquality",
+    "lang": "en",
+    "date_from": "2026-09-24",
+    "date_to": "2026-09-24"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "uba_stations",
+   "body_sha256": "dd82934a07fbf3ba944916d03efde106428c46103b66d7cc8f78fc3c00046bcb",
+   "body": "{\n \"request\": {\n  \"use\": \"airquality\",\n  \"lang\": \"en\",\n  \"date_from\": \"2026-09-24\",\n  \"date_to\": \"2026-09-24\"\n },\n \"indices\": [\n  \"station id\",\n  \"station code\",\n  \"station name\",\n  \"station city\",\n  \"station synonym\",\n  \"station active from\",\n  \"station active to\",\n  \"station longitude\",\n  \"station latitude\",\n  \"network id\",\n  \"station setting id\",\n  \"station type id\",\n  \"network code\",\n  \"network name\",\n  \"station setting name\",\n  \"station setting short name\",\n  \"station type name\",\n  \"station street\",\n  \"station street nr\",\n  \"station zip code\"\n ],\n \"data\": {\n  \"282\": [\n   \"282\",\n   \"DEBE068\",\n   \"Berlin Mitte\",\n   \"Berlin\",\n   \"BEMI\",\n   \"2016-11-01\",\n   null,\n   \"13.41880\",\n   \"52.51385\",\n   \"6\",\n   \"1\",\n   \"2\",\n   \"BE\",\n   \"Berlin\",\n   \"urban area\",\n   \"urban\",\n   \"traffic\",\n   \"Brückenstraße\",\n   \"6\",\n   \"10179\"\n  ],\n  \"271\": [\n   \"271\",\n   \"DEBE065\",\n   \"Berlin Frankfurter Allee\",\n   \"Berlin\",\n   \"BEFA\",\n   \"1998-01-01\",\n   null,\n   \"13.46950\",\n   \"52.51440\",\n   \"6\",\n   \"1\",\n   \"2\",\n   \"BE\",\n   \"Berlin\",\n   \"urban area\",\n   \"urban\",\n   \"traffic\",\n   \"Frankfurter Allee\",\n   \"86b\",\n   \"10247\"\n  ],\n  \"999\": [\n   \"999\",\n   \"DEBB999\",\n   \"Fixture Brandenburg\",\n   \"Potsdam\",\n   \"BBFX\",\n   \"2000-01-01\",\n   null,\n   \"13.06\",\n   \"52.39\",\n   \"5\",\n   \"2\",\n   \"1\",\n   \"BB\",\n   \"Brandenburg\",\n   \"suburban area\",\n   \"suburban\",\n   \"background\",\n   \"\",\n   \"\",\n   \"\"\n  ]\n },\n \"count\": 3\n}\n"
+  },
+  {
+   "url": "https://www.umweltbundesamt.de/api/air_data/v3/components/json",
+   "params": {
+    "lang": "en",
+    "index": "id"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "uba_components",
+   "body_sha256": "e73d86b0b55ae66a137dcf05fff511b9ae79084da790e77ba12149d41b98a87f",
+   "body": "{\n \"count\": 3,\n \"indices\": [\n  \"component id\",\n  \"component code\",\n  \"component symbol\",\n  \"component unit\",\n  \"component name\"\n ],\n \"1\": [\n  \"1\",\n  \"PM10\",\n  \"PM₁₀\",\n  \"µg/m³\",\n  \"Particulate matter\"\n ],\n \"3\": [\n  \"3\",\n  \"O3\",\n  \"O₃\",\n  \"µg/m³\",\n  \"Ozone\"\n ],\n \"5\": [\n  \"5\",\n  \"NO2\",\n  \"NO₂\",\n  \"µg/m³\",\n  \"Nitrogen dioxide\"\n ]\n}\n"
+  },
+  {
+   "url": "https://www.umweltbundesamt.de/api/air_data/v3/measures/json",
+   "params": {
+    "date_from": "2026-09-24",
+    "time_from": "1",
+    "date_to": "2026-09-24",
+    "time_to": "4",
+    "station": "282",
+    "component": "5",
+    "scope": "2"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "uba_measures",
+   "body_sha256": "df7ddc1c1c768f01630f4eb1c6d7c93bae7fbaf6c7018af34f6b72ef1d8409a7",
+   "body": "{\n \"request\": {\n  \"component\": \"5\",\n  \"scope\": \"2\",\n  \"station\": \"282\",\n  \"date_from\": \"2026-09-24\",\n  \"date_to\": \"2026-09-24\",\n  \"time_from\": 1,\n  \"time_to\": 4,\n  \"lang\": \"en\"\n },\n \"indices\": {\n  \"data\": {\n   \"station id\": {\n    \"date start\": [\n     \"component id\",\n     \"scope id\",\n     \"value\",\n     \"date end\",\n     \"index\"\n    ]\n   }\n  }\n },\n \"data\": {\n  \"282\": {\n   \"2026-09-24 01:00:00\": [\n    5,\n    2,\n    30,\n    \"2026-09-24 02:00:00\",\n    \"1\"\n   ],\n   \"2026-09-24 02:00:00\": [\n    5,\n    2,\n    29,\n    \"2026-09-24 03:00:00\",\n    \"1\"\n   ],\n   \"2026-09-24 03:00:00\": [\n    5,\n    2,\n    45,\n    \"2026-09-24 04:00:00\",\n    \"2\"\n   ],\n   \"2026-09-24 04:00:00\": [\n    5,\n    2,\n    53,\n    \"2026-09-24 05:00:00\",\n    \"2\"\n   ]\n  }\n }\n}\n"
+  },
+  {
+   "url": "https://www.umweltbundesamt.de/api/air_data/v3/measures/json",
+   "params": {
+    "date_from": "2026-09-24",
+    "time_from": "1",
+    "date_to": "2026-09-24",
+    "time_to": "4",
+    "station": "271",
+    "component": "5",
+    "scope": "2"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "uba_measures",
+   "body_sha256": "80f049a4d4418b428550241a338b89d94133b06349f66385dbc1bd98675ff0f1",
+   "body": "{\n \"request\": {\n  \"component\": \"5\",\n  \"scope\": \"2\",\n  \"station\": \"271\",\n  \"date_from\": \"2026-09-24\",\n  \"date_to\": \"2026-09-24\",\n  \"time_from\": 1,\n  \"time_to\": 4,\n  \"lang\": \"en\"\n },\n \"indices\": {\n  \"data\": {\n   \"station id\": {\n    \"date start\": [\n     \"component id\",\n     \"scope id\",\n     \"value\",\n     \"date end\",\n     \"index\"\n    ]\n   }\n  }\n },\n \"data\": {\n  \"271\": {\n   \"2026-09-24 01:00:00\": [\n    5,\n    2,\n    36,\n    \"2026-09-24 02:00:00\",\n    \"1\"\n   ],\n   \"2026-09-24 02:00:00\": [\n    5,\n    2,\n    34,\n    \"2026-09-24 03:00:00\",\n    \"1\"\n   ],\n   \"2026-09-24 03:00:00\": [\n    5,\n    2,\n    49,\n    \"2026-09-24 04:00:00\",\n    \"2\"\n   ],\n   \"2026-09-24 04:00:00\": [\n    5,\n    2,\n    null,\n    \"2026-09-24 05:00:00\",\n    \"2\"\n   ]\n  }\n }\n}\n"
+  }
+ ]
+}

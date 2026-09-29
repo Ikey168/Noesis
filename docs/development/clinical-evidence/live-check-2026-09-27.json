@@ -1,0 +1,325 @@
+{
+  "contract": "noesis-clinical-live-check-v1",
+  "evidence_kind": "live",
+  "started_at": "2026-09-27T00:50:30.481026+00:00",
+  "environment_note": "Claude Code cloud container; egress through the agent proxy, which rejects CONNECT to every provider host (curl: CONNECT tunnel failed, response 403)",
+  "note": "Live evidence only. Offline fixture evidence is reported by tests/unit/clinical and tests/unit/domains/test_clinical_evidence_acceptance.py and is never live coverage.",
+  "probes": {
+    "ctgov": {
+      "url": "https://clinicaltrials.gov/api/v2/version",
+      "contract_status": "implemented",
+      "outcome": "unreachable",
+      "error_type": "OSError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_s": 0.4
+    },
+    "ctis": {
+      "url": "https://euclinicaltrials.eu/ctis-public-api/retrieve/2023-509001-12-00",
+      "contract_status": "implemented",
+      "outcome": "unreachable",
+      "error_type": "OSError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_s": 0.24
+    },
+    "euctr": {
+      "url": "https://www.clinicaltrialsregister.eu/ctr-search/search?query=diabetes",
+      "contract_status": "implemented",
+      "outcome": "unreachable",
+      "error_type": "OSError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_s": 0.24
+    },
+    "openfda": {
+      "url": "https://api.fda.gov/drug/label.json?limit=1",
+      "contract_status": "implemented",
+      "outcome": "unreachable",
+      "error_type": "OSError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_s": 0.3
+    },
+    "ema": {
+      "url": "https://www.ema.europa.eu/en/medicines/download-medicine-data",
+      "contract_status": "implemented",
+      "outcome": "unreachable",
+      "error_type": "OSError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_s": 0.24
+    },
+    "prospero": {
+      "url": "https://www.crd.york.ac.uk/prospero/",
+      "contract_status": "not-implemented",
+      "outcome": "unreachable",
+      "error_type": "OSError",
+      "error": "Tunnel connection failed: 403 Forbidden",
+      "elapsed_s": 0.22
+    }
+  },
+  "sources": {
+    "ctgov-question-search": {
+      "connector": "ctgov",
+      "provider": "ctgov",
+      "endpoint": "https://clinicaltrials.gov/api/v2",
+      "selection": {
+        "namespace": "clinical",
+        "query": {
+          "cond": "type 2 diabetes",
+          "intr": "noetiglutide"
+        },
+        "page_size": 2
+      },
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 1,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [],
+      "elapsed_s": 0.37
+    },
+    "ctgov-trial-history": {
+      "connector": "ctgov",
+      "provider": "ctgov",
+      "endpoint": "https://clinicaltrials.gov/api/v2",
+      "selection": {
+        "namespace": "clinical",
+        "nct_ids": [
+          "NCT09000001",
+          "NCT09000002"
+        ],
+        "history": true,
+        "max_versions": 20
+      },
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 1,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [],
+      "elapsed_s": 0.33
+    },
+    "ctis-trials": {
+      "connector": "ctis",
+      "provider": "ctis",
+      "endpoint": "https://euclinicaltrials.eu/ctis-public-api",
+      "selection": {
+        "namespace": "clinical",
+        "ct_numbers": [
+          "2023-509001-12-00"
+        ]
+      },
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 1,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [],
+      "elapsed_s": 0.2
+    },
+    "ema-medicines": {
+      "connector": "ema-medicines",
+      "provider": "ema",
+      "endpoint": "https://www.ema.europa.eu/en/documents",
+      "selection": {
+        "namespace": "clinical",
+        "product_numbers": [
+          "EMEA/H/C/009001"
+        ],
+        "export_path": "/en/documents/report/medicines-output-medicines_json-report_en.json"
+      },
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 1,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [],
+      "elapsed_s": 0.41
+    },
+    "euctr-trials": {
+      "connector": "eu-ctr",
+      "provider": "euctr",
+      "endpoint": "https://www.clinicaltrialsregister.eu/ctr-search",
+      "selection": {
+        "namespace": "clinical",
+        "eudract_numbers": [
+          "2015-900001-10"
+        ]
+      },
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 1,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [],
+      "elapsed_s": 0.36
+    },
+    "openfda-products": {
+      "connector": "openfda",
+      "provider": "openfda",
+      "endpoint": "https://api.fda.gov",
+      "selection": {
+        "namespace": "clinical",
+        "products": [
+          {
+            "generic_name": "noetiglutide"
+          }
+        ],
+        "endpoints": [
+          "label",
+          "drugsfda",
+          "event-counts"
+        ],
+        "event_count_field": "patient.reaction.reactionmeddrapt.exact",
+        "max_labels": 3
+      },
+      "status": "failed",
+      "failure": {
+        "code": "source_unavailable",
+        "message": "source unavailable",
+        "classification": "transient-availability"
+      },
+      "counts": {
+        "attempts": 1,
+        "pages": 0,
+        "fetched": 0,
+        "normalized": 0,
+        "inserted": 0,
+        "duplicates": 0,
+        "invalid": 0,
+        "quarantined": 0,
+        "bytes": 0
+      },
+      "retries": [],
+      "elapsed_s": 0.38
+    }
+  },
+  "projected_records": {
+    "clinical": 0
+  },
+  "live_verification": {
+    "ctgov": {
+      "status": "unverified-live",
+      "last_check": {
+        "date": "2026-09-27",
+        "failure_codes": [
+          "source_unavailable"
+        ],
+        "probe": "unreachable"
+      }
+    },
+    "ctis": {
+      "status": "unverified-live",
+      "last_check": {
+        "date": "2026-09-27",
+        "failure_codes": [
+          "source_unavailable"
+        ],
+        "probe": "unreachable"
+      }
+    },
+    "euctr": {
+      "status": "unverified-live",
+      "last_check": {
+        "date": "2026-09-27",
+        "failure_codes": [
+          "source_unavailable"
+        ],
+        "probe": "unreachable"
+      }
+    },
+    "openfda": {
+      "status": "unverified-live",
+      "last_check": {
+        "date": "2026-09-27",
+        "failure_codes": [
+          "source_unavailable"
+        ],
+        "probe": "unreachable"
+      }
+    },
+    "ema": {
+      "status": "unverified-live",
+      "last_check": {
+        "date": "2026-09-27",
+        "failure_codes": [
+          "source_unavailable"
+        ],
+        "probe": "unreachable"
+      }
+    },
+    "prospero": {
+      "status": "not-implemented",
+      "reason": "only supported means are used; PROSPERO registrations enter as user-supplied record exports (import_prospero_registration) linked to the systematic-review store"
+    }
+  },
+  "summary": {
+    "sources_complete": [],
+    "sources_failed": [
+      "ctgov-question-search",
+      "ctgov-trial-history",
+      "ctis-trials",
+      "ema-medicines",
+      "euctr-trials",
+      "openfda-products"
+    ]
+  },
+  "finished_at": "2026-09-27T00:50:35.044652+00:00"
+}

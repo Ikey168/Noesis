@@ -13,6 +13,10 @@ Pillow is imported lazily (it is already an indirect dependency via
 degrades to ``None`` / ``{}`` rather than raising, so ingestion never breaks on a
 bad image. Heavy work stays out of the tool servers by living here, called from
 the batch/backfill path.
+
+Sampled video keyframes (OX04, #2044) go through the same dHash; their EXIF is
+recorded as an empty mapping because extracted frames carry none, and nothing
+is fabricated in its place (:func:`keyframe_provenance`).
 """
 
 from __future__ import annotations
@@ -109,3 +113,9 @@ def _coerce(value: Any) -> Any:
     if isinstance(value, (list, tuple)):
         return [_coerce(v) for v in value]
     return str(value)
+
+
+def keyframe_provenance(frame_bytes: bytes) -> Dict[str, Any]:
+    """Provenance for a sampled video keyframe: the same dHash as a still image
+    and an explicitly empty EXIF (frames have none; never fabricated)."""
+    return {"phash": perceptual_hash(frame_bytes), "exif": {}}

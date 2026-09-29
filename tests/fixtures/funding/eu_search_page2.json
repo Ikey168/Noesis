@@ -1,0 +1,86 @@
+{
+ "totalResults": 4,
+ "pageNumber": 2,
+ "pageSize": 2,
+ "results": [
+  {
+   "reference": "HORIZON-FIXTURE-2025-02-03",
+   "url": "https://ec.europa.eu/fixture/HORIZON-FIXTURE-2025-02-03",
+   "metadata": {
+    "identifier": [
+     "HORIZON-FIXTURE-2025-02-03"
+    ],
+    "title": [
+     "Quantum sensing pilot lines"
+    ],
+    "callIdentifier": [
+     "HORIZON-FIXTURE-2025-02"
+    ],
+    "callTitle": [
+     "Fixture cluster call"
+    ],
+    "status": [
+     "31094503"
+    ],
+    "deadlineDate": [
+     "2025-09-16T16:00:00.000+0000"
+    ],
+    "deadlineModel": [
+     "single-stage"
+    ],
+    "frameworkProgramme": [
+     "43108390"
+    ],
+    "typesOfAction": [
+     "HORIZON Research and Innovation Actions"
+    ],
+    "type": [
+     "1"
+    ],
+    "keywords": [
+     "quantum"
+    ],
+    "budgetOverview": [
+     "{\"budgetTopicActionMap\": {\"1\": [{\"action\": \"RIA\", \"budgetYearMap\": {\"2026\": 20000000}, \"expectedGrants\": 2, \"minContribution\": 5000000, \"maxContribution\": 10000000}]}}"
+    ]
+   }
+  },
+  {
+   "reference": "FIXTURE-TENDER-2026-001",
+   "url": "https://ec.europa.eu/fixture/FIXTURE-TENDER-2026-001",
+   "metadata": {
+    "identifier": [
+     "FIXTURE-TENDER-2026-001"
+    ],
+    "title": [
+     "Study on digital commons procurement"
+    ],
+    "callIdentifier": [
+     "FIXTURE-TENDER-2026"
+    ],
+    "callTitle": [
+     "Fixture cluster call"
+    ],
+    "status": [
+     "31094502"
+    ],
+    "deadlineDate": [
+     "2026-11-01T16:00:00.000+0000"
+    ],
+    "deadlineModel": [
+     "single-stage"
+    ],
+    "frameworkProgramme": [
+     "43108390"
+    ],
+    "typesOfAction": [
+     "HORIZON Research and Innovation Actions"
+    ],
+    "type": [
+     "0"
+    ],
+    "keywords": []
+   }
+  }
+ ]
+}

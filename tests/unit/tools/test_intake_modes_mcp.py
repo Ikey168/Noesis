@@ -3,6 +3,7 @@ import asyncio
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from tools.knowledge_engine_mcp import intake
 from tools.knowledge_engine_mcp import server
 
 
@@ -82,6 +83,55 @@ def test_intake_public_tools_and_access(tmp_path, monkeypatch):
     ) == ["knowledge:intake:read"]
 
 
+def test_jev_free_text_intake_route_mcp_explicit_precedence(tmp_path, monkeypatch):
+    path = str(tmp_path / "jev-intake-routing.duckdb")
+    monkeypatch.setattr(server, "_context", lambda: ("alice", {"operator"}))
+    monkeypatch.setattr(
+        server,
+        "_connection",
+        lambda *, read_only: duckdb.connect(path, read_only=read_only),
+    )
+    tools = asyncio.run(server.mcp.get_tools())
+    assert {
+        "register_jev_intake_intent",
+        "revise_jev_intake_intent",
+        "inspect_jev_intake_intent",
+        "suggest_jev_intake_route",
+    } <= tools.keys()
+    intent = tools["register_jev_intake_intent"].fn(
+        namespace="research",
+        request_key="mixed-request",
+        intent_text="I need to decide and create something.",
+    )
+    assert intent["version"] == 1
+    explicit = tools["suggest_jev_intake_route"].fn(
+        namespace="research",
+        run_id="explicit-route",
+        input_id=intent["input_id"],
+        answers={"decision_needed": True},
+    )
+    assert explicit["route"]["mode"] == "Decision Support"
+    assert explicit["hosted_inference_used"] is False
+    override = tools["suggest_jev_intake_route"].fn(
+        namespace="research",
+        run_id="override-route",
+        input_id=intent["input_id"],
+        answers={"decision_needed": True},
+        override="Creation",
+    )
+    assert override["route"]["mode"] == "Creation"
+    revised = tools["revise_jev_intake_intent"].fn(
+        namespace="research",
+        input_id=intent["input_id"],
+        expected_version=1,
+        intent_text="I need a deep research overview.",
+    )
+    assert revised["version"] == 2
+    assert _required_scopes(
+        "knowledge_engine_mcp", "write", "suggest_jev_intake_route"
+    ) == ["knowledge:decision:execute"]
+
+
 def test_awareness_mcp_uses_persistent_feed_inbox(tmp_path, monkeypatch):
     from src.kb import intake_inbox
 
@@ -151,6 +201,39 @@ def test_awareness_mcp_uses_persistent_feed_inbox(tmp_path, monkeypatch):
     assert _required_scopes(
         "knowledge_engine_mcp", "write", "refresh_intake_feed_inbox"
     ) == ["knowledge:intake:write", "knowledge:intake:fetch"]
+
+
+def test_awareness_newsletter_input_over_mcp(tmp_path, monkeypatch):
+    path = str(tmp_path / "newsletter.duckdb")
+    scopes = {
+        "knowledge:intake:read", "knowledge:intake:write",
+        "namespace:research:read", "namespace:research:write",
+    }
+    monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
+    monkeypatch.setattr(
+        server, "_connection",
+        lambda *, read_only: duckdb.connect(path, read_only=read_only),
+    )
+    tools = asyncio.run(server.mcp.get_tools())
+    subscribed = tools["subscribe_intake_newsletter_input"].fn(
+        namespace="research", sender="editor@example.org", name="Weekly"
+    )
+    kwargs = {
+        "namespace": "research", "subscription_id": subscribed["subscription_id"],
+        "message_id": "weekly-1@example.org", "sender": "editor@example.org",
+        "subject": "Weekly news", "body": "A relevant development",
+        "published_at_ms": 1_789_000_000_000,
+    }
+    first = tools["ingest_intake_newsletter_message"].fn(**kwargs)
+    assert first["created"] == 1
+    assert first["authentication_state"] == "caller_supplied_unverified"
+    assert tools["ingest_intake_newsletter_message"].fn(**kwargs)["created"] == 0
+    item = tools["list_intake_feed_inbox"].fn(namespace="research")["items"][0]
+    assert item["original_url"].startswith("mid:")
+    assert item["published_at_ms"] == kwargs["published_at_ms"]
+    assert tools["ingest_intake_newsletter_message"].fn(
+        **{**kwargs, "sender": "other@example.org"}
+    )["error"]["code"] == "sender_mismatch"
 
 
 def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
@@ -253,3 +336,76 @@ def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
         fetch_readable=True,
     )
     assert denied["error"]["code"] == "unauthorized"
+
+
+def test_modulo_plugin_link_recheck_mcp_is_read_only_scoped_and_fail_closed(
+    tmp_path, monkeypatch,
+):
+    path = str(tmp_path / "modulo-link-check.duckdb")
+    scopes = {
+        "knowledge:intake:read", "knowledge:intake:write",
+        "namespace:research:read", "namespace:research:write",
+    }
+    monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
+    monkeypatch.setattr(
+        server, "_connection",
+        lambda *, read_only: duckdb.connect(path, read_only=read_only),
+    )
+    monkeypatch.setattr(intake, "MODULO_PLUGIN_LINK_PROVIDER", None)
+    tools = asyncio.run(server.mcp.get_tools())
+    assert "recheck_modulo_plugin_link" in tools
+    link = {
+        "workspace_id": "workspace:personal", "account_id": "account:alice",
+        "plugin_id": "notes-editor", "collection": "notes",
+        "record_id": "note:7", "authoritative_version": 4,
+        "representation": "linked_projection", "authority": "modulo",
+    }
+    session = tools["start_intake_mode"].fn(
+        namespace="research", mode="Exploration", request_key="linked-note",
+        intent="Review the note", plugin_links=[link],
+    )
+    args = {
+        "namespace": "research", "session_id": session["session_id"],
+        "expected_session_revision": 1, "link_index": 0,
+    }
+    unavailable = tools["recheck_modulo_plugin_link"].fn(**args)
+    assert unavailable["status"] == "unavailable"
+    assert unavailable["content_included"] is False
+
+    class Reader:
+        def __init__(self):
+            self.identity = None
+
+        def read_exact_record(self, identity):
+            self.identity = identity
+            return {
+                "identity": identity, "status": "accessible",
+                "authoritative_version": 5,
+            }
+
+    class Provider:
+        def __init__(self):
+            self.principal_id = None
+            self.reader = Reader()
+
+        def for_caller(self, principal_id):
+            self.principal_id = principal_id
+            return self.reader
+
+    provider = Provider()
+    monkeypatch.setattr(intake, "MODULO_PLUGIN_LINK_PROVIDER", provider)
+    checked = tools["recheck_modulo_plugin_link"].fn(**args)
+    assert checked["status"] == "version_changed"
+    assert checked["current_authoritative_version"] == 5
+    assert provider.principal_id == "alice"
+    assert provider.reader.identity == {
+        "workspace_id": "workspace:personal", "account_id": "account:alice",
+        "plugin_id": "notes-editor", "collection": "notes", "record_id": "note:7",
+    }
+    assert set(tools["recheck_modulo_plugin_link"].parameters["properties"]) == {
+        "namespace", "session_id", "expected_session_revision", "link_index",
+    }
+    assert _mutability("recheck_modulo_plugin_link") == "read"
+    assert _required_scopes(
+        "knowledge_engine_mcp", "read", "recheck_modulo_plugin_link",
+    ) == ["knowledge:intake:read"]

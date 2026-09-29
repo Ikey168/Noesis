@@ -25,7 +25,7 @@ DEFINITION = {
     "questions": ["What changed for ${topic}?"],
     "success_criteria": ["Cite retained revisions"],
     "scope": {"domains": ["political"], "namespaces": ["r"]},
-    "source_packs": [{"pack_id": "official-political-records", "version": "1.0.0"}],
+    "source_packs": [{"pack_id": "official-political-records", "version": "1.2.0"}],
     "report_outline": ["Changes to ${topic}", "Unresolved questions"],
 }
 

@@ -1,0 +1,28 @@
+{
+  "meta": {"name": "openaq-api", "website": "/", "page": 1, "limit": 100, "found": 1},
+  "results": [
+    {
+      "id": 2993,
+      "name": "DEBE068",
+      "locality": "Berlin Mitte",
+      "timezone": "Europe/Berlin",
+      "country": {"id": 50, "code": "DE", "name": "Germany"},
+      "owner": {"id": 4, "name": "Unknown Governmental Organization"},
+      "provider": {"id": 70, "name": "EEA"},
+      "isMobile": false,
+      "isMonitor": true,
+      "instruments": [{"id": 2, "name": "Government Monitor"}],
+      "sensors": [
+        {"id": 7771, "name": "no2 µg/m³", "parameter": {"id": 5, "name": "no2", "units": "µg/m³", "displayName": "NO₂ mass"}},
+        {"id": 7772, "name": "pm10 µg/m³", "parameter": {"id": 1, "name": "pm10", "units": "µg/m³", "displayName": "PM10"}}
+      ],
+      "coordinates": {"latitude": 52.51384, "longitude": 13.41879},
+      "licenses": [{"id": 38, "name": "CC BY 4.0", "attribution": {"name": "European Environment Agency", "url": null},
+                    "dateFrom": "2016-01-01", "dateTo": null}],
+      "bounds": [13.41879, 52.51384, 13.41879, 52.51384],
+      "distance": null,
+      "datetimeFirst": {"utc": "2016-11-09T13:00:00Z", "local": "2016-11-09T14:00:00+01:00"},
+      "datetimeLast": {"utc": "2026-09-24T04:00:00Z", "local": "2026-09-24T06:00:00+02:00"}
+    }
+  ]
+}

@@ -1,0 +1,23 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-event-dossier-comparison-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "dossier_id", "event_id", "from_revision", "to_revision", "event_before", "event_after", "changed_accounts", "source_changes", "unresolved_conflicts", "origin_evidence_before", "origin_evidence_after", "coverage_before", "coverage_after", "sha256"],
+  "properties": {
+    "contract": {"const": "noesis-event-dossier-comparison-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "dossier_id": {"type": "string", "minLength": 1},
+    "event_id": {"type": "string", "minLength": 1},
+    "from_revision": {"type": "integer", "minimum": 1},
+    "to_revision": {"type": "integer", "minimum": 1},
+    "event_before": {"type": "object"}, "event_after": {"type": "object"},
+    "changed_accounts": {"type": "array", "maxItems": 400, "items": {"type": "object", "required": ["account_id", "before", "after", "classification"], "properties": {"classification": {"enum": ["addition", "removal", "correction"]}}, "additionalProperties": true}},
+    "source_changes": {"type": "array", "maxItems": 400},
+    "unresolved_conflicts": {"type": "array"},
+    "origin_evidence_before": {"type": "array"},
+    "origin_evidence_after": {"type": "array"},
+    "coverage_before": {"enum": ["complete_for_retained_sources", "incomplete"]},
+    "coverage_after": {"enum": ["complete_for_retained_sources", "incomplete"]},
+    "sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  }, "additionalProperties": false
+}

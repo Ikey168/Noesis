@@ -1,0 +1,10 @@
+{
+  "description": "Hand-written RFC 9224 bootstrap fixture (shape of https://data.iana.org/rdap/dns.json); servers are fictional.",
+  "publication": "2026-09-01T00:00:00Z",
+  "version": "1.0",
+  "services": [
+    [["example"], ["http://rdap.fixture-registry.test/v1/", "https://rdap.fixture-registry.test/v1/"]],
+    [["co.example"], ["https://rdap.second-level.test/"]],
+    [["insecure"], ["http://rdap.insecure.test/"]]
+  ]
+}

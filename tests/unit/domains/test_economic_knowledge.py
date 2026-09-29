@@ -157,6 +157,8 @@ def test_vintages_replay_initial_and_latest_values_as_observed(economic_corpus):
         period_to="2025-Q2",
     )
     assert early["results"][0]["observations"][0]["value"] == 23770.1
+    assert early["citations"][0]["release_at_basis"] == "provider_vintage_fallback"
+    assert early["citations"][0]["retrieved_at_basis"] == "record_as_of_fallback"
     assert latest["results"][0]["observations"][0]["value"] == 23800.4
     revision = economic_research(
         backing,
