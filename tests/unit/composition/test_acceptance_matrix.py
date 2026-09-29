@@ -74,6 +74,11 @@ MATRIX = {
     "Contract and address to cited ledger observations":
         "tests/unit/domains/test_onchain_acceptance.py::"
         "test_contract_and_address_to_cited_origin_transfers_and_probable_cluster",
+    # The Natural Hazards bundle's offline journey (#2372) composes its own record owner, geospatial places and
+    # relations, entity identity, subscriptions and the source-pack runtime.
+    "Place and window to cited hazard events":
+        "tests/unit/domains/test_natural_hazards_acceptance.py::"
+        "test_place_and_window_to_cited_events_with_revision_history_correspondents_and_alerts_as_issued",
 }
 
 
