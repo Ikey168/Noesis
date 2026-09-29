@@ -9296,6 +9296,12 @@ from tools.knowledge_engine_mcp.development_finance import (
 
 register_development_finance_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.trade import (  # noqa: E402 - registration order
+    register as register_trade_tools,
+)
+
+register_trade_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

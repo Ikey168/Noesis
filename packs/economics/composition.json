@@ -24,6 +24,14 @@
           "name": "noesis-demographic-series",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "economics.trade",
+        "provider": "economics.trade",
+        "contract": {
+          "name": "noesis-trade-flow-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -38,13 +46,17 @@
       {
         "id": "economics.demographics",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.trade",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.3.0",
-        "range": "^1.3.0"
+        "version": "1.5.0",
+        "range": "^1.5.0"
       }
     ],
     "profiles": [
@@ -86,6 +98,28 @@
           "country of birth": "breakdown by country of birth, never interchanged with citizenship",
           "application": "an asylum application as the publisher counts it (first-time or follow-up)",
           "decision": "a decision on an application, by outcome where published; never netted against applications"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.trade-flows",
+        "description": "International trade flows: a country pair's reported flows by product and period as of a release, the reporter's figure and the partner's mirror figure side by side with valuation basis, classification vintage, release vintage and a displayed asymmetry; flows in products a cited sanctions measure covers",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per figure; a figure not yet released is none_reported",
+          "mirror": "reporter and mirror figures side by side; the difference is displayed, never reconciled",
+          "classifications": "other classification vintages only through a cited concordance, non-exact mappings flagged",
+          "missing": "none_reported, never zero; confidential cells stay confidential",
+          "areas": "codes joined only through accepted identity matches; special areas stay distinct"
+        },
+        "vocabulary": {
+          "reporter figure": "the flow as the pair's reporter published it",
+          "mirror figure": "the partner's own report of the opposite flow (the reporter's exports are the partner's imports)",
+          "asymmetry": "the displayed difference between a reporter and a mirror figure, not an error to correct",
+          "CIF": "import value including cost, insurance and freight to the border",
+          "FOB": "export value free on board at the border",
+          "classification vintage": "the HS edition, CN year or SITC revision a product code belongs to"
         },
         "source_packs": [
           "economic-statistics-and-filings"
@@ -221,6 +255,80 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "statistics are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "trade-comtrade",
+      "default": false,
+      "description": "UN Comtrade reported goods flows (HS) by reporter, partner, flow and product with release vintages: reporter and mirror reports side by side with displayed asymmetries, WITS/UNSD concordances across HS editions and SITC revisions, reviewable area and product identity, sanctions and ownership links by citation (degrading to provider_absent when those stores are not held) and subscription monitors. No estimation, nowcast, reconciliation or sanctions-evasion inference.",
+      "requires": [
+        {
+          "capability": "economics.trade",
+          "contract": "noesis-trade-flow-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "trade series follow the economic release and vintage pattern"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "reporter and partner codes resolve to places through reviewable matches"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "trade monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "flows and concordances are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "trade-comext",
+      "default": false,
+      "description": "Eurostat Comext EU trade in goods (CN8) through the Eurostat connector with the cube's release vintages: confidential cells kept without values, reporter and mirror reports of member states side by side, CN years resolved to HS through the CN structure and concordances, reviewable identity, sanctions and ownership links by citation (degrading when absent) and subscription monitors. No estimation, nowcast, reconciliation or sanctions-evasion inference.",
+      "requires": [
+        {
+          "capability": "economics.trade",
+          "contract": "noesis-trade-flow-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "trade series follow the economic release and vintage pattern"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "reporter and partner codes resolve to places through reviewable matches"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "trade monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "flows and concordances are acquired through the source-pack runtime"
         }
       ]
     }
