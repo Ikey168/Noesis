@@ -1,0 +1,9 @@
+{
+ "crs_wkt": "GEOGCRS[...]",
+ "data_end_time": 1790445600,
+ "last_run_availability_time": 1790400600,
+ "last_run_initialisation_time": 1790391600,
+ "last_run_modification_time": 1790400500,
+ "temporal_resolution_seconds": 3600,
+ "update_interval_seconds": 10800
+}

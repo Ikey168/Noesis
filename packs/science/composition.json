@@ -1,0 +1,124 @@
+{
+  "requires": [
+    {
+      "capability": "geospatial.feature-query",
+      "contract": "noesis-geospatial-feature-query",
+      "range": "^1.0.0",
+      "semantic_constraints": {
+        "crs": "EPSG:4326"
+      },
+      "reason": "places are resolved against the shared spatial store"
+    },
+    {
+      "capability": "platform.session-artifacts",
+      "contract": "noesis-intake-session-artifact",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "science.math-objects",
+      "contract": "noesis-math-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "science.literature-claims",
+        "provider": "science.literature",
+        "contract": {
+          "name": "noesis-literature-claims",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "science.math-objects",
+        "provider": "science.mathematics",
+        "contract": {
+          "name": "noesis-math-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "science.cultural-objects",
+        "provider": "science.cultural",
+        "contract": {
+          "name": "noesis-cultural-object",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "science.literature",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.mathematics",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.cultural",
+        "version": "1.0.0"
+      }
+    ],
+    "workflow_templates": [
+      {
+        "id": "science.place-evidence",
+        "version": "1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "science.place-review",
+        "description": "Place-evidence literature review defaults",
+        "vocabulary": {
+          "place": "study site",
+          "evidence": "cited finding"
+        },
+        "workflow_defaults": {
+          "science.place-evidence": {
+            "boundary_collection": "alkis_bezirke:bezirksgrenzen"
+          }
+        }
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "research-discovery",
+        "version": "1.4.0",
+        "range": "^1.4.0"
+      },
+      {
+        "pack_id": "primary-scientific-evidence",
+        "version": "1.1.0",
+        "range": "^1.1.0"
+      }
+    ]
+  },
+  "optional_features": [
+    {
+      "id": "cultural-collections",
+      "default": false,
+      "description": "Cultural collections compose Research with Geospatial place resolution",
+      "requires": [
+        {
+          "capability": "science.cultural-objects",
+          "contract": "noesis-cultural-object",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0"
+        }
+      ]
+    }
+  ]
+}

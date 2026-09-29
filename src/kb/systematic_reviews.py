@@ -28,7 +28,13 @@ CREATE TABLE IF NOT EXISTS systematic_review_fields(
 CREATE TABLE IF NOT EXISTS systematic_review_field_reviews(
  field_id TEXT NOT NULL,reviewer TEXT NOT NULL,revision BIGINT NOT NULL,content_json TEXT NOT NULL,
  PRIMARY KEY(field_id,reviewer,revision));
+CREATE TABLE IF NOT EXISTS systematic_review_registrations(
+ protocol_id TEXT NOT NULL,registry TEXT NOT NULL,registration_id TEXT NOT NULL,content_json TEXT NOT NULL,
+ PRIMARY KEY(protocol_id,registry,registration_id));
 """
+# External registrations (e.g. PROSPERO CRD numbers) a protocol declares; the
+# registration record itself stays with its owner (Clinical Evidence records).
+REGISTRIES = {"prospero"}
 
 
 class ReviewError(ValueError):
@@ -370,3 +376,30 @@ class SystematicReviewStore:
         except Exception as exc:
             self._abort(exc)
         return result
+
+    def link_registration(self, namespace, protocol_id, registry, registration_id, *, principal_id, scopes,
+                          record=None):
+        """Declare that a protocol is registered externally (owner only); idempotent."""
+        if registry not in REGISTRIES:
+            raise ReviewError("invalid_registration", "unsupported review registry")
+        _text(registration_id)
+        state = self._state(namespace, protocol_id)
+        self._authorize(state, principal_id, scopes, write=True, owner_only=True)
+        value = {"protocol_id": protocol_id, "protocol_revision": state["revision"], "registry": registry,
+                 "registration_id": registration_id, "record": dict(record or {}), "declared_by": principal_id}
+        prior = self.conn.execute(
+            "SELECT content_json FROM systematic_review_registrations WHERE protocol_id=? AND registry=? AND registration_id=?",
+            [protocol_id, registry, registration_id]).fetchone()
+        if prior:
+            return {**json.loads(prior[0]), "idempotent": True}
+        value["recorded_at_ms"] = self.now()
+        self.conn.execute("INSERT INTO systematic_review_registrations VALUES (?,?,?,?)",
+                          [protocol_id, registry, registration_id, _json(value)])
+        return {**value, "idempotent": False}
+
+    def registrations(self, namespace, protocol_id, *, principal_id, scopes):
+        state = self._state(namespace, protocol_id)
+        self._authorize(state, principal_id, scopes)
+        return [json.loads(row[0]) for row in self.conn.execute(
+            "SELECT content_json FROM systematic_review_registrations WHERE protocol_id=? ORDER BY registry, registration_id",
+            [protocol_id]).fetchall()]

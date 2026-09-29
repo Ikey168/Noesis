@@ -1,0 +1,53 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#Indicator\",\n \"value\": [\n  {\n   \"IndicatorCode\": \"NOE_TB_NOTIF_RATE\",\n   \"IndicatorName\": \"Tuberculosis notification rate, all forms (per 100 000 population) (fictional indicator)\",\n   \"Language\": \"EN\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/Indicator?%24filter=IndicatorCode+eq+%27NOE_TB_NOTIF_RATE%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#NOE_TB_NOTIF_RATE\",\n \"value\": [\n  {\n   \"Id\": 99000000,\n   \"IndicatorCode\": \"NOE_TB_NOTIF_RATE\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": \"SEX\",\n   \"Dim1\": \"SEX_BTSX\",\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"5.3\",\n   \"NumericValue\": 5.3,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": null,\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  }\n ],\n \"@odata.nextLink\": \"https://ghoapi.azureedge.net/api/NOE_TB_NOTIF_RATE?%24filter=SpatialDim+eq+%27DEU%27&$skip=1\"\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/NOE_TB_NOTIF_RATE?%24filter=SpatialDim+eq+%27DEU%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#NOE_TB_NOTIF_RATE\",\n \"value\": [\n  {\n   \"Id\": 99000001,\n   \"IndicatorCode\": \"NOE_TB_NOTIF_RATE\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2098,\n   \"Dim1Type\": \"SEX\",\n   \"Dim1\": \"SEX_BTSX\",\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"5.6\",\n   \"NumericValue\": 5.6,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2099-02-10T09:00:00+01:00\",\n   \"TimeDimensionValue\": \"2098\",\n   \"TimeDimensionBegin\": \"2098-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2098-12-31T00:00:00+01:00\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json",
+    "Last-Modified": "Wed, 11 Feb 2099 08:00:00 GMT"
+   },
+   "request": "/api/NOE_TB_NOTIF_RATE?%24filter=SpatialDim+eq+%27DEU%27&%24skip=1",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#Indicator\",\n \"value\": [\n  {\n   \"IndicatorCode\": \"NOE_TB_INC_EST\",\n   \"IndicatorName\": \"Estimated incidence of tuberculosis (per 100 000 population) (fictional indicator)\",\n   \"Language\": \"EN\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/Indicator?%24filter=IndicatorCode+eq+%27NOE_TB_INC_EST%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#NOE_TB_INC_EST\",\n \"value\": [\n  {\n   \"Id\": 99000000,\n   \"IndicatorCode\": \"NOE_TB_INC_EST\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": \"SEX\",\n   \"Dim1\": \"SEX_BTSX\",\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"6.1 [5.2-7.0]\",\n   \"NumericValue\": 6.1,\n   \"Low\": 5.2,\n   \"High\": 7.0,\n   \"Comments\": null,\n   \"Date\": \"2098-11-02T10:00:00+01:00\",\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 99000001,\n   \"IndicatorCode\": \"NOE_TB_INC_EST\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2098,\n   \"Dim1Type\": \"SEX\",\n   \"Dim1\": \"SEX_BTSX\",\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"6.4 [5.4-7.5]\",\n   \"NumericValue\": 6.4,\n   \"Low\": 5.4,\n   \"High\": 7.5,\n   \"Comments\": null,\n   \"Date\": \"2099-02-10T09:00:00+01:00\",\n   \"TimeDimensionValue\": \"2098\",\n   \"TimeDimensionBegin\": \"2098-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2098-12-31T00:00:00+01:00\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/NOE_TB_INC_EST?%24filter=SpatialDim+eq+%27DEU%27",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; repository names, indicator codes, table codes and values are fictional. Not live evidence.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

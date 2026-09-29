@@ -37,6 +37,10 @@ RELATIONSHIP_TYPES = (
     "syndication",
     "authorship",
     "reporting-origin",
+    # OX06 (#2046): a probable relation from shared certificate SANs (or, if a
+    # provider is ever adopted, co-hosting). Deliberately *not* an independence
+    # edge: shared hosting and CDNs commonly explain it.
+    "shared-infrastructure",
 )
 INDEPENDENCE_EDGES = frozenset(
     {"ownership", "editorial-control", "syndication", "authorship", "reporting-origin"}

@@ -1,0 +1,1 @@
+{"contract":"noesis-market-audit-prune-v1","namespace":"market:fixture","before_ms":1000,"dry_run":true,"eligible":{"measurements":1,"budget_ledger":0},"deleted":0,"retained_evidence":["recovery_drills","backups","budgets","runbooks","repairs"]}

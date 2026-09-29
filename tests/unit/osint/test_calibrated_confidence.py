@@ -52,3 +52,26 @@ def test_single_sourced_claim_has_no_calibrated_range(seed):
     assert out["single_sourced"] is True
     assert out["support_credibility"] is None
     assert out["support_coverage"] is None
+
+
+def test_grades_sit_beside_the_calibrated_range_not_inside_it(seed):
+    """OX01: the Admiralty grades explain the existing signals; the calibrated
+    range stays, and neither grade replaces or fuses with it."""
+    seed.articles([
+        ("d1", "claim doc", "http://a/1", "Alpha Wire", "2026-06-01"),
+        ("d2", "support one", "http://b/1", "Beta Journal", "2026-06-02"),
+        ("d3", "support two", "http://c/1", "Gamma Review", "2026-06-03"),
+    ])
+    seed.claims([("k1", "Severe flooding struck the delta.", "d1", "news", 0.9, None)])
+    seed.evidence([
+        ("e1", "k1", "d2", "news", "supports", 0.88),
+        ("e2", "k1", "d3", "news", "supports", 0.82),
+    ])
+    out = corroborate(seed.conn, "k1")
+    assert is_interval(out["support_credibility"])
+    assert out["credibility_grade"]["grade"] == 1
+    # Alpha Wire has a one-document record -> reliability cannot be judged.
+    assert out["source_reliability_grade"]["grade"] == "F"
+    card = source_reliability(seed.conn, "Alpha Wire")
+    assert is_interval(card["reliability"])
+    assert card["reliability_grade"]["grade"] == "F"

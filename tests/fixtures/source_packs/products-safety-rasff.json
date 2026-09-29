@@ -1,0 +1,80 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: fictional products, brands, companies and notice numbers in the provider's documented shape (docs/roadmaps/products-safety-source-audit.md). Field names are unverified-live.",
+ "provider": "rasff",
+ "native_pages": [
+  {
+   "request": "/rasff-window/backend/public/notification?reference=2026.0457",
+   "status": 200,
+   "body": {
+    "notification": {
+     "reference": "2026.0457",
+     "classification": "alert notification",
+     "subject": "Salmonella Enteritidis in frozen chicken kebab",
+     "notificationDate": "2026-02-20",
+     "lastUpdate": "2026-03-04",
+     "notifyingCountry": {
+      "code": "NL",
+      "name": "Netherlands"
+     },
+     "product": {
+      "category": "poultry meat and poultry meat products",
+      "name": "frozen chicken kebab",
+      "brand": "Kebabio",
+      "description": "Frozen, pre-cooked, 1 kg bags",
+      "batches": [
+       {
+        "lot": "L2601/B",
+        "bestBefore": "30/05/2026"
+       }
+      ]
+     },
+     "hazards": [
+      {
+       "category": "pathogenic micro-organisms",
+       "name": "Salmonella Enteritidis",
+       "analyticalResult": "presence /25g (ISO 6579-1:2017)"
+      }
+     ],
+     "riskDecision": "serious",
+     "actionTaken": "withdrawal from the market",
+     "distributionStatus": "distribution to other member countries",
+     "origin": [
+      {
+       "code": "PL",
+       "name": "Poland"
+      }
+     ],
+     "distribution": [
+      {
+       "code": "DE",
+       "name": "Germany"
+      },
+      {
+       "code": "NL",
+       "name": "Netherlands"
+      }
+     ],
+     "followUps": [
+      {
+       "date": "2026-03-04",
+       "country": {
+        "code": "DE",
+        "name": "Germany"
+       },
+       "text": "Product withdrawn from sale; consumers informed.",
+       "actionTaken": "recall from consumers"
+      }
+     ],
+     "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.0457"
+    }
+   }
+  }
+ ],
+ "scenarios": [
+  "notification-by-reference",
+  "follow-up",
+  "lot-and-best-before-verbatim"
+ ]
+}

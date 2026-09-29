@@ -1,0 +1,33 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "smard",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://www.smard.de/app/chart_data",
+ "scenarios": [
+  "smard"
+ ],
+ "native_pages": [
+  {
+   "url": "https://www.smard.de/app/chart_data/410/DE/410_DE_quarterhour_1789941600000.json",
+   "params": {},
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "smard",
+   "body_sha256": "01e752b4bea697ccbff5080be44e29f2e92c65fcde2f758fd5de1a85183c00b5",
+   "body": "{\n \"meta_data\": {\n  \"version\": 1,\n  \"created\": 1790380800000\n },\n \"series\": [\n  [\n   1790208000000,\n   11123.25\n  ],\n  [\n   1790208900000,\n   10987.5\n  ],\n  [\n   1790209800000,\n   10876.0\n  ],\n  [\n   1790210700000,\n   10801.75\n  ],\n  [\n   1790211600000,\n   null\n  ]\n ]\n}\n"
+  },
+  {
+   "url": "https://www.smard.de/app/chart_data/411/DE/411_DE_quarterhour_1789941600000.json",
+   "params": {},
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "smard",
+   "body_sha256": "76fb88d36f4e096153fab958d350050a1ba11b67fc0eeb4b5d4f47da9cc59dbf",
+   "body": "{\n \"meta_data\": {\n  \"version\": 1,\n  \"created\": 1790121600000\n },\n \"series\": [\n  [\n   1790208000000,\n   11050.0\n  ],\n  [\n   1790208900000,\n   10950.0\n  ],\n  [\n   1790209800000,\n   10850.0\n  ],\n  [\n   1790210700000,\n   10800.0\n  ],\n  [\n   1790211600000,\n   10760.0\n  ]\n ]\n}\n"
+  }
+ ]
+}

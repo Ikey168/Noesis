@@ -822,3 +822,238 @@ class MethodologyStore:
             "explanation": "Strength is reported from explicit design, assessment, replication, and correction records; unknown fields remain unknown.",
             "explanation_hash": _digest(signals),
         }
+
+    # -------------------------------------------- clinical trial design (H08)
+    #
+    # A registered trial is a study whose design carries the trial-design
+    # fields, one study revision per registry version. Outcome switching
+    # compares consecutive registered versions (and a publication's stated
+    # primary outcome) and reports findings with both sides cited; it never
+    # judges a trial. Non-trial studies are untouched.
+
+    def register_trial_revision(
+        self,
+        namespace: str,
+        external_id: str,
+        registry_version: str,
+        title: str,
+        design: Mapping[str, Any],
+        *,
+        principal_id: str,
+        scopes: set[str],
+        generation: int,
+        observed_at_ms: int,
+        population: Mapping[str, Any] | None = None,
+        interventions: Sequence[Mapping[str, Any]] = (),
+        comparators: Sequence[Mapping[str, Any]] = (),
+        outcomes: Sequence[Mapping[str, Any]] = (),
+        provenance: Mapping[str, Any] | None = None,
+    ) -> dict[str, Any]:
+        """One registry version as one study revision (design type ``clinical-trial``)."""
+        _require(scopes, WRITE_SCOPE)
+        fields = trial_design(design)
+        study_id = "study:" + _digest([namespace, external_id])[:24]
+        current = self.conn.execute(
+            "SELECT study_revision_id FROM methodology_study_current WHERE study_id=?",
+            [study_id],
+        ).fetchone()
+        return self.register_study(
+            namespace,
+            external_id,
+            f"registry:{registry_version}",
+            title or external_id,
+            {"type": "clinical-trial", "contract": TRIAL_DESIGN_CONTRACT, "trial": fields},
+            dict(population or {}),
+            interventions,
+            comparators,
+            outcomes,
+            principal_id=principal_id,
+            scopes=scopes,
+            predecessor_revision_id=current[0] if current else None,
+            generation=int(generation),
+            observed_at_ms=int(observed_at_ms),
+            provenance=provenance,
+            producer={"name": "noesis-clinical-evidence", "version": "1.0.0"},
+        )
+
+    def trial_revisions(self, namespace: str, study_id: str, *, scopes: set[str]):
+        """Trial-design fields per registry version, in registry order."""
+        _require(scopes, READ_SCOPE)
+        self.study(namespace, study_id, scopes=scopes)
+        rows = self.conn.execute(
+            "SELECT payload_json FROM methodology_study_revisions WHERE namespace=? AND study_id=? "
+            "ORDER BY generation, observed_at_ms, created_at_ms",
+            [namespace, study_id],
+        ).fetchall()
+        revisions = [_load(row[0], {}) for row in rows]
+        return [
+            {
+                "study_revision_id": r["study_revision_id"],
+                "version": r["version"],
+                "generation": r["generation"],
+                "trial": r["design"].get("trial"),
+                "provenance": r.get("provenance"),
+            }
+            for r in revisions
+            if r["design"].get("type") == "clinical-trial"
+        ]
+
+    def outcome_switching(
+        self,
+        namespace: str,
+        study_id: str,
+        *,
+        scopes: set[str],
+        publication_statements: Sequence[Mapping[str, Any]] | None = None,
+    ) -> dict[str, Any]:
+        """Primary outcomes added, removed, re-timed or demoted across versions, or differing in a publication."""
+        _require(scopes, READ_SCOPE)
+        revisions = self.trial_revisions(namespace, study_id, scopes=scopes)
+        if not revisions:
+            return {
+                "contract": OUTCOME_SWITCHING_CONTRACT,
+                "study_id": study_id,
+                "applies": False,
+                "reason": "not a registered trial; outcome switching compares registry versions",
+                "findings": [],
+            }
+        findings: list[dict[str, Any]] = []
+
+        def side(revision, outcome=None):
+            return {
+                "study_revision_id": revision["study_revision_id"],
+                "registry_version": revision["version"],
+                "measure": (outcome or {}).get("measure"),
+                "time_frame": (outcome or {}).get("time_frame"),
+            }
+
+        for before, after in zip(revisions, revisions[1:]):
+            old = {_measure_key(o["measure"]): o for o in (before["trial"] or {}).get("primary_outcomes") or []}
+            new = {_measure_key(o["measure"]): o for o in (after["trial"] or {}).get("primary_outcomes") or []}
+            secondary = {
+                _measure_key(o["measure"])
+                for o in (after["trial"] or {}).get("secondary_outcomes") or []
+            }
+            for key in sorted(set(new) - set(old)):
+                findings.append({"kind": "primary-added", "measure": new[key]["measure"],
+                                 "before": side(before), "after": side(after, new[key])})
+            for key in sorted(set(old) - set(new)):
+                findings.append({"kind": "primary-demoted" if key in secondary else "primary-removed",
+                                 "measure": old[key]["measure"], "before": side(before, old[key]),
+                                 "after": side(after)})
+            for key in sorted(set(old) & set(new)):
+                if _time_key(old[key].get("time_frame")) != _time_key(new[key].get("time_frame")):
+                    findings.append({"kind": "primary-retimed", "measure": new[key]["measure"],
+                                     "before": side(before, old[key]), "after": side(after, new[key])})
+        statements = list(publication_statements or [])
+        if publication_statements is None:
+            rows = self.conn.execute(
+                "SELECT statement_id,text,locator_json FROM methodology_statements WHERE namespace=? AND study_id=? "
+                "AND kind='primary-outcome' ORDER BY statement_id",
+                [namespace, study_id],
+            ).fetchall()
+            statements = [{"statement_id": r[0], "text": r[1], "locator": _load(r[2], {})} for r in rows]
+        latest = revisions[-1]
+        for statement in statements:
+            kind, outcome = _publication_difference(
+                (latest["trial"] or {}).get("primary_outcomes") or [], statement
+            )
+            if kind:
+                findings.append({
+                    "kind": kind,
+                    "measure": (outcome or {}).get("measure"),
+                    "before": side(latest, outcome),
+                    "after": {"publication": statement.get("locator"),
+                              "statement_id": statement.get("statement_id"), "text": statement["text"]},
+                })
+        for finding in findings:
+            finding.update(finding=True, note=SWITCH_NOTE)
+        return {
+            "contract": OUTCOME_SWITCHING_CONTRACT,
+            "study_id": study_id,
+            "applies": True,
+            "versions_compared": [r["version"] for r in revisions],
+            "publication_statements": len(statements),
+            "findings": findings,
+            "findings_hash": _digest(findings),
+        }
+
+
+TRIAL_DESIGN_CONTRACT = "noesis-methodology-trial-design-v1"
+OUTCOME_SWITCHING_CONTRACT = "noesis-outcome-switching-v1"
+TRIAL_DESIGN_FIELDS = (
+    "phase", "allocation", "masking", "sample_size_planned", "sample_size_actual",
+    "preregistration", "primary_outcomes", "secondary_outcomes",
+)
+SWITCH_NOTE = (
+    "A recorded difference between registrations (or between a registration and a "
+    "publication). It is a finding to examine, not a judgement of the trial or its results."
+)
+_STOP = {"from", "in", "the", "of", "to", "at", "a", "an", "change", "baseline", "mean", "percent", "percentage"}
+
+
+def _words(value: Any) -> list[str]:
+    import re
+
+    return re.findall(r"[a-z0-9]+", str(value or "").casefold())
+
+
+def _measure_key(measure: Any) -> str:
+    return " ".join(_words(measure))
+
+
+def _time_key(value: Any) -> tuple[str, ...]:
+    """Time points stated in a time frame ('Baseline, week 26' -> ('week:26',)); else its words."""
+    import re
+
+    text = str(value or "").casefold()
+    points = {f"{m.group(1)}:{m.group(2)}" for m in re.finditer(r"(week|month|day|year)s?\s*(\d+)", text)}
+    points |= {f"{m.group(2)}:{m.group(1)}" for m in re.finditer(r"(\d+)[\s-]*(week|month|day|year)s?", text)}
+    return tuple(sorted(points)) or tuple(_words(text))
+
+
+def _publication_difference(registered: Sequence[Mapping[str, Any]], statement: Mapping[str, Any]):
+    text_words = set(_words(statement["text"]))
+    for outcome in registered:
+        words = set(_words(outcome["measure"])) - _STOP
+        if words and words <= text_words:
+            registered_times = set(_time_key(outcome.get("time_frame")))
+            stated_times = {t for t in _time_key(statement["text"]) if ":" in t}
+            registered_points = {t for t in registered_times if ":" in t}
+            if registered_points and stated_times and not registered_points & stated_times:
+                return "publication-retimed", outcome
+            return None, outcome
+    return ("publication-different-primary", None) if registered else (None, None)
+
+
+def trial_design(value: Mapping[str, Any]) -> dict[str, Any]:
+    """Validate trial-design fields; missing values stay ``None`` and are listed as unknown."""
+    if not isinstance(value, Mapping) or set(value) - set(TRIAL_DESIGN_FIELDS):
+        raise MethodologyError(
+            "invalid_trial_design", "trial design uses " + ", ".join(TRIAL_DESIGN_FIELDS)
+        )
+    design = {key: value.get(key) for key in TRIAL_DESIGN_FIELDS}
+    for key in ("sample_size_planned", "sample_size_actual"):
+        if design[key] is not None and (type(design[key]) is not int or design[key] < 0):
+            raise MethodologyError("invalid_trial_design", f"{key} is a nonnegative integer or unknown")
+    registration = design["preregistration"]
+    if registration is not None and (
+        not isinstance(registration, Mapping)
+        or registration.get("prospective") not in (True, False, None)
+    ):
+        raise MethodologyError("invalid_trial_design", "preregistration.prospective is true, false or unknown")
+    for key in ("primary_outcomes", "secondary_outcomes"):
+        outcomes = design[key]
+        if outcomes is not None and (
+            not isinstance(outcomes, list)
+            or any(not isinstance(o, Mapping) or not str(o.get("measure") or "").strip() for o in outcomes)
+        ):
+            raise MethodologyError("invalid_trial_design", f"{key} need a measure")
+    unknown = [
+        key for key in TRIAL_DESIGN_FIELDS
+        if key != "secondary_outcomes" and design[key] in (None, "unknown", [], ["unknown"])
+    ]
+    if isinstance(registration, Mapping) and registration.get("prospective") is None:
+        unknown.append("preregistration")
+    design["unknown"] = sorted(set(unknown))
+    return json.loads(_canonical(design))

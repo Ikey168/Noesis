@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-procurement-profile-v1",
+  "title": "Owner-scoped supplier or buyer profile revision",
+  "description": "Private to its owner (no operator bypass). Facts carry review state, effective dates and evidence; an unstated fact is unknown and never stored as null. Exclusion-ground facts are supplier self-declarations (true means the ground applies).",
+  "type": "object",
+  "required": ["contract", "profile_id", "namespace", "owner", "label", "revision", "profile_kind", "sections"],
+  "properties": {
+    "contract": {"const": "noesis-procurement-profile-v1"},
+    "profile_id": {"type": "string", "pattern": "^procurement-profile:"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "label": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "profile_kind": {"enum": ["supplier", "buyer"]},
+    "sections": {
+      "type": "object",
+      "required": ["supplier", "exclusion", "buyer", "preferences"],
+      "additionalProperties": false,
+      "properties": {
+        "supplier": {"$ref": "#/definitions/facts"},
+        "exclusion": {"$ref": "#/definitions/facts"},
+        "buyer": {"$ref": "#/definitions/facts"},
+        "preferences": {"$ref": "#/definitions/facts"}
+      }
+    }
+  },
+  "definitions": {
+    "facts": {"type": "object", "additionalProperties": {
+      "type": "object", "required": ["value", "review", "evidence"],
+      "properties": {"value": {"not": {"type": "null"}}, "review": {"enum": ["owner-reviewed", "proposed"]},
+                     "effective_from": {"type": "string"}, "effective_to": {"type": "string"},
+                     "evidence": {"type": "array"}, "note": {"type": "string"}}}}
+  }
+}

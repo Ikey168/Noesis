@@ -1,0 +1,282 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.demographics",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.demographics",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.demographics",
+      "contract": {
+        "name": "noesis-demographic-series",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-series",
+        "inspect-series",
+        "series-values",
+        "compare-publishers",
+        "convert-units",
+        "comparability-notes",
+        "boundary-query",
+        "replay-query",
+        "resolutions",
+        "pins",
+        "links",
+        "series-citing"
+      ],
+      "semantic_constraints": {
+        "definitions": "every series has a first-class definition revision (stock or flow, citizenship, country of birth or origin, application or decision, reference date or period, population base); a changed definition is a new revision and a marked break, and values stay with the revision they were published under",
+        "separation": "series from different publishers, definitions or geography levels are separate records; comparability is an explicit, reviewable note and unnoted pairs are comparability_unknown",
+        "vintages": "release and retrieval clocks with basis labels; revision_of by release clock; as-of selection by release cutoff with historical_vintage_unavailable; pins turn stale, never replaced",
+        "geography": "codes resolve to Geospatial boundaries and places by the published code only, with code-list version and boundary vintage; other levels are listed, never aggregated or apportioned",
+        "links": "acts, court decisions and dossiers by publisher reference or reviewed assertion only; keyword overlap is a discovery candidate",
+        "exclusions": "no population projection, no causal claim about migration drivers or policy effect, no merged, averaged, netted, chained or apportioned value"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_demographic_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-series",
+      "tool": "noesis-knowledge-engine.inspect_demographic_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-values",
+      "tool": "noesis-knowledge-engine.demographic_series_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-publishers",
+      "tool": "noesis-knowledge-engine.compare_demographic_publishers",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "convert-units",
+      "tool": "noesis-knowledge-engine.convert_demographic_units",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.list_demographic_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "boundary-query",
+      "tool": "noesis-knowledge-engine.query_demographic_boundary",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "replay-query",
+      "tool": "noesis-knowledge-engine.replay_demographic_query",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "resolutions",
+      "tool": "noesis-knowledge-engine.list_demographic_resolutions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "pins",
+      "tool": "noesis-knowledge-engine.list_demographic_pins",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_demographic_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-citing",
+      "tool": "noesis-knowledge-engine.demographic_series_citing",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:demographics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "demographic-series",
+      "store": "src.kb.demographics",
+      "tables": [
+        "demographic_releases",
+        "demographic_geography_levels",
+        "demographic_definitions",
+        "demographic_series",
+        "demographic_vintages",
+        "demographic_observations",
+        "demographic_breaks",
+        "demographic_release_members"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "demographic-comparability-note",
+      "store": "src.kb.demographics_comparability",
+      "tables": [
+        "demographic_comparability"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "demographic-geography-resolution",
+      "store": "src.kb.demographics_places",
+      "tables": [
+        "demographic_geo_resolutions",
+        "demographic_geo_reviews",
+        "demographic_pins"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "demographic-link",
+      "store": "src.kb.demographics_links",
+      "tables": [
+        "demographic_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "demographic_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.3.0",
+      "range": "^1.3.0"
+    }
+  ]
+}

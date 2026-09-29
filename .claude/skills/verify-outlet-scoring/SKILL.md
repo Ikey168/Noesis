@@ -1,8 +1,13 @@
+---
+name: verify-outlet-scoring
+description: Smoke-test the outlet transparency scoring pipeline. Checks _shannon_entropy edge cases (balanced, concentrated, empty, and partial distributions) and equal-stance neutrality, then optionally runs compute_outlet_scores() against real document_frames, argument_claims, and source_stances with the --live flag. Use when changing the transparency score formulas, the entropy helper, or any of the three score dimensions.
+---
+
 # verify-outlet-scoring skill
 
 Smoke-tests the outlet transparency scoring pipeline (#116).
 
-**All paths relative to repo root** (`/home/Ikey/NeuroNews`).
+**All paths are relative to the repo root.**
 
 ## Usage
 

@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<CONSOLIDATED_LIST xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" dateGenerated=\"2026-03-10T00:00:00.000Z\">\n  <INDIVIDUALS>\n    <INDIVIDUAL>\n      <DATAID>9900902</DATAID>\n      <VERSIONNUM>1</VERSIONNUM>\n      <FIRST_NAME>IVAN</FIRST_NAME>\n      <SECOND_NAME>FICTIONAL-EXAMPLE</SECOND_NAME>\n      <UN_LIST_TYPE>Fixture Regime</UN_LIST_TYPE>\n      <REFERENCE_NUMBER>QDi.902</REFERENCE_NUMBER>\n      <LISTED_ON>2025-10-01</LISTED_ON>\n      <NAME_ORIGINAL_SCRIPT>Иван Фикционал-Пример</NAME_ORIGINAL_SCRIPT>\n      <COMMENTS1>Authored fixture entry; the person is fictional.</COMMENTS1>\n      <NATIONALITY><VALUE>Russian Federation</VALUE></NATIONALITY>\n      <LIST_TYPE><VALUE>UN List</VALUE></LIST_TYPE>\n      <LAST_DAY_UPDATED><VALUE>2025-10-01</VALUE></LAST_DAY_UPDATED>\n      <INDIVIDUAL_ALIAS><QUALITY>Good</QUALITY><ALIAS_NAME>Ivan Fiktsional</ALIAS_NAME></INDIVIDUAL_ALIAS>\n      <INDIVIDUAL_ALIAS><QUALITY>Low</QUALITY><ALIAS_NAME>The Example</ALIAS_NAME></INDIVIDUAL_ALIAS>\n      <INDIVIDUAL_ADDRESS><CITY>Fictionville</CITY><COUNTRY>Russian Federation</COUNTRY></INDIVIDUAL_ADDRESS>\n      <INDIVIDUAL_DATE_OF_BIRTH><TYPE_OF_DATE>EXACT</TYPE_OF_DATE><DATE>1970-01-02</DATE></INDIVIDUAL_DATE_OF_BIRTH>\n      <INDIVIDUAL_DOCUMENT><TYPE_OF_DOCUMENT>Passport</TYPE_OF_DOCUMENT><NUMBER>X1234567</NUMBER><ISSUING_COUNTRY>Russian Federation</ISSUING_COUNTRY></INDIVIDUAL_DOCUMENT>\n    </INDIVIDUAL>\n  </INDIVIDUALS>\n  <ENTITIES>\n    <ENTITY>\n      <DATAID>9900901</DATAID>\n      <VERSIONNUM>1</VERSIONNUM>\n      <FIRST_NAME>EXAMPLAR FREIGHT LIMITED LIABILITY COMPANY</FIRST_NAME>\n      <UN_LIST_TYPE>Fixture Regime</UN_LIST_TYPE>\n      <REFERENCE_NUMBER>QDe.901</REFERENCE_NUMBER>\n      <LISTED_ON>2025-10-01</LISTED_ON>\n      <COMMENTS1>Authored fixture entry; the party is fictional.</COMMENTS1>\n      <LIST_TYPE><VALUE>UN List</VALUE></LIST_TYPE>\n      <LAST_DAY_UPDATED><VALUE>2025-10-01</VALUE></LAST_DAY_UPDATED>\n      <ENTITY_ALIAS><QUALITY>Good</QUALITY><ALIAS_NAME>Examplar Freight LLC</ALIAS_NAME></ENTITY_ALIAS>\n      <ENTITY_ADDRESS><CITY>Fictionville</CITY><COUNTRY>Russian Federation</COUNTRY></ENTITY_ADDRESS>\n    </ENTITY>\n  </ENTITIES>\n</CONSOLIDATED_LIST>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/resources/xml/en/consolidated.xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored list file in the documented un-sc-consolidated format; every party is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

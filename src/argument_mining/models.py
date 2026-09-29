@@ -453,3 +453,10 @@ def predict_claims(document: Document) -> List[ClaimPrediction]:
 def predict_stance(document: Document, topic: str) -> List[StancePrediction]:
     """Module-level convenience: predict stance for any Document + topic."""
     return get_stance_classifier().predict(document, topic)
+
+
+def suggest_claim_with_jev(*args, **kwargs) -> dict:
+    """Explicit source-bound hosted suggestion; local claim defaults stay active."""
+    from src.argument_mining.jev_nlp_adapters import suggest_claim_presence
+
+    return suggest_claim_presence(*args, **kwargs)

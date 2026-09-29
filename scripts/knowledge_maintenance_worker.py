@@ -42,11 +42,24 @@ def main() -> int:
         action="store_true",
         help="explicitly enable live source access",
     )
+    parser.add_argument(
+        "--live-delivery", action="store_true",
+        help="explicitly enable configured subscription webhook delivery",
+    )
     args = parser.parse_args()
     settings = json.loads(Path(args.config).read_text(encoding="utf-8"))
     network = "live" if args.live_network else str(settings.get("network", "disabled"))
     if network == "live" and not args.live_network:
         raise SystemExit("live network requires --live-network")
+    delivery_config = settings.get("subscription_delivery")
+    brief_config = settings.get("market_brief_delivery")
+    subscription_enabled = isinstance(delivery_config, dict) and delivery_config.get("enabled") is True
+    brief_enabled = isinstance(brief_config, dict) and brief_config.get("enabled") is True
+    if args.live_delivery != (subscription_enabled or brief_enabled):
+        raise SystemExit(
+            "live delivery requires both --live-delivery and enabled "
+            "subscription_delivery or market_brief_delivery configuration"
+        )
     max_jobs = min(max(1, args.max_jobs or int(settings["max_jobs_per_tick"])), 100)
     poll = min(max(1, int(settings["poll_interval_s"])), 60)
     stop = threading.Event()
@@ -59,6 +72,17 @@ def main() -> int:
         execution_mode=settings.get("execution_mode", "production"),
         extractor_definition=settings.get("extractor_definition"),
         embedding_configuration=settings.get("embedding_configuration"))
+    delivery_worker = None
+    if args.live_delivery and subscription_enabled:
+        from src.kb.subscription_delivery_worker import SubscriptionDeliveryWorker
+        delivery_worker = SubscriptionDeliveryWorker(conn, delivery_config)
+    brief_worker = None
+    if args.live_delivery and brief_enabled:
+        from src.domains.market.delivery import MarketBriefDeliveryWorker
+        brief_worker = MarketBriefDeliveryWorker(conn, brief_config)
+    from src.domains.market.entitlements import MarketRetentionSchedule
+
+    market_retention = MarketRetentionSchedule(conn, settings.get("market_retention"))
     adapters = None if network == "live" else fixture_adapter_provider(orchestrator)
     dns = None if network == "live" else lambda _: ["8.8.8.8"]
     print(
@@ -68,6 +92,9 @@ def main() -> int:
                 "ready": True,
                 "owner_id": args.owner_id,
                 "network": network,
+                "subscription_delivery": delivery_worker.readiness() if delivery_worker else {"ready": False},
+                "market_retention": market_retention.readiness(),
+                "market_brief_delivery": brief_worker.readiness() if brief_worker else {"ready": False},
             }
         ),
         flush=True,
@@ -90,10 +117,24 @@ def main() -> int:
                 cancelled=stop.is_set,
             )
             print(json.dumps(result, sort_keys=True), flush=True)
+            retention_result = market_retention.tick(args.owner_id)
+            if retention_result["runs"]:
+                print(json.dumps(retention_result, sort_keys=True), flush=True)
+            brief_result = None
+            if brief_worker is not None:
+                brief_result = brief_worker.tick(args.owner_id)
+                print(json.dumps(brief_result, sort_keys=True), flush=True)
+            delivery_result = None
+            if delivery_worker is not None:
+                delivery_result = delivery_worker.tick(args.owner_id)
+                print(json.dumps(delivery_result, sort_keys=True), flush=True)
             if args.once:
                 return (
                     0
-                    if all(
+                    if (not delivery_result or not delivery_result["failed"] and not delivery_result["retrying"])
+                    and all(run["status"] != "failed" for run in retention_result["runs"])
+                    and (not brief_result or not brief_result["failed"] and not brief_result["retrying"])
+                    and all(
                         job["status"] in {"complete", "partial"}
                         for job in result["jobs"]
                     )

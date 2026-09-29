@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "mep_id,mep_name,meeting_date,place,capacity,committee,title,meeting_with,procedure_reference,published_on\n990001,Alex Fictional,2099-02-03,Brussels,Rapporteur,ITRE,Fictional grid tariffs regulation,Fictional Grid Association (000000000101-01),2099/0101(COD),2099-02-10\n990001,Alex Fictional,2099-02-05,Strasbourg,Member,ITRE,Exchange of views on fictional grid tariffs,Sample Mobility Forum,,2099-02-10\n990002,Robin Example,2099-02-06,Brussels,Shadow rapporteur,ITRE,Charging networks,Example Public Affairs SARL (Transparency Register 000000000202-02); Sample Charging Operator SA,,2099-02-10\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/meps/en/search-meetings/csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored export in the documented ep-meetings-csv shape; every organisation, person and reference is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

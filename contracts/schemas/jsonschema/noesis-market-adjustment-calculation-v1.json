@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-adjustment-calculation-v1.json",
+  "title": "Noesis market adjustment calculation v1",
+  "description": "A deterministic, point-in-time split-adjusted price-return and cash-dividend total-return series with exact bar and corporate-action revision lineage.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "calculation_id", "quantitative_calculation_id", "formula_version", "security_id", "listing_id", "currency", "public_cutoff_ms", "acquired_cutoff_ms", "recorded_at_ms", "reinvestment_policy", "bar_revision_ids", "action_revision_ids", "source_entitlement_ids", "source_entitlements", "input_hash", "series", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-adjustment-calculation-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "calculation_id": {"type": "string", "minLength": 1},
+    "quantitative_calculation_id": {"type": "string", "minLength": 1},
+    "formula_version": {"type": "string", "minLength": 1},
+    "security_id": {"type": "string", "minLength": 1},
+    "listing_id": {"type": "string", "minLength": 1},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "public_cutoff_ms": {"type": "integer", "minimum": 0},
+    "acquired_cutoff_ms": {"type": "integer", "minimum": 0},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "reinvestment_policy": {"enum": ["cash_dividends_reinvested_at_ex_date_close"]},
+    "bar_revision_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "action_revision_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "source_entitlement_ids": {"type": "array", "uniqueItems": true, "items": {"type": "string", "minLength": 1}},
+    "source_entitlements": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["source_ref_id", "provider", "license_id", "entitlement_id", "retrieved_at_ms", "policy_revision_id", "authorized_operation"],
+        "properties": {
+          "source_ref_id": {"type": "string", "minLength": 1},
+          "provider": {"type": "string", "minLength": 1},
+          "license_id": {"type": "string", "minLength": 1},
+          "entitlement_id": {"type": "string", "minLength": 1},
+          "retrieved_at_ms": {"type": "integer", "minimum": 0},
+          "policy_revision_id": {"type": "string", "minLength": 1},
+          "authorized_operation": {"const": "derive"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "input_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "series": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["session_date", "bar_revision_id", "raw_close", "split_factor", "split_adjusted_close", "price_return_index", "total_return_index", "total_return_adjustment_factor", "total_return_adjusted_close"],
+        "properties": {
+          "session_date": {"type": "string", "format": "date"},
+          "bar_revision_id": {"type": "string", "minLength": 1},
+          "raw_close": {"$ref": "#/definitions/decimal"},
+          "split_factor": {"$ref": "#/definitions/decimal"},
+          "split_adjusted_close": {"$ref": "#/definitions/decimal"},
+          "price_return_index": {"$ref": "#/definitions/decimal"},
+          "total_return_index": {"$ref": "#/definitions/decimal"},
+          "total_return_adjustment_factor": {"$ref": "#/definitions/decimal"},
+          "total_return_adjusted_close": {"$ref": "#/definitions/decimal"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "definitions": {
+    "decimal": {"type": "string", "pattern": "^-?[0-9]+(\\.[0-9]+)?$"}
+  },
+  "additionalProperties": false
+}

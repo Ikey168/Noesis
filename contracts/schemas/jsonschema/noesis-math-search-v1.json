@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-math-search-v1.json",
+  "title": "Noesis mathematics search v1",
+  "description": "Research query results over literature, OEIS sequences and latest-snapshot formal declarations, each with its source record, revision, access note and links.",
+  "type": "object",
+  "required": [
+    "contract",
+    "query",
+    "total",
+    "results",
+    "notice"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-math-search-v1"
+    },
+    "query": {
+      "type": "string"
+    },
+    "total": {
+      "type": "integer"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "id",
+          "score",
+          "record",
+          "revision",
+          "access",
+          "links"
+        ],
+        "properties": {
+          "kind": {
+            "enum": [
+              "literature",
+              "sequence",
+              "declaration"
+            ]
+          },
+          "id": {
+            "type": "string"
+          },
+          "score": {
+            "type": "number"
+          },
+          "record": {
+            "type": "object"
+          },
+          "revision": {},
+          "access": {
+            "type": "string"
+          },
+          "links": {
+            "type": "array"
+          }
+        }
+      }
+    },
+    "notice": {
+      "type": "string"
+    }
+  }
+}

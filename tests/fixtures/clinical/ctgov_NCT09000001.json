@@ -1,0 +1,291 @@
+{
+ "protocolSection": {
+  "identificationModule": {
+   "nctId": "NCT09000001",
+   "orgStudyIdInfo": {
+    "id": "NTG-3001"
+   },
+   "secondaryIdInfos": [
+    {
+     "id": "2015-900001-10",
+     "type": "EUDRACT_NUMBER"
+    }
+   ],
+   "organization": {
+    "fullName": "Fixture Therapeutics GmbH",
+    "class": "INDUSTRY"
+   },
+   "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+   "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+   "acronym": "NOETIC-1"
+  },
+  "statusModule": {
+   "statusVerifiedDate": "2019-02",
+   "overallStatus": "COMPLETED",
+   "startDateStruct": {
+    "date": "2016-03-01",
+    "type": "ACTUAL"
+   },
+   "primaryCompletionDateStruct": {
+    "date": "2018-01-15",
+    "type": "ACTUAL"
+   },
+   "completionDateStruct": {
+    "date": "2018-03-01",
+    "type": "ACTUAL"
+   },
+   "studyFirstSubmitDate": "2015-11-20",
+   "studyFirstPostDateStruct": {
+    "date": "2015-11-24",
+    "type": "ESTIMATED"
+   },
+   "lastUpdatePostDateStruct": {
+    "date": "2019-02-14",
+    "type": "ACTUAL"
+   },
+   "resultsFirstSubmitDate": "2019-01-10",
+   "resultsFirstPostDateStruct": {
+    "date": "2019-02-14",
+    "type": "ACTUAL"
+   }
+  },
+  "sponsorCollaboratorsModule": {
+   "leadSponsor": {
+    "name": "Fixture Therapeutics GmbH",
+    "class": "INDUSTRY"
+   }
+  },
+  "descriptionModule": {
+   "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+  },
+  "conditionsModule": {
+   "conditions": [
+    "Type 2 Diabetes",
+    "T2DM"
+   ],
+   "keywords": [
+    "glycaemic control"
+   ]
+  },
+  "designModule": {
+   "studyType": "INTERVENTIONAL",
+   "phases": [
+    "PHASE3"
+   ],
+   "designInfo": {
+    "allocation": "RANDOMIZED",
+    "interventionModel": "PARALLEL",
+    "primaryPurpose": "TREATMENT",
+    "maskingInfo": {
+     "masking": "QUADRUPLE",
+     "whoMasked": [
+      "PARTICIPANT",
+      "CARE_PROVIDER",
+      "INVESTIGATOR",
+      "OUTCOMES_ASSESSOR"
+     ]
+    }
+   },
+   "enrollmentInfo": {
+    "count": 612,
+    "type": "ACTUAL"
+   }
+  },
+  "armsInterventionsModule": {
+   "armGroups": [
+    {
+     "label": "Noetiglutide",
+     "type": "EXPERIMENTAL",
+     "description": "Noetiglutide added to metformin",
+     "interventionNames": [
+      "Drug: Noetiglutide"
+     ]
+    },
+    {
+     "label": "Placebo",
+     "type": "PLACEBO_COMPARATOR",
+     "description": "Placebo added to metformin",
+     "interventionNames": [
+      "Drug: Placebo"
+     ]
+    }
+   ],
+   "interventions": [
+    {
+     "type": "DRUG",
+     "name": "Noetiglutide",
+     "description": "Investigational product (fictional)",
+     "armGroupLabels": [
+      "Noetiglutide"
+     ],
+     "otherNames": [
+      "NTG-01"
+     ]
+    },
+    {
+     "type": "DRUG",
+     "name": "Placebo",
+     "armGroupLabels": [
+      "Placebo"
+     ]
+    }
+   ]
+  },
+  "outcomesModule": {
+   "primaryOutcomes": [
+    {
+     "measure": "Change From Baseline in HbA1c",
+     "timeFrame": "Baseline, week 52"
+    }
+   ],
+   "secondaryOutcomes": [
+    {
+     "measure": "Change From Baseline in Body Weight",
+     "timeFrame": "Baseline, week 26"
+    }
+   ]
+  },
+  "eligibilityModule": {
+   "sex": "ALL",
+   "minimumAge": "18 Years",
+   "healthyVolunteers": false
+  },
+  "referencesModule": {
+   "references": [
+    {
+     "pmid": "99000001",
+     "type": "RESULT",
+     "citation": "Fixture A, Example B. Noetiglutide versus placebo in type 2 diabetes (NOETIC-1). J Fixture Med. 2019;1:1-10."
+    }
+   ]
+  }
+ },
+ "resultsSection": {
+  "participantFlowModule": {
+   "groups": [
+    {
+     "id": "FG000",
+     "title": "Noetiglutide"
+    },
+    {
+     "id": "FG001",
+     "title": "Placebo"
+    }
+   ]
+  },
+  "outcomeMeasuresModule": {
+   "outcomeMeasures": [
+    {
+     "type": "PRIMARY",
+     "title": "Change From Baseline in HbA1c",
+     "timeFrame": "Baseline, week 52",
+     "paramType": "LEAST_SQUARES_MEAN",
+     "unitOfMeasure": "percentage of HbA1c",
+     "groups": [
+      {
+       "id": "OG000",
+       "title": "Noetiglutide"
+      },
+      {
+       "id": "OG001",
+       "title": "Placebo"
+      }
+     ],
+     "classes": [
+      {
+       "categories": [
+        {
+         "measurements": [
+          {
+           "groupId": "OG000",
+           "value": "-1.1",
+           "spread": "0.08"
+          },
+          {
+           "groupId": "OG001",
+           "value": "-0.2",
+           "spread": "0.08"
+          }
+         ]
+        }
+       ]
+      }
+     ],
+     "analyses": [
+      {
+       "groupIds": [
+        "OG000",
+        "OG001"
+       ],
+       "pValue": "<0.001",
+       "statisticalMethod": "ANCOVA",
+       "paramType": "Mean Difference (Final Values)",
+       "paramValue": "-0.9",
+       "ciPctValue": "95",
+       "ciLowerLimit": "-1.1",
+       "ciUpperLimit": "-0.7"
+      }
+     ]
+    }
+   ]
+  },
+  "adverseEventsModule": {
+   "frequencyThreshold": "5",
+   "timeFrame": "52 weeks",
+   "eventGroups": [
+    {
+     "id": "EG000",
+     "title": "Noetiglutide",
+     "seriousNumAffected": 21,
+     "seriousNumAtRisk": 306,
+     "otherNumAffected": 140,
+     "otherNumAtRisk": 306
+    },
+    {
+     "id": "EG001",
+     "title": "Placebo",
+     "seriousNumAffected": 18,
+     "seriousNumAtRisk": 306,
+     "otherNumAffected": 95,
+     "otherNumAtRisk": 306
+    }
+   ]
+  }
+ },
+ "derivedSection": {
+  "miscInfoModule": {
+   "versionHolder": "2026-09-20"
+  },
+  "conditionBrowseModule": {
+   "meshes": [
+    {
+     "id": "D003924",
+     "term": "Diabetes Mellitus, Type 2"
+    }
+   ],
+   "ancestors": [
+    {
+     "id": "D003920",
+     "term": "Diabetes Mellitus"
+    },
+    {
+     "id": "D044882",
+     "term": "Glucose Metabolism Disorders"
+    },
+    {
+     "id": "D008659",
+     "term": "Metabolic Diseases"
+    },
+    {
+     "id": "D004700",
+     "term": "Endocrine System Diseases"
+    }
+   ]
+  },
+  "interventionBrowseModule": {
+   "meshes": [],
+   "ancestors": []
+  }
+ },
+ "hasResults": true
+}

@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-sentiment-suggestion-v1.json",
+  "title": "Source-bound Jev contextual sentiment suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "target", "text", "locator", "source_binding", "raw_distribution", "vendor_confidence", "suggested_sentiment", "trend_mutated", "source_trust_inferred", "decision_run"],
+  "properties": {
+    "contract": {"const": "noesis-jev-sentiment-suggestion-v1"},
+    "status": {"enum": ["suggested", "abstained"]},
+    "accepted": {"const": false},
+    "target": {"type": "string", "minLength": 1},
+    "text": {"type": "string", "minLength": 1},
+    "locator": {"$ref": "#/$defs/span"},
+    "source_binding": {"type": "array", "minItems": 1, "items": {"type": "object"}},
+    "raw_distribution": {"oneOf": [{"type": "null"}, {"$ref": "#/$defs/distribution"}]},
+    "vendor_confidence": {"$ref": "#/$defs/probabilityOrNull"},
+    "suggested_sentiment": {"oneOf": [{"type": "null"}, {"type": "object", "required": ["label", "score", "text"], "properties": {"label": {"enum": ["POSITIVE", "NEGATIVE", "NEUTRAL", "MIXED"]}, "score": {"type": "number", "minimum": 0, "maximum": 1}, "text": {"type": "string", "minLength": 1}}, "additionalProperties": false}]},
+    "trend_mutated": {"const": false},
+    "source_trust_inferred": {"const": false},
+    "decision_run": {"type": "object"}
+  },
+  "$defs": {
+    "probabilityOrNull": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "distribution": {"type": "object", "required": ["positive", "negative", "neutral", "mixed"], "properties": {"positive": {"type": "number", "minimum": 0, "maximum": 1}, "negative": {"type": "number", "minimum": 0, "maximum": 1}, "neutral": {"type": "number", "minimum": 0, "maximum": 1}, "mixed": {"type": "number", "minimum": 0, "maximum": 1}}, "additionalProperties": false},
+    "span": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 1}}, "additionalProperties": false}
+  },
+  "additionalProperties": false
+}

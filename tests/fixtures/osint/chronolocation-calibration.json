@@ -1,0 +1,85 @@
+{
+ "note": "Capture cases for the chronolocation calibration test (OX09). Shadow measurements are synthetic: derived from the NOAA solar model at the true time and perturbed by a few degrees to mimic measurement error; they were not measured from photographs. tests/unit/osint/test_imagery_gated.py also checks the model against independent textbook sun elevations.",
+ "cases": [
+  {
+   "name": "berlin-summer-morning",
+   "lat": 52.52,
+   "lon": 13.405,
+   "true_capture_utc": "2024-06-12T07:40:00Z",
+   "shadow_azimuth_deg": 289.0,
+   "shadow_length_ratio": 1.2,
+   "date_from": "2024-06-01",
+   "date_to": "2024-06-30"
+  },
+  {
+   "name": "berlin-winter-noon",
+   "lat": 52.52,
+   "lon": 13.405,
+   "true_capture_utc": "2024-12-10T11:10:00Z",
+   "shadow_azimuth_deg": 359.5,
+   "shadow_length_ratio": 3.613,
+   "date_from": "2024-12-01",
+   "date_to": "2024-12-31"
+  },
+  {
+   "name": "madrid-autumn-afternoon",
+   "lat": 40.4168,
+   "lon": -3.7038,
+   "true_capture_utc": "2024-10-05T15:20:00Z",
+   "shadow_azimuth_deg": 58.5,
+   "shadow_length_ratio": 1.884,
+   "date_from": "2024-09-20",
+   "date_to": "2024-10-20"
+  },
+  {
+   "name": "nairobi-march",
+   "lat": -1.2921,
+   "lon": 36.8219,
+   "true_capture_utc": "2024-03-14T06:30:00Z",
+   "shadow_azimuth_deg": 270.0,
+   "shadow_length_ratio": 1.148,
+   "date_from": "2024-03-01",
+   "date_to": "2024-03-31"
+  },
+  {
+   "name": "sydney-summer",
+   "lat": -33.8688,
+   "lon": 151.2093,
+   "true_capture_utc": "2024-01-20T23:50:00Z",
+   "shadow_azimuth_deg": 257.2,
+   "shadow_length_ratio": 0.616,
+   "date_from": "2024-01-10",
+   "date_to": "2024-01-31"
+  },
+  {
+   "name": "quito-evening",
+   "lat": -0.1807,
+   "lon": -78.4678,
+   "true_capture_utc": "2024-08-02T21:40:00Z",
+   "shadow_azimuth_deg": 108.2,
+   "shadow_length_ratio": 2.508,
+   "date_from": "2024-07-20",
+   "date_to": "2024-08-15"
+  },
+  {
+   "name": "toronto-spring",
+   "lat": 43.6532,
+   "lon": -79.3832,
+   "true_capture_utc": "2024-04-18T13:30:00Z",
+   "shadow_azimuth_deg": 287.8,
+   "shadow_length_ratio": 1.598,
+   "date_from": "2024-04-01",
+   "date_to": "2024-04-30"
+  },
+  {
+   "name": "reykjavik-summer",
+   "lat": 64.1466,
+   "lon": -21.9426,
+   "true_capture_utc": "2024-06-25T20:00:00Z",
+   "shadow_azimuth_deg": 104.5,
+   "shadow_length_ratio": 2.939,
+   "date_from": "2024-06-15",
+   "date_to": "2024-07-05"
+  }
+ ]
+}

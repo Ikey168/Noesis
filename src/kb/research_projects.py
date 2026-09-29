@@ -9,7 +9,17 @@ import time
 CONTRACT = "noesis-research-project-v1"
 READ_SCOPE = "knowledge:projects:read"
 WRITE_SCOPE = "knowledge:projects:write"
-_KINDS = {"plan", "run", "hypothesis", "evidence", "snapshot", "finding"}
+_KINDS = {
+    "plan", "run", "hypothesis", "evidence", "snapshot", "finding",
+    "intake_source", "funding_opportunity", "funding_profile", "funding_shortlist",
+}
+# Funding references pin an exact revision so a call amendment or profile
+# change is visible as a superseded link, never silently followed.
+_FUNDING_KINDS = {"funding_opportunity", "funding_profile", "funding_shortlist"}
+# Public Procurement bid workspaces pin notice, supplier-profile and shortlist revisions the same way.
+_PROCUREMENT_KINDS = {"procurement_notice", "procurement_profile", "procurement_shortlist"}
+_KINDS |= _PROCUREMENT_KINDS
+_FUNDING_KINDS |= _PROCUREMENT_KINDS
 _COSTS = {"tokens", "requests", "usd_micros"}
 _DDL = """
 CREATE TABLE IF NOT EXISTS research_projects(
@@ -67,8 +77,26 @@ def _links(values):
             raise ResearchProjectError("invalid_links", "reference kind and id are required")
         if "namespace" in link and (not isinstance(link["namespace"], str) or not link["namespace"]):
             raise ResearchProjectError("invalid_links", "reference namespace must be a nonempty string")
-        if link["kind"] in {"snapshot", "evidence"} and "generation" not in link and "revision" not in link:
-            raise ResearchProjectError("invalid_links", "evidence and snapshot references require a revision or generation")
+        if (link["kind"] in {"snapshot", "evidence", "intake_source"}
+                and "generation" not in link and "revision" not in link):
+            raise ResearchProjectError(
+                "invalid_links", "source, evidence and snapshot references require a revision or generation"
+            )
+        if link["kind"] in _FUNDING_KINDS and (
+            not link.get("namespace") or type(link.get("revision")) is not int or link["revision"] < 1
+        ):
+            raise ResearchProjectError(
+                "invalid_links", "funding references need a namespace and positive revision"
+            )
+        if link["kind"] == "intake_source" and (
+            not link["id"].startswith(("feed:", "explore:"))
+            or not link.get("namespace")
+            or type(link.get("revision")) is not int
+            or link["revision"] < 1
+        ):
+            raise ResearchProjectError(
+                "invalid_links", "intake source needs a namespace, feed or exploration ID, and positive revision"
+            )
         for key in ("generation", "revision", "question_revision"):
             if key in link and (type(link[key]) is not int or link[key] < 0):
                 raise ResearchProjectError("invalid_links", f"{key} must be a nonnegative integer")
@@ -137,7 +165,8 @@ class ResearchProjectStore:
         raise exc
 
     def create(self, namespace, request_key, *, questions, success_criteria, scope, budget,
-               principal_id, scopes, origin=None):
+               principal_id, scopes, origin=None, _within_transaction=False,
+               _initial_links=None):
         if not isinstance(namespace, str) or not namespace or not request_key:
             raise ResearchProjectError("invalid_project", "namespace and request_key are required")
         if not isinstance(scope, dict) or set(scope) != {"domains", "namespaces"}:
@@ -145,11 +174,16 @@ class ResearchProjectStore:
         scope = {key: _strings(scope[key], key) for key in scope}
         if not scope["domains"] and not scope["namespaces"]:
             raise ResearchProjectError("invalid_project", "an explicit research scope is required")
+        initial_links = _links(_initial_links or [])
+        for link in initial_links:
+            if link.get("namespace", namespace) not in {namespace, *scope["namespaces"]}:
+                raise ResearchProjectError("scope_mismatch", "initial reference is outside the project namespace scope")
+            link.setdefault("question_revision", 1)
         state = {"contract": CONTRACT, "project_id": "project:" + _hash([namespace, principal_id, request_key])[:32],
                  "namespace": namespace, "owner": principal_id, "scope": scope,
                  "questions": _strings(questions, "questions", required=True),
                  "success_criteria": _strings(success_criteria, "success_criteria", required=True),
-                 "budget": _cost(budget), "spent": _cost({}), "links": [], "status": "active",
+                 "budget": _cost(budget), "spent": _cost({}), "links": initial_links, "status": "active",
                  "question_revision": 1, "revision": 1, "retention_policy": "references-only"}
         self._authorize(state, principal_id, scopes, write=True)
         if origin is not None:
@@ -163,13 +197,17 @@ class ResearchProjectStore:
             self._authorize(current, principal_id, scopes, write=True)
             return {**current, "idempotent": True}
         state["updated_at_ms"] = self.now()
-        self.conn.execute("BEGIN TRANSACTION")
+        if not _within_transaction:
+            self.conn.execute("BEGIN TRANSACTION")
         try:
             self.conn.execute("INSERT INTO research_projects VALUES (?,?,?,?,1)", [state["project_id"], namespace, principal_id, digest])
             self.conn.execute("INSERT INTO research_project_revisions VALUES (?,1,?,?)", [state["project_id"], _json(state), state["updated_at_ms"]])
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
         except Exception as exc:
-            self._abort(exc)
+            if not _within_transaction:
+                self._abort(exc)
+            raise
         return {**state, "idempotent": False}
 
     def inspect(self, namespace, project_id, *, principal_id, scopes, revision=None):
@@ -180,11 +218,46 @@ class ResearchProjectStore:
         availability = []
         for link in state["links"]:
             status = "not_checked"
+            verified = False
             if link["kind"] == "snapshot":
                 exists = self.conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='research_snapshot_sessions'").fetchone()
                 row = self.conn.execute("SELECT status,expires_at_ms,principal_id FROM research_snapshot_sessions WHERE session_id=?", [link["id"]]).fetchone() if exists else None
                 status = "unavailable" if not row else "inaccessible" if row[2] != principal_id and "operator" not in scopes else "expired" if row[1] <= self.now() else row[0]
-            availability.append({"kind": link["kind"], "id": link["id"], "status": status, "generation_verified": False})
+            elif link["kind"] == "intake_source":
+                feed = link["id"].startswith("feed:")
+                table = "intake_inbox_items" if feed else "intake_exploration_sources"
+                revisions = (
+                    "intake_inbox_item_revisions" if feed
+                    else "intake_exploration_source_revisions"
+                )
+                identity = "item_id" if feed else "source_id"
+                version = "source_version" if feed else "version"
+                exists = self.conn.execute(
+                    "SELECT 1 FROM information_schema.tables WHERE table_name=?", [table],
+                ).fetchone()
+                row = self.conn.execute(
+                    f"SELECT {version} FROM {table} WHERE namespace=? AND owner=? "
+                    f"AND {identity}=?",
+                    [link.get("namespace", namespace), state["owner"], link["id"]],
+                ).fetchone() if exists else None
+                if row is None:
+                    status = "unavailable"
+                else:
+                    historical = self.conn.execute(
+                        f"SELECT 1 FROM {revisions} WHERE namespace=? AND owner=? "
+                        f"AND {identity}=? AND {version}=?",
+                        [link.get("namespace", namespace), state["owner"], link["id"], link["revision"]],
+                    ).fetchone()
+                    verified = historical is not None
+                    status = (
+                        "unavailable" if not verified else
+                        "current" if row[0] == link["revision"] else "superseded"
+                    )
+            item = {"kind": link["kind"], "id": link["id"], "status": status,
+                    "generation_verified": False}
+            if link["kind"] == "intake_source":
+                item["revision_verified"] = verified
+            availability.append(item)
         return {**state, "reference_availability": availability}
 
     def list(self, namespace, *, principal_id, scopes, limit=50, offset=0):
@@ -204,8 +277,10 @@ class ResearchProjectStore:
         return {"projects": result}
 
     def revise(self, namespace, project_id, expected_revision, *, principal_id, scopes,
-               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None):
-        self.conn.execute("BEGIN TRANSACTION")
+               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None,
+               _within_transaction=False):
+        if not _within_transaction:
+            self.conn.execute("BEGIN TRANSACTION")
         try:
             state = self._state(namespace, project_id)
             self._authorize(state, principal_id, scopes, write=True)
@@ -232,9 +307,12 @@ class ResearchProjectStore:
                     raise ResearchProjectError("invalid_status", "unsupported project lifecycle state")
                 state["status"] = status
             state = self._append(state, expected_revision)
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
             return state
         except Exception as exc:
+            if _within_transaction:
+                raise
             self._abort(exc)
 
     def record_expenditure(self, namespace, project_id, receipt_id, costs, expected_revision, *, principal_id, scopes):
