@@ -10,9 +10,11 @@ warehouse responses.
 from __future__ import annotations
 
 import asyncio
+import functools
 import hashlib
 import importlib.util
 import inspect
+import shutil
 from pathlib import Path
 
 import duckdb
@@ -193,7 +195,16 @@ HONEST_ANALYTICS = {
 }
 
 
+@functools.cache
 def _load_server(path: Path):
+    """Load each server once per session.
+
+    Executing ``knowledge_engine_mcp/server.py`` registers every pack's tools
+    and takes seconds; reloading it for each of its ~1,200 parametrized cases
+    alone exceeded the unit lane's timeout. The servers resolve their warehouse
+    and config from the environment at call time, so the per-test
+    ``seeded_warehouse`` fixture still isolates every invocation.
+    """
     name = f"mcp_surface_{path.parent.name}"
     spec = importlib.util.spec_from_file_location(name, path)
     assert spec and spec.loader
@@ -258,12 +269,20 @@ def _tool_cases():
 ALL_TOOL_CASES = _tool_cases()
 
 
-@pytest.fixture()
-def seeded_warehouse(tmp_path, monkeypatch):
-    path = tmp_path / "mcp-surface.duckdb"
+@pytest.fixture(scope="session")
+def _seeded_template(tmp_path_factory):
+    """Seed once per session; seeding takes seconds and ~1,300 cases use it."""
+    path = tmp_path_factory.mktemp("mcp-surface-template") / "mcp-surface.duckdb"
     conn = duckdb.connect(str(path))
     ensure_schema_and_seed(conn)
     conn.close()
+    return path
+
+
+@pytest.fixture()
+def seeded_warehouse(_seeded_template, tmp_path, monkeypatch):
+    path = tmp_path / "mcp-surface.duckdb"
+    shutil.copyfile(_seeded_template, path)
     monkeypatch.setenv("NOESIS_DB_PATH", str(path))
     monkeypatch.setenv("NOESIS_DOMAINS_CONFIG", str(REPO_ROOT / "config" / "domains.yml"))
     monkeypatch.setenv("NOESIS_SUBSCRIPTIONS_PATH", str(tmp_path / "subscriptions.json"))
