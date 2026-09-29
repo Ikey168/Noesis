@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1068,
+      "tool_count": 1083,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1082,6 +1082,7 @@
         "noesis-knowledge-engine.create_economic_comparison_report",
         "noesis-knowledge-engine.create_economic_release_snapshot",
         "noesis-knowledge-engine.create_election_monitor",
+        "noesis-knowledge-engine.create_engineering_safety_monitor",
         "noesis-knowledge-engine.create_environment_monitor",
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
@@ -1151,6 +1152,7 @@
         "noesis-knowledge-engine.development_finance_source_contracts",
         "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
+        "noesis-knowledge-engine.directives_as_of",
         "noesis-knowledge-engine.discover_intake_modes",
         "noesis-knowledge-engine.discover_intake_workflows",
         "noesis-knowledge-engine.discover_quantitative_metrics",
@@ -1171,6 +1173,7 @@
         "noesis-knowledge-engine.election_source_contracts",
         "noesis-knowledge-engine.elections_readiness",
         "noesis-knowledge-engine.encrypt_research_package",
+        "noesis-knowledge-engine.engineering_safety_dossier",
         "noesis-knowledge-engine.environment_provider_contracts",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
         "noesis-knowledge-engine.evaluate_knowledge_query",
@@ -1338,6 +1341,7 @@
         "noesis-knowledge-engine.inspect_intake_research_bundle",
         "noesis-knowledge-engine.inspect_intake_research_progress",
         "noesis-knowledge-engine.inspect_intake_skill_evidence",
+        "noesis-knowledge-engine.inspect_investigation",
         "noesis-knowledge-engine.inspect_investigation_comparison",
         "noesis-knowledge-engine.inspect_investigation_template",
         "noesis-knowledge-engine.inspect_jev_intake_intent",
@@ -1380,6 +1384,7 @@
         "noesis-knowledge-engine.inspect_review_candidate",
         "noesis-knowledge-engine.inspect_review_inbox_task",
         "noesis-knowledge-engine.inspect_review_protocol",
+        "noesis-knowledge-engine.inspect_safety_record",
         "noesis-knowledge-engine.inspect_source_acquisition_run",
         "noesis-knowledge-engine.inspect_source_pack_run",
         "noesis-knowledge-engine.inspect_source_pack_upgrade_receipt",
@@ -1417,6 +1422,7 @@
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_product_notice_citations",
+        "noesis-knowledge-engine.link_safety_citations",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.link_surveillance_series",
         "noesis-knowledge-engine.list_amendment_acts",
@@ -1476,6 +1482,7 @@
         "noesis-knowledge-engine.list_research_recipes",
         "noesis-knowledge-engine.list_review_candidates",
         "noesis-knowledge-engine.list_review_inbox_tasks",
+        "noesis-knowledge-engine.list_safety_subject_matches",
         "noesis-knowledge-engine.list_sanctions_identity_candidates",
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
@@ -1531,6 +1538,7 @@
         "noesis-knowledge-engine.poll_demographic_monitor",
         "noesis-knowledge-engine.poll_development_finance_monitor",
         "noesis-knowledge-engine.poll_election_monitor",
+        "noesis-knowledge-engine.poll_engineering_safety_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
@@ -1611,6 +1619,7 @@
         "noesis-knowledge-engine.propose_product_notice_party_links",
         "noesis-knowledge-engine.propose_public_finance_award_parties",
         "noesis-knowledge-engine.propose_public_finance_identity_matches",
+        "noesis-knowledge-engine.propose_safety_subject_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
@@ -1769,6 +1778,7 @@
         "noesis-knowledge-engine.revert_product_notice_party_link",
         "noesis-knowledge-engine.revert_public_finance_identity_match",
         "noesis-knowledge-engine.revert_public_finance_link",
+        "noesis-knowledge-engine.revert_safety_subject_match",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.review_bafin_identity_match",
@@ -1808,6 +1818,7 @@
         "noesis-knowledge-engine.review_public_finance_link",
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_research_claim_independence",
+        "noesis-knowledge-engine.review_safety_subject_match",
         "noesis-knowledge-engine.review_sanctions_identity_match",
         "noesis-knowledge-engine.review_study_field",
         "noesis-knowledge-engine.review_surveillance_resolution",
@@ -1838,6 +1849,7 @@
         "noesis-knowledge-engine.run_demographic_monitor",
         "noesis-knowledge-engine.run_development_finance_monitor",
         "noesis-knowledge-engine.run_election_monitor",
+        "noesis-knowledge-engine.run_engineering_safety_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
@@ -1871,7 +1883,9 @@
         "noesis-knowledge-engine.search_component_advisories",
         "noesis-knowledge-engine.search_cultural_objects",
         "noesis-knowledge-engine.search_datasets",
+        "noesis-knowledge-engine.search_defect_investigations",
         "noesis-knowledge-engine.search_development_finance_transactions",
+        "noesis-knowledge-engine.search_directives",
         "noesis-knowledge-engine.search_epistemic_assessments",
         "noesis-knowledge-engine.search_event_records",
         "noesis-knowledge-engine.search_geospatial_knowledge",
@@ -1879,6 +1893,7 @@
         "noesis-knowledge-engine.search_mathematics",
         "noesis-knowledge-engine.search_methodology_studies",
         "noesis-knowledge-engine.search_multimodal_assets",
+        "noesis-knowledge-engine.search_safety_recommendations",
         "noesis-knowledge-engine.select_legal_version_as_of",
         "noesis-knowledge-engine.select_paper_family_citation",
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
@@ -1996,7 +2011,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1068
+      "visible_tool_count": 1083
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2009,9 +2024,9 @@
     "states": {
       "available": 120,
       "degraded": 159,
-      "unauthorized": 1099
+      "unauthorized": 1114
     },
-    "tools": 1378
+    "tools": 1393
   },
   "tools": [
     {
@@ -28674,6 +28689,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "A subscription watching subjects, issuing authorities, directive numbers or recommendation numbers\n(provider:number); refreshed by the engineering-safety source pack's schedule, no new scheduler.",
+      "id": "noesis-knowledge-engine.create_engineering_safety_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_engineering_safety_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a place: user thresholds, unavailability, permits/releases and new vintages via a knowledge subscription.",
       "id": "noesis-knowledge-engine.create_environment_monitor",
       "input_schema": {
@@ -32745,6 +32815,74 @@
     },
     {
       "cost_class": "low",
+      "description": "Directives whose published applicability names a subject (aircraft_model/engine_model model, vehicle,\ncomponent, or a product_model_id/entity_id through accepted matches) and that were in effect on the date,\neach with the revision used, supersession chain and applicability text with locator. Superseded ones\nappear only in chains; unparsed applicability is 'possibly applicable - see text'. As published; not a\ncompliance determination. export_bundle returns a noesis-evidence-bundle-v1.",
+      "id": "noesis-knowledge-engine.directives_as_of",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "export_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "serial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "directives_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List the ten workflow intents and their session budgets and completion inputs.",
       "id": "noesis-knowledge-engine.discover_intake_modes",
       "input_schema": {
@@ -33675,6 +33813,92 @@
       ],
       "required_scopes": [
         "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A cited engineering-safety dossier for a subject: directives in effect with chains, investigations with\nverbatim findings, recommendations with status history, defect investigations with linked recalls\n(products_namespace, needs knowledge:products:read), occurrences and complaint counts, with the matches\nthat connected them, conflicts side by side and unknowns. A subject with no records is 'none on record',\nnever 'safe'.",
+      "id": "noesis-knowledge-engine.engineering_safety_dossier",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "export_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "products_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "serial": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "engineering_safety_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -41260,6 +41484,65 @@
     },
     {
       "cost_class": "low",
+      "description": "One investigation (record id or provider:number, e.g. ntsb:ERA26FA101) with the report revision current\nas of the date, its occurrence, verbatim findings and probable cause with locators, and every other report\nrevision (preliminary and final side by side). No cause is inferred or aggregated.",
+      "id": "noesis-knowledge-engine.inspect_investigation",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "investigation": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "investigation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_investigation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Reopen an immutable comparison and report current historical availability.",
       "id": "noesis-knowledge-engine.inspect_investigation_comparison",
       "input_schema": {
@@ -43012,6 +43295,65 @@
     },
     {
       "cost_class": "low",
+      "description": "Any engineering-safety record (directive, recommendation, occurrence, defect investigation, complaint)\nwith its revision as of the date, parts, citations and revision history.",
+      "id": "noesis-knowledge-engine.inspect_safety_record",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_safety_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect durable status, checkpoints, failures, and budget accounting.",
       "id": "noesis-knowledge-engine.inspect_source_acquisition_run",
       "input_schema": {
@@ -44734,6 +45076,73 @@
         "knowledge:products:write",
         "knowledge:standards:read",
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link cited AD and recommendation numbers to records here, and (when their namespaces are named) recall\ncampaigns to Products safety notices, standards to catalogue editions and CFR/EU acts to Legal works, all\nby exact identifier and revision-aware. Unresolved citations keep their text. Idempotent.",
+      "id": "noesis-knowledge-engine.link_safety_citations",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "products_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "standards_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_safety_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47994,6 +48403,61 @@
     },
     {
       "cost_class": "low",
+      "description": "Reviewable subject matches (proposed, accepted, rejected, reverted, detached) with their evidence.",
+      "id": "noesis-knowledge-engine.list_safety_subject_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_safety_subject_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Identity candidates and decisions involving designations, with decision id, reviewer, reason, evidence.",
       "id": "noesis-knowledge-engine.list_sanctions_identity_candidates",
       "input_schema": {
@@ -50656,6 +51120,44 @@
       ],
       "required_scopes": [
         "knowledge:political:elections:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll an engineering-safety monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_engineering_safety_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_engineering_safety_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -54568,6 +55070,62 @@
         "knowledge:economic:public-finance:read",
         "knowledge:ownership:read",
         "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose candidates from published subjects to Products models (products_namespace, needs\nknowledge:products:read) and canonical entities, and offer operator names to Corporate Ownership\n(ownership_namespace, needs knowledge:ownership:read and :write). Deterministic and idempotent; nothing is\naccepted or merged; no sister-type or similar-model inference.",
+      "id": "noesis-knowledge-engine.propose_safety_subject_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "products_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_safety_subject_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -64104,6 +64662,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert the decision on a subject match; an earlier acceptance is never reactivated.",
+      "id": "noesis-knowledge-engine.revert_safety_subject_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_safety_subject_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected decision; the prior state is restored and no record changes.",
       "id": "noesis-knowledge-engine.revert_sanctions_identity_match",
       "input_schema": {
@@ -65996,6 +66596,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject the current proposal of a subject match (appended; an entity match records an identity\ndecision). Records are never merged.",
+      "id": "noesis-knowledge-engine.review_safety_subject_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_safety_subject_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a candidate as an identity decision; list records are linked, never rewritten.",
       "id": "noesis-knowledge-engine.review_sanctions_identity_match",
       "input_schema": {
@@ -67676,6 +68322,52 @@
       ],
       "required_scopes": [
         "knowledge:political:elections:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a complete source-pack run: new directives, revisions and supersessions, final\nreports, new findings, recommendation status changes and defect-investigation upgrades, each citing the\nrecord revision and the previous one. The first evaluation is a baseline.",
+      "id": "noesis-knowledge-engine.run_engineering_safety_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_engineering_safety_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -69464,6 +70156,91 @@
     },
     {
       "cost_class": "medium",
+      "description": "NHTSA ODI defect investigations (PE, EA, DP, RQ) by action number or a string they state (make, model,\ncomponent, manufacturer), with the revision current as of the date; include_complaints adds consumer\ncomplaints, which are unverified reports, never confirmed defects. No defect likelihood or rating.",
+      "id": "noesis-knowledge-engine.search_defect_investigations",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_complaints": {
+            "default": false,
+            "type": "boolean"
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_defect_investigations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Transactions per publisher with within-publisher totals by type and currency (never across publishers).",
       "id": "noesis-knowledge-engine.search_development_finance_transactions",
       "input_schema": {
@@ -69579,6 +70356,98 @@
       "required_scopes": [
         "knowledge:funding:development-finance:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Airworthiness directives by AD number, issuing authority (us-faa, eu-easa) or a string their title,\napplicability or subjects state (unmatched subjects included), each with the revision current as of the\ndate. As published; no compliance determination.",
+      "id": "noesis-knowledge-engine.search_directives",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 50,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_directives",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70062,6 +70931,117 @@
       ],
       "required_scopes": [
         "knowledge:multimodal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Safety recommendations by addressee, subject, issuing body or status as of a date, with the status\npublished on that date and the full dated response history.",
+      "id": "noesis-knowledge-engine.search_safety_recommendations",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "addressee": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "native_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_safety_recommendations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

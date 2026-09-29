@@ -209,7 +209,8 @@ def test_a_missing_consumed_provider_is_a_visible_omission_not_a_failure():
 def test_the_v1_pack_manifest_is_unchanged():
     pack = json.loads((ROOT / "packs/products/pack.json").read_text())
     assert pack["version"] == "1.0.0" and "safety" not in json.dumps(pack).lower()
-    assert not list(ROOT.glob("packs/*safety*"))
+    # No separate products-safety pack; the only *safety* bundle is the Engineering Safety pack (#2059).
+    assert [p.name for p in ROOT.glob("packs/*safety*")] == ["engineering-safety"]
 
 
 def test_feature_enablement_follows_the_active_composition_selection():

@@ -1,0 +1,21 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-engineering-safety-dossier-v1",
+  "title": "Cited engineering-safety dossier for one subject",
+  "description": "Directives in effect as of a date with their supersession chains, investigations with verbatim findings and probable causes, recommendations with their dated response history, defect investigations with linked recalls, and the reviewable identity matches that connected each item. Unknowns and unmatched source strings stay visible. A subject with no records is 'none on record', never 'safe'.",
+  "type": "object",
+  "required": ["contract", "namespace", "subject", "as_of", "status", "sections", "matches", "unknowns", "semantics"],
+  "not": {"anyOf": [{"required": ["verdict"]}, {"required": ["safe"]}, {"required": ["risk_score"]}, {"required": ["ranking"]}]},
+  "properties": {
+    "contract": {"const": "noesis-engineering-safety-dossier-v1"},
+    "namespace": {"type": "string"},
+    "subject": {"type": "object"},
+    "as_of": {"type": ["string", "null"]},
+    "status": {"enum": ["records on file", "none on record"]},
+    "sections": {"type": "object", "required": ["directives", "investigations", "recommendations", "defect_investigations", "occurrences", "complaints"]},
+    "matches": {"type": "array"},
+    "unknowns": {"type": "array"},
+    "conflicts": {"type": "array"},
+    "semantics": {"type": "string"}
+  }
+}

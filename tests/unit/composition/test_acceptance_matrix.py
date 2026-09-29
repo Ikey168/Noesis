@@ -79,6 +79,11 @@ MATRIX = {
     "Multi-category product lookup, match and compare":
         "tests/unit/domains/test_products_expansion_acceptance.py::"
         "test_multi_category_lookup_match_compare_and_cite",
+    # The Engineering Safety bundle's offline journey (#2077) composes its record owner, Products models and
+    # recalls, entity identity, subscriptions and the source-pack declarations.
+    "Subject to engineering-safety dossier":
+        "tests/unit/engineering_safety/test_acceptance.py::"
+        "test_subject_to_cited_engineering_safety_dossier_with_reviews_citations_and_monitoring",
 }
 
 

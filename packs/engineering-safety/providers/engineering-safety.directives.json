@@ -1,0 +1,150 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "engineering-safety.directives",
+  "version": "1.0.0",
+  "description": "Engineering-safety records (src.kb.engineering_safety_store): airworthiness directives with revisions, applicability as published, supersession chains and verbatim required actions, and every other record kind's revisions and citations; directives as of a date. No compliance determination.",
+  "implementation": {
+    "name": "src.kb.engineering_safety_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "engineering-safety.directives",
+      "contract": {
+        "name": "noesis-engineering-safety-directive",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "search-directives",
+        "directives-as-of",
+        "inspect-safety-record",
+        "link-safety-citations"
+      ],
+      "semantic_constraints": {
+        "records": "what an authority published, one immutable revision per distinct statement; current by report status and the source's own date; native identifiers never rewritten",
+        "applicability": "verbatim with locator; parsed only when unambiguous, else 'possibly applicable - see text'",
+        "supersession": "stated relations only, walked in both directions at query time",
+        "citations": "exact identifiers only; unresolved citations keep their text",
+        "exclusions": "no verdict, risk score, ranking or compliance determination"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "search-directives",
+      "tool": "noesis-knowledge-engine.search_directives",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "directives-as-of",
+      "tool": "noesis-knowledge-engine.directives_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-safety-record",
+      "tool": "noesis-knowledge-engine.inspect_safety_record",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-safety-citations",
+      "tool": "noesis-knowledge-engine.link_safety_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "citation, target and target revision"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "engineering-safety-record",
+      "store": "src.kb.engineering_safety_store",
+      "tables": [
+        "es_records",
+        "es_revisions",
+        "es_current",
+        "es_applicability",
+        "es_statements",
+        "es_relations",
+        "es_subjects",
+        "es_occurrences",
+        "es_responses",
+        "es_quantities",
+        "es_citations",
+        "es_selection",
+        "es_source_runs",
+        "es_generation"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "engineering-safety-citation-link",
+      "store": "src.kb.engineering_safety_store",
+      "tables": [
+        "es_citation_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "es_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "engineering-safety"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "engineering-safety",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
