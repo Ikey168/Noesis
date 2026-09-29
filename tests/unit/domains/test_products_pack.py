@@ -131,14 +131,17 @@ def accept_proposed(store):
 
 def test_pack_declares_implemented_connectors_and_passes_offline_conformance():
     value = manifest()
-    # The display providers, plus the safety feature's notice sources (#1916) in the same pack.
+    # The display providers, the safety feature's notice sources (#1916) and the expansion's appliance groups and
+    # BMEcat component catalogues (#2061) in the same pack.
     assert {item["connector"] for item in value["sources"]} == {
-        "icecat", "eprel", "safety-gate", "cpsc", "nhtsa", "rasff"} <= SUPPORTED_CONNECTORS
+        "icecat", "eprel", "bmecat", "safety-gate", "cpsc", "nhtsa", "rasff"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {item["source_id"]: item["records"] for item in result["sources"]} == {
         "icecat-displays": 6, "eprel-displays": 4, "safety-gate-alerts": 5, "cpsc-recalls": 2,
-        "nhtsa-recalls": 1, "rasff-notifications": 1}
+        "nhtsa-recalls": 1, "rasff-notifications": 1, "eprel-washing-machines": 4,
+        "eprel-refrigerating-appliances": 3, "icecat-washing-machines": 2, "icecat-refrigerating-appliances": 2,
+        "bmecat-capatronic-mlcc": 4, "bmecat-voltaria-mlcc": 4}
 
 
 def test_gtin_states_keep_the_original_string():

@@ -1,0 +1,214 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "crate": {
+     "downloads": 12345,
+     "name": "fixture-codec",
+     "repository": "https://github.com/fixture-labs/codec"
+    },
+    "versions": [
+     {
+      "audit_actions": [
+       {
+        "action": "publish",
+        "user": {
+         "login": "ada-example"
+        }
+       }
+      ],
+      "checksum": "0000000000000000000000000000000000000000000000000000000000000000",
+      "created_at": "2025-12-01T00:00:00Z",
+      "license": "MIT/Apache-2.0",
+      "num": "0.1.0",
+      "published_by": {
+       "login": "ada-example",
+       "name": "Ada Example"
+      },
+      "updated_at": "2025-12-01T00:00:00Z",
+      "yank_message": null,
+      "yanked": false
+     },
+     {
+      "audit_actions": [
+       {
+        "action": "publish",
+        "user": {
+         "login": "ada-example"
+        }
+       }
+      ],
+      "checksum": "0000000000000000000000000000000000000000000000000000000000000000",
+      "created_at": "2026-02-01T00:00:00Z",
+      "license": "MIT OR Apache-2.0",
+      "num": "0.2.0",
+      "published_by": {
+       "login": "ada-example",
+       "name": "Ada Example"
+      },
+      "updated_at": "2026-02-01T00:00:00Z",
+      "yank_message": null,
+      "yanked": false
+     }
+    ]
+   },
+   "request": "/api/v1/crates/fixture-codec",
+   "status": 200
+  },
+  {
+   "body": {
+    "teams": [
+     {
+      "kind": "team",
+      "login": "github:fixture-labs:crates",
+      "name": "Crates"
+     }
+    ]
+   },
+   "request": "/api/v1/crates/fixture-codec/owner_team",
+   "status": 200
+  },
+  {
+   "body": {
+    "dependencies": [
+     {
+      "crate_id": "fixture-bytes",
+      "default_features": true,
+      "features": [],
+      "kind": "normal",
+      "optional": false,
+      "req": "^0.4",
+      "target": null,
+      "version_id": 1
+     },
+     {
+      "crate_id": "fixture-bench",
+      "default_features": true,
+      "features": [],
+      "kind": "dev",
+      "optional": false,
+      "req": "0.1",
+      "target": null,
+      "version_id": 1
+     },
+     {
+      "crate_id": "fixture-simd",
+      "default_features": true,
+      "features": [],
+      "kind": "normal",
+      "optional": true,
+      "req": "1",
+      "target": "cfg(target_arch = \"x86_64\")",
+      "version_id": 1
+     }
+    ]
+   },
+   "request": "/api/v1/crates/fixture-codec/0.1.0/dependencies",
+   "status": 200
+  },
+  {
+   "body": {
+    "dependencies": [
+     {
+      "crate_id": "fixture-bytes",
+      "default_features": true,
+      "features": [],
+      "kind": "normal",
+      "optional": false,
+      "req": ">=0.4.1, <0.5",
+      "target": null,
+      "version_id": 1
+     }
+    ]
+   },
+   "request": "/api/v1/crates/fixture-codec/0.2.0/dependencies",
+   "status": 200
+  },
+  {
+   "body": {
+    "crate": {
+     "downloads": 12345,
+     "name": "fixture-bytes",
+     "repository": "https://github.com/fixture-labs/bytes"
+    },
+    "versions": [
+     {
+      "audit_actions": [
+       {
+        "action": "publish",
+        "user": {
+         "login": "ada-example"
+        }
+       }
+      ],
+      "checksum": "0000000000000000000000000000000000000000000000000000000000000000",
+      "created_at": "2025-10-01T00:00:00Z",
+      "license": "MIT",
+      "num": "0.4.0",
+      "published_by": {
+       "login": "ada-example",
+       "name": "Ada Example"
+      },
+      "updated_at": "2025-10-01T00:00:00Z",
+      "yank_message": null,
+      "yanked": false
+     },
+     {
+      "audit_actions": [
+       {
+        "action": "publish",
+        "user": {
+         "login": "ada-example"
+        }
+       }
+      ],
+      "checksum": "0000000000000000000000000000000000000000000000000000000000000000",
+      "created_at": "2026-01-05T00:00:00Z",
+      "license": "MIT",
+      "num": "0.4.1",
+      "published_by": {
+       "login": "ada-example",
+       "name": "Ada Example"
+      },
+      "updated_at": "2026-01-05T00:00:00Z",
+      "yank_message": null,
+      "yanked": false
+     }
+    ]
+   },
+   "request": "/api/v1/crates/fixture-bytes",
+   "status": 200
+  },
+  {
+   "body": {
+    "teams": [
+     {
+      "kind": "team",
+      "login": "github:fixture-labs:crates",
+      "name": "Crates"
+     }
+    ]
+   },
+   "request": "/api/v1/crates/fixture-bytes/owner_team",
+   "status": 200
+  },
+  {
+   "body": {
+    "dependencies": []
+   },
+   "request": "/api/v1/crates/fixture-bytes/0.4.0/dependencies",
+   "status": 200
+  },
+  {
+   "body": {
+    "dependencies": []
+   },
+   "request": "/api/v1/crates/fixture-bytes/0.4.1/dependencies",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

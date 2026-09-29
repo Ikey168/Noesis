@@ -1,0 +1,19 @@
+{
+  "captured": false,
+  "provider": "bafin-voting-rights",
+  "note": "Authored exports naming fictional issuers, companies and persons only, served for the production document URLs. The production issuer set (DAX 40, verify) is therefore out of scope for every row and no notice is emitted for it; parsing is exercised with the fictional issuer set in tests/unit/bafin_harness.py.",
+  "native_pages": [
+    {
+      "request": "/database/AnteileInfo/suche.do?6578706f7274=1&d-3589435-e=1",
+      "status": 200,
+      "body": "Mitteilungs-ID;Emittent;ISIN;LEI des Emittenten;Meldepflichtiger;Art des Meldepflichtigen;Sitz;Land;Berührte Schwellen;Stimmrechte § 33 WpHG (%);Instrumente § 38 Abs. 1 Nr. 1 WpHG (%);Instrumente § 38 Abs. 1 Nr. 2 WpHG (%);Summe Instrumente § 38 WpHG (%);Summe § 39 WpHG (%);Gesamtstimmrechtsanteile letzte Mitteilung (%);Datum der Schwellenberührung;Datum der Mitteilung;Veröffentlichung gemäß § 40 WpHG;Korrektur von;Korrektur der Veröffentlichung vom;Status;Kette der Tochterunternehmen;Grund der Mitteilung\nVR-2026-0007;Musterwerke AG;DE000MSTR014;529900MUSTERWERKE005;Fiktiva Holding SE;juristische Person;Frankfurt am Main;Deutschland;5 %;5,21;0,00;-;0,00;5,21;2,80;02.03.2026;18.03.2026;20.03.2026;VR-2026-0001;05.03.2026;veröffentlicht;\"Fiktiva Holding SE | - | - | -\nFiktiva Beteiligungs GmbH | - | - | -\nFiktiva Invest GmbH | 5,21 | - | 5,21\";Korrektur einer Veröffentlichung\n\"VR-2026-0009\";Musterwerke AG;DE000MSTR014;529900MUSTERWERKE005;Nordlicht Asset Management S.A.;juristische Person;Luxemburg;Luxemburg;3 %;3,05;1,00;-;1,00;4,05;2,95;10.04.2026;13.04.2026;14.04.2026;;;veröffentlicht;\"Nordlicht Asset Management S.A. | 3,05 | 1,00 | 4,05\";Erwerb/Veräußerung von Aktien mit Stimmrechten\nVR-2026-0002;Beispiel Maschinenbau SE;DE000BSPL026;;Fiktiva Holding SE;juristische Person;Frankfurt am Main;Deutschland;3 %;3,01;-;-;-;3,01;-;01.03.2026;;04.03.2026;;;veröffentlicht;;Erwerb/Veräußerung von Aktien mit Stimmrechten\n",
+      "authored": true,
+      "body_encoding": "windows-1252"
+    }
+  ],
+  "scenarios": [
+    "bounded-issuer-set",
+    "out-of-scope-rows-counted",
+    "declared-column-mapping"
+  ]
+}

@@ -166,6 +166,12 @@ def _election_projector(conn: Any) -> Any:
     return ElectionProjector(conn)
 
 
+def _sports_projector(conn: Any) -> Any:
+    from src.kb.sports_store import SportsProjector
+
+    return SportsProjector(conn)
+
+
 def _public_finance_projector(conn: Any) -> Any:
     from src.kb.public_finance import PublicFinanceProjector
 
@@ -202,10 +208,52 @@ def _development_finance_projector(conn: Any) -> Any:
     return DevelopmentFinanceProjector(conn)
 
 
+def _bafin_notice_projector(conn: Any) -> Any:
+    from src.domains.market.bafin_notices import BafinNoticeProjector
+
+    return BafinNoticeProjector(conn)
+
+
+def _engineering_safety_projector(conn: Any) -> Any:
+    from src.kb.engineering_safety_store import EngineeringSafetyProjector
+
+    return EngineeringSafetyProjector(conn)
+
+
+def _materials_projector(conn: Any) -> Any:
+    from src.kb.materials_store import MaterialsProjector
+
+    return MaterialsProjector(conn)
+
+
+def _astronomy_projector(conn: Any) -> Any:
+    from src.kb.astronomy_store import AstronomyProjector
+
+    return AstronomyProjector(conn)
+
+
+def _weather_projector(conn: Any) -> Any:
+    from src.kb.weather_store import WeatherProjector
+
+    return WeatherProjector(conn)
+
+
+def _linguistics_projector(conn: Any) -> Any:
+    from src.kb.linguistics_store import LinguisticsProjector
+
+    return LinguisticsProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
     return VulnerabilityProjector(conn)
+
+
+def _oss_ecosystem_projector(conn: Any) -> Any:
+    from src.kb.oss_ecosystem_store import OssEcosystemProjector
+
+    return OssEcosystemProjector(conn)
 
 
 # Mapping target schemas whose records are also projected into a domain store.
@@ -233,8 +281,16 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-public-finance-record-v1": _public_finance_projector,
     "noesis-demographic-series-v1": _demographic_projector,
     "noesis-development-finance-record-v1": _development_finance_projector,
+    "noesis-bafin-notice-v1": _bafin_notice_projector,
+    "noesis-astronomy-record-v1": _astronomy_projector,
+    "noesis-weather-record-v1": _weather_projector,
     "noesis-housing-record-v1": _housing_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
+    "noesis-engineering-safety-record-v1": _engineering_safety_projector,
+    "noesis-material-record-v1": _materials_projector,
+    "noesis-sports-record-v1": _sports_projector,
+    "noesis-linguistic-record-v1": _linguistics_projector,
+    "noesis-oss-ecosystem-record-v1": _oss_ecosystem_projector,
 }
 
 _DDL = """

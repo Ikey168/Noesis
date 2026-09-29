@@ -1,0 +1,145 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "packageKey": {
+     "name": "@fixture-labs/tokenizer",
+     "system": "NPM"
+    },
+    "versions": [
+     {
+      "isDefault": false,
+      "publishedAt": "2025-08-01T00:00:00Z",
+      "versionKey": {
+       "name": "@fixture-labs/tokenizer",
+       "system": "NPM",
+       "version": "0.9.0"
+      }
+     },
+     {
+      "isDefault": false,
+      "publishedAt": "2025-11-01T00:00:00Z",
+      "versionKey": {
+       "name": "@fixture-labs/tokenizer",
+       "system": "NPM",
+       "version": "1.0.0"
+      }
+     },
+     {
+      "isDefault": true,
+      "publishedAt": "2026-02-01T00:00:00Z",
+      "versionKey": {
+       "name": "@fixture-labs/tokenizer",
+       "system": "NPM",
+       "version": "1.1.0"
+      }
+     }
+    ]
+   },
+   "request": "/v3/systems/NPM/packages/%40fixture-labs%2Ftokenizer",
+   "status": 200
+  },
+  {
+   "body": {
+    "advisoryKeys": [
+     {
+      "id": "GHSA-f1x7-zzzz-zzzz"
+     }
+    ],
+    "licenses": [
+     "Apache-2.0"
+    ],
+    "relatedProjects": [
+     {
+      "projectKey": {
+       "id": "github.com/fixture-labs/tokenizer"
+      },
+      "relationProvenance": "UNVERIFIED_METADATA",
+      "relationType": "SOURCE_REPO"
+     },
+     {
+      "projectKey": {
+       "id": "github.com/fixture-labs/issues"
+      },
+      "relationType": "ISSUE_TRACKER"
+     }
+    ],
+    "versionKey": {
+     "name": "@fixture-labs/tokenizer",
+     "system": "NPM",
+     "version": "1.1.0"
+    }
+   },
+   "request": "/v3/systems/NPM/packages/%40fixture-labs%2Ftokenizer/versions/1.1.0",
+   "status": 200
+  },
+  {
+   "body": {
+    "edges": [
+     {
+      "fromNode": 0,
+      "requirement": "^2.1.0",
+      "toNode": 1
+     },
+     {
+      "fromNode": 0,
+      "requirement": "~1.0.0",
+      "toNode": 2
+     }
+    ],
+    "nodes": [
+     {
+      "bundled": false,
+      "errors": [],
+      "relation": "SELF",
+      "versionKey": {
+       "name": "@fixture-labs/tokenizer",
+       "system": "NPM",
+       "version": "1.1.0"
+      }
+     },
+     {
+      "bundled": false,
+      "errors": [],
+      "relation": "DIRECT",
+      "versionKey": {
+       "name": "fixture-lexer",
+       "system": "NPM",
+       "version": "2.2.0"
+      }
+     },
+     {
+      "bundled": false,
+      "errors": [],
+      "relation": "DIRECT",
+      "versionKey": {
+       "name": "fixture-native",
+       "system": "NPM",
+       "version": "1.0.3"
+      }
+     }
+    ]
+   },
+   "request": "/v3/systems/NPM/packages/%40fixture-labs%2Ftokenizer/versions/1.1.0:dependencies",
+   "status": 200
+  },
+  {
+   "body": {
+    "error": "not found"
+   },
+   "request": "/v3/systems/NPM/packages/%40fixture-labs%2Ftokenizer/versions/1.2.0",
+   "status": 404
+  },
+  {
+   "body": {
+    "error": "not found"
+   },
+   "request": "/v3/systems/NPM/packages/%40fixture-labs%2Ftokenizer/versions/1.2.0:dependencies",
+   "status": 404
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

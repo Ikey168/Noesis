@@ -1,0 +1,604 @@
+{
+  "pack_id": "astronomy-and-space",
+  "version": "1.0.0",
+  "description": "Astronomy and Space sources for the Astronomy pack: MPC designations, identifications and MPCORB orbits, JPL SBDB solutions and Sentry listings (quoted), NASA Exoplanet Archive dispositions per table, GCAT and CelesTrak SATCAT launches and objects, and NOAA SWPC alerts. Bounded to declared objects, hosts, years and codes; published values quoted, never computed.",
+  "domains": [
+    "astronomy"
+  ],
+  "defaults": {
+    "connector": "astronomy",
+    "update_cadence": "daily at most",
+    "temporal_semantics": "each record's own date (orbit computation, disposition row update, product issue time, else the document date) orders revisions and is the public clock (a date counts as the end of that day, UTC); a missing date falls back to the first observation; acquisition time recorded separately per revision",
+    "mapping": {
+      "target_schema": "noesis-astronomy-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "astronomy:1.0.0"
+    ],
+    "operations": [
+      "documents"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 5000,
+      "max_bytes": 20000000,
+      "max_pages": 10
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "mpc-designation-identifier",
+      "publisher": "IAU Minor Planet Center, designation identifier API",
+      "endpoint": "https://data.minorplanetcenter.net/api/query-identifier",
+      "scope": "Designations and MPC identifications of the declared small bodies (433) Eros, (99942) Apophis, (101955) Bennu and 2024 YR4 (operator must verify the selection before AS13); the live API expects the identifier in a GET body (verify), which the runtime transport does not send",
+      "license": {
+        "id": "mpc-acknowledgement",
+        "terms_url": "https://minorplanetcenter.net/iau/info/MPCOpenAccess.html",
+        "redistribution": "free use with acknowledgement of the IAU Minor Planet Center (operator must verify the current policy)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "mpc-designations",
+        "format": "mpc-identifier-json",
+        "objects": [
+          "(433)",
+          "(99942)",
+          "(101955)",
+          "2024 YR4"
+        ],
+        "documents": [
+          {
+            "label": "identifier (433)",
+            "object": "(433)",
+            "listing": "partial",
+            "url": "https://data.minorplanetcenter.net/api/query-identifier?ids=%28433%29"
+          },
+          {
+            "label": "identifier (99942)",
+            "object": "(99942)",
+            "listing": "partial",
+            "url": "https://data.minorplanetcenter.net/api/query-identifier?ids=%2899942%29"
+          },
+          {
+            "label": "identifier (101955)",
+            "object": "(101955)",
+            "listing": "partial",
+            "url": "https://data.minorplanetcenter.net/api/query-identifier?ids=%28101955%29"
+          },
+          {
+            "label": "identifier 2024 YR4",
+            "object": "2024 YR4",
+            "listing": "partial",
+            "url": "https://data.minorplanetcenter.net/api/query-identifier?ids=2024%20YR4"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-mpc-designation-identifier.json",
+        "sha256": "f0562efd37899636756d9982c6d2e60112dabd5b8a8daff3dbd16391b6509a26",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "mpc-mpcorb-nea",
+      "publisher": "IAU Minor Planet Center, MPCORB (NEA subset)",
+      "endpoint": "https://minorplanetcenter.net/iau/MPCORB/NEA.txt",
+      "scope": "MPCORB orbit lines of the declared small bodies (433) Eros, (99942) Apophis, (101955) Bennu and 2024 YR4 (operator must verify the selection before AS13); every other line is counted out of scope",
+      "license": {
+        "id": "mpc-acknowledgement",
+        "terms_url": "https://minorplanetcenter.net/iau/info/MPCOpenAccess.html",
+        "redistribution": "free use with acknowledgement of the IAU Minor Planet Center (operator must verify the current policy)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "mpc-orbits",
+        "format": "mpcorb-dat",
+        "objects": [
+          "(433)",
+          "(99942)",
+          "(101955)",
+          "2024 YR4"
+        ],
+        "documents": [
+          {
+            "label": "MPCORB NEA.txt",
+            "url": "https://minorplanetcenter.net/iau/MPCORB/NEA.txt",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-mpc-mpcorb-nea.json",
+        "sha256": "bf500c42109ef79cd72b6eaef329fd83284ebdd01c7990a835323bf6711ccff6",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "jpl-sbdb-solutions",
+      "publisher": "NASA/JPL Small-Body Database API",
+      "endpoint": "https://ssd-api.jpl.nasa.gov/sbdb.api",
+      "scope": "Current JPL orbit solution (orbit_id, soln_date, epoch, elements, arc, condition code) of the declared small bodies (433) Eros, (99942) Apophis, (101955) Bennu and 2024 YR4 (operator must verify the selection before AS13); each new orbit_id is a new vintage",
+      "license": {
+        "id": "nasa-jpl-data-use",
+        "terms_url": "https://www.jpl.nasa.gov/jpl-image-use-policy",
+        "redistribution": "NASA/JPL data generally not copyrighted; credit NASA/JPL-Caltech (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "jpl-sbdb",
+        "format": "jpl-sbdb-json",
+        "objects": [
+          "(433)",
+          "(99942)",
+          "(101955)",
+          "2024 YR4"
+        ],
+        "documents": [
+          {
+            "label": "SBDB (433)",
+            "object": "(433)",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=433&alt-des=1"
+          },
+          {
+            "label": "SBDB (99942)",
+            "object": "(99942)",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=99942&alt-des=1"
+          },
+          {
+            "label": "SBDB (101955)",
+            "object": "(101955)",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=101955&alt-des=1"
+          },
+          {
+            "label": "SBDB 2024 YR4",
+            "object": "2024 YR4",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sbdb.api?sstr=2024%20YR4&alt-des=1"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-jpl-sbdb-solutions.json",
+        "sha256": "14710b088a5caa9c4190bb9ae41704eb30bf5b860004774b542e90054c1a0741",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "jpl-sentry-listings",
+      "publisher": "NASA/JPL Sentry impact monitoring API (quoted only)",
+      "endpoint": "https://ssd-api.jpl.nasa.gov/sentry.api",
+      "scope": "Sentry listing status, listing or removal date and summary figures quoted as published for the declared objects; Noesis issues no risk verdict",
+      "license": {
+        "id": "nasa-jpl-data-use",
+        "terms_url": "https://www.jpl.nasa.gov/jpl-image-use-policy",
+        "redistribution": "NASA/JPL data generally not copyrighted; credit NASA/JPL-Caltech (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "jpl-sentry",
+        "format": "jpl-sentry-json",
+        "objects": [
+          "(99942)",
+          "(101955)",
+          "2024 YR4"
+        ],
+        "documents": [
+          {
+            "label": "Sentry (99942)",
+            "object": "(99942)",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sentry.api?des=99942"
+          },
+          {
+            "label": "Sentry (101955)",
+            "object": "(101955)",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sentry.api?des=101955"
+          },
+          {
+            "label": "Sentry 2024 YR4",
+            "object": "2024 YR4",
+            "listing": "partial",
+            "url": "https://ssd-api.jpl.nasa.gov/sentry.api?des=2024%20YR4"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-jpl-sentry-listings.json",
+        "sha256": "3ad91be832e7175d16cba2df8487af371cd471b4457a8e71478d99a8aeffee34",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "exoplanet-archive-ps",
+      "publisher": "NASA Exoplanet Archive, Planetary Systems (ps)",
+      "endpoint": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync",
+      "scope": "Planetary Systems rows (every parameter set with default_flag and pl_refname) for the declared hosts TRAPPIST-1, TOI-700 and Kepler-22 (operator must verify the host list); a complete bounded listing",
+      "license": {
+        "id": "nasa-exoplanet-archive-acknowledgement",
+        "terms_url": "https://exoplanetarchive.ipac.caltech.edu/docs/acknowledge.html",
+        "redistribution": "public data; acknowledge the archive and cite the table DOI and each reference (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "nasa-exoplanet-archive",
+        "format": "exoplanet-tap-csv",
+        "table": "ps",
+        "hosts": [
+          {
+            "name": "TRAPPIST-1",
+            "tic": "278892590"
+          },
+          {
+            "name": "TOI-700",
+            "tic": "150428135"
+          },
+          {
+            "name": "Kepler-22",
+            "kepid": "10593626"
+          }
+        ],
+        "documents": [
+          {
+            "label": "TAP ps (declared hosts)",
+            "listing": "complete",
+            "url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select%20pl_name%2Chostname%2Cdefault_flag%2Cpl_refname%2Cdisc_refname%2Cdiscoverymethod%2Cdisc_year%2Cdisc_facility%2Cpl_controv_flag%2Crowupdate%2Ctic_id%2Cgaia_id%2Cpl_orbper%2Cpl_orbpererr1%2Cpl_orbpererr2%2Cpl_rade%2Cpl_radj%2Cpl_bmasse%2Cpl_orbsmax%20from%20ps%20where%20hostname%20in%20%28%27TRAPPIST-1%27%2C%27TOI-700%27%2C%27Kepler-22%27%29&format=csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-exoplanet-archive-ps.json",
+        "sha256": "4784cd8cf1ec8eb1d276f4cae8335520fff2e9a4bc4b7db4291c61097405e6cf",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "exoplanet-archive-pscomppars",
+      "publisher": "NASA Exoplanet Archive, Planetary Systems Composite Parameters",
+      "endpoint": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync",
+      "scope": "The archive's composite parameter sets (labelled composite, never a Noesis average) for the declared hosts",
+      "license": {
+        "id": "nasa-exoplanet-archive-acknowledgement",
+        "terms_url": "https://exoplanetarchive.ipac.caltech.edu/docs/acknowledge.html",
+        "redistribution": "public data; acknowledge the archive and cite the table DOI and each reference (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "nasa-exoplanet-archive",
+        "format": "exoplanet-tap-csv",
+        "table": "pscomppars",
+        "hosts": [
+          {
+            "name": "TRAPPIST-1",
+            "tic": "278892590"
+          },
+          {
+            "name": "TOI-700",
+            "tic": "150428135"
+          },
+          {
+            "name": "Kepler-22",
+            "kepid": "10593626"
+          }
+        ],
+        "documents": [
+          {
+            "label": "TAP pscomppars (declared hosts)",
+            "listing": "partial",
+            "url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select%20pl_name%2Chostname%2Crowupdate%2Ctic_id%2Cgaia_id%2Cpl_orbper%2Cpl_rade%2Cpl_radj%2Cpl_bmasse%2Cpl_orbsmax%2Cst_teff%2Cst_rad%2Cst_mass%20from%20pscomppars%20where%20hostname%20in%20%28%27TRAPPIST-1%27%2C%27TOI-700%27%2C%27Kepler-22%27%29&format=csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-exoplanet-archive-pscomppars.json",
+        "sha256": "36862c189423e6015d8edffa3af8a27d5f0042900ab34fac2cf6dab8959bb1c4",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "exoplanet-archive-toi",
+      "publisher": "NASA Exoplanet Archive, TESS Objects of Interest",
+      "endpoint": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync",
+      "scope": "TOI dispositions (tfopwg_disp) for the declared hosts' TIC IDs (operator must verify the TIC IDs)",
+      "license": {
+        "id": "nasa-exoplanet-archive-acknowledgement",
+        "terms_url": "https://exoplanetarchive.ipac.caltech.edu/docs/acknowledge.html",
+        "redistribution": "public data; acknowledge the archive and cite the table DOI and each reference (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "nasa-exoplanet-archive",
+        "format": "exoplanet-tap-csv",
+        "table": "toi",
+        "hosts": [
+          {
+            "name": "TRAPPIST-1",
+            "tic": "278892590"
+          },
+          {
+            "name": "TOI-700",
+            "tic": "150428135"
+          },
+          {
+            "name": "Kepler-22",
+            "kepid": "10593626"
+          }
+        ],
+        "documents": [
+          {
+            "label": "TAP toi (declared TIC IDs)",
+            "listing": "partial",
+            "url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select%20toi%2Ctid%2Ctfopwg_disp%2Crowupdate%2Cpl_orbper%2Cpl_rade%20from%20toi%20where%20tid%20in%20%28278892590%2C150428135%29&format=csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-exoplanet-archive-toi.json",
+        "sha256": "3da3981af6f29a482cb031abae5ad104b6b101055e829284b68feb771d25b6d4",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "exoplanet-archive-koi",
+      "publisher": "NASA Exoplanet Archive, Kepler Objects of Interest (cumulative)",
+      "endpoint": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync",
+      "scope": "KOI dispositions for the declared hosts' Kepler IDs (operator must verify the Kepler IDs)",
+      "license": {
+        "id": "nasa-exoplanet-archive-acknowledgement",
+        "terms_url": "https://exoplanetarchive.ipac.caltech.edu/docs/acknowledge.html",
+        "redistribution": "public data; acknowledge the archive and cite the table DOI and each reference (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "nasa-exoplanet-archive",
+        "format": "exoplanet-tap-csv",
+        "table": "cumulative",
+        "hosts": [
+          {
+            "name": "TRAPPIST-1",
+            "tic": "278892590"
+          },
+          {
+            "name": "TOI-700",
+            "tic": "150428135"
+          },
+          {
+            "name": "Kepler-22",
+            "kepid": "10593626"
+          }
+        ],
+        "documents": [
+          {
+            "label": "TAP cumulative (declared Kepler IDs)",
+            "listing": "partial",
+            "url": "https://exoplanetarchive.ipac.caltech.edu/TAP/sync?query=select%20kepoi_name%2Ckepid%2Ckepler_name%2Ckoi_disposition%2Ckoi_pdisposition%2Crowupdate%2Ckoi_period%20from%20cumulative%20where%20kepid%20in%20%2810593626%29&format=csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-exoplanet-archive-koi.json",
+        "sha256": "7fdfd302db9defd1aaec784896a966774ec8a7e8e7702ecc090531df25884d58",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "exoplanet-archive-removed",
+      "publisher": "NASA Exoplanet Archive, removed and retracted planets",
+      "endpoint": "https://exoplanetarchive.ipac.caltech.edu/docs/removed_planets.csv",
+      "scope": "Planets the archive lists as removed, with its note and reference, for the declared hosts (the listing's location and columns are an assumption the operator must verify)",
+      "license": {
+        "id": "nasa-exoplanet-archive-acknowledgement",
+        "terms_url": "https://exoplanetarchive.ipac.caltech.edu/docs/acknowledge.html",
+        "redistribution": "public data; acknowledge the archive and cite the table DOI and each reference (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "nasa-exoplanet-archive",
+        "format": "exoplanet-removed-csv",
+        "hosts": [
+          {
+            "name": "TRAPPIST-1",
+            "tic": "278892590"
+          },
+          {
+            "name": "TOI-700",
+            "tic": "150428135"
+          },
+          {
+            "name": "Kepler-22",
+            "kepid": "10593626"
+          }
+        ],
+        "documents": [
+          {
+            "label": "removed planets",
+            "url": "https://exoplanetarchive.ipac.caltech.edu/docs/removed_planets.csv",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-exoplanet-archive-removed.json",
+        "sha256": "cd83302671e564dce6ad1060b6ac512a36ce821b49580ff6aa7dd8aa366ce310",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "gcat-launch-log",
+      "publisher": "GCAT launch log (Jonathan C. McDowell)",
+      "endpoint": "https://planet4589.org/space/gcat/tsv/launch/launch.tsv",
+      "scope": "Launches of the declared year 2026 with launch codes and outcome codes verbatim (operator must verify the file path)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://planet4589.org/space/gcat/",
+        "redistribution": "CC-BY 4.0 with attribution to GCAT, Jonathan C. McDowell (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "gcat",
+        "format": "gcat-launch-tsv",
+        "years": [
+          "2026"
+        ],
+        "documents": [
+          {
+            "label": "GCAT launch.tsv",
+            "url": "https://planet4589.org/space/gcat/tsv/launch/launch.tsv",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-gcat-launch-log.json",
+        "sha256": "e6fd9053b48b8ff35a0e9c1383c508cde983b0ed2618de91e0403ce914a750c7",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "gcat-satellite-catalog",
+      "publisher": "GCAT satellite catalogue (Jonathan C. McDowell)",
+      "endpoint": "https://planet4589.org/space/gcat/tsv/cat/satcat.tsv",
+      "scope": "Objects launched in the declared year 2026 with status and decay dates as published",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://planet4589.org/space/gcat/",
+        "redistribution": "CC-BY 4.0 with attribution to GCAT, Jonathan C. McDowell (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "gcat",
+        "format": "gcat-satcat-tsv",
+        "years": [
+          "2026"
+        ],
+        "documents": [
+          {
+            "label": "GCAT satcat.tsv",
+            "url": "https://planet4589.org/space/gcat/tsv/cat/satcat.tsv",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-gcat-satellite-catalog.json",
+        "sha256": "23a8d1e6e39e82acd3c783aab0d8e0677ffca997ceac2856792ee85485ec83fc",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "gcat-organizations",
+      "publisher": "GCAT organisations and launch sites (Jonathan C. McDowell)",
+      "endpoint": "https://planet4589.org/space/gcat/tsv/tables/orgs.tsv",
+      "scope": "Declared organisation and launch-site codes (operator must verify the codes)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://planet4589.org/space/gcat/",
+        "redistribution": "CC-BY 4.0 with attribution to GCAT, Jonathan C. McDowell (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "gcat",
+        "format": "gcat-orgs-tsv",
+        "codes": [
+          "SPX",
+          "NASA",
+          "ESA",
+          "RL",
+          "KSC",
+          "CC"
+        ],
+        "documents": [
+          {
+            "label": "GCAT orgs.tsv",
+            "url": "https://planet4589.org/space/gcat/tsv/tables/orgs.tsv",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-gcat-organizations.json",
+        "sha256": "a659c923677cd37c37492c1495a8b2ea8c8fd1a8d763458b7cb87a1df5dd7d21",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "celestrak-satcat",
+      "publisher": "CelesTrak SATCAT",
+      "endpoint": "https://celestrak.org/pub/satcat.csv",
+      "scope": "Catalogue entries (COSPAR, NORAD, owner, launch and decay dates, operational status) of the declared year 2026; no orbital element sets",
+      "license": {
+        "id": "celestrak-terms",
+        "terms_url": "https://celestrak.org/webmaster.php",
+        "redistribution": "catalogue fields with attribution to CelesTrak; no orbital element sets are acquired (operator must verify the terms)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "celestrak-satcat",
+        "format": "celestrak-satcat-csv",
+        "years": [
+          "2026"
+        ],
+        "documents": [
+          {
+            "label": "CelesTrak satcat.csv",
+            "url": "https://celestrak.org/pub/satcat.csv",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-celestrak-satcat.json",
+        "sha256": "a9a5c25dfd223fed56311c6abd9d823a179749ff9f97589b6e3f0b18b475ecd7",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "noaa-swpc-alerts",
+      "publisher": "NOAA Space Weather Prediction Center",
+      "endpoint": "https://services.swpc.noaa.gov/products/alerts.json",
+      "scope": "Alerts, watches, warnings and summaries in the rolling feed, kept as issued; the store keeps every product it saw",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://www.swpc.noaa.gov/disclaimers",
+        "redistribution": "US government work, public domain; credit NOAA SWPC (operator must verify)"
+      },
+      "astronomy": {
+        "namespace": "astronomy",
+        "provider": "noaa-swpc",
+        "format": "swpc-alerts-json",
+        "documents": [
+          {
+            "label": "alerts.json",
+            "url": "https://services.swpc.noaa.gov/products/alerts.json",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-noaa-swpc-alerts.json",
+        "sha256": "57e676b96ecff0e01cc98bec7a6c4226e78ee48031f3ed6d85b878fb26617e74",
+        "expected_output_hash": "07e93b7bc9ccafbda40ac6941c25c8e685855150c45ad834ca212545cfb439b2"
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 3600
+      },
+      "update_cadence": "hourly at most"
+    }
+  ]
+}

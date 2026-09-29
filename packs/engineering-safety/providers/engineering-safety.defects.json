@@ -1,0 +1,57 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "engineering-safety.defects",
+  "version": "1.0.0",
+  "description": "NHTSA ODI defect investigations with upgrades and cited recall campaigns (linked to the Products safety feature by campaign number) and complaints as unverified source records.",
+  "implementation": {
+    "name": "src.kb.engineering_safety_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "engineering-safety.defects",
+      "contract": {
+        "name": "noesis-engineering-safety-defect-investigation",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "search-defect-investigations"
+      ],
+      "semantic_constraints": {
+        "recalls": "owned by products.safety; linked by exact campaign number, never acquired here",
+        "complaints": "never confirmed defects; no defect likelihood or vehicle rating"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "search-defect-investigations",
+      "tool": "noesis-knowledge-engine.search_defect_investigations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "es_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "engineering-safety"
+    }
+  ]
+}

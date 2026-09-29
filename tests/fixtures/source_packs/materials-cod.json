@@ -1,0 +1,21 @@
+{
+ "authored": true,
+ "provider": "Crystallography Open Database",
+ "note": "Authored in the provider's documented response shape for fictional IDs and values; not a capture.",
+ "scenarios": [
+  "su in parentheses",
+  "measurement temperature and pressure",
+  "publication DOI",
+  "entry revisions"
+ ],
+ "native_pages": [
+  {
+   "request": "/cod/result?format=json&formula=O2+Ti",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "[\n {\"file\": 9990001, \"a\": \"4.5937(3)\", \"b\": \"4.5937(3)\", \"c\": \"2.9587(2)\", \"alpha\": \"90\", \"beta\": \"90\", \"gamma\": \"90\",\n  \"vol\": \"62.43(1)\", \"celltemp\": \"295(2)\", \"diffrtemp\": null, \"cellpressure\": \"101.325\", \"sg\": \"P 42/m n m\",\n  \"sgHall\": \"-P 4n 2n\", \"sgNumber\": 136, \"formula\": \"- O2 Ti -\", \"Z\": \"2\",\n  \"authors\": \"Fixture, F.; Invent, I.\", \"title\": \"Rutile fixture structure\", \"journal\": \"J. Fict. Crystallogr.\",\n  \"year\": \"2098\", \"volume\": \"12\", \"firstpage\": \"34\", \"doi\": \"10.99999/fict.cod.001\", \"svnrevision\": \"990100\",\n  \"date\": \"2098-05-01\", \"status\": null},\n {\"file\": 9990002, \"a\": \"3.7845(2)\", \"b\": \"3.7845(2)\", \"c\": \"9.5143(5)\", \"alpha\": \"90\", \"beta\": \"90\", \"gamma\": \"90\",\n  \"vol\": \"136.27(2)\", \"celltemp\": \"293\", \"diffrtemp\": null, \"cellpressure\": null, \"sg\": \"I 41/a m d :2\",\n  \"sgHall\": \"-I 4bd 2\", \"sgNumber\": 141, \"formula\": \"- O2 Ti -\", \"Z\": \"4\",\n  \"authors\": \"Fixture, F.\", \"title\": \"Anatase fixture structure\", \"journal\": \"J. Fict. Crystallogr.\",\n  \"year\": \"2097\", \"volume\": \"11\", \"firstpage\": \"7\", \"doi\": null, \"svnrevision\": \"990050\",\n  \"date\": \"2097-03-01\", \"status\": null}\n]"
+  }
+ ]
+}

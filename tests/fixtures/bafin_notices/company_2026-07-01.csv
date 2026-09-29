@@ -1,0 +1,3 @@
+BaFin-ID;Name;Ort;Land;LEI;Art des Unternehmens;Erlaubnis;Beginn;Ende;Status
+123456;Fiktiva Invest GmbH;Frankfurt am Main;Deutschland;529900FIKTIVAINV0004;Finanzdienstleistungsinstitut;Finanzportfolioverwaltung;01.05.2019;;erteilt
+123456;Fiktiva Invest GmbH;Frankfurt am Main;Deutschland;529900FIKTIVAINV0004;Finanzdienstleistungsinstitut;Anlageberatung;01.05.2019;30.06.2026;beendet

@@ -1,0 +1,74 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "materials",
+  "version": "1.0.0",
+  "description": "Materials: condition-aware material properties with measured vs computed provenance. Materials Project, JARVIS-DFT and OQMD (computed, with functional and database release), NIST Chemistry WebBook (measured and evaluated thermochemistry) and the Crystallography Open Database (experimental structures) within a bounded Ti-O/Al-O selection; reviewable phase-level identity; comparison only of comparable values; cited papers and test-method standards; release tracking. Values are never merged, averaged or predicted.",
+  "source_types": ["web"],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": ["material", "compound", "crystal", "polymorph", "phase", "oxide", "formula"],
+    "sources": ["materials project", "jarvis", "oqmd", "nist webbook", "crystallography open database", "cod"],
+    "overview": ["band gap", "bulk modulus", "formation energy", "heat capacity", "enthalpy of formation", "density"]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "native-materials-project-acquisition",
+    "native-jarvis-dft-acquisition",
+    "native-oqmd-acquisition",
+    "native-nist-webbook-acquisition",
+    "native-cod-structure-acquisition",
+    "exact-condition-aware-unit-normalisation",
+    "measured-computed-evaluated-provenance",
+    "reviewable-phase-level-identity",
+    "condition-aware-property-comparison",
+    "bounded-property-range-search",
+    "citation-linked-property-dossier",
+    "dataset-release-tracking"
+  ],
+  "schema_versions": {
+    "material-record": "1.0.0",
+    "material-comparison": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": ["noesis-material-record-v1", "noesis-material-comparison-v1"],
+    "object_types": ["material", "structure", "property_definition", "property_value", "condition_set", "method_provenance", "dataset_release"],
+    "relation_types": ["same_phase_as", "same_composition_as", "cited_by", "measured_by_test_method", "released_in"]
+  },
+  "source_pack": "config/source_packs/materials.json",
+  "query_examples": [
+    {
+      "intent": "What is known about the properties of rutile TiO2, and where does each value come from",
+      "tool": "material_properties",
+      "arguments": {"namespace": "materials", "material": "materials:entry:materials-project:mp-990001"},
+      "semantics": "every value with native and normalised unit, conditions (unstated stays unstated), method class and functional or technique, uncertainty as published, dataset release, locator and value- vs dataset-level citations resolved by DOI or standard designation only"
+    },
+    {
+      "intent": "Compare the band gap of one phase across sources",
+      "tool": "compare_material_property",
+      "arguments": {"namespace": "materials", "material": "materials:entry:materials-project:mp-990001", "property": "band_gap"},
+      "semantics": "aligned only with the same property, method class, reviewed phase identity and conditions within stated tolerances; different functionals are labelled; everything else side by side as not comparable with reasons; no average or consensus"
+    },
+    {
+      "intent": "Which acquired materials have a computed band gap between 1.7 and 1.9 eV",
+      "tool": "search_materials_by_property",
+      "arguments": {"namespace": "materials", "ranges": [{"property": "band_gap", "min": "1.7", "max": "1.9", "unit": "eV"}], "method_class": "computed"},
+      "semantics": "bounded to acquired records; current value per source first, then filters; each hit cites its values; absence is not evidence"
+    },
+    {
+      "intent": "What changed between two Materials Project releases",
+      "tool": "material_release_changes",
+      "arguments": {"namespace": "materials", "provider": "materials-project"},
+      "semantics": "added, changed (both values cited), deprecated or withdrawn only as the source states, absent otherwise"
+    }
+  ],
+  "exclusions": [
+    "closed commercial databases and handbooks (MatWeb, Granta, Springer Materials, ASM handbooks)",
+    "material selection recommendations, suitability-for-use or design-allowable claims",
+    "property prediction or ML-estimated values produced by Noesis",
+    "unrestricted mirroring of source databases; structure files beyond bounded, licensed fetches"
+  ]
+}

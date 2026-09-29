@@ -1,0 +1,15 @@
+{
+  "captured": false,
+  "provider": "bea",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/",
+      "status": 200,
+      "body": "link-only source: the adapter never requests this page"
+    }
+  ],
+  "scenarios": [
+    "link-only"
+  ]
+}

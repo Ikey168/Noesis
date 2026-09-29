@@ -1,0 +1,62 @@
+{
+  "captured": false,
+  "provider": "ntsb",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/carol-main-public/api/cases/ERA26FA101",
+      "status": 200,
+      "body": {
+        "NtsbNumber": "ERA26FA101",
+        "Title": "Examplar EX-100, N417EX: landing gear collapse on landing",
+        "EventDate": "2026-02-14",
+        "ReportType": "Preliminary",
+        "ReportDate": "2026-02-27",
+        "City": "Millbrook",
+        "State": "GA",
+        "Country": "United States",
+        "Latitude": "33.1234",
+        "Longitude": "-84.5678",
+        "HighestInjuryLevel": "Minor",
+        "Vehicles": [
+          {
+            "VehicleNumber": 1,
+            "Make": "Examplar Aircraft Company",
+            "Model": "EX-100",
+            "SerialNumber": "1187",
+            "RegistrationNumber": "N417EX",
+            "Operator": "Skyline Charter LLC"
+          }
+        ],
+        "ProbableCause": null,
+        "Findings": [],
+        "RecommendationNumbers": [],
+        "DocketUrl": "https://data.ntsb.gov/Docket?ProjectID=199999"
+      }
+    },
+    {
+      "request": "/carol-main-public/api/recommendations/A-26-015",
+      "status": 200,
+      "body": {
+        "RecommendationNumber": "A-26-015",
+        "Addressee": "Examplar Aircraft Company",
+        "IssueDate": "2026-08-14",
+        "Subject": "Main landing gear actuator rod end inspection",
+        "RecommendationText": "Revise Examplar Service Bulletin EX100-32-0045 to reduce the repetitive inspection interval for the main landing gear actuator rod end, and work with the FAA to mandate the revised interval through an amendment to AD 2026-04-12.",
+        "NtsbNumbers": [
+          "ERA26FA101"
+        ],
+        "StatusHistory": [
+          {
+            "Status": "Open - Await Response",
+            "StatusDate": "2026-08-14"
+          }
+        ]
+      }
+    }
+  ],
+  "scenarios": [
+    "preliminary-report",
+    "recommendation-status"
+  ]
+}

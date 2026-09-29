@@ -12,7 +12,7 @@
       "properties": {"scheme": {"type": "string"}, "value": {"type": "string"}, "authority": {"type": ["string", "null"]}, "source": {"type": ["string", "null"]}}},
     "source": {"type": "object", "required": ["provider", "provider_record_id"], "additionalProperties": false,
       "properties": {
-        "provider": {"enum": ["gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates", "handelsregister", "unternehmensregister", "bris", "market-instruments"]},
+        "provider": {"enum": ["gleif", "companies-house", "sec-edgar", "open-ownership", "opencorporates", "handelsregister", "unternehmensregister", "bris", "market-instruments", "bafin"]},
         "provider_record_id": {"type": "string", "minLength": 1},
         "url": {"type": ["string", "null"], "pattern": "^https://"},
         "locator": {"type": ["object", "null"]},

@@ -1,0 +1,26 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-material-comparison-v1",
+  "title": "Condition-aware comparison of one material property across sources",
+  "description": "Aligned groups hold only values with the same property definition, comparable conditions within the stated tolerances, the same method class and the same reviewed phase identity. Every other value is listed side by side as not comparable with its reasons. No average, consensus or best estimate is produced; every value keeps its source, release, method and locator.",
+  "type": "object",
+  "required": ["contract", "property", "aligned", "not_comparable", "method", "assumptions", "n", "semantics", "snapshot_id"],
+  "properties": {
+    "contract": {"const": "noesis-material-comparison-v1"},
+    "property": {"type": "object", "required": ["property", "canonical_unit"]},
+    "aligned": {"type": "array", "items": {"type": "object", "required": ["group_id", "method_class", "values", "functionals"],
+      "properties": {
+        "group_id": {"type": "string"},
+        "method_class": {"enum": ["measured", "computed", "evaluated"]},
+        "functionals": {"type": "array", "items": {"type": "string"}},
+        "mixed_functionals": {"type": "boolean"},
+        "values": {"type": "array", "minItems": 2}}}},
+    "not_comparable": {"type": "array", "items": {"type": "object", "required": ["value", "reasons"]}},
+    "method": {"type": "string"},
+    "assumptions": {"type": "array", "items": {"type": "string"}},
+    "n": {"type": "integer", "minimum": 0},
+    "semantics": {"type": "string"},
+    "snapshot_id": {"type": "string"},
+    "consensus": {"not": {}}
+  }
+}

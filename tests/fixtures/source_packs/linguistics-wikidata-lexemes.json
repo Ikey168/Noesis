@@ -1,0 +1,404 @@
+{
+ "captured": false,
+ "native_pages": [
+  {
+   "body": {
+    "entities": {
+     "L90001": {
+      "claims": {
+       "P5191": [
+        {
+         "id": "L90001$etym-1",
+         "mainsnak": {
+          "datavalue": {
+           "type": "wikibase-entityid",
+           "value": {
+            "entity-type": "lexeme",
+            "id": "L90002"
+           }
+          },
+          "property": "P5191",
+          "snaktype": "value"
+         },
+         "qualifiers": {
+          "P5886": [
+           {
+            "datavalue": {
+             "type": "wikibase-entityid",
+             "value": {
+              "entity-type": "item",
+              "id": "Q900101"
+             }
+            },
+            "property": "P5886",
+            "snaktype": "value"
+           }
+          ]
+         },
+         "rank": "normal",
+         "references": [
+          {
+           "snaks": {
+            "P248": [
+             {
+              "datavalue": {
+               "type": "wikibase-entityid",
+               "value": {
+                "entity-type": "item",
+                "id": "Q900200"
+               }
+              },
+              "property": "P248",
+              "snaktype": "value"
+             }
+            ],
+            "P356": [
+             {
+              "datavalue": {
+               "type": "string",
+               "value": "10.5555/VELAN.1998.12"
+              },
+              "property": "P356",
+              "snaktype": "value"
+             }
+            ]
+           }
+          }
+         ],
+         "type": "statement"
+        }
+       ]
+      },
+      "forms": [
+       {
+        "claims": {},
+        "grammaticalFeatures": [
+         "Q110786"
+        ],
+        "id": "L90001-F1",
+        "representations": {
+         "qnv": {
+          "language": "qnv",
+          "value": "tamo"
+         }
+        }
+       },
+       {
+        "claims": {},
+        "grammaticalFeatures": [
+         "Q146786"
+        ],
+        "id": "L90001-F2",
+        "representations": {
+         "qnv": {
+          "language": "qnv",
+          "value": "tamoi"
+         }
+        }
+       }
+      ],
+      "id": "L90001",
+      "language": "Q900001",
+      "lastrevid": 2100000001,
+      "lemmas": {
+       "qnv": {
+        "language": "qnv",
+        "value": "tamo"
+       }
+      },
+      "lexicalCategory": "Q1084",
+      "modified": "2026-02-01T10:00:00Z",
+      "senses": [
+       {
+        "claims": {
+         "P5137": [
+          {
+           "id": "L90001-S1$sense-item-1",
+           "mainsnak": {
+            "datavalue": {
+             "type": "wikibase-entityid",
+             "value": {
+              "entity-type": "item",
+              "id": "Q4022"
+             }
+            },
+            "property": "P5137",
+            "snaktype": "value"
+           },
+           "rank": "normal",
+           "references": [],
+           "type": "statement"
+          }
+         ]
+        },
+        "glosses": {
+         "en": {
+          "language": "en",
+          "value": "river"
+         }
+        },
+        "id": "L90001-S1"
+       }
+      ],
+      "type": "lexeme"
+     }
+    }
+   },
+   "request": "/wiki/Special:EntityData/L90001.json",
+   "status": 200
+  },
+  {
+   "body": {
+    "entities": {
+     "L90002": {
+      "claims": {
+       "P5191": [
+        {
+         "id": "L90002$etym-2",
+         "mainsnak": {
+          "datavalue": {
+           "type": "wikibase-entityid",
+           "value": {
+            "entity-type": "lexeme",
+            "id": "L90005"
+           }
+          },
+          "property": "P5191",
+          "snaktype": "value"
+         },
+         "rank": "normal",
+         "references": [],
+         "type": "statement"
+        }
+       ]
+      },
+      "forms": [
+       {
+        "claims": {},
+        "grammaticalFeatures": [
+         "Q110786"
+        ],
+        "id": "L90002-F1",
+        "representations": {
+         "qsv": {
+          "language": "qsv",
+          "value": "tamu"
+         }
+        }
+       }
+      ],
+      "id": "L90002",
+      "language": "Q900002",
+      "lastrevid": 2100000002,
+      "lemmas": {
+       "qsv": {
+        "language": "qsv",
+        "value": "tamu"
+       }
+      },
+      "lexicalCategory": "Q1084",
+      "modified": "2026-02-01T10:05:00Z",
+      "senses": [
+       {
+        "claims": {
+         "P5137": [
+          {
+           "id": "L90002-S1$sense-item-1",
+           "mainsnak": {
+            "datavalue": {
+             "type": "wikibase-entityid",
+             "value": {
+              "entity-type": "item",
+              "id": "Q4022"
+             }
+            },
+            "property": "P5137",
+            "snaktype": "value"
+           },
+           "rank": "normal",
+           "references": [],
+           "type": "statement"
+          }
+         ]
+        },
+        "glosses": {
+         "en": {
+          "language": "en",
+          "value": "river"
+         }
+        },
+        "id": "L90002-S1"
+       }
+      ],
+      "type": "lexeme"
+     }
+    }
+   },
+   "request": "/wiki/Special:EntityData/L90002.json",
+   "status": 200
+  },
+  {
+   "body": {
+    "entities": {
+     "L90003": {
+      "claims": {},
+      "forms": [
+       {
+        "claims": {},
+        "grammaticalFeatures": [],
+        "id": "L90003-F1",
+        "representations": {
+         "qnv": {
+          "language": "qnv",
+          "value": "tamo"
+         }
+        }
+       }
+      ],
+      "id": "L90003",
+      "language": "Q900001",
+      "lastrevid": 2100000003,
+      "lemmas": {
+       "qnv": {
+        "language": "qnv",
+        "value": "tamo"
+       }
+      },
+      "lexicalCategory": "Q24905",
+      "modified": "2026-02-01T10:10:00Z",
+      "senses": [
+       {
+        "claims": {},
+        "glosses": {
+         "en": {
+          "language": "en",
+          "value": "to flow"
+         }
+        },
+        "id": "L90003-S1"
+       }
+      ],
+      "type": "lexeme"
+     }
+    }
+   },
+   "request": "/wiki/Special:EntityData/L90003.json",
+   "status": 200
+  },
+  {
+   "body": {
+    "entities": {
+     "Q900001": {
+      "claims": {
+       "P1394": [
+        {
+         "id": "Q900001$glottocode",
+         "mainsnak": {
+          "datavalue": {
+           "type": "string",
+           "value": "nort3456"
+          },
+          "property": "P1394",
+          "snaktype": "value"
+         },
+         "rank": "normal",
+         "references": [],
+         "type": "statement"
+        }
+       ],
+       "P220": [
+        {
+         "id": "Q900001$iso",
+         "mainsnak": {
+          "datavalue": {
+           "type": "string",
+           "value": "qnv"
+          },
+          "property": "P220",
+          "snaktype": "value"
+         },
+         "rank": "normal",
+         "references": [],
+         "type": "statement"
+        }
+       ]
+      },
+      "id": "Q900001",
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "Northern Velan"
+       }
+      },
+      "lastrevid": 2000000001,
+      "modified": "2026-01-20T08:00:00Z",
+      "type": "item"
+     }
+    }
+   },
+   "request": "/wiki/Special:EntityData/Q900001.json",
+   "status": 200
+  },
+  {
+   "body": {
+    "entities": {
+     "Q900002": {
+      "claims": {
+       "P1394": [
+        {
+         "id": "Q900002$glottocode",
+         "mainsnak": {
+          "datavalue": {
+           "type": "string",
+           "value": "sout7890"
+          },
+          "property": "P1394",
+          "snaktype": "value"
+         },
+         "rank": "normal",
+         "references": [],
+         "type": "statement"
+        }
+       ],
+       "P220": [
+        {
+         "id": "Q900002$iso",
+         "mainsnak": {
+          "datavalue": {
+           "type": "string",
+           "value": "qsv"
+          },
+          "property": "P220",
+          "snaktype": "value"
+         },
+         "rank": "normal",
+         "references": [],
+         "type": "statement"
+        }
+       ]
+      },
+      "id": "Q900002",
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "Southern Velan"
+       }
+      },
+      "lastrevid": 2000000002,
+      "modified": "2026-01-20T08:00:00Z",
+      "type": "item"
+     }
+    }
+   },
+   "request": "/wiki/Special:EntityData/Q900002.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored documents in the documented format naming a fictional language family (Veltic); synthetic identifiers only. See tests/unit/linguistics_harness.py.",
+ "provider": "wikidata-lexemes",
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-counted",
+  "attributed-licence"
+ ]
+}

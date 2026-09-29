@@ -1,0 +1,264 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "materials.computed",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.materials_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "materials.records",
+      "contract": {
+        "name": "noesis-material-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "bundle-status",
+        "register-schemas",
+        "lookup"
+      ],
+      "semantic_constraints": {
+        "method_class": "measured, computed and evaluated values share the record type; the class is part of every value's identity and values are never merged or averaged",
+        "units": "exact rational normalisation to one canonical unit per property; unknown units excluded",
+        "coverage": "bounded Ti-O/Al-O selection per source"
+      }
+    },
+    {
+      "id": "materials.comparison",
+      "contract": {
+        "name": "noesis-material-comparison",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "compare",
+        "search"
+      ],
+      "semantic_constraints": {
+        "alignment": "same property, method class, reviewed phase and conditions within stated tolerances",
+        "search": "bounded to acquired records; current value per source first"
+      }
+    },
+    {
+      "id": "materials.releases",
+      "contract": {
+        "name": "noesis-material-release-changes",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "release-changes",
+        "create-watch",
+        "run-watch",
+        "poll-watch"
+      ],
+      "semantic_constraints": {
+        "releases": "source-stated release date or ordinal, observation order as fallback",
+        "schedule": "committed watermarks from source-pack runs / maintenance orchestrator"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.materials_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.materials_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_material_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "lookup",
+      "tool": "noesis-knowledge-engine.lookup_material",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare",
+      "tool": "noesis-knowledge-engine.compare_material_property",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search",
+      "tool": "noesis-knowledge-engine.search_materials_by_property",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "release-changes",
+      "tool": "noesis-knowledge-engine.material_release_changes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-watch",
+      "tool": "noesis-knowledge-engine.create_material_watch",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-watch",
+      "tool": "noesis-knowledge-engine.run_material_watch",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-watch",
+      "tool": "noesis-knowledge-engine.poll_material_watch",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:materials:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "material-record",
+      "store": "src.kb.materials_store",
+      "tables": [
+        "materials_releases",
+        "materials_entries",
+        "materials_entry_versions",
+        "materials_values",
+        "materials_value_versions",
+        "materials_provider_state"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "material-watch",
+      "store": "src.kb.materials_releases",
+      "tables": [
+        "materials_watches"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "materials_releases"
+    },
+    {
+      "id": "materials-source",
+      "kind": "source-pack-enabled",
+      "target": "materials"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "materials",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

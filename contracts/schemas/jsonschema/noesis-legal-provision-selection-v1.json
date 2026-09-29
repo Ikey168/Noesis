@@ -1,0 +1,103 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-provision-selection-v1.json",
+  "title": "Noesis legal provision selection v1",
+  "description": "A federal statute provision as of a date: the source-stated version whose stated validity covers the date, else the nearest observed version on or before it, else no version on record; conflicting sources side by side. Never a statement of force.",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "work_id",
+    "as_of",
+    "status",
+    "candidates",
+    "label",
+    "semantics"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-provision-selection-v1"
+    },
+    "namespace": {
+      "type": "string"
+    },
+    "work_id": {
+      "type": "string"
+    },
+    "statute": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "provision": {
+      "type": [
+        "string",
+        "null"
+      ]
+    },
+    "as_of": {
+      "type": "string",
+      "pattern": "^\\d{4}-\\d{2}-\\d{2}$"
+    },
+    "status": {
+      "enum": [
+        "source_stated",
+        "observed",
+        "conflict",
+        "no_version_on_record",
+        "provision_not_in_version"
+      ]
+    },
+    "label": {
+      "type": "string"
+    },
+    "selected": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "version_id",
+        "validity_basis",
+        "label"
+      ],
+      "properties": {
+        "validity_basis": {
+          "enum": [
+            "source_stated",
+            "observed"
+          ]
+        }
+      }
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "version_id",
+          "validity_basis",
+          "label"
+        ]
+      }
+    },
+    "semantics": {
+      "type": "string"
+    }
+  },
+  "not": {
+    "anyOf": [
+      {
+        "required": [
+          "in_force"
+        ]
+      },
+      {
+        "required": [
+          "is_current_law"
+        ]
+      }
+    ]
+  }
+}

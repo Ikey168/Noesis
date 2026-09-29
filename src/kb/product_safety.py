@@ -357,29 +357,9 @@ def notice_id_for(namespace: str, provider: str, notice_number: str) -> str:
 def feature_enabled(conn: Any, namespace: str | None = None) -> bool:
     """Whether the Products bundle's optional ``safety`` feature is selected in the active plan (default off)."""
     del namespace  # composition selection is deployment-wide
-    try:
-        tables = {
-            r[0]
-            for r in conn.execute(
-                "SELECT table_name FROM information_schema.tables WHERE table_name IN "
-                "('composition_authority', 'composition_active', 'composition_generations', 'composition_plans')"
-            ).fetchall()
-        }
-        if len(tables) < 4:
-            return False
-        managed = conn.execute(
-            "SELECT authority FROM composition_authority WHERE bundle='products'"
-        ).fetchone()
-        if not managed or managed[0] != "composition":
-            return False
-        row = conn.execute(
-            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
-            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
-        ).fetchone()
-        plan = json.loads(row[0]) if row else {}
-    except Exception:  # noqa: BLE001 - an unreadable plan never enables a feature
-        return False
-    return "safety" in ((plan.get("features") or {}).get("products") or [])
+    from src.kb.products import products_feature_enabled
+
+    return products_feature_enabled(conn, "safety")
 
 
 def _table(conn: Any, name: str) -> bool:

@@ -1,0 +1,4 @@
+tourney_id,tourney_name,surface,draw_size,tourney_level,tourney_date,match_num,winner_id,winner_seed,winner_entry,winner_name,winner_hand,winner_ht,winner_ioc,winner_age,loser_id,loser_seed,loser_entry,loser_name,loser_hand,loser_ht,loser_ioc,loser_age,score,best_of,round,minutes,w_ace,l_ace
+2099-9001,Example Open,Hard,4,A,20990106,1,300001,1,,Ada Server,R,188,EXA,24.5,300002,,,Bo Volley,L,180,EXA,27.1,6-4 7-6(5),3,SF,98,7,3
+2099-9001,Example Open,Hard,4,A,20990106,2,300003,,,Cy Baseline,R,175,EXA,22.0,300004,2,,Di Drop,R,170,EXA,30.2,6-3 3-1 RET,3,SF,61,2,1
+2099-9001,Example Open,Hard,4,A,20990106,3,300001,1,,Ada Server,R,188,EXA,24.5,300003,,,Cy Baseline,R,175,EXA,22.0,6-2 6-3,3,F,70,9,0

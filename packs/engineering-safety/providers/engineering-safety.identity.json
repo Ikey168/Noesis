@@ -1,0 +1,125 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "engineering-safety.identity",
+  "version": "1.0.0",
+  "description": "Reviewable matches from published subjects to Products models and canonical entities, and operator names offered to Corporate Ownership's identity state machine.",
+  "implementation": {
+    "name": "src.kb.engineering_safety_identity",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "engineering-safety.subject-identity",
+      "contract": {
+        "name": "noesis-engineering-safety-subject-match",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-safety-subject-matches",
+        "propose-safety-subject-matches",
+        "review-safety-subject-match",
+        "revert-safety-subject-match"
+      ],
+      "semantic_constraints": {
+        "review": "candidates only; each proposal needs its own review; reverts never reactivate",
+        "inference": "no sister-type, similar-model or topic inference"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-safety-subject-matches",
+      "tool": "noesis-knowledge-engine.list_safety_subject_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-safety-subject-matches",
+      "tool": "noesis-knowledge-engine.propose_safety_subject_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "current record revisions and named targets"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-safety-subject-match",
+      "tool": "noesis-knowledge-engine.review_safety_subject_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "es_match_reviews"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-safety-subject-match",
+      "tool": "noesis-knowledge-engine.revert_safety_subject_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "es_match_reviews"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:engineering-safety:read",
+        "knowledge:engineering-safety:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "engineering-safety-subject-match",
+      "store": "src.kb.engineering_safety_identity",
+      "tables": [
+        "es_matches",
+        "es_match_reviews"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "es_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "engineering-safety"
+    }
+  ]
+}

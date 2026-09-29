@@ -1,0 +1,75 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "licenseListVersion": "3.25",
+    "licenses": [
+     {
+      "isDeprecatedLicenseId": false,
+      "isOsiApproved": true,
+      "licenseId": "MIT",
+      "name": "MIT License",
+      "reference": "https://spdx.org/licenses/MIT.html"
+     },
+     {
+      "isDeprecatedLicenseId": false,
+      "isOsiApproved": true,
+      "licenseId": "Apache-2.0",
+      "name": "Apache License 2.0",
+      "reference": "https://spdx.org/licenses/Apache-2.0.html"
+     },
+     {
+      "isDeprecatedLicenseId": false,
+      "isOsiApproved": true,
+      "licenseId": "BUSL-1.1",
+      "name": "Business Source License 1.1",
+      "reference": "https://spdx.org/licenses/BUSL-1.1.html"
+     },
+     {
+      "isDeprecatedLicenseId": false,
+      "isOsiApproved": true,
+      "licenseId": "EPL-2.0",
+      "name": "Eclipse Public License 2.0",
+      "reference": "https://spdx.org/licenses/EPL-2.0.html"
+     },
+     {
+      "isDeprecatedLicenseId": true,
+      "isOsiApproved": true,
+      "licenseId": "GPL-2.0",
+      "name": "GNU General Public License v2.0 only",
+      "reference": "https://spdx.org/licenses/GPL-2.0.html"
+     },
+     {
+      "isDeprecatedLicenseId": false,
+      "isOsiApproved": true,
+      "licenseId": "GPL-2.0-or-later",
+      "name": "GNU General Public License v2.0 or later",
+      "reference": "https://spdx.org/licenses/GPL-2.0-or-later.html"
+     }
+    ],
+    "releaseDate": "2024-08-19"
+   },
+   "request": "/spdx/license-list-data/v3.25/json/licenses.json",
+   "status": 200
+  },
+  {
+   "body": {
+    "exceptions": [
+     {
+      "isDeprecatedLicenseId": false,
+      "licenseExceptionId": "Classpath-exception-2.0",
+      "name": "Classpath exception 2.0"
+     }
+    ],
+    "licenseListVersion": "3.25",
+    "releaseDate": "2024-08-19"
+   },
+   "request": "/spdx/license-list-data/v3.25/json/exceptions.json",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

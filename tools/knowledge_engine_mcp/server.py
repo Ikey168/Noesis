@@ -9254,6 +9254,42 @@ from tools.knowledge_engine_mcp.sanctions import (
 
 register_sanctions_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.federal_statutes import (
+    register as register_federal_statute_tools,
+)
+
+register_federal_statute_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.linguistics import (
+    register as register_linguistics_tools,
+)
+
+register_linguistics_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.bafin_notices import (
+    register as register_bafin_notice_tools,
+)
+
+register_bafin_notice_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.engineering_safety import (
+    register as register_engineering_safety_tools,
+)
+
+register_engineering_safety_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.astronomy import (
+    register as register_astronomy_tools,
+)
+
+register_astronomy_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.weather import (
+    register as register_weather_tools,
+)
+
+register_weather_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )
@@ -9295,6 +9331,24 @@ from tools.knowledge_engine_mcp.development_finance import (
 )
 
 register_development_finance_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.materials import (
+    register as register_materials_tools,
+)
+
+register_materials_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.sports import (
+    register as register_sports_tools,
+)
+
+register_sports_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.oss_ecosystems import (
+    register as register_oss_ecosystem_tools,
+)
+
+register_oss_ecosystem_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

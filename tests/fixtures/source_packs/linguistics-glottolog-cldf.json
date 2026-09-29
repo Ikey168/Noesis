@@ -1,0 +1,20 @@
+{
+ "captured": false,
+ "native_pages": [
+  {
+   "body": "ID,Name,Macroarea,Latitude,Longitude,Glottocode,ISO639P3code,Family_ID,Language_ID\nvelt1234,Veltic,Eurasia,,,velt1234,,,\nnort3456,Northern Velan,Eurasia,61.5,24.25,nort3456,qnv,velt1234,\nsout7890,Southern Velan,Eurasia,59.75,23.5,sout7890,qsv,velt1234,\ncoas1122,Coastal Velan,Eurasia,60.1,22.9,coas1122,,velt1234,nort3456\nothr0001,Other Isolate,Africa,1.0,1.0,othr0001,,,\n",
+   "request": "/glottolog/glottolog-cldf/v5.0/cldf/languages.csv"
+  },
+  {
+   "body": "ID,Language_ID,Parameter_ID,Value,Code_ID\nvelt1234-level,velt1234,level,family,\nnort3456-level,nort3456,level,language,\nsout7890-level,sout7890,level,language,\ncoas1122-level,coas1122,level,dialect,\nothr0001-level,othr0001,level,language,\nnort3456-classification,nort3456,classification,velt1234,\nsout7890-classification,sout7890,classification,velt1234,\ncoas1122-classification,coas1122,classification,velt1234/nort3456,\nnort3456-aes,nort3456,aes,threatened,aes-threatened\n",
+   "request": "/glottolog/glottolog-cldf/v5.0/cldf/values.csv"
+  }
+ ],
+ "note": "Authored documents in the documented format naming a fictional language family (Veltic); synthetic identifiers only. See tests/unit/linguistics_harness.py.",
+ "provider": "glottolog",
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-counted",
+  "attributed-licence"
+ ]
+}

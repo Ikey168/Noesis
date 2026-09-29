@@ -1,0 +1,16 @@
+{
+  "captured": false,
+  "provider": "bfu",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/DE/Publikationen/Untersuchungsberichte/3X123-26.html",
+      "status": 200,
+      "body": "<!doctype html><html><body>\n<h1>Untersuchungsbericht: Fahrwerkskollaps bei der Landung, Examplar EX-100A</h1>\n<table>\n<tr><th>Aktenzeichen</th><td>3X123-26</td></tr>\n<tr><th>Berichtsart</th><td>Untersuchungsbericht</td></tr>\n<tr><th>Veröffentlicht</th><td>12.06.2026</td></tr>\n<tr><th>Ereignisdatum</th><td>03.02.2026</td></tr>\n<tr><th>Ort</th><td>Flugplatz Musterstadt</td></tr>\n<tr><th>Luftfahrzeug</th><td>Examplar Aircraft Company / EX-100A</td></tr>\n<tr><th>Art des Ereignisses</th><td>Schwere Störung</td></tr>\n</table>\n<h2>Schlussfolgerungen</h2>\n<ul><li>Der Riss an der Kolbenstange des linken Hauptfahrwerks war bei der letzten Inspektion nicht erkennbar.</li></ul>\n<p><b>Ursachen</b></p>\n<ul><li>Ermüdungsbruch der Kolbenstange des linken Hauptfahrwerksaktuators.</li></ul>\n<h2>Sicherheitsempfehlungen</h2>\n<table>\n<tr><th>Nummer</th><th>Adressat</th><th>Text</th><th>Status</th></tr>\n<tr><td>07/2026</td><td>Europäische Agentur für Flugsicherheit (EASA)</td><td>Die EASA sollte das Inspektionsintervall der EASA AD 2026-0123R1 überprüfen.</td><td>offen</td></tr>\n</table>\n</body></html>\n"
+    }
+  ],
+  "scenarios": [
+    "german-verbatim",
+    "recommendation-table"
+  ]
+}

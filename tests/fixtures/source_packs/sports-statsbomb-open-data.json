@@ -1,0 +1,35 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "[\n {\n  \"competition_id\": 9,\n  \"season_id\": 99,\n  \"country_name\": \"Exampleland\",\n  \"competition_name\": \"Example League\",\n  \"competition_gender\": \"male\",\n  \"competition_youth\": false,\n  \"competition_international\": false,\n  \"season_name\": \"2099/2100\",\n  \"match_updated\": \"2099-09-01T10:00:00\",\n  \"match_available\": \"2099-09-01T10:00:00\"\n }\n]\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/statsbomb/open-data/0000000000000000000000000000000000000000/data/competitions.json",
+   "status": 200
+  },
+  {
+   "body": "[\n {\n  \"match_id\": 7001,\n  \"match_date\": \"2099-08-10\",\n  \"kick_off\": \"15:00:00.000\",\n  \"competition\": {\n   \"competition_id\": 9,\n   \"country_name\": \"Exampleland\",\n   \"competition_name\": \"Example League\"\n  },\n  \"season\": {\n   \"season_id\": 99,\n   \"season_name\": \"2099/2100\"\n  },\n  \"home_team\": {\n   \"home_team_id\": 801,\n   \"home_team_name\": \"Northbridge Rovers\",\n   \"home_team_gender\": \"male\",\n   \"home_team_group\": null,\n   \"country\": {\n    \"id\": 99,\n    \"name\": \"Exampleland\"\n   },\n   \"managers\": [\n    {\n     \"id\": 1,\n     \"name\": \"Carl Coach\",\n     \"nickname\": null,\n     \"dob\": \"2050-01-01\",\n     \"country\": {\n      \"id\": 99,\n      \"name\": \"Exampleland\"\n     }\n    }\n   ]\n  },\n  \"away_team\": {\n   \"away_team_id\": 802,\n   \"away_team_name\": \"Eastfield Athletic\",\n   \"away_team_gender\": \"male\",\n   \"away_team_group\": null,\n   \"country\": {\n    \"id\": 99,\n    \"name\": \"Exampleland\"\n   }\n  },\n  \"home_score\": 2,\n  \"away_score\": 1,\n  \"match_status\": \"available\",\n  \"match_status_360\": \"unscheduled\",\n  \"last_updated\": \"2099-08-12T09:00:00.000\",\n  \"last_updated_360\": null,\n  \"metadata\": {\n   \"data_version\": \"1.1.0\"\n  },\n  \"match_week\": 1,\n  \"competition_stage\": {\n   \"id\": 1,\n   \"name\": \"Regular Season\"\n  },\n  \"stadium\": {\n   \"id\": 5001,\n   \"name\": \"Harbour Park\",\n   \"country\": {\n    \"id\": 99,\n    \"name\": \"Exampleland\"\n   }\n  },\n  \"referee\": {\n   \"id\": 77,\n   \"name\": \"Rita Referee\",\n   \"country\": {\n    \"id\": 99,\n    \"name\": \"Exampleland\"\n   }\n  }\n }\n]\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/statsbomb/open-data/0000000000000000000000000000000000000000/data/matches/9/99.json",
+   "status": 200
+  },
+  {
+   "body": "[\n {\n  \"team_id\": 801,\n  \"team_name\": \"Northbridge Rovers\",\n  \"lineup\": [\n   {\n    \"player_id\": 60001,\n    \"player_name\": \"Jan Example\",\n    \"player_nickname\": null,\n    \"jersey_number\": 8,\n    \"country\": {\n     \"id\": 99,\n     \"name\": \"Exampleland\"\n    },\n    \"cards\": [],\n    \"positions\": [\n     {\n      \"position_id\": 1,\n      \"position\": \"Center Midfield\",\n      \"from\": \"00:00\",\n      \"to\": null,\n      \"from_period\": 1,\n      \"to_period\": null,\n      \"start_reason\": \"Starting XI\",\n      \"end_reason\": \"Final Whistle\"\n     }\n    ]\n   },\n   {\n    \"player_id\": 60002,\n    \"player_name\": \"Ola Keeper\",\n    \"player_nickname\": null,\n    \"jersey_number\": 1,\n    \"country\": {\n     \"id\": 99,\n     \"name\": \"Exampleland\"\n    },\n    \"cards\": [],\n    \"positions\": [\n     {\n      \"position_id\": 1,\n      \"position\": \"Goalkeeper\",\n      \"from\": \"00:00\",\n      \"to\": null,\n      \"from_period\": 1,\n      \"to_period\": null,\n      \"start_reason\": \"Starting XI\",\n      \"end_reason\": \"Final Whistle\"\n     }\n    ]\n   },\n   {\n    \"player_id\": 60003,\n    \"player_name\": \"Sam Bench\",\n    \"player_nickname\": \"Sammy\",\n    \"jersey_number\": 14,\n    \"country\": {\n     \"id\": 99,\n     \"name\": \"Exampleland\"\n    },\n    \"cards\": [],\n    \"positions\": [\n     {\n      \"position_id\": 1,\n      \"position\": \"Right Wing\",\n      \"from\": \"00:00\",\n      \"to\": null,\n      \"from_period\": 1,\n      \"to_period\": null,\n      \"start_reason\": \"Substitution - On (Tactical)\",\n      \"end_reason\": \"Final Whistle\"\n     }\n    ]\n   },\n   {\n    \"player_id\": 60004,\n    \"player_name\": \"Una Unused\",\n    \"player_nickname\": null,\n    \"jersey_number\": 23,\n    \"country\": {\n     \"id\": 99,\n     \"name\": \"Exampleland\"\n    },\n    \"cards\": [],\n    \"positions\": []\n   }\n  ]\n },\n {\n  \"team_id\": 802,\n  \"team_name\": \"Eastfield Athletic\",\n  \"lineup\": [\n   {\n    \"player_id\": 60005,\n    \"player_name\": \"Jan Example\",\n    \"player_nickname\": null,\n    \"jersey_number\": 4,\n    \"country\": {\n     \"id\": 99,\n     \"name\": \"Exampleland\"\n    },\n    \"cards\": [],\n    \"positions\": [\n     {\n      \"position_id\": 1,\n      \"position\": \"Center Back\",\n      \"from\": \"00:00\",\n      \"to\": null,\n      \"from_period\": 1,\n      \"to_period\": null,\n      \"start_reason\": \"Starting XI\",\n      \"end_reason\": \"Final Whistle\"\n     }\n    ]\n   }\n  ]\n }\n]\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/statsbomb/open-data/0000000000000000000000000000000000000000/data/lineups/7001.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored publication in the documented provider shape; every club, player, tournament and match is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-participants"
+ ]
+}

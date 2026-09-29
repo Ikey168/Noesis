@@ -63,9 +63,28 @@
         "product_identities",
         "product_revisions",
         "product_current",
-        "product_assertions"
+        "product_assertions",
+        "product_document_pages"
       ],
       "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "product-lifecycle-status",
+      "store": "src.kb.products",
+      "tables": [
+        "product_lifecycle"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "product-manufacturer-link",
+      "store": "src.kb.products",
+      "tables": [
+        "product_manufacturer_links"
+      ],
+      "revision_addressable": false,
       "namespace_scoped": true
     }
   ],
@@ -79,7 +98,7 @@
   "source_packs": [
     {
       "pack_id": "products-displays",
-      "version": "1.1.0",
+      "version": "1.2.0",
       "range": "^1.0.0"
     }
   ]

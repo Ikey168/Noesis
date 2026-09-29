@@ -1,6 +1,7 @@
 # Products pack
 
-Find EU-market electronic displays, inspect source-linked specifications and
+Find EU-market electronic displays (and, with the optional features, household
+appliances and electronic components), inspect source-linked specifications and
 datasheets, and compare explicitly resolved models. Records come from two
 providers and keep their origin:
 
@@ -164,6 +165,86 @@ The only live run so far is
 providers, without an EPREL key. Icecat failed with `source_unavailable`,
 EPREL was blocked at preflight with `credential_missing`, and two-provider
 acceptance remains outstanding.
+
+## Appliances and electronic components
+
+Tracking: [#2061](https://github.com/Ikey168/Noesis/issues/2061). The
+optional `appliances` and `components` features of the Products bundle
+(default **off**, independent of each other and of `safety`) add the
+`products.appliances` and `products.components` providers
+(`packs/products/providers/`). Records stay in the one Products store; the
+source audit and the implement / link-only decisions are in
+`docs/development/products-expansion-evidence/source-audit.md`.
+
+**Category registry.** Each category is a file under
+`config/product_categories/` (`src/kb/product_categories.py`): attribute keys
+and kinds, canonical and accepted units, modes, tolerance attributes, label
+schemes by regulation, default comparison rows and matching rules, plus the
+EPREL field, Icecat feature and BMEcat feature names each provider maps.
+`product_category_registry` returns it. Registered: `electronic-displays`
+(unchanged behaviour), `household-washing-machines`,
+`refrigerating-appliances`, `multilayer-ceramic-capacitors` and
+`thick-film-chip-resistors`. A source pins its category by label; a native
+field no mapping names is kept on the record as a `source_fields` entry and is
+never mapped by guess. Units convert exactly (no pint) and are category-aware:
+`0.54 kWh/cycle` is `54.00 kWh/100cycles`, a plain `kWh` is refused for a
+per-100-cycles value, and `F` is a farad only where capacitance is defined.
+Energy classes are validated against the named regulation's classes; Icecat
+classes carry no regulation and never compare with EPREL's.
+
+**Sources** (`products-displays` 1.2.0; 1.1.0 sources unchanged):
+
+| Source | Operation | Selection |
+| --- | --- | --- |
+| `eprel-washing-machines`, `eprel-refrigerating-appliances` | `models` | 1–50 EPREL registration numbers (API key as for displays) |
+| `icecat-washing-machines`, `icecat-refrigerating-appliances` | `models` | 1–50 brand + product code or GTIN (category IDs are placeholders until verified live) |
+| `bmecat-capatronic-mlcc` (manufacturer), `bmecat-voltaria-mlcc` (supplier) | `components` | one pinned BMEcat 2005 catalogue, 1–50 `manufacturer` + `mpn` selectors |
+
+BMEcat catalogues are downloaded once per run from their pinned host (same-host
+redirects only). Price, order and logistic blocks are never read, stored or
+hashed, so a price change adds no revision; `mode="delete"` withdraws a part.
+Octopart and DigiKey are **link-only**: `lookup_component` returns search
+links for the MPN and nothing is fetched or cached. Mouser and crawling are
+not implemented.
+
+**Components.** Identity is the normalised manufacturer (legal forms dropped)
+plus the MPN as published (whitespace removed, separators and suffixes kept).
+A supplier's own article number is a provider-scoped SKU alias, never
+identity. `lifecycle_status` (`active`, `nrnd`, `last-time-buy`, `obsolete`,
+else `unknown` with the declared text) is stored only where a catalogue
+publishes a `PRODUCT_STATUS` of type `others`, dated by the catalogue's
+generation date; merchandising statuses stay source fields and nothing is
+inferred. `review_component_manufacturer_link` records a manufacturer name to
+canonical entity decision through the entity identity decisions (never a
+merge); linked names count as one manufacturer in lookups and matching.
+
+**Matching and comparison.** Candidates are proposed only inside one category:
+Icecat/EPREL pairs by designation for displays and appliances (corroborated by
+rated capacity and label class under the same scheme for washing machines,
+total volume and annual energy for fridges), and manufacturer + exact MPN
+between component providers (corroborated by capacitance, rated voltage and
+EIA case code). A fridge and a washing machine sharing a designation never
+pair. `compare_product_models` refuses models of different categories
+(`mixed_categories`) and unknown attributes, takes rows from the registry, and
+shows each component nominal value with its published tolerance. There is no
+ranking, best pick, cross-reference or replacement suggestion.
+
+**Documents.** EPREL information sheets and labels, Icecat leaflets and BMEcat
+data sheets are provider-linked documents of their variant.
+`cite_product_document` returns a citation locator (link, retained content
+hash, page checked against the extracted pages, section recorded verbatim); a
+document never retained is cited as its link only.
+
+| Intent | Tool | Arguments |
+| --- | --- | --- |
+| Find a washing machine | `lookup_product_models` | `{"namespace": "global", "brand": "Hausmark", "designation": "WM-8E14", "category": "household washing machines"}` |
+| Capacitor candidates | `propose_product_matches` | `{"namespace": "global", "category": "multilayer ceramic capacitors"}` |
+| Compare two fridges | `compare_product_models` | `{"namespace": "global", "model_ids": ["<model>", "<model>"], "category": "refrigerating appliances"}` |
+| A part by MPN or SKU | `lookup_component` | `{"namespace": "global", "mpn": "CX0603X7R104K500", "manufacturer": "Capatronic"}` |
+| Cite a datasheet page | `cite_product_document` | `{"namespace": "global", "link_id": "<link>", "page": 2}` |
+
+Offline evidence: `tests/unit/domains/test_products_expansion_acceptance.py`
+(features uncomposed, off and on). No live run exists yet (PX12, #2104).
 
 ## Safety notices and recalls
 

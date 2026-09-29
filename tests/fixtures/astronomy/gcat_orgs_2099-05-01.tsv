@@ -1,0 +1,7 @@
+#Code	UCode	StateCode	Type	Class	TStart	TStop	ShortName	Name	Location	Longitude	Latitude	Error	Parent	ShortEName	EName	UName
+# Updated 2099 May  1 (fictional authored extract)
+FICTSPACE	FICTSPACE	US	LV/LA	C	2090	*	Fictspace	Fictspace Launch Services Inc.	Fictville, Florida	-	-	-	-	Fictspace	Fictspace Launch Services Inc.	Fictspace Launch Services Inc.
+FICTSYS	FICTSYS	GB	LV	C	2090	*	Fictspace Sys	Fictspace Launch Systems Ltd	Fictford, England	-	-	-	-	Fictspace Sys	Fictspace Launch Systems Ltd	Fictspace Launch Systems Ltd
+FICTOPS	FICTOPS	US	O	C	2090	*	FictOps	Fictional Satellite Operations LLC	Fictville, Florida	-	-	-	-	FictOps	Fictional Satellite Operations LLC	Fictional Satellite Operations LLC
+FKSC	FKSC	US	LS	D	2090	*	Fictland SC	Fictland Space Centre	Fictland Island	-30.0000	-10.0000	-	-	Fictland SC	Fictland Space Centre	Fictland Space Centre
+OTHERCO	OTHERCO	FR	LV	C	2090	*	Other	Other Launch Company	Elsewhere	-	-	-	-	Other	Other Launch Company	Other Launch Company

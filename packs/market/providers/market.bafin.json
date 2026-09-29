@@ -1,0 +1,177 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "market.bafin",
+  "version": "1.0.0",
+  "description": "BaFin capital-market notices: voting-rights notifications with holder chains and corrections, managers' transactions, net short positions with publication-end semantics, the BaFin company database, warnings and measures; point-in-time answers under the Market publication cutoffs and voting-rights notifications projected into Corporate Ownership as voting_rights control assertions.",
+  "implementation": {
+    "name": "src.domains.market.bafin_notices",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "market.bafin-notices",
+      "contract": {
+        "name": "noesis-bafin-notice",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "holders-as-of",
+        "managers-transactions",
+        "net-short-positions",
+        "warnings-for-entity",
+        "authorisation-status",
+        "notice-dossier",
+        "project-voting-rights"
+      ],
+      "semantic_constraints": {
+        "as_of": "only notices published by the as-of cutoff (end of day, UTC) and acquired by the acquisition cutoff: the Market public_and_acquired policy",
+        "corrections": "a correction supersedes the notice it corrects; queries show one notice per correction chain and earlier revisions stay in history",
+        "holdings": "percentages kept with their WpHG basis (§ 33, § 38, § 39) and never summed across notifiers; positions below a publication threshold are never inferred",
+        "identity": "issuers by ISIN and LEI; notifiers, holders, short sellers and managers are source strings with reviewable matches; natural persons only within the issuer context",
+        "composition": "voting-rights notifications project through the Corporate Ownership record owner (ownership.records) as voting_rights control assertions the ownership graph reads; the corporate-ownership bafin-voting-rights feature binds this provider for that projection, and holders are keyed only through reviewed ownership.identity matches",
+        "exclusions": "no investment advice, signals, trading recommendations or insider-sentiment scores"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "holders-as-of",
+      "tool": "noesis-knowledge-engine.bafin_holders_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "managers-transactions",
+      "tool": "noesis-knowledge-engine.bafin_managers_transactions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "net-short-positions",
+      "tool": "noesis-knowledge-engine.bafin_net_short_positions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "warnings-for-entity",
+      "tool": "noesis-knowledge-engine.bafin_warnings_for_entity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "authorisation-status",
+      "tool": "noesis-knowledge-engine.bafin_authorisation_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "notice-dossier",
+      "tool": "noesis-knowledge-engine.bafin_notice_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "project-voting-rights",
+      "tool": "noesis-knowledge-engine.project_bafin_voting_rights",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "receipt": "ownership record revisions"
+      },
+      "readiness_probe": "notices",
+      "required_scopes": [
+        "market:bafin:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "bafin-notice",
+      "store": "src.domains.market.bafin_notices",
+      "tables": [
+        "bafin_notices",
+        "bafin_notice_revisions",
+        "bafin_listing_observations",
+        "bafin_persons",
+        "bafin_page_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "notices",
+      "kind": "table-exists",
+      "target": "bafin_notice_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "bafin-capital-market-notices",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

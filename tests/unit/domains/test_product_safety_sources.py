@@ -91,7 +91,8 @@ def test_every_source_has_a_documented_access_decision_and_nothing_is_live_yet()
 
 def test_the_pack_declares_bounded_notice_sources_with_terms_and_live_state():
     value = h.manifest()
-    assert value["version"] == "1.1.0"
+    # 1.2.0 (#2061) adds the appliance and component sources and changes no notice source.
+    assert value["version"] == "1.2.0"
     notice_sources = [
         s for s in value["sources"] if s["connector"] in SAFETY_CONNECTORS
     ]

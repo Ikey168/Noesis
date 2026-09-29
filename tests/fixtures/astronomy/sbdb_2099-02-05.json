@@ -1,0 +1,18 @@
+{
+  "signature": {"source": "NASA/JPL Small-Body Database (SBDB) API", "version": "1.3"},
+  "object": {"des": "2099 AB12", "fullname": "(2099 AB12)", "spkid": "54999901", "prefix": null, "kind": "au",
+             "orbit_id": "3", "orbit_class": {"code": "AMO", "name": "Amor"}},
+  "orbit": {
+    "orbit_id": "3", "source": "JPL", "producer": "Fictional Producer", "soln_date": "2099-02-04 10:00:00",
+    "epoch": "2487737.5", "equinox": "J2000", "first_obs": "2099-01-17", "last_obs": "2099-01-31",
+    "data_arc": "14", "n_obs_used": 24, "condition_code": "6", "rms": ".35",
+    "elements": [
+      {"name": "e", "value": ".2345702", "sigma": ".0012", "units": null, "label": "e"},
+      {"name": "a", "value": "2.20004", "sigma": ".003", "units": "au", "label": "a"},
+      {"name": "i", "value": "7.1235", "sigma": ".002", "units": "deg", "label": "i"},
+      {"name": "om", "value": "33.4568", "sigma": ".004", "units": "deg", "label": "node"},
+      {"name": "w", "value": "151.2344", "sigma": ".01", "units": "deg", "label": "peri"},
+      {"name": "ma", "value": "45.1201", "sigma": ".05", "units": "deg", "label": "M"}
+    ]
+  }
+}

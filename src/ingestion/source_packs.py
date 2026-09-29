@@ -230,6 +230,12 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset(_PROCUREMENT_CONNECTORS)
 NATIVE_CONNECTOR_MODULES["sanctions-list"] = "src.ingestion.sanctions_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sanctions-list"})
 
+# Legal federal statutes (gesetze-im-internet.de, rechtsinformationen.bund.de, recht.bund.de; #2105).
+NATIVE_CONNECTOR_MODULES.update({connector: "src.ingestion.legal_sources"
+                                 for connector in ("gesetze-im-internet", "rechtsinformationen-bund", "recht-bund")})
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"gesetze-im-internet", "rechtsinformationen-bund",
+                                                         "recht-bund"})
+
 # Technology vulnerability and advisory sources (NVD, OSV, GitHub, CISA KEV, EPSS, CVE Services, CPE, CWE; #1913).
 NATIVE_CONNECTOR_MODULES["vulnerability-feed"] = "src.ingestion.vulnerability_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"vulnerability-feed"})
@@ -267,6 +273,38 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 # Funding & Grants development finance: OECD CRS aggregates through the SDMX connector (#1932).
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
+
+# Market BaFin capital-market notices (voting rights, dealings, net short positions, company DB, warnings; #2106).
+NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
+
+# Linguistics: Wikidata lexemes, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 tables (#2178).
+NATIVE_CONNECTOR_MODULES["linguistics"] = "src.ingestion.linguistics_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"linguistics"})
+
+# Products expansion: manufacturer and supplier BMEcat catalogues for electronic components (#2061, #2098).
+NATIVE_CONNECTOR_MODULES["bmecat"] = "src.ingestion.product_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bmecat"})
+
+# Engineering Safety: FAA/EASA ADs, NTSB, PHMSA, CSB, NHTSA ODI, BFU and BEA (#2059).
+NATIVE_CONNECTOR_MODULES["engineering-safety"] = "src.ingestion.engineering_safety_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"engineering-safety"})
+# Materials property and structure sources (Materials Project, JARVIS-DFT, OQMD, NIST WebBook, COD; #2060).
+NATIVE_CONNECTOR_MODULES["materials"] = "src.ingestion.materials_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"materials"})
+
+# Astronomy and Space (MPC, JPL SBDB/Sentry, NASA Exoplanet Archive, GCAT, CelesTrak SATCAT, NOAA SWPC; #2149).
+NATIVE_CONNECTOR_MODULES["astronomy"] = "src.ingestion.astronomy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy"})
+# Sports results, fixtures, tables and tennis archives (football-data.org, StatsBomb, openfootball, Sackmann; #2135).
+NATIVE_CONNECTOR_MODULES["sports-results"] = "src.ingestion.sports_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sports-results"})
+# Weather operational sources (DWD CDC/MOSMIX/CAP, aviationweather.gov, NWS API, Open-Meteo; #2163).
+NATIVE_CONNECTOR_MODULES["weather"] = "src.ingestion.weather_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
+# Open-source Software Ecosystems: registry history, deps.dev, SPDX list releases, Software Heritage (#2192).
+NATIVE_CONNECTOR_MODULES["oss-ecosystem"] = "src.ingestion.oss_ecosystem_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
 
 
 def native_connector_module(connector: str) -> Any:

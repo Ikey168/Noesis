@@ -32,6 +32,8 @@ _READINESS_TABLES = {
     "alerts": "market_alert_watch_revisions",
     "operations": "market_ops_measurements",
     "specialized": "market_specialized_runs",
+    # Optional bafin-notices feature (#2106): BaFin and Bundesanzeiger notices as acquired.
+    "bafin_notices": "bafin_notice_revisions",
 }
 
 

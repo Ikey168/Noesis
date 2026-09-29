@@ -111,8 +111,9 @@ def test_descriptor_declares_the_capability_operations_stores_probe_and_source_p
             "target": "product_safety_revisions",
         }
     ]
+    # products-displays 1.2.0 (#2061) adds sources inside the safety provider's ^1.1.0 range.
     assert descriptor["source_packs"] == [
-        {"pack_id": "products-displays", "version": "1.1.0", "range": "^1.1.0"}
+        {"pack_id": "products-displays", "version": "1.2.0", "range": "^1.1.0"}
     ]
     owned = {s["record_type"] for s in descriptor["stores"]}
     others = {
@@ -132,8 +133,11 @@ def test_descriptor_declares_the_capability_operations_stores_probe_and_source_p
 
 def test_the_bundle_resolves_with_the_feature_off_by_default():
     composition = json.loads((ROOT / "packs/products/composition.json").read_text())
-    (feature,) = composition["optional_features"]
-    assert feature["id"] == "safety" and feature["default"] is False
+    # The expansion's appliances and components features (#2061) sit beside safety, all off by default.
+    features = {f["id"]: f for f in composition["optional_features"]}
+    assert set(features) == {"safety", "appliances", "components"}
+    assert not any(f["default"] for f in features.values())
+    feature = features["safety"]
     assert {r["capability"] for r in feature["requires"]} == {
         "products.safety-notices",
         "products.identities",
@@ -152,7 +156,7 @@ def test_the_bundle_resolves_with_the_feature_off_by_default():
     ]
     assert {
         "pack_id": "products-displays",
-        "version": "1.1.0",
+        "version": "1.2.0",
         "range": "^1.0.0",
     } in plan["source_packs"]
 
@@ -162,13 +166,17 @@ def test_selecting_the_feature_binds_one_authority_per_store_and_every_requireme
     assert (
         plan["features"]["products"] == ["safety"] and bound(plan) == FEATURE_PROVIDERS
     )
-    # The consumed bundles keep their own optional features unselected; nothing of safety is omitted.
-    assert not [o for o in plan["omissions"] if o["pack"] == "products"]
+    # The consumed bundles keep their own optional features unselected; nothing of safety is omitted, and the
+    # bundle's other features (appliances, components; #2061) stay unselected.
+    assert [o for o in plan["omissions"] if o["pack"] == "products"] == [
+        {"pack": "products", "feature": "appliances", "reason": "not selected"},
+        {"pack": "products", "feature": "components", "reason": "not selected"},
+    ]
     bindings = [b for b in plan["bindings"] if "products" in b["consumers"]]
     assert len({b["capability"] for b in bindings}) == len(
         bindings
     )  # one provider per capability
-    assert {"pack_id": "legal-research", "version": "1.2.0", "range": "^1.1.0"} in plan[
+    assert {"pack_id": "legal-research", "version": "1.3.0", "range": "^1.1.0"} in plan[
         "source_packs"
     ]
     stores = [
@@ -177,9 +185,11 @@ def test_selecting_the_feature_binds_one_authority_per_store_and_every_requireme
         if d["id"] in FEATURE_PROVIDERS
         for s in d["stores"]
     ]
+    # src.kb.products holds the product, lifecycle-status and manufacturer-link record types (#2061), all owned
+    # by products.core.
     assert (
         stores.count("src.kb.product_safety") == 2
-        and stores.count("src.kb.products") == 1
+        and stores.count("src.kb.products") == 3
     )
 
 
@@ -199,7 +209,8 @@ def test_a_missing_consumed_provider_is_a_visible_omission_not_a_failure():
 def test_the_v1_pack_manifest_is_unchanged():
     pack = json.loads((ROOT / "packs/products/pack.json").read_text())
     assert pack["version"] == "1.0.0" and "safety" not in json.dumps(pack).lower()
-    assert not list(ROOT.glob("packs/*safety*"))
+    # No separate products-safety pack; the only *safety* bundle is the Engineering Safety pack (#2059).
+    assert [p.name for p in ROOT.glob("packs/*safety*")] == ["engineering-safety"]
 
 
 def test_feature_enablement_follows_the_active_composition_selection():

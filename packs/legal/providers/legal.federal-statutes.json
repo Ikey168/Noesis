@@ -1,0 +1,156 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "legal.federal-statutes",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.legal_federal",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "legal.federal-statutes",
+      "contract": {
+        "name": "noesis-legal-federal-statute",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "get-provision",
+        "compare-provision-versions",
+        "list-amendment-acts",
+        "decisions-citing-provision",
+        "resolve-statutory-citation",
+        "statute-versions"
+      ],
+      "semantic_constraints": {
+        "versioning": "source-stated versions carry the source's validity interval; observed versions are text seen on a date with no validity stated; the two are never conflated",
+        "as_of": "source-stated version covering the date, else the nearest observed version on or before it, else no version on record; differing sources are returned side by side",
+        "amendments": "Federal Law Gazette instructions are stored as published and never applied; no computed consolidation",
+        "links": "court decisions, DIP dossiers and implemented EU acts are linked by explicit citation only",
+        "exclusions": "no statement that a provision is in force, no applicability determination, no legal advice"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "get-provision",
+      "tool": "noesis-knowledge-engine.get_federal_provision",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "statute-versions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-provision-versions",
+      "tool": "noesis-knowledge-engine.compare_provision_versions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "statute-versions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-amendment-acts",
+      "tool": "noesis-knowledge-engine.list_amendment_acts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "statute-versions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "decisions-citing-provision",
+      "tool": "noesis-knowledge-engine.decisions_citing_provision",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "statute-versions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-statutory-citation",
+      "tool": "noesis-knowledge-engine.resolve_statutory_citation",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "statute-versions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "statute-versions",
+      "tool": "noesis-knowledge-engine.list_federal_statute_versions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "statute-versions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "legal-federal-statute",
+      "store": "src.kb.legal_federal",
+      "tables": [
+        "legal_statute_versions",
+        "legal_statute_observations",
+        "legal_amendments",
+        "legal_provision_citations",
+        "legal_implementation_links",
+        "legal_dossier_match_outcomes"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "statute-versions",
+      "kind": "table-exists",
+      "target": "legal_statute_versions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "legal-research",
+      "version": "1.3.0",
+      "range": "^1.3.0"
+    }
+  ]
+}

@@ -16,6 +16,14 @@
           "name": "noesis-lei-part",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "market.bafin-notices",
+        "provider": "market.bafin",
+        "contract": {
+          "name": "noesis-bafin-notice",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -26,6 +34,10 @@
       {
         "id": "market.lei",
         "version": "1.0.0"
+      },
+      {
+        "id": "market.bafin",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
@@ -33,6 +45,11 @@
         "pack_id": "economic-statistics-and-filings",
         "version": "1.1.0",
         "range": "^1.1.0"
+      },
+      {
+        "pack_id": "bafin-capital-market-notices",
+        "version": "1.0.0",
+        "range": "^1.0.0"
       }
     ]
   },
@@ -48,6 +65,51 @@
       "contract": "noesis-lei-part",
       "range": "^1.0.0",
       "reason": "the bundle's own entry points use these operations"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "bafin-notices",
+      "default": false,
+      "description": "BaFin capital-market notices: voting-rights notifications (WpHG §§ 33 ff.) with holder chains and corrections, managers' transactions (Art. 19 MAR), published net short positions (Art. 11 SSR), the BaFin company database and warnings and measures, answered as of a date under the Market publication cutoffs, with reviewable identity and subscription monitors. The projection into the Corporate Ownership graph is the corporate-ownership bundle's bafin-voting-rights feature (Market cannot depend on Corporate Ownership, which already depends on market.lei). No investment advice, signals or sentiment.",
+      "requires": [
+        {
+          "capability": "market.bafin-notices",
+          "contract": "noesis-bafin-notice",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "market.instruments",
+          "contract": "noesis-market-instrument",
+          "range": "^1.0.0",
+          "reason": "issuers resolve by ISIN to market instruments as of the notice date"
+        },
+        {
+          "capability": "market.legal-entities",
+          "contract": "noesis-lei-part",
+          "range": "^1.0.0",
+          "reason": "issuer LEIs a notice states are compared with LEI records"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "notice monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "notices are acquired through the bafin-capital-market-notices source pack runtime"
+        }
+      ]
     }
   ]
 }

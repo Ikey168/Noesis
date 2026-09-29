@@ -1,0 +1,20 @@
+{
+  "2099 AB12": {
+    "found": 1,
+    "object_type": ["Minor planet", "M"],
+    "permid": null,
+    "name": null,
+    "unpacked_primary_provisional_designation": "2099 AB12",
+    "packed_primary_provisional_designation": "K99A12B",
+    "unpacked_secondary_provisional_designations": [],
+    "packed_secondary_provisional_designations": []
+  },
+  "2099 YZ1": {
+    "found": 1,
+    "object_type": ["Minor planet", "M"],
+    "permid": null,
+    "unpacked_primary_provisional_designation": "2099 YZ1",
+    "packed_primary_provisional_designation": "K99Y01Z",
+    "unpacked_secondary_provisional_designations": []
+  }
+}
