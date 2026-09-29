@@ -17,7 +17,7 @@ from src.argument_mining.models import (
     get_claim_detector,
     get_stance_classifier,
 )
-from src.integrations.typesafe_jev import JevConfig
+from src.integrations.typesafe_jev import JevConfig, JevError
 
 
 def _doc(text: str) -> Document:
@@ -147,19 +147,90 @@ def test_low_confidence_stance_uses_dedicated_fallback():
     assert classifier.prediction_mode == "zero-shot:fallback"
 
 
-def test_public_getters_select_jev_when_key_is_configured(monkeypatch):
-    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+def _reset_singletons():
     models_mod._claim_detector = None
     models_mod._stance_classifier = None
     frames_mod._frame_classifier = None
+
+
+def _assert_local_getters(monkeypatch):
+    # Stand in for the dedicated local classifiers so the check does not need
+    # cached model weights.
+    class LocalClaim:
+        pass
+
+    class LocalStance:
+        pass
+
+    class LocalFrame:
+        pass
+
+    monkeypatch.setattr(models_mod, "ClaimDetector", LocalClaim)
+    monkeypatch.setattr(models_mod, "StanceClassifier", LocalStance)
+    monkeypatch.setattr(frames_mod, "FrameClassifier", LocalFrame)
+    _reset_singletons()
+    try:
+        assert isinstance(get_claim_detector(), LocalClaim)
+        assert isinstance(get_stance_classifier(), LocalStance)
+        assert isinstance(get_frame_classifier(), LocalFrame)
+    finally:
+        _reset_singletons()
+
+
+def test_public_getters_stay_local_with_key_only(monkeypatch):
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    monkeypatch.delenv("NOESIS_JEV_ENABLED", raising=False)
+    _assert_local_getters(monkeypatch)
+
+
+def test_public_getters_stay_local_with_flag_only(monkeypatch):
+    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    monkeypatch.delenv("NOESIS_JEV_API_KEY", raising=False)
+    monkeypatch.setenv("NOESIS_JEV_ENABLED", "true")
+    _assert_local_getters(monkeypatch)
+
+
+def test_public_getters_select_jev_with_flag_and_key(monkeypatch):
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    monkeypatch.setenv("NOESIS_JEV_ENABLED", "true")
+    _reset_singletons()
     try:
         assert isinstance(get_claim_detector(), JevPrimaryClaimDetector)
         assert isinstance(get_stance_classifier(), JevPrimaryStanceClassifier)
         assert isinstance(get_frame_classifier(), JevPrimaryFrameClassifier)
     finally:
-        models_mod._claim_detector = None
-        models_mod._stance_classifier = None
-        frames_mod._frame_classifier = None
+        _reset_singletons()
+
+
+def test_flag_and_key_falls_back_locally_when_jev_errors(monkeypatch):
+    monkeypatch.setenv("TYPESAFE_API_KEY", "test-key")
+    monkeypatch.setenv("NOESIS_JEV_ENABLED", "true")
+
+    class FailingJev(FakeJev):
+        def system_one(self, *, state, questions):
+            self.calls.append((state, questions))
+            raise JevError("connection_error", "TypeSafe could not be reached")
+
+    class Fallback:
+        prediction_mode = "pretrained:fallback"
+
+        def predict(self, document):
+            return [ClaimPrediction(document.content, 0, True, 0.91)]
+
+    _reset_singletons()
+    try:
+        detector = get_claim_detector()
+        assert isinstance(detector, JevPrimaryClaimDetector)
+        jev = FailingJev({})
+        detector._jev = jev
+        detector._fallback_factory = Fallback
+        result = detector.predict(_doc("The launch succeeded."))
+    finally:
+        _reset_singletons()
+
+    assert len(jev.calls) == 1
+    assert result[0].confidence == 0.91
+    assert "pretrained:fallback" in detector.prediction_mode
 
 
 def test_frame_classifier_falls_back_only_for_threshold_near_frames():

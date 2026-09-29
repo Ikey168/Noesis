@@ -3,6 +3,10 @@
 The adapter intentionally uses the documented System One HTTP contract instead
 of requiring the vendor SDK. Credentials are read only from environment
 variables and are never logged or serialized into Noesis state.
+
+It is active only when ``NOESIS_JEV_ENABLED=true`` and ``TYPESAFE_API_KEY`` (or
+``NOESIS_JEV_API_KEY``) are both set. When active, the text being classified is
+sent to ``NOESIS_JEV_ENDPOINT`` (``api.typesafe.ai`` by default).
 """
 from __future__ import annotations
 
@@ -16,7 +20,7 @@ from typing import Any
 
 DEFAULT_ENDPOINT = "https://api.typesafe.ai/v1/systemone"
 DEFAULT_MODEL = "jev-latest"
-_FALSE = {"0", "false", "no", "off", "disabled"}
+_TRUE = {"1", "true", "yes", "on", "enabled"}
 
 Transport = Callable[[str, bytes, dict[str, str], float], bytes]
 
@@ -52,7 +56,11 @@ class JevConfig:
 
     @classmethod
     def from_env(cls) -> JevConfig:
-        enabled = os.environ.get("NOESIS_JEV_ENABLED", "true").lower() not in _FALSE
+        # Jev-primary classification is an explicit opt-in: it needs both
+        # NOESIS_JEV_ENABLED=true and a key. TYPESAFE_API_KEY alone (as used
+        # by the separate suggestion-only Jev tools) keeps classification
+        # local, so no document text is sent by this path.
+        enabled = os.environ.get("NOESIS_JEV_ENABLED", "").strip().lower() in _TRUE
         key = os.environ.get("TYPESAFE_API_KEY") or os.environ.get("NOESIS_JEV_API_KEY")
         return cls(
             api_key=key if enabled else None,

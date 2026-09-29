@@ -13,17 +13,30 @@ from src.integrations.typesafe_jev import (
 )
 
 
-def test_config_uses_official_key_and_can_be_disabled(monkeypatch):
-    monkeypatch.setenv("TYPESAFE_API_KEY", "secret-test-key")
+def test_config_requires_explicit_flag_and_key(monkeypatch):
     monkeypatch.delenv("NOESIS_JEV_API_KEY", raising=False)
+
+    # Key only (as main's suggestion-only tools use it): stays local.
+    monkeypatch.setenv("TYPESAFE_API_KEY", "secret-test-key")
     monkeypatch.delenv("NOESIS_JEV_ENABLED", raising=False)
+    assert JevConfig.from_env().api_key is None
+    assert JevClient.configured() is False
+
+    # Flag only: stays local.
+    monkeypatch.delenv("TYPESAFE_API_KEY", raising=False)
+    monkeypatch.setenv("NOESIS_JEV_ENABLED", "true")
+    assert JevConfig.from_env().api_key is None
+    assert JevClient.configured() is False
+
+    # Both: Jev-primary is configured.
+    monkeypatch.setenv("TYPESAFE_API_KEY", "secret-test-key")
     config = JevConfig.from_env()
     assert config.api_key == "secret-test-key"
     assert JevClient.configured() is True
 
-    monkeypatch.setenv("NOESIS_JEV_ENABLED", "false")
-    assert JevConfig.from_env().api_key is None
-    assert JevClient.configured() is False
+    for value in ("false", "0", "", "off"):
+        monkeypatch.setenv("NOESIS_JEV_ENABLED", value)
+        assert JevClient.configured() is False
 
 
 def test_system_one_uses_bearer_auth_and_validates_answers():
