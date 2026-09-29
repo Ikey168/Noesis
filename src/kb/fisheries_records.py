@@ -139,6 +139,21 @@ def call_sign_key(value: Any) -> str | None:
     return text or None
 
 
+# ISO 3166 alpha-3 -> alpha-2 for flag states registers commonly publish (the shared normaliser covers only a few).
+FLAG_ISO3 = {
+    "AGO": "AO", "ARG": "AR", "AUS": "AU", "BEL": "BE", "BLZ": "BZ", "BRA": "BR", "CAN": "CA", "CHL": "CL",
+    "CHN": "CN", "CIV": "CI", "CMR": "CM", "COK": "CK", "COM": "KM", "CPV": "CV", "DEU": "DE", "DNK": "DK",
+    "ECU": "EC", "ESP": "ES", "FJI": "FJ", "FRA": "FR", "FRO": "FO", "FSM": "FM", "GAB": "GA", "GBR": "GB",
+    "GHA": "GH", "GIN": "GN", "GNQ": "GQ", "GRC": "GR", "HND": "HN", "IDN": "ID", "IND": "IN", "IRL": "IE",
+    "IRN": "IR", "ISL": "IS", "ITA": "IT", "JPN": "JP", "KEN": "KE", "KIR": "KI", "KOR": "KR", "LBR": "LR",
+    "LKA": "LK", "MAR": "MA", "MDG": "MG", "MDV": "MV", "MEX": "MX", "MHL": "MH", "MOZ": "MZ", "MUS": "MU",
+    "NAM": "NA", "NLD": "NL", "NOR": "NO", "NRU": "NR", "NZL": "NZ", "OMN": "OM", "PAK": "PK", "PAN": "PA",
+    "PER": "PE", "PHL": "PH", "PLW": "PW", "PNG": "PG", "PRT": "PT", "RUS": "RU", "SEN": "SN", "SLB": "SB",
+    "SLE": "SL", "STP": "ST", "SYC": "SC", "TGO": "TG", "THA": "TH", "TUV": "TV", "TWN": "TW", "TZA": "TZ",
+    "URY": "UY", "USA": "US", "VNM": "VN", "VUT": "VU", "WSM": "WS", "ZAF": "ZA",
+}
+
+
 def flag_code(value: Any) -> str | None:
     """A published flag as an ISO 3166 alpha-2 code when it is an ISO alpha-2/alpha-3 code; names stay unresolved."""
     from src.ingestion.connectors.dataset.normalize import normalize_geography
@@ -147,6 +162,8 @@ def flag_code(value: Any) -> str | None:
     if len(text) == 2 and text.isalpha():
         return text.upper()
     if len(text) == 3 and text.isalpha():
+        if text.upper() in FLAG_ISO3:
+            return FLAG_ISO3[text.upper()]
         code = normalize_geography(text)
         return code if code and len(code) == 2 else None
     return None
