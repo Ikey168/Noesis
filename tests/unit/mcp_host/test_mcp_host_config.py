@@ -19,8 +19,8 @@ def test_real_mcp_json_yields_only_project_servers():
     specs = load_server_specs()
     assert DEFAULT_MCP_JSON.exists()
     names = {s.name for s in specs}
-    # All 27 tools/*_mcp servers (26 plus noesis-onchain, #2058), and nothing npx-launched.
-    assert len(specs) == 27
+    # All 28 tools/*_mcp servers (26 plus noesis-onchain, #2058, plus the noesis gateway), and nothing npx-launched.
+    assert len(specs) == 28
     assert "noesis-onchain" in names
     assert "noesis-statistics" in names
     assert "noesis-kg" in names

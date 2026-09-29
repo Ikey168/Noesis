@@ -93,7 +93,7 @@ increment_articles_ingested(
     count=1
 )
 
-# RAG queries (services/api/routes/ask.py)  
+# RAG queries (legacy/services/api/routes/ask.py)
 from services.monitoring.unit_economics import increment_rag_queries
 
 increment_rag_queries(

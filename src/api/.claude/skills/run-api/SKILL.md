@@ -115,7 +115,7 @@ Interactive API docs: open `http://localhost:8012/docs`.
   healthy `/health` as "the API is serving data" — probe a real endpoint.
 - **Two FastAPI apps exist; this is the real one.** `src/api/app.py`
   (`create_app()`, the WAF/RBAC/DuckDB backend the frontend uses) vs.
-  `services/api/main.py` (a smaller `/ask` Q&A service). For the web dashboard,
+  `legacy/services/api/main.py` (a smaller `/ask` Q&A service). For the web dashboard,
   it's `src.api.app:app`.
 - **A benign startup error in the log is expected.** Dev mode still logs
   `Error checking table: ... (403) ... DescribeTable ...` from the RBAC system

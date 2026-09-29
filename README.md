@@ -58,12 +58,18 @@ surface. The full design lives in the
 - **Argument mining.** Detects claims, classifies stances, identifies frames
   (economic, security, humanitarian, legal, political, scientific, other),
   extracts actor and entity mentions, and tracks how policy positions evolve.
+  Classification is local by default. Setting both `NOESIS_JEV_ENABLED=true`
+  and `TYPESAFE_API_KEY` makes TypeSafe Jev the primary claim, stance, and
+  frame classifier, with the local models as automatic fallbacks.
 - **Fact-check and corroboration.** Links claims to verdicts, scores
   corroboration by independent-source count, flags unsourced assertions, and
   keeps a contradiction ledger of where the public record disagrees with itself.
-- **Private corpus, local first.** Applies the same claim, contradiction,
+- **Private corpus, local by default.** Applies the same claim, contradiction,
   provenance, and diff surfaces to PDFs, DOCX, email, books, filings, notes,
-  and transcripts without uploading them to a hosted service. See the
+  and transcripts. By default nothing is uploaded to a hosted service. Only if
+  you set both `NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` is the text
+  being classified sent to TypeSafe at `api.typesafe.ai`. This is separate
+  from the suggestion-only Jev tools, which use the key alone. See the
   [private-corpus quickstart](docs/guides/private-corpus.md).
 - **Integrity ledger.** Unifies cited snapshots, silent corrections, image
   reuse, C2PA content credentials, and prose-versus-figure checks behind one
@@ -116,7 +122,7 @@ surface. The full design lives in the
 |---|---|
 | Backend | FastAPI, uvicorn |
 | Analytics warehouse | DuckDB (local file, single-writer) |
-| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy |
+| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy (default); optional TypeSafe Jev primary with `NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` |
 | Scraping | Scrapy, Playwright, Selenium |
 | Orchestration | Apache Airflow |
 | MLOps | MLflow |
@@ -147,6 +153,7 @@ stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
+| `noesis` | **Default gateway** — add, search, ask, brief, inspect sources/claims, watches, inbox, exploration, research, coverage, evidence export |
 | `noesis-catalog` | Permission- and readiness-filtered discovery across every registered capability |
 | `noesis-pipeline` | Connectors, ingestion stages, article stats, and analytics |
 | `noesis-arguments` | Claims, stances, frames, actors, outlet clustering and scoring |
@@ -209,18 +216,45 @@ noesis export answer \
 noesis verify answer.bundle.json
 ```
 
+`noesis ingest` runs the bounded `ingest → extract → resolve → index` workflow
+automatically. If no claim classifier is available, document indexing still
+commits with explicit degraded coverage; `noesis ask` then answers only from
+extracted claims or paper abstracts and otherwise refuses explicitly. No model
+is downloaded implicitly.
+
 See the [CLI guide](docs/guides/cli.md) for Claim Watches, JSON output, server
 launchers, configuration, and optional dependency groups.
 
-### 4. Run a supported server surface
+### 4. Keep subscribed knowledge current
+
+```bash
+noesis sync                       # one bounded pass
+noesis sync --daemon              # persistent loop, every 5 minutes by default
+noesis sync --daemon --interval 60
+```
+
+`sync` fetches only explicitly enabled subscriptions, pushes new or changed
+feed revisions through the same production indexing workflow, refreshes domain
+membership, advances watches, and performs safe maintenance recovery/health
+checks. It does not launch Deep Research, execute source-pack jobs, or initiate
+paid acquisition. Run `noesis sync --dry-run --json` to inspect the next pass
+without network access or sync-state writes.
+
+### 5. Run the default MCP endpoint
 
 ```bash
 python -m pip install -e ".[server]"
-noesis serve --surface api
-# or: noesis serve --surface kb-mcp --transport http
+noesis serve
 ```
 
-### 5. Run tests
+The default Streamable HTTP endpoint is `http://127.0.0.1:8100/mcp` and exposes
+the curated daily-driver gateway: add, search, ask, briefs, source/claim
+inspection, watches, inbox triage, exploration, research sessions, coverage,
+and evidence export. Specialist MCP servers and
+the REST API remain available explicitly with `--surface kb-mcp` or
+`--surface api`.
+
+### 6. Run tests
 
 ```bash
 pytest                                        # unit and integration tests
@@ -287,6 +321,9 @@ corpus.
 ---
 
 ## Model benchmarks (current defaults)
+
+These are the local classifiers: the default, and the fallback when TypeSafe
+Jev-primary is enabled. This table is not a benchmark of Jev.
 
 | Model | F1 | Notes |
 |---|---|---|
