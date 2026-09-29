@@ -1,0 +1,23 @@
+{
+ "id": 80001,
+ "docket_id": 70001,
+ "docket": "https://www.courtlistener.com/api/rest/v4/dockets/70001/",
+ "case_name": "Example Data Co. v. Roe",
+ "date_filed": "2099-06-15",
+ "judges": "Fixture",
+ "citations": [
+  {
+   "volume": 999,
+   "reporter": "F. Supp. 4th",
+   "page": "201",
+   "type": 1
+  }
+ ],
+ "disposition": "GRANTED in part and DENIED in part",
+ "precedential_status": "Published",
+ "sub_opinions": [
+  "https://www.courtlistener.com/api/rest/v4/opinions/90001/"
+ ],
+ "date_modified": "2099-06-16T08:00:00Z",
+ "absolute_url": "/opinion/80001/example-data-co-v-roe/"
+}

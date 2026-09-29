@@ -1,0 +1,110 @@
+{
+ "version": "2.0",
+ "class": "dataset",
+ "label": "Offences by offence category - ICCS",
+ "source": "ESTAT",
+ "updated": "2099-10-01T11:00:00+0200",
+ "value": {
+  "0": 38000,
+  "1": 37000,
+  "2": 36800,
+  "3": 45.8,
+  "4": 44.4,
+  "5": 44.0
+ },
+ "status": {},
+ "id": [
+  "freq",
+  "iccs",
+  "unit",
+  "geo",
+  "time"
+ ],
+ "size": [
+  1,
+  1,
+  2,
+  1,
+  3
+ ],
+ "dimension": {
+  "freq": {
+   "label": "Time frequency",
+   "category": {
+    "index": {
+     "A": 0
+    },
+    "label": {
+     "A": "Annual"
+    }
+   }
+  },
+  "iccs": {
+   "label": "International classification of crime for statistical purposes (ICCS)",
+   "category": {
+    "index": {
+     "ICCS0401": 0
+    },
+    "label": {
+     "ICCS0401": "Robbery"
+    }
+   }
+  },
+  "unit": {
+   "label": "Unit of measure",
+   "category": {
+    "index": {
+     "NR": 0,
+     "P_HTHAB": 1
+    },
+    "label": {
+     "NR": "Number",
+     "P_HTHAB": "Per hundred thousand inhabitants"
+    }
+   }
+  },
+  "geo": {
+   "label": "Geopolitical entity (reporting)",
+   "category": {
+    "index": {
+     "DE": 0
+    },
+    "label": {
+     "DE": "Germany"
+    }
+   }
+  },
+  "time": {
+   "label": "Time",
+   "category": {
+    "index": {
+     "2096": 0,
+     "2097": 1,
+     "2098": 2
+    },
+    "label": {
+     "2096": "2096",
+     "2097": "2097",
+     "2098": "2098"
+    }
+   }
+  }
+ },
+ "extension": {
+  "status": {
+   "label": {
+    "b": "break in time series",
+    "p": "provisional",
+    "e": "estimated",
+    "c": "confidential",
+    "d": "definition differs (see metadata)"
+   }
+  },
+  "annotation": [
+   {
+    "type": "FOOTNOTE",
+    "title": "DE: offences recorded by the police (Polizeiliche Kriminalstatistik)."
+   }
+  ]
+ }
+}

@@ -1,7 +1,7 @@
 {
   "pack_id": "legal-research",
-  "version": "1.3.0",
-  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result.",
+  "version": "1.4.0",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores).",
   "domains": [
     "legal"
   ],
@@ -759,6 +759,335 @@
         "path": "tests/fixtures/source_packs/legal-federal-bgbl.json",
         "sha256": "0bdd4a8482d9aa749f8c6aa61fb8cd56cb907b49affb72b50dde2c1684e81877",
         "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "courtlistener-dockets",
+      "connector": "courts-justice",
+      "publisher": "Free Law Project (CourtListener REST API)",
+      "endpoint": "https://www.courtlistener.com/api/rest/v4",
+      "scope": "Declared federal dockets with RECAP docket entries (description verbatim, documents linked) and parties minimised at ingestion (role and organisation/natural-person flag; organisation names only)",
+      "update_cadence": "as the provider publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_COURTLISTENER_API_TOKEN"
+      },
+      "license": {
+        "id": "courtlistener-api-terms",
+        "terms_url": "https://www.courtlistener.com/terms/",
+        "redistribution": "court records are public; attribution to CourtListener / Free Law Project; RECAP documents linked, not mirrored (operator must confirm the API terms)"
+      },
+      "mapping": {
+        "target_schema": "noesis-court-justice-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "courts-justice:1.0.0"
+      ],
+      "temporal_semantics": "docket date_modified as the revision stamp; filing, entry and termination dates as valid time; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "courts_justice": {
+        "namespace": "global",
+        "provider": "courtlistener",
+        "format": "courtlistener-docket-json",
+        "selection": {
+          "dockets": [
+            {
+              "id": 70001,
+              "court": "dcd"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-courts-courtlistener-dockets.json",
+        "sha256": "50056703bacd43848deffe4ad828aa359b45a84efc8781d67fd43365feeac9fb",
+        "expected_output_hash": "143f636401bbf9b63ebc94a1c748dea7d206b12c61934cccb2330d82bfef48a7"
+      }
+    },
+    {
+      "source_id": "courtlistener-opinions",
+      "connector": "courts-justice",
+      "publisher": "Free Law Project (CourtListener REST API)",
+      "endpoint": "https://www.courtlistener.com/api/rest/v4",
+      "scope": "Declared opinion clusters: published citations, disposition quoted verbatim, opinions with author or per curiam, cited opinions and paragraph text",
+      "update_cadence": "as the provider publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_COURTLISTENER_API_TOKEN"
+      },
+      "license": {
+        "id": "courtlistener-api-terms",
+        "terms_url": "https://www.courtlistener.com/terms/",
+        "redistribution": "court records are public; attribution to CourtListener / Free Law Project; RECAP documents linked, not mirrored (operator must confirm the API terms)"
+      },
+      "mapping": {
+        "target_schema": "noesis-court-justice-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "courts-justice:1.0.0"
+      ],
+      "temporal_semantics": "cluster date_filed as the decision date; date_modified as the revision stamp",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "courts_justice": {
+        "namespace": "global",
+        "provider": "courtlistener",
+        "format": "courtlistener-cluster-json",
+        "selection": {
+          "clusters": [
+            {
+              "id": 80002,
+              "court": "cadc"
+            },
+            {
+              "id": 80001,
+              "court": "dcd"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-courts-courtlistener-opinions.json",
+        "sha256": "7ff41af7e341dd01ada0bb4386fd70a14b19750b2af884451537b8f33198cf26",
+        "expected_output_hash": "c1854bc4e327452fa1a02835fe5ab03b220a7c078ddac0df57ba5d4d6aae2993"
+      }
+    },
+    {
+      "source_id": "fbi-cde-summarized",
+      "connector": "courts-justice",
+      "publisher": "Federal Bureau of Investigation (Crime Data Explorer API)",
+      "endpoint": "https://api.usa.gov/crime/fbi/cde",
+      "scope": "Summarized UCR offence counts, rates, populations and participated populations for the declared states and agency ORIs, offences and months, with the declared UCR definition and the refresh date as the vintage (no rankings of places)",
+      "update_cadence": "as the provider publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_FBI_CDE_API_KEY"
+      },
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://cde.ucr.cjis.gov/LATEST/webapp/#/pages/docApi",
+        "redistribution": "public-domain US government work; cite the FBI UCR Program (operator must confirm)"
+      },
+      "mapping": {
+        "target_schema": "noesis-court-justice-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "courts-justice:1.0.0"
+      ],
+      "temporal_semantics": "months as valid time; cde_properties.last_refresh_date as the vintage",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "courts_justice": {
+        "namespace": "global",
+        "provider": "fbi-cde",
+        "format": "fbi-cde-summarized-json",
+        "selection": {
+          "series": [
+            {
+              "scope": "state",
+              "code": "EX",
+              "label": "Examplestate",
+              "offense": "burglary",
+              "from": "01-2098",
+              "to": "03-2098",
+              "programme": "UCR-SRS",
+              "definition": {
+                "classification": "UCR-SRS",
+                "code": "burglary",
+                "label": "Burglary",
+                "text": "The unlawful entry of a structure to commit a felony or a theft.",
+                "source_url": "https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/burglary",
+                "in_force_from": "2013-01-01"
+              }
+            },
+            {
+              "scope": "agency",
+              "code": "EX0000100",
+              "label": "Example City Police Department",
+              "offense": "burglary",
+              "from": "01-2098",
+              "to": "03-2098",
+              "programme": "UCR-SRS",
+              "definition": {
+                "classification": "UCR-SRS",
+                "code": "burglary",
+                "label": "Burglary",
+                "text": "The unlawful entry of a structure to commit a felony or a theft.",
+                "source_url": "https://ucr.fbi.gov/crime-in-the-u.s/2019/crime-in-the-u.s.-2019/topic-pages/burglary",
+                "in_force_from": "2013-01-01"
+              }
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-justice-fbi-cde-summarized.json",
+        "sha256": "53bf406cfab1061fa859eb6a5a0596026ec1aab24f100e557d3c2a3347f9666a",
+        "expected_output_hash": "bfe98b226b0942163dc17f63c08b531bd71b0e7bc5d291aff5f4c157e719e29d"
+      }
+    },
+    {
+      "source_id": "police-uk-street-crime",
+      "connector": "courts-justice",
+      "publisher": "Home Office and police forces (data.police.uk)",
+      "endpoint": "https://data.police.uk/api",
+      "scope": "Street-level crime and outcome counts per crime category for the declared force neighbourhood polygons and months; locations and persistent IDs are not stored (no neighbourhood safety rating)",
+      "update_cadence": "as the provider publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "ogl-3.0",
+        "terms_url": "https://data.police.uk/about/",
+        "redistribution": "Open Government Licence v3.0 with attribution (operator must confirm)"
+      },
+      "mapping": {
+        "target_schema": "noesis-court-justice-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "courts-justice:1.0.0"
+      ],
+      "temporal_semantics": "the month as valid time; crime-last-updated as the monthly release (vintage)",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "courts_justice": {
+        "namespace": "global",
+        "provider": "police-uk",
+        "format": "police-uk-crimes-json",
+        "selection": {
+          "areas": [
+            {
+              "force": "example-force",
+              "neighbourhood": "EX01",
+              "label": "Example Neighbourhood",
+              "poly": "51.500,-0.100:51.510,-0.100:51.510,-0.090",
+              "month": "2099-01"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-justice-police-uk-street-crime.json",
+        "sha256": "e41e28df9003d148ca92548d3bb793988fb3d02f6a4f279c70217a48a0503502",
+        "expected_output_hash": "d3320f209027a75564a2b986ac779745ba7d8a79a42a6d32d30cd88d1248d080"
+      }
+    },
+    {
+      "source_id": "eurostat-crime-iccs",
+      "connector": "courts-justice",
+      "publisher": "Eurostat (crime and criminal justice statistics)",
+      "endpoint": "https://ec.europa.eu/eurostat",
+      "scope": "Police-recorded offences by ICCS category (crim_off_cat) for the declared countries, with status flags and footnotes verbatim and the ESMS geographical-comparability section as a comparability note (no cross-country rankings)",
+      "update_cadence": "as the provider publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "Eurostat reuse policy (Commission Decision 2011/833/EU) with attribution"
+      },
+      "mapping": {
+        "target_schema": "noesis-court-justice-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "courts-justice:1.0.0"
+      ],
+      "temporal_semantics": "the reference year as valid time; the cube's updated stamp as the vintage",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "courts_justice": {
+        "namespace": "global",
+        "provider": "eurostat",
+        "format": "eurostat-crime-jsonstat",
+        "selection": {
+          "datasets": [
+            {
+              "dataset": "crim_off_cat",
+              "geo": [
+                "DE",
+                "FR"
+              ],
+              "filters": {
+                "iccs": "ICCS0401"
+              },
+              "definitions": [
+                {
+                  "classification": "ICCS",
+                  "code": "ICCS0401",
+                  "label": "Robbery",
+                  "text": "Unlawfully taking or obtaining property with the use of force or threat of force against a person with intent to permanently or temporarily withhold it from a person or organization.",
+                  "source_url": "https://www.unodc.org/unodc/en/data-and-analysis/statistics/iccs.html"
+                }
+              ],
+              "esms": {
+                "path": "/cache/metadata/en/crim_esms.htm",
+                "sections": {
+                  "comparability_geo": [
+                    "DE",
+                    "FR"
+                  ]
+                }
+              }
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-justice-eurostat-crime-iccs.json",
+        "sha256": "c4effb606c74d2a88d4ded8ba01a8dd25bf9fcfc9ca31052ea1d7ccf6a5fc84f",
+        "expected_output_hash": "1dfcdda16ccbe9b83c58b81f1ad7456d93c9094b900985bfafac15fd65e0bbf4"
       }
     }
   ]

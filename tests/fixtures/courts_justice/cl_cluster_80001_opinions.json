@@ -1,0 +1,19 @@
+{
+ "count": 1,
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "id": 90001,
+   "cluster_id": 80001,
+   "type": "010combined",
+   "author_str": "Judge Fixture",
+   "per_curiam": false,
+   "date_modified": "2099-06-16T08:00:00Z",
+   "opinions_cited": [
+    "https://www.courtlistener.com/api/rest/v4/opinions/90002/"
+   ],
+   "plain_text": "MEMORANDUM OPINION\n\nPlaintiff brings claims under 42 U.S.C. § 1983 and 15 U.S.C. § 45(a).\n\nThe Court of Appeals addressed a comparable claim in Sample Holdings LLC v. Example Agency, 990 F.4th 12 (D.C. Cir. 2098), and earlier in 123 F.3d 456.\n\nThe ethics rule at 5 C.F.R. § 2635.101 is not at issue.\n\nFor these reasons the motion is GRANTED in part and DENIED in part."
+  }
+ ]
+}

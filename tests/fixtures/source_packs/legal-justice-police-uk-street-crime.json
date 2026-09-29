@@ -1,0 +1,35 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"date\": \"2099-02-28\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/crime-last-updated",
+   "status": 200
+  },
+  {
+   "body": "[\n {\n  \"url\": \"all-crime\",\n  \"name\": \"All crime\"\n },\n {\n  \"url\": \"anti-social-behaviour\",\n  \"name\": \"Anti-social behaviour\"\n },\n {\n  \"url\": \"burglary\",\n  \"name\": \"Burglary\"\n },\n {\n  \"url\": \"vehicle-crime\",\n  \"name\": \"Vehicle crime\"\n }\n]\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/crime-categories?date=2099-01",
+   "status": 200
+  },
+  {
+   "body": "[\n {\n  \"category\": \"burglary\",\n  \"location_type\": \"Force\",\n  \"location\": {\n   \"latitude\": \"51.505\",\n   \"street\": {\n    \"id\": 900001,\n    \"name\": \"On or near Example Street\"\n   },\n   \"longitude\": \"-0.095\"\n  },\n  \"context\": \"\",\n  \"outcome_status\": {\n   \"category\": \"Investigation complete; no suspect identified\",\n   \"date\": \"2099-01\"\n  },\n  \"persistent_id\": \"966e1c9308365a6e4a4f3b104785388cf5d18d7ca3b0b7ec1d744c2e339c956e\",\n  \"id\": 800001,\n  \"location_subtype\": \"\",\n  \"month\": \"2099-01\"\n },\n {\n  \"category\": \"burglary\",\n  \"location_type\": \"Force\",\n  \"location\": {\n   \"latitude\": \"51.505\",\n   \"street\": {\n    \"id\": 900002,\n    \"name\": \"On or near Example Street\"\n   },\n   \"longitude\": \"-0.095\"\n  },\n  \"context\": \"\",\n  \"outcome_status\": {\n   \"category\": \"Investigation complete; no suspect identified\",\n   \"date\": \"2099-01\"\n  },\n  \"persistent_id\": \"a1934637ed41bc1532ef1f0100385597e378002a2c2af61242d4e7870ca5d83b\",\n  \"id\": 800002,\n  \"location_subtype\": \"\",\n  \"month\": \"2099-01\"\n },\n {\n  \"category\": \"burglary\",\n  \"location_type\": \"Force\",\n  \"location\": {\n   \"latitude\": \"51.505\",\n   \"street\": {\n    \"id\": 900003,\n    \"name\": \"On or near Example Street\"\n   },\n   \"longitude\": \"-0.095\"\n  },\n  \"context\": \"\",\n  \"outcome_status\": {\n   \"category\": \"Under investigation\",\n   \"date\": \"2099-01\"\n  },\n  \"persistent_id\": \"1cc816d375244df68434249c2aa590da4a4c9f8228420381d91a00ad2b838af6\",\n  \"id\": 800003,\n  \"location_subtype\": \"\",\n  \"month\": \"2099-01\"\n },\n {\n  \"category\": \"anti-social-behaviour\",\n  \"location_type\": \"Force\",\n  \"location\": {\n   \"latitude\": \"51.505\",\n   \"street\": {\n    \"id\": 900004,\n    \"name\": \"On or near Example Street\"\n   },\n   \"longitude\": \"-0.095\"\n  },\n  \"context\": \"\",\n  \"outcome_status\": null,\n  \"persistent_id\": \"1177e5106a9bcf97233e9c37c939bc8dcb6ba0aa9a588f183c3de9e3e6d0b552\",\n  \"id\": 800004,\n  \"location_subtype\": \"\",\n  \"month\": \"2099-01\"\n },\n {\n  \"category\": \"vehicle-crime\",\n  \"location_type\": \"Force\",\n  \"location\": {\n   \"latitude\": \"51.505\",\n   \"street\": {\n    \"id\": 900005,\n    \"name\": \"On or near Example Street\"\n   },\n   \"longitude\": \"-0.095\"\n  },\n  \"context\": \"\",\n  \"outcome_status\": {\n   \"category\": \"Unable to prosecute suspect\",\n   \"date\": \"2099-01\"\n  },\n  \"persistent_id\": \"997f19bba80430285e23b7b00b9ee6efe463cb419224f3e171fecb40b5b19db5\",\n  \"id\": 800005,\n  \"location_subtype\": \"\",\n  \"month\": \"2099-01\"\n }\n]\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/crimes-street/all-crime?date=2099-01&poly=51.500%2C-0.100%3A51.510%2C-0.100%3A51.510%2C-0.090",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (verify live); every docket, party, opinion, place and figure is fictional placeholder data (years 2096-2099).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

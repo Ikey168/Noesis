@@ -44,7 +44,8 @@
     "source-pack": "1.1.0",
     "sanctions-record": "1.0.0",
     "sanctions-statement": "1.0.0",
-    "sanctions-notification": "1.0.0"
+    "sanctions-notification": "1.0.0",
+    "court-justice-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",

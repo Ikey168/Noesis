@@ -95,8 +95,10 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212),
     # plus the Natural Hazards pack's six hazard sources (#2207),
     # plus the Economics trade features' Comtrade, Comext and WITS concordance sources (#2210),
-    # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208).
-    assert sum(len(pack["sources"]) for pack in packs) == 198
+    # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208),
+    # plus the Legal courts and justice-statistics features' CourtListener, FBI CDE, police.uk and Eurostat sources
+    # (#2218).
+    assert sum(len(pack["sources"]) for pack in packs) == 203
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

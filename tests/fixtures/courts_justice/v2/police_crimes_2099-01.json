@@ -1,0 +1,125 @@
+[
+ {
+  "category": "burglary",
+  "location_type": "Force",
+  "location": {
+   "latitude": "51.505",
+   "street": {
+    "id": 900001,
+    "name": "On or near Example Street"
+   },
+   "longitude": "-0.095"
+  },
+  "context": "",
+  "outcome_status": {
+   "category": "Investigation complete; no suspect identified",
+   "date": "2099-01"
+  },
+  "persistent_id": "966e1c9308365a6e4a4f3b104785388cf5d18d7ca3b0b7ec1d744c2e339c956e",
+  "id": 800001,
+  "location_subtype": "",
+  "month": "2099-01"
+ },
+ {
+  "category": "burglary",
+  "location_type": "Force",
+  "location": {
+   "latitude": "51.505",
+   "street": {
+    "id": 900002,
+    "name": "On or near Example Street"
+   },
+   "longitude": "-0.095"
+  },
+  "context": "",
+  "outcome_status": {
+   "category": "Investigation complete; no suspect identified",
+   "date": "2099-01"
+  },
+  "persistent_id": "a1934637ed41bc1532ef1f0100385597e378002a2c2af61242d4e7870ca5d83b",
+  "id": 800002,
+  "location_subtype": "",
+  "month": "2099-01"
+ },
+ {
+  "category": "burglary",
+  "location_type": "Force",
+  "location": {
+   "latitude": "51.505",
+   "street": {
+    "id": 900003,
+    "name": "On or near Example Street"
+   },
+   "longitude": "-0.095"
+  },
+  "context": "",
+  "outcome_status": {
+   "category": "Under investigation",
+   "date": "2099-01"
+  },
+  "persistent_id": "1cc816d375244df68434249c2aa590da4a4c9f8228420381d91a00ad2b838af6",
+  "id": 800003,
+  "location_subtype": "",
+  "month": "2099-01"
+ },
+ {
+  "category": "anti-social-behaviour",
+  "location_type": "Force",
+  "location": {
+   "latitude": "51.505",
+   "street": {
+    "id": 900004,
+    "name": "On or near Example Street"
+   },
+   "longitude": "-0.095"
+  },
+  "context": "",
+  "outcome_status": null,
+  "persistent_id": "1177e5106a9bcf97233e9c37c939bc8dcb6ba0aa9a588f183c3de9e3e6d0b552",
+  "id": 800004,
+  "location_subtype": "",
+  "month": "2099-01"
+ },
+ {
+  "category": "vehicle-crime",
+  "location_type": "Force",
+  "location": {
+   "latitude": "51.505",
+   "street": {
+    "id": 900005,
+    "name": "On or near Example Street"
+   },
+   "longitude": "-0.095"
+  },
+  "context": "",
+  "outcome_status": {
+   "category": "Unable to prosecute suspect",
+   "date": "2099-01"
+  },
+  "persistent_id": "997f19bba80430285e23b7b00b9ee6efe463cb419224f3e171fecb40b5b19db5",
+  "id": 800005,
+  "location_subtype": "",
+  "month": "2099-01"
+ },
+ {
+  "category": "burglary",
+  "location_type": "Force",
+  "location": {
+   "latitude": "51.505",
+   "street": {
+    "id": 900006,
+    "name": "On or near Example Street"
+   },
+   "longitude": "-0.095"
+  },
+  "context": "",
+  "outcome_status": {
+   "category": "Under investigation",
+   "date": "2099-01"
+  },
+  "persistent_id": "adee1bdfff656c041bd4063b93f374a264bc3cdd172c057ef45289ec5d80f45c",
+  "id": 800006,
+  "location_subtype": "",
+  "month": "2099-01"
+ }
+]

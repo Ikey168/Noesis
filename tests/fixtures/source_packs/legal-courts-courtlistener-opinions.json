@@ -1,0 +1,43 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"id\": 80001,\n \"docket_id\": 70001,\n \"docket\": \"https://www.courtlistener.com/api/rest/v4/dockets/70001/\",\n \"case_name\": \"Example Data Co. v. Roe\",\n \"date_filed\": \"2099-06-15\",\n \"judges\": \"Fixture\",\n \"citations\": [\n  {\n   \"volume\": 999,\n   \"reporter\": \"F. Supp. 4th\",\n   \"page\": \"201\",\n   \"type\": 1\n  }\n ],\n \"disposition\": \"GRANTED in part and DENIED in part\",\n \"precedential_status\": \"Published\",\n \"sub_opinions\": [\n  \"https://www.courtlistener.com/api/rest/v4/opinions/90001/\"\n ],\n \"date_modified\": \"2099-06-16T08:00:00Z\",\n \"absolute_url\": \"/opinion/80001/example-data-co-v-roe/\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/clusters/80001/",
+   "status": 200
+  },
+  {
+   "body": "{\n \"count\": 1,\n \"next\": null,\n \"previous\": null,\n \"results\": [\n  {\n   \"id\": 90001,\n   \"cluster_id\": 80001,\n   \"type\": \"010combined\",\n   \"author_str\": \"Judge Fixture\",\n   \"per_curiam\": false,\n   \"date_modified\": \"2099-06-16T08:00:00Z\",\n   \"opinions_cited\": [\n    \"https://www.courtlistener.com/api/rest/v4/opinions/90002/\"\n   ],\n   \"plain_text\": \"MEMORANDUM OPINION\\n\\nPlaintiff brings claims under 42 U.S.C. § 1983 and 15 U.S.C. § 45(a).\\n\\nThe Court of Appeals addressed a comparable claim in Sample Holdings LLC v. Example Agency, 990 F.4th 12 (D.C. Cir. 2098), and earlier in 123 F.3d 456.\\n\\nThe ethics rule at 5 C.F.R. § 2635.101 is not at issue.\\n\\nFor these reasons the motion is GRANTED in part and DENIED in part.\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/opinions/?cluster=80001&page_size=100",
+   "status": 200
+  },
+  {
+   "body": "{\n \"id\": 80002,\n \"docket_id\": 70002,\n \"docket\": \"https://www.courtlistener.com/api/rest/v4/dockets/70002/\",\n \"case_name\": \"Sample Holdings LLC v. Example Agency\",\n \"date_filed\": \"2098-05-01\",\n \"judges\": \"Panel\",\n \"citations\": [\n  {\n   \"volume\": 990,\n   \"reporter\": \"F.4th\",\n   \"page\": \"12\",\n   \"type\": 1\n  }\n ],\n \"disposition\": \"AFFIRMED\",\n \"precedential_status\": \"Published\",\n \"sub_opinions\": [\n  \"https://www.courtlistener.com/api/rest/v4/opinions/90002/\"\n ],\n \"date_modified\": \"2098-05-02T08:00:00Z\",\n \"absolute_url\": \"/opinion/80002/sample-holdings-llc-v-example-agency/\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/clusters/80002/",
+   "status": 200
+  },
+  {
+   "body": "{\n \"count\": 1,\n \"next\": null,\n \"previous\": null,\n \"results\": [\n  {\n   \"id\": 90002,\n   \"cluster_id\": 80002,\n   \"type\": \"020lead\",\n   \"author_str\": \"\",\n   \"per_curiam\": true,\n   \"date_modified\": \"2098-05-02T08:00:00Z\",\n   \"opinions_cited\": [],\n   \"plain_text\": \"PER CURIAM.\\n\\nThe agency's action is reviewed under 42 U.S.C. § 1983 as pleaded.\\n\\nThe judgment of the district court is AFFIRMED.\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/opinions/?cluster=80002&page_size=100",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (verify live); every docket, party, opinion, place and figure is fictional placeholder data (years 2096-2099).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}
