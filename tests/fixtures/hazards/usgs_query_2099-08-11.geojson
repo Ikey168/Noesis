@@ -42,7 +42,7 @@
    "properties": {
     "mag": 4.7,
     "place": "fictional Aegean Sea location",
-    "time": 4090021262000,
+    "time": 4090014062000,
     "updated": 4090024800000,
     "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz02",
     "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz02&format=geojson",

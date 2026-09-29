@@ -74,8 +74,8 @@
       },
       "fixture": {
         "path": "tests/fixtures/source_packs/hazards-usgs.json",
-        "sha256": "ae6171ab7ec209455003d45a9e2fc7abe06d74e000d36396c9f137c76fde7e1d",
-        "expected_output_hash": "6662081d894eb99df0050294e48d49c6c12a50e32aebc276a86400ee65dc375c"
+        "sha256": "34afd7a45624d4262dba5be570f940e8ef7db6894913d481c3e7ab018da62cd7",
+        "expected_output_hash": "2fa2b4df3709f7967eb2364f90715a9f032300ccd1a442951acab72c9f647e40"
       }
     },
     {
