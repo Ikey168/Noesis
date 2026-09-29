@@ -67,10 +67,14 @@ REGULATORY_KINDS = ("approval", "label-revision", "safety-communication", "adver
                     "authorisation-status")
 # ``series-*`` links join a surveillance series (src/kb/surveillance.py, from_record provider ``surveillance``) to a
 # publication or a registered trial by explicit dataset citation only (#1917, I09).
-LINK_KINDS = ("registry-registry", "registry-publication", "registry-review", "series-publication", "series-trial")
+# ``medicine-*`` links join a medicines-regulation record (src/kb/clinical_medicines.py) to a trial or publication it
+# explicitly cites, or to FAERS reporting counts through a reviewed substance identity (#2214, MR09).
+LINK_KINDS = ("registry-registry", "registry-publication", "registry-review", "series-publication", "series-trial",
+              "medicine-trial", "medicine-publication", "medicine-faers")
 EVIDENCE_KINDS = (
     "registry-declared-secondary-id", "registry-declared-reference", "secondary-source-identifier",
     "paper-family", "abstract-mention", "user-supplied", "dataset-citation", "trial-declared-dataset",
+    "regulator-cited-reference", "reviewed-substance-identity",
 )
 LINK_STATUSES = ("accepted", "candidate", "rejected", "target-not-acquired")
 IDENTIFIER_KINDS = ("nct", "eudract", "eu-ct", "isrctn", "prospero", "pmid", "doi", "fda-application",
@@ -124,6 +128,16 @@ _KIND_FIELDS = {
                             "registration_date", "status", "source", "protocol_link"},
 }
 _COMMON = {"contract", "record_kind", "unknowns"}
+# Record families that extend this record model under their own contract and share this store (C01.2): the module
+# provides ``validate_extension_record``, ``extension_identity`` and ``extension_amendments``.
+EXTENSION_CONTRACTS = {"noesis-clinical-medicines-record-v1": "src.kb.clinical_medicines"}
+
+
+def _extension(record):
+    import importlib
+
+    module = EXTENSION_CONTRACTS.get(record.get("contract")) if isinstance(record, dict) else None
+    return importlib.import_module(module) if module else None
 
 
 class ClinicalRecordError(ValueError):
@@ -326,7 +340,7 @@ def _link(record):
     target = record.get("to")
     if not isinstance(target, dict):
         _fail("link target is required")
-    if record["link_kind"] in {"registry-publication", "series-publication"}:
+    if record["link_kind"] in {"registry-publication", "series-publication", "medicine-publication"}:
         if set(target) - {"document_id", "revision_id", "identifiers", "title", "family_id"} or not (
             target.get("document_id") and target.get("revision_id")
         ):
@@ -334,7 +348,11 @@ def _link(record):
     else:
         if set(target) != {"registry", "identifier"}:
             _fail("registry links name the target registry and identifier")
-        identifier(PRIMARY_IDENTIFIER[target["registry"]], target["identifier"])
+        if record["link_kind"] == "medicine-faers":
+            if target["registry"] != "openfda" or not str(target["identifier"]).startswith("faers:"):
+                _fail("a FAERS link names an openFDA adverse-event summary (faers:...)")
+        else:
+            identifier(PRIMARY_IDENTIFIER[target["registry"]], target["identifier"])
     if not isinstance(record.get("evidence"), dict) or not record["evidence"]:
         _fail("every link records its identifier evidence", "missing_evidence")
 
@@ -392,6 +410,9 @@ def validate_record(record):
     """Validate and return a canonical copy with ``unknowns`` recomputed."""
     if not isinstance(record, dict):
         _fail("clinical record must be an object")
+    extension = _extension(record)
+    if extension is not None:
+        return extension.validate_extension_record(record)
     if record.get("contract") != CONTRACT:
         _fail("unsupported clinical record contract", "schema_drift")
     kind = _enum(record.get("record_kind"), RECORD_KINDS, "record_kind")
@@ -417,6 +438,9 @@ def record(record_kind, **fields):
 
 def identity(record):
     """The native identity of a record: provider, native id and sub key."""
+    extension = _extension(record)
+    if extension is not None:
+        return extension.extension_identity(record)
     kind = record["record_kind"]
     if kind == "registered-trial":
         return (record["registry"], record["identifier"], "")
@@ -502,6 +526,9 @@ def classify_amendments(before, after):
     """What changed between two revisions of one record (for monitoring and staleness)."""
     if before is None:
         return [{"kind": "new", "path": "record"}]
+    extension = _extension(after)
+    if extension is not None:
+        return extension.extension_amendments(before, after)
     kind, changes = after["record_kind"], []
     if canonical(before.get("native_version")) != canonical(after.get("native_version")):
         changes.append({"kind": "new_registry_version" if kind in {"registered-trial", "trial-arm", "outcome-measure"}
@@ -589,7 +616,7 @@ class ClinicalRecordStore:
         summary = {"observation_id": observation_id, "provider": provider, "created": [], "revised": [],
                    "unchanged": [], "conflicts": [], "invalidated_views": [], "amendments": {}, "links": []}
         # Registry versions are applied in native order so revisions follow the registry.
-        records.sort(key=lambda r: (RECORD_KINDS.index(r["record_kind"]),
+        records.sort(key=lambda r: (_kind_rank(r["record_kind"]),
                                     _order_key(r.get("native_version"))))
         self.conn.execute("BEGIN")
         try:
@@ -953,6 +980,10 @@ class ClinicalRecordStore:
         return {"view_id": view_id, "current": not stale, "stale": bool(stale), "invalidations": stale}
 
 
+def _kind_rank(kind):
+    return RECORD_KINDS.index(kind) if kind in RECORD_KINDS else len(RECORD_KINDS)
+
+
 def _order_key(version):
     version = version or {}
     value = version.get("version")
@@ -1065,6 +1096,7 @@ class ClinicalProjector:
 SCHEMA_FILES = {
     "noesis-clinical-record": "noesis-clinical-record-v1.json",
     "noesis-clinical-evidence-map": "noesis-clinical-evidence-map-v1.json",
+    "noesis-clinical-medicines-record": "noesis-clinical-medicines-record-v1.json",
 }
 
 

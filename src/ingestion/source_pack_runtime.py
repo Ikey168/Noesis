@@ -190,6 +190,12 @@ def _housing_projector(conn: Any) -> Any:
     return HousingProjector(conn)
 
 
+def _medicines_projector(conn: Any) -> Any:
+    from src.kb.clinical_medicines import MedicinesProjector
+
+    return MedicinesProjector(conn)
+
+
 def _surveillance_projector(conn: Any) -> Any:
     from src.kb.surveillance import SurveillanceProjector
 
@@ -290,6 +296,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-weather-record-v1": _weather_projector,
     "noesis-housing-record-v1": _housing_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
+    "noesis-clinical-medicines-record-v1": _medicines_projector,
     "noesis-hazard-record-v1": _hazard_projector,
     "noesis-engineering-safety-record-v1": _engineering_safety_projector,
     "noesis-material-record-v1": _materials_projector,

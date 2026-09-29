@@ -153,7 +153,8 @@ def test_schemas_are_registered_and_fixture_records_validate():
     conn = duckdb.connect()
     scopes = {"knowledge:schema:register", "knowledge:schema:read", "knowledge:schema:validate"}
     modules = register_schemas(conn, principal_id="svc", scopes=scopes)
-    assert {m["name"] for m in modules} == {"noesis-clinical-record", "noesis-clinical-evidence-map"}
+    assert {m["name"] for m in modules} == {"noesis-clinical-record", "noesis-clinical-evidence-map",
+                                            "noesis-clinical-medicines-record"}  # medicines: #2214
     from src.kb.schema_registry import SchemaRegistry
 
     registry = SchemaRegistry(conn)

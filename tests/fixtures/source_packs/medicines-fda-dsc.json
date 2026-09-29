@@ -1,0 +1,17 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<!DOCTYPE html><html><head><title>FDA Drug Safety Communication (fixture)</title></head><body><main><h1>FDA adds warning about pancreatitis with the diabetes medicine noetiglutide (Noetiglu) (fixture)</h1><p>[4-15-2026] FDA Drug Safety Communication</p><h2>What safety concern is FDA announcing?</h2><p>The U.S. Food and Drug Administration (FDA) is warning that cases of acute pancreatitis have been reported with the type 2 diabetes medicine noetiglutide (fixture text).</p><h2>What is FDA doing?</h2><p>We are adding information about this risk to the Warnings and Precautions section of the prescribing information (fixture text).</p><table><thead><tr><th>Brand name</th><th>Generic name</th></tr></thead><tbody><tr><td>Noetiglu (fixture)</td><td>noetiglutide</td></tr></tbody></table></main></body></html>",
+   "request": "/drugs/drug-safety-and-availability/fda-drug-safety-communication-fda-adds-warning-about-pancreatitis-noetiglutide-fixture",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; medicines, identifiers and texts are fictional placeholders. Not live evidence.",
+ "provider": "FDA Drug Safety Communication page",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}
