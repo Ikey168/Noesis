@@ -83,7 +83,8 @@ def test_every_bundle_adapts_and_round_trips_to_its_v1_registration():
     adapted = adapter.adapt_all()
     assert set(adapted) >= {"economics", "geospatial", "legal", "market", "news", "osint", "political",
                             "products", "science", "technology"}
-    assert "energy" not in adapted  # retired: it never had an implementation
+    # The retired keyword-only example pack is gone; "energy" is now the natively authored Energy Systems bundle.
+    assert "adapter" not in adapted["energy"]
     for bundle, manifest in adapted.items():
         assert validate_composition_manifest(manifest) == [], bundle
         if "adapter" not in manifest:  # authored natively as a composition manifest

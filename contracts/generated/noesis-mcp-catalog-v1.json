@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1037,
+      "tool_count": 1057,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -936,6 +936,7 @@
         "noesis-knowledge-engine.acknowledge_cited_evidence_alert",
         "noesis-knowledge-engine.acknowledge_decision_review_task",
         "noesis-knowledge-engine.acquire_cultural_assets",
+        "noesis-knowledge-engine.acquire_energy_source",
         "noesis-knowledge-engine.acquire_environment_source",
         "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_iati_activities",
@@ -1073,6 +1074,7 @@
         "noesis-knowledge-engine.create_economic_comparison_report",
         "noesis-knowledge-engine.create_economic_release_snapshot",
         "noesis-knowledge-engine.create_election_monitor",
+        "noesis-knowledge-engine.create_energy_monitor",
         "noesis-knowledge-engine.create_environment_monitor",
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
@@ -1160,6 +1162,12 @@
         "noesis-knowledge-engine.election_source_contracts",
         "noesis-knowledge-engine.elections_readiness",
         "noesis-knowledge-engine.encrypt_research_package",
+        "noesis-knowledge-engine.energy_bundle_status",
+        "noesis-knowledge-engine.energy_capacity_as_of",
+        "noesis-knowledge-engine.energy_generation_mix",
+        "noesis-knowledge-engine.energy_observations",
+        "noesis-knowledge-engine.energy_revision_history",
+        "noesis-knowledge-engine.energy_source_contracts",
         "noesis-knowledge-engine.environment_provider_contracts",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
         "noesis-knowledge-engine.evaluate_knowledge_query",
@@ -1397,6 +1405,8 @@
         "noesis-knowledge-engine.link_demographic_dossier",
         "noesis-knowledge-engine.link_demographic_references",
         "noesis-knowledge-engine.link_election_constituency_place",
+        "noesis-knowledge-engine.link_energy_facility",
+        "noesis-knowledge-engine.link_energy_records",
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
@@ -1423,6 +1433,9 @@
         "noesis-knowledge-engine.list_election_contests",
         "noesis-knowledge-engine.list_election_identity_candidates",
         "noesis-knowledge-engine.list_election_poll_series",
+        "noesis-knowledge-engine.list_energy_identity_matches",
+        "noesis-knowledge-engine.list_energy_links",
+        "noesis-knowledge-engine.list_energy_series",
         "noesis-knowledge-engine.list_environment_facilities",
         "noesis-knowledge-engine.list_environment_grid_events",
         "noesis-knowledge-engine.list_environment_operator_links",
@@ -1512,6 +1525,7 @@
         "noesis-knowledge-engine.poll_demographic_monitor",
         "noesis-knowledge-engine.poll_development_finance_monitor",
         "noesis-knowledge-engine.poll_election_monitor",
+        "noesis-knowledge-engine.poll_energy_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
@@ -1565,6 +1579,7 @@
         "noesis-knowledge-engine.propose_demographic_link_candidates",
         "noesis-knowledge-engine.propose_development_finance_identity_matches",
         "noesis-knowledge-engine.propose_election_identity_matches",
+        "noesis-knowledge-engine.propose_energy_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
@@ -1595,6 +1610,7 @@
         "noesis-knowledge-engine.public_finance_readiness",
         "noesis-knowledge-engine.public_finance_source_contracts",
         "noesis-knowledge-engine.publish_development_finance_codelists",
+        "noesis-knowledge-engine.publish_energy_prices_to_market",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
         "noesis-knowledge-engine.query_demographic_boundary",
         "noesis-knowledge-engine.query_geospatial_event_map",
@@ -1646,6 +1662,7 @@
         "noesis-knowledge-engine.register_derived_artifact",
         "noesis-knowledge-engine.register_election_boundary_collection",
         "noesis-knowledge-engine.register_election_forecast",
+        "noesis-knowledge-engine.register_energy_schemas",
         "noesis-knowledge-engine.register_entity_dependency",
         "noesis-knowledge-engine.register_entity_history_identity",
         "noesis-knowledge-engine.register_environment_schemas",
@@ -1757,6 +1774,7 @@
         "noesis-knowledge-engine.review_development_finance_identity_match",
         "noesis-knowledge-engine.review_development_finance_place",
         "noesis-knowledge-engine.review_election_identity_match",
+        "noesis-knowledge-engine.review_energy_identity_match",
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
@@ -1808,6 +1826,7 @@
         "noesis-knowledge-engine.run_demographic_monitor",
         "noesis-knowledge-engine.run_development_finance_monitor",
         "noesis-knowledge-engine.run_election_monitor",
+        "noesis-knowledge-engine.run_energy_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
@@ -1853,6 +1872,7 @@
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
         "noesis-knowledge-engine.set_climate_environment_bundle_enabled",
         "noesis-knowledge-engine.set_clinical_bundle_enabled",
+        "noesis-knowledge-engine.set_energy_bundle_enabled",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
         "noesis-knowledge-engine.set_ownership_bundle_enabled",
@@ -1965,7 +1985,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1037
+      "visible_tool_count": 1057
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1976,11 +1996,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 119,
+      "available": 121,
       "degraded": 159,
-      "unauthorized": 1069
+      "unauthorized": 1087
     },
-    "tools": 1347
+    "tools": 1367
   },
   "tools": [
     {
@@ -20065,6 +20085,65 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded acquisition of one explicit selection through DurableHTTP, one receipt per step (keys from NOESIS_*).",
+      "id": "noesis-knowledge-engine.acquire_energy_source",
+      "input_schema": {
+        "properties": {
+          "budget_id": {
+            "type": "string"
+          },
+          "max_requests": {
+            "default": 20,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "reuse_notice": {
+            "type": "string"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "provider",
+          "selection",
+          "observation",
+          "budget_id",
+          "reuse_notice"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_energy_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Bounded acquisition of one explicit provider selection through DurableHTTP (credentials from NOESIS_* env).",
       "id": "noesis-knowledge-engine.acquire_environment_source",
       "input_schema": {
@@ -28008,6 +28087,91 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a zone, country or plant: new releases, revisions, capacity changes, user thresholds.",
+      "id": "noesis-knowledge-engine.create_energy_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          },
+          "thresholds": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "subject"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_energy_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a place: user thresholds, unavailability, permits/releases and new vintages via a knowledge subscription.",
       "id": "noesis-knowledge-engine.create_environment_monitor",
       "input_schema": {
@@ -32844,6 +33008,310 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions plus ready/fixture-only/stale/unavailable per provider; live verification separate.",
+      "id": "noesis-knowledge-engine.energy_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "energy_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Zone, plant or unit capacity effective on a date, per source; missing data is reported as unknown.",
+      "id": "noesis-knowledge-engine.energy_capacity_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "date"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "energy_capacity_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Generation by fuel for a zone, country, balancing area or plant, per source, as published at as_of_ms.",
+      "id": "noesis-knowledge-engine.energy_generation_mix",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "energy_generation_mix",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Load, price, flow, capacity or balance series for a subject, per source, as published at as_of_ms.",
+      "id": "noesis-knowledge-engine.energy_observations",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_types": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "record_types"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "energy_observations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every vintage of a series (or of one figure) with release dates, status, citations and what changed.",
+      "id": "noesis-knowledge-engine.energy_revision_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "period_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "energy_revision_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (ENTSO-E, EIA, Ember, Eurostat, Energy-Charts), bounded coverage and live state.",
+      "id": "noesis-knowledge-engine.energy_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "energy_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -43441,6 +43909,101 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link a plant/unit series to a facility record only through an accepted identity match (else blocked).",
+      "id": "noesis-knowledge-engine.link_energy_facility",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "facility": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "facility",
+          "citation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_energy_facility",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link by shared identifier or citation: target 'climate-environment' (same ENTSO-E document) or 'market'.",
+      "id": "noesis-knowledge-engine.link_energy_records",
+      "input_schema": {
+        "properties": {
+          "environment_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_energy_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link rent-index editions and plans to legal works by their published GVBl, Amtsblatt, juris, BGBl,\nCELEX or ELI references in the reference's jurisdiction; unmatched references stay unresolved.",
       "id": "noesis-knowledge-engine.link_housing_citations",
       "input_schema": {
@@ -45032,6 +45595,160 @@
       ],
       "required_scopes": [
         "knowledge:political:elections:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity matches with method, evidence and review history.",
+      "id": "noesis-knowledge-engine.list_energy_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_energy_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links of a series with their basis, citation and identity state; 'no links on record' when none.",
+      "id": "noesis-knowledge-engine.list_energy_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_energy_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Stored series (provider, dataset, subject, unit); every release is a vintage of one of them.",
+      "id": "noesis-knowledge-engine.list_energy_series",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "record_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_energy_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -49436,6 +50153,48 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a monitor's delivered subscription events.",
+      "id": "noesis-knowledge-engine.poll_energy_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_energy_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_environment_monitor",
       "input_schema": {
@@ -52049,6 +52808,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Candidate matches of zones, areas, countries and plants to places/entities; ambiguous and unmatched listed.",
+      "id": "noesis-knowledge-engine.propose_energy_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_energy_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Candidate identity decisions from facility operators to canonical entities and LEI records (none accepted).",
       "id": "noesis-knowledge-engine.propose_environment_operator_links",
       "input_schema": {
@@ -53394,6 +54186,52 @@
       ],
       "required_scopes": [
         "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Write one price vintage through Market storage (market bars citing the vintage); negative prices refused.",
+      "id": "noesis-knowledge-engine.publish_energy_prices_to_market",
+      "input_schema": {
+        "properties": {
+          "entitlement_id": {
+            "type": "string"
+          },
+          "listing_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "vintage_id",
+          "listing_id",
+          "entitlement_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "publish_energy_prices_to_market",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write",
+        "market:prices:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -57105,6 +57943,40 @@
       "required_scopes": [
         "knowledge:political:elections:read",
         "knowledge:forecasts:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register noesis-energy-record-v1 (schema version 1.0.0) in the schema registry.",
+      "id": "noesis-knowledge-engine.register_energy_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_energy_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write",
+        "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63191,6 +64063,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept, reject or revert one identity match (recorded with the geospatial or entity-history owner).",
+      "id": "noesis-knowledge-engine.review_energy_identity_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_energy_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject another principal's operator identity candidate, with a reason.",
       "id": "noesis-knowledge-engine.review_environment_operator_link",
       "input_schema": {
@@ -65945,6 +66862,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark; notifications cite old and new vintages.",
+      "id": "noesis-knowledge-engine.run_energy_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_energy_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:energy:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a monitor at a committed watermark (latest when omitted); replay creates no new events.",
       "id": "noesis-knowledge-engine.run_environment_monitor",
       "input_schema": {
@@ -68491,6 +69457,43 @@
       "latency_class": "interactive",
       "mutability": "write",
       "name": "set_clinical_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Energy Systems (a coordinator selection change once composed); shared providers keep working.",
+      "id": "noesis-knowledge-engine.set_energy_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_energy_bundle_enabled",
       "output_schema": {
         "additionalProperties": true,
         "type": "object"

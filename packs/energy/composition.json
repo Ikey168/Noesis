@@ -1,0 +1,88 @@
+{
+  "description": "Composition view of the Energy Systems bundle: what it requires from its own and shared providers and what it excludes. packs/energy/manifest.json is the authoritative native manifest; tests/unit/energy/test_energy_composition.py asserts this file stays equal to it.",
+  "requires": [
+    {
+      "capability": "energy.records",
+      "contract": "noesis-energy-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "energy.queries",
+      "contract": "noesis-energy-answer",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "energy.identity",
+      "contract": "noesis-energy-identity-match",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "energy.links",
+      "contract": "noesis-energy-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "energy.monitoring",
+      "contract": "noesis-energy-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "market.instruments",
+      "contract": "noesis-market-instrument",
+      "range": "^1.0.0",
+      "reason": "day-ahead prices are written through and cited from market time-series storage"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "zones, balancing areas and countries resolve to reviewable places"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "plant and unit matches are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the energy-systems source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "environment-citations",
+      "default": false,
+      "description": "Link ENTSO-E energy series to Climate and Environment grid events of the same published document (read by citation); the entsoe acquisition adapter is shared code either way, and disabling climate-environment never blocks the energy entry points",
+      "requires": [
+        {
+          "capability": "environment.records",
+          "contract": "noesis-environment-record",
+          "range": "^1.0.0",
+          "reason": "ENTSO-E records of climate-environment are read by citation (same published document)"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "price forecasting",
+    "dispatch modelling",
+    "emissions estimation beyond quoting the publisher",
+    "trading advice",
+    "presenting forecasts as observations",
+    "blending or reconciling sources"
+  ]
+}
