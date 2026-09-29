@@ -1,0 +1,358 @@
+{
+  "pack_id": "bafin-capital-market-notices",
+  "version": "1.0.0",
+  "description": "BaFin and Bundesanzeiger capital-market notices for the Market pack's optional bafin-notices feature: voting-rights notifications (WpHG §§ 33 ff.) with holder chains and corrections, managers' transactions (Art. 19 MAR), published net short positions (Art. 11 SSR) with publication-end semantics, the BaFin company database and BaFin warnings and measures. Bounded to a declared issuer set and publication window; notices as published, never advice or signals.",
+  "domains": [
+    "market"
+  ],
+  "defaults": {
+    "connector": "bafin-notices",
+    "update_cadence": "daily at most",
+    "temporal_semantics": "the publication date as the public clock (end of day, UTC) and the event date as valid time; a missing publication date falls back to the first observation time, never to the event date; acquisition time recorded separately per revision",
+    "mapping": {
+      "target_schema": "noesis-bafin-notice-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "bafin-notices:1.0.0"
+    ],
+    "operations": [
+      "documents"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 5000,
+      "max_bytes": 5000000,
+      "max_pages": 4
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "bafin-voting-rights",
+      "publisher": "Bundesanstalt für Finanzdienstleistungsaufsicht (BaFin), Stimmrechtsmitteilungen (AnteileInfo)",
+      "endpoint": "https://portal.mvp.bafin.de/database/AnteileInfo/",
+      "scope": "Voting-rights notifications (WpHG §§ 33 ff.) for the declared DAX 40 issuers published on or after 2025-01-01, from the database's result-list CSV export (operator must verify the export URL, encoding and column headers; a truncated export would read as removals)",
+      "license": {
+        "id": "bafin-website-terms",
+        "terms_url": "https://www.bafin.de/DE/Service/Impressum/impressum_node.html",
+        "redistribution": "reuse of published supervisory information with attribution (operator must verify the terms of use)"
+      },
+      "bafin": {
+        "namespace": "market-bafin",
+        "provider": "bafin-voting-rights",
+        "format": "bafin-voting-rights-csv",
+        "encoding": "windows-1252",
+        "delimiter": ";",
+        "decimal": ",",
+        "window": {
+          "from": "2025-01-01"
+        },
+        "issuers": [
+          {
+            "isin": "DE0007164600",
+            "name": "SAP SE"
+          },
+          {
+            "isin": "DE0007236101",
+            "name": "Siemens Aktiengesellschaft"
+          },
+          {
+            "isin": "DE0008404005",
+            "name": "Allianz SE"
+          },
+          {
+            "isin": "DE000BASF111",
+            "name": "BASF SE"
+          },
+          {
+            "isin": "DE0005557508",
+            "name": "Deutsche Telekom AG"
+          }
+        ],
+        "columns": {
+          "source_id": "Mitteilungs-ID",
+          "issuer_name": "Emittent",
+          "issuer_isin": "ISIN",
+          "issuer_lei": "LEI des Emittenten",
+          "notifier": "Meldepflichtiger",
+          "notifier_kind": "Art des Meldepflichtigen",
+          "seat": "Sitz",
+          "country": "Land",
+          "thresholds": "Berührte Schwellen",
+          "s33": "Stimmrechte § 33 WpHG (%)",
+          "s38_1_1": "Instrumente § 38 Abs. 1 Nr. 1 WpHG (%)",
+          "s38_1_2": "Instrumente § 38 Abs. 1 Nr. 2 WpHG (%)",
+          "s38": "Summe Instrumente § 38 WpHG (%)",
+          "s39": "Summe § 39 WpHG (%)",
+          "previous_s39": "Gesamtstimmrechtsanteile letzte Mitteilung (%)",
+          "event_date": "Datum der Schwellenberührung",
+          "notification_date": "Datum der Mitteilung",
+          "publication_date": "Veröffentlichung gemäß § 40 WpHG",
+          "correction_of": "Korrektur von",
+          "correction_date": "Korrektur der Veröffentlichung vom",
+          "withdrawn": "Status",
+          "chain": "Kette der Tochterunternehmen",
+          "reason": "Grund der Mitteilung"
+        },
+        "documents": [
+          {
+            "label": "AnteileInfo result export (all issuers)",
+            "url": "https://portal.mvp.bafin.de/database/AnteileInfo/suche.do?6578706f7274=1&d-3589435-e=1",
+            "listing": "complete"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-bafin-voting-rights.json",
+        "sha256": "620b92d75de47c061c7b005930a8b3641898344f107ced24322b7841990df97c",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "bafin-managers-transactions",
+      "publisher": "Bundesanstalt für Finanzdienstleistungsaufsicht (BaFin), Directors' Dealings (DealingsInfo)",
+      "endpoint": "https://portal.mvp.bafin.de/database/DealingsInfo/",
+      "scope": "Managers' transactions (Art. 19 MAR) for the declared DAX 40 issuers published on or after 2025-01-01; retention after the source removes a transaction is not confirmed, so person data is withdrawn when a transaction leaves the listing (operator must verify the export URL, columns and BaFin's listing period)",
+      "license": {
+        "id": "bafin-website-terms",
+        "terms_url": "https://www.bafin.de/DE/Service/Impressum/impressum_node.html",
+        "redistribution": "reuse of published supervisory information with attribution; personal data only as published and while listed (operator must verify)"
+      },
+      "bafin": {
+        "namespace": "market-bafin",
+        "provider": "bafin-managers-transactions",
+        "format": "bafin-dealings-csv",
+        "encoding": "windows-1252",
+        "delimiter": ";",
+        "decimal": ",",
+        "retention_policy": "withdraw-person-data",
+        "window": {
+          "from": "2025-01-01"
+        },
+        "issuers": [
+          {
+            "isin": "DE0007164600",
+            "name": "SAP SE"
+          },
+          {
+            "isin": "DE0007236101",
+            "name": "Siemens Aktiengesellschaft"
+          },
+          {
+            "isin": "DE0008404005",
+            "name": "Allianz SE"
+          },
+          {
+            "isin": "DE000BASF111",
+            "name": "BASF SE"
+          },
+          {
+            "isin": "DE0005557508",
+            "name": "Deutsche Telekom AG"
+          }
+        ],
+        "columns": {
+          "source_id": "Mitteilungs-ID",
+          "issuer_name": "Emittent",
+          "issuer_lei": "LEI des Emittenten",
+          "person": "Meldepflichtiger",
+          "person_kind": "Art der Person",
+          "role": "Position / Status",
+          "closely_associated": "In enger Beziehung",
+          "instrument_type": "Art des Instruments",
+          "instrument_isin": "ISIN",
+          "nature": "Art des Geschäfts",
+          "price": "Preis",
+          "volume": "Volumen",
+          "currency": "Währung",
+          "aggregate_price": "Aggregierter Preis",
+          "aggregate_volume": "Aggregiertes Volumen",
+          "transaction_date": "Datum des Geschäfts",
+          "venue": "Ort des Geschäfts",
+          "notification_date": "Datum der Mitteilung",
+          "publication_date": "Datum der Veröffentlichung",
+          "amendment": "Korrektur",
+          "correction_of": "Korrektur von"
+        },
+        "documents": [
+          {
+            "label": "DealingsInfo result export (all issuers)",
+            "url": "https://portal.mvp.bafin.de/database/DealingsInfo/sucheForm.do?6578706f7274=1&d-4000784-e=1",
+            "listing": "complete"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-bafin-managers-transactions.json",
+        "sha256": "7c40873ea297a722153fbde77fea93244ae9fd5a0ac8072aa366c3970c943294",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "bundesanzeiger-net-short-positions",
+      "publisher": "Bundesanzeiger Verlag GmbH, Netto-Leerverkaufspositionen",
+      "endpoint": "https://www.bundesanzeiger.de/pub/de/nlp",
+      "scope": "Published net short positions (Art. 11 SSR, at least 0.5 %) in the declared DAX 40 issuers: the current list (a complete listing, so positions that leave it are no longer published) and the historical list (operator must verify the CSV download, which may be session-bound, and whether the file states a publication date)",
+      "license": {
+        "id": "bundesanzeiger-terms",
+        "terms_url": "https://www.bundesanzeiger.de/pub/de/nutzungsbedingungen",
+        "redistribution": "published positions with attribution (operator must verify the terms of use)"
+      },
+      "bafin": {
+        "namespace": "market-bafin",
+        "provider": "bundesanzeiger-short-positions",
+        "format": "bundesanzeiger-short-positions-csv",
+        "encoding": "windows-1252",
+        "delimiter": ";",
+        "decimal": ",",
+        "window": {
+          "from": "2025-01-01"
+        },
+        "issuers": [
+          {
+            "isin": "DE0007164600",
+            "name": "SAP SE"
+          },
+          {
+            "isin": "DE0007236101",
+            "name": "Siemens Aktiengesellschaft"
+          },
+          {
+            "isin": "DE0008404005",
+            "name": "Allianz SE"
+          },
+          {
+            "isin": "DE000BASF111",
+            "name": "BASF SE"
+          },
+          {
+            "isin": "DE0005557508",
+            "name": "Deutsche Telekom AG"
+          }
+        ],
+        "columns": {
+          "holder": "Positionsinhaber",
+          "issuer_name": "Emittent",
+          "isin": "ISIN",
+          "position": "Position",
+          "position_date": "Datum"
+        },
+        "documents": [
+          {
+            "label": "Net short positions: historical list",
+            "url": "https://www.bundesanzeiger.de/pub/de/nlp?0--top~csv~form~panel-form-csv~resource~link&historie=true",
+            "listing": "history"
+          },
+          {
+            "label": "Net short positions: current list",
+            "url": "https://www.bundesanzeiger.de/pub/de/nlp?0--top~csv~form~panel-form-csv~resource~link",
+            "listing": "current"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-bafin-short-positions.json",
+        "sha256": "27608e85224ef2a3ccadc6fe99b18f37ef4ae3b6b27cfe4028661a12a641bc7e",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "bafin-company-database",
+      "publisher": "Bundesanstalt für Finanzdienstleistungsaufsicht (BaFin), Unternehmensdatenbank (InstInfo)",
+      "endpoint": "https://portal.mvp.bafin.de/database/InstInfo/",
+      "scope": "Authorised entities by declared BaFin ID (entities linked to the bounded issuer set and their groups) with licences and their start and end dates as published; the operator declares the BaFin IDs, and none are declared yet (operator must verify the export URL and columns)",
+      "license": {
+        "id": "bafin-website-terms",
+        "terms_url": "https://www.bafin.de/DE/Service/Impressum/impressum_node.html",
+        "redistribution": "reuse of published supervisory information with attribution (operator must verify the terms of use)"
+      },
+      "bafin": {
+        "namespace": "market-bafin",
+        "provider": "bafin-company-database",
+        "format": "bafin-company-csv",
+        "encoding": "windows-1252",
+        "delimiter": ";",
+        "bafin_ids": [],
+        "columns": {
+          "bafin_id": "BaFin-ID",
+          "name": "Name",
+          "place": "Ort",
+          "country": "Land",
+          "lei": "LEI",
+          "entity_type": "Art des Unternehmens",
+          "licence": "Erlaubnis",
+          "licence_start": "Beginn",
+          "licence_end": "Ende",
+          "licence_status": "Status"
+        },
+        "documents": [
+          {
+            "label": "InstInfo result export",
+            "url": "https://portal.mvp.bafin.de/database/InstInfo/sucheForm.do?6578706f7274=1&d-4012550-e=1",
+            "listing": "complete"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-bafin-company-database.json",
+        "sha256": "39100bcaf3395bfe4c49a6ea3fe6402f4c4c063b57745b914a65495fc0b64020",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "bafin-warnings-measures",
+      "publisher": "Bundesanstalt für Finanzdienstleistungsaufsicht (BaFin), warnings and measures",
+      "endpoint": "https://www.bafin.de/",
+      "scope": "Warnings on unauthorised business and published measures and sanctions from BaFin's RSS feeds on or after 2025-01-01; named companies are source strings extracted by the declared title patterns, never attributed to an entity without a reviewed match; RSS is never a complete listing (operator must verify the feed URLs)",
+      "license": {
+        "id": "bafin-website-terms",
+        "terms_url": "https://www.bafin.de/DE/Service/Impressum/impressum_node.html",
+        "redistribution": "reuse of published supervisory information with attribution (operator must verify the terms of use)"
+      },
+      "bafin": {
+        "namespace": "market-bafin",
+        "provider": "bafin-warnings-measures",
+        "format": "bafin-notices-rss",
+        "window": {
+          "from": "2025-01-01"
+        },
+        "title_entity_patterns": [
+          "^Warnung vor (?:der |dem |den )?(?P<entity>[^:(]+?)\\s*(?::|\\(|$)",
+          "^Maßnahme gegen (?:die |den |das )?(?P<entity>[^:(]+?)\\s*(?::|\\(|$)"
+        ],
+        "documents": [
+          {
+            "label": "BaFin warnings feed",
+            "url": "https://www.bafin.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Verbraucher/unerlaubteGeschaefte.xml",
+            "listing": "partial",
+            "kind": "bafin_warning",
+            "category": "unerlaubte Geschäfte"
+          },
+          {
+            "label": "BaFin measures feed",
+            "url": "https://www.bafin.de/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Massnahmen/massnahmen.xml",
+            "listing": "partial",
+            "kind": "bafin_measure",
+            "category": "Maßnahmen und Sanktionen"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-bafin-warnings-measures.json",
+        "sha256": "f4de45c8118fcd9a86ffee85ddbd3d849e3387e1a1c38479b3df3d0b2f0db742",
+        "expected_output_hash": "621a1bfe5b6bef4a195165ae538e8d0a3280ec45feb52ce67db35e1790266f57"
+      }
+    }
+  ]
+}

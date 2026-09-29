@@ -289,8 +289,39 @@ def _builtin_definitions() -> list[dict[str, Any]]:
         }
         for name, contract, deps in composition
     ]
+    # Legal record schema (#2105, FL02): 1.1.0 adds the federal-statute providers and fields additively;
+    # 1.0.0 (CELLAR, court and Berlin records) stays resolvable unchanged.
+    legal = [
+        ("legal-record", "1.0.0", REPO_ROOT / "contracts/schemas/history/noesis-legal-record-1.0.0.json", []),
+        ("legal-record", "1.1.0", REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-record-v1.json", []),
+        ("legal-provision-selection", "1.0.0",
+         REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-provision-selection-v1.json",
+         [("legal-record", "^1.1.0")]),
+        ("legal-provision-comparison", "1.0.0",
+         REPO_ROOT / "contracts/schemas/jsonschema/noesis-legal-provision-comparison-v1.json",
+         [("legal-record", "^1.1.0")]),
+    ]
+    legal_modules = [
+        {**common, "owner": "legal-pack", "name": name, "kind": "schema", "semantic_version": version,
+         "content": json.loads(path.read_text()),
+         "dependencies": [{"kind": "schema", "name": dep, "version": spec} for dep, spec in deps]}
+        for name, version, path, deps in legal
+    ]
+    # Product record schema (#2061, PX02): 1.1.0 adds appliance and component fields (source fields,
+    # component identity, SKU aliases, published lifecycle status) additively; 1.0.0 display records stay valid.
+    products = [
+        ("product-record", "1.0.0", REPO_ROOT / "contracts/schemas/history/noesis-product-record-1.0.0.json"),
+        ("product-record", "1.1.0", REPO_ROOT / "contracts/schemas/jsonschema/noesis-product-record-v1.json"),
+    ]
+    product_modules = [
+        {**common, "owner": "products-pack", "name": name, "kind": "schema", "semantic_version": version,
+         "content": json.loads(path.read_text())}
+        for name, version, path in products
+    ]
     return [
         *composition_modules,
+        *legal_modules,
+        *product_modules,
         {
             **common,
             "name": "knowledge-mutation",

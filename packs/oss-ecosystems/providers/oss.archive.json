@@ -1,0 +1,59 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "oss.archive",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.ingestion.oss_ecosystem_sources",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "oss.archive",
+      "contract": {
+        "name": "noesis-oss-archive-provenance",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-oss-archive-provenance"
+      ],
+      "semantic_constraints": {
+        "origins": "only origins a repository link assertion names are requested",
+        "records": "visit dates and status, snapshot and tag SWHIDs; no authorship, committers or contents",
+        "limits": "bounded requests; rate-limit headers honoured; optional token from the secret store"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-oss-archive-provenance",
+      "tool": "noesis-knowledge-engine.list_oss_archive_provenance",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "oss_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "oss-ecosystems",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

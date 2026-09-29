@@ -54,7 +54,12 @@ SANCTIONS_SCOPES = {
         "knowledge:legal:read",
         "knowledge:subscriptions:write",
     ],
-    "run_sanctions_monitor": ["knowledge:legal:read", "knowledge:subscriptions:write"],
+    # Running reads the monitor (subscriptions:read) and records its evaluation (subscriptions:write).
+    "run_sanctions_monitor": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write",
+    ],
     "poll_sanctions_monitor": ["knowledge:legal:read", "knowledge:subscriptions:read"],
 }
 

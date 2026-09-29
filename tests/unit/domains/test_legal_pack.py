@@ -129,7 +129,9 @@ def work(store, **query):
 def test_pack_declares_implemented_connectors_and_replays_offline():
     value = manifest()
     assert {s["connector"] for s in value["sources"]} == {"cellar", "rii", "berlin-law",
-                                                          "sanctions-list"} <= SUPPORTED_CONNECTORS
+                                                          "sanctions-list", "gesetze-im-internet",
+                                                          "rechtsinformationen-bund", "recht-bund"
+                                                          } <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {s["source_id"]: s["records"] for s in result["sources"]} == {
@@ -139,7 +141,10 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
         "cellar-sanctions-acts-eng": 1, "cellar-dual-use-2021-821": 5, "eu-sanctions-consolidated": 3,
         "un-sc-consolidated": 2, "ofac-sls": 2, "uk-sanctions-list": 2,
         # Products safety feature (#1916): the acts safety notices cite (GPSR, Regulation (EC) No 178/2002).
-        "cellar-product-safety-acts-eng": 2}
+        "cellar-product-safety-acts-eng": 2,
+        # Federal statutes feature (#2105): the pinned fixtures hold no text of the FL01 statute set (the
+        # selected statutes are not_found and the listed fictional acts amend none of them).
+        "gii-federal-statutes": 0, "ris-federal-statute-versions": 0, "bgbl-federal-promulgations": 0}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():
@@ -474,7 +479,9 @@ def test_pack_and_domain_module_install_independently(loaded):
     assert registry.get_pack("political") is not None  # untouched
     state = readiness(conn)
     assert {p: v["jurisdiction"] for p, v in state["providers"].items()} == {
-        "cellar": "EU", "rii": "DE", "berlin-law": "DE-BE"}
+        "cellar": "EU", "rii": "DE", "berlin-law": "DE-BE",
+        # Federal statutes feature (#2105).
+        "gesetze-im-internet": "DE", "rechtsinformationen-bund": "DE", "recht-bund": "DE"}
     assert all(v["pack_live_acceptance"] == "outstanding" for v in state["providers"].values())
     SourcePackStore(conn).set_enabled(value["pack_id"], False, principal_id="operator")
     assert {v["fixture"] for v in readiness(conn)["providers"].values()} == {"blocked"}

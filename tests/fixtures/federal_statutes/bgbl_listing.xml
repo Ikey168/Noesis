@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0">
+  <channel>
+    <title>Bundesgesetzblatt Teil I (fiktive Auflistung)</title>
+    <item><title>Gesetz zur Änderung des Musterpapierhandelsgesetzes und des Musterbörsengesetzes (fiktiv)</title>
+      <link>https://www.recht.bund.de/eli/bund/bgbl-1/2030/45</link><guid>https://www.recht.bund.de/eli/bund/bgbl-1/2030/45</guid>
+      <pubDate>Thu, 14 Mar 2030 10:00:00 +0100</pubDate></item>
+    <item><title>Verordnung zur Änderung der Musterfristenverordnung (fiktiv)</title>
+      <link>https://www.recht.bund.de/eli/bund/bgbl-1/2030/46</link><guid>https://www.recht.bund.de/eli/bund/bgbl-1/2030/46</guid>
+      <pubDate>Fri, 15 Mar 2030 10:00:00 +0100</pubDate></item>
+    <item><title>Bekanntmachung aus dem Jahr 2022 (fiktiv)</title>
+      <link>https://www.recht.bund.de/eli/bund/bgbl-1/2022/999</link></item>
+  </channel>
+</rss>

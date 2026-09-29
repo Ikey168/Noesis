@@ -1,0 +1,43 @@
+{
+ "captured": false,
+ "provider": "aviationweather",
+ "note": "Authored bodies served for the production URLs. They name fictional stations, warncells and alerts only, so the production selection is out of scope for every item; parsing is exercised with fictional selections in tests/unit/weather/harness.py.",
+ "native_pages": [
+  {
+   "url": "https://aviationweather.gov/api/data/stationinfo",
+   "params": {
+    "ids": "EDDB,KBOS",
+    "format": "json"
+   },
+   "status": 200,
+   "body": "[{\"icaoId\": \"EDXM\", \"iataId\": \"\", \"faaId\": \"\", \"wmoId\": \"10999\", \"lat\": 52.3805, \"lon\": 13.53, \"elev\": 41, \"site\": \"Musterstadt/Flugfeld\", \"state\": \"\", \"country\": \"DE\", \"priority\": 2}, {\"icaoId\": \"KXQM\", \"iataId\": \"\", \"faaId\": \"XQM\", \"wmoId\": \"\", \"lat\": 41.01, \"lon\": -70.01, \"elev\": 5, \"site\": \"Fictional Harbor\", \"state\": \"MA\", \"country\": \"US\", \"priority\": 3}]",
+   "authored": true
+  },
+  {
+   "url": "https://aviationweather.gov/api/data/metar",
+   "params": {
+    "ids": "EDDB,KBOS",
+    "format": "json",
+    "hours": "3"
+   },
+   "status": 200,
+   "body": "[{\"lat\": 52.3805, \"lon\": 13.53, \"elev\": 41, \"name\": \"Musterstadt/Flugfeld, DE\", \"altim\": 1015, \"wdir\": 240, \"wspd\": 8, \"visib\": \"6+\", \"qcField\": 0, \"icaoId\": \"EDXM\", \"receiptTime\": \"2026-06-10 11:55:12\", \"obsTime\": 1781092200, \"reportTime\": \"2026-06-10 11:50:00\", \"temp\": 18, \"dewp\": 9, \"metarType\": \"METAR\", \"rawOb\": \"METAR EDXM 101150Z 24008KT 9999 FEW030 18/09 Q1015\"}, {\"lat\": 52.3805, \"lon\": 13.53, \"elev\": 41, \"name\": \"Musterstadt/Flugfeld, DE\", \"altim\": 1015, \"wdir\": 240, \"wspd\": 8, \"visib\": \"6+\", \"qcField\": 0, \"icaoId\": \"EDZZ\", \"receiptTime\": \"2026-06-10 11:55:00\", \"obsTime\": 1781092200, \"temp\": 5, \"rawOb\": \"METAR EDZZ 101150Z 00000KT CAVOK 05/01 Q1020\"}, {\"lat\": 41.01, \"lon\": -70.01, \"elev\": 5, \"name\": \"Fictional Harbor, MA, US\", \"altim\": 1016, \"qcField\": 4, \"visib\": \"10+\", \"wdir\": 200, \"wspd\": 6, \"dewp\": 10, \"metarType\": \"METAR\", \"icaoId\": \"KXQM\", \"receiptTime\": \"2026-06-10 12:57:00\", \"obsTime\": 1781096040, \"temp\": 16.7, \"rawOb\": \"METAR KXQM 101254Z AUTO 20006KT 10SM CLR 17/10 A3001\"}]",
+   "authored": true
+  },
+  {
+   "url": "https://aviationweather.gov/api/data/taf",
+   "params": {
+    "ids": "EDDB,KBOS",
+    "format": "json"
+   },
+   "status": 200,
+   "body": "[{\"icaoId\": \"EDXM\", \"issueTime\": \"2026-06-10 11:00:00\", \"bulletinTime\": \"2026-06-10 11:00:00\", \"validTimeFrom\": 1781096400, \"validTimeTo\": 1781200800, \"rawTAF\": \"TAF EDXM 101100Z 1012/1118 24008KT 9999 FEW030 TEMPO 1014/1018 SHRA\", \"fcsts\": [{\"timeFrom\": 1781096400, \"timeTo\": 1781200800, \"wspd\": 8}]}]",
+   "authored": true
+  }
+ ],
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-items-counted",
+  "user-agent-sent"
+ ]
+}

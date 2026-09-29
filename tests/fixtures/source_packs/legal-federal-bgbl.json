@@ -1,0 +1,38 @@
+{
+  "captured": false,
+  "provider": "recht.bund.de",
+  "note": "Authored listing and two fictional promulgations; neither amends a statute of the FL01 set, so both are recorded as seen and not acquired, and the 2022 item is link-only.",
+  "native_pages": [
+    {
+      "request": "/rss/bgbl-1.xml",
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/rss+xml"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\">\n  <channel>\n    <title>Bundesgesetzblatt Teil I (fiktive Auflistung)</title>\n    <item><title>Gesetz zur Änderung des Musterpapierhandelsgesetzes und des Musterbörsengesetzes (fiktiv)</title>\n      <link>https://www.recht.bund.de/eli/bund/bgbl-1/2030/45</link><guid>https://www.recht.bund.de/eli/bund/bgbl-1/2030/45</guid>\n      <pubDate>Thu, 14 Mar 2030 10:00:00 +0100</pubDate></item>\n    <item><title>Verordnung zur Änderung der Musterfristenverordnung (fiktiv)</title>\n      <link>https://www.recht.bund.de/eli/bund/bgbl-1/2030/46</link><guid>https://www.recht.bund.de/eli/bund/bgbl-1/2030/46</guid>\n      <pubDate>Fri, 15 Mar 2030 10:00:00 +0100</pubDate></item>\n    <item><title>Bekanntmachung aus dem Jahr 2022 (fiktiv)</title>\n      <link>https://www.recht.bund.de/eli/bund/bgbl-1/2022/999</link></item>\n  </channel>\n</rss>\n",
+      "authored": true
+    },
+    {
+      "request": "/eli/bund/bgbl-1/2030/45/regelungstext-verkuendung-1.xml",
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/xml"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<akn:akomaNtoso xmlns:akn=\"http://Inhaltsdaten.LegalDocML.de/1.7/\">\n  <akn:act name=\"regelungstext\">\n    <akn:meta>\n      <akn:identification source=\"attributsemantik-noch-undefiniert\">\n        <akn:FRBRWork><akn:FRBRthis value=\"eli/bund/bgbl-1/2030/45/regelungstext-1\"/><akn:FRBRnumber value=\"45\"/><akn:FRBRdate date=\"2030-03-14\" name=\"verkuendungsfassung\"/></akn:FRBRWork>\n        <akn:FRBRExpression><akn:FRBRthis value=\"eli/bund/bgbl-1/2030/45/2030-03-14/1/deu/regelungstext-1\"/></akn:FRBRExpression>\n      </akn:identification>\n    </akn:meta>\n    <akn:preface>\n      <akn:longTitle><akn:p><akn:docTitle>Gesetz zur Änderung des Musterpapierhandelsgesetzes und des Musterbörsengesetzes (fiktiv)</akn:docTitle></akn:p></akn:longTitle>\n      <akn:p>Vom 12. März 2030</akn:p>\n    </akn:preface>\n    <akn:preamble><akn:formula><akn:p>Der Bundestag hat das folgende Gesetz beschlossen:</akn:p></akn:formula></akn:preamble>\n    <akn:body>\n      <akn:article eId=\"art-1\"><akn:num>Artikel 1</akn:num><akn:heading>Änderung des Musterpapierhandelsgesetzes</akn:heading>\n        <akn:paragraph><akn:content><akn:p>Das Musterpapierhandelsgesetz vom 4. Mai 2029 (BGBl. 2029 I Nr. 101), das zuletzt durch Artikel 3 des Gesetzes vom 20. November 2029 (BGBl. 2029 I Nr. 310) geändert worden ist, wird wie folgt geändert:</akn:p></akn:content>\n          <akn:list>\n            <akn:point><akn:num>1.</akn:num><akn:content><akn:p>In der Inhaltsübersicht wird nach der Angabe zu § 8 die Angabe „§ 8a Übergangsvorschrift“ eingefügt.</akn:p></akn:content></akn:point>\n            <akn:point><akn:num>2.</akn:num><akn:content><akn:p>§ 5 wird wie folgt geändert:</akn:p></akn:content>\n              <akn:list>\n                <akn:point><akn:num>a)</akn:num><akn:content><akn:p>Absatz 2 wird wie folgt gefasst: „(2) Die Meldung ist innerhalb von fünf Handelstagen abzugeben.“</akn:p></akn:content></akn:point>\n              </akn:list>\n            </akn:point>\n            <akn:point><akn:num>3.</akn:num><akn:content><akn:p>Nach § 8 wird folgender § 8a eingefügt: „§ 8a Übergangsvorschrift Für Erwerbe vor dem 1. April 2030 gilt § 5 Absatz 2 in der bis zum 31. März 2030 geltenden Fassung.“</akn:p></akn:content></akn:point>\n          </akn:list>\n        </akn:paragraph>\n      </akn:article>\n      <akn:article eId=\"art-2\"><akn:num>Artikel 2</akn:num><akn:heading>Änderung des Musterbörsengesetzes</akn:heading>\n        <akn:paragraph><akn:content><akn:p>Das Musterbörsengesetz vom 1. Juli 2028 (BGBl. 2028 I Nr. 77) wird wie folgt geändert:</akn:p></akn:content>\n          <akn:list><akn:point><akn:num>1.</akn:num><akn:content><akn:p>§ 3 wird aufgehoben.</akn:p></akn:content></akn:point></akn:list>\n        </akn:paragraph>\n      </akn:article>\n      <akn:p>Artikel 3</akn:p>\n      <akn:p>Inkrafttreten</akn:p>\n      <akn:p>Dieses Gesetz tritt am 1. April 2030 in Kraft.</akn:p>\n    </akn:body>\n    <akn:conclusions><akn:p>Das vorstehende Gesetz wird hiermit ausgefertigt. Es ist im Bundesgesetzblatt zu verkünden.</akn:p></akn:conclusions>\n    <akn:attachments><akn:attachment><akn:doc name=\"begruendung\"><akn:mainBody><akn:authorialNote marker=\"1\"><akn:p>Dieses Gesetz dient der Umsetzung der Richtlinie (EU) 2030/77 des Europäischen Parlaments und des Rates vom 3. Januar 2030 über Meldefristen im Musterpapierhandel (ABl. L 5 vom 4.1.2030, S. 1).</akn:p></akn:authorialNote></akn:mainBody></akn:doc></akn:attachment></akn:attachments>\n  </akn:act>\n</akn:akomaNtoso>\n",
+      "authored": true
+    },
+    {
+      "request": "/eli/bund/bgbl-1/2030/46/regelungstext-verkuendung-1.xml",
+      "status": 200,
+      "headers": {
+        "Content-Type": "application/xml"
+      },
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<akn:akomaNtoso xmlns:akn=\"http://Inhaltsdaten.LegalDocML.de/1.7/\">\n  <akn:act name=\"regelungstext\">\n    <akn:meta>\n      <akn:identification source=\"attributsemantik-noch-undefiniert\">\n        <akn:FRBRWork><akn:FRBRthis value=\"eli/bund/bgbl-1/2030/46/regelungstext-1\"/><akn:FRBRdate date=\"2030-03-15\" name=\"verkuendungsfassung\"/></akn:FRBRWork>\n      </akn:identification>\n    </akn:meta>\n    <akn:preface><akn:longTitle><akn:p><akn:docTitle>Verordnung zur Änderung der Musterfristenverordnung (fiktiv)</akn:docTitle></akn:p></akn:longTitle></akn:preface>\n    <akn:body>\n      <akn:article eId=\"art-1\"><akn:num>Artikel 1</akn:num><akn:heading>Änderung der Musterfristenverordnung</akn:heading>\n        <akn:paragraph><akn:content><akn:p>Die Musterfristenverordnung vom 2. Februar 2027 (BGBl. 2027 I Nr. 12) wird wie folgt geändert:</akn:p></akn:content>\n          <akn:list><akn:point><akn:num>1.</akn:num><akn:content><akn:p>§ 2 wird aufgehoben.</akn:p></akn:content></akn:point></akn:list>\n        </akn:paragraph>\n      </akn:article>\n      <akn:article eId=\"art-2\"><akn:num>Artikel 2</akn:num><akn:heading>Inkrafttreten</akn:heading>\n        <akn:paragraph><akn:content><akn:p>Diese Verordnung tritt am Tag nach der Verkündung in Kraft.</akn:p></akn:content></akn:paragraph>\n      </akn:article>\n    </akn:body>\n  </akn:act>\n</akn:akomaNtoso>\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "acts-outside-the-statute-set-seen-not-acquired",
+    "historical-gazette-link-only"
+  ]
+}

@@ -1,0 +1,52 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": [
+    {
+     "date": "2026-01-15T10:00:00+00:00",
+     "origin": "https://github.com/fixture-labs/parser",
+     "snapshot": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+     "status": "full",
+     "type": "git",
+     "visit": 1
+    }
+   ],
+   "headers": {
+    "X-RateLimit-Limit": "120",
+    "X-RateLimit-Remaining": "118"
+   },
+   "request": "/api/1/origin/https://github.com/fixture-labs/parser/visits/?per_page=20",
+   "status": 200
+  },
+  {
+   "body": {
+    "branches": {
+     "HEAD": {
+      "target": "refs/heads/main",
+      "target_type": "alias"
+     },
+     "refs/heads/main": {
+      "target": "9999999999999999999999999999999999999999",
+      "target_type": "revision"
+     },
+     "refs/tags/v1.0.0": {
+      "target": "1111111111111111111111111111111111111111",
+      "target_type": "release"
+     },
+     "refs/tags/v1.1.0": {
+      "target": "2222222222222222222222222222222222222222",
+      "target_type": "release"
+     }
+    },
+    "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "next_branch": null
+   },
+   "request": "/api/1/snapshot/aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa/?branches_count=1000&target_types=release%2Crevision",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

@@ -35,23 +35,41 @@ def conn():
 
 def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
-    assert len(packs) == 17
+    # 15 plus the Market bafin-notices feature's bafin-capital-market-notices pack (#2106),
+    # plus the Engineering Safety pack (#2059),
+    # plus the Materials pack's materials source pack (#2060),
+    # plus the Astronomy pack's astronomy-and-space pack (#2149),
+    # plus the Sports pack's sports-records pack (#2135),
+    # plus the Weather pack's weather-operational pack (#2163),
+    # plus the Linguistics pack's linguistics-lexical-typological pack (#2178),
+    # plus the OSS Ecosystems pack (#2192),
+    # plus the Chemicals and Substances pack (#2212),
+    # plus the Natural Hazards pack (#2207).
+    assert len(packs) == 25
     assert {domain for pack in packs for domain in pack["domains"]} == {
+        "astronomy",
         "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "engineering-safety",
         "geospatial",
         "legal",
+        "linguistics",
+        "market",
+        "materials",
         "natural-hazards",
         "onchain",
         "osint",
+        "oss-ecosystems",
         "political",
         "procurement",
         "products",
         "research",
         "scientific",
+        "sports",
         "technical",
+        "weather",
     }
     # 59 plus the Legal sanctions feature's six sources (#1907): four lists and two CELLAR selections,
     # plus the Technology vulnerabilities feature's eight new sources (#1913; osv-api was reviewed in place),
@@ -63,9 +81,20 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Products safety feature's four notice sources and its CELLAR selection of cited acts (#1916),
     # plus the Funding development-finance feature's OECD CRS source (#1932),
     # plus the On-chain Observations pack's two explorers and one label dataset (#2056),
+    # plus the Legal federal-statutes feature's gesetze-im-internet, rechtsinformationen and BGBl sources (#2105),
+    # plus the Market bafin-notices feature's voting-rights, dealings, short-position, company and warning sources (#2106),
+    # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061),
+    # plus the Engineering Safety pack's FAA, EASA, NTSB, PHMSA, CSB, ODI, complaint, BFU and BEA sources (#2059),
+    # plus the Materials pack's Materials Project, JARVIS-DFT, OQMD, NIST WebBook and COD sources (#2060),
+    # plus the Astronomy pack's MPC, JPL, Exoplanet Archive, GCAT, CelesTrak and SWPC sources (#2149),
+    # plus the Sports pack's football-data (matches, standings, teams), openfootball, Sackmann ATP/WTA and StatsBomb
+    # sources (#2135),
+    # plus the Weather pack's nine DWD, MOSMIX, CAP, aviationweather.gov, NWS and Open-Meteo sources (#2163),
+    # plus the Linguistics pack's Wikidata, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 sources (#2178),
+    # plus the OSS Ecosystems pack's four registries, deps.dev, the SPDX License List and Software Heritage (#2192),
     # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212),
     # plus the Natural Hazards pack's six hazard sources (#2207).
-    assert sum(len(pack["sources"]) for pack in packs) == 114
+    assert sum(len(pack["sources"]) for pack in packs) == 185
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -326,21 +355,29 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     assert "must-not-leak" not in encoded
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
+        "astronomy",
         "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "engineering-safety",
         "geospatial",
         "legal",
+        "linguistics",
+        "market",
+        "materials",
         "natural-hazards",
         "onchain",
         "osint",
+        "oss-ecosystems",
         "political",
         "procurement",
         "products",
         "research",
         "scientific",
+        "sports",
         "technical",
+        "weather",
     }
 
 

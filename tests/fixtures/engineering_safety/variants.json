@@ -1,0 +1,69 @@
+{
+  "captured": false,
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "ntsb_case_final": {
+    "NtsbNumber": "ERA26FA101",
+    "Title": "Examplar EX-100, N417EX: landing gear collapse on landing",
+    "EventDate": "2026-02-14",
+    "ReportType": "Final",
+    "ReportDate": "2026-08-14",
+    "City": "Millbrook",
+    "State": "GA",
+    "Country": "United States",
+    "Latitude": "33.1234",
+    "Longitude": "-84.5678",
+    "HighestInjuryLevel": "Minor",
+    "Vehicles": [
+      {
+        "VehicleNumber": 1,
+        "Make": "Examplar Aircraft Company",
+        "Model": "EX-100",
+        "SerialNumber": "1187",
+        "RegistrationNumber": "N417EX",
+        "Operator": "Skyline Charter LLC"
+      }
+    ],
+    "ProbableCause": "The fatigue fracture of the left main landing gear actuator rod end, which resulted in the collapse of the left main landing gear during landing. Contributing was an inspection interval that did not detect the crack before it reached critical length.",
+    "Findings": [
+      {
+        "FindingNumber": "1",
+        "FindingText": "Aircraft-Landing gear-Main gear actuator-Fatigue/wear/corrosion - C"
+      },
+      {
+        "FindingNumber": "2",
+        "FindingText": "Organizational issues-Maintenance-Inspection interval - F"
+      }
+    ],
+    "RecommendationNumbers": [
+      "A-26-015"
+    ],
+    "DocketUrl": "https://data.ntsb.gov/Docket?ProjectID=199999"
+  },
+  "ntsb_recommendation_statuses": [
+    [
+      {
+        "Status": "Open - Await Response",
+        "StatusDate": "2026-08-14"
+      },
+      {
+        "Status": "Open - Acceptable Response",
+        "StatusDate": "2026-11-02"
+      }
+    ],
+    [
+      {
+        "Status": "Open - Await Response",
+        "StatusDate": "2026-08-14"
+      },
+      {
+        "Status": "Open - Acceptable Response",
+        "StatusDate": "2026-11-02"
+      },
+      {
+        "Status": "Closed - Acceptable Action",
+        "StatusDate": "2027-03-15"
+      }
+    ]
+  ],
+  "odi_open_file": "PE26003\tVELOMARK\tCITYRUNNER\t2025\tELECTRICAL SYSTEM: 12V/24V/48V BATTERY\tVelomark Mobility LLC\t20260112\t\t\tBattery fire while parked\tODI opened this Preliminary Evaluation after 14 complaints alleging battery fires while parked.\nPE26003\tVELOMARK\tCITYRUNNER\t2026\tELECTRICAL SYSTEM: 12V/24V/48V BATTERY\tVelomark Mobility LLC\t20260112\t\t\tBattery fire while parked\tODI opened this Preliminary Evaluation after 14 complaints alleging battery fires while parked.\nDP26010\tOTHERMAKE\tROADSTER\t2024\tSEATS\tOthermake Inc\t20260301\t\t\tSeat recliner\tDefect petition.\n"
+}

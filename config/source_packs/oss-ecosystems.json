@@ -1,0 +1,401 @@
+{
+  "pack_id": "oss-ecosystems",
+  "version": "1.0.0",
+  "description": "Open-source Software Ecosystems: release, yank, deprecation and unpublish history, declared dependencies, licence declarations with SPDX normalisation, organisation-level publishers and repository links from PyPI, npm, crates.io and Maven Central, deps.dev as a second attributed source, pinned SPDX License List releases and Software Heritage archive provenance. Explicit package lists only; no maintainer or contributor data and no quality, popularity or trust verdicts. Source audit: docs/development/oss-ecosystems-evidence/source-audit.md.",
+  "domains": [
+    "oss-ecosystems"
+  ],
+  "defaults": {
+    "connector": "oss-ecosystem",
+    "update_cadence": "daily",
+    "temporal_semantics": "source-modified-or-observed-revision",
+    "mapping": {
+      "target_schema": "noesis-oss-ecosystem-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "oss-ecosystem-sources:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 172800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "pypi-json",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://pypi.org/pypi",
+      "publisher": "Python Package Index",
+      "scope": "Release, yank, dependency, licence, organisation and repository history for pinned PyPI projects",
+      "license": {
+        "id": "pypi-terms",
+        "terms_url": "https://policies.python.org/pypi.org/Terms-of-Service/",
+        "redistribution": "metadata under the publishers' licences (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "daily",
+      "temporal_semantics": "source-modified-or-observed-revision",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 10
+      },
+      "oss": {
+        "format": "pypi-json",
+        "namespace": "global",
+        "selection": {
+          "packages": [
+            {
+              "name": "fixture-parser",
+              "versions": [
+                "1.0.0",
+                "1.1.0",
+                "2.0.0"
+              ]
+            },
+            {
+              "name": "fixture-tokens",
+              "versions": [
+                "1.0.0",
+                "1.2.0",
+                "1.3.0",
+                "2.0rc1"
+              ]
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-pypi-json.json",
+        "sha256": "ef718db418553d79a8272dbe4f2f9d800794cf55bd17dbad6b8a8950b71a6784",
+        "expected_output_hash": "9202fac235803169abda946a1113d1fe652c387ab403ef49a70651d04d9c6fda"
+      }
+    },
+    {
+      "source_id": "npm-registry",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://registry.npmjs.org",
+      "publisher": "npm, Inc.",
+      "scope": "Release, deprecation, unpublish, dependency, licence, scope and repository history for pinned npm packages",
+      "license": {
+        "id": "npm-terms",
+        "terms_url": "https://docs.npmjs.com/policies/open-source-terms",
+        "redistribution": "metadata under the publishers' licences (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "daily",
+      "temporal_semantics": "source-modified-or-observed-revision",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 10
+      },
+      "oss": {
+        "format": "npm-packument",
+        "namespace": "global",
+        "selection": {
+          "packages": [
+            {
+              "name": "@fixture-labs/tokenizer"
+            },
+            {
+              "name": "fixture-lexer"
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-npm-registry.json",
+        "sha256": "e1a42e53a9ec40b91c80431342b869d619d936b8789d6d37cf5ec407e88e6eeb",
+        "expected_output_hash": "8f722b80ac07d827a1852b46405b2c59fc2840ec982145138dacec30df4465a3"
+      }
+    },
+    {
+      "source_id": "crates-io",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://crates.io",
+      "publisher": "crates.io (Rust Foundation)",
+      "scope": "Release, yank, dependency, licence, team and repository history for pinned crates",
+      "license": {
+        "id": "crates-io-data-access",
+        "terms_url": "https://crates.io/data-access",
+        "redistribution": "metadata under the crate authors' licences; crawler policy applies (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "daily",
+      "temporal_semantics": "source-modified-or-observed-revision",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 10
+      },
+      "oss": {
+        "format": "crates-io",
+        "namespace": "global",
+        "selection": {
+          "packages": [
+            {
+              "name": "fixture-codec",
+              "versions": [
+                "0.1.0",
+                "0.2.0"
+              ]
+            },
+            {
+              "name": "fixture-bytes",
+              "versions": [
+                "0.4.0",
+                "0.4.1"
+              ]
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-crates-io.json",
+        "sha256": "00ead617b7b5cc80378bcbd2925b40afc4ba7f8daa38091fdd16a751e7e0d70e",
+        "expected_output_hash": "8c54f82d470a8c40f27f5d3c17362765fb0dac95d2f91772447a0e0bad384e39"
+      }
+    },
+    {
+      "source_id": "maven-central",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://search.maven.org",
+      "publisher": "Sonatype (Maven Central)",
+      "scope": "Release, dependency, licence, groupId and SCM history for pinned artifacts",
+      "license": {
+        "id": "sonatype-central-terms",
+        "terms_url": "https://central.sonatype.org/terms/",
+        "redistribution": "metadata under the artifacts' licences (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "daily",
+      "temporal_semantics": "source-modified-or-observed-revision",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 10
+      },
+      "oss": {
+        "format": "maven-central",
+        "namespace": "global",
+        "selection": {
+          "packages": [
+            {
+              "name": "org.fixturelabs:fixture-core",
+              "versions": [
+                "1.0",
+                "1.1",
+                "2.0"
+              ]
+            },
+            {
+              "name": "org.fixturelabs:fixture-util",
+              "versions": [
+                "1.0",
+                "1.5",
+                "1.6"
+              ]
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-maven-central.json",
+        "sha256": "6ffc02a7a217a7761ae24e629afbe7d028556ffd032c4b07a1b3e284a3572598",
+        "expected_output_hash": "53c27ecd4bea05cddf73af712ced532a51a20c233b9cf48bf5b232086af761a5"
+      }
+    },
+    {
+      "source_id": "deps-dev-npm",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://api.deps.dev/v3",
+      "publisher": "Open Source Insights (deps.dev)",
+      "scope": "deps.dev versions, licences, related source repositories and its resolved graphs for pinned npm releases (feature oss-deps-dev)",
+      "license": {
+        "id": "CC-BY-4.0",
+        "terms_url": "https://docs.deps.dev/api/v3/",
+        "redistribution": "attribution 'Open Source Insights (deps.dev)' (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "daily",
+      "temporal_semantics": "source-modified-or-observed-revision",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 10
+      },
+      "oss": {
+        "format": "deps-dev",
+        "namespace": "global",
+        "selection": {
+          "ecosystem": "npm",
+          "packages": [
+            {
+              "name": "@fixture-labs/tokenizer",
+              "versions": [
+                "1.1.0",
+                "1.2.0"
+              ]
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-deps-dev-npm.json",
+        "sha256": "b936af7603908c1fcf458ff92d5c7f856445f29eb8c2a375c8837afb259def93",
+        "expected_output_hash": "c5441a173dc1aa3d496a2dca15203d5ed11f7e1ffbfe36e71c262f816f72de62"
+      }
+    },
+    {
+      "source_id": "spdx-license-list",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://raw.githubusercontent.com/spdx/license-list-data",
+      "publisher": "SPDX Workgroup (Linux Foundation)",
+      "scope": "Pinned SPDX License List releases: licence and exception identifiers with deprecation flags",
+      "license": {
+        "id": "CC0-1.0",
+        "terms_url": "https://github.com/spdx/license-list-data",
+        "redistribution": "public domain dedication (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "monthly",
+      "temporal_semantics": "pinned-list-version",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 2
+      },
+      "oss": {
+        "format": "spdx-license-list",
+        "namespace": "global",
+        "selection": {
+          "list_versions": [
+            "3.25"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-spdx-license-list.json",
+        "sha256": "40c3ae2f638f4d2cec32b3c4f2c20bc7681d1e935e2c8293675782205749be0c",
+        "expected_output_hash": "abee4ffc826df3f6a860fb02be8f8d642d58a56bddc1586fe124c12c7e372fd2"
+      }
+    },
+    {
+      "source_id": "software-heritage",
+      "connector": "oss-ecosystem",
+      "endpoint": "https://archive.softwareheritage.org/api/1",
+      "publisher": "Software Heritage",
+      "scope": "Visits and snapshot tag branches for origins named by repository link assertions (feature oss-software-heritage)",
+      "license": {
+        "id": "swh-terms",
+        "terms_url": "https://www.softwareheritage.org/legal/api-terms-of-use/",
+        "redistribution": "archive metadata with attribution (operator must confirm)"
+      },
+      "operations": [
+        "acquire"
+      ],
+      "mapping": {
+        "target_schema": "noesis-oss-ecosystem-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "oss-ecosystem-sources:1.0.0"
+      ],
+      "update_cadence": "weekly",
+      "temporal_semantics": "archive-visit-date",
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 10000000,
+        "max_pages": 20
+      },
+      "oss": {
+        "format": "software-heritage",
+        "namespace": "global",
+        "selection": {
+          "origins": [
+            "https://github.com/fixture-labs/parser"
+          ]
+        }
+      },
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_SWH_TOKEN"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/oss-software-heritage.json",
+        "sha256": "38d11b207fa1266b0da2ad7e289d122688da22708ca9b56390f2494613e5fb81",
+        "expected_output_hash": "43ae0e06bbbbc55ad5a5961990da8fa39d2133f1d39017647b0d671164a97a0e"
+      }
+    }
+  ]
+}

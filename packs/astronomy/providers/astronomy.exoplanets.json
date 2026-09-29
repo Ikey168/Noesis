@@ -1,0 +1,60 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "astronomy.exoplanets",
+  "version": "1.0.0",
+  "description": "Exoplanets, candidates and host stars as the NASA Exoplanet Archive tables publish them, with dispositions per table and their status history; records are held by the astronomy.small-bodies record owner.",
+  "implementation": {
+    "name": "src.kb.astronomy_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "astronomy.exoplanets",
+      "contract": {
+        "name": "noesis-astronomy-exoplanet-status",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "exoplanet-status-as-of"
+      ],
+      "semantic_constraints": {
+        "dispositions": "the archive's disposition per table, native code verbatim; retracted only from the archive's removed listing; composite parameters labelled as the archive's composite",
+        "exclusions": "no orbit, ephemeris, conjunction, risk verdict, disposition or advice is computed by Noesis"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "exoplanet-status-as-of",
+      "tool": "noesis-knowledge-engine.exoplanet_status_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "astronomy_record_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "astronomy-and-space",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ],
+  "content_hash": "sha256:fc307ee4d384648dc47d81b569ea6b2106ff3673ecba40ab3b943f05af2b3d0b"
+}

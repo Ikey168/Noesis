@@ -1,0 +1,26 @@
+{
+  "captured": false,
+  "provider": "bundesanzeiger-net-short-positions",
+  "note": "Authored exports naming fictional issuers, companies and persons only, served for the production document URLs. The production issuer set (DAX 40, verify) is therefore out of scope for every row and no notice is emitted for it; parsing is exercised with the fictional issuer set in tests/unit/bafin_harness.py.",
+  "native_pages": [
+    {
+      "request": "/pub/de/nlp?0--top~csv~form~panel-form-csv~resource~link&historie=true",
+      "status": 200,
+      "body": "Positionsinhaber;Emittent;ISIN;Position;Datum\nKurzfrist Capital LLP;Musterwerke AG;DE000MSTR014;0,62;15.03.2026\nKurzfrist Capital LLP;Musterwerke AG;DE000MSTR014;0,55;01.04.2026\nZeitwert Partners Ltd;Musterwerke AG;DE000MSTR014;0,71;05.04.2026\nKurzfrist Capital LLP;Beispiel Maschinenbau SE;DE000BSPL026;0,80;02.04.2026\nKurzfrist Capital LLP;Musterwerke AG;DE000MSTR014;0,48;20.04.2026\n",
+      "authored": true,
+      "body_encoding": "windows-1252"
+    },
+    {
+      "request": "/pub/de/nlp?0--top~csv~form~panel-form-csv~resource~link",
+      "status": 200,
+      "body": "Positionsinhaber;Emittent;ISIN;Position;Datum\nZeitwert Partners Ltd;Musterwerke AG;DE000MSTR014;0,71;05.04.2026\n",
+      "authored": true,
+      "body_encoding": "windows-1252"
+    }
+  ],
+  "scenarios": [
+    "bounded-issuer-set",
+    "out-of-scope-rows-counted",
+    "declared-column-mapping"
+  ]
+}

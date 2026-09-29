@@ -11,17 +11,13 @@ from src.ingestion.snapshots import SnapshotStore
 from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 
 
-def normalize_entity(payload, entity_id, *, properties, languages, max_statements=100):
-    entities = payload.get("entities", {})
-    entity = entities.get(entity_id)
-    if not isinstance(entity, dict) or "missing" in entity:
-        return {"status": "unavailable", "entity_id": entity_id, "statements": []}
-    if entity.get("id") != entity_id or not isinstance(entity.get("lastrevid"), int):
-        raise ValueError("Wikidata entity identity or revision is invalid")
-    claims = entity.get("claims", {})
+def _statements(
+    claims, owner_id, properties, revision, *, max_statements=100, seen=None
+):
+    """Validate the statements of the selected properties; shared by items, lexemes, forms and senses."""
     if not isinstance(claims, dict):
         raise ValueError("Wikidata claims are invalid")  # noqa: TRY004 - provider schema failure
-    selected, seen = [], set()
+    selected, seen = [], set() if seen is None else seen
     for prop in properties:
         statements = claims.get(prop, [])
         if not isinstance(statements, list):
@@ -32,7 +28,7 @@ def normalize_entity(payload, entity_id, *, properties, languages, max_statement
             sid = statement.get("id")
             if (
                 not isinstance(sid, str)
-                or not sid.casefold().startswith(entity_id.casefold() + "$")
+                or not sid.casefold().startswith(owner_id.casefold() + "$")
                 or sid.casefold() in seen
             ):
                 raise ValueError("invalid or duplicate Wikidata statement identity")
@@ -55,9 +51,132 @@ def normalize_entity(payload, entity_id, *, properties, languages, max_statement
                     **statement,
                     "reference_status": "referenced" if references else "unreferenced",
                     "provider": "wikidata",
-                    "entity_revision": entity["lastrevid"],
+                    "entity_revision": revision,
                 }
             )
+    return selected
+
+
+def snak_value(snak):
+    """The plain value of a value snak: an entity id, a string, or None for novalue/somevalue."""
+    if not isinstance(snak, dict) or snak.get("snaktype") != "value":
+        return None
+    value = (snak.get("datavalue") or {}).get("value")
+    if isinstance(value, dict):
+        return (
+            value.get("id")
+            or value.get("text")
+            or value.get("time")
+            or value.get("amount")
+        )
+    return value
+
+
+LEXEME_PROPERTIES = (
+    "P5191",
+    "P5238",
+)  # derived from lexeme; combines lexemes (verify ids, source-audit.md)
+SENSE_PROPERTIES = ("P5137",)  # item for this sense
+
+
+def normalize_lexeme(
+    payload, lexeme_id, *, max_statements=100, properties=LEXEME_PROPERTIES
+):
+    """Normalise one L-entity (Special:EntityData/L<n>.json): lemmas, forms, senses and etymology statements.
+
+    A missing entity is ``deleted`` (the caller records it; nothing is removed).
+    Canonical entities are never touched: senses keep "item for this sense" as a
+    source-stated link only.
+    """
+    if not re.fullmatch(r"L[1-9]\d*", lexeme_id):
+        raise ValueError("invalid Wikidata lexeme id")
+    entity = payload.get("entities", {}).get(lexeme_id)
+    if not isinstance(entity, dict) or "missing" in entity:
+        return {"status": "deleted", "lexeme_id": lexeme_id}
+    if entity.get("id") != lexeme_id or not isinstance(entity.get("lastrevid"), int):
+        raise ValueError("Wikidata lexeme identity or revision is invalid")
+    if entity.get("type", "lexeme") != "lexeme":
+        raise ValueError("Wikidata entity is not a lexeme")
+    revision, seen = entity["lastrevid"], set()
+    statements = _statements(
+        entity.get("claims", {}),
+        lexeme_id,
+        properties,
+        revision,
+        max_statements=max_statements,
+        seen=seen,
+    )
+    forms, senses = [], []
+    for form in entity.get("forms") or []:
+        fid = form.get("id")
+        if not isinstance(fid, str) or not re.fullmatch(
+            re.escape(lexeme_id) + r"-F[1-9]\d*", fid
+        ):
+            raise ValueError("invalid Wikidata form identity")
+        forms.append(
+            {
+                "id": fid,
+                "representations": {
+                    k: v["value"]
+                    for k, v in sorted((form.get("representations") or {}).items())
+                },
+                "grammatical_features": sorted(form.get("grammaticalFeatures") or []),
+            }
+        )
+    for sense in entity.get("senses") or []:
+        sid = sense.get("id")
+        if not isinstance(sid, str) or not re.fullmatch(
+            re.escape(lexeme_id) + r"-S[1-9]\d*", sid
+        ):
+            raise ValueError("invalid Wikidata sense identity")
+        senses.append(
+            {
+                "id": sid,
+                "glosses": {
+                    k: v["value"]
+                    for k, v in sorted((sense.get("glosses") or {}).items())
+                },
+                "statements": _statements(
+                    sense.get("claims", {}),
+                    sid,
+                    SENSE_PROPERTIES,
+                    revision,
+                    max_statements=max_statements,
+                    seen=seen,
+                ),
+            }
+        )
+    return {
+        "status": "available",
+        "lexeme_id": lexeme_id,
+        "revision": revision,
+        "modified": entity.get("modified"),
+        "lemmas": {
+            k: v["value"] for k, v in sorted((entity.get("lemmas") or {}).items())
+        },
+        "language": entity.get("language"),
+        "lexical_category": entity.get("lexicalCategory"),
+        "forms": forms,
+        "senses": senses,
+        "statements": statements,
+        "canonical_update": "none",
+    }
+
+
+def normalize_entity(payload, entity_id, *, properties, languages, max_statements=100):
+    entities = payload.get("entities", {})
+    entity = entities.get(entity_id)
+    if not isinstance(entity, dict) or "missing" in entity:
+        return {"status": "unavailable", "entity_id": entity_id, "statements": []}
+    if entity.get("id") != entity_id or not isinstance(entity.get("lastrevid"), int):
+        raise ValueError("Wikidata entity identity or revision is invalid")
+    selected = _statements(
+        entity.get("claims", {}),
+        entity_id,
+        properties,
+        entity["lastrevid"],
+        max_statements=max_statements,
+    )
     labels, aliases = {}, {}
     for language in languages:
         label = entity.get("labels", {}).get(language, {}).get("value")

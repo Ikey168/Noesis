@@ -1,0 +1,21 @@
+{
+  "captured": false,
+  "provider": "easa-ad",
+  "note": "Authored, fictional envelopes in the provider's documented shape (verify against a live response). Every manufacturer, operator, AD, docket, N-number, report and recommendation number is fictional; nothing here is captured data.",
+  "native_pages": [
+    {
+      "request": "/ad/2026-0123",
+      "status": 200,
+      "body": "<!doctype html><html><head><title>EASA AD 2026-0123</title></head><body><h1>EASA AD 2026-0123</h1><table class=\"ad-details\"><tr><th>AD Number</th><td>2026-0123</td></tr><tr><th>Issued by</th><td>EASA</td></tr><tr><th>Issue date</th><td>10/03/2026</td></tr><tr><th>Effective date</th><td>24/03/2026</td></tr><tr><th>Supersedure</th><td>None</td></tr><tr><th>Approval Holder / Type Designation</th><td>Examplar Aircraft Company: Models EX-100 and EX-100A aeroplanes, all serial numbers.</td></tr><tr><th>Subject</th><td>Landing Gear - Main Landing Gear Actuator Rod End - Inspection</td></tr><tr><th>Reason</th><td>Cracked main landing gear actuator rod ends have been reported. This condition, if not detected and corrected, could lead to collapse of the main landing gear.</td></tr><tr><th>Required Action(s) and Compliance Time(s)</th><td>Within 100 flight hours after the effective date of this AD, inspect each main landing gear actuator rod end in accordance with the instructions of Examplar SB EX100-32-0045 Revision 2.</td></tr></table><p><a href=\"/download/2026-0123.pdf\">AD PDF</a></p></body></html>"
+    },
+    {
+      "request": "/ad/2026-0123R1",
+      "status": 200,
+      "body": "<!doctype html><html><head><title>EASA AD 2026-0123R1</title></head><body><h1>EASA AD 2026-0123R1</h1><table class=\"ad-details\"><tr><th>AD Number</th><td>2026-0123R1</td></tr><tr><th>Issued by</th><td>EASA</td></tr><tr><th>Issue date</th><td>02/05/2026</td></tr><tr><th>Effective date</th><td>16/05/2026</td></tr><tr><th>Revision</th><td>This AD revises EASA AD 2026-0123 dated 10 March 2026.</td></tr><tr><th>Supersedure</th><td>None</td></tr><tr><th>Approval Holder / Type Designation</th><td>Examplar Aircraft Company: Models EX-100 and EX-100A aeroplanes, all serial numbers.</td></tr><tr><th>Subject</th><td>Landing Gear - Main Landing Gear Actuator Rod End - Inspection</td></tr><tr><th>Reason</th><td>Cracked main landing gear actuator rod ends have been reported. This condition, if not detected and corrected, could lead to collapse of the main landing gear.</td></tr><tr><th>Required Action(s) and Compliance Time(s)</th><td>Within 100 flight hours after the effective date of this AD, inspect each main landing gear actuator rod end in accordance with the instructions of Examplar SB EX100-32-0045 Revision 2.</td></tr><tr><th>Related AD(s)</th><td>FAA AD 2026-04-12</td></tr></table><p><a href=\"/download/2026-0123R1.pdf\">AD PDF</a></p></body></html>"
+    }
+  ],
+  "scenarios": [
+    "revision-suffix",
+    "stated-cross-reference"
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "description": "Composition view of the Astronomy and Space bundle: what it requires from shared providers and its optional features. packs/astronomy/manifest.json is the authoritative native manifest; tests/unit/astronomy/test_astronomy_composition.py asserts this file stays equal to it.",
+  "requires": [
+    {
+      "capability": "astronomy.small-bodies",
+      "contract": "noesis-astronomy-small-body",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.exoplanets",
+      "contract": "noesis-astronomy-exoplanet-status",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.identity",
+      "contract": "noesis-astronomy-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.citations",
+      "contract": "noesis-astronomy-citation-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "astronomy.monitoring",
+      "contract": "noesis-astronomy-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "science.literature-claims",
+      "contract": "noesis-literature-claims",
+      "range": "^1.0.0",
+      "reason": "papers cited by bibcode or DOI are Science literature records; the Science pack owns them"
+    },
+    {
+      "capability": "science.paper-families",
+      "contract": "noesis-paper-family",
+      "range": "^1.0.0",
+      "reason": "paper identifiers (DOI) follow the Science pack's paper-family normalisation"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "identity candidates are reviewed, reversible entity identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the astronomy-and-space source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "astronomy-launches",
+      "default": false,
+      "description": "GCAT and CelesTrak SATCAT launches, outcomes and orbital objects, with launch sites resolved through Geospatial review",
+      "requires": [
+        {
+          "capability": "astronomy.launches",
+          "contract": "noesis-astronomy-launch",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "launch sites resolve to Geospatial places reviewably"
+        }
+      ]
+    },
+    {
+      "id": "astronomy-space-weather",
+      "default": false,
+      "description": "NOAA SWPC alerts, watches and warnings kept as an issued history",
+      "requires": [
+        {
+          "capability": "astronomy.space-weather",
+          "contract": "noesis-astronomy-space-weather",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "orbit determination, propagation-based prediction, close-approach computation or conjunction screening",
+    "impact-risk, hazard or collision verdicts (only published Sentry listings are quoted with their date)",
+    "exoplanet validation or disposition by Noesis (the archive's disposition is quoted)",
+    "classified, export-controlled or account-restricted catalogue data (Space-Track is not implemented)",
+    "operational space-weather advice (alerts are quoted as issued)"
+  ]
+}

@@ -1,0 +1,5 @@
+games,sport,event,phase,unit,rank,participant,noc,result,status,decision_body,decision_url,published_on
+Example 2096,Athletics,Men's 800m,Final,,,Eli Runner,EXA,1:44.10,disqualified,IOC Executive Board,https://www.olympics.example.org/news/executive-board-reallocates-800m-medals,2099-03-01
+Example 2096,Athletics,Men's 800m,Final,,1,Fay Stride,ALT,1:44.55,reallocated,IOC Executive Board,https://www.olympics.example.org/news/executive-board-reallocates-800m-medals,2099-03-01
+Example 2096,Athletics,Men's 800m,Final,,2,Gus Pace,OTH,1:44.90,reallocated,IOC Executive Board,https://www.olympics.example.org/news/executive-board-reallocates-800m-medals,2099-03-01
+Example 2096,Athletics,Men's 800m,Final,,3,Hal Kick,EXA,1:45.20,reallocated,IOC Executive Board,https://www.olympics.example.org/news/executive-board-reallocates-800m-medals,2099-03-01

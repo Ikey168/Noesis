@@ -1,0 +1,91 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-sports-record-v1",
+  "title": "Sports record revision: competition, season, stage, team, player, venue, fixture, fixture schedule revision, match result revision, lineup, table rule, standing snapshot or transfer assertion",
+  "description": "One revision of one sports record as a source published it. Every revision carries its source (provider, source id, source record id, locator, acquisition, attribution and licence), a content-addressed revision id, the source's published-at and the retrieval time. A later correction appends a revision and never overwrites. A person appears only as a published participant. No record carries odds, betting advice, predictions, medical, injury, biometric or tracking data; missing values are absent.",
+  "type": "object",
+  "required": ["contract", "namespace", "record_type", "record_key", "revision_id", "published_ms", "retrieved_at_ms", "body", "source"],
+  "definitions": {
+    "instant": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2}Z)?)?$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "score": {
+      "type": "object",
+      "required": ["home", "away"],
+      "properties": {"home": {"type": "integer", "minimum": 0}, "away": {"type": "integer", "minimum": 0}},
+      "additionalProperties": false
+    },
+    "citation": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {"url": {"type": "string", "pattern": "^https://"}, "title": {"type": "string"}, "body": {"type": "string"}, "date": {"$ref": "#/definitions/instant"}}
+    },
+    "participant": {
+      "type": "object",
+      "required": ["provider", "name"],
+      "properties": {
+        "provider": {"type": "string"},
+        "native_id": {"type": "string"},
+        "name": {"type": "string"},
+        "known_as": {"type": "string"},
+        "birth_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$", "description": "only where the source itself publishes it; identity evidence only"},
+        "noc": {"type": "string"},
+        "tour": {"type": "string"},
+        "cross_ids": {"type": "object"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-sports-record-v1"},
+    "namespace": {"type": "string"},
+    "record_type": {"enum": ["competition", "season", "stage", "team", "player", "venue", "fixture", "fixture_schedule_revision", "match_result_revision", "lineup", "table_rule", "standing_snapshot", "transfer_assertion"]},
+    "record_key": {"type": "string", "pattern": "^sports:"},
+    "revision_id": {"type": "string", "pattern": "^sports-rev:"},
+    "revision_no": {"type": "integer", "minimum": 1},
+    "status": {"type": "string"},
+    "previous_revision_id": {"type": "string"},
+    "published_at": {"$ref": "#/definitions/instant"},
+    "published_ms": {"type": "integer"},
+    "retrieved_at_ms": {"type": "integer"},
+    "observed_seq": {"type": "integer"},
+    "source": {
+      "type": "object",
+      "required": ["provider", "source_record_id", "acquisition_id", "evidence_origin"],
+      "properties": {
+        "provider": {"type": "string"},
+        "source_id": {"type": "string"},
+        "source_record_id": {"type": "string"},
+        "locator": {"type": "string"},
+        "acquisition_id": {"type": "string"},
+        "url": {"type": "string"},
+        "release": {"type": "string"},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "attribution": {"type": "string"},
+        "licence": {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}, "non_commercial": {"type": "boolean"}, "share_alike": {"type": "boolean"}, "attribution": {"type": "string"}}},
+        "evidence_origin": {"enum": ["fixture", "live", "operator"]}
+      }
+    },
+    "body": {
+      "type": "object",
+      "properties": {
+        "status": {"enum": ["scheduled", "postponed", "rescheduled", "cancelled", "abandoned", "provisional", "official", "corrected", "forfeit_awarded", "annulled"]},
+        "kickoff": {"$ref": "#/definitions/instant"},
+        "score": {"$ref": "#/definitions/score"},
+        "periods": {"type": "object", "additionalProperties": {"$ref": "#/definitions/score"}},
+        "score_text": {"type": "string"},
+        "ranking": {"type": "array", "items": {"type": "object", "required": ["participant", "status"]}},
+        "deciding_body": {"type": "string"},
+        "decision": {"$ref": "#/definitions/citation"},
+        "sides": {"type": "object", "additionalProperties": {"type": "string"}},
+        "starters": {"type": "array", "items": {"type": "object", "required": ["player_key"], "properties": {"player_key": {"type": "string"}, "name": {"type": "string"}, "shirt_number": {"type": "integer"}, "position": {"type": "string"}}, "additionalProperties": false}},
+        "substitutes": {"type": "array", "items": {"type": "object", "required": ["player_key"], "properties": {"player_key": {"type": "string"}, "name": {"type": "string"}, "shirt_number": {"type": "integer"}, "position": {"type": "string"}}, "additionalProperties": false}},
+        "points": {"type": "object"},
+        "tiebreakers": {"type": "array", "items": {"enum": ["points", "goal_difference", "goals_for", "goals_against", "wins", "head_to_head_points", "head_to_head_goal_difference", "head_to_head_goals_for"]}},
+        "rows": {"type": "array", "items": {"type": "object", "required": ["team_key"]}},
+        "as_of": {"$ref": "#/definitions/instant"},
+        "fee": {"type": "object", "required": ["amount", "currency"], "description": "only when openly published"}
+      },
+      "not": {"anyOf": [{"required": ["odds"]}, {"required": ["prediction"]}, {"required": ["injury"]}, {"required": ["medical"]}, {"required": ["height"]}, {"required": ["weight"]}, {"required": ["age"]}]}
+    }
+  }
+}

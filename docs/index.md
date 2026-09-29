@@ -161,6 +161,13 @@ For the project overview and local setup, start with the
 - [Legal sanctions guide](guides/legal-sanctions.md) — per-list designation
   statements as of a date, dual-use annex editions, reviewable identity matches
   and monitors; [source audit](roadmaps/legal-sanctions-source-audit.md)
+- [Legal federal statutes guide](guides/legal-federal-statutes.md) — provisions as of a date
+  (source-stated or observed), BGBl amendment acts, DIP dossiers, EU implementation links, citing
+  decisions and monitors; [source audit](development/federal-statutes-evidence/source-audit.md)
+- [Market BaFin notices guide](guides/market-bafin-notices.md) — voting-rights notifications with holder
+  chains and corrections, managers' transactions, net short positions, the BaFin company database, warnings and
+  measures as of a date under the Market publication cutoffs, issuer dossiers, ownership projection and monitors;
+  [source audit](development/bafin-notices-evidence/source-audit.md)
 - [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
   CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
   monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
@@ -193,6 +200,9 @@ For the project overview and local setup, start with the
   vintaged statistics, World Bank projects linked by stated identifiers, reviewable organisation identity with an
   open-call cross-reference, as-of answers with publisher coverage and monitors; no totals across publishers and no
   impact judgement; [source audit](roadmaps/development-finance-source-audit.md)
+- [Weather pack guide](guides/weather-pack.md) — operational observations with QC flags and location
+  vintages, forecasts as issued, CAP warnings in force and verification of published forecasts;
+  [source audit](development/weather-evidence/source-audit.md), [record contract](contracts/weather-records.md)
 - [On-chain Observations guide](guides/onchain-observations.md) — cited public-ledger transactions, token
   transfers, contract deployer and first-funding chains for one explicit address, transaction or contract, quoted
   label assertions and probable address clustering with declared heuristics, a null model and a measured
@@ -208,6 +218,20 @@ For the project overview and local setup, start with the
   and window, with every parameter revision, reviewable cross-source correspondences, alerts in force and monitors;
   no prediction, risk scores, damage estimates or safety advice;
   [source audit](development/hazards-evidence/source-audit.md)
+- [Materials pack guide](guides/materials-pack.md) — condition-aware material properties from Materials Project,
+  JARVIS-DFT, OQMD, the NIST WebBook and COD with measured vs computed provenance, exact units, reviewable
+  phase-level identity (polymorphs never merge), comparison only of comparable values, cited papers and standards
+  and release tracking; no averaging or prediction; [source audit](development/materials-evidence/source-audit.md)
+- [Astronomy and Space guide](guides/astronomy-space.md) — a small body's MPC designations and identifications
+  and MPC/JPL orbit solution vintages, quoted Sentry listings, NASA Exoplanet Archive dispositions per table, GCAT
+  and CelesTrak launches and objects and NOAA SWPC alerts as of a date, linked to Science papers by bibcode or DOI,
+  with reviewable identity and monitors; no orbit determination, risk verdict or disposition by Noesis;
+  [source audit](development/astronomy-evidence/source-audit.md)
+- [Linguistics guide](guides/linguistics.md) — word-centred lexemes, forms, senses and definition revisions from
+  Wikidata lexemes and Wiktionary, cited etymology chains, languages and dialects resolved to Glottocode and
+  ISO 639-3 through reviewable identity, WALS typological profiles and monitors; CC BY-SA attribution travels
+  with Wiktionary output, and no machine translation is presented as sourced;
+  [source audit](development/linguistics-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

@@ -1,0 +1,111 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-oss-ecosystem-record-v1.json",
+  "title": "OSS Ecosystems record statement",
+  "description": "One statement of an Open-source Software Ecosystems record (src/kb/oss_ecosystem_records.py), kept as an append-only revision by src/kb/oss_ecosystem_store.py. Package and version identity is the Technology model's (package_object_id, immutable_artifact_id). No record type has a field for an individual person; maintainers appear only as declared organisations.",
+  "type": "object",
+  "required": ["record_type", "source"],
+  "properties": {
+    "record_type": {"enum": ["release_state_revision", "declared_dependency_set", "licence_declaration_revision", "publisher_organisation", "repository_link_assertion", "archive_provenance", "published_dependency_graph", "spdx_list_release"]},
+    "source": {"enum": ["pypi", "npm", "crates-io", "maven-central", "deps-dev", "spdx", "software-heritage"]},
+    "ecosystem": {"enum": ["pypi", "npm", "cargo", "maven"]},
+    "package": {"type": "string", "minLength": 1},
+    "coordinate": {"type": "string", "pattern": "^pkg:(pypi|npm|cargo|maven):"},
+    "package_object_id": {"type": "string", "pattern": "^package:[0-9a-f]{24}$"},
+    "version": {"type": "string", "minLength": 1},
+    "artifact_id": {"type": "string", "pattern": "^pkg:"},
+    "source_url": {"type": "string"},
+    "source_modified_at": {"$ref": "#/definitions/instant"},
+    "published_at": {"$ref": "#/definitions/instant"},
+    "state_stated_at": {"$ref": "#/definitions/instant"},
+    "state": {"enum": ["published", "yanked", "deprecated", "unpublished", "restored", "not_observed"]},
+    "reason": {"type": "string", "description": "the source's reason text, verbatim"},
+    "entries": {"type": "array", "items": {"$ref": "#/definitions/dependency"}},
+    "raw": {
+      "type": "object",
+      "properties": {
+        "expression": {"type": "string"},
+        "text": {"type": "string"},
+        "classifiers": {"type": "array", "items": {"type": "string"}},
+        "names": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "organisations": {"type": "array", "items": {"$ref": "#/definitions/organisation"}},
+    "links": {"type": "array", "items": {"$ref": "#/definitions/link"}},
+    "origin_url": {"type": "string"},
+    "repository_key": {"type": "string"},
+    "visit": {"type": "integer", "minimum": 1},
+    "detail": {"enum": ["visit", "snapshot"]},
+    "visit_date": {"$ref": "#/definitions/instant"},
+    "visit_status": {"type": "string"},
+    "snapshot_swhid": {"type": "string", "pattern": "^swh:1:snp:[0-9a-f]{40}$"},
+    "branches": {"type": "array", "items": {"$ref": "#/definitions/branch"}},
+    "nodes": {"type": "array"},
+    "edges": {"type": "array"},
+    "semantics": {"type": "string"},
+    "list_version": {"type": "string"},
+    "release_date": {"$ref": "#/definitions/instant"},
+    "licences": {"type": "array"},
+    "exceptions": {"type": "array"}
+  },
+  "not": {"anyOf": [
+    {"required": ["maintainers"]}, {"required": ["author"]}, {"required": ["email"]}, {"required": ["username"]},
+    {"required": ["contributors"]}, {"required": ["committer"]}, {"required": ["published_by"]}, {"required": ["developers"]}
+  ]},
+  "definitions": {
+    "instant": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(\\.\\d{3})?Z$"},
+    "dependency": {
+      "type": "object",
+      "required": ["ecosystem", "name", "scope", "optional"],
+      "properties": {
+        "ecosystem": {"type": "string"},
+        "name": {"type": "string"},
+        "coordinate": {"type": "string"},
+        "constraint": {"type": "string", "description": "the constraint as written"},
+        "scope": {"enum": ["runtime", "dev", "optional", "peer", "build"]},
+        "source_scope": {"type": "string"},
+        "optional": {"type": "boolean"},
+        "marker": {"type": "string"},
+        "target": {"type": "string"},
+        "requirement": {"type": "string"},
+        "extra": {"type": "string"},
+        "extras": {"type": "array", "items": {"type": "string"}},
+        "unsupported": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "organisation": {
+      "type": "object",
+      "required": ["kind", "id", "verification"],
+      "properties": {
+        "kind": {"enum": ["pypi-organisation", "npm-scope", "maven-groupid", "crates-team", "pom-organisation"]},
+        "id": {"type": "string"},
+        "name": {"type": "string"},
+        "verification": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "link": {
+      "type": "object",
+      "required": ["url", "repository_key", "field", "relation"],
+      "properties": {
+        "url": {"type": "string"},
+        "repository_key": {"type": "string"},
+        "field": {"type": "string"},
+        "relation": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "branch": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": {"type": "string"},
+        "target_swhid": {"type": "string"},
+        "target_type": {"type": "string"}
+      },
+      "additionalProperties": false
+    }
+  }
+}

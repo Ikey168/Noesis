@@ -1,0 +1,22 @@
+{
+ "authored": true,
+ "provider": "NIST Chemistry WebBook",
+ "note": "Authored in the provider's documented response shape for fictional IDs and values; not a capture.",
+ "scenarios": [
+  "evaluated and measured rows",
+  "heat capacity at two temperatures",
+  "standard designation in a comment",
+  "reference without DOI",
+  "quantity outside the property set"
+ ],
+ "native_pages": [
+  {
+   "request": "/cgi/cbook.cgi?ID=C9990001&Mask=6&Units=SI",
+   "status": 200,
+   "headers": {
+    "date": "Mon, 01 Feb 2099 12:00:00 GMT"
+   },
+   "body": "<!DOCTYPE html>\n<html><head><title>Titanium oxide (fictional fixture)</title></head><body>\n<h1 id=\"Top\">Titanium oxide (fictional fixture)</h1>\n<ul>\n<li><strong>Formula:</strong> O<sub>2</sub>Ti</li>\n<li><strong>IUPAC Standard InChI:</strong> <span class=\"inchi-text\">InChI=1S/2O.Ti</span></li>\n<li><strong>CAS Registry Number:</strong> 99999-99-9</li>\n</ul>\n<h2 id=\"Thermo-Condensed\">Condensed phase thermochemistry data</h2>\n<table class=\"data\" aria-label=\"One dimensional data\">\n<tr><th>Quantity</th><th>Value</th><th>Units</th><th>Method</th><th>Reference</th><th>Comment</th></tr>\n<tr><td>&Delta;<sub>f</sub>H&deg;<sub>solid</sub></td><td class=\"right-nowrap\">-944.0 &plusmn; 0.8</td><td>kJ/mol</td><td>Review</td><td><a href=\"#ref-1\">Fictional, 2098</a></td><td>Fixture review; rutile</td></tr>\n<tr><td>&Delta;<sub>f</sub>H&deg;<sub>solid</sub></td><td class=\"right-nowrap\">-939.7 &plusmn; 1.2</td><td>kJ/mol</td><td>Cm</td><td><a href=\"#ref-2\">Invented and Madeup, 2097</a></td><td>Fixture measurement</td></tr>\n<tr><td>S&deg;<sub>solid</sub></td><td class=\"right-nowrap\">50.29 &plusmn; 0.21</td><td>J/mol*K</td><td>Review</td><td><a href=\"#ref-1\">Fictional, 2098</a></td><td>Fixture review</td></tr>\n<tr><td>&Delta;<sub>c</sub>H&deg;<sub>solid</sub></td><td class=\"right-nowrap\">-12.3</td><td>kJ/mol</td><td>Ccb</td><td><a href=\"#ref-2\">Invented and Madeup, 2097</a></td><td>Outside the property set</td></tr>\n</table>\n<table class=\"data\" aria-label=\"Constant pressure heat capacity of solid\">\n<tr><th>C<sub>p,solid</sub> (J/mol*K)</th><th>Temperature (K)</th><th>Reference</th><th>Comment</th></tr>\n<tr><td class=\"right-nowrap\">55.1</td><td>298.15</td><td><a href=\"#ref-3\">Placeholder, 2096</a></td><td>Adiabatic calorimetry per ASTM E1269 (fixture)</td></tr>\n<tr><td class=\"right-nowrap\">63.4</td><td>500.</td><td><a href=\"#ref-3\">Placeholder, 2096</a></td><td>Adiabatic calorimetry per ASTM E1269 (fixture)</td></tr>\n</table>\n<h2 id=\"Thermo-Phase\">Phase change data</h2>\n<table class=\"data\" aria-label=\"One dimensional data\">\n<tr><th>Quantity</th><th>Value</th><th>Units</th><th>Method</th><th>Reference</th><th>Comment</th></tr>\n<tr><td>T<sub>fus</sub></td><td class=\"right-nowrap\">2116 &plusmn; 20</td><td>K</td><td>N/A</td><td><a href=\"#ref-4\">Nobody, 2095</a></td><td>Fixture value without a DOI</td></tr>\n</table>\n<h2 id=\"Refs\">References</h2>\n<p class=\"ref\"><a id=\"ref-1\"></a><strong>Fictional, 2098</strong><br />Fictional, A., Evaluated fixture tables, J. Fict. Chem. Ref. Data 99, 1 (2098). <a href=\"https://doi.org/10.99999/fict.webbook.001\">doi</a></p>\n<p class=\"ref\"><a id=\"ref-2\"></a><strong>Invented and Madeup, 2097</strong><br />Invented, B.; Madeup, C., Combustion fixture study, J. Fict. Thermodyn. 98, 2 (2097). <a href=\"https://doi.org/10.99999/fict.webbook.002\">doi</a></p>\n<p class=\"ref\"><a id=\"ref-3\"></a><strong>Placeholder, 2096</strong><br />Placeholder, D., Heat capacity of a fixture oxide, Fict. Calorim. 97, 3 (2096).</p>\n<p class=\"ref\"><a id=\"ref-4\"></a><strong>Nobody, 2095</strong><br />Nobody, E., Melting of fixtures, Unindexed Proceedings (2095).</p>\n</body></html>\n"
+  }
+ ]
+}

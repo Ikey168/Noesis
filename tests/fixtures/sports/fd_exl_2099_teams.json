@@ -1,0 +1,107 @@
+{
+ "count": 4,
+ "competition": {
+  "id": 9900,
+  "name": "Example League",
+  "code": "EXL",
+  "type": "LEAGUE",
+  "emblem": "https://crests.example.org/exl.png"
+ },
+ "season": {
+  "id": 99,
+  "startDate": "2099-08-01",
+  "endDate": "2100-05-20",
+  "currentMatchday": 3,
+  "winner": null
+ },
+ "teams": [
+  {
+   "id": 9001,
+   "name": "Northbridge Rovers",
+   "shortName": "Rovers",
+   "tla": "NBR",
+   "crest": "https://crests.example.org/9001.png",
+   "address": "1 Harbour Road",
+   "website": "https://rovers.example.org",
+   "founded": 1888,
+   "clubColors": "Blue / White",
+   "venue": "Harbour Park",
+   "area": {
+    "id": 2999,
+    "name": "Exampleland"
+   },
+   "coach": {
+    "id": 1,
+    "name": "Carl Coach",
+    "dateOfBirth": "2050-01-01",
+    "nationality": "Exampleland"
+   },
+   "squad": [
+    {
+     "id": 50001,
+     "name": "Jan Example",
+     "position": "Midfield",
+     "dateOfBirth": "2075-04-12",
+     "nationality": "Exampleland"
+    },
+    {
+     "id": 50002,
+     "name": "Ola Keeper",
+     "position": "Goalkeeper",
+     "dateOfBirth": "2074-02-02",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "id": 9002,
+   "name": "Eastfield Athletic",
+   "shortName": "Athletic",
+   "tla": "EFA",
+   "crest": "https://crests.example.org/9002.png",
+   "founded": 1901,
+   "venue": "East Ground",
+   "area": {
+    "id": 2999,
+    "name": "Exampleland"
+   },
+   "squad": [
+    {
+     "id": 50003,
+     "name": "Jan Example",
+     "position": "Defence",
+     "dateOfBirth": "2078-09-30",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "id": 9003,
+   "name": "Southport United",
+   "shortName": "United",
+   "tla": "SPU",
+   "crest": "https://crests.example.org/9003.png",
+   "founded": 1920,
+   "venue": "South Stadium",
+   "area": {
+    "id": 2999,
+    "name": "Exampleland"
+   },
+   "squad": []
+  },
+  {
+   "id": 9004,
+   "name": "Westvale Town",
+   "shortName": "Town",
+   "tla": "WVT",
+   "crest": "https://crests.example.org/9004.png",
+   "founded": 1899,
+   "venue": "Vale Road",
+   "area": {
+    "id": 2999,
+    "name": "Exampleland"
+   },
+   "squad": []
+  }
+ ]
+}

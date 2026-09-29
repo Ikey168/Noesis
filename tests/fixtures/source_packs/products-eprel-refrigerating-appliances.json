@@ -1,0 +1,136 @@
+{
+ "authored": true,
+ "note": "Authored envelopes in the documented provider shape for fictional brands; not provider captures. Field names are unverified until a dated live run (PX12, #2104).",
+ "license": "fixture authored for Noesis tests",
+ "provider": "EPREL public API",
+ "native_pages": [
+  {
+   "selector": {
+    "registration_number": "3300001",
+    "label": "360 l (matched)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "3300001",
+    "productGroup": "refrigeratingappliances2019",
+    "supplierOrTrademark": "Nordkyl",
+    "modelIdentifier": "NK-FR360",
+    "implementingAct": "EU_2019_2016",
+    "status": "PUBLISHED",
+    "versionNumber": 4,
+    "totalVolume": 360,
+    "energyConsumptionAnnual": 212,
+    "energyClass": "C",
+    "noise": 36,
+    "noiseClass": "B",
+    "climateClasses": [
+     "SN",
+     "N",
+     "ST",
+     "T"
+    ],
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 3800001
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "3300002",
+    "label": "300 l (matched within volume tolerance)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "3300002",
+    "productGroup": "refrigeratingappliances2019",
+    "supplierOrTrademark": "Nordkyl",
+    "modelIdentifier": "NK-FR300",
+    "implementingAct": "EU_2019_2016",
+    "status": "PUBLISHED",
+    "versionNumber": 2,
+    "totalVolume": 300,
+    "energyConsumptionAnnual": 190,
+    "energyClass": "D",
+    "noise": 38,
+    "noiseClass": "C",
+    "climateClasses": [
+     "N",
+     "ST"
+    ],
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 3800002
+   }
+  },
+  {
+   "selector": {
+    "registration_number": "3300003",
+    "label": "same brand and designation as a washing machine (never matched across categories)"
+   },
+   "status": 200,
+   "requires_secret": true,
+   "body": {
+    "eprelRegistrationNumber": "3300003",
+    "productGroup": "refrigeratingappliances2019",
+    "supplierOrTrademark": "Hausmark",
+    "modelIdentifier": "WM-8E14",
+    "implementingAct": "EU_2019_2016",
+    "status": "PUBLISHED",
+    "versionNumber": 1,
+    "totalVolume": 250,
+    "energyConsumptionAnnual": 240,
+    "energyClass": "E",
+    "noise": 39,
+    "noiseClass": "C",
+    "climateClasses": [
+     "N"
+    ],
+    "onMarketStartDate": [
+     2025,
+     9,
+     1
+    ],
+    "placementCountries": [
+     {
+      "country": "DE"
+     },
+     {
+      "country": "AT"
+     }
+    ],
+    "energyLabelId": 3800003
+   }
+  }
+ ],
+ "scenarios": [
+  "matched-models",
+  "volume-tolerance",
+  "climate-classes-list",
+  "cross-category-designation",
+  "api-key-required"
+ ]
+}

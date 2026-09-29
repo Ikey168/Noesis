@@ -41,6 +41,18 @@ _SELECTION_KEYS = frozenset(
         "documents",
     }
 )
+# Optional input kinds join a request only when selected, so requests without them hash as before.
+_OPTIONAL_SELECTION_KEYS = frozenset({"bafin_notices"})
+_BAFIN_NOTICE_KINDS = frozenset(
+    {
+        "voting_rights_notification",
+        "managers_transaction",
+        "net_short_position",
+        "bafin_warning",
+        "bafin_measure",
+        "authorised_entity",
+    }
+)
 _MAX_ITEMS = 100
 _TRANSFORMATION_KINDS = frozenset({"market_adjustment", "quantitative"})
 _PRICE_INTERVALS = frozenset({"1m", "5m", "15m", "30m", "1h", "1d", "1w", "1mo"})
@@ -233,11 +245,13 @@ class MarketAsOfSnapshotStore:
             )
         if gap_policy not in {"fail", "record"}:
             raise MarketAsOfError("invalid_request", "gap_policy must be fail or record")
-        if not isinstance(selection, Mapping) or set(selection) - _SELECTION_KEYS:
+        if not isinstance(selection, Mapping) or set(selection) - _SELECTION_KEYS - _OPTIONAL_SELECTION_KEYS:
             raise MarketAsOfError(
                 "invalid_selection", "selection contains an unsupported input kind"
             )
         selected = {key: selection.get(key, []) for key in sorted(_SELECTION_KEYS)}
+        if selection.get("bafin_notices"):
+            selected["bafin_notices"] = selection["bafin_notices"]
         if not any(selected.values()):
             raise MarketAsOfError("invalid_selection", "at least one input is required")
         for kind, values in selected.items():
@@ -327,6 +341,28 @@ class MarketAsOfSnapshotStore:
                 {"document_id": _text(item["document_id"], "document_id", 300)}
             )
         selected["documents"] = _sort_specs(normalized_documents)
+        if "bafin_notices" in selected:
+            normalized_bafin = []
+            for item in selected["bafin_notices"]:
+                if (
+                    not isinstance(item, Mapping)
+                    or set(item) - {"namespace", "issuer_isin", "kinds"}
+                    or "namespace" not in item
+                ):
+                    raise MarketAsOfError(
+                        "invalid_selection",
+                        "BaFin notice selectors require a namespace and optional issuer_isin and kinds",
+                    )
+                kinds = sorted(set(item.get("kinds") or []))
+                if set(kinds) - _BAFIN_NOTICE_KINDS:
+                    raise MarketAsOfError("invalid_selection", "unsupported BaFin notice kind")
+                selector = {"namespace": _text(item["namespace"], "BaFin namespace", 100)}
+                if item.get("issuer_isin"):
+                    selector["issuer_isin"] = _text(item["issuer_isin"], "issuer_isin", 20).upper()
+                if kinds:
+                    selector["kinds"] = kinds
+                normalized_bafin.append(selector)
+            selected["bafin_notices"] = _sort_specs(normalized_bafin)
         if (
             not isinstance(transformations, (list, tuple))
             or len(transformations) > _MAX_ITEMS
@@ -782,6 +818,49 @@ class MarketAsOfSnapshotStore:
                             "source_document_revision_id"
                         ),
                         "context_id": fact["context_id"],
+                    }
+                )
+
+        for selector in request["selection"].get("bafin_notices", []):
+            # BaFin notices (#2106): each notice's revision published by the public
+            # cutoff and acquired by the acquisition cutoff; nothing later is seen.
+            from src.domains.market.bafin_notices import BafinError, BafinNoticeStore, authorize
+
+            object_id = f"{selector['namespace']}:{selector.get('issuer_isin') or '*'}"
+            bafin = BafinNoticeStore(self.conn, initialize=False)
+            try:
+                authorize(selector["namespace"], scopes, "market:bafin:read")
+                visible = bafin.visible(
+                    selector["namespace"],
+                    kinds=selector.get("kinds"),
+                    issuer_isin=selector.get("issuer_isin"),
+                    public_cutoff_ms=public_cutoff,
+                    acquired_by_ms=acquired_cutoff,
+                )
+            except BafinError as exc:
+                if exc.code == "unauthorized":
+                    raise MarketAsOfError("unauthorized", "BaFin notice access is required") from exc
+                gap("bafin_notices", object_id, "bafin_notices_not_acquired")
+                continue
+            if not visible["notices"]:
+                gap("bafin_notices", object_id, "no_notices_published_at_cutoffs")
+            for view in visible["unreadable"]:
+                gap("bafin_notices", view["notice_id"], "notice_revision_unreadable")
+            for view in visible["notices"]:
+                append_input(
+                    {
+                        "kind": "bafin_notice",
+                        "object_id": view["notice_id"],
+                        "revision_id": view["revision_id"],
+                        "record_hash": view["record_hash"],
+                        "public_at_ms": view["public_at_ms"],
+                        "publication_basis": view["publication_basis"],
+                        "retrieved_at_ms": view["observed_at_ms"],
+                        "notice_kind": view["notice"]["kind"],
+                        "source_id": view["notice"]["source"]["source_id"],
+                        "source_ref_ids": [],
+                        "entitlement_ids": [],
+                        "source_entitlements": [],
                     }
                 )
 

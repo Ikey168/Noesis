@@ -1,0 +1,18 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-oss-ecosystem-answer-v1.json",
+  "title": "OSS Ecosystems answer",
+  "description": "An answer of the OSS Ecosystems queries (src/kb/oss_ecosystem_queries.py, src/kb/oss_ecosystem_graph.py): every item cites its source, revision and observation time; every answer states its knowledge cutoff, generation and gaps. No quality, health, popularity or trust verdict and no person appears in an answer.",
+  "type": "object",
+  "required": ["contract", "namespace", "knowledge_cutoff_ms", "generation"],
+  "properties": {
+    "contract": {"const": "noesis-oss-ecosystem-answer-v1"},
+    "namespace": {"type": "string"},
+    "knowledge_cutoff_ms": {"type": "integer"},
+    "generation": {"type": "string", "pattern": "^oss-gen:[0-9a-f]{24}$"},
+    "gaps": {"type": "array"},
+    "semantics": {"type": "string"},
+    "unresolved": {"type": "array"}
+  },
+  "additionalProperties": true
+}

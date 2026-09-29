@@ -1,0 +1,36 @@
+{
+  "captured": false,
+  "provider": "jpl-sbdb",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/sbdb.api?sstr=433&alt-des=1",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Small-Body Database (SBDB) API\", \"version\": \"1.3\"},\n  \"object\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"spkid\": \"54999901\", \"prefix\": null, \"kind\": \"au\",\n             \"orbit_id\": \"3\", \"orbit_class\": {\"code\": \"AMO\", \"name\": \"Amor\"}},\n  \"orbit\": {\n    \"orbit_id\": \"3\", \"source\": \"JPL\", \"producer\": \"Fictional Producer\", \"soln_date\": \"2099-02-04 10:00:00\",\n    \"epoch\": \"2487737.5\", \"equinox\": \"J2000\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\",\n    \"data_arc\": \"14\", \"n_obs_used\": 24, \"condition_code\": \"6\", \"rms\": \".35\",\n    \"elements\": [\n      {\"name\": \"e\", \"value\": \".2345702\", \"sigma\": \".0012\", \"units\": null, \"label\": \"e\"},\n      {\"name\": \"a\", \"value\": \"2.20004\", \"sigma\": \".003\", \"units\": \"au\", \"label\": \"a\"},\n      {\"name\": \"i\", \"value\": \"7.1235\", \"sigma\": \".002\", \"units\": \"deg\", \"label\": \"i\"},\n      {\"name\": \"om\", \"value\": \"33.4568\", \"sigma\": \".004\", \"units\": \"deg\", \"label\": \"node\"},\n      {\"name\": \"w\", \"value\": \"151.2344\", \"sigma\": \".01\", \"units\": \"deg\", \"label\": \"peri\"},\n      {\"name\": \"ma\", \"value\": \"45.1201\", \"sigma\": \".05\", \"units\": \"deg\", \"label\": \"M\"}\n    ]\n  }\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/sbdb.api?sstr=99942&alt-des=1",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Small-Body Database (SBDB) API\", \"version\": \"1.3\"},\n  \"object\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"spkid\": \"54999901\", \"prefix\": null, \"kind\": \"au\",\n             \"orbit_id\": \"3\", \"orbit_class\": {\"code\": \"AMO\", \"name\": \"Amor\"}},\n  \"orbit\": {\n    \"orbit_id\": \"3\", \"source\": \"JPL\", \"producer\": \"Fictional Producer\", \"soln_date\": \"2099-02-04 10:00:00\",\n    \"epoch\": \"2487737.5\", \"equinox\": \"J2000\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\",\n    \"data_arc\": \"14\", \"n_obs_used\": 24, \"condition_code\": \"6\", \"rms\": \".35\",\n    \"elements\": [\n      {\"name\": \"e\", \"value\": \".2345702\", \"sigma\": \".0012\", \"units\": null, \"label\": \"e\"},\n      {\"name\": \"a\", \"value\": \"2.20004\", \"sigma\": \".003\", \"units\": \"au\", \"label\": \"a\"},\n      {\"name\": \"i\", \"value\": \"7.1235\", \"sigma\": \".002\", \"units\": \"deg\", \"label\": \"i\"},\n      {\"name\": \"om\", \"value\": \"33.4568\", \"sigma\": \".004\", \"units\": \"deg\", \"label\": \"node\"},\n      {\"name\": \"w\", \"value\": \"151.2344\", \"sigma\": \".01\", \"units\": \"deg\", \"label\": \"peri\"},\n      {\"name\": \"ma\", \"value\": \"45.1201\", \"sigma\": \".05\", \"units\": \"deg\", \"label\": \"M\"}\n    ]\n  }\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/sbdb.api?sstr=101955&alt-des=1",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Small-Body Database (SBDB) API\", \"version\": \"1.3\"},\n  \"object\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"spkid\": \"54999901\", \"prefix\": null, \"kind\": \"au\",\n             \"orbit_id\": \"3\", \"orbit_class\": {\"code\": \"AMO\", \"name\": \"Amor\"}},\n  \"orbit\": {\n    \"orbit_id\": \"3\", \"source\": \"JPL\", \"producer\": \"Fictional Producer\", \"soln_date\": \"2099-02-04 10:00:00\",\n    \"epoch\": \"2487737.5\", \"equinox\": \"J2000\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\",\n    \"data_arc\": \"14\", \"n_obs_used\": 24, \"condition_code\": \"6\", \"rms\": \".35\",\n    \"elements\": [\n      {\"name\": \"e\", \"value\": \".2345702\", \"sigma\": \".0012\", \"units\": null, \"label\": \"e\"},\n      {\"name\": \"a\", \"value\": \"2.20004\", \"sigma\": \".003\", \"units\": \"au\", \"label\": \"a\"},\n      {\"name\": \"i\", \"value\": \"7.1235\", \"sigma\": \".002\", \"units\": \"deg\", \"label\": \"i\"},\n      {\"name\": \"om\", \"value\": \"33.4568\", \"sigma\": \".004\", \"units\": \"deg\", \"label\": \"node\"},\n      {\"name\": \"w\", \"value\": \"151.2344\", \"sigma\": \".01\", \"units\": \"deg\", \"label\": \"peri\"},\n      {\"name\": \"ma\", \"value\": \"45.1201\", \"sigma\": \".05\", \"units\": \"deg\", \"label\": \"M\"}\n    ]\n  }\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/sbdb.api?sstr=2024%20YR4&alt-des=1",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Small-Body Database (SBDB) API\", \"version\": \"1.3\"},\n  \"object\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"spkid\": \"54999901\", \"prefix\": null, \"kind\": \"au\",\n             \"orbit_id\": \"3\", \"orbit_class\": {\"code\": \"AMO\", \"name\": \"Amor\"}},\n  \"orbit\": {\n    \"orbit_id\": \"3\", \"source\": \"JPL\", \"producer\": \"Fictional Producer\", \"soln_date\": \"2099-02-04 10:00:00\",\n    \"epoch\": \"2487737.5\", \"equinox\": \"J2000\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\",\n    \"data_arc\": \"14\", \"n_obs_used\": 24, \"condition_code\": \"6\", \"rms\": \".35\",\n    \"elements\": [\n      {\"name\": \"e\", \"value\": \".2345702\", \"sigma\": \".0012\", \"units\": null, \"label\": \"e\"},\n      {\"name\": \"a\", \"value\": \"2.20004\", \"sigma\": \".003\", \"units\": \"au\", \"label\": \"a\"},\n      {\"name\": \"i\", \"value\": \"7.1235\", \"sigma\": \".002\", \"units\": \"deg\", \"label\": \"i\"},\n      {\"name\": \"om\", \"value\": \"33.4568\", \"sigma\": \".004\", \"units\": \"deg\", \"label\": \"node\"},\n      {\"name\": \"w\", \"value\": \"151.2344\", \"sigma\": \".01\", \"units\": \"deg\", \"label\": \"peri\"},\n      {\"name\": \"ma\", \"value\": \"45.1201\", \"sigma\": \".05\", \"units\": \"deg\", \"label\": \"M\"}\n    ]\n  }\n}\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

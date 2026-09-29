@@ -1,0 +1,60 @@
+{
+  "contract": "noesis-product-category-v1",
+  "category": "thick-film-chip-resistors",
+  "version": "1.0.0",
+  "family": "component",
+  "labels": ["thick-film chip resistors"],
+  "identity": "manufacturer-mpn",
+  "normalization_version": "products-category-normalization-v1",
+  "attributes": {
+    "resistance": {"kind": "quantity", "canonical_units": ["ohm"], "units": ["mohm", "ohm", "kohm", "Mohm"],
+                   "precision": 3, "tolerance": "resistance_tolerance", "label": "Nominal resistance"},
+    "resistance_tolerance": {"kind": "tolerance", "canonical_units": ["percent"], "units": ["percent"], "precision": 2,
+                             "label": "Resistance tolerance"},
+    "rated_power": {"kind": "quantity", "canonical_units": ["W"], "units": ["W"], "precision": 4,
+                    "label": "Rated power at 70 °C"},
+    "tcr": {"kind": "tolerance", "canonical_units": ["ppm/K"], "units": ["ppm/K"], "precision": 0,
+            "label": "Temperature coefficient of resistance"},
+    "package": {"kind": "code", "modes": ["eia-imperial", "eia-metric"], "label": "Case code"},
+    "operating_temperature_min": {"kind": "quantity", "canonical_units": ["C"], "units": ["C"], "precision": 0},
+    "operating_temperature_max": {"kind": "quantity", "canonical_units": ["C"], "units": ["C"], "precision": 0}
+  },
+  "label_schemes": {},
+  "comparison": {
+    "attributes": ["resistance", "rated_power", "tcr", "package", "operating_temperature_min",
+                   "operating_temperature_max"],
+    "notice": "Values are manufacturer-published and supplier catalogue data, not independent measurements; nominal values are shown with their published tolerance, and this comparison is neither a buying recommendation nor a cross-reference or drop-in replacement suggestion."
+  },
+  "matching": {
+    "providers": "distinct",
+    "identifier": "component",
+    "corroboration": [
+      {"attribute": "resistance", "mode": null, "rule": "within", "tolerance": "0", "evidence": "resistance_ohm",
+       "required": true, "missing_reason": "resistance missing on at least one side",
+       "contradiction": "resistance differs by {gap} ohm"},
+      {"attribute": "package", "mode": "eia-imperial", "rule": "overlap", "evidence": "package_eia_imperial",
+       "required": true, "missing_reason": "EIA (inch) case code missing on at least one side",
+       "contradiction": "case code differs"},
+      {"attribute": "rated_power", "mode": null, "rule": "within", "tolerance": "0", "evidence": "rated_power_w",
+       "required": false, "contradiction": "rated power differs by {gap} W"}
+    ]
+  },
+  "providers": {
+    "bmecat": {
+      "feature_groups": ["27-26-02-01"],
+      "features": [
+        ["resistance", "resistance", null],
+        ["resistance tolerance", "resistance_tolerance", null],
+        ["rated power", "rated_power", null],
+        ["temperature coefficient", "tcr", null],
+        ["case code (inch)", "package", "eia-imperial"],
+        ["case code (mm)", "package", "eia-metric"],
+        ["operating temperature min", "operating_temperature_min", null],
+        ["operating temperature max", "operating_temperature_max", null]
+      ],
+      "unit_signs": {"Ω": "ohm", "ohm": "ohm", "kΩ": "kohm", "kohm": "kohm", "mΩ": "mohm", "MΩ": "Mohm",
+                     "w": "W", "wtt": "W", "%": "percent", "p1": "percent", "ppm/k": "ppm/K", "ppm/°c": "ppm/K",
+                     "°c": "C", "cel": "C"}
+    }
+  }
+}

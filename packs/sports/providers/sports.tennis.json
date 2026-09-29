@@ -1,0 +1,59 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "sports.tennis",
+  "version": "1.0.0",
+  "description": "Tennis match results from Jeff Sackmann's tennis_atp / tennis_wta archives (CC BY-NC-SA 4.0): match-level fields only, the licence, attribution and share-alike flag on every record and export; non-commercial use only.",
+  "implementation": {
+    "name": "src.kb.sports_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "sports.tennis-results",
+      "contract": {
+        "name": "noesis-sports-tennis-result",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "tennis-matches"
+      ],
+      "semantic_constraints": {
+        "licence": "CC BY-NC-SA 4.0 travels with every derived record; commercial exports and relicensing are refused",
+        "fields": "tournament, round, players as published, score and surface; no height, handedness, age or nationality"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "tennis-matches",
+      "tool": "noesis-knowledge-engine.sports_tennis_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:sports:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "sports_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "sports-records",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

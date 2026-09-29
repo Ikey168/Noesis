@@ -1,0 +1,24 @@
+{
+  "captured": false,
+  "provider": "bafin-warnings-measures",
+  "note": "Authored exports naming fictional issuers, companies and persons only, served for the production document URLs. The production issuer set (DAX 40, verify) is therefore out of scope for every row and no notice is emitted for it; parsing is exercised with the fictional issuer set in tests/unit/bafin_harness.py.",
+  "native_pages": [
+    {
+      "request": "/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Verbraucher/unerlaubteGeschaefte.xml",
+      "status": 200,
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\"><channel><title>BaFin - Warnungen (fiktiver Feed)</title><link>https://www.bafin.de/</link><description>Authored fixture</description>\n<item><title>Warnung vor der Fiktiva Invest GmbH: Identitätsmissbrauch</title><link>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Verbrauchermitteilung/unerlaubte/2026/meldung_2026_05_04_Fiktiva_Invest.html</link><guid>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Verbrauchermitteilung/unerlaubte/2026/meldung_2026_05_04_Fiktiva_Invest.html</guid><pubDate>Mon, 04 May 2026 10:00:00 +0200</pubDate><description>Die BaFin warnt gemäß § 37 Abs. 4 KWG vor Anbietern, die unter dem Namen der Fiktiva Invest GmbH auftreten. Die Fiktiva Invest GmbH hat mit diesen Angeboten nichts zu tun.</description></item>\n<item><title>Warnung vor der Sonnenschein Trading Ltd</title><link>http://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Verbrauchermitteilung/unerlaubte/2025/meldung_2025_11_02_Sonnenschein.html</link><guid>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Verbrauchermitteilung/unerlaubte/2025/meldung_2025_11_02_Sonnenschein.html</guid><pubDate>Sun, 02 Nov 2025 09:00:00 +0100</pubDate><description>Die BaFin warnt gemäß § 37 Abs. 4 KWG vor der Sonnenschein Trading Ltd.</description></item>\n<item><title>Verbraucherhinweis: Vorsicht bei Anlageangeboten</title><link>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Verbrauchermitteilung/2026/hinweis_2026_02_01.html</link><guid>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Verbrauchermitteilung/2026/hinweis_2026_02_01.html</guid><pubDate>Sun, 01 Feb 2026 09:00:00 +0100</pubDate><description>Allgemeiner Hinweis ohne benanntes Unternehmen.</description></item>\n</channel></rss>\n",
+      "authored": true
+    },
+    {
+      "request": "/SiteGlobals/Functions/RSSFeed/DE/RSSNewsfeed/Massnahmen/massnahmen.xml",
+      "status": 200,
+      "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<rss version=\"2.0\"><channel><title>BaFin - Maßnahmen und Sanktionen (fiktiver Feed)</title><link>https://www.bafin.de/</link><description>Authored fixture</description>\n<item><title>Maßnahme gegen die Beispiel Treuhand GmbH: Bußgeld</title><link>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Massnahmen/2026/meldung_2026_05_12_Beispiel_Treuhand.html</link><guid>https://www.bafin.de/SharedDocs/Veroeffentlichungen/DE/Massnahmen/2026/meldung_2026_05_12_Beispiel_Treuhand.html</guid><pubDate>Tue, 12 May 2026 14:00:00 +0200</pubDate><description>Die BaFin hat gegen die Beispiel Treuhand GmbH ein Bußgeld nach § 120 Abs. 12 WpHG wegen eines Verstoßes gegen Art. 19 der Verordnung (EU) Nr. 596/2014 verhängt.</description></item>\n</channel></rss>\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-issuer-set",
+    "out-of-scope-rows-counted",
+    "declared-column-mapping"
+  ]
+}

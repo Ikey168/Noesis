@@ -16,6 +16,15 @@ checkpoints and projection apply. Each source declares an explicit, bounded
   (court and modified-since filters) from the official RII table of contents.
 * ``berlin-law`` - explicit documented download or rendered-page URLs on
   gesetze.berlin.de, each with its official ID, format and historical state.
+* ``gesetze-im-internet`` - the bounded federal statute set (FL01) located
+  through ``gii-toc.xml`` and fetched as per-statute ``xml.zip``; every fetch is
+  an *observed* version (#2105, FL03).
+* ``rechtsinformationen-bund`` - the federal legal information portal's
+  search for each selected statute (exact abbreviation) and up to 20 of its
+  expressions as LegalDocML.de, each a *source-stated* version (FL04).
+* ``recht-bund`` - digital Federal Law Gazette promulgations (since 2023):
+  explicit BGBl citations and/or one bounded listing; only acts that amend a
+  selected statute are acquired, the others are recorded as seen (FL05).
 
 Nothing here infers that an instrument is in force: records keep
 ``is_current_law`` unknown and the Legal store only records sourced dates.
@@ -35,9 +44,12 @@ from urllib.parse import urlsplit
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-LEGAL_CONNECTORS = frozenset({"cellar", "rii", "berlin-law"})
+FEDERAL_CONNECTORS = frozenset({"gesetze-im-internet", "rechtsinformationen-bund", "recht-bund"})
+LEGAL_CONNECTORS = frozenset({"cellar", "rii", "berlin-law"}) | FEDERAL_CONNECTORS
 MAX_SELECTION = 50
-JURISDICTIONS = {"cellar": "EU", "rii": "DE", "berlin-law": "DE-BE"}
+MAX_STATUTES = 20
+JURISDICTIONS = {"cellar": "EU", "rii": "DE", "berlin-law": "DE-BE", "gesetze-im-internet": "DE",
+                 "rechtsinformationen-bund": "DE", "recht-bund": "DE"}
 PROVIDER_CONTRACTS = {
     "cellar": {
         "provider": "cellar",
@@ -73,6 +85,51 @@ PROVIDER_CONTRACTS = {
         "authentication": "none",
         "coverage": "Selected official Berlin publications; historical versions remain historical; editorial text is excluded",
         "prior_live_evidence": "docs/development/workflow-review-evidence/berlin-native-2026-09-09.json",
+    },
+    # Federal statutes feature (#2105). Access decisions and every claim still to verify live:
+    # docs/development/federal-statutes-evidence/source-audit.md.
+    "gesetze-im-internet": {
+        "provider": "gesetze-im-internet",
+        "jurisdiction": "DE",
+        "access": "Public table of contents (gii-toc.xml) and per-statute xml.zip downloads on "
+                  "www.gesetze-im-internet.de; no API key",
+        "formats": ["application/xml (gii-toc)", "application/zip (gii-norm XML)"],
+        "document_classes": ["federal statutes (current consolidation only)"],
+        "identifiers": ["jurabk / amtabk", "gii doknr (BJNR…)", "statute directory (e.g. bgb)"],
+        "authentication": "none",
+        "validity": "observed: the current text as seen on the fetch date; the 'Stand' note is kept verbatim and "
+                    "never turned into a validity interval",
+        "access_decision": "implement (unverified-live)",
+        "coverage": "The bounded statute set only; not all federal law",
+        "prior_live_evidence": None,
+    },
+    "rechtsinformationen-bund": {
+        "provider": "rechtsinformationen-bund",
+        "jurisdiction": "DE",
+        "access": "Federal legal information portal API (search and LegalDocML.de expressions); trial service at "
+                  "testphase.rechtsinformationen.bund.de - verify status, terms and rate limits live",
+        "formats": ["application/ld+json (search)", "application/xml (LegalDocML.de / Akoma Ntoso)"],
+        "document_classes": ["federal statutes: versions (expressions) with stated validity"],
+        "identifiers": ["ELI (work and expression)", "abbreviation"],
+        "authentication": "none (verify)",
+        "validity": "source_stated: temporalCoverage of each expression",
+        "access_decision": "implement behind the federal-statutes feature (unverified-live; trial phase)",
+        "coverage": "Statutes of the bounded set for which the portal publishes versions",
+        "prior_live_evidence": None,
+    },
+    "recht-bund": {
+        "provider": "recht-bund",
+        "jurisdiction": "DE",
+        "access": "Digital Federal Law Gazette on www.recht.bund.de (promulgations since 1 January 2023); "
+                  "listing and LegalDocML.de document paths are declared in the source and must be verified live",
+        "formats": ["application/rss+xml or Atom (listing)", "application/xml (LegalDocML.de promulgation)"],
+        "document_classes": ["amendment acts (BGBl. I/II promulgations)"],
+        "identifiers": ["BGBl citation (year, part, number)", "ELI eli/bund/bgbl-1/<year>/<number>"],
+        "authentication": "none",
+        "validity": "promulgation date and the entry-into-force article as published; instructions never applied",
+        "access_decision": "implement (unverified-live); historical BGBl before 2023 on bgbl.de: link-only",
+        "coverage": "Acts that amend a statute of the bounded set; others are recorded as seen, not acquired",
+        "prior_live_evidence": None,
     },
 }
 
@@ -123,7 +180,59 @@ def legal_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
                     "invalid_mapping",
                     "berlin-law selections name official_id, format (juris-xml-zip|rendered-html) and historical",
                 )
+    elif connector in FEDERAL_CONNECTORS:
+        _federal_declaration(connector, dict(selection or {}))
     return legal
+
+
+def _statute_selection(selection: Mapping[str, Any], *, require: bool = True) -> list[dict[str, Any]]:
+    from src.kb.legal_citations import FEDERAL_STATUTE_SET
+
+    statutes = list(selection.get("statutes") or [])
+    if (require and not statutes) or len(statutes) > MAX_STATUTES:
+        raise SourcePackError("unbounded_source", f"federal sources select 1-{MAX_STATUTES} statutes")
+    output = []
+    for statute in statutes:
+        statute = dict(statute) if isinstance(statute, Mapping) else {"jurabk": statute}
+        jurabk = str(statute.get("jurabk") or "")
+        if not re.fullmatch(r"[A-Za-zÄÖÜäöüß][A-Za-zÄÖÜäöüß0-9 -]{0,30}", jurabk):
+            raise SourcePackError("invalid_mapping", "federal statute selections name the official abbreviation")
+        known = FEDERAL_STATUTE_SET.get(jurabk, {})
+        output.append({"jurabk": jurabk, "gii_path": statute.get("gii_path") or known.get("gii_path"),
+                       "names": list(statute.get("names") or known.get("names") or []),
+                       "title": statute.get("title") or known.get("title"), "eli_work": statute.get("eli_work")})
+    return output
+
+
+def _federal_declaration(connector: str, selection: Mapping[str, Any]) -> None:
+    statutes = _statute_selection(selection)
+    if connector == "gesetze-im-internet":
+        if any(not re.fullmatch(r"[a-z0-9_.-]{1,60}", str(s["gii_path"] or "")) for s in statutes) \
+                or not re.fullmatch(r"/[A-Za-z0-9_./-]{1,100}\.xml", str(selection.get("toc_path") or "")):
+            raise SourcePackError("invalid_mapping", "gesetze-im-internet selections name toc_path and a gii_path "
+                                                     "per statute")
+    elif connector == "rechtsinformationen-bund":
+        if not 1 <= int(selection.get("max_expressions") or 0) <= 20:
+            raise SourcePackError("unbounded_source", "rechtsinformationen-bund selections read 1-20 expressions "
+                                                      "per statute")
+    else:
+        items = list(selection.get("items") or [])
+        index = selection.get("index")
+        if not items and index is None or len(items) > MAX_SELECTION:
+            raise SourcePackError("unbounded_source", "recht-bund sources need explicit items or one bounded index")
+        if index is not None and (not 1 <= int(dict(index).get("limit") or 0) <= MAX_SELECTION
+                                  or not str(dict(index).get("path") or "").startswith("/")):
+            raise SourcePackError("unbounded_source", f"recht-bund listings select 1-{MAX_SELECTION} promulgations")
+        for item in items:
+            if int(dict(item).get("part") or 0) not in (1, 2) or not str(dict(item).get("number") or "").isdigit():
+                raise SourcePackError("invalid_mapping", "recht-bund items name part (1|2), year and number")
+            if int(dict(item).get("year") or 0) < 2023:
+                raise SourcePackError("invalid_mapping", "the Federal Law Gazette before 2023 is link-only (FL01)")
+        template = str(selection.get("document_path") or "")
+        if not template.startswith("/") or not all(f"{{{k}}}" in template for k in ("part", "year", "number")):
+            raise SourcePackError("invalid_mapping", "recht-bund selections declare a document_path with {part}, "
+                                                     "{year} and {number}")
+    del statutes
 
 
 class _LegalAdapter:
@@ -507,8 +616,202 @@ def _single_xml_member(raw: bytes) -> bytes:
             return stream.read(20_000_001)
 
 
+def _format_error(exc: Exception) -> SourcePackError:
+    code = getattr(exc, "code", "schema_drift")
+    mapped = {"input_limit": "response_too_large", "unsupported_archive": "schema_drift"}.get(code, "schema_drift")
+    return SourcePackError(mapped, f"{code}: {exc}")
+
+
+class _FederalAdapter(_LegalAdapter):
+    """Shared paging for federal sources: one queued unit (statute or promulgation) per page."""
+
+    def _same_host(self, url: str) -> str:
+        """An absolute https URL on the declared host (relative paths and http links on that host are upgraded)."""
+        parts = urlsplit(url)
+        base = urlsplit(self.source["endpoint"])
+        if not parts.netloc:
+            return f"{base.scheme}://{base.netloc}{parts.path}" + (f"?{parts.query}" if parts.query else "")
+        if (parts.hostname or "").casefold() != (base.hostname or "").casefold():
+            raise SourcePackError("network_policy", "federal sources fetch only from their declared host")
+        return f"https://{parts.netloc}{parts.path}" + (f"?{parts.query}" if parts.query else "")
+
+    def _statutes(self) -> list[dict[str, Any]]:
+        return _statute_selection(self.legal["selection"])
+
+
+class GiiStatuteAdapter(_FederalAdapter):
+    connector = "gesetze-im-internet"
+
+    def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
+        from src.ingestion.federal_law_formats import FormatError, parse_gii_statute, parse_gii_toc
+
+        self._check(request)
+        state = self._cursor(cursor)
+        selection = self.legal["selection"]
+        statutes = self._statutes()
+        if "queue" not in state:
+            status, raw = self._get(self._same_host(selection["toc_path"]))
+            if status >= 400:
+                raise SourcePackError("schema_drift", f"gii table of contents returned HTTP {status}")
+            try:
+                toc = parse_gii_toc(raw)
+            except FormatError as exc:
+                raise _format_error(exc) from exc
+            by_path = {item["path"]: item for item in toc}
+            queue = []
+            for statute in statutes:
+                item = by_path.get(str(statute["gii_path"]).casefold())
+                if item is not None:
+                    self._same_host(item["link"])  # a link to another host is refused, never followed
+                queue.append({"jurabk": statute["jurabk"], "link": item["link"] if item else None})
+            info = {"toc_sha256": hashlib.sha256(raw).hexdigest(), "toc_items": len(toc),
+                    "selected": len(queue), "in_toc": sum(1 for q in queue if q["link"])}
+            return self._page([], {"queue": queue, "i": 0}, len(raw), {"status": status, "toc": info})
+        queue, index = list(state["queue"]), int(state["i"])
+        if index >= len(queue):
+            return self._page([], None, 0, {"status": 200})
+        entry = queue[index]
+        info = {"official_id": entry["jurabk"], "selection_index": index, "selection_size": len(queue),
+                "final_page": index + 1 >= len(queue)}
+        next_state = None if index + 1 >= len(queue) else {"queue": queue, "i": index + 1}
+        if not entry["link"]:
+            return self._page([], next_state, 0, {"status": 404, "outcome": "not_found", "reason": "not_in_toc",
+                                                  **info})
+        url = self._same_host(entry["link"])
+        status, raw = self._get(url)
+        info["response_sha256"] = hashlib.sha256(raw).hexdigest()
+        if status in {404, 410}:
+            return self._page([], next_state, len(raw), {"status": status, "outcome": "not_found", **info})
+        if status >= 400:
+            raise SourcePackError("schema_drift", f"gii statute download returned HTTP {status}")
+        try:
+            record = parse_gii_statute(raw, source_url=url, jurabk=entry["jurabk"])
+        except (FormatError, zipfile.BadZipFile) as exc:
+            raise (_format_error(exc) if isinstance(exc, FormatError)
+                   else SourcePackError("schema_drift", "statute download is not a valid archive")) from exc
+        return self._page([self._wrap(record, info)], next_state, len(raw), {"status": status, "outcome": "returned",
+                                                                              **info})
+
+
+class RisStatuteAdapter(_FederalAdapter):
+    connector = "rechtsinformationen-bund"
+
+    def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
+        from src.ingestion.federal_law_formats import FormatError, parse_legaldocml_statute, parse_ris_search
+
+        self._check(request)
+        state = self._cursor(cursor)
+        statutes = self._statutes()
+        index = int(state.get("i", 0))
+        if index >= len(statutes):
+            return self._page([], None, 0, {"status": 200})
+        statute = statutes[index]
+        limit = int(self.legal["selection"]["max_expressions"])
+        status, raw = self._get(self.source["endpoint"], {"searchTerm": statute["jurabk"], "size": limit},
+                                {"Accept": "application/ld+json, application/json"})
+        info = {"official_id": statute["jurabk"], "selection_index": index, "selection_size": len(statutes),
+                "search_sha256": hashlib.sha256(raw).hexdigest(), "final_page": index + 1 >= len(statutes)}
+        next_state = None if index + 1 >= len(statutes) else {"i": index + 1}
+        if status >= 400:
+            raise SourcePackError("schema_drift", f"legal information portal search returned HTTP {status}")
+        try:
+            expressions = parse_ris_search(raw, jurabk=statute["jurabk"], eli_work=statute.get("eli_work"))
+        except FormatError as exc:
+            raise _format_error(exc) from exc
+        records, total, fetched = [], len(raw), []
+        for expression in expressions[:limit]:
+            url = self._same_host(expression["xml_url"])
+            doc_status, doc = self._get(url, headers={"Accept": "application/xml"})
+            total += len(doc)
+            fetched.append({"eli": expression["eli_expression"], "status": doc_status,
+                            "response_sha256": hashlib.sha256(doc).hexdigest()})
+            if doc_status in {404, 410}:
+                continue
+            if doc_status >= 400:
+                raise SourcePackError("schema_drift", f"LegalDocML expression returned HTTP {doc_status}")
+            try:
+                record = parse_legaldocml_statute(doc, expression=expression, jurabk=statute["jurabk"],
+                                                  source_url=url)
+            except FormatError as exc:
+                raise _format_error(exc) from exc
+            records.append(self._wrap(record, {**info, "response_sha256": fetched[-1]["response_sha256"]}))
+        info.update({"expressions_listed": len(expressions), "expressions": fetched,
+                     "truncated": len(expressions) > limit})
+        return self._page(records, next_state, total, {"status": status,
+                                                       "outcome": "returned" if records else "not_found", **info})
+
+
+class BgblActAdapter(_FederalAdapter):
+    connector = "recht-bund"
+
+    def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
+        from src.ingestion.federal_law_formats import (
+            DIGITAL_BGBL_FROM_YEAR,
+            FormatError,
+            parse_bgbl_act,
+            parse_bgbl_feed,
+        )
+        from src.kb.legal_citations import bgbl_key
+
+        self._check(request)
+        state = self._cursor(cursor)
+        selection = self.legal["selection"]
+        if "queue" not in state:
+            queue = [{"part": int(i["part"]), "year": int(i["year"]), "number": int(i["number"])}
+                     for i in selection.get("items") or []]
+            info: dict[str, Any] = {}
+            raw = b""
+            if selection.get("index"):
+                window = dict(selection["index"])
+                status, raw = self._get(self._same_host(window["path"]))
+                if status >= 400:
+                    raise SourcePackError("schema_drift", f"promulgation listing returned HTTP {status}")
+                try:
+                    listed = parse_bgbl_feed(raw)
+                except FormatError as exc:
+                    raise _format_error(exc) from exc
+                historical = [e["key"] for e in listed if e["year"] < DIGITAL_BGBL_FROM_YEAR]
+                for entry in listed[:int(window["limit"])]:
+                    item = {"part": entry["part"], "year": entry["year"], "number": entry["number"]}
+                    if entry["year"] >= DIGITAL_BGBL_FROM_YEAR and item not in queue:
+                        queue.append(item)
+                info = {"listing_sha256": hashlib.sha256(raw).hexdigest(), "listed": len(listed),
+                        "link_only_historical": historical}
+            queue = queue[:MAX_SELECTION]
+            if raw:
+                return self._page([], {"queue": queue, "i": 0} if queue else None, len(raw),
+                                  {"status": 200, "index": info, "queue_size": len(queue)})
+            state = {"queue": queue, "i": 0}
+        queue, index = list(state["queue"]), int(state["i"])
+        if index >= len(queue):
+            return self._page([], None, 0, {"status": 200, "queue_size": len(queue)})
+        item = queue[index]
+        key = bgbl_key(item["part"], item["year"], number=item["number"])
+        url = self._same_host(selection["document_path"].format(**item))
+        status, raw = self._get(url, headers={"Accept": "application/xml"})
+        info = {"official_id": key, "queue_index": index, "queue_size": len(queue),
+                "response_sha256": hashlib.sha256(raw).hexdigest(), "final_page": index + 1 >= len(queue)}
+        next_state = None if index + 1 >= len(queue) else {"queue": queue, "i": index + 1}
+        if status in {404, 410}:
+            return self._page([], next_state, len(raw), {"status": status, "outcome": "not_found", **info})
+        if status >= 400:
+            raise SourcePackError("schema_drift", f"promulgation returned HTTP {status}")
+        try:
+            record = parse_bgbl_act(raw, key=key, statutes=self._statutes(), source_url=url)
+        except FormatError as exc:
+            raise _format_error(exc) from exc
+        if not record["fields"]["touched_statutes"]:
+            # Seen but not acquired: the act amends no statute of the bounded set.
+            return self._page([], next_state, len(raw), {"status": status, "outcome": "seen_not_acquired",
+                                                         "title": record["title"], **info})
+        return self._page([self._wrap(record, info)], next_state, len(raw),
+                          {"status": status, "outcome": "returned", **info})
+
+
 FIXTURE_SECRET = None
-ADAPTERS = {"cellar": CellarLegalAdapter, "rii": RiiDecisionAdapter, "berlin-law": BerlinLegalAdapter}
+ADAPTERS = {"cellar": CellarLegalAdapter, "rii": RiiDecisionAdapter, "berlin-law": BerlinLegalAdapter,
+            "gesetze-im-internet": GiiStatuteAdapter, "rechtsinformationen-bund": RisStatuteAdapter,
+            "recht-bund": BgblActAdapter}
 
 
 def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:

@@ -1,7 +1,7 @@
 {
   "pack_id": "products-displays",
-  "version": "1.1.0",
-  "description": "EU-market electronic displays from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), bounded to an explicit model selection, plus product safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF) bounded to explicit notice numbers. Neither display provider is independent testing, and a notice is what its authority published, never a verdict.",
+  "version": "1.2.0",
+  "description": "EU-market electronic displays, household washing machines and refrigerating appliances from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), and multilayer ceramic capacitors from manufacturer and supplier BMEcat catalogues, each bounded to an explicit model or part selection, plus product safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF) bounded to explicit notice numbers. No provider is independent testing, and a notice is what its authority published, never a verdict.",
   "domains": [
     "products"
   ],
@@ -419,6 +419,414 @@
         "path": "tests/fixtures/source_packs/products-safety-rasff.json",
         "sha256": "17c5a572bd97b4ec9280c167bfd3fcabd8f5b0e33559d772ec12002804364157",
         "expected_output_hash": "81d1bd61db16c9e445e6346a95d65d07e51da9c175a5b08f9aa71682df94fda0"
+      }
+    },
+    {
+      "source_id": "eprel-washing-machines",
+      "connector": "eprel",
+      "publisher": "European Commission (EPREL)",
+      "endpoint": "https://eprel.ec.europa.eu/api/products",
+      "scope": "Explicitly selected household washing machine registrations by EPREL registration number",
+      "update_cadence": "supplier-driven; versionNumber per registration",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_EPREL_API_KEY"
+      },
+      "license": {
+        "id": "eprel-public-data",
+        "terms_url": "https://energy-efficient-products.ec.europa.eu/eprel_en",
+        "redistribution": "public registration data; reuse per EPREL public API terms (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "product": {
+        "namespace": "global",
+        "language": "EN",
+        "market": "EU",
+        "category": {
+          "label": "household washing machines",
+          "product_group": "washingmachines2019"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "eprel.ec.europa.eu"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "registration_number": "2200001",
+            "label": "8 kg (matched)"
+          },
+          {
+            "registration_number": "2200002",
+            "label": "9 kg (matched, per-cycle energy on Icecat)"
+          },
+          {
+            "registration_number": "2200003",
+            "label": "suffix variant (ambiguous)"
+          },
+          {
+            "registration_number": "2200004",
+            "label": "withdrawn registration"
+          },
+          {
+            "registration_number": "2200099",
+            "label": "unknown registration (not found)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-eprel-washing-machines.json",
+        "sha256": "2716e03c9b5733b15e0e7d40fa424a0b1c1c0e2ffcbea8482263bfd5101c70ba",
+        "expected_output_hash": "2b2d03ecf2bc119172acf13e5ffec2939ba642fd99e45d1e7f3028fb9b998774"
+      }
+    },
+    {
+      "source_id": "eprel-refrigerating-appliances",
+      "connector": "eprel",
+      "publisher": "European Commission (EPREL)",
+      "endpoint": "https://eprel.ec.europa.eu/api/products",
+      "scope": "Explicitly selected refrigerating appliance registrations by EPREL registration number",
+      "update_cadence": "supplier-driven; versionNumber per registration",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_EPREL_API_KEY"
+      },
+      "license": {
+        "id": "eprel-public-data",
+        "terms_url": "https://energy-efficient-products.ec.europa.eu/eprel_en",
+        "redistribution": "public registration data; reuse per EPREL public API terms (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "product": {
+        "namespace": "global",
+        "language": "EN",
+        "market": "EU",
+        "category": {
+          "label": "refrigerating appliances",
+          "product_group": "refrigeratingappliances2019"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "eprel.ec.europa.eu"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "registration_number": "3300001",
+            "label": "360 l (matched)"
+          },
+          {
+            "registration_number": "3300002",
+            "label": "300 l (matched within volume tolerance)"
+          },
+          {
+            "registration_number": "3300003",
+            "label": "same brand and designation as a washing machine (never matched across categories)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-eprel-refrigerating-appliances.json",
+        "sha256": "ac4e76de1e8a722e8035411fca0c36c4609857e98d49f6656da721c885abfd34",
+        "expected_output_hash": "57cbedd2ed016bfe4534effa7d9c8d5bfaf8edcaa45ee4c333f4a58e86983094"
+      }
+    },
+    {
+      "source_id": "icecat-washing-machines",
+      "connector": "icecat",
+      "publisher": "Icecat (Open Icecat)",
+      "endpoint": "https://live.icecat.biz/api",
+      "scope": "Explicitly selected washing machine models by brand+product code or GTIN; Open Icecat catalogue only (provider_category_id is a placeholder until verified against the live category list)",
+      "update_cadence": "continuous editorial updates; ProductDataUpdated per product",
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_ICECAT_API_TOKEN"
+      },
+      "license": {
+        "id": "open-icecat-content",
+        "terms_url": "https://icecat.com/structured-data-content-users/",
+        "redistribution": "attribution-required; storage and export per Open Icecat terms (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "product": {
+        "namespace": "global",
+        "language": "EN",
+        "market": "EU",
+        "shopname": "openicecat-live",
+        "category": {
+          "label": "household washing machines",
+          "provider_category_id": "91001"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "objects.icecat.biz"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "brand": "Hausmark",
+            "product_code": "WM-8E14",
+            "label": "8 kg (matched)"
+          },
+          {
+            "brand": "Hausmark",
+            "product_code": "WM-9E16",
+            "label": "9 kg (per-cycle energy)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-icecat-washing-machines.json",
+        "sha256": "551211cfa5caeb2e4829664168b22a88f40c57b638fe9355845b3cb555455fce",
+        "expected_output_hash": "29b846cde2f7dfa447d202e1d477466dcc398d1a23e2cf8e7a443cdb1e70c5d6"
+      }
+    },
+    {
+      "source_id": "icecat-refrigerating-appliances",
+      "connector": "icecat",
+      "publisher": "Icecat (Open Icecat)",
+      "endpoint": "https://live.icecat.biz/api",
+      "scope": "Explicitly selected fridge and fridge-freezer models by brand+product code or GTIN; Open Icecat catalogue only (provider_category_id is a placeholder until verified against the live category list)",
+      "update_cadence": "continuous editorial updates; ProductDataUpdated per product",
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_ICECAT_API_TOKEN"
+      },
+      "license": {
+        "id": "open-icecat-content",
+        "terms_url": "https://icecat.com/structured-data-content-users/",
+        "redistribution": "attribution-required; storage and export per Open Icecat terms (operator must confirm)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 2000000,
+        "max_pages": 10
+      },
+      "product": {
+        "namespace": "global",
+        "language": "EN",
+        "market": "EU",
+        "shopname": "openicecat-live",
+        "category": {
+          "label": "refrigerating appliances",
+          "provider_category_id": "91002"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "objects.icecat.biz"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "brand": "Nordkyl",
+            "product_code": "NK-FR360",
+            "label": "360 l (matched)"
+          },
+          {
+            "gtin": "4099990000042",
+            "label": "300 l by GTIN (matched within volume tolerance)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-icecat-refrigerating-appliances.json",
+        "sha256": "238082175c5c8e1964ed973367abd95f29d99853bba378c812d723c01cbf6081",
+        "expected_output_hash": "e500e4154be21b713e8f5dc0eda1f8e2e6d237eda371a81863ad0a2d5fceccb9"
+      }
+    },
+    {
+      "source_id": "bmecat-capatronic-mlcc",
+      "connector": "bmecat",
+      "publisher": "Capatronic GmbH (manufacturer BMEcat catalogue)",
+      "endpoint": "https://data.capatronic.example/bmecat/capatronic-mlcc-2026.xml",
+      "scope": "Explicitly selected parts (manufacturer + MPN) from one pinned BMEcat 2005 catalogue; price, order and logistic blocks are never read",
+      "update_cadence": "per catalogue release; the header generation date orders revisions",
+      "temporal_semantics": "catalogue generation date as the provider revision; lifecycle status only as the catalogue publishes it, dated by that generation date; absence from a catalogue never implies discontinuation",
+      "operations": [
+        "components"
+      ],
+      "extractor_versions": [
+        "product-sources:1.1.0",
+        "products-category-normalization-v1:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "bmecat-capatronic-catalogue",
+        "terms_url": "https://data.capatronic.example/bmecat/terms.html",
+        "redistribution": "catalogue published for reuse; storing and redistributing parametric data per the publisher's terms (operator must confirm per catalogue)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 5000000,
+        "max_pages": 50
+      },
+      "product": {
+        "namespace": "global",
+        "market": "EU",
+        "role": "manufacturer",
+        "publisher_id": "capatronic",
+        "category": {
+          "label": "multilayer ceramic capacitors",
+          "provider_category_id": "27-26-01-02"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "data.capatronic.example"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX0603X7R104K500",
+            "label": "100 nF X7R 0603 (active)"
+          },
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX0805C0G471J101",
+            "label": "470 pF C0G 0805 (NRND)"
+          },
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX1206X5R106M250",
+            "label": "10 uF X5R 1206 (last time buy)"
+          },
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX0402C0G1R0C500",
+            "label": "1.0 pF C0G 0402 (no lifecycle published)"
+          },
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX9999",
+            "label": "not in the catalogue (not found)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-bmecat-capatronic.json",
+        "sha256": "5af78ba8e24545f21743df32ce98bc4dc3217ffdfef7f223e16927c7d0153d75",
+        "expected_output_hash": "15656feed759648631d189553edf5fc790020895667b119413dca0f47c1080be"
+      }
+    },
+    {
+      "source_id": "bmecat-voltaria-mlcc",
+      "connector": "bmecat",
+      "publisher": "Voltaria Components Ltd (supplier BMEcat catalogue)",
+      "endpoint": "https://catalogue.voltaria-components.example/bmecat/voltaria-passives.xml",
+      "scope": "Explicitly selected parts (manufacturer + MPN) from one pinned BMEcat 2005 catalogue; price, order and logistic blocks are never read",
+      "update_cadence": "per catalogue release; the header generation date orders revisions",
+      "temporal_semantics": "catalogue generation date as the provider revision; lifecycle status only as the catalogue publishes it, dated by that generation date; absence from a catalogue never implies discontinuation",
+      "operations": [
+        "components"
+      ],
+      "extractor_versions": [
+        "product-sources:1.1.0",
+        "products-category-normalization-v1:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "bmecat-voltaria-catalogue",
+        "terms_url": "https://catalogue.voltaria-components.example/bmecat/terms.html",
+        "redistribution": "catalogue published for reuse; storing and redistributing parametric data per the publisher's terms (operator must confirm per catalogue)"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 5000000,
+        "max_pages": 50
+      },
+      "product": {
+        "namespace": "global",
+        "market": "EU",
+        "role": "supplier",
+        "publisher_id": "voltaria",
+        "category": {
+          "label": "multilayer ceramic capacitors",
+          "provider_category_id": "27-26-01-02"
+        },
+        "documents": {
+          "retain": false,
+          "allowed_hosts": [
+            "catalogue.voltaria-components.example"
+          ],
+          "media_types": [
+            "application/pdf"
+          ],
+          "max_bytes": 5000000
+        },
+        "selection": [
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX0603X7R104K500",
+            "label": "matched (SKU alias)"
+          },
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX0805C0G471J101",
+            "label": "matched (manufacturer name variant)"
+          },
+          {
+            "manufacturer": "Capatronic",
+            "mpn": "CX1206X5R106M250",
+            "label": "contradicted (rated voltage)"
+          },
+          {
+            "manufacturer": "Othercap",
+            "mpn": "CX0603X7R104K500",
+            "label": "same MPN, other manufacturer"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-bmecat-voltaria.json",
+        "sha256": "d5984ed8055a7bb886a43f3853a0052f9fd5f7dee4b8182c22c7aa4c0ad4b59a",
+        "expected_output_hash": "17a3a288bc4d309e1b090396a7d2cf27df0c74f9c6d127ebf1e6e8814e9b7d84"
       }
     }
   ]

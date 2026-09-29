@@ -1,0 +1,407 @@
+{
+ "filters": {
+  "season": "2099"
+ },
+ "resultSet": {
+  "count": 6
+ },
+ "competition": {
+  "id": 9900,
+  "name": "Example League",
+  "code": "EXL",
+  "type": "LEAGUE",
+  "emblem": "https://crests.example.org/exl.png"
+ },
+ "matches": [
+  {
+   "area": {
+    "id": 2999,
+    "name": "Exampleland",
+    "code": "EXA"
+   },
+   "competition": {
+    "id": 9900,
+    "name": "Example League",
+    "code": "EXL",
+    "type": "LEAGUE",
+    "emblem": "https://crests.example.org/exl.png"
+   },
+   "season": {
+    "id": 99,
+    "startDate": "2099-08-01",
+    "endDate": "2100-05-20",
+    "currentMatchday": 3,
+    "winner": null
+   },
+   "id": 101,
+   "utcDate": "2099-08-10T14:00:00Z",
+   "status": "FINISHED",
+   "matchday": 1,
+   "stage": "REGULAR_SEASON",
+   "group": null,
+   "lastUpdated": "2099-08-10T16:10:00Z",
+   "homeTeam": {
+    "id": 9001,
+    "name": "Northbridge Rovers",
+    "shortName": "Rovers",
+    "tla": "NBR",
+    "crest": "https://crests.example.org/9001.png"
+   },
+   "awayTeam": {
+    "id": 9002,
+    "name": "Eastfield Athletic",
+    "shortName": "Athletic",
+    "tla": "EFA",
+    "crest": "https://crests.example.org/9002.png"
+   },
+   "score": {
+    "winner": "HOME_TEAM",
+    "duration": "REGULAR",
+    "fullTime": {
+     "home": 2,
+     "away": 1
+    },
+    "halfTime": {
+     "home": 1,
+     "away": 0
+    }
+   },
+   "odds": {
+    "msg": "Activate Odds-Package in User-Panel to retrieve odds."
+   },
+   "referees": [
+    {
+     "id": 77,
+     "name": "Rita Referee",
+     "type": "REFEREE",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "area": {
+    "id": 2999,
+    "name": "Exampleland",
+    "code": "EXA"
+   },
+   "competition": {
+    "id": 9900,
+    "name": "Example League",
+    "code": "EXL",
+    "type": "LEAGUE",
+    "emblem": "https://crests.example.org/exl.png"
+   },
+   "season": {
+    "id": 99,
+    "startDate": "2099-08-01",
+    "endDate": "2100-05-20",
+    "currentMatchday": 3,
+    "winner": null
+   },
+   "id": 102,
+   "utcDate": "2099-08-10T14:00:00Z",
+   "status": "FINISHED",
+   "matchday": 1,
+   "stage": "REGULAR_SEASON",
+   "group": null,
+   "lastUpdated": "2099-08-10T16:05:00Z",
+   "homeTeam": {
+    "id": 9003,
+    "name": "Southport United",
+    "shortName": "United",
+    "tla": "SPU",
+    "crest": "https://crests.example.org/9003.png"
+   },
+   "awayTeam": {
+    "id": 9004,
+    "name": "Westvale Town",
+    "shortName": "Town",
+    "tla": "WVT",
+    "crest": "https://crests.example.org/9004.png"
+   },
+   "score": {
+    "winner": "DRAW",
+    "duration": "REGULAR",
+    "fullTime": {
+     "home": 0,
+     "away": 0
+    },
+    "halfTime": {
+     "home": 0,
+     "away": 0
+    }
+   },
+   "odds": {
+    "msg": "Activate Odds-Package in User-Panel to retrieve odds."
+   },
+   "referees": [
+    {
+     "id": 77,
+     "name": "Rita Referee",
+     "type": "REFEREE",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "area": {
+    "id": 2999,
+    "name": "Exampleland",
+    "code": "EXA"
+   },
+   "competition": {
+    "id": 9900,
+    "name": "Example League",
+    "code": "EXL",
+    "type": "LEAGUE",
+    "emblem": "https://crests.example.org/exl.png"
+   },
+   "season": {
+    "id": 99,
+    "startDate": "2099-08-01",
+    "endDate": "2100-05-20",
+    "currentMatchday": 3,
+    "winner": null
+   },
+   "id": 103,
+   "utcDate": "2099-08-17T14:00:00Z",
+   "status": "FINISHED",
+   "matchday": 2,
+   "stage": "REGULAR_SEASON",
+   "group": null,
+   "lastUpdated": "2099-08-17T16:02:00Z",
+   "homeTeam": {
+    "id": 9001,
+    "name": "Northbridge Rovers",
+    "shortName": "Rovers",
+    "tla": "NBR",
+    "crest": "https://crests.example.org/9001.png"
+   },
+   "awayTeam": {
+    "id": 9003,
+    "name": "Southport United",
+    "shortName": "United",
+    "tla": "SPU",
+    "crest": "https://crests.example.org/9003.png"
+   },
+   "score": {
+    "winner": "DRAW",
+    "duration": "REGULAR",
+    "fullTime": {
+     "home": 1,
+     "away": 1
+    },
+    "halfTime": {
+     "home": 0,
+     "away": 1
+    }
+   },
+   "odds": {
+    "msg": "Activate Odds-Package in User-Panel to retrieve odds."
+   },
+   "referees": [
+    {
+     "id": 77,
+     "name": "Rita Referee",
+     "type": "REFEREE",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "area": {
+    "id": 2999,
+    "name": "Exampleland",
+    "code": "EXA"
+   },
+   "competition": {
+    "id": 9900,
+    "name": "Example League",
+    "code": "EXL",
+    "type": "LEAGUE",
+    "emblem": "https://crests.example.org/exl.png"
+   },
+   "season": {
+    "id": 99,
+    "startDate": "2099-08-01",
+    "endDate": "2100-05-20",
+    "currentMatchday": 3,
+    "winner": null
+   },
+   "id": 104,
+   "utcDate": "2099-08-17T14:00:00Z",
+   "status": "POSTPONED",
+   "matchday": 2,
+   "stage": "REGULAR_SEASON",
+   "group": null,
+   "lastUpdated": "2099-08-16T09:00:00Z",
+   "homeTeam": {
+    "id": 9002,
+    "name": "Eastfield Athletic",
+    "shortName": "Athletic",
+    "tla": "EFA",
+    "crest": "https://crests.example.org/9002.png"
+   },
+   "awayTeam": {
+    "id": 9004,
+    "name": "Westvale Town",
+    "shortName": "Town",
+    "tla": "WVT",
+    "crest": "https://crests.example.org/9004.png"
+   },
+   "score": {
+    "winner": null,
+    "duration": "REGULAR",
+    "fullTime": {
+     "home": null,
+     "away": null
+    },
+    "halfTime": {
+     "home": null,
+     "away": null
+    }
+   },
+   "odds": {
+    "msg": "Activate Odds-Package in User-Panel to retrieve odds."
+   },
+   "referees": [
+    {
+     "id": 77,
+     "name": "Rita Referee",
+     "type": "REFEREE",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "area": {
+    "id": 2999,
+    "name": "Exampleland",
+    "code": "EXA"
+   },
+   "competition": {
+    "id": 9900,
+    "name": "Example League",
+    "code": "EXL",
+    "type": "LEAGUE",
+    "emblem": "https://crests.example.org/exl.png"
+   },
+   "season": {
+    "id": 99,
+    "startDate": "2099-08-01",
+    "endDate": "2100-05-20",
+    "currentMatchday": 3,
+    "winner": null
+   },
+   "id": 105,
+   "utcDate": "2099-08-31T14:00:00Z",
+   "status": "TIMED",
+   "matchday": 3,
+   "stage": "REGULAR_SEASON",
+   "group": null,
+   "lastUpdated": "2099-08-01T08:00:00Z",
+   "homeTeam": {
+    "id": 9001,
+    "name": "Northbridge Rovers",
+    "shortName": "Rovers",
+    "tla": "NBR",
+    "crest": "https://crests.example.org/9001.png"
+   },
+   "awayTeam": {
+    "id": 9004,
+    "name": "Westvale Town",
+    "shortName": "Town",
+    "tla": "WVT",
+    "crest": "https://crests.example.org/9004.png"
+   },
+   "score": {
+    "winner": null,
+    "duration": "REGULAR",
+    "fullTime": {
+     "home": null,
+     "away": null
+    },
+    "halfTime": {
+     "home": null,
+     "away": null
+    }
+   },
+   "odds": {
+    "msg": "Activate Odds-Package in User-Panel to retrieve odds."
+   },
+   "referees": [
+    {
+     "id": 77,
+     "name": "Rita Referee",
+     "type": "REFEREE",
+     "nationality": "Exampleland"
+    }
+   ]
+  },
+  {
+   "area": {
+    "id": 2999,
+    "name": "Exampleland",
+    "code": "EXA"
+   },
+   "competition": {
+    "id": 9900,
+    "name": "Example League",
+    "code": "EXL",
+    "type": "LEAGUE",
+    "emblem": "https://crests.example.org/exl.png"
+   },
+   "season": {
+    "id": 99,
+    "startDate": "2099-08-01",
+    "endDate": "2100-05-20",
+    "currentMatchday": 3,
+    "winner": null
+   },
+   "id": 106,
+   "utcDate": "2099-08-31T14:00:00Z",
+   "status": "TIMED",
+   "matchday": 3,
+   "stage": "REGULAR_SEASON",
+   "group": null,
+   "lastUpdated": "2099-08-01T08:00:00Z",
+   "homeTeam": {
+    "id": 9002,
+    "name": "Eastfield Athletic",
+    "shortName": "Athletic",
+    "tla": "EFA",
+    "crest": "https://crests.example.org/9002.png"
+   },
+   "awayTeam": {
+    "id": 9003,
+    "name": "Southport United",
+    "shortName": "United",
+    "tla": "SPU",
+    "crest": "https://crests.example.org/9003.png"
+   },
+   "score": {
+    "winner": null,
+    "duration": "REGULAR",
+    "fullTime": {
+     "home": null,
+     "away": null
+    },
+    "halfTime": {
+     "home": null,
+     "away": null
+    }
+   },
+   "odds": {
+    "msg": "Activate Odds-Package in User-Panel to retrieve odds."
+   },
+   "referees": [
+    {
+     "id": 77,
+     "name": "Rita Referee",
+     "type": "REFEREE",
+     "nationality": "Exampleland"
+    }
+   ]
+  }
+ ]
+}
