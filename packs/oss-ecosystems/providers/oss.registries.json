@@ -1,0 +1,190 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "oss.registries",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.oss_ecosystem_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "oss.release-history",
+      "contract": {
+        "name": "noesis-oss-ecosystem-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "oss-source-contracts",
+        "oss-ecosystems-readiness",
+        "package-release-history",
+        "packages-by-organisation",
+        "create-package-monitor",
+        "run-package-monitor",
+        "poll-package-monitor",
+        "register-oss-schemas"
+      ],
+      "semantic_constraints": {
+        "sources": "each registry and deps.dev keep their own revision chains; disagreements are shown, never merged",
+        "history": "yank, deprecation and unpublish reasons verbatim; a release missing from a listing is not_observed unless the registry states removal",
+        "identity": "package and version identities are the Technology model's; no second package table",
+        "exclusions": "no code-quality, security-posture, health, popularity or trust verdict; no person profiled; maintainers only as declared organisations"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "oss-source-contracts",
+      "tool": "noesis-knowledge-engine.oss_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "oss-ecosystems-readiness",
+      "tool": "noesis-knowledge-engine.oss_ecosystems_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "package-release-history",
+      "tool": "noesis-knowledge-engine.package_release_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "packages-by-organisation",
+      "tool": "noesis-knowledge-engine.packages_by_organisation",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-package-monitor",
+      "tool": "noesis-knowledge-engine.create_package_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-package-monitor",
+      "tool": "noesis-knowledge-engine.run_package_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-package-monitor",
+      "tool": "noesis-knowledge-engine.poll_package_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:subscriptions:read",
+        "knowledge:oss:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-oss-schemas",
+      "tool": "noesis-knowledge-engine.register_oss_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:oss:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "oss-ecosystem-record",
+      "store": "src.kb.oss_ecosystem_store",
+      "tables": [
+        "oss_records",
+        "oss_revisions",
+        "oss_licence_normalisations",
+        "oss_provider_state"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "oss_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "oss-ecosystems",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

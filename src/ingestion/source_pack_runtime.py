@@ -250,6 +250,12 @@ def _vulnerability_projector(conn: Any) -> Any:
     return VulnerabilityProjector(conn)
 
 
+def _oss_ecosystem_projector(conn: Any) -> Any:
+    from src.kb.oss_ecosystem_store import OssEcosystemProjector
+
+    return OssEcosystemProjector(conn)
+
+
 # Mapping target schemas whose records are also projected into a domain store.
 # A projector receives each committed page before its checkpoint advances and
 # the source outcome afterwards, so replayed pages must project idempotently.
@@ -284,6 +290,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-material-record-v1": _materials_projector,
     "noesis-sports-record-v1": _sports_projector,
     "noesis-linguistic-record-v1": _linguistics_projector,
+    "noesis-oss-ecosystem-record-v1": _oss_ecosystem_projector,
 }
 
 _DDL = """

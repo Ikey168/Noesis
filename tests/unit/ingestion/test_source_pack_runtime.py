@@ -648,6 +648,7 @@ def test_six_domain_offline_execution(setup):
         "materials",
         "onchain",
         "osint",
+        "oss-ecosystems",
         "political",
         "procurement",
         "products",

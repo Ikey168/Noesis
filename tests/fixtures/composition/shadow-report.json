@@ -47,6 +47,9 @@
     "onchain.clustering",
     "onchain.observations",
     "osint.corroboration",
+    "oss.dependency-graphs",
+    "oss.licences",
+    "oss.release-history",
     "ownership.dossier",
     "ownership.graph",
     "ownership.identity",
@@ -79,6 +82,7 @@
     "technology.knowledge",
     "technology.patents",
     "technology.standards",
+    "technology.vulnerabilities",
     "weather.forecasts",
     "weather.observations",
     "weather.warnings"
@@ -99,6 +103,7 @@
     "news",
     "onchain",
     "osint",
+    "oss-ecosystems",
     "political",
     "procurement",
     "products",
@@ -133,7 +138,9 @@
     "noesis-knowledge-engine.clinical_strength_view",
     "noesis-knowledge-engine.clinical_trial_history",
     "noesis-knowledge-engine.command_intake_mode",
+    "noesis-knowledge-engine.compare_advisory_revisions",
     "noesis-knowledge-engine.compare_environment_vintages",
+    "noesis-knowledge-engine.compare_inventory_with_graph",
     "noesis-knowledge-engine.compare_material_property",
     "noesis-knowledge-engine.create_astronomy_monitor",
     "noesis-knowledge-engine.create_authored_report",
@@ -145,6 +152,7 @@
     "noesis-knowledge-engine.create_funding_workspace",
     "noesis-knowledge-engine.create_linguistics_monitor",
     "noesis-knowledge-engine.create_material_watch",
+    "noesis-knowledge-engine.create_package_monitor",
     "noesis-knowledge-engine.create_paper_family",
     "noesis-knowledge-engine.create_procurement_monitor",
     "noesis-knowledge-engine.create_procurement_profile",
@@ -156,6 +164,7 @@
     "noesis-knowledge-engine.create_weather_monitor",
     "noesis-knowledge-engine.decide_procurement_party_link",
     "noesis-knowledge-engine.definition_changes",
+    "noesis-knowledge-engine.dependency_graph_as_of",
     "noesis-knowledge-engine.directives_as_of",
     "noesis-knowledge-engine.draft_funding_application",
     "noesis-knowledge-engine.draft_procurement_bid",
@@ -199,10 +208,12 @@
     "noesis-knowledge-engine.inspect_review_protocol",
     "noesis-knowledge-engine.inspect_safety_record",
     "noesis-knowledge-engine.inspect_standard_edition",
+    "noesis-knowledge-engine.inspect_vulnerability",
     "noesis-knowledge-engine.languoid_profile",
     "noesis-knowledge-engine.lei_parents_as_of",
     "noesis-knowledge-engine.lexeme_cross_language_links",
     "noesis-knowledge-engine.lexeme_etymology",
+    "noesis-knowledge-engine.licence_history",
     "noesis-knowledge-engine.linguistics_readiness",
     "noesis-knowledge-engine.link_astronomy_citations",
     "noesis-knowledge-engine.link_clinical_publications",
@@ -214,10 +225,12 @@
     "noesis-knowledge-engine.list_environment_operator_links",
     "noesis-knowledge-engine.list_funding_opportunities",
     "noesis-knowledge-engine.list_linguistic_identity_candidates",
+    "noesis-knowledge-engine.list_oss_identity_candidates",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
     "noesis-knowledge-engine.list_procurement_notices",
     "noesis-knowledge-engine.list_safety_subject_matches",
     "noesis-knowledge-engine.list_sports_identity_candidates",
+    "noesis-knowledge-engine.list_vulnerability_components",
     "noesis-knowledge-engine.list_weather_station_matches",
     "noesis-knowledge-engine.lookup_clinical_trial",
     "noesis-knowledge-engine.lookup_environment_series",
@@ -232,11 +245,16 @@
     "noesis-knowledge-engine.materials_source_contracts",
     "noesis-knowledge-engine.multilingual_search",
     "noesis-knowledge-engine.orbit_solution_as_of",
+    "noesis-knowledge-engine.oss_ecosystems_readiness",
+    "noesis-knowledge-engine.oss_source_contracts",
     "noesis-knowledge-engine.ownership_graph",
     "noesis-knowledge-engine.ownership_provider_contracts",
     "noesis-knowledge-engine.ownership_record_history",
     "noesis-knowledge-engine.ownership_state_as_of",
     "noesis-knowledge-engine.ownership_timeline",
+    "noesis-knowledge-engine.package_advisories",
+    "noesis-knowledge-engine.package_release_history",
+    "noesis-knowledge-engine.packages_by_organisation",
     "noesis-knowledge-engine.patent_family_members",
     "noesis-knowledge-engine.poll_astronomy_monitor",
     "noesis-knowledge-engine.poll_clinical_monitor",
@@ -244,6 +262,7 @@
     "noesis-knowledge-engine.poll_environment_monitor",
     "noesis-knowledge-engine.poll_linguistics_monitor",
     "noesis-knowledge-engine.poll_material_watch",
+    "noesis-knowledge-engine.poll_package_monitor",
     "noesis-knowledge-engine.poll_sports_monitor",
     "noesis-knowledge-engine.poll_weather_monitor",
     "noesis-knowledge-engine.procurement_award_history",
@@ -255,7 +274,10 @@
     "noesis-knowledge-engine.propose_environment_operator_links",
     "noesis-knowledge-engine.propose_languoid_matches",
     "noesis-knowledge-engine.propose_lexeme_matches",
+    "noesis-knowledge-engine.propose_oss_identity_link",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
+    "noesis-knowledge-engine.propose_publisher_organisation_matches",
+    "noesis-knowledge-engine.propose_repository_package_matches",
     "noesis-knowledge-engine.propose_safety_subject_matches",
     "noesis-knowledge-engine.propose_sports_identity_matches",
     "noesis-knowledge-engine.propose_weather_station_matches",
@@ -273,12 +295,15 @@
     "noesis-knowledge-engine.register_environment_schemas",
     "noesis-knowledge-engine.register_material_schemas",
     "noesis-knowledge-engine.register_methodology_study",
+    "noesis-knowledge-engine.register_oss_schemas",
     "noesis-knowledge-engine.register_weather_schemas",
+    "noesis-knowledge-engine.replay_dependency_graph",
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
     "noesis-knowledge-engine.resolve_entity_history",
     "noesis-knowledge-engine.revert_astronomy_citation",
     "noesis-knowledge-engine.revert_astronomy_identity_match",
+    "noesis-knowledge-engine.revert_oss_identity_match",
     "noesis-knowledge-engine.revert_ownership_identity_match",
     "noesis-knowledge-engine.revert_safety_subject_match",
     "noesis-knowledge-engine.revert_sports_identity_match",
@@ -289,6 +314,7 @@
     "noesis-knowledge-engine.review_environment_operator_link",
     "noesis-knowledge-engine.review_geospatial_resolution",
     "noesis-knowledge-engine.review_linguistic_identity_match",
+    "noesis-knowledge-engine.review_oss_identity_match",
     "noesis-knowledge-engine.review_ownership_identity_match",
     "noesis-knowledge-engine.review_safety_subject_match",
     "noesis-knowledge-engine.review_sports_identity_match",
@@ -302,10 +328,12 @@
     "noesis-knowledge-engine.run_environment_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
     "noesis-knowledge-engine.run_material_watch",
+    "noesis-knowledge-engine.run_package_monitor",
     "noesis-knowledge-engine.run_procurement_monitor",
     "noesis-knowledge-engine.run_source_pack_execution",
     "noesis-knowledge-engine.run_sports_monitor",
     "noesis-knowledge-engine.run_weather_monitor",
+    "noesis-knowledge-engine.search_component_advisories",
     "noesis-knowledge-engine.search_defect_investigations",
     "noesis-knowledge-engine.search_directives",
     "noesis-knowledge-engine.search_materials_by_property",
@@ -3618,6 +3646,435 @@
         "tool": "noesis-osint.source_reliability"
       }
     ],
+    "oss-ecosystems": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_inventory_with_graph"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_inventory_with_graph"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_package_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_package_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.dependency_graph_as_of"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.dependency_graph_as_of"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.licence_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.licence_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_oss_identity_candidates"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_oss_identity_candidates"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.oss_ecosystems_readiness"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.oss_ecosystems_readiness"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.oss_source_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.oss_source_contracts"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "oss-ecosystems",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "available",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-knowledge-engine.oss_source_contracts"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.package_advisories"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.package_advisories"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.package_release_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.package_release_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.packages_by_organisation"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.packages_by_organisation"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_package_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_package_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_oss_identity_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_oss_identity_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_publisher_organisation_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_publisher_organisation_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_repository_package_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_repository_package_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_oss_schemas"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_oss_schemas"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.replay_dependency_graph"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.replay_dependency_graph"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_oss_identity_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_oss_identity_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_oss_identity_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_oss_identity_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "oss-ecosystems",
+        "composition": "oss-ecosystems",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_package_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "oss-ecosystems",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_package_monitor"
+      }
+    ],
     "platform": [
       {
         "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
@@ -5073,6 +5530,28 @@
         "field": "pack",
         "legacy": null,
         "reason": null,
+        "tool": "noesis-knowledge-engine.compare_advisory_revisions"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "technology",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.compare_advisory_revisions"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "technology",
+        "composition": "technology",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
         "tool": "noesis-knowledge-engine.inspect_certificate"
       },
       {
@@ -5139,6 +5618,50 @@
         "field": "pack",
         "legacy": null,
         "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_vulnerability"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "technology",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.inspect_vulnerability"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "technology",
+        "composition": "technology",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_vulnerability_components"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "technology",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_vulnerability_components"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "technology",
+        "composition": "technology",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
         "tool": "noesis-knowledge-engine.patent_family_members"
       },
       {
@@ -5153,6 +5676,28 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.patent_family_members"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "technology",
+        "composition": "technology",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.search_component_advisories"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "technology",
+        "composition": [
+          "revisions"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.search_component_advisories"
       }
     ],
     "weather": [

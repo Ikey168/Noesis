@@ -1,0 +1,149 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "oss.release-history",
+        "provider": "oss.registries",
+        "contract": {
+          "name": "noesis-oss-ecosystem-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "oss.dependency-graphs",
+        "provider": "oss.dependency-graphs",
+        "contract": {
+          "name": "noesis-oss-dependency-graph",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "oss.published-graphs",
+        "provider": "oss.dependency-graphs",
+        "contract": {
+          "name": "noesis-oss-published-graph",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "oss.licences",
+        "provider": "oss.licences",
+        "contract": {
+          "name": "noesis-oss-identity-candidate",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "oss.archive",
+        "provider": "oss.archive",
+        "contract": {
+          "name": "noesis-oss-archive-provenance",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "oss.registries",
+        "version": "1.0.0"
+      },
+      {
+        "id": "oss.dependency-graphs",
+        "version": "1.0.0"
+      },
+      {
+        "id": "oss.licences",
+        "version": "1.0.0"
+      },
+      {
+        "id": "oss.archive",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "oss-ecosystems",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "oss.release-history",
+      "contract": "noesis-oss-ecosystem-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "oss.dependency-graphs",
+      "contract": "noesis-oss-dependency-graph",
+      "range": "^1.0.0",
+      "reason": "graphs as of a date and advisory citations"
+    },
+    {
+      "capability": "oss.licences",
+      "contract": "noesis-oss-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "licence history and reviewable identity"
+    },
+    {
+      "capability": "technology.knowledge",
+      "contract": "noesis-technical-knowledge",
+      "range": "^1.0.0",
+      "reason": "package and version identities, registry adapters, inventories and version comparators are Technology's"
+    },
+    {
+      "capability": "technology.vulnerabilities",
+      "contract": "noesis-vulnerability-record",
+      "range": "^1.0.0",
+      "reason": "advisories are cited from technology.vulnerabilities, never copied"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "repository and organisation matches are reversible entity identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "package monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "registry, deps.dev, SPDX and Software Heritage sources run through the source-pack runtime"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "oss-deps-dev",
+      "default": false,
+      "description": "deps.dev as a second attributed source: versions, licences, related source repositories and the graphs deps.dev resolves, kept beside the registries and never merged.",
+      "requires": [
+        {
+          "capability": "oss.published-graphs",
+          "contract": "noesis-oss-published-graph",
+          "range": "^1.0.0",
+          "reason": "the feature's own graphs are shown beside Noesis's resolution"
+        }
+      ]
+    },
+    {
+      "id": "oss-software-heritage",
+      "default": false,
+      "description": "Software Heritage archive provenance (visits, snapshot and tag SWHIDs) for repositories a package asserts, with bounded, rate-limited requests.",
+      "requires": [
+        {
+          "capability": "oss.archive",
+          "contract": "noesis-oss-archive-provenance",
+          "range": "^1.0.0",
+          "reason": "the feature's own archive provenance entry points"
+        }
+      ]
+    }
+  ]
+}

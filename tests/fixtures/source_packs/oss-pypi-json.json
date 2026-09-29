@@ -1,0 +1,309 @@
+{
+ "authored": true,
+ "native_pages": [
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "maintainer": "Grace Example",
+     "name": "fixture-parser",
+     "project_urls": {
+      "Homepage": "https://fixture-labs.example",
+      "Source": "https://github.com/Fixture-Labs/parser"
+     },
+     "version": "1.1.0"
+    },
+    "last_serial": 1001,
+    "ownership": {
+     "organization": "fixture-labs",
+     "roles": [
+      {
+       "role": "Owner",
+       "user": "ada-example"
+      }
+     ]
+    },
+    "releases": {
+     "1.0.0": [
+      {
+       "digests": {
+        "sha256": "92521fc3cbd964bdc9f584a991b89fddaa5754ed1cc96d6d42445338669c1305"
+       },
+       "filename": "fixture-1.0.0.tar.gz",
+       "upload_time_iso_8601": "2025-10-01T09:00:00Z",
+       "uploaded_via": "twine/5.0.0",
+       "yanked": false,
+       "yanked_reason": null
+      }
+     ],
+     "1.1.0": [
+      {
+       "digests": {
+        "sha256": "7fbd210ebec11f65a97190ef900795c4b8da3805af3f5a1b8d1d272556b292ca"
+       },
+       "filename": "fixture-1.1.0.tar.gz",
+       "upload_time_iso_8601": "2026-01-10T09:00:00Z",
+       "uploaded_via": "twine/5.0.0",
+       "yanked": false,
+       "yanked_reason": null
+      }
+     ]
+    },
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-parser/json",
+   "status": 200
+  },
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "classifiers": [
+      "Programming Language :: Python :: 3"
+     ],
+     "license": null,
+     "license_expression": "MIT",
+     "maintainer": "Grace Example",
+     "name": "fixture-parser",
+     "requires_dist": [
+      "fixture-tokens>=1.0,<2"
+     ],
+     "version": "1.0.0"
+    },
+    "urls": [
+     {
+      "digests": {
+       "sha256": "92521fc3cbd964bdc9f584a991b89fddaa5754ed1cc96d6d42445338669c1305"
+      },
+      "filename": "fixture-1.0.0.tar.gz",
+      "upload_time_iso_8601": "2025-10-01T09:00:00Z",
+      "uploaded_via": "twine/5.0.0",
+      "yanked": false,
+      "yanked_reason": null
+     }
+    ],
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-parser/1.0.0/json",
+   "status": 200
+  },
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "classifiers": [
+      "Programming Language :: Python :: 3"
+     ],
+     "license": null,
+     "license_expression": "MIT",
+     "maintainer": "Grace Example",
+     "name": "fixture-parser",
+     "requires_dist": [
+      "fixture-tokens (>=1.0,<2)",
+      "fixture-missing>=1",
+      "pytest>=7; extra == 'test'",
+      "colorama>=0.4; sys_platform == 'win32'"
+     ],
+     "version": "1.1.0"
+    },
+    "urls": [
+     {
+      "digests": {
+       "sha256": "7fbd210ebec11f65a97190ef900795c4b8da3805af3f5a1b8d1d272556b292ca"
+      },
+      "filename": "fixture-1.1.0.tar.gz",
+      "upload_time_iso_8601": "2026-01-10T09:00:00Z",
+      "uploaded_via": "twine/5.0.0",
+      "yanked": false,
+      "yanked_reason": null
+     }
+    ],
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-parser/1.1.0/json",
+   "status": 200
+  },
+  {
+   "body": {
+    "message": "Not Found"
+   },
+   "request": "/pypi/fixture-parser/2.0.0/json",
+   "status": 404
+  },
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "maintainer": "Grace Example",
+     "name": "fixture-tokens",
+     "project_urls": {
+      "Homepage": "https://fixture-labs.example",
+      "Source": "https://github.com/fixture-labs/parser"
+     },
+     "version": "2.0rc1"
+    },
+    "last_serial": 1001,
+    "ownership": {
+     "organization": "fixture-labs",
+     "roles": [
+      {
+       "role": "Owner",
+       "user": "ada-example"
+      }
+     ]
+    },
+    "releases": {
+     "1.0.0": [
+      {
+       "digests": {
+        "sha256": "92521fc3cbd964bdc9f584a991b89fddaa5754ed1cc96d6d42445338669c1305"
+       },
+       "filename": "fixture-1.0.0.tar.gz",
+       "upload_time_iso_8601": "2025-09-01T09:00:00Z",
+       "uploaded_via": "twine/5.0.0",
+       "yanked": false,
+       "yanked_reason": null
+      }
+     ],
+     "1.2.0": [
+      {
+       "digests": {
+        "sha256": "9f77034b1eb57d24f21ac7deb65c9cc99f63b72775e311f1f280ab2b6c2e06a2"
+       },
+       "filename": "fixture-1.2.0.tar.gz",
+       "upload_time_iso_8601": "2026-02-01T09:00:00Z",
+       "uploaded_via": "twine/5.0.0",
+       "yanked": false,
+       "yanked_reason": null
+      }
+     ],
+     "2.0rc1": [
+      {
+       "digests": {
+        "sha256": "25832f85ba33bd957f292b3801e9d0a766dfaeb47f1ec7283f775470b4155686"
+       },
+       "filename": "fixture-2.0rc1.tar.gz",
+       "upload_time_iso_8601": "2026-02-10T09:00:00Z",
+       "uploaded_via": "twine/5.0.0",
+       "yanked": false,
+       "yanked_reason": null
+      }
+     ]
+    },
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-tokens/json",
+   "status": 200
+  },
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "classifiers": [
+      "Programming Language :: Python :: 3"
+     ],
+     "license": null,
+     "license_expression": "MIT",
+     "maintainer": "Grace Example",
+     "name": "fixture-tokens",
+     "requires_dist": [],
+     "version": "1.0.0"
+    },
+    "urls": [
+     {
+      "digests": {
+       "sha256": "92521fc3cbd964bdc9f584a991b89fddaa5754ed1cc96d6d42445338669c1305"
+      },
+      "filename": "fixture-1.0.0.tar.gz",
+      "upload_time_iso_8601": "2025-09-01T09:00:00Z",
+      "uploaded_via": "twine/5.0.0",
+      "yanked": false,
+      "yanked_reason": null
+     }
+    ],
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-tokens/1.0.0/json",
+   "status": 200
+  },
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "classifiers": [
+      "Programming Language :: Python :: 3"
+     ],
+     "license": null,
+     "license_expression": "MIT",
+     "maintainer": "Grace Example",
+     "name": "fixture-tokens",
+     "requires_dist": [],
+     "version": "1.2.0"
+    },
+    "urls": [
+     {
+      "digests": {
+       "sha256": "9f77034b1eb57d24f21ac7deb65c9cc99f63b72775e311f1f280ab2b6c2e06a2"
+      },
+      "filename": "fixture-1.2.0.tar.gz",
+      "upload_time_iso_8601": "2026-02-01T09:00:00Z",
+      "uploaded_via": "twine/5.0.0",
+      "yanked": false,
+      "yanked_reason": null
+     }
+    ],
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-tokens/1.2.0/json",
+   "status": 200
+  },
+  {
+   "body": {
+    "message": "Not Found"
+   },
+   "request": "/pypi/fixture-tokens/1.3.0/json",
+   "status": 404
+  },
+  {
+   "body": {
+    "info": {
+     "author": "Ada Example",
+     "author_email": "ada@example.invalid",
+     "classifiers": [
+      "Programming Language :: Python :: 3"
+     ],
+     "license": null,
+     "license_expression": "MIT",
+     "maintainer": "Grace Example",
+     "name": "fixture-tokens",
+     "requires_dist": [],
+     "version": "2.0rc1"
+    },
+    "urls": [
+     {
+      "digests": {
+       "sha256": "25832f85ba33bd957f292b3801e9d0a766dfaeb47f1ec7283f775470b4155686"
+      },
+      "filename": "fixture-2.0rc1.tar.gz",
+      "upload_time_iso_8601": "2026-02-10T09:00:00Z",
+      "uploaded_via": "twine/5.0.0",
+      "yanked": false,
+      "yanked_reason": null
+     }
+    ],
+    "vulnerabilities": []
+   },
+   "request": "/pypi/fixture-tokens/2.0rc1/json",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored poll 1 of fictional packages"
+ ]
+}

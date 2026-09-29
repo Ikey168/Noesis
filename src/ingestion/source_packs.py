@@ -302,6 +302,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sports-results"})
 # Weather operational sources (DWD CDC/MOSMIX/CAP, aviationweather.gov, NWS API, Open-Meteo; #2163).
 NATIVE_CONNECTOR_MODULES["weather"] = "src.ingestion.weather_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
+# Open-source Software Ecosystems: registry history, deps.dev, SPDX list releases, Software Heritage (#2192).
+NATIVE_CONNECTOR_MODULES["oss-ecosystem"] = "src.ingestion.oss_ecosystem_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -108,6 +108,12 @@ MATRIX = {
     # entity history, the cross-language records, Geospatial places, subscriptions and the source-pack runtime.
     "Word to cited lexeme dossier":
         "tests/unit/domains/test_linguistics_acceptance.py::test_word_to_cited_lexeme_dossier_offline",
+    # The OSS Ecosystems bundle's offline journey (#2204) composes its registries, graph and licence providers with
+    # technology (identities, inventories, vulnerabilities by citation), entity identity, subscriptions and the
+    # source-pack runtime.
+    "Package to release history and dependency graphs":
+        "tests/unit/domains/test_oss_ecosystems_acceptance.py::"
+        "test_package_to_cited_history_graphs_licences_identity_advisories_and_monitoring",
 }
 
 

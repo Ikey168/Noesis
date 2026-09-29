@@ -368,6 +368,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.materials import MATERIALS_WRITES
     if name in MATERIALS_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.oss_ecosystems import OSS_WRITES
+    if name in OSS_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -1005,6 +1008,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in MATERIALS_TOOLS:
         return materials_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.oss_ecosystems import OSS_TOOLS
+    from tools.knowledge_engine_mcp.oss_ecosystems import (
+        required_scopes as oss_ecosystem_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in OSS_TOOLS:
+        return oss_ecosystem_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

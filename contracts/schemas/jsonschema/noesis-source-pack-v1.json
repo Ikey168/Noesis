@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "linguistics", "lobbying-register", "manifest", "materials", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "linguistics", "lobbying-register", "manifest", "materials", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -441,6 +441,17 @@
               "namespace": {"type": "string", "minLength": 1},
               "format": {"enum": ["nvd-cve-2.0", "nvd-cve-history-2.0", "nvd-cpe-2.0", "osv", "cve-json-5", "cisa-kev", "first-epss", "cwe-xml"]},
               "source": {"enum": ["nvd", "nvd-cpe", "osv", "ghsa", "cve-services", "cisa-kev", "first-epss", "cwe"]},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "oss": {
+            "type": "object",
+            "description": "One bounded OSS Ecosystems source for the oss-ecosystem connector: its format (a registry, deps.dev, the SPDX License List or Software Heritage), namespace and pinned selection (1-50 packages with at most 50 explicit versions each, SPDX list versions, or at most 20 origins).",
+            "required": ["format", "selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "format": {"enum": ["pypi-json", "npm-packument", "crates-io", "maven-central", "deps-dev", "spdx-license-list", "software-heritage"]},
               "selection": {"type": "object"}
             },
             "additionalProperties": false

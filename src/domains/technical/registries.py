@@ -6,6 +6,7 @@ import abc
 import hashlib
 import json
 import os
+import re
 import threading
 import time
 from collections.abc import Callable
@@ -119,6 +120,30 @@ class PackageRegistryProvider(abc.ABC):
         fixture = Path(path)
         return self.parse(json.loads(fixture.read_text()), source_url=fixture.as_uri())
 
+    # -- OSS Ecosystems history (#2195): revisions instead of a current snapshot.
+
+    history_source = ""
+
+    def history_items(self, name: str, versions: list[str]) -> list[dict[str, Any]]:
+        """The bounded documents to read for a package: one package-level listing plus per-version documents."""
+        raise RegistryError(f"{self.ecosystem} has no release-history support")
+
+    def history(
+        self,
+        payload: Any,
+        *,
+        kind: str,
+        source_url: str,
+        package: str,
+        version: str | None = None,
+    ) -> list[dict[str, Any]]:
+        """``noesis-oss-ecosystem-record-v1`` statements for one document.
+
+        Maintainer, author and publisher-user fields are never read; only
+        organisation-level publisher declarations are emitted.
+        """
+        raise RegistryError(f"{self.ecosystem} has no release-history support")
+
 
 def _strings(values: Any, *keys: str) -> tuple[str, ...]:
     result: list[str] = []
@@ -134,6 +159,21 @@ def _strings(values: Any, *keys: str) -> tuple[str, ...]:
 
 class PyPIProvider(PackageRegistryProvider):
     ecosystem, registry_url = "pypi", "https://pypi.org"
+
+    history_source = "pypi"
+
+    def history_items(self, name: str, versions: list[str]) -> list[dict[str, Any]]:
+        return _pypi_items(self, name, versions)
+
+    def history(self, payload, *, kind, source_url, package, version=None):
+        return _pypi_history(
+            self,
+            payload,
+            kind=kind,
+            source_url=source_url,
+            package=package,
+            version=version,
+        )
 
     def endpoint(self, name: str) -> str:
         return f"{self.registry_url}/pypi/{quote(name, safe='')}/json"
@@ -172,6 +212,21 @@ class PyPIProvider(PackageRegistryProvider):
 
 class NpmProvider(PackageRegistryProvider):
     ecosystem, registry_url = "npm", "https://registry.npmjs.org"
+
+    history_source = "npm"
+
+    def history_items(self, name: str, versions: list[str]) -> list[dict[str, Any]]:
+        return _npm_items(self, name, versions)
+
+    def history(self, payload, *, kind, source_url, package, version=None):
+        return _npm_history(
+            self,
+            payload,
+            kind=kind,
+            source_url=source_url,
+            package=package,
+            version=version,
+        )
 
     def endpoint(self, name: str) -> str:
         return f"{self.registry_url}/{quote(name, safe='')}"
@@ -220,6 +275,21 @@ class NpmProvider(PackageRegistryProvider):
 class MavenCentralProvider(PackageRegistryProvider):
     ecosystem, registry_url = "maven", "https://search.maven.org"
 
+    history_source = "maven-central"
+
+    def history_items(self, name: str, versions: list[str]) -> list[dict[str, Any]]:
+        return _maven_items(self, name, versions)
+
+    def history(self, payload, *, kind, source_url, package, version=None):
+        return _maven_history(
+            self,
+            payload,
+            kind=kind,
+            source_url=source_url,
+            package=package,
+            version=version,
+        )
+
     def endpoint(self, name: str) -> str:
         group, artifact = name.split(":", 1)
         return (
@@ -258,6 +328,21 @@ class MavenCentralProvider(PackageRegistryProvider):
 
 class CratesIOProvider(PackageRegistryProvider):
     ecosystem, registry_url = "cargo", "https://crates.io"
+
+    history_source = "crates-io"
+
+    def history_items(self, name: str, versions: list[str]) -> list[dict[str, Any]]:
+        return _crates_items(self, name, versions)
+
+    def history(self, payload, *, kind, source_url, package, version=None):
+        return _crates_history(
+            self,
+            payload,
+            kind=kind,
+            source_url=source_url,
+            package=package,
+            version=version,
+        )
 
     def endpoint(self, name: str) -> str:
         return f"{self.registry_url}/api/v1/crates/{quote(name, safe='')}"
@@ -318,6 +403,578 @@ class GoModuleProvider(PackageRegistryProvider):
             deprecated=bool(payload.get("Deprecated")),
             metadata={"original_name": name},
         )
+
+
+# ---------------------------------------------------------------- release history (#2195)
+#
+# Each helper reads only the documented fields named in
+# docs/development/oss-ecosystems-evidence/source-audit.md. Author, maintainer,
+# owner-user and publisher-user fields are never read, so no statement can
+# carry a person. Nothing here resolves a dependency constraint.
+
+_REPOSITORY_KEYS = ("source", "source code", "repository", "code", "github", "gitlab")
+
+
+def _statement(
+    source: str,
+    ecosystem: str,
+    package: str,
+    source_url: str,
+    record_type: str,
+    **fields: Any,
+) -> dict[str, Any]:
+    body = {
+        "record_type": record_type,
+        "source": source,
+        "ecosystem": ecosystem,
+        "package": package,
+        "source_url": source_url,
+    }
+    body.update({k: v for k, v in fields.items() if v not in (None, "", [], {})})
+    return body
+
+
+def _earliest(values: list[Any]) -> Any:
+    present = [str(v) for v in values if v]
+    return min(present) if present else None
+
+
+def _pep508(requirement: str) -> dict[str, Any]:
+    from packaging.requirements import InvalidRequirement, Requirement
+
+    raw = str(requirement).strip()
+    try:
+        parsed = Requirement(raw)
+    except InvalidRequirement:
+        return {
+            "ecosystem": "pypi",
+            "name": re.split(r"[\s\[(<>=!~;@]", raw, maxsplit=1)[0] or raw,
+            "scope": "runtime",
+            "requirement": raw,
+            "unsupported": "not a PEP 508 requirement",
+        }
+    body = raw.split(";", 1)[0].strip()
+    body = re.sub(r"^[A-Za-z0-9][A-Za-z0-9._-]*\s*(\[[^\]]*\])?", "", body).strip()
+    if body.startswith("(") and body.endswith(")"):
+        body = body[1:-1].strip()
+    marker = str(parsed.marker) if parsed.marker is not None else None
+    extra = re.search(r"""extra\s*==\s*["']([^"']+)["']""", marker or "")
+    entry: dict[str, Any] = {
+        "ecosystem": "pypi",
+        "name": parsed.name,
+        "requirement": raw,
+        "constraint": body or None,
+        "extras": sorted(parsed.extras) or None,
+        "marker": marker,
+        "scope": "optional" if extra else "runtime",
+        "optional": bool(extra),
+        "extra": extra[1] if extra else None,
+    }
+    return {k: v for k, v in entry.items() if v is not None}
+
+
+def _pypi_items(provider: Any, name: str, versions: list[str]) -> list[dict[str, Any]]:
+    base = f"{provider.registry_url}/pypi/{quote(name, safe='')}"
+    return [{"url": f"{base}/json", "kind": "project"}] + [
+        {
+            "url": f"{base}/{quote(str(v), safe='')}/json",
+            "kind": "version",
+            "version": str(v),
+        }
+        for v in versions
+    ]
+
+
+def _pypi_state(
+    files: list[dict[str, Any]], info: dict[str, Any] | None = None
+) -> tuple[str, str | None]:
+    yanked = bool(files) and all(bool(item.get("yanked")) for item in files)
+    if info is not None and "yanked" in info:
+        yanked = bool(info.get("yanked"))
+    if not yanked:
+        return "published", None
+    reasons = [
+        str(item.get("yanked_reason")) for item in files if item.get("yanked_reason")
+    ]
+    reason = (info or {}).get("yanked_reason") or (reasons[0] if reasons else None)
+    return "yanked", reason
+
+
+def _pypi_history(
+    provider: Any,
+    payload: Any,
+    *,
+    kind: str,
+    source_url: str,
+    package: str,
+    version: str | None,
+) -> list[dict[str, Any]]:
+    info = dict(payload.get("info") or {})
+    name = str(info.get("name") or package)
+    out: list[dict[str, Any]] = []
+
+    def emit(record_type: str, **fields: Any) -> None:
+        out.append(_statement("pypi", "pypi", name, source_url, record_type, **fields))
+
+    if kind == "project":
+        releases = dict(payload.get("releases") or {})
+        for number, files in sorted(releases.items()):
+            files = list(files or [])
+            state, reason = _pypi_state(files)
+            emit(
+                "release_state_revision",
+                version=str(number),
+                state=state,
+                reason=reason,
+                published_at=_earliest(
+                    [
+                        f.get("upload_time_iso_8601") or f.get("upload_time")
+                        for f in files
+                    ]
+                ),
+            )
+        emit("release_listing", versions=sorted(releases))
+        organisation = dict(payload.get("ownership") or {}).get("organization")
+        if organisation:
+            emit(
+                "publisher_organisation",
+                organisations=[
+                    {
+                        "kind": "pypi-organisation",
+                        "id": str(organisation),
+                        "verification": "organisation account as stated by PyPI (verify)",
+                    }
+                ],
+            )
+        urls = {
+            str(k).casefold(): v
+            for k, v in dict(info.get("project_urls") or {}).items()
+        }
+        links = [
+            {"url": urls[k], "field": f"info.project_urls.{k}"}
+            for k in _REPOSITORY_KEYS
+            if urls.get(k)
+        ]
+        emit("repository_link_assertion", links=links[:1])
+        return [
+            s
+            for s in out
+            if s["record_type"] != "repository_link_assertion" or s.get("links")
+        ]
+    number = str(version or info.get("version"))
+    state, reason = _pypi_state(list(payload.get("urls") or []), info)
+    emit(
+        "release_state_revision",
+        version=number,
+        state=state,
+        reason=reason,
+        published_at=_earliest(
+            [f.get("upload_time_iso_8601") for f in payload.get("urls") or []]
+        ),
+    )
+    emit("declared_dependency_set", version=number)
+    out[-1]["entries"] = [_pep508(r) for r in info.get("requires_dist") or []]
+    licence_text = info.get("license")
+    if licence_text and len(str(licence_text)) > 300:
+        licence_text = None  # a pasted licence body is not a declaration to normalise; classifiers still apply
+    emit(
+        "licence_declaration_revision",
+        version=number,
+        raw={
+            "expression": info.get("license_expression"),
+            "text": licence_text,
+            "classifiers": [
+                c
+                for c in info.get("classifiers") or []
+                if str(c).startswith("License ::")
+            ],
+        },
+    )
+    return out
+
+
+def _npm_items(provider: Any, name: str, versions: list[str]) -> list[dict[str, Any]]:
+    del versions  # the packument carries every version
+    return [{"url": provider.endpoint(name), "kind": "packument"}]
+
+
+def _npm_repository(value: Any) -> str | None:
+    if isinstance(value, dict):
+        return value.get("url")
+    return value if isinstance(value, str) else None
+
+
+def _npm_licence(item: dict[str, Any]) -> dict[str, Any]:
+    value = item.get("license")
+    if isinstance(value, str):
+        return {"expression": value}
+    names = []
+    if isinstance(value, dict) and value.get("type"):
+        names.append(str(value["type"]))
+    for entry in item.get("licenses") or []:
+        if isinstance(entry, dict) and entry.get("type"):
+            names.append(str(entry["type"]))
+        elif isinstance(entry, str):
+            names.append(entry)
+    return {"names": names}
+
+
+def _npm_history(
+    provider: Any,
+    payload: Any,
+    *,
+    kind: str,
+    source_url: str,
+    package: str,
+    version: str | None,
+) -> list[dict[str, Any]]:
+    del kind, version
+    name = str(payload.get("name") or package)
+    times = dict(payload.get("time") or {})
+    modified = times.get("modified")
+    versions = dict(payload.get("versions") or {})
+    out: list[dict[str, Any]] = []
+
+    def emit(record_type: str, **fields: Any) -> None:
+        out.append(
+            _statement(
+                "npm",
+                "npm",
+                name,
+                source_url,
+                record_type,
+                source_modified_at=modified,
+                **fields,
+            )
+        )
+
+    unpublished = (
+        times.get("unpublished") if isinstance(times.get("unpublished"), dict) else None
+    )
+    stated_gone = {str(v) for v in (unpublished or {}).get("versions") or []}
+    timed = {k for k in times if k not in {"created", "modified", "unpublished"}}
+    for number in sorted(set(versions) | timed | stated_gone):
+        item = dict(versions.get(number) or {})
+        if number in versions:
+            message = item.get("deprecated")
+            state, reason = (
+                ("deprecated", str(message))
+                if isinstance(message, str) and message
+                else ("published", None)
+            )
+            stated_at = None
+        elif number in stated_gone:
+            state, reason, stated_at = (
+                "unpublished",
+                "the package was unpublished (time.unpublished)",
+                unpublished.get("time"),
+            )
+        else:
+            state, stated_at = "unpublished", None
+            reason = "listed in the registry's time map but no longer in versions (npm's record of an unpublished version)"
+        emit(
+            "release_state_revision",
+            version=number,
+            state=state,
+            reason=reason,
+            published_at=times.get(number),
+            state_stated_at=stated_at,
+        )
+        if number not in versions:
+            continue
+        optional = dict(item.get("optionalDependencies") or {})
+        peer_meta = dict(item.get("peerDependenciesMeta") or {})
+        entries = []
+        for key, scope in (
+            ("dependencies", "runtime"),
+            ("devDependencies", "dev"),
+            ("peerDependencies", "peer"),
+            ("optionalDependencies", "optional"),
+        ):
+            for dep, constraint in dict(item.get(key) or {}).items():
+                if key == "dependencies" and dep in optional:
+                    continue  # npm copies optionalDependencies into dependencies (verify)
+                entries.append(
+                    {
+                        "ecosystem": "npm",
+                        "name": dep,
+                        "constraint": str(constraint),
+                        "scope": scope,
+                        "source_scope": key,
+                        "optional": scope == "optional"
+                        or bool(dict(peer_meta.get(dep) or {}).get("optional")),
+                    }
+                )
+        emit("declared_dependency_set", version=number)
+        out[-1]["entries"] = entries
+        emit("licence_declaration_revision", version=number, raw=_npm_licence(item))
+    emit("release_listing", versions=sorted(set(versions) | timed))
+    if name.startswith("@") and "/" in name:
+        emit(
+            "publisher_organisation",
+            organisations=[
+                {
+                    "kind": "npm-scope",
+                    "id": name.split("/", 1)[0],
+                    "verification": "npm does not state whether a scope belongs to an organisation or a user (verify)",
+                }
+            ],
+        )
+    repository = _npm_repository(payload.get("repository"))
+    if repository:
+        emit(
+            "repository_link_assertion",
+            links=[{"url": repository, "field": "repository"}],
+        )
+    return out
+
+
+def _crates_items(
+    provider: Any, name: str, versions: list[str]
+) -> list[dict[str, Any]]:
+    base = f"{provider.registry_url}/api/v1/crates/{quote(name, safe='')}"
+    return [
+        {"url": base, "kind": "crate"},
+        {"url": f"{base}/owner_team", "kind": "owner_team"},
+    ] + [
+        {
+            "url": f"{base}/{quote(str(v), safe='')}/dependencies",
+            "kind": "dependencies",
+            "version": str(v),
+        }
+        for v in versions
+    ]
+
+
+def _crates_history(
+    provider: Any,
+    payload: Any,
+    *,
+    kind: str,
+    source_url: str,
+    package: str,
+    version: str | None,
+) -> list[dict[str, Any]]:
+    crate = dict(payload.get("crate") or {})
+    name = str(crate.get("name") or package)
+    out: list[dict[str, Any]] = []
+
+    def emit(record_type: str, **fields: Any) -> None:
+        out.append(
+            _statement("crates-io", "cargo", name, source_url, record_type, **fields)
+        )
+
+    if kind == "crate":
+        numbers = []
+        for item in payload.get("versions") or []:
+            number = str(item.get("num"))
+            numbers.append(number)
+            yanked = bool(item.get("yanked"))
+            emit(
+                "release_state_revision",
+                version=number,
+                state="yanked" if yanked else "published",
+                reason=item.get("yank_message") if yanked else None,
+                published_at=item.get("created_at"),
+                source_modified_at=item.get("updated_at"),
+            )
+            emit(
+                "licence_declaration_revision",
+                version=number,
+                raw={"expression": item.get("license")},
+                source_modified_at=item.get("updated_at"),
+            )
+        emit("release_listing", versions=sorted(numbers))
+        if crate.get("repository"):
+            emit(
+                "repository_link_assertion",
+                links=[{"url": crate["repository"], "field": "crate.repository"}],
+            )
+        return out
+    if kind == "owner_team":
+        teams = [
+            {
+                "kind": "crates-team",
+                "id": str(t.get("login")),
+                "name": t.get("name"),
+                "verification": "team of a code-host organisation as stated by crates.io",
+            }
+            for t in payload.get("teams") or []
+            if t.get("kind", "team") == "team" and t.get("login")
+        ]
+        if teams:
+            emit("publisher_organisation", organisations=teams)
+        return out
+    entries = []
+    for item in payload.get("dependencies") or []:
+        cargo_kind = str(item.get("kind") or "normal")
+        scope = {"normal": "runtime", "dev": "dev", "build": "build"}.get(
+            cargo_kind, "runtime"
+        )
+        if item.get("optional") and scope == "runtime":
+            scope = "optional"
+        entries.append(
+            {
+                "ecosystem": "cargo",
+                "name": item.get("crate_id"),
+                "constraint": item.get("req"),
+                "scope": scope,
+                "source_scope": cargo_kind,
+                "optional": bool(item.get("optional")),
+                "target": item.get("target"),
+            }
+        )
+    emit("declared_dependency_set", version=str(version))
+    out[-1]["entries"] = entries
+    return out
+
+
+def _maven_items(provider: Any, name: str, versions: list[str]) -> list[dict[str, Any]]:
+    group, artifact = name.split(":", 1)
+    path = f"https://repo1.maven.org/maven2/{group.replace('.', '/')}/{artifact}"
+    return [{"url": provider.endpoint(name), "kind": "search"}] + [
+        {"url": f"{path}/{v}/{artifact}-{v}.pom", "kind": "pom", "version": str(v)}
+        for v in versions
+    ]
+
+
+def _xml_children(node: Any, tag: str) -> list[Any]:
+    return [child for child in list(node) if child.tag.rsplit("}", 1)[-1] == tag]
+
+
+def _xml_text(node: Any, tag: str) -> str | None:
+    found = _xml_children(node, tag) if node is not None else []
+    return (found[0].text or "").strip() or None if found else None
+
+
+def _maven_history(
+    provider: Any,
+    payload: Any,
+    *,
+    kind: str,
+    source_url: str,
+    package: str,
+    version: str | None,
+) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+
+    def emit(record_type: str, **fields: Any) -> None:
+        out.append(
+            _statement(
+                "maven-central", "maven", package, source_url, record_type, **fields
+            )
+        )
+
+    if kind == "search":
+        docs = (payload.get("response") or {}).get("docs") or []
+        numbers = []
+        for item in docs:
+            number = str(item.get("v") or item.get("version"))
+            numbers.append(number)
+            emit(
+                "release_state_revision",
+                version=number,
+                state="published",
+                published_at=item.get("timestamp"),
+            )
+        emit("release_listing", versions=sorted(numbers))
+        emit(
+            "publisher_organisation",
+            organisations=[
+                {
+                    "kind": "maven-groupid",
+                    "id": package.split(":", 1)[0],
+                    "verification": "groupId namespace; Central verifies namespace ownership before publication (verify)",
+                }
+            ],
+        )
+        return out
+    import xml.etree.ElementTree as ET  # POMs are publisher-supplied; no external entities are resolved
+
+    raw = payload if isinstance(payload, (bytes, str)) else str(payload)
+    if (
+        isinstance(raw, bytes)
+        and b"<!DOCTYPE" in raw
+        or isinstance(raw, str)
+        and "<!DOCTYPE" in raw
+    ):
+        raise RegistryError("POM with a DOCTYPE is refused")
+    root = ET.fromstring(raw)
+    entries = []
+    for dependencies in _xml_children(root, "dependencies"):
+        for dep in _xml_children(dependencies, "dependency"):
+            source_scope = _xml_text(dep, "scope") or "compile"
+            optional = (_xml_text(dep, "optional") or "false").lower() == "true"
+            scope = {
+                "compile": "runtime",
+                "runtime": "runtime",
+                "test": "dev",
+                "provided": "build",
+                "system": "build",
+                "import": "build",
+            }.get(source_scope, "runtime")
+            entries.append(
+                {
+                    "ecosystem": "maven",
+                    "name": f"{_xml_text(dep, 'groupId')}:{_xml_text(dep, 'artifactId')}",
+                    "constraint": _xml_text(dep, "version"),
+                    "scope": "optional" if optional else scope,
+                    "source_scope": source_scope,
+                    "optional": optional,
+                }
+            )
+    number = str(version or _xml_text(root, "version"))
+    emit("declared_dependency_set", version=number)
+    out[-1]["entries"] = entries
+    names = [
+        _xml_text(lic, "name")
+        for block in _xml_children(root, "licenses")
+        for lic in _xml_children(block, "license")
+    ]
+    emit(
+        "licence_declaration_revision",
+        version=number,
+        raw={"names": [n for n in names if n]},
+    )
+    scm = _xml_children(root, "scm")
+    url = _xml_text(scm[0], "url") or _xml_text(scm[0], "connection") if scm else None
+    if url:
+        emit(
+            "repository_link_assertion",
+            version=number,
+            links=[{"url": url, "field": "scm"}],
+        )
+    organisation = _xml_children(root, "organization")
+    org_name = _xml_text(organisation[0], "name") if organisation else None
+    if org_name:
+        emit(
+            "publisher_organisation",
+            organisations=[
+                {
+                    "kind": "pom-organisation",
+                    "id": org_name,
+                    "name": org_name,
+                    "verification": "declared in the POM by the publisher",
+                }
+            ],
+        )
+    return out
+
+
+def registry_history(
+    ecosystem: str,
+    payload: Any,
+    *,
+    kind: str,
+    source_url: str,
+    package: str,
+    version: str | None = None,
+) -> list[dict[str, Any]]:
+    """History statements for one registry document through the ecosystem's provider."""
+
+    return PROVIDERS[canonical_ecosystem(ecosystem)]().history(
+        payload, kind=kind, source_url=source_url, package=package, version=version
+    )
 
 
 PROVIDERS = {
@@ -413,6 +1070,20 @@ class PackageRegistryConnector(Connector):
                 )
             )
         return documents
+
+    def history(
+        self, ref: SourceRef, payload: Any, *, kind: str, version: str | None = None
+    ) -> list[dict[str, Any]]:
+        """Release, dependency, licence, publisher and repository statements for one fetched document (#2195)."""
+
+        return registry_history(
+            str(ref.metadata["ecosystem"]),
+            payload,
+            kind=kind,
+            source_url=ref.locator,
+            package=str(ref.metadata["package"]),
+            version=version,
+        )
 
 
 def _registry_millis(value: Any) -> int | None:
@@ -542,4 +1213,5 @@ __all__ = [
     "RateLimiter",
     "RegistryError",
     "ingest_package",
+    "registry_history",
 ]
