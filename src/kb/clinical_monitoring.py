@@ -190,3 +190,181 @@ def refresh_schedule(conn):
             "owners": schedule_owners(conn, SOURCE_PACK) if rows else [],
             "note": "refreshes run through the source-pack runtime schedule and the maintenance orchestrator; "
                     "this pack adds no scheduler"}
+
+
+# ------------------------------------------------------------------ medicines regulation (#2214, MR11)
+
+MEDICINES_CONTRACT = "noesis-clinical-medicines-notification-v1"
+MEDICINES_EVENTS = {
+    "authorisation-status-change": "Authorisation status event published",
+    "authorisation-change": "Authorisation change (submission or variation) published",
+    "label-revision": "New label revision published",
+    "safety-communication": "Safety communication published",
+    "safety-communication-updated": "Safety communication updated",
+}
+
+
+class MedicinesMonitor(ClinicalMonitor):
+    """Watch one medicine or substance for authorisation changes, label revisions and safety communications.
+
+    A knowledge subscription (``SubscriptionStore``) registered in ``clinical_monitors``; each evaluation at a
+    committed watermark reports the records its accepted identity matches reach. Items are keyed by record (and, for
+    a communication, by revision), so a re-run over unchanged records delivers nothing (deduplicated) and every new
+    authorisation event, label revision (with its section changes, both revisions cited) or communication update is
+    delivered once, quoting the regulator. No scheduler: sources refresh through the source-pack runtime.
+    """
+
+    def __init__(self, conn, *, initialize=True, now=None):
+        from src.kb.clinical_medicines import MedicinesService
+
+        super().__init__(conn, initialize=initialize, now=now)
+        self.medicines = MedicinesService(conn, initialize=initialize, now=self.now)
+
+    def create_medicine(self, namespace, medicine, request_key, *, principal_id, scopes, delivery=None):
+        from src.kb.clinical_records import _require_read
+
+        _require_read(namespace, scopes)
+        if not str(medicine or "").strip():
+            raise ClinicalRecordError("invalid_medicine", "name the medicine or substance to watch")
+        view_id = "medicines:" + digest([namespace, str(medicine).strip().casefold()])[:24]
+        created = self.subscriptions.create({
+            "namespace": namespace, "domain": "clinical",
+            "query": {"operation": "search", "kind": "medicines-monitor", "medicine": str(medicine).strip()},
+            "filters": {"watch": "medicines-regulation"}, "cadence": {"trigger": "watermark"},
+            "delivery": delivery or {"kind": "poll"},
+        }, "medicines-monitor:" + request_key, principal_id=principal_id,
+            scopes=_evidence_scopes(namespace, set(scopes)))
+        self.conn.execute("INSERT INTO clinical_monitors VALUES (?,?,?,?) ON CONFLICT DO NOTHING",
+                          [created["subscription_id"], namespace, principal_id, view_id])
+        return {**created, "medicine": str(medicine).strip(), "refresh": refresh_schedule(self.conn)}
+
+    def medicine_snapshot(self, namespace, medicine):
+        from src.kb.clinical_medicines import STATUS_EVENTS
+
+        scopes = {"operator"}
+        _, rows, subjects = self.medicines.reach(namespace, medicine, scopes=scopes)
+        items, stale, labels = [], set(), {}
+        for row in rows:
+            item = row["record"]
+            cite = self.medicines._cite(namespace, row, scopes)
+            match = subjects[row["provider"] + "\x00" + row["native_id"]]["match"]
+            if row["record_kind"] == "marketing-authorisation":
+                kind = ("authorisation-status-change" if item["event"]["kind"] in STATUS_EVENTS
+                        else "authorisation-change")
+                items.append({"id": f"authorisation:{row['record_id']}", "item": kind, "event": item["event"],
+                              "procedure": item["procedure"], "submission": item.get("submission"),
+                              "jurisdiction": item["jurisdiction"], "citation": cite, "identity_match": match})
+            elif row["record_kind"] == "label-revision":
+                labels.setdefault((row["provider"], item["document"]["id"]), []).append(row)
+            elif row["record_kind"] == "safety-communication":
+                history = self.records.history(namespace, row["record_id"], scopes=scopes)["revisions"]
+                previous = None
+                for revision in history:
+                    content = revision["record"]
+                    added = [u for u in content.get("updates") or []
+                             if previous is None or u not in (previous.get("updates") or [])]
+                    items.append({"id": f"dsc:{row['record_id']}:{revision['revision']}",
+                                  "item": "safety-communication" if previous is None else
+                                  "safety-communication-updated", "title": content["title"],
+                                  "issued": content.get("issued"), "updates_added": added if previous else [],
+                                  "named_substances": content.get("named_substances") or [],
+                                  "citation": {**cite, "revision": revision["revision"]}, "identity_match": match})
+                    previous = content
+            if self.records.provider_state(namespace, _state_provider(item["provider"])).get("last_failure_ms"):
+                stale.add(_state_provider(item["provider"]))
+        for _, group in sorted(labels.items()):
+            group.sort(key=lambda r: (r["record"]["document"].get("effective_date") or "",
+                                      r["record"]["document"]["version"]))
+            previous = None
+            for row in group:
+                entry = {"id": f"label:{row['record_id']}", "item": "label-revision",
+                         "document": row["record"]["document"],
+                         "citation": self.medicines._cite(namespace, row, scopes),
+                         "identity_match": subjects[row["provider"] + "\x00" + row["native_id"]]["match"],
+                         "section_changes": None}
+                if previous is not None:
+                    diff = self.medicines._store_diff(
+                        namespace, self.records.get(namespace, previous["record_id"], scopes=scopes),
+                        self.records.get(namespace, row["record_id"], scopes=scopes))
+                    entry["section_changes"] = {"record_id": diff["record_id"], "from_revision": diff["from_revision"],
+                                                "to_revision": diff["to_revision"], "changes": diff["changes"]}
+                items.append(entry)
+                previous = row
+        return {"items": items, "coverage": {"complete": not stale, "stale_providers": sorted(stale)}}
+
+    def run_medicine(self, subscription_id, watermark=None, *, principal_id, scopes):
+        from src.kb.clinical_medicines import BOUNDARY
+        from src.kb.clinical_records import _require_read
+
+        scopes = set(scopes)
+        self._monitor(subscription_id, principal_id)
+        subscription = self.subscriptions.inspect(subscription_id, principal_id=principal_id, scopes=scopes)
+        if subscription["query"].get("kind") != "medicines-monitor":
+            raise ClinicalRecordError("monitor_not_found", "subscription is not a medicines monitor")
+        namespace = subscription["namespace"]
+        _require_read(namespace, scopes)
+        if watermark is None:
+            row = self.conn.execute("SELECT max(watermark) FROM knowledge_subscription_watermarks WHERE namespace=?",
+                                    [namespace]).fetchone()
+            if row is None or row[0] is None:
+                raise ClinicalRecordError("watermark_uncommitted", "no committed watermark yet; source-pack runs and "
+                                                                   "the maintenance orchestrator commit them")
+            watermark = int(row[0])
+        elif not self.conn.execute("SELECT 1 FROM knowledge_subscription_watermarks WHERE namespace=? AND watermark=?",
+                                   [namespace, int(watermark)]).fetchone():
+            self.subscriptions.commit_watermark(namespace, int(watermark), kind="ingestion",
+                                                detail={"committed_by": "medicines-monitor"})
+        result = self.medicine_snapshot(namespace, subscription["query"]["medicine"])
+        evaluated = self.subscriptions.evaluate(subscription_id, int(watermark), result, principal_id=principal_id,
+                                                scopes=_evidence_scopes(namespace, scopes),
+                                                observed_at_ms=self.now())
+        notifications = []
+        for event_id in evaluated.get("event_ids", []):
+            row = self.conn.execute("SELECT event_type, object_key, after_json FROM knowledge_subscription_events "
+                                    "WHERE event_id=?", [event_id]).fetchone()
+            notifications.extend(_classify_medicine(event_id, *row))
+        return {"subscription_id": subscription_id, "status": evaluated["status"], "watermark": int(watermark),
+                "medicine": subscription["query"]["medicine"], "notifications": notifications,
+                "coverage": result["coverage"], "delivery": subscription["delivery"], "boundary": BOUNDARY}
+
+
+def _state_provider(provider):
+    return {"ema": "ema-epar", "openfda": "drugs-at-fda"}.get(provider, provider)
+
+
+def _evidence_scopes(namespace, scopes):
+    if "operator" in scopes:
+        return set(scopes)
+    return {READ_SCOPE, f"namespace:{namespace}:read"} | (
+        set(scopes) & {"knowledge:subscriptions:read", "knowledge:subscriptions:write"})
+
+
+def _classify_medicine(event_id, event_type, key, after):
+    def note(kind, message, item):
+        return {"contract": MEDICINES_CONTRACT, "event_id": event_id, "notification_id": f"{event_id}:{kind}",
+                "kind": kind, "object": key, "message": message, "item": item,
+                "note": "quoted as the regulator published it; no advice or verdict is given"}
+
+    if event_type == "coverage-degraded":
+        coverage = json.loads(after) if after else {}
+        return [note("stale-source", "A source refresh failed for " + ", ".join(coverage.get("stale_providers") or [])
+                     + "; nothing was changed.", coverage)]
+    if event_type not in {"added", "changed"} or not after:
+        return []
+    item = json.loads(after)
+    kind = item["item"]
+    if kind not in MEDICINES_EVENTS:
+        return []
+    message = MEDICINES_EVENTS[kind]
+    if kind.startswith("authorisation"):
+        event = item["event"]
+        message += (f": {item['jurisdiction']} {event['kind']} ({event.get('native_status')}) effective "
+                    f"{event.get('effective_date') or 'date not published'}.")
+    elif kind == "label-revision":
+        changes = (item.get("section_changes") or {}).get("changes") or []
+        message += (f": {item['document']['kind'].upper()} {item['document']['id']} version "
+                    f"{item['document']['version']}" + (f", {len(changes)} section change(s)" if item.get(
+                        "section_changes") else "") + ".")
+    else:
+        message += f": {item['title']}."
+    return [note(kind, message, item)]
