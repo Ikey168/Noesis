@@ -3,7 +3,7 @@
 ## Setup and checks
 
 Create a virtual environment and install the minimal or task-specific profile
-documented in `README.md`. Run `mise run check` for the maintained core gateway
+documented in `README.md`. Run `mise run check` for the maintained core CLI
 and contract suite. Use focused pytest and Ruff commands while iterating; run
 specialist workflow, model, browser, or live-provider gates only when the change
 touches them and record those results separately.
