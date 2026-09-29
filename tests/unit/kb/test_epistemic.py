@@ -44,8 +44,19 @@ def test_pinned_classifier_and_offline_fallback_provenance():
     )
     assert model["classifier"]["revision"] == "abc"
     assert model["rule_fallback"]["status"] == "fact"
+    assert model["truth_verified"] is False
+    assert classify_statement("A statement")["truth_verified"] is False
     with pytest.raises(EpistemicError, match="name, version, and revision"):
         classify_statement("Some statement", classifier=lambda _: {"status": "fact"})
+
+
+def test_epistemic_classifier_rejects_boolean_confidence():
+    with pytest.raises(EpistemicError, match="finite numbers"):
+        classify_statement(
+            "Some statement",
+            classifier=lambda _: {"status": "fact", "confidence": True},
+            classifier_pin={"name": "fixture", "version": "1", "revision": "r"},
+        )
 
 
 def test_independence_aware_evidence_aggregation_and_contestation():

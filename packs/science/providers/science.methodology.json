@@ -1,0 +1,101 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.methodology",
+  "version": "1.0.0",
+  "description": "Study methods, trial-design revisions, assessments and outcome-switching findings.",
+  "implementation": {
+    "name": "src.kb.methodology_provenance",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.methodology",
+      "contract": {
+        "name": "noesis-methodology-study",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "get-study",
+        "search-studies",
+        "register-study"
+      ],
+      "semantic_constraints": {
+        "unknowns": "unknown fields remain unknown"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "get-study",
+      "tool": "noesis-knowledge-engine.get_methodology_study",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "studies",
+      "required_scopes": [
+        "knowledge:methodology:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search-studies",
+      "tool": "noesis-knowledge-engine.search_methodology_studies",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "studies",
+      "required_scopes": [
+        "knowledge:methodology:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-study",
+      "tool": "noesis-knowledge-engine.register_methodology_study",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "version"
+      },
+      "readiness_probe": "studies",
+      "required_scopes": [
+        "knowledge:methodology:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "methodology-study",
+      "store": "src.kb.methodology_provenance",
+      "tables": [
+        "methodology_study_revisions",
+        "methodology_study_current",
+        "methodology_extractions",
+        "methodology_statements",
+        "methodology_assessment_revisions",
+        "methodology_assessment_current",
+        "methodology_artifact_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "studies",
+      "kind": "table-exists",
+      "target": "methodology_study_revisions"
+    }
+  ]
+}

@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<Designations xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">\n  <DateGenerated>2026-03-15T08:00:00</DateGenerated>\n  <Designation>\n    <LastUpdated>2025-11-25</LastUpdated>\n    <DateDesignated>2025-11-25</DateDesignated>\n    <UniqueID>RUS9001</UniqueID>\n    <OFSIGroupID>99901</OFSIGroupID>\n    <Names>\n      <Name><Name6>Examplar Freight LLC</Name6><NameType>Primary Name</NameType></Name>\n      <Name><Name6>OOO Examplar Freight</Name6><NameType>Alias</NameType><AliasStrength>Low quality</AliasStrength></Name>\n    </Names>\n    <RegimeName>Fixture Regime (UK)</RegimeName>\n    <IndividualEntityShip>Entity</IndividualEntityShip>\n    <DesignationSource>UK</DesignationSource>\n    <SanctionsImposed>Asset freeze</SanctionsImposed>\n    <OtherInformation>Authored fixture entry; the party is fictional.</OtherInformation>\n    <Addresses><Address><AddressLine1>1 Example Quay</AddressLine1><AddressLine2>Fictionville</AddressLine2><AddressCountry>Russia</AddressCountry></Address></Addresses>\n    <EntityDetails><BusinessRegistrationNumbers><BusinessRegistrationNumber>1027700000001</BusinessRegistrationNumber></BusinessRegistrationNumbers></EntityDetails>\n  </Designation>\n  <Designation>\n    <LastUpdated>2026-02-25</LastUpdated>\n    <DateDesignated>2026-02-25</DateDesignated>\n    <UniqueID>RUS9002</UniqueID>\n    <Names><Name><Name6>FICTIONAL STAR</Name6><NameType>Primary Name</NameType></Name></Names>\n    <RegimeName>Fixture Regime (UK)</RegimeName>\n    <IndividualEntityShip>Ship</IndividualEntityShip>\n    <DesignationSource>UK</DesignationSource>\n    <OtherInformation>Authored fixture entry; the vessel is fictional.</OtherInformation>\n    <ShipDetails><Ship><IMONumbers><IMONumber>9999991</IMONumber></IMONumbers></Ship></ShipDetails>\n  </Designation>\n</Designations>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/docs/UK-Sanctions-List.xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored list file in the documented uk-sanctions-list format; every party is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

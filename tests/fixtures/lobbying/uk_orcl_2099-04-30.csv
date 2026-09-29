@@ -1,0 +1,5 @@
+registrant_id,registrant_name,company_number,address,quarter,client_name,return_submitted_on
+ORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2098 Q4,Fictional Grid Association,2099-01-20
+ORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2098 Q4,Sample Charging Operator SA,2099-01-20
+ORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2099 Q1,Fictional Grid Association,2099-04-25
+ORCL0099,Example Public Affairs Ltd,09990099,1 Example Street London,2099 Q1,Other Example GmbH,2099-04-25

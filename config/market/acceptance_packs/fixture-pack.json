@@ -1,0 +1,40 @@
+{
+  "pack_id": "market-fixture-acceptance-v1",
+  "status": "fixture_verified_only",
+  "representative_universe": {
+    "name": "provisional_us_software_five",
+    "source": "docs/roadmaps/market-data-provider-evaluation.md",
+    "fixture_only": true,
+    "issuers": [
+      {"ticker": "MSFT", "name": "Microsoft"},
+      {"ticker": "ORCL", "name": "Oracle"},
+      {"ticker": "CRM", "name": "Salesforce"},
+      {"ticker": "ADBE", "name": "Adobe"},
+      {"ticker": "NOW", "name": "ServiceNow"}
+    ]
+  },
+  "asset_classes": ["us_equities", "economic_releases", "international_equities", "fixed_income", "fx_commodities", "options_derivatives", "digital_assets", "intraday"],
+  "checks": [
+    {"name": "contract", "status": "passed", "evidence": "tests/unit/domains/test_market_*.py tests/unit/domains/test_market_specialized.py"},
+    {"name": "reference_calculation", "status": "passed", "evidence": "tests/unit/domains/test_market_quantitative.py tests/unit/domains/test_market_specialized.py tests/unit/domains/test_market_release_acceptance.py"},
+    {"name": "historical_replay", "status": "passed", "evidence": "tests/unit/domains/test_market_asof.py tests/unit/domains/test_market_screeners.py"},
+    {"name": "entitlement", "status": "passed", "evidence": "tests/unit/domains/test_market_entitlements.py tests/unit/domains/test_market_alerts.py"},
+    {"name": "provider_outage_and_repair", "status": "passed", "evidence": "tests/unit/domains/test_market_quality.py tests/unit/domains/test_market_operations.py"},
+    {"name": "local_operations_capacity_and_cost", "status": "passed", "evidence": "config/market/acceptance_packs/local-operations-benchmark.json; provider requests/cost are zero and infrastructure cost remains unmeasured"},
+    {"name": "empty_and_insufficient_history", "status": "passed", "evidence": "tests/unit/domains/test_market_metrics.py::test_price_metrics_report_empty_and_insufficient_history_without_fabricating_returns"},
+    {"name": "rest_mcp_surface_parity", "status": "passed", "evidence": "tests/unit/domains/test_market_metrics.py::test_market_rest_and_mcp_share_auth_calculations_and_replay"},
+    {"name": "five_company_historical_journey", "status": "passed", "evidence": "tests/unit/domains/test_market_release_acceptance.py"},
+    {"name": "historical_brief_export_restart_rights", "status": "passed", "evidence": "tests/unit/domains/test_market_release_acceptance.py"},
+    {"name": "user_workflow", "status": "pending_human_review", "evidence": "fixture journey emits pending_human_review; no analyst sign-off is claimed"}
+  ],
+  "live_source_pack": {
+    "status": "live_partial",
+    "providers": [
+      {"provider": "sec_edgar", "status": "live_verified", "evidence": ["live-sec-statements.json", "live-sec-materials.json"]},
+      {"provider": "fred", "status": "live_verified", "evidence": ["live-macro-sources.json"]},
+      {"provider": "fmp", "status": "live_incomplete", "evidence": ["live-price-provider.json", "live-fmp-sample-manifest.json"]}
+    ],
+    "reason": "Public filing and macro samples are verified; the selected price adapter has partial technical access and no confirmed commercial rights."
+  },
+  "limitations": ["This pack must not be used to claim live or licensed coverage.", "Each new asset class requires a new pack and migration note."]
+}

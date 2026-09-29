@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-funding-record-v1",
+  "title": "Provider-neutral funding programme, call, directory entry or award record",
+  "description": "Absent values stay null/omitted and are listed in unknowns. Award history is never an opportunity; a directory entry never asserts an open application window; programme/topic budgets are never an applicant award size.",
+  "type": "object",
+  "required": ["contract", "record_kind", "provider", "provider_id", "title", "language", "source_url", "authority", "instrument", "unknowns"],
+  "additionalProperties": false,
+  "$defs": {
+    "money": {"type": ["string", "null"], "pattern": "^[0-9]+(\\.[0-9]+)?$"},
+    "locator": {"type": ["object", "null"], "additionalProperties": false,
+      "properties": {"section": {"type": "string"}, "selector": {"type": "string"}, "json_pointer": {"type": "string"},
+                     "page": {"type": "integer"}, "paragraph": {"type": "integer"}, "quote": {"type": "string"}, "url": {"type": "string"}}}
+  },
+  "properties": {
+    "contract": {"const": "noesis-funding-record-v1"},
+    "record_kind": {"enum": ["programme", "call", "directory_entry", "award"]},
+    "provider": {"enum": ["nlnet", "eu-ft", "foerderdatenbank", "exist"]},
+    "provider_id": {"type": "string", "minLength": 1},
+    "round_id": {"type": ["string", "null"]},
+    "title": {"type": "string", "minLength": 1},
+    "language": {"type": "string"},
+    "source_url": {"type": "string", "pattern": "^https://"},
+    "authority": {"type": "object", "required": ["kind", "name"], "additionalProperties": false,
+      "properties": {"kind": {"enum": ["funder", "administering-body", "directory"]}, "name": {"type": "string"}}},
+    "funder": {"type": ["object", "null"]},
+    "programme": {"type": ["object", "null"]},
+    "instrument": {"type": "object", "required": ["kinds"], "additionalProperties": false,
+      "properties": {"kinds": {"type": "array", "minItems": 1, "items": {"enum": ["grant", "stipend", "prize", "loan", "guarantee", "equity", "credit", "in-kind", "procurement", "unknown"]}},
+                     "native_label": {"type": ["string", "null"]}, "locator": {"$ref": "#/$defs/locator"}}},
+    "financial_terms": {"type": ["object", "null"], "additionalProperties": false, "properties": {
+      "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+      "award_range": {"type": ["object", "null"], "required": ["basis"], "properties": {
+        "min": {"$ref": "#/$defs/money"}, "max": {"$ref": "#/$defs/money"},
+        "basis": {"enum": ["per-project", "per-applicant", "per-person-month", "unknown"]}, "locator": {"$ref": "#/$defs/locator"}}},
+      "programme_budget": {"type": ["object", "null"], "required": ["basis"], "properties": {
+        "amount": {"$ref": "#/$defs/money"}, "basis": {"enum": ["call-total", "topic-total", "programme-total", "unknown"]},
+        "expected_awards": {"type": ["integer", "null"], "minimum": 1}, "locator": {"$ref": "#/$defs/locator"}}},
+      "funding_rate": {"type": ["object", "null"]},
+      "co_financing": {"type": ["object", "null"], "properties": {"required": {"type": ["boolean", "null"]}}},
+      "eligible_costs": {"type": ["array", "null"], "items": {"type": "string"}},
+      "reimbursement": {"enum": ["advance", "milestone", "arrears", "unknown", null]},
+      "repayable": {"type": ["boolean", "null"]},
+      "notes": {"type": "string"}}},
+    "status": {"type": ["object", "null"], "properties": {"asserted": {"enum": ["open", "forthcoming", "rolling", "closed", "unknown"]}}},
+    "deadlines": {"type": "array", "items": {"type": "object", "required": ["kind", "text"], "properties": {
+      "kind": {"enum": ["opening", "submission", "cut-off"]}, "text": {"type": "string"}, "stage": {"type": ["string", "null"]},
+      "timezone": {"type": ["string", "null"]}, "instant": {"type": ["string", "null"]}, "date": {"type": ["string", "null"]},
+      "locator": {"$ref": "#/$defs/locator"}}}},
+    "requirements": {"type": "array", "items": {"type": "object", "required": ["requirement_id", "category", "text", "locator"], "properties": {
+      "requirement_id": {"type": "string"}, "category": {"type": "string"}, "text": {"type": "string"},
+      "hard": {"type": ["boolean", "null"]}, "locator": {"$ref": "#/$defs/locator"}, "machine_rule": {"type": "object"}}}},
+    "themes": {"type": "array", "items": {"type": "string"}},
+    "documents": {"type": "array", "items": {"type": "object", "required": ["url", "kind"]}},
+    "references": {"type": "array", "items": {"type": "object", "required": ["kind"], "properties": {
+      "kind": {"enum": ["administering-body", "authoritative-call", "programme"]}}}},
+    "sections": {"type": "array"},
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  }
+}

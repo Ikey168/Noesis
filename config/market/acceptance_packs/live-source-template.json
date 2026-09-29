@@ -1,0 +1,6 @@
+{
+  "pack_id": "market-live-source-template-v1",
+  "status": "not_run",
+  "required_evidence": ["provider_contract", "credential_scope", "entitlement_policy", "sample_identifiers", "historical_replay", "freshness_measurement", "reference_calculation", "workflow_review"],
+  "recording_rule": "A missing credential, license decision, or human review remains blocked; it cannot be converted to passed by an empty response."
+}

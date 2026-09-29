@@ -1,0 +1,35 @@
+{
+ "captured_at": "authored 2026-09-28 (not a capture)",
+ "endpoint": "https://gdi.berlin.de/services/wfs/brw",
+ "license": "dl-de/zero-2-0",
+ "native_pages": [
+  {
+   "body": "{\"crs\": {\"properties\": {\"name\": \"urn:ogc:def:crs:EPSG::25833\"}, \"type\": \"name\"}, \"features\": [{\"geometry\": {\"coordinates\": [[[391000.0, 5820000.0], [392000.0, 5820000.0], [392000.0, 5821000.0], [391000.0, 5821000.0], [391000.0, 5820000.0]]], \"type\": \"Polygon\"}, \"id\": \"bodenrichtwertzonen.1\", \"properties\": {\"beit\": \"frei\", \"brw\": 5400, \"brzname\": \"Musterkiez Nord (fiktiv)\", \"entw\": \"B\", \"gena\": \"Berlin\", \"gfz\": \"2.5\", \"nuta\": \"W\", \"stag\": \"2099-01-01\", \"wnum\": \"1099001\"}, \"type\": \"Feature\"}, {\"geometry\": {\"coordinates\": [[[392000.0, 5820000.0], [393000.0, 5820000.0], [393000.0, 5821000.0], [392000.0, 5821000.0], [392000.0, 5820000.0]]], \"type\": \"Polygon\"}, \"id\": \"bodenrichtwertzonen.2\", \"properties\": {\"beit\": \"frei\", \"brw\": \"6100\", \"brzname\": \"Beispielplatz Ost (fiktiv)\", \"entw\": \"B\", \"gena\": \"Berlin\", \"gfz\": \"3.0\", \"nuta\": \"MI\", \"stag\": \"2099-01-01\", \"wnum\": \"1099002\"}, \"type\": \"Feature\"}, {\"geometry\": {\"coordinates\": [[[391000.0, 5821000.0], [392000.0, 5821000.0], [392000.0, 5822000.0], [391000.0, 5822000.0], [391000.0, 5821000.0]]], \"type\": \"Polygon\"}, \"id\": \"bodenrichtwertzonen.3\", \"properties\": {\"beit\": \"frei\", \"brw\": 4800, \"brzname\": \"Probeviertel (fiktiv)\", \"entw\": \"B\", \"gena\": \"Berlin\", \"gfz\": \"2.0\", \"nuta\": \"W\", \"stag\": \"2099-01-01\", \"wnum\": \"1099003\"}, \"type\": \"Feature\"}], \"numberMatched\": 3, \"numberReturned\": 3, \"timeStamp\": \"2099-03-01T08:00:00Z\", \"totalFeatures\": 3, \"type\": \"FeatureCollection\"}",
+   "body_sha256": "6b07d02216a95c2c99060a32b8aa3851dc4b96293e80ce6305f4f3b7bf765aef",
+   "params": {
+    "COUNT": 50,
+    "OUTPUTFORMAT": "application/json",
+    "REQUEST": "GetFeature",
+    "SERVICE": "WFS",
+    "SORTBY": "wnum",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25833",
+    "STARTINDEX": 0,
+    "TYPENAMES": "brw:bodenrichtwertzonen",
+    "VERSION": "2.0.0"
+   },
+   "start_index": 0,
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers, plan numbers, values and dates are fictional. Not live evidence. Geometries are boxes in EPSG:25833.",
+ "provider": "Geoportal Berlin (FIS-Broker) - authored fixture",
+ "retrieved": "authored 2026-09-28 (not a capture)",
+ "scenarios": [
+  "projected-crs-epsg-25833",
+  "complete-snapshot",
+  "land-value-zones",
+  "valuation-date",
+  "shared-zone-edge"
+ ],
+ "source_url": "https://gdi.berlin.de/services/wfs/brw"
+}

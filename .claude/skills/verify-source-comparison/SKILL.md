@@ -1,3 +1,8 @@
+---
+name: verify-source-comparison
+description: Smoke-test the multi-source news comparison engine without a running API server. Covers per-source coverage grouping and counts, average and dominant sentiment, trust scores (frame_diversity and composite_score), cluster labels, per-topic stance, the summary fields (most positive, negative, trusted, and highest-coverage source), edge cases (empty topic, no-match topic, limit), get_source_profile(), and list_source_trustworthiness() filtering. Use when changing the comparison queries or the joins into outlet_scores, outlet_clusters, or source_stances.
+---
+
 # verify-source-comparison
 
 Smoke-tests the multi-source news comparison engine (Issue #46) without

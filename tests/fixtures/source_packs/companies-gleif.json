@@ -1,0 +1,316 @@
+{
+ "authored": true,
+ "provider": "GLEIF API v1",
+ "note": "Authored JSON:API envelopes for fictional LEIs with valid ISO 17442 check digits; unlisted paths replay as HTTP 404 (none reported).",
+ "native_pages": [
+  {
+   "request": "/api/v1/lei-records/529900FIXTURECHILD08",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "529900FIXTURECHILD08",
+     "attributes": {
+      "lei": "529900FIXTURECHILD08",
+      "entity": {
+       "legalName": {
+        "name": "Exampla Berlin GmbH (fiktiv)",
+        "language": "de"
+       },
+       "otherNames": [
+        {
+         "name": "Exampla Vertrieb GmbH (fiktiv)",
+         "language": "de",
+         "type": "PREVIOUS_LEGAL_NAME"
+        }
+       ],
+       "legalAddress": {
+        "language": "de",
+        "addressLines": [
+         "Musterstraße 1"
+        ],
+        "city": "Berlin",
+        "postalCode": "10115",
+        "country": "DE"
+       },
+       "headquartersAddress": {
+        "language": "de",
+        "addressLines": [
+         "Beispielweg 2"
+        ],
+        "city": "München",
+        "postalCode": "80331",
+        "country": "DE"
+       },
+       "registeredAt": {
+        "id": "RA000242",
+        "other": null
+       },
+       "registeredAs": "HRB 123456 B",
+       "jurisdiction": "DE",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "2HBR",
+        "other": null
+       },
+       "status": "ACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": null,
+        "name": null
+       }
+      },
+      "registration": {
+       "initialRegistrationDate": "2015-01-01T00:00:00Z",
+       "lastUpdateDate": "2026-05-01T00:00:00Z",
+       "status": "ISSUED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "5299000J2N45DDNE4Y28",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/529900FIXTURECHILD08/direct-parent-relationship",
+   "body": {
+    "data": {
+     "type": "relationship-records",
+     "attributes": {
+      "relationship": {
+       "startNode": {
+        "id": "529900FIXTURECHILD08",
+        "type": "LEI"
+       },
+       "endNode": {
+        "id": "529900FIXTUREPAREN19",
+        "type": "LEI"
+       },
+       "type": "IS_DIRECTLY_CONSOLIDATED_BY",
+       "status": "ACTIVE",
+       "periods": [
+        {
+         "startDate": "2020-01-01T00:00:00Z",
+         "endDate": null,
+         "type": "RELATIONSHIP_PERIOD"
+        }
+       ]
+      },
+      "registration": {
+       "status": "PUBLISHED",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/529900FIXTURECHILD08/ultimate-parent-relationship",
+   "body": {
+    "data": {
+     "type": "relationship-records",
+     "attributes": {
+      "relationship": {
+       "startNode": {
+        "id": "529900FIXTURECHILD08",
+        "type": "LEI"
+       },
+       "endNode": {
+        "id": "529900FIXTUREPAREN19",
+        "type": "LEI"
+       },
+       "type": "IS_ULTIMATELY_CONSOLIDATED_BY",
+       "status": "ACTIVE",
+       "periods": [
+        {
+         "startDate": "2020-01-01T00:00:00Z",
+         "endDate": null,
+         "type": "RELATIONSHIP_PERIOD"
+        }
+       ]
+      },
+      "registration": {
+       "status": "PUBLISHED",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/529900FIXTUREPAREN19",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "529900FIXTUREPAREN19",
+     "attributes": {
+      "lei": "529900FIXTUREPAREN19",
+      "entity": {
+       "legalName": {
+        "name": "Exampla Holding AG (fiktiv)",
+        "language": "de"
+       },
+       "otherNames": [],
+       "legalAddress": {
+        "language": "de",
+        "addressLines": [
+         "Musterstraße 1"
+        ],
+        "city": "Berlin",
+        "postalCode": "10115",
+        "country": "DE"
+       },
+       "headquartersAddress": {
+        "language": "de",
+        "addressLines": [
+         "Beispielweg 2"
+        ],
+        "city": "Berlin",
+        "postalCode": "80331",
+        "country": "DE"
+       },
+       "registeredAt": {
+        "id": "RA000242",
+        "other": null
+       },
+       "registeredAs": "HRB 654321",
+       "jurisdiction": "DE",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "2HBR",
+        "other": null
+       },
+       "status": "ACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": null,
+        "name": null
+       }
+      },
+      "registration": {
+       "initialRegistrationDate": "2015-01-01T00:00:00Z",
+       "lastUpdateDate": "2026-05-01T00:00:00Z",
+       "status": "ISSUED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "5299000J2N45DDNE4Y28",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/529900FIXTUREPAREN19/ultimate-parent-reporting-exception",
+   "body": {
+    "data": {
+     "type": "reporting-exceptions",
+     "attributes": {
+      "lei": "529900FIXTUREPAREN19",
+      "category": "ULTIMATE_ACCOUNTING_CONSOLIDATION_PARENT",
+      "reason": "NATURAL_PERSONS",
+      "reference": null
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/529900FIXTUREPAREN19/direct-parent-reporting-exception",
+   "body": {
+    "data": {
+     "type": "reporting-exceptions",
+     "attributes": {
+      "lei": "529900FIXTUREPAREN19",
+      "category": "DIRECT_ACCOUNTING_CONSOLIDATION_PARENT",
+      "reason": "NATURAL_PERSONS",
+      "reference": null
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v1/lei-records/529900FIXTURELAPSE73",
+   "body": {
+    "data": {
+     "type": "lei-records",
+     "id": "529900FIXTURELAPSE73",
+     "attributes": {
+      "lei": "529900FIXTURELAPSE73",
+      "entity": {
+       "legalName": {
+        "name": "Exampla Altgesellschaft mbH (fiktiv)",
+        "language": "de"
+       },
+       "otherNames": [],
+       "legalAddress": {
+        "language": "de",
+        "addressLines": [
+         "Musterstraße 1"
+        ],
+        "city": "Berlin",
+        "postalCode": "10115",
+        "country": "DE"
+       },
+       "headquartersAddress": {
+        "language": "de",
+        "addressLines": [
+         "Beispielweg 2"
+        ],
+        "city": "Berlin",
+        "postalCode": "80331",
+        "country": "DE"
+       },
+       "registeredAt": {
+        "id": "RA000242",
+        "other": null
+       },
+       "registeredAs": "HRB 111111 B",
+       "jurisdiction": "DE",
+       "category": "GENERAL",
+       "legalForm": {
+        "id": "2HBR",
+        "other": null
+       },
+       "status": "INACTIVE",
+       "expiration": {
+        "date": null,
+        "reason": null
+       },
+       "successorEntity": {
+        "lei": "529900FIXTURESUCCE60",
+        "name": null
+       }
+      },
+      "registration": {
+       "initialRegistrationDate": "2015-01-01T00:00:00Z",
+       "lastUpdateDate": "2023-01-01T00:00:00Z",
+       "status": "LAPSED",
+       "nextRenewalDate": "2027-01-01T00:00:00Z",
+       "managingLou": "5299000J2N45DDNE4Y28",
+       "corroborationLevel": "FULLY_CORROBORATED"
+      }
+     }
+    }
+   }
+  }
+ ],
+ "scenarios": [
+  "direct-and-ultimate-parent",
+  "natural-persons-exception",
+  "legal-vs-headquarters-address",
+  "previous-legal-name",
+  "lapsed-lei-with-successor",
+  "none-reported"
+ ],
+ "leis": {
+  "child": "529900FIXTURECHILD08",
+  "parent": "529900FIXTUREPAREN19",
+  "lapsed": "529900FIXTURELAPSE73",
+  "successor": "529900FIXTURESUCCE60"
+ }
+}

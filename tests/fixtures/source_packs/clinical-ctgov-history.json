@@ -1,0 +1,1363 @@
+{
+ "authored": true,
+ "note": "Authored offline fixture (not a live capture). The intervention noetiglutide, its sponsor and every identifier are fictional placeholders; shapes follow the provider's public response format. See tests/fixtures/clinical/README.md.",
+ "provider": "ClinicalTrials.gov API v2 + /api/int/studies/{NCT}/history",
+ "scenarios": [
+  "registry-versions",
+  "outcome-retimed",
+  "results-posted",
+  "terminated-results-never-posted",
+  "eudract-secondary-id",
+  "declared-pmid"
+ ],
+ "native_pages": [
+  {
+   "request": "/api/v2/studies/NCT09000001",
+   "status": 200,
+   "body": {
+    "protocolSection": {
+     "identificationModule": {
+      "nctId": "NCT09000001",
+      "orgStudyIdInfo": {
+       "id": "NTG-3001"
+      },
+      "secondaryIdInfos": [
+       {
+        "id": "2015-900001-10",
+        "type": "EUDRACT_NUMBER"
+       }
+      ],
+      "organization": {
+       "fullName": "Fixture Therapeutics GmbH",
+       "class": "INDUSTRY"
+      },
+      "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+      "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+      "acronym": "NOETIC-1"
+     },
+     "statusModule": {
+      "statusVerifiedDate": "2019-02",
+      "overallStatus": "COMPLETED",
+      "startDateStruct": {
+       "date": "2016-03-01",
+       "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+       "date": "2018-01-15",
+       "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+       "date": "2018-03-01",
+       "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2015-11-20",
+      "studyFirstPostDateStruct": {
+       "date": "2015-11-24",
+       "type": "ESTIMATED"
+      },
+      "lastUpdatePostDateStruct": {
+       "date": "2019-02-14",
+       "type": "ACTUAL"
+      },
+      "resultsFirstSubmitDate": "2019-01-10",
+      "resultsFirstPostDateStruct": {
+       "date": "2019-02-14",
+       "type": "ACTUAL"
+      }
+     },
+     "sponsorCollaboratorsModule": {
+      "leadSponsor": {
+       "name": "Fixture Therapeutics GmbH",
+       "class": "INDUSTRY"
+      }
+     },
+     "descriptionModule": {
+      "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+     },
+     "conditionsModule": {
+      "conditions": [
+       "Type 2 Diabetes",
+       "T2DM"
+      ],
+      "keywords": [
+       "glycaemic control"
+      ]
+     },
+     "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+       "PHASE3"
+      ],
+      "designInfo": {
+       "allocation": "RANDOMIZED",
+       "interventionModel": "PARALLEL",
+       "primaryPurpose": "TREATMENT",
+       "maskingInfo": {
+        "masking": "QUADRUPLE",
+        "whoMasked": [
+         "PARTICIPANT",
+         "CARE_PROVIDER",
+         "INVESTIGATOR",
+         "OUTCOMES_ASSESSOR"
+        ]
+       }
+      },
+      "enrollmentInfo": {
+       "count": 612,
+       "type": "ACTUAL"
+      }
+     },
+     "armsInterventionsModule": {
+      "armGroups": [
+       {
+        "label": "Noetiglutide",
+        "type": "EXPERIMENTAL",
+        "description": "Noetiglutide added to metformin",
+        "interventionNames": [
+         "Drug: Noetiglutide"
+        ]
+       },
+       {
+        "label": "Placebo",
+        "type": "PLACEBO_COMPARATOR",
+        "description": "Placebo added to metformin",
+        "interventionNames": [
+         "Drug: Placebo"
+        ]
+       }
+      ],
+      "interventions": [
+       {
+        "type": "DRUG",
+        "name": "Noetiglutide",
+        "description": "Investigational product (fictional)",
+        "armGroupLabels": [
+         "Noetiglutide"
+        ],
+        "otherNames": [
+         "NTG-01"
+        ]
+       },
+       {
+        "type": "DRUG",
+        "name": "Placebo",
+        "armGroupLabels": [
+         "Placebo"
+        ]
+       }
+      ]
+     },
+     "outcomesModule": {
+      "primaryOutcomes": [
+       {
+        "measure": "Change From Baseline in HbA1c",
+        "timeFrame": "Baseline, week 52"
+       }
+      ],
+      "secondaryOutcomes": [
+       {
+        "measure": "Change From Baseline in Body Weight",
+        "timeFrame": "Baseline, week 26"
+       }
+      ]
+     },
+     "eligibilityModule": {
+      "sex": "ALL",
+      "minimumAge": "18 Years",
+      "healthyVolunteers": false
+     },
+     "referencesModule": {
+      "references": [
+       {
+        "pmid": "99000001",
+        "type": "RESULT",
+        "citation": "Fixture A, Example B. Noetiglutide versus placebo in type 2 diabetes (NOETIC-1). J Fixture Med. 2019;1:1-10."
+       }
+      ]
+     }
+    },
+    "resultsSection": {
+     "participantFlowModule": {
+      "groups": [
+       {
+        "id": "FG000",
+        "title": "Noetiglutide"
+       },
+       {
+        "id": "FG001",
+        "title": "Placebo"
+       }
+      ]
+     },
+     "outcomeMeasuresModule": {
+      "outcomeMeasures": [
+       {
+        "type": "PRIMARY",
+        "title": "Change From Baseline in HbA1c",
+        "timeFrame": "Baseline, week 52",
+        "paramType": "LEAST_SQUARES_MEAN",
+        "unitOfMeasure": "percentage of HbA1c",
+        "groups": [
+         {
+          "id": "OG000",
+          "title": "Noetiglutide"
+         },
+         {
+          "id": "OG001",
+          "title": "Placebo"
+         }
+        ],
+        "classes": [
+         {
+          "categories": [
+           {
+            "measurements": [
+             {
+              "groupId": "OG000",
+              "value": "-1.1",
+              "spread": "0.08"
+             },
+             {
+              "groupId": "OG001",
+              "value": "-0.2",
+              "spread": "0.08"
+             }
+            ]
+           }
+          ]
+         }
+        ],
+        "analyses": [
+         {
+          "groupIds": [
+           "OG000",
+           "OG001"
+          ],
+          "pValue": "<0.001",
+          "statisticalMethod": "ANCOVA",
+          "paramType": "Mean Difference (Final Values)",
+          "paramValue": "-0.9",
+          "ciPctValue": "95",
+          "ciLowerLimit": "-1.1",
+          "ciUpperLimit": "-0.7"
+         }
+        ]
+       }
+      ]
+     },
+     "adverseEventsModule": {
+      "frequencyThreshold": "5",
+      "timeFrame": "52 weeks",
+      "eventGroups": [
+       {
+        "id": "EG000",
+        "title": "Noetiglutide",
+        "seriousNumAffected": 21,
+        "seriousNumAtRisk": 306,
+        "otherNumAffected": 140,
+        "otherNumAtRisk": 306
+       },
+       {
+        "id": "EG001",
+        "title": "Placebo",
+        "seriousNumAffected": 18,
+        "seriousNumAtRisk": 306,
+        "otherNumAffected": 95,
+        "otherNumAtRisk": 306
+       }
+      ]
+     }
+    },
+    "derivedSection": {
+     "miscInfoModule": {
+      "versionHolder": "2026-09-20"
+     },
+     "conditionBrowseModule": {
+      "meshes": [
+       {
+        "id": "D003924",
+        "term": "Diabetes Mellitus, Type 2"
+       }
+      ],
+      "ancestors": [
+       {
+        "id": "D003920",
+        "term": "Diabetes Mellitus"
+       },
+       {
+        "id": "D044882",
+        "term": "Glucose Metabolism Disorders"
+       },
+       {
+        "id": "D008659",
+        "term": "Metabolic Diseases"
+       },
+       {
+        "id": "D004700",
+        "term": "Endocrine System Diseases"
+       }
+      ]
+     },
+     "interventionBrowseModule": {
+      "meshes": [],
+      "ancestors": []
+     }
+    },
+    "hasResults": true
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000001/history",
+   "status": 200,
+   "body": {
+    "changes": [
+     {
+      "version": 0,
+      "date": "2015-11-20",
+      "status": "NOT_YET_RECRUITING",
+      "moduleLabels": [
+       "Study Identification",
+       "Study Status",
+       "Outcome Measures"
+      ]
+     },
+     {
+      "version": 1,
+      "date": "2016-06-03",
+      "status": "RECRUITING",
+      "moduleLabels": [
+       "Study Status"
+      ]
+     },
+     {
+      "version": 2,
+      "date": "2017-11-20",
+      "status": "ACTIVE_NOT_RECRUITING",
+      "moduleLabels": [
+       "Study Status",
+       "Outcome Measures"
+      ]
+     },
+     {
+      "version": 3,
+      "date": "2019-02-14",
+      "status": "COMPLETED",
+      "moduleLabels": [
+       "Study Status",
+       "Results",
+       "References"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000001/history/0",
+   "status": 200,
+   "body": {
+    "study": {
+     "protocolSection": {
+      "identificationModule": {
+       "nctId": "NCT09000001",
+       "orgStudyIdInfo": {
+        "id": "NTG-3001"
+       },
+       "secondaryIdInfos": [
+        {
+         "id": "2015-900001-10",
+         "type": "EUDRACT_NUMBER"
+        }
+       ],
+       "organization": {
+        "fullName": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       },
+       "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+       "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+       "acronym": "NOETIC-1"
+      },
+      "statusModule": {
+       "statusVerifiedDate": "2015-12",
+       "overallStatus": "NOT_YET_RECRUITING",
+       "startDateStruct": {
+        "date": "2016-03-01",
+        "type": "ESTIMATED"
+       },
+       "primaryCompletionDateStruct": {
+        "date": "2017-12",
+        "type": "ESTIMATED"
+       },
+       "completionDateStruct": {
+        "date": "2018-03",
+        "type": "ESTIMATED"
+       },
+       "studyFirstSubmitDate": "2015-11-20",
+       "studyFirstPostDateStruct": {
+        "date": "2015-11-24",
+        "type": "ESTIMATED"
+       },
+       "lastUpdatePostDateStruct": {
+        "date": "2015-11-24",
+        "type": "ACTUAL"
+       }
+      },
+      "sponsorCollaboratorsModule": {
+       "leadSponsor": {
+        "name": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       }
+      },
+      "descriptionModule": {
+       "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+      },
+      "conditionsModule": {
+       "conditions": [
+        "Type 2 Diabetes",
+        "T2DM"
+       ],
+       "keywords": [
+        "glycaemic control"
+       ]
+      },
+      "designModule": {
+       "studyType": "INTERVENTIONAL",
+       "phases": [
+        "PHASE3"
+       ],
+       "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+         "masking": "QUADRUPLE",
+         "whoMasked": [
+          "PARTICIPANT",
+          "CARE_PROVIDER",
+          "INVESTIGATOR",
+          "OUTCOMES_ASSESSOR"
+         ]
+        }
+       },
+       "enrollmentInfo": {
+        "count": 600,
+        "type": "ESTIMATED"
+       }
+      },
+      "armsInterventionsModule": {
+       "armGroups": [
+        {
+         "label": "Noetiglutide",
+         "type": "EXPERIMENTAL",
+         "description": "Noetiglutide added to metformin",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        },
+        {
+         "label": "Placebo",
+         "type": "PLACEBO_COMPARATOR",
+         "description": "Placebo added to metformin",
+         "interventionNames": [
+          "Drug: Placebo"
+         ]
+        }
+       ],
+       "interventions": [
+        {
+         "type": "DRUG",
+         "name": "Noetiglutide",
+         "description": "Investigational product (fictional)",
+         "armGroupLabels": [
+          "Noetiglutide"
+         ],
+         "otherNames": [
+          "NTG-01"
+         ]
+        },
+        {
+         "type": "DRUG",
+         "name": "Placebo",
+         "armGroupLabels": [
+          "Placebo"
+         ]
+        }
+       ]
+      },
+      "outcomesModule": {
+       "primaryOutcomes": [
+        {
+         "measure": "Change From Baseline in HbA1c",
+         "timeFrame": "Baseline, week 26"
+        }
+       ],
+       "secondaryOutcomes": [
+        {
+         "measure": "Change From Baseline in Body Weight",
+         "timeFrame": "Baseline, week 26"
+        }
+       ]
+      },
+      "eligibilityModule": {
+       "sex": "ALL",
+       "minimumAge": "18 Years",
+       "healthyVolunteers": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000001/history/1",
+   "status": 200,
+   "body": {
+    "study": {
+     "protocolSection": {
+      "identificationModule": {
+       "nctId": "NCT09000001",
+       "orgStudyIdInfo": {
+        "id": "NTG-3001"
+       },
+       "secondaryIdInfos": [
+        {
+         "id": "2015-900001-10",
+         "type": "EUDRACT_NUMBER"
+        }
+       ],
+       "organization": {
+        "fullName": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       },
+       "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+       "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+       "acronym": "NOETIC-1"
+      },
+      "statusModule": {
+       "statusVerifiedDate": "2016-06",
+       "overallStatus": "RECRUITING",
+       "startDateStruct": {
+        "date": "2016-03-01",
+        "type": "ACTUAL"
+       },
+       "primaryCompletionDateStruct": {
+        "date": "2017-12",
+        "type": "ESTIMATED"
+       },
+       "completionDateStruct": {
+        "date": "2018-03",
+        "type": "ESTIMATED"
+       },
+       "studyFirstSubmitDate": "2015-11-20",
+       "studyFirstPostDateStruct": {
+        "date": "2015-11-24",
+        "type": "ESTIMATED"
+       },
+       "lastUpdatePostDateStruct": {
+        "date": "2016-06-03",
+        "type": "ACTUAL"
+       }
+      },
+      "sponsorCollaboratorsModule": {
+       "leadSponsor": {
+        "name": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       }
+      },
+      "descriptionModule": {
+       "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+      },
+      "conditionsModule": {
+       "conditions": [
+        "Type 2 Diabetes",
+        "T2DM"
+       ],
+       "keywords": [
+        "glycaemic control"
+       ]
+      },
+      "designModule": {
+       "studyType": "INTERVENTIONAL",
+       "phases": [
+        "PHASE3"
+       ],
+       "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+         "masking": "QUADRUPLE",
+         "whoMasked": [
+          "PARTICIPANT",
+          "CARE_PROVIDER",
+          "INVESTIGATOR",
+          "OUTCOMES_ASSESSOR"
+         ]
+        }
+       },
+       "enrollmentInfo": {
+        "count": 600,
+        "type": "ESTIMATED"
+       }
+      },
+      "armsInterventionsModule": {
+       "armGroups": [
+        {
+         "label": "Noetiglutide",
+         "type": "EXPERIMENTAL",
+         "description": "Noetiglutide added to metformin",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        },
+        {
+         "label": "Placebo",
+         "type": "PLACEBO_COMPARATOR",
+         "description": "Placebo added to metformin",
+         "interventionNames": [
+          "Drug: Placebo"
+         ]
+        }
+       ],
+       "interventions": [
+        {
+         "type": "DRUG",
+         "name": "Noetiglutide",
+         "description": "Investigational product (fictional)",
+         "armGroupLabels": [
+          "Noetiglutide"
+         ],
+         "otherNames": [
+          "NTG-01"
+         ]
+        },
+        {
+         "type": "DRUG",
+         "name": "Placebo",
+         "armGroupLabels": [
+          "Placebo"
+         ]
+        }
+       ]
+      },
+      "outcomesModule": {
+       "primaryOutcomes": [
+        {
+         "measure": "Change From Baseline in HbA1c",
+         "timeFrame": "Baseline, week 26"
+        }
+       ],
+       "secondaryOutcomes": [
+        {
+         "measure": "Change From Baseline in Body Weight",
+         "timeFrame": "Baseline, week 26"
+        }
+       ]
+      },
+      "eligibilityModule": {
+       "sex": "ALL",
+       "minimumAge": "18 Years",
+       "healthyVolunteers": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000001/history/2",
+   "status": 200,
+   "body": {
+    "study": {
+     "protocolSection": {
+      "identificationModule": {
+       "nctId": "NCT09000001",
+       "orgStudyIdInfo": {
+        "id": "NTG-3001"
+       },
+       "secondaryIdInfos": [
+        {
+         "id": "2015-900001-10",
+         "type": "EUDRACT_NUMBER"
+        }
+       ],
+       "organization": {
+        "fullName": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       },
+       "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+       "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+       "acronym": "NOETIC-1"
+      },
+      "statusModule": {
+       "statusVerifiedDate": "2017-11",
+       "overallStatus": "ACTIVE_NOT_RECRUITING",
+       "startDateStruct": {
+        "date": "2016-03-01",
+        "type": "ACTUAL"
+       },
+       "primaryCompletionDateStruct": {
+        "date": "2017-12",
+        "type": "ESTIMATED"
+       },
+       "completionDateStruct": {
+        "date": "2018-03",
+        "type": "ESTIMATED"
+       },
+       "studyFirstSubmitDate": "2015-11-20",
+       "studyFirstPostDateStruct": {
+        "date": "2015-11-24",
+        "type": "ESTIMATED"
+       },
+       "lastUpdatePostDateStruct": {
+        "date": "2017-11-20",
+        "type": "ACTUAL"
+       }
+      },
+      "sponsorCollaboratorsModule": {
+       "leadSponsor": {
+        "name": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       }
+      },
+      "descriptionModule": {
+       "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+      },
+      "conditionsModule": {
+       "conditions": [
+        "Type 2 Diabetes",
+        "T2DM"
+       ],
+       "keywords": [
+        "glycaemic control"
+       ]
+      },
+      "designModule": {
+       "studyType": "INTERVENTIONAL",
+       "phases": [
+        "PHASE3"
+       ],
+       "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+         "masking": "QUADRUPLE",
+         "whoMasked": [
+          "PARTICIPANT",
+          "CARE_PROVIDER",
+          "INVESTIGATOR",
+          "OUTCOMES_ASSESSOR"
+         ]
+        }
+       },
+       "enrollmentInfo": {
+        "count": 600,
+        "type": "ESTIMATED"
+       }
+      },
+      "armsInterventionsModule": {
+       "armGroups": [
+        {
+         "label": "Noetiglutide",
+         "type": "EXPERIMENTAL",
+         "description": "Noetiglutide added to metformin",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        },
+        {
+         "label": "Placebo",
+         "type": "PLACEBO_COMPARATOR",
+         "description": "Placebo added to metformin",
+         "interventionNames": [
+          "Drug: Placebo"
+         ]
+        }
+       ],
+       "interventions": [
+        {
+         "type": "DRUG",
+         "name": "Noetiglutide",
+         "description": "Investigational product (fictional)",
+         "armGroupLabels": [
+          "Noetiglutide"
+         ],
+         "otherNames": [
+          "NTG-01"
+         ]
+        },
+        {
+         "type": "DRUG",
+         "name": "Placebo",
+         "armGroupLabels": [
+          "Placebo"
+         ]
+        }
+       ]
+      },
+      "outcomesModule": {
+       "primaryOutcomes": [
+        {
+         "measure": "Change From Baseline in HbA1c",
+         "timeFrame": "Baseline, week 52"
+        }
+       ],
+       "secondaryOutcomes": [
+        {
+         "measure": "Change From Baseline in Body Weight",
+         "timeFrame": "Baseline, week 26"
+        }
+       ]
+      },
+      "eligibilityModule": {
+       "sex": "ALL",
+       "minimumAge": "18 Years",
+       "healthyVolunteers": false
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000001/history/3",
+   "status": 200,
+   "body": {
+    "study": {
+     "protocolSection": {
+      "identificationModule": {
+       "nctId": "NCT09000001",
+       "orgStudyIdInfo": {
+        "id": "NTG-3001"
+       },
+       "secondaryIdInfos": [
+        {
+         "id": "2015-900001-10",
+         "type": "EUDRACT_NUMBER"
+        }
+       ],
+       "organization": {
+        "fullName": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       },
+       "briefTitle": "NOETIC-1: Noetiglutide Versus Placebo in Adults With Type 2 Diabetes (fixture)",
+       "officialTitle": "A 52-Week, Randomised, Double-Blind, Placebo-Controlled Phase 3 Trial of Noetiglutide in Adults With Type 2 Diabetes Inadequately Controlled on Metformin (NOETIC-1, fixture)",
+       "acronym": "NOETIC-1"
+      },
+      "statusModule": {
+       "statusVerifiedDate": "2019-02",
+       "overallStatus": "COMPLETED",
+       "startDateStruct": {
+        "date": "2016-03-01",
+        "type": "ACTUAL"
+       },
+       "primaryCompletionDateStruct": {
+        "date": "2018-01-15",
+        "type": "ACTUAL"
+       },
+       "completionDateStruct": {
+        "date": "2018-03-01",
+        "type": "ACTUAL"
+       },
+       "studyFirstSubmitDate": "2015-11-20",
+       "studyFirstPostDateStruct": {
+        "date": "2015-11-24",
+        "type": "ESTIMATED"
+       },
+       "lastUpdatePostDateStruct": {
+        "date": "2019-02-14",
+        "type": "ACTUAL"
+       },
+       "resultsFirstSubmitDate": "2019-01-10",
+       "resultsFirstPostDateStruct": {
+        "date": "2019-02-14",
+        "type": "ACTUAL"
+       }
+      },
+      "sponsorCollaboratorsModule": {
+       "leadSponsor": {
+        "name": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       }
+      },
+      "descriptionModule": {
+       "briefSummary": "Authored fixture: a randomised comparison of a fictional GLP-1 receptor agonist with placebo. Not a real trial."
+      },
+      "conditionsModule": {
+       "conditions": [
+        "Type 2 Diabetes",
+        "T2DM"
+       ],
+       "keywords": [
+        "glycaemic control"
+       ]
+      },
+      "designModule": {
+       "studyType": "INTERVENTIONAL",
+       "phases": [
+        "PHASE3"
+       ],
+       "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+         "masking": "QUADRUPLE",
+         "whoMasked": [
+          "PARTICIPANT",
+          "CARE_PROVIDER",
+          "INVESTIGATOR",
+          "OUTCOMES_ASSESSOR"
+         ]
+        }
+       },
+       "enrollmentInfo": {
+        "count": 612,
+        "type": "ACTUAL"
+       }
+      },
+      "armsInterventionsModule": {
+       "armGroups": [
+        {
+         "label": "Noetiglutide",
+         "type": "EXPERIMENTAL",
+         "description": "Noetiglutide added to metformin",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        },
+        {
+         "label": "Placebo",
+         "type": "PLACEBO_COMPARATOR",
+         "description": "Placebo added to metformin",
+         "interventionNames": [
+          "Drug: Placebo"
+         ]
+        }
+       ],
+       "interventions": [
+        {
+         "type": "DRUG",
+         "name": "Noetiglutide",
+         "description": "Investigational product (fictional)",
+         "armGroupLabels": [
+          "Noetiglutide"
+         ],
+         "otherNames": [
+          "NTG-01"
+         ]
+        },
+        {
+         "type": "DRUG",
+         "name": "Placebo",
+         "armGroupLabels": [
+          "Placebo"
+         ]
+        }
+       ]
+      },
+      "outcomesModule": {
+       "primaryOutcomes": [
+        {
+         "measure": "Change From Baseline in HbA1c",
+         "timeFrame": "Baseline, week 52"
+        }
+       ],
+       "secondaryOutcomes": [
+        {
+         "measure": "Change From Baseline in Body Weight",
+         "timeFrame": "Baseline, week 26"
+        }
+       ]
+      },
+      "eligibilityModule": {
+       "sex": "ALL",
+       "minimumAge": "18 Years",
+       "healthyVolunteers": false
+      },
+      "referencesModule": {
+       "references": [
+        {
+         "pmid": "99000001",
+         "type": "RESULT",
+         "citation": "Fixture A, Example B. Noetiglutide versus placebo in type 2 diabetes (NOETIC-1). J Fixture Med. 2019;1:1-10."
+        }
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/v2/studies/NCT09000002",
+   "status": 200,
+   "body": {
+    "protocolSection": {
+     "identificationModule": {
+      "nctId": "NCT09000002",
+      "orgStudyIdInfo": {
+       "id": "NTG-2002"
+      },
+      "briefTitle": "NOETIC-2: Open-Label Noetiglutide Dose-Finding Study (fixture)",
+      "officialTitle": "An Open-Label, Randomised Phase 2 Study of Noetiglutide in Type 2 Diabetes (fixture)"
+     },
+     "statusModule": {
+      "statusVerifiedDate": "2019-08",
+      "overallStatus": "TERMINATED",
+      "whyStopped": "Sponsor decision (fixture)",
+      "startDateStruct": {
+       "date": "2017-02-01",
+       "type": "ACTUAL"
+      },
+      "primaryCompletionDateStruct": {
+       "date": "2019-06-30",
+       "type": "ACTUAL"
+      },
+      "completionDateStruct": {
+       "date": "2019-06-30",
+       "type": "ACTUAL"
+      },
+      "studyFirstSubmitDate": "2017-04-10",
+      "studyFirstPostDateStruct": {
+       "date": "2017-04-12",
+       "type": "ACTUAL"
+      },
+      "lastUpdatePostDateStruct": {
+       "date": "2019-08-01",
+       "type": "ACTUAL"
+      }
+     },
+     "sponsorCollaboratorsModule": {
+      "leadSponsor": {
+       "name": "Fixture Therapeutics GmbH",
+       "class": "INDUSTRY"
+      }
+     },
+     "descriptionModule": {
+      "briefSummary": "Authored fixture. Terminated; no results were posted."
+     },
+     "conditionsModule": {
+      "conditions": [
+       "Diabetes Mellitus, Type 2"
+      ]
+     },
+     "designModule": {
+      "studyType": "INTERVENTIONAL",
+      "phases": [
+       "PHASE2"
+      ],
+      "designInfo": {
+       "allocation": "RANDOMIZED",
+       "interventionModel": "PARALLEL",
+       "primaryPurpose": "TREATMENT",
+       "maskingInfo": {
+        "masking": "NONE"
+       }
+      },
+      "enrollmentInfo": {
+       "count": 64,
+       "type": "ACTUAL"
+      }
+     },
+     "armsInterventionsModule": {
+      "armGroups": [
+       {
+        "label": "Noetiglutide low",
+        "type": "EXPERIMENTAL",
+        "interventionNames": [
+         "Drug: Noetiglutide"
+        ]
+       },
+       {
+        "label": "Noetiglutide high",
+        "type": "EXPERIMENTAL",
+        "interventionNames": [
+         "Drug: Noetiglutide"
+        ]
+       }
+      ],
+      "interventions": [
+       {
+        "type": "DRUG",
+        "name": "Noetiglutide",
+        "armGroupLabels": [
+         "Noetiglutide low",
+         "Noetiglutide high"
+        ]
+       }
+      ]
+     },
+     "outcomesModule": {
+      "primaryOutcomes": [
+       {
+        "measure": "Change From Baseline in HbA1c",
+        "timeFrame": "Week 12"
+       }
+      ]
+     }
+    },
+    "hasResults": false,
+    "derivedSection": {
+     "conditionBrowseModule": {
+      "meshes": [
+       {
+        "id": "D003924",
+        "term": "Diabetes Mellitus, Type 2"
+       }
+      ],
+      "ancestors": [
+       {
+        "id": "D003920",
+        "term": "Diabetes Mellitus"
+       }
+      ]
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000002/history",
+   "status": 200,
+   "body": {
+    "changes": [
+     {
+      "version": 0,
+      "date": "2017-04-10",
+      "status": "RECRUITING",
+      "moduleLabels": [
+       "Study Identification"
+      ]
+     },
+     {
+      "version": 1,
+      "date": "2019-08-01",
+      "status": "TERMINATED",
+      "moduleLabels": [
+       "Study Status"
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000002/history/0",
+   "status": 200,
+   "body": {
+    "study": {
+     "protocolSection": {
+      "identificationModule": {
+       "nctId": "NCT09000002",
+       "orgStudyIdInfo": {
+        "id": "NTG-2002"
+       },
+       "briefTitle": "NOETIC-2: Open-Label Noetiglutide Dose-Finding Study (fixture)",
+       "officialTitle": "An Open-Label, Randomised Phase 2 Study of Noetiglutide in Type 2 Diabetes (fixture)"
+      },
+      "statusModule": {
+       "statusVerifiedDate": "2017-04",
+       "overallStatus": "RECRUITING",
+       "startDateStruct": {
+        "date": "2017-02-01",
+        "type": "ACTUAL"
+       },
+       "primaryCompletionDateStruct": {
+        "date": "2018-12",
+        "type": "ESTIMATED"
+       },
+       "completionDateStruct": {
+        "date": "2018-12",
+        "type": "ESTIMATED"
+       },
+       "studyFirstSubmitDate": "2017-04-10",
+       "studyFirstPostDateStruct": {
+        "date": "2017-04-12",
+        "type": "ACTUAL"
+       },
+       "lastUpdatePostDateStruct": {
+        "date": "2017-04-12",
+        "type": "ACTUAL"
+       }
+      },
+      "sponsorCollaboratorsModule": {
+       "leadSponsor": {
+        "name": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       }
+      },
+      "descriptionModule": {
+       "briefSummary": "Authored fixture. Terminated; no results were posted."
+      },
+      "conditionsModule": {
+       "conditions": [
+        "Diabetes Mellitus, Type 2"
+       ]
+      },
+      "designModule": {
+       "studyType": "INTERVENTIONAL",
+       "phases": [
+        "PHASE2"
+       ],
+       "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+         "masking": "NONE"
+        }
+       },
+       "enrollmentInfo": {
+        "count": 120,
+        "type": "ESTIMATED"
+       }
+      },
+      "armsInterventionsModule": {
+       "armGroups": [
+        {
+         "label": "Noetiglutide low",
+         "type": "EXPERIMENTAL",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        },
+        {
+         "label": "Noetiglutide high",
+         "type": "EXPERIMENTAL",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        }
+       ],
+       "interventions": [
+        {
+         "type": "DRUG",
+         "name": "Noetiglutide",
+         "armGroupLabels": [
+          "Noetiglutide low",
+          "Noetiglutide high"
+         ]
+        }
+       ]
+      },
+      "outcomesModule": {
+       "primaryOutcomes": [
+        {
+         "measure": "Change From Baseline in HbA1c",
+         "timeFrame": "Week 12"
+        }
+       ]
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/api/int/studies/NCT09000002/history/1",
+   "status": 200,
+   "body": {
+    "study": {
+     "protocolSection": {
+      "identificationModule": {
+       "nctId": "NCT09000002",
+       "orgStudyIdInfo": {
+        "id": "NTG-2002"
+       },
+       "briefTitle": "NOETIC-2: Open-Label Noetiglutide Dose-Finding Study (fixture)",
+       "officialTitle": "An Open-Label, Randomised Phase 2 Study of Noetiglutide in Type 2 Diabetes (fixture)"
+      },
+      "statusModule": {
+       "statusVerifiedDate": "2019-08",
+       "overallStatus": "TERMINATED",
+       "whyStopped": "Sponsor decision (fixture)",
+       "startDateStruct": {
+        "date": "2017-02-01",
+        "type": "ACTUAL"
+       },
+       "primaryCompletionDateStruct": {
+        "date": "2019-06-30",
+        "type": "ACTUAL"
+       },
+       "completionDateStruct": {
+        "date": "2019-06-30",
+        "type": "ACTUAL"
+       },
+       "studyFirstSubmitDate": "2017-04-10",
+       "studyFirstPostDateStruct": {
+        "date": "2017-04-12",
+        "type": "ACTUAL"
+       },
+       "lastUpdatePostDateStruct": {
+        "date": "2019-08-01",
+        "type": "ACTUAL"
+       }
+      },
+      "sponsorCollaboratorsModule": {
+       "leadSponsor": {
+        "name": "Fixture Therapeutics GmbH",
+        "class": "INDUSTRY"
+       }
+      },
+      "descriptionModule": {
+       "briefSummary": "Authored fixture. Terminated; no results were posted."
+      },
+      "conditionsModule": {
+       "conditions": [
+        "Diabetes Mellitus, Type 2"
+       ]
+      },
+      "designModule": {
+       "studyType": "INTERVENTIONAL",
+       "phases": [
+        "PHASE2"
+       ],
+       "designInfo": {
+        "allocation": "RANDOMIZED",
+        "interventionModel": "PARALLEL",
+        "primaryPurpose": "TREATMENT",
+        "maskingInfo": {
+         "masking": "NONE"
+        }
+       },
+       "enrollmentInfo": {
+        "count": 64,
+        "type": "ACTUAL"
+       }
+      },
+      "armsInterventionsModule": {
+       "armGroups": [
+        {
+         "label": "Noetiglutide low",
+         "type": "EXPERIMENTAL",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        },
+        {
+         "label": "Noetiglutide high",
+         "type": "EXPERIMENTAL",
+         "interventionNames": [
+          "Drug: Noetiglutide"
+         ]
+        }
+       ],
+       "interventions": [
+        {
+         "type": "DRUG",
+         "name": "Noetiglutide",
+         "armGroupLabels": [
+          "Noetiglutide low",
+          "Noetiglutide high"
+         ]
+        }
+       ]
+      },
+      "outcomesModule": {
+       "primaryOutcomes": [
+        {
+         "measure": "Change From Baseline in HbA1c",
+         "timeFrame": "Week 12"
+        }
+       ]
+      }
+     }
+    }
+   }
+  }
+ ]
+}

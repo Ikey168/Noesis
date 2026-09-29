@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-paper-family-comparison-v1.json",
+  "title": "Noesis paper family comparison",
+  "type": "object",
+  "required": ["contract", "family_id", "revision", "members", "relations", "notices"],
+  "properties": {
+    "contract": {"const": "noesis-paper-family-comparison-v1"},
+    "family_id": {"type": "string"},
+    "revision": {"type": "integer", "minimum": 1},
+    "members": {"type": "array", "minItems": 2, "maxItems": 10},
+    "relations": {"type": "array"},
+    "notices": {"type": "array"}
+  },
+  "additionalProperties": false
+}

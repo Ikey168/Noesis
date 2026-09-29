@@ -1,0 +1,314 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "geospatial.housing",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.housing",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "source_packs": [
+    {
+      "pack_id": "geospatial-berlin",
+      "version": "1.3.0",
+      "range": "^1.3.0"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "geospatial.housing-records",
+      "contract": {
+        "name": "noesis-housing-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-records",
+        "inspect-record",
+        "compare-land-value-revisions",
+        "rent-index-edition",
+        "statistics",
+        "indicator-values",
+        "projection-outcomes"
+      ],
+      "semantic_constraints": {
+        "values": "every value keeps its published text, currency, unit and valuation date, edition or vintage; money is never converted and nothing is rounded",
+        "revisions": "an entity is its source, identifier and the source's own date; unchanged re-reading adds nothing, a changed reading is a correction and a reversion is a further correction",
+        "side_by_side": "different sources, valuation dates, editions and vintages are separate records, never merged or averaged",
+        "unknown_dates": "a missing date stays unknown and never defaults to the acquisition time",
+        "geometries": "zone, plan and residential-area records reference Geospatial feature revisions and geometries, never copy them",
+        "value_surface": "no source offers an interpolable value surface; values apply inside their published zone, cell or reporting area",
+        "exclusions": "no property valuation, rent or investment advice, tenancy legal advice or interpolated value"
+      }
+    },
+    {
+      "id": "geospatial.housing-dossiers",
+      "contract": {
+        "name": "noesis-housing-dossier",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "housing-dossier",
+        "replay-dossier",
+        "links"
+      ],
+      "semantic_constraints": {
+        "places": "addresses and parcels through reviewable place resolution; districts by the published ALKIS Bezirk code",
+        "containment": "calculate-spatial-relation against each record's pinned geometry and point-in-feature for districts; boundary-edge points count as inside every touching zone and are reported, never resolved",
+        "as_of": "latest valuation date, dated stage, edition valid_from and vintage not after the requested date, with the selection basis",
+        "links": "explicit published citations only; name or place similarity is a reviewable discovery candidate; news is discovery context only",
+        "transit": "stops are accessibility context only and carry no valuation meaning"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-records",
+      "tool": "noesis-knowledge-engine.list_housing_records",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-record",
+      "tool": "noesis-knowledge-engine.inspect_housing_record",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-land-value-revisions",
+      "tool": "noesis-knowledge-engine.compare_land_value_revisions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "rent-index-edition",
+      "tool": "noesis-knowledge-engine.housing_rent_index_edition",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "statistics",
+      "tool": "noesis-knowledge-engine.housing_statistics",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-values",
+      "tool": "noesis-knowledge-engine.housing_indicator_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "projection-outcomes",
+      "tool": "noesis-knowledge-engine.list_housing_projection_outcomes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "housing-dossier",
+      "tool": "noesis-knowledge-engine.housing_dossier",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived spatial receipts and dossier digest"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:geospatial:calculate",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "replay-dossier",
+      "tool": "noesis-knowledge-engine.replay_housing_dossier",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "dossier receipt"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:geospatial:calculate",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_housing_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "housing-source-revision",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_source_revisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "land-value-zone-revision",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_land_value_revisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "rent-index-cell",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_rent_index_editions",
+        "housing_rent_index_cells"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "development-plan-stage",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_plan_stages"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "residential-area-category",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_area_categories"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "permit-statistic",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_building_statistics"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "housing-indicator-vintage",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_indicator_vintages"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "housing-projection-outcome",
+      "store": "src.kb.housing",
+      "tables": [
+        "housing_projection_outcomes"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "housing-link",
+      "store": "src.kb.housing_links",
+      "tables": [
+        "housing_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "housing_land_value_revisions"
+    }
+  ]
+}

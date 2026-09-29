@@ -1,0 +1,35 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-technical-inventory-v1.json",
+  "title": "Pinned technical dependency inventory",
+  "type": "object",
+  "required": ["contract", "format", "inventory_hash", "inventory_id", "entries"],
+  "properties": {
+    "contract": {"const": "noesis-technical-inventory-v1"},
+    "format": {"enum": ["package-lock.json", "requirements.txt"]},
+    "inventory_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "inventory_id": {"type": "string", "minLength": 1},
+    "entries": {"type": "array", "maxItems": 5000, "items": {"$ref": "#/definitions/entry"}},
+    "counts": {"type": "object"},
+    "total": {"type": "integer", "minimum": 0},
+    "offset": {"type": "integer", "minimum": 0}
+  },
+  "definitions": {
+    "entry": {
+      "type": "object",
+      "required": ["ecosystem", "name", "version", "origin", "direct", "status", "coordinate"],
+      "properties": {
+        "ecosystem": {"enum": ["npm", "pypi"]},
+        "name": {"type": "string"},
+        "version": {"type": "string"},
+        "origin": {"type": "string"},
+        "direct": {"type": "boolean"},
+        "status": {"enum": ["pinned", "unresolved", "unsupported"]},
+        "coordinate": {"type": ["string", "null"]},
+        "environment_marker": {"type": "string"},
+        "acquired_package": {"type": ["object", "null"]},
+        "acquired_advisories": {"type": "array", "items": {"type": "object"}}
+      }
+    }
+  }
+}

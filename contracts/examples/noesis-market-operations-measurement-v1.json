@@ -1,0 +1,1 @@
+{"contract":"noesis-market-operations-measurement-v1","namespace":"market:fixture","owner":"analyst","measurements":[{"measurement_id":"measurement:1","metric":"query_latency_ms","provider":"fixture","observed_at_ms":1000,"value":25,"status":"observed"}],"count":1}

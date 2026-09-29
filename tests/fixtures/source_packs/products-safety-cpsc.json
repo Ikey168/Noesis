@@ -1,0 +1,158 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: fictional products, brands, companies and notice numbers in the provider's documented shape (docs/roadmaps/products-safety-source-audit.md). Field names are unverified-live.",
+ "provider": "cpsc",
+ "native_pages": [
+  {
+   "request": "/RestWebServices/Recall?format=json&RecallNumber=26117",
+   "status": 200,
+   "body": [
+    {
+     "RecallID": 99117,
+     "RecallNumber": "26117",
+     "RecallDate": "2026-02-12T00:00:00",
+     "Description": "This recall involves Brightway 1.7 L electric kettles with model number BW-KT200.",
+     "URL": "https://www.cpsc.gov/Recalls/2026/Brightway-Home-Recalls-Electric-Kettles-Due-to-Burn-Hazard",
+     "Title": "Brightway Home Recalls Electric Kettles Due to Burn Hazard",
+     "ConsumerContact": "Brightway Home toll-free at 800-555-0100",
+     "LastPublishDate": "2026-02-12T00:00:00",
+     "Products": [
+      {
+       "Name": "Brightway 1.7 L electric kettle",
+       "Description": "Stainless steel kettle",
+       "Model": "BW-KT200",
+       "Type": "Kettles",
+       "CategoryID": "",
+       "NumberOfUnits": "About 12,000"
+      }
+     ],
+     "Inconjunctions": [],
+     "Images": [],
+     "Injuries": [
+      {
+       "Name": "The firm has received four reports of the base overheating, including one minor burn."
+      }
+     ],
+     "Manufacturers": [
+      {
+       "Name": "Brightway Home Ltd.",
+       "CompanyID": ""
+      }
+     ],
+     "Retailers": [
+      {
+       "Name": "Examplemart stores nationwide",
+       "CompanyID": ""
+      }
+     ],
+     "Importers": [
+      {
+       "Name": "Brightway Home USA Inc.",
+       "CompanyID": ""
+      }
+     ],
+     "Distributors": [],
+     "ManufacturerCountries": [
+      {
+       "Country": "China"
+      }
+     ],
+     "ProductUPCs": [
+      {
+       "UPC": "012345678905"
+      }
+     ],
+     "Hazards": [
+      {
+       "Name": "The kettle's base can overheat, posing a burn hazard.",
+       "HazardType": "Burn",
+       "HazardTypeID": ""
+      }
+     ],
+     "Remedies": [
+      {
+       "Name": "Consumers should immediately stop using the recalled kettles and contact Brightway Home for a full refund."
+      }
+     ],
+     "RemedyOptions": [
+      {
+       "Option": "Refund"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "request": "/RestWebServices/Recall?format=json&Manufacturer=Exampla+Displays+Inc.&RecallDateStart=2026-02-01&RecallDateEnd=2026-04-30",
+   "status": 200,
+   "body": [
+    {
+     "RecallID": 99140,
+     "RecallNumber": "26140",
+     "RecallDate": "2026-03-26T00:00:00",
+     "Description": "This recall involves 32-inch computer monitors sold with an external power adapter.",
+     "URL": "https://www.cpsc.gov/Recalls/2026/Exampla-Displays-Recalls-Monitor-Power-Adapters",
+     "Title": "Exampla Displays Recalls Monitor Power Adapters Due to Shock Hazard",
+     "ConsumerContact": "Exampla Displays at 800-555-0199",
+     "LastPublishDate": "2026-03-26T00:00:00",
+     "Products": [
+      {
+       "Name": "32-inch UHD monitor power adapter",
+       "Description": "Black 19 V adapter",
+       "Model": "EX-32U8",
+       "Type": "Computer monitors",
+       "CategoryID": "",
+       "NumberOfUnits": "About 3,100"
+      }
+     ],
+     "Inconjunctions": [],
+     "Images": [],
+     "Injuries": [
+      {
+       "Name": "None reported"
+      }
+     ],
+     "Manufacturers": [
+      {
+       "Name": "Exampla Displays Inc.",
+       "CompanyID": ""
+      }
+     ],
+     "Retailers": [],
+     "Importers": [],
+     "Distributors": [],
+     "ManufacturerCountries": [
+      {
+       "Country": "China"
+      }
+     ],
+     "ProductUPCs": [],
+     "Hazards": [
+      {
+       "Name": "The power adapter's insulation can fail, posing a shock hazard.",
+       "HazardType": "Shock",
+       "HazardTypeID": ""
+      }
+     ],
+     "Remedies": [
+      {
+       "Name": "Consumers should unplug the power adapter and contact Exampla Displays for a free replacement adapter."
+      }
+     ],
+     "RemedyOptions": [
+      {
+       "Option": "Replace"
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "scenarios": [
+  "recall-by-number",
+  "manufacturer-window",
+  "upc-as-gtin-12",
+  "model-without-brand"
+ ]
+}

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-epistemic-kind-suggestion-v1.json",
+  "title": "Source-grounded statement-kind suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "statement_id", "kind", "confidence", "selected_probability", "vendor_confidence", "signals", "source_binding", "decision_run", "truth_verified"],
+  "properties": {
+    "contract": {"const": "noesis-jev-epistemic-kind-suggestion-v1"},
+    "status": {"enum": ["suggested", "unavailable"]},
+    "accepted": {"const": false},
+    "statement_id": {"type": "string", "minLength": 1},
+    "kind": {"enum": ["fact", "report", "allegation", "estimate", "forecast", "opinion", "hypothesis", "normative", "unknown"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+    "selected_probability": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "vendor_confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1},
+    "signals": {"type": "array", "items": {"type": "string"}},
+    "source_binding": {"type": "array", "items": {"type": "object"}},
+    "decision_run": {"type": "object"},
+    "truth_verified": {"const": false}
+  },
+  "additionalProperties": false
+}

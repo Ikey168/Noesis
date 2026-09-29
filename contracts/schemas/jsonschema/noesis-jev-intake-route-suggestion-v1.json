@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-jev-intake-route-suggestion-v1.json",
+  "title": "Optional versioned intent routing suggestion",
+  "type": "object",
+  "required": ["contract", "status", "accepted", "route", "answers", "decision_run", "hosted_inference_used", "input_id"],
+  "properties": {
+    "contract": {"const": "noesis-jev-intake-route-suggestion-v1"},
+    "status": {"enum": ["explicit", "suggested", "pending"]},
+    "accepted": {"type": "boolean"},
+    "route": {"type": ["object", "null"]},
+    "answers": {"type": "object"},
+    "decision_run": {"type": ["object", "null"]},
+    "hosted_inference_used": {"type": "boolean"},
+    "input_id": {"type": ["string", "null"]},
+    "input_version": {"type": "integer", "minimum": 1},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  },
+  "additionalProperties": false
+}

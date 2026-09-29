@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-source-planning-evaluation-v1.json",
+  "title": "Equal-budget source relevance evaluation",
+  "type": "object",
+  "required": ["contract", "cases", "baseline_mean_yield", "advised_mean_yield", "baseline_mean_coverage", "advised_mean_coverage", "yield_delta", "coverage_delta", "automatic_source_plan_acceptance_enabled"],
+  "properties": {
+    "contract": {"const": "noesis-jev-source-planning-evaluation-v1"},
+    "cases": {"type": "integer", "minimum": 1},
+    "baseline_mean_yield": {"type": "number", "minimum": 0, "maximum": 1},
+    "advised_mean_yield": {"type": "number", "minimum": 0, "maximum": 1},
+    "baseline_mean_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+    "advised_mean_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+    "yield_delta": {"type": "number", "minimum": -1, "maximum": 1},
+    "coverage_delta": {"type": "number", "minimum": -1, "maximum": 1},
+    "automatic_source_plan_acceptance_enabled": {"const": false}
+  },
+  "additionalProperties": false
+}

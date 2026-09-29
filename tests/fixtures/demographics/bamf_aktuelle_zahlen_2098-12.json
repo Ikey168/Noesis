@@ -1,0 +1,94 @@
+{
+ "contract": "noesis-demographic-sheet-v1",
+ "provider": "bamf",
+ "release": {
+  "document": "Aktuelle Zahlen 12/2098 (fictional)",
+  "label": "BAMF Aktuelle Zahlen (fictional sheet)",
+  "url": "https://www.bamf.de/SharedDocs/Anlagen/DE/Statistik/AsylinZahlen/aktuelle-zahlen-dezember-2098.pdf",
+  "published_on": "2099-01-15"
+ },
+ "geography_level": {
+  "scheme": "eu-country",
+  "level": "country",
+  "code_list_version": "ISO 3166-1 alpha-2"
+ },
+ "definitions": {
+  "applications_first": {
+   "concept": "asylum_applications",
+   "measure": "flow",
+   "breakdown": "none",
+   "procedure": "application",
+   "reference": {
+    "kind": "period",
+    "label": "calendar year, cumulative January-December"
+   },
+   "population_base": "not-stated",
+   "source_text": "Erstanträge (fiktive Tabelle 1, Zeile 'Erstanträge')"
+  },
+  "decisions_total": {
+   "concept": "asylum_decisions",
+   "measure": "flow",
+   "breakdown": "none",
+   "procedure": "decision",
+   "reference": {
+    "kind": "period",
+    "label": "calendar year, cumulative January-December"
+   },
+   "population_base": "not-stated",
+   "source_text": "Entscheidungen über Asylanträge insgesamt (fiktive Tabelle 3)"
+  },
+  "decisions_refugee_status": {
+   "concept": "asylum_decisions",
+   "measure": "flow",
+   "breakdown": "none",
+   "procedure": "decision",
+   "reference": {
+    "kind": "period",
+    "label": "calendar year, cumulative January-December"
+   },
+   "population_base": "not-stated",
+   "source_text": "davon Rechtsstellung als Flüchtling (fiktive Tabelle 3)"
+  }
+ },
+ "figures": [
+  {
+   "definition": "applications_first",
+   "series_code": "aktuelle-zahlen",
+   "geography": "DE",
+   "period": "2098",
+   "value_text": "205.100",
+   "locator": {
+    "page": 5,
+    "table": "Tabelle 1"
+   }
+  },
+  {
+   "definition": "decisions_total",
+   "series_code": "aktuelle-zahlen",
+   "geography": "DE",
+   "period": "2098",
+   "value_text": "198.200",
+   "locator": {
+    "page": 9,
+    "table": "Tabelle 3"
+   }
+  },
+  {
+   "definition": "decisions_refugee_status",
+   "series_code": "aktuelle-zahlen",
+   "geography": "DE",
+   "period": "2098",
+   "value_text": "70.300",
+   "locator": {
+    "page": 9,
+    "table": "Tabelle 3"
+   },
+   "dimensions": {
+    "outcome": "refugee_status"
+   }
+  }
+ ],
+ "coverage_notes": [
+  "Fictional sheet: figures are cumulative for the calendar year as stated in the report"
+ ]
+}

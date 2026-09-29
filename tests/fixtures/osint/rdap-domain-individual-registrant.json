@@ -1,0 +1,17 @@
+{
+  "objectClassName": "domain",
+  "ldhName": "private-blog.example",
+  "status": ["active"],
+  "events": [{"eventAction": "registration", "eventDate": "2019-05-05T00:00:00Z"}],
+  "nameservers": [{"ldhName": "ns1.freehost.example"}],
+  "entities": [
+    {"roles": ["registrar"], "publicIds": [{"type": "IANA Registrar ID", "identifier": "8888"}],
+     "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["fn", {}, "text", "Budget Names Inc"]]]},
+    {"roles": ["registrant"],
+     "vcardArray": ["vcard", [["version", {}, "text", "4.0"], ["kind", {}, "text", "individual"],
+                              ["fn", {}, "text", "Robin Q. Private"],
+                              ["adr", {}, "text", ["", "", "22 Home Lane", "Springfield", "", "00000", "US"]],
+                              ["email", {}, "text", "robin@private-blog.example"],
+                              ["tel", {}, "uri", "tel:+1.555.0100"]]]}
+  ]
+}

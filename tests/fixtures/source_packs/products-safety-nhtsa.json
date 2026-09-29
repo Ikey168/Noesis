@@ -1,0 +1,57 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: fictional products, brands, companies and notice numbers in the provider's documented shape (docs/roadmaps/products-safety-source-audit.md). Field names are unverified-live.",
+ "provider": "nhtsa",
+ "native_pages": [
+  {
+   "request": "/recalls/campaignNumber?campaignNumber=26V104000",
+   "status": 200,
+   "body": {
+    "Count": 2,
+    "Message": "Results returned successfully",
+    "results": [
+     {
+      "Manufacturer": "Velomark Mobility LLC",
+      "NHTSACampaignNumber": "26V104000",
+      "parkIt": false,
+      "parkOutSide": false,
+      "overTheAirUpdate": true,
+      "NHTSAActionNumber": "",
+      "ReportReceivedDate": "18/02/2026",
+      "Component": "ELECTRICAL SYSTEM: 12V/24V/48V BATTERY",
+      "Summary": "Velomark Mobility LLC (Velomark) is recalling certain 2025-2026 Velomark Cityrunner vehicles. The battery management software may not detect a cell fault.",
+      "Consequence": "An undetected cell fault can increase the risk of a fire.",
+      "Remedy": "Dealers will update the battery management software, free of charge. Owner notification letters are expected to be mailed April 10, 2026.",
+      "Notes": "Owners may also contact the NHTSA Vehicle Safety Hotline.",
+      "Make": "VELOMARK",
+      "Model": "CITYRUNNER",
+      "ModelYear": "2025"
+     },
+     {
+      "Manufacturer": "Velomark Mobility LLC",
+      "NHTSACampaignNumber": "26V104000",
+      "parkIt": false,
+      "parkOutSide": false,
+      "overTheAirUpdate": true,
+      "NHTSAActionNumber": "",
+      "ReportReceivedDate": "18/02/2026",
+      "Component": "ELECTRICAL SYSTEM: 12V/24V/48V BATTERY",
+      "Summary": "Velomark Mobility LLC (Velomark) is recalling certain 2025-2026 Velomark Cityrunner vehicles. The battery management software may not detect a cell fault.",
+      "Consequence": "An undetected cell fault can increase the risk of a fire.",
+      "Remedy": "Dealers will update the battery management software, free of charge. Owner notification letters are expected to be mailed April 10, 2026.",
+      "Notes": "Owners may also contact the NHTSA Vehicle Safety Hotline.",
+      "Make": "VELOMARK",
+      "Model": "CITYRUNNER",
+      "ModelYear": "2026"
+     }
+    ]
+   }
+  }
+ ],
+ "scenarios": [
+  "campaign-by-number",
+  "day-first-date",
+  "make-model-year-native"
+ ]
+}

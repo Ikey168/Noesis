@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "# Wahl zum Abgeordnetenhaus 2099 (authored fixture: fictional areas and parties)\nErgebnisstand;Wahl;Wahltag;Stand;Stimmart;Gebietsart;Gebietsnummer;Gebietsname;Bezirksnummer;Wahlberechtigte;Wählende;Ungültige Stimmen;Gültige Stimmen;Beispielpartei;Musterunion;Fiktive Grüne\nvorläufig;AGH;01.03.2099;02.03.2099;Erststimme;Wahlkreis;0101;Mitte 1;01;40000;30000;300;29700;12000;10000;7700\nvorläufig;AGH;01.03.2099;02.03.2099;Erststimme;Wahlkreis;0102;Mitte 2;01;42000;31000;300;30700;11000;12500;7200\nvorläufig;AGH;01.03.2099;02.03.2099;Zweitstimme;Bezirk;01;Mitte;01;82000;61000;500;60500;22000;21000;17500\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/wahlen/BE2023/AFSPRAES/download/AGH_Ergebnisse.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored release in the documented de-be-wahlkreis-csv shape; every area, party and candidate is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

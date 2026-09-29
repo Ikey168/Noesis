@@ -1,0 +1,45 @@
+{
+ "report": {
+  "report_id": "brh-bemerkungen-2100",
+  "title": "Bemerkungen 2100 zur Haushalts- und Wirtschaftsführung des Bundes (authored fixture)",
+  "publisher": "Bundesrechnungshof",
+  "kind": "Bemerkungen",
+  "published_on": "2100-05-20",
+  "url": "https://www.bundesrechnungshof.de/SharedDocs/Downloads/DE/Berichte/2100/bemerkungen-fiktiv.pdf"
+ },
+ "findings": [
+  {
+   "passage": {
+    "locator": "Nr. 42, Tz. 3",
+    "page": 117
+   },
+   "quote": "Das Beispielministerium bewilligte Zuschüsse aus Kapitel 9801 Titel 681 01, ohne die Verwendungsnachweise vollständig zu prüfen (fiktiv).",
+   "cites": [
+    {
+     "scheme": "de-bund-haushalt",
+     "codes": {
+      "einzelplan": "98",
+      "kapitel": "9801",
+      "titel": "68101"
+     }
+    }
+   ]
+  },
+  {
+   "passage": {
+    "locator": "Nr. 42, Tz. 5",
+    "page": 118
+   },
+   "quote": "Die Mittel des Kapitels 9801 wurden in mehreren Jahren nicht vollständig abgerufen (fiktiv).",
+   "cites": [
+    {
+     "scheme": "de-bund-haushalt",
+     "codes": {
+      "einzelplan": "98",
+      "kapitel": "9801"
+     }
+    }
+   ]
+  }
+ ]
+}
