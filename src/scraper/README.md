@@ -464,7 +464,7 @@ You can also run the scraper from the main application:
 
 ```bash
 
-python src/main.py --scrape
+python -m src.scraper.run
 
 ```text
 

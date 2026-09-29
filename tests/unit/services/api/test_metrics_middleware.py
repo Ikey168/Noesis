@@ -1,4 +1,4 @@
-"""Tests for services/api/middleware/metrics.py."""
+"""Tests for legacy/services/api/middleware/metrics.py."""
 
 import os
 import sys
@@ -13,7 +13,7 @@ if ROOT not in sys.path:
 pytest.importorskip("fastapi")
 pytest.importorskip("prometheus_client")
 
-from services.api.middleware.metrics import (  # noqa: E402
+from legacy.services.api.middleware.metrics import (  # noqa: E402
     RAGMetricsMiddleware,
     add_metrics_middleware,
     create_metrics_endpoint,
