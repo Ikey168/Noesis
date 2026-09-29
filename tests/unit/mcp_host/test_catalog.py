@@ -39,7 +39,10 @@ def test_catalog_is_generated_from_every_registered_fastmcp_server():
         "missing_registrations": [],
         "stale_registrations": [],
     }
-    assert all(server["name"].startswith("noesis-") for server in project_servers)
+    assert all(
+        server["name"] == "noesis" or server["name"].startswith("noesis-")
+        for server in project_servers
+    )
     assert all(server["tool_count"] > 0 for server in project_servers)
     assert sum(server["tool_count"] for server in project_servers) == len(
         catalog["tools"]

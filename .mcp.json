@@ -1,5 +1,11 @@
 {
   "mcpServers": {
+    "noesis": {
+      "type": "stdio",
+      "command": "python3",
+      "args": ["tools/noesis_mcp/server.py"],
+      "env": {}
+    },
     "memory": {
       "type": "stdio",
       "command": "npx",
