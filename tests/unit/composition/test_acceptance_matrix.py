@@ -79,6 +79,11 @@ MATRIX = {
     "Substance to cited regulatory dossier":
         "tests/unit/domains/test_chemicals_acceptance.py::"
         "test_substance_name_or_identifier_to_a_cited_regulatory_dossier",
+    # The Fisheries and Maritime Activity bundle's offline journey (#2343) composes its record owner with entity
+    # identity decisions, subscriptions and, by citation, sanctions and geospatial places.
+    "Vessel and area to cited fisheries records":
+        "tests/unit/domains/test_fisheries_acceptance.py::"
+        "test_vessel_and_area_to_cited_authorisations_listings_effort_and_catch",
 }
 
 

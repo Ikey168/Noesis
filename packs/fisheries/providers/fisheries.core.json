@@ -1,0 +1,382 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "fisheries.core",
+  "version": "1.0.0",
+  "description": "Fisheries and Maritime Activity: GFW vessel identity and effort aggregates, FAO FishStat catch statistics, RFMO authorised-vessel registers and IUU lists and the Combined IUU Vessel List kept as immutable revisions of dated snapshots and releases; reviewable vessel identity; vessel status as of a date; effort and catch side by side; citation links to sanctions, geospatial areas and citing providers; subscription monitors. No illegal-fishing inference, legality status or enforcement recommendation.",
+  "implementation": {
+    "name": "src.kb.fisheries_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "fisheries.records",
+      "contract": {
+        "name": "noesis-fisheries-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "bundle-status",
+        "acquire-sources",
+        "vessel-status",
+        "area-aggregates"
+      ],
+      "semantic_constraints": {
+        "records": "values quoted as published with locator; every distinct payload is an immutable revision",
+        "snapshots": "register and list pages are dated snapshots with retrieval time; absence from a later snapshot of the same selection is a dated removal, never a deletion",
+        "effort": "GFW apparent fishing effort aggregates only; never confirmed fishing, never per-vessel tracks",
+        "answers": "effort and catch side by side, never combined; unpublished cells are not zero; a vessel without records has none on record in the covered registers, never legal or compliant",
+        "exclusions": "no illegal-fishing inference, legality status or enforcement recommendation"
+      }
+    },
+    {
+      "id": "fisheries.identity",
+      "contract": {
+        "name": "noesis-fisheries-identity",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "vessel-identity",
+        "propose-identities",
+        "review-identity",
+        "revert-identity",
+        "list-matches"
+      ],
+      "semantic_constraints": {
+        "matching": "IMO (check digit verified) recorded with evidence; name, flag or call-sign only is a review candidate; different IMO numbers never proposed",
+        "review": "accept/reject are entity identity decisions; revert appends an undo; nothing merged",
+        "history": "renames and re-flagging are a time-bounded identity history over dated revisions"
+      }
+    },
+    {
+      "id": "fisheries.citations",
+      "contract": {
+        "name": "noesis-fisheries-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-citations",
+        "project-areas",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "sanctions": "an IMO number the designation states, citing its revision; a name alone is a candidate only",
+        "areas": "published area codes and grid cells; no geometry guessed from free text",
+        "citing_providers": "OSINT movements and Agriculture & Food Systems by explicit IMO/ASFIS/FAO-area citation; provider_unavailable when not composed"
+      }
+    },
+    {
+      "id": "fisheries.monitoring",
+      "contract": {
+        "name": "noesis-fisheries-notification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "committed complete fisheries-maritime runs; no scheduler of its own",
+        "events": "dated authorisation, listing, delisting, removal and release events citing prior and new revisions"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.fisheries_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.fisheries_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-sources",
+      "tool": "noesis-knowledge-engine.acquire_fisheries_sources",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "run_key (source-pack run receipt)"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "network",
+        "source_terms",
+        "credentials"
+      ]
+    },
+    {
+      "id": "vessel-status",
+      "tool": "noesis-knowledge-engine.fisheries_vessel_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "area-aggregates",
+      "tool": "noesis-knowledge-engine.fisheries_area_aggregates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "vessel-identity",
+      "tool": "noesis-knowledge-engine.fisheries_vessel_identity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identities",
+      "tool": "noesis-knowledge-engine.propose_fisheries_identities",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject pair"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_fisheries_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and decision"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_fisheries_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and decision_id"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-matches",
+      "tool": "noesis-knowledge-engine.list_fisheries_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-citations",
+      "tool": "noesis-knowledge-engine.link_fisheries_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject, citing revision and target"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "project-areas",
+      "tool": "noesis-knowledge-engine.project_fisheries_areas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "published area code"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:write",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_fisheries_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_fisheries_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_fisheries_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_fisheries_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:fisheries:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "fisheries-record",
+      "store": "src.kb.fisheries_store",
+      "tables": [
+        "fisheries_records",
+        "fisheries_revisions",
+        "fisheries_identifiers",
+        "fisheries_snapshots",
+        "fisheries_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "fisheries-identity-match",
+      "store": "src.kb.fisheries_identity",
+      "tables": [
+        "fisheries_identity_matches",
+        "fisheries_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "fisheries_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "fisheries-maritime",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
