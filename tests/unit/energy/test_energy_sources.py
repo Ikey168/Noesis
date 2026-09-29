@@ -15,7 +15,7 @@ from src.ingestion.source_packs import SourcePackConformance, validate_source_pa
 from src.kb.energy_market import market_refs, publish_prices
 from src.kb.energy_store import EnergyStore
 from tests.unit.energy import fixture_builder as fb
-from tests.unit.energy.harness import NS, SCOPES, acquire
+from tests.unit.energy.harness import NS, SCOPES, acquire, register_market_listing
 
 ROOT = Path(__file__).resolve().parents[3]
 PACK = json.loads((ROOT / "config/source_packs/energy.json").read_text())
@@ -114,28 +114,9 @@ def test_missing_token_is_a_receipted_failure_that_changes_nothing():
 
 
 def test_day_ahead_prices_are_written_through_market_storage_with_attribution():
-    from src.domains.market.instruments import MarketInstrumentStore
-    from tests.unit.domains.market_entitlement_fixtures import register_market_entitlement
-
     conn = duckdb.connect()
     acquire(conn, "energy-entsoe")
-    register_market_entitlement(conn, NS, "entitlement:entsoe", "entsoe", "entsoe-transparency-terms")
-    instruments = MarketInstrumentStore(conn)
-    ref = {"source_ref_id": "src:listing", "provider": "entsoe", "provider_object_id": "DE-LU day-ahead",
-           "source_revision_id": None, "public_at_ms": 0, "source_snapshot_id": None, "source_url": None,
-           "retrieved_at_ms": 0, "content_hash": "0" * 64, "license_id": "entsoe-transparency-terms",
-           "entitlement_id": "entitlement:entsoe"}
-    instruments.put_issuer(NS, issuer_id="issuer:entsoe-da", kg_entity_id="kg:entsoe-da",
-                           display_name="Day-ahead index DE-LU", source_refs=[ref], principal_id="market",
-                           scopes={"operator"})
-    instruments.put_security(NS, issuer_id="issuer:entsoe-da", security_id="security:de-lu-da",
-                             security_type="power_day_ahead_index", share_class=None, denomination_currency="EUR",
-                             source_refs=[ref], principal_id="market", scopes={"operator"})
-    instruments.put_listing(NS, listing_id="listing:de-lu-da", security_id="security:de-lu-da", mic="EPEX",
-                            currency="EUR", timezone="Europe/Berlin", valid_from_ms=0, valid_to_ms=None,
-                            ticker_assertions=[{"value": "DELU-DA", "valid_from_ms": 0, "valid_to_ms": None,
-                                                "source_ref_id": "src:listing"}],
-                            source_refs=[ref], principal_id="market", scopes={"operator"})
+    register_market_listing(conn)
     price = _latest(conn, _series(conn, record_type="price")[0])
     written = publish_prices(conn, NS, price["vintage_id"], listing_id="listing:de-lu-da",
                              entitlement_id="entitlement:entsoe", principal_id="analyst", scopes={"operator"})

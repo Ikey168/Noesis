@@ -40,3 +40,29 @@ def acquire(conn, name, *, namespace=NS, scopes=SCOPES, secret=es.FIXTURE_SECRET
 def acquire_all(conn, names=None, **kwargs):
     names = names or [n for n in SELECTIONS if n.startswith("energy-")]
     return {name: acquire(conn, name, **kwargs) for name in names}
+
+
+def register_market_listing(conn, namespace=NS):
+    """The market owner's listing for the DE-LU day-ahead index (identity, entitlement and listing are market's)."""
+
+    from src.domains.market.instruments import MarketInstrumentStore
+    from tests.unit.domains.market_entitlement_fixtures import register_market_entitlement
+
+    register_market_entitlement(conn, namespace, "entitlement:entsoe", "entsoe", "entsoe-transparency-terms")
+    instruments = MarketInstrumentStore(conn)
+    ref = {"source_ref_id": "src:listing", "provider": "entsoe", "provider_object_id": "DE-LU day-ahead",
+           "source_revision_id": None, "public_at_ms": 0, "source_snapshot_id": None, "source_url": None,
+           "retrieved_at_ms": 0, "content_hash": "0" * 64, "license_id": "entsoe-transparency-terms",
+           "entitlement_id": "entitlement:entsoe"}
+    instruments.put_issuer(namespace, issuer_id="issuer:entsoe-da", kg_entity_id="kg:entsoe-da",
+                           display_name="Day-ahead index DE-LU", source_refs=[ref], principal_id="market",
+                           scopes={"operator"})
+    instruments.put_security(namespace, issuer_id="issuer:entsoe-da", security_id="security:de-lu-da",
+                             security_type="power_day_ahead_index", share_class=None, denomination_currency="EUR",
+                             source_refs=[ref], principal_id="market", scopes={"operator"})
+    instruments.put_listing(namespace, listing_id="listing:de-lu-da", security_id="security:de-lu-da", mic="EPEX",
+                            currency="EUR", timezone="Europe/Berlin", valid_from_ms=0, valid_to_ms=None,
+                            ticker_assertions=[{"value": "DELU-DA", "valid_from_ms": 0, "valid_to_ms": None,
+                                                "source_ref_id": "src:listing"}],
+                            source_refs=[ref], principal_id="market", scopes={"operator"})
+    return "listing:de-lu-da"
