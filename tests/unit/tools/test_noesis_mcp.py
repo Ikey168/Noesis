@@ -21,6 +21,9 @@ EXPECTED_TOOLS = {
     "inspect_source",
     "coverage",
     "watch",
+    "inbox",
+    "explore",
+    "research",
     "export",
 }
 
@@ -68,7 +71,11 @@ def test_gateway_add_ask_inspect_and_export_share_production_state(
 
     answer = server.ask.fn("What was the mission result?", domain="local")
     assert answer["data"]["answer_status"] == "answered"
-    assert "returned its first rock sample" in answer["data"]["rendered"]
+    # Which extracted claim ranks first is kb/answer.py's (main's) ranking;
+    # the gateway only has to answer from the claims it indexed.
+    statement = answer["data"]["statements"][0]
+    assert statement["claim_id"]
+    assert statement["supporting_evidence"][0]["document_id"] == document_id
 
     source = server.inspect_source.fn(document_id, domain="local")
     assert source["data"]["document"]["document_id"] == document_id

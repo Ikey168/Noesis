@@ -354,10 +354,11 @@ def test_ingest_indexes_documents_when_claim_model_is_unavailable(
         "json",
     )
     assert code == 0
-    assert (
-        "The Selene demonstrator returned its first rock sample on 4 August."
-        in answer["data"]["data"]["rendered"]
-    )
+    # kb/answer.py answers factual questions only from extracted claims or
+    # paper abstracts; a claim-less note is refused explicitly rather than
+    # paraphrased from its body.
+    assert answer["data"]["data"]["answer_status"] == "refused"
+    assert answer["data"]["data"]["refusal"]["code"] == "insufficient_evidence"
 
 
 def test_private_exports_are_opt_in_and_outputs_are_not_overwritten(capsys, tmp_path):

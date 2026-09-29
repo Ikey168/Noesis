@@ -15,6 +15,12 @@ noesis ingest examples/quickstart/moon-mission.md --domain local
 noesis ask "What was the mission result?" --domain local
 ```
 
+Ingestion automatically runs the bounded production path through document
+revisioning, claim extraction, resolution, and indexing. If the claim
+classifier is unavailable, the document is still indexed and the ingest result
+reports degraded coverage; `noesis ask` then answers only from extracted claims
+or paper abstracts and otherwise refuses explicitly.
+
 Machine consumers use `--format json` for answers and briefs, or `--json` for
 lifecycle commands. JSON stdout is reserved for the documented contract;
 diagnostic/progress text goes to stderr.

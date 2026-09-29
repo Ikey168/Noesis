@@ -147,6 +147,7 @@ stand up new knowledge graphs at runtime.
 
 | Server | Focus |
 |---|---|
+| `noesis` | **Default gateway** — add, search, ask, brief, inspect sources/claims, watches, inbox, exploration, research, coverage, evidence export |
 | `noesis-catalog` | Permission- and readiness-filtered discovery across every registered capability |
 | `noesis-pipeline` | Connectors, ingestion stages, article stats, and analytics |
 | `noesis-arguments` | Claims, stances, frames, actors, outlet clustering and scoring |
@@ -209,18 +210,45 @@ noesis export answer \
 noesis verify answer.bundle.json
 ```
 
+`noesis ingest` runs the bounded `ingest → extract → resolve → index` workflow
+automatically. If no claim classifier is available, document indexing still
+commits with explicit degraded coverage; `noesis ask` then answers only from
+extracted claims or paper abstracts and otherwise refuses explicitly. No model
+is downloaded implicitly.
+
 See the [CLI guide](docs/guides/cli.md) for Claim Watches, JSON output, server
 launchers, configuration, and optional dependency groups.
 
-### 4. Run a supported server surface
+### 4. Keep subscribed knowledge current
+
+```bash
+noesis sync                       # one bounded pass
+noesis sync --daemon              # persistent loop, every 5 minutes by default
+noesis sync --daemon --interval 60
+```
+
+`sync` fetches only explicitly enabled subscriptions, pushes new or changed
+feed revisions through the same production indexing workflow, refreshes domain
+membership, advances watches, and performs safe maintenance recovery/health
+checks. It does not launch Deep Research, execute source-pack jobs, or initiate
+paid acquisition. Run `noesis sync --dry-run --json` to inspect the next pass
+without network access or sync-state writes.
+
+### 5. Run the default MCP endpoint
 
 ```bash
 python -m pip install -e ".[server]"
-noesis serve --surface api
-# or: noesis serve --surface kb-mcp --transport http
+noesis serve
 ```
 
-### 5. Run tests
+The default Streamable HTTP endpoint is `http://127.0.0.1:8100/mcp` and exposes
+the curated daily-driver gateway: add, search, ask, briefs, source/claim
+inspection, watches, inbox triage, exploration, research sessions, coverage,
+and evidence export. Specialist MCP servers and
+the REST API remain available explicitly with `--surface kb-mcp` or
+`--surface api`.
+
+### 6. Run tests
 
 ```bash
 pytest                                        # unit and integration tests
