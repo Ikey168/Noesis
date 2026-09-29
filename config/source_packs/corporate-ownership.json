@@ -1,0 +1,202 @@
+{
+  "pack_id": "corporate-ownership",
+  "version": "1.0.0",
+  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred.",
+  "domains": [
+    "corporate-ownership"
+  ],
+  "defaults": {
+    "update_cadence": "daily at most",
+    "temporal_semantics": "source-stated validity and filing dates kept as stated; observation time recorded separately per record revision",
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 200,
+      "max_bytes": 5000000,
+      "max_pages": 40
+    },
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    }
+  },
+  "sources": [
+    {
+      "source_id": "gleif-level2",
+      "connector": "gleif",
+      "publisher": "Global Legal Entity Identifier Foundation",
+      "endpoint": "https://api.gleif.org/api/v1",
+      "scope": "Explicitly selected LEIs: Level 1 record, direct/ultimate accounting-consolidation parents and parent reporting exceptions, projected into the market.lei owner",
+      "update_cadence": "daily LOU updates; lastUpdateDate per record",
+      "temporal_semantics": "GLEIF lastUpdateDate and relationship periods as reported; observation time recorded separately",
+      "license": {
+        "id": "cc0-lei-data",
+        "terms_url": "https://www.gleif.org/en/about/open-data",
+        "redistribution": "LEI data is published under CC0"
+      },
+      "mapping": {
+        "target_schema": "noesis-lei-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "lei-sources:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "operations": [
+        "entities"
+      ],
+      "lei": {
+        "namespace": "ownership",
+        "leis": [
+          "213800EXAMPLAHOLDS95",
+          "213800EXAMPLAUKLTD71",
+          "213800EXAMPLATRADE88",
+          "724500EXAMPLAINTBV75"
+        ]
+      },
+      "ownership": {
+        "namespace": "ownership",
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/gleif-level2.json",
+        "sha256": "6bdfaaec5518d0b168b44366b4e4f5aee72efdcad2557cb18dc5a6e8f50c5a9a",
+        "expected_output_hash": "4d910948c4d22d4a619ef1a09f86a55a1b9f514af5ce7e31047dd936d0a61a79"
+      }
+    },
+    {
+      "source_id": "companies-house",
+      "connector": "companies-house",
+      "publisher": "Companies House (UK)",
+      "endpoint": "https://api.company-information.service.gov.uk",
+      "scope": "Explicitly selected UK company numbers: profile, officers, persons with significant control, PSC statements, exemptions and filing history",
+      "license": {
+        "id": "companies-house-public-data",
+        "terms_url": "https://developer.company-information.service.gov.uk/",
+        "redistribution": "public register data reused under the Companies House public data API terms; document images are not downloaded"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_COMPANIES_HOUSE_API_KEY"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "companies": [
+          "09990002",
+          "09990001"
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/companies-house.json",
+        "sha256": "16939dc2e83e1a85860735d7bf510e69f623a8d092b7155bbb8821fce76beb85",
+        "expected_output_hash": "c8b0f37c634f8ba7c173f9af1848c2daa48e1e69ebcf7de381f6d15168445871"
+      }
+    },
+    {
+      "source_id": "sec-edgar-ownership",
+      "connector": "sec-edgar-ownership",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "endpoint": "https://data.sec.gov",
+      "scope": "Explicitly selected CIKs: submissions and company facts, plus explicitly selected Schedule 13D/13G primary documents; beneficial-ownership forms are filing references",
+      "license": {
+        "id": "us-government-public-data",
+        "terms_url": "https://www.sec.gov/os/accessing-edgar-data",
+        "redistribution": "public-data under the SEC fair-access policy"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_SEC_CONTACT"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "ciks": [
+          "0009999101"
+        ],
+        "filings": [
+          {
+            "cik": "0009999101",
+            "accession": "0001888001-25-000003",
+            "document": "primary_doc.xml",
+            "form": "SCHEDULE 13G"
+          },
+          {
+            "cik": "0009999101",
+            "accession": "0001888001-23-000002",
+            "document": "northwind13g.htm",
+            "form": "SC 13G"
+          }
+        ],
+        "max_filings": 40,
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/sec-edgar.json",
+        "sha256": "e04fa94bdfc35a90d3d2465389019b35da30d3188f536bbf3bd4313d06654f26",
+        "expected_output_hash": "c0877c706cac7754d0c80c30b67d3af64f31d47cde950cf35af16b854fce6087"
+      }
+    },
+    {
+      "source_id": "open-ownership-bods",
+      "connector": "bods",
+      "publisher": "Open Ownership",
+      "endpoint": "https://bods-data.openownership.org",
+      "scope": "Explicitly selected BODS 0.2/0.3 statement files; only sources listed as implemented in the provider contract are projected",
+      "license": {
+        "id": "bods-per-statement-license",
+        "terms_url": "https://www.openownership.org/en/topics/beneficial-ownership-data-standard/",
+        "redistribution": "licence as stated per statement in publicationDetails.license; person statements stay owner-scoped"
+      },
+      "mapping": {
+        "target_schema": "noesis-ownership-part-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "ownership-providers:1.0.0"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "operations": [
+        "ownership"
+      ],
+      "ownership": {
+        "namespace": "ownership",
+        "files": [
+          "/fixtures/exampla/gb-psc-statements.json"
+        ],
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/ownership/open-ownership-bods.json",
+        "sha256": "a155a62afc7e2ee61a07e4a63b15ec12d71e51b7d7285b1e05548c69b4cbf86e",
+        "expected_output_hash": "6fca1478d29ca91745044d27cf7a2682d3193a3f608213aadb05f2e64fb6aff1"
+      }
+    }
+  ]
+}

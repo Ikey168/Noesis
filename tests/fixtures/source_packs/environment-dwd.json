@@ -1,0 +1,34 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "dwd",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly",
+ "scenarios": [
+  "dwd_product",
+  "dwd_stations"
+ ],
+ "native_pages": [
+  {
+   "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/recent/TU_Stundenwerte_Beschreibung_Stationen.txt",
+   "params": {},
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/plain"
+   },
+   "parse": "dwd_stations",
+   "body_sha256": "3ed0a62b67bb99b9f165f26d37a170c31ca2da66ae934ba69492f63089d1f452",
+   "body": "Stations_id von_datum bis_datum Stationshoehe geoBreite geoLaenge Stationsname Bundesland Abgabe\n----------- --------- --------- ------------- --------- --------- ----------------------------------------- ---------- --------\n00399 18930101 20260925             37     52.5198   13.4057 Berlin-Alexanderplatz                    Berlin                                                                            Frei\n00433 19510101 20260925             48     52.4675   13.4021 Berlin-Tempelhof                         Berlin                                                                            Frei\n"
+  },
+  {
+   "url": "https://opendata.dwd.de/climate_environment/CDC/observations_germany/climate/hourly/air_temperature/recent/stundenwerte_TU_00399_akt.zip",
+   "params": {},
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "parse": "dwd_product",
+   "body_sha256": "152132f5d82afd97e85a1b3c0d1a9bbb1abd2fb9168e547f56d0b76e1cad14aa",
+   "body_base64": "UEsDBBQAAAAIAAAAOV0+9OkrbQAAAM4AAAAtAAAAcHJvZHVrdF90dV9zdHVuZGVfMjAyNTAzMjRfMjAyNjA5MjRfMDAzOTkudHh0Cw5xDPH09wuO93Sx9nUNDo53cQwJ9bUO9Iu3tA4JiQ8JtQ5yA5Gp+UVcCgrGlpbWRgZGZgaWRiYGBtYKQGAIJA2N9MyAlIWhngE2hYbICkGUhTF2hUYIhYZ6FiCFJtgVGkMV6loCRYHKTKHKAFBLAwQUAAAACAAAADldkjo6KEEAAABLAAAAHgAAAE1ldGFkYXRlbl9HZW9ncmFwaGllXzAwMzk5LnR4dAsuSSzJzM8rjs9MsQ6GsjPyUzNSrd1T89OL9JyKUjNLYByfxNS89FQuY0tLa2Nza1MjPVNDSwtrQ2M9EwNTcy4AUEsBAhQDFAAAAAgAAAA5XT706SttAAAAzgAAAC0AAAAAAAAAAAAAAKQBAAAAAHByb2R1a3RfdHVfc3R1bmRlXzIwMjUwMzI0XzIwMjYwOTI0XzAwMzk5LnR4dFBLAQIUAxQAAAAIAAAAOV2SOjooQQAAAEsAAAAeAAAAAAAAAAAAAACkAbgAAABNZXRhZGF0ZW5fR2VvZ3JhcGhpZV8wMDM5OS50eHRQSwUGAAAAAAIAAgCnAAAANQEAAAAA"
+  }
+ ]
+}

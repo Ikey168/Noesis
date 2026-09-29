@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-screener-export-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "run_id", "query_revision_id", "as_of", "criteria", "results", "excluded_result_count", "input_revision_ids", "rights_checked_at_run", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-screener-export-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "run_id": {"type": "string", "minLength": 1},
+    "query_revision_id": {"type": "string", "minLength": 1},
+    "as_of": {"type": "object"},
+    "criteria": {"type": "object"},
+    "results": {"type": "array", "maxItems": 100, "items": {"type": "object"}},
+    "excluded_result_count": {"type": "integer", "minimum": 0},
+    "input_revision_ids": {"type": "array", "maxItems": 500, "items": {"type": "string"}},
+    "rights_checked_at_run": {"const": true},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

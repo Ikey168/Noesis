@@ -4,6 +4,7 @@ import duckdb
 import pytest
 
 from src.kb.intake_modes import IntakeError, IntakeStore
+from src.kb.intake_exploration import IntakeExplorationStore
 from src.kb.intake_problem import IntakeProblemStore
 
 SCOPES = {
@@ -95,14 +96,42 @@ def test_problem_trail_replay_restart_and_verified_completion(tmp_path):
         observation="Index completed without error", principal_id="alice", scopes=SCOPES,
     )
     assert attempted["data"]["verified"] is False
+    exploration = IntakeStore(reopened).create(
+        "research", "Exploration", "verify-source", intent="verification source",
+        principal_id="alice", scopes=SCOPES,
+    )
+    captured = IntakeExplorationStore(reopened).capture(
+        "research", exploration["session_id"], "capture-verification-source",
+        expected_revision=1, url="https://example.org/current-check",
+        title="Current verification record", content="Observed the expected result.",
+        principal_id="alice", scopes=SCOPES,
+    )
+    source_ref = captured["references"][0]
+    with pytest.raises(IntakeError, match="current accessible evidence"):
+        problem.record_step(
+            "research", session_id, "free-text-pass", expected_revision=4,
+            kind="verification", summary="Search for the new item",
+            observation="New item appeared after 12 seconds", passed=True,
+            principal_id="alice", scopes=SCOPES,
+        )
+    with pytest.raises(IntakeError, match="current readable source snapshot"):
+        problem.record_step(
+            "research", session_id, "stale-evidence-pass", expected_revision=4,
+            kind="verification", summary="Search for the new item",
+            observation="New item appeared after 12 seconds", passed=True,
+            references=[{**source_ref, "version": source_ref["version"] + 1}],
+            principal_id="alice", scopes=SCOPES,
+        )
     checked = problem.record_step(
         "research", session_id, "passed-check", expected_revision=4,
         kind="verification", summary="Search for the new item",
         observation="New item appeared after 12 seconds", passed=True,
+        references=[source_ref],
         principal_id="alice", scopes=SCOPES,
     )
     assert checked["data"]["verified"] is True
     assert len(checked["data"]["problem_trail"]) == 4
+    assert checked["data"]["problem_trail"][-1]["references"] == [source_ref]
     with pytest.raises(IntakeError, match="owner"):
         IntakeStore(reopened).inspect(
             "research", session_id, principal_id="bob", scopes=SCOPES,

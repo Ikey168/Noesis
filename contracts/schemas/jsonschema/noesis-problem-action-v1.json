@@ -1,0 +1,24 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "noesis-problem-action-v1",
+  "title": "Noesis Problem-Solving action preview and execution receipt",
+  "type": "object",
+  "required": ["contract", "status"],
+  "properties": {
+    "contract": { "const": "noesis-problem-action-v1" },
+    "status": { "enum": ["proposal_required", "adapter_unavailable", "consent_required", "ready", "unavailable", "reserved", "completed", "indeterminate"] },
+    "session_id": { "type": "string", "minLength": 1 },
+    "session_revision": { "type": "integer", "minimum": 1 },
+    "proposal": { "type": ["object", "null"] },
+    "consent": { "type": ["object", "null"] },
+    "adapter_configured": { "type": "boolean" },
+    "will_execute": { "const": false },
+    "executed": { "type": "boolean" },
+    "idempotency_key": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "correlation_id": { "type": "string", "minLength": 1, "maxLength": 256 },
+    "receipt": { "type": ["object", "null"] },
+    "reason": { "type": "string" },
+    "idempotent": { "type": "boolean" }
+  },
+  "additionalProperties": true
+}

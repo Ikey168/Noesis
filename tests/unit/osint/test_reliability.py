@@ -1,7 +1,5 @@
 """Tests for source_reliability() (R10 #612)."""
 
-import math
-
 from src.analytics.honesty import validate_analytic_output
 from src.osint import source_reliability
 
@@ -58,3 +56,52 @@ def test_unknown_source_is_not_found_but_still_valid(seed):
     out = source_reliability(seed.conn, "Never Heard Of It")
     assert out["found"] is False
     assert validate_analytic_output(out, interval_fields=("reliability",)) == []
+
+
+# --- OX01 (#2041): Admiralty source-reliability grade -----------------------
+
+
+def _no_fused_score(payload):
+    fused = {"confidence", "fused_confidence", "overall_confidence", "admiralty_code", "rating"}
+    assert not fused & set(payload)
+
+
+def test_thin_track_record_grades_f_never_a_mid_grade(seed):
+    seed.articles([("a1", "one doc", "http://y/1", "Thin Source", "2026-06-01")])
+    seed.claims([("c1", "A lone claim.", "a1", "news", 0.5, None)])
+    seed.outlet_scores([("Thin Source", "news", "2026-06-01", 0.9, 0.9, 0.9, 0.95)])
+    out = source_reliability(seed.conn, "Thin Source")
+    grade = out["reliability_grade"]
+    assert grade["grade"] == "F"
+    assert grade["label"] == "reliability cannot be judged"
+    assert grade["derivation"]["inputs"]["track_record_n"] == 1
+    assert grade["method"] and grade["assumptions"]
+    assert grade["derivation"]["thresholds"]["A"] == 0.85
+    _no_fused_score(out)
+
+
+def test_long_clean_well_corroborated_record_grades_high(seed):
+    seed.articles(
+        [(f"m{i}", "doc", f"http://z/{i}", "Rich Source", "2026-06-01") for i in range(25)]
+    )
+    seed.claims([(f"c{i}", "claim", f"m{i}", "news", 0.8, None) for i in range(25)])
+    seed.evidence([(f"e{i}", f"c{i}", "other", "news", "supports", 0.9) for i in range(25)])
+    seed.outlet_scores([("Rich Source", "news", "2026-06-01", 0.9, 0.9, 0.9, 0.9)])
+    out = source_reliability(seed.conn, "Rich Source")
+    assert out["reliability_grade"]["grade"] == "A"
+
+
+def test_a_is_capped_at_b_on_a_short_record():
+    from src.osint.reliability import reliability_grade
+
+    comps = {"transparency": 0.95, "corroboration_hit_rate": 1.0, "clean_record_rate": 1.0}
+    assert reliability_grade(0.98, 8, comps)["grade"] == "B"
+    assert "capped at B" in reliability_grade(0.98, 8, comps)["derivation"]["rule_applied"]
+    assert reliability_grade(0.98, 30, comps)["grade"] == "A"
+
+
+def test_grade_thresholds_are_monotonic():
+    from src.osint.reliability import reliability_grade
+
+    letters = [reliability_grade(s, 50, {})["grade"] for s in (0.9, 0.75, 0.6, 0.45, 0.1)]
+    assert letters == ["A", "B", "C", "D", "E"]

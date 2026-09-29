@@ -3,36 +3,346 @@
   "$id": "noesis-intake-session-v1",
   "title": "Owner-scoped information intake mode session",
   "type": "object",
-  "required": ["contract", "session_id", "namespace", "owner", "mode", "intent", "inputs", "duration_minutes", "origin", "workspace_links", "status", "revision", "data", "references", "history", "created_at_ms", "updated_at_ms", "active_since_ms", "elapsed_ms"],
+  "required": [
+    "contract",
+    "session_id",
+    "namespace",
+    "owner",
+    "mode",
+    "intent",
+    "inputs",
+    "duration_minutes",
+    "origin",
+    "workspace_links",
+    "status",
+    "revision",
+    "data",
+    "references",
+    "history",
+    "created_at_ms",
+    "updated_at_ms",
+    "active_since_ms",
+    "elapsed_ms"
+  ],
   "properties": {
-    "contract": {"const": "noesis-intake-session-v1"},
-    "session_id": {"type": "string", "pattern": "^intake:[0-9a-f]{32}$"},
-    "namespace": {"type": "string", "minLength": 1},
-    "owner": {"type": "string", "minLength": 1},
-    "mode": {"enum": ["Awareness", "Exploration", "Deep Research", "Decision Support", "Problem-Solving", "Creation", "Externalization", "Internalization", "Iteration", "Maintenance"]},
-    "intent": {"type": "string", "minLength": 1},
-    "inputs": {"type": "object"},
-    "duration_minutes": {"type": "integer", "minimum": 1, "maximum": 1440},
-    "origin": {"anyOf": [{"type": "null"}, {"type": "object", "required": ["session_id", "revision", "mode", "reason"], "additionalProperties": false, "properties": {"session_id": {"type": "string"}, "revision": {"type": "integer", "minimum": 1}, "mode": {"type": "string"}, "reason": {"type": "string", "minLength": 1}}}]},
-    "workspace_links": {"type": "array", "maxItems": 20, "items": {"$ref": "#/$defs/workspaceLink"}},
-    "status": {"enum": ["active", "paused", "completed", "cancelled"]},
-    "revision": {"type": "integer", "minimum": 1},
-    "data": {"type": "object"},
-    "references": {"type": "array", "maxItems": 1000, "items": {"anyOf": [{"$ref": "#/$defs/reference"}, {"type": "object", "required": ["redacted"], "additionalProperties": false, "properties": {"redacted": {"const": true}}}]}},
-    "history": {"type": "array", "items": {"type": "object", "required": ["revision", "action", "at_ms", "command_key"], "additionalProperties": false, "properties": {"revision": {"type": "integer", "minimum": 2}, "action": {"enum": ["record", "pause", "resume", "complete", "cancel"]}, "at_ms": {"type": "integer", "minimum": 0}, "command_key": {"type": "string", "minLength": 1}}}},
-    "created_at_ms": {"type": "integer", "minimum": 0},
-    "updated_at_ms": {"type": "integer", "minimum": 0},
-    "active_since_ms": {"type": ["integer", "null"], "minimum": 0},
-    "elapsed_ms": {"type": "integer", "minimum": 0},
-    "remaining_minutes": {"type": "number", "minimum": 0},
-    "unmet_completion_checks": {"type": "array", "items": {"type": "string"}},
-    "access_degraded": {"type": "boolean"},
-    "validation_state": {"const": "recorded_only"},
-    "idempotent": {"type": "boolean"}
+    "contract": {
+      "const": "noesis-intake-session-v1"
+    },
+    "session_id": {
+      "type": "string",
+      "pattern": "^intake:[0-9a-f]{32}$"
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "owner": {
+      "type": "string",
+      "minLength": 1
+    },
+    "mode": {
+      "enum": [
+        "Awareness",
+        "Exploration",
+        "Deep Research",
+        "Decision Support",
+        "Problem-Solving",
+        "Creation",
+        "Externalization",
+        "Internalization",
+        "Iteration",
+        "Maintenance"
+      ]
+    },
+    "intent": {
+      "type": "string",
+      "minLength": 1
+    },
+    "inputs": {
+      "type": "object"
+    },
+    "duration_minutes": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1440
+    },
+    "origin": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "session_id",
+            "revision",
+            "mode",
+            "reason"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "session_id": {
+              "type": "string"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 1
+            },
+            "mode": {
+              "type": "string"
+            },
+            "reason": {
+              "type": "string",
+              "minLength": 1
+            }
+          }
+        }
+      ]
+    },
+    "workspace_links": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "$ref": "#/$defs/workspaceLink"
+      }
+    },
+    "status": {
+      "enum": [
+        "active",
+        "paused",
+        "completed",
+        "cancelled"
+      ]
+    },
+    "revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "data": {
+      "type": "object"
+    },
+    "references": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "anyOf": [
+          {
+            "$ref": "#/$defs/reference"
+          },
+          {
+            "type": "object",
+            "required": [
+              "redacted"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "redacted": {
+                "const": true
+              }
+            }
+          }
+        ]
+      }
+    },
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "revision",
+          "action",
+          "at_ms",
+          "command_key"
+        ],
+        "additionalProperties": false,
+        "properties": {
+          "revision": {
+            "type": "integer",
+            "minimum": 2
+          },
+          "action": {
+            "enum": [
+              "record",
+              "pause",
+              "resume",
+              "complete",
+              "cancel"
+            ]
+          },
+          "at_ms": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "command_key": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "created_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "updated_at_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "active_since_ms": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "elapsed_ms": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "remaining_minutes": {
+      "type": "number",
+      "minimum": 0
+    },
+    "unmet_completion_checks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "access_degraded": {
+      "type": "boolean"
+    },
+    "validation_state": {
+      "const": "recorded_only"
+    },
+    "idempotent": {
+      "type": "boolean"
+    },
+    "plugin_links": {
+      "type": "array",
+      "maxItems": 20,
+      "items": {
+        "type": "object"
+      }
+    },
+    "cadence": {
+      "anyOf": [
+        {
+          "type": "null"
+        },
+        {
+          "type": "object",
+          "required": [
+            "interval_days",
+            "anchor_at_ms"
+          ],
+          "additionalProperties": false,
+          "properties": {
+            "interval_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 3650
+            },
+            "anchor_at_ms": {
+              "type": "integer",
+              "minimum": 0
+            }
+          }
+        }
+      ]
+    }
   },
   "additionalProperties": false,
   "$defs": {
-    "reference": {"type": "object", "required": ["kind", "id", "namespace", "version"], "additionalProperties": false, "properties": {"kind": {"type": "string", "minLength": 1}, "id": {"type": "string", "minLength": 1}, "namespace": {"type": "string", "minLength": 1}, "version": {"type": "integer", "minimum": 1}, "locator": {"type": "object", "additionalProperties": false, "properties": {"url": {"type": "string"}, "page": {"type": "integer", "minimum": 0}, "start": {"type": "integer", "minimum": 0}, "end": {"type": "integer", "minimum": 0}, "section": {"type": "string"}}}}},
-    "workspaceLink": {"type": "object", "required": ["system", "workspace_id", "kind", "id", "version"], "additionalProperties": false, "properties": {"system": {"const": "modulo"}, "workspace_id": {"type": "string", "minLength": 1}, "kind": {"enum": ["intake_item", "session", "artifact", "project", "note", "task"]}, "id": {"type": "string", "minLength": 1}, "version": {"type": "integer", "minimum": 1}}}
+    "reference": {
+      "type": "object",
+      "required": [
+        "kind",
+        "id",
+        "namespace",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": "string",
+          "minLength": 1
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "namespace": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "locator": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "url": {
+              "type": "string"
+            },
+            "page": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "start": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "end": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "section": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "workspaceLink": {
+      "type": "object",
+      "required": [
+        "system",
+        "workspace_id",
+        "kind",
+        "id",
+        "version"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "system": {
+          "const": "modulo"
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "kind": {
+          "enum": [
+            "intake_item",
+            "session",
+            "artifact",
+            "project",
+            "note",
+            "task"
+          ]
+        },
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "version": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    }
   }
 }

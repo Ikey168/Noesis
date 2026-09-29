@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-product-safety-notice-v1",
+  "title": "Product safety notice statement: what one authority published about one notice",
+  "description": "One provider payload of a safety notice or recall (EU Safety Gate, CPSC, NHTSA, RASFF) as acquired, stored by src.kb.product_safety as an immutable notice revision. Hazard, affected identification and corrective action are verbatim with JSON-pointer locators; GTIN, model, batch and brand stay native and are never rewritten into a product identity. Enumerations keep the raw provider value beside the mapped one, and an unknown raw value maps to unknown. No record carries a safety verdict, risk score or consumer advice.",
+  "type": "object",
+  "required": ["contract", "provider", "notice_number", "jurisdiction", "issuing_authority", "notice_type",
+               "revision_date", "identifications", "hazards", "corrective_actions"],
+  "definitions": {
+    "locator": {"type": "object", "required": ["json_pointer"], "properties": {"json_pointer": {"type": "string"}}},
+    "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "country": {"type": "object", "properties": {"declared": {"type": ["string", "null"]},
+                                                  "code": {"type": ["string", "null"], "pattern": "^[A-Z]{2}$"}}}
+  },
+  "properties": {
+    "contract": {"const": "noesis-product-safety-notice-v1"},
+    "provider": {"enum": ["safety-gate", "cpsc", "nhtsa", "rasff"]},
+    "notice_number": {"type": "string", "minLength": 1},
+    "native_record_id": {"type": ["string", "null"]},
+    "jurisdiction": {"enum": ["EU", "US"]},
+    "issuing_authority": {"type": "object", "required": ["declared", "value"], "properties": {
+      "declared": {"type": ["string", "null"]},
+      "value": {"enum": ["eu-safety-gate", "us-cpsc", "us-nhtsa", "eu-rasff", "unknown"]}}},
+    "notice_type": {"type": "object", "required": ["declared", "value"], "properties": {
+      "declared": {"type": ["string", "null"]},
+      "value": {"enum": ["alert", "recall", "warning", "withdrawal", "information", "border_rejection", "unknown"]}}},
+    "notifying_country": {"$ref": "#/definitions/country"},
+    "published": {"$ref": "#/definitions/date"},
+    "published_declared": {"type": ["string", "null"]},
+    "updated": {"$ref": "#/definitions/date"},
+    "updated_declared": {"type": ["string", "null"]},
+    "revision_date": {"$ref": "#/definitions/date"},
+    "order_basis": {"enum": ["source-date", "observation"]},
+    "identifications": {"type": "array", "items": {"type": "object", "required": ["kind", "value", "group", "locator"],
+      "properties": {
+        "kind": {"enum": ["brand", "name", "model", "model_field", "batch", "batch_field", "gtin", "gtin_field",
+                          "description", "product_type", "units", "model_year", "component", "best_before",
+                          "serial_range"]},
+        "value": {"type": "string", "minLength": 1},
+        "group": {"type": "integer", "minimum": -1},
+        "gtin_state": {"enum": ["valid", "invalid_checksum", "invalid_format", "absent"]},
+        "locator": {"$ref": "#/definitions/locator"}}}},
+    "hazards": {"type": "array", "items": {"type": "object", "required": ["locator"]}},
+    "corrective_actions": {"type": "array", "items": {"type": "object", "required": ["text", "locator"],
+      "properties": {"text": {"type": "string", "minLength": 1}, "locator": {"$ref": "#/definitions/locator"}}}},
+    "parties": {"type": "array", "items": {"type": "object", "required": ["role", "name", "locator"], "properties": {
+      "role": {"enum": ["manufacturer", "importer", "distributor", "retailer"]}, "name": {"type": "string"}}}},
+    "followups": {"type": "array", "items": {"type": "object", "required": ["locator"],
+      "properties": {"date": {"$ref": "#/definitions/date"}}}},
+    "compliance": {"type": "array", "items": {"type": "object", "required": ["text", "locator"]}},
+    "payload_pointer": {"type": "string"}
+  },
+  "not": {"anyOf": [{"required": ["verdict"]}, {"required": ["risk_score"]}, {"required": ["safe"]},
+                    {"required": ["recommendation"]}, {"required": ["advice"]}]}
+}

@@ -2,9 +2,12 @@
 
 import duckdb
 import pytest
+import json
+from pathlib import Path
+from jsonschema import Draft202012Validator
 
-from src.kb.intake_modes import IntakeError
-from src.kb.intake_readiness import preflight
+from src.kb.intake_modes import IntakeError, IntakeStore
+from src.kb.intake_readiness import discover_workflows, preflight
 
 
 def test_readiness_distinguishes_scopes_subscriptions_and_unknown_live_state():
@@ -49,3 +52,28 @@ def test_readiness_counts_only_enabled_owner_subscriptions():
     assert result["enabled_feed_subscription_count"] == 1
     assert result["modes"][0]["native_start_possible"] is True
     assert result["modes"][0]["live_source_verified"] is False
+
+
+def test_discovery_lists_authorized_steps_for_durable_sessions():
+    conn = duckdb.connect(":memory:")
+    full = {"knowledge:intake:read", "knowledge:intake:write",
+            "namespace:research:read", "namespace:research:write"}
+    store = IntakeStore(conn)
+    created = store.create("research", "Exploration", "discovery",
+                           intent="Browse briefly", principal_id="alice", scopes=full)
+    value = discover_workflows(conn, "research", principal_id="alice", scopes=full)
+    schema = json.loads((
+        Path(__file__).resolve().parents[3]
+        / "contracts/schemas/jsonschema/noesis-intake-workflow-discovery-v1.json"
+    ).read_text())
+    Draft202012Validator(schema).validate(value)
+    assert len(value["modes"]) == 10
+    assert "record" in value["sessions"][0]["allowed_next_actions"]
+    paused = store.command("research", created["session_id"], "pause", expected_revision=1,
+                           action="pause", payload=None, principal_id="alice", scopes=full)
+    assert paused["status"] == "paused"
+    readonly = discover_workflows(conn, "research", principal_id="alice",
+                                  scopes=full - {"knowledge:intake:write"})
+    assert readonly["sessions"][0]["allowed_next_actions"] == ["inspect", "export"]
+    assert readonly["modes"][1]["allowed_mutations"] == []
+    assert readonly["live_source_verified"] is False

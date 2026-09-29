@@ -1,0 +1,20 @@
+{
+ "changes": [
+  {
+   "version": 0,
+   "date": "2017-04-10",
+   "status": "RECRUITING",
+   "moduleLabels": [
+    "Study Identification"
+   ]
+  },
+  {
+   "version": 1,
+   "date": "2019-08-01",
+   "status": "TERMINATED",
+   "moduleLabels": [
+    "Study Status"
+   ]
+  }
+ ]
+}

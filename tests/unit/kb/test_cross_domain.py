@@ -523,7 +523,7 @@ def test_mcp_and_rest_use_the_same_cross_domain_contract(monkeypatch):
     }
     calls = []
 
-    def fake_search(*args):
+    def fake_search(*args, **kwargs):
         calls.append(args)
         return sentinel
 

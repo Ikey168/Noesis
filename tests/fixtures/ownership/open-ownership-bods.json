@@ -1,0 +1,360 @@
+{
+ "authored": true,
+ "provider": "Open Ownership (BODS 0.2 statements)",
+ "note": "Authored BODS 0.2 statements for fictional companies and a fictional person, shaped like Open Ownership register exports. Includes one statement from a source this pack does not implement (counted, not projected) and one BODS 0.4 record (unsupported version, counted).",
+ "scenarios": [
+  "entity-person-ownership-statements",
+  "person-owner-scoped",
+  "unspecified-interested-party",
+  "annotations-preserved",
+  "unsupported-source",
+  "unsupported-version",
+  "name-jurisdiction-decoy"
+ ],
+ "native_pages": [
+  {
+   "request": "/fixtures/exampla/gb-psc-statements.json",
+   "body": [
+    {
+     "statementID": "oo-fixture-ent-uk-1",
+     "statementType": "entityStatement",
+     "statementDate": "2025-01-31",
+     "entityType": "registeredEntity",
+     "name": "EXAMPLA UK LIMITED",
+     "incorporatedInJurisdiction": {
+      "name": "United Kingdom",
+      "code": "GB"
+     },
+     "identifiers": [
+      {
+       "scheme": "GB-COH",
+       "id": "09990002"
+      },
+      {
+       "scheme": "XI-LEI",
+       "id": "213800EXAMPLAUKLTD71"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ent-int-1",
+     "statementType": "entityStatement",
+     "statementDate": "2025-01-31",
+     "entityType": "registeredEntity",
+     "name": "EXAMPLA INTERMEDIATE B.V.",
+     "incorporatedInJurisdiction": {
+      "name": "Netherlands",
+      "code": "NL"
+     },
+     "identifiers": [
+      {
+       "scheme": "XI-LEI",
+       "id": "724500EXAMPLAINTBV75"
+      },
+      {
+       "scheme": "NL-KVK",
+       "id": "99990003"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ooc-1",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2025-01-31",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-ent-uk-1"
+     },
+     "interestedParty": {
+      "describedByEntityStatement": "oo-fixture-ent-int-1"
+     },
+     "interests": [
+      {
+       "type": "shareholding",
+       "interestLevel": "direct",
+       "beneficialOwnershipOrControl": false,
+       "share": {
+        "minimum": 75,
+        "maximum": 100
+       },
+       "startDate": "2025-01-01",
+       "details": "ownership-of-shares-75-to-100-percent"
+      },
+      {
+       "type": "voting-rights",
+       "interestLevel": "direct",
+       "beneficialOwnershipOrControl": false,
+       "share": {
+        "minimum": 75,
+        "maximum": 100
+       },
+       "startDate": "2025-01-01",
+       "details": "voting-rights-75-to-100-percent"
+      }
+     ],
+     "annotations": [
+      {
+       "motivation": "commenting",
+       "description": "Fixture annotation: interest mapped from the PSC register",
+       "statementPointerTarget": "/interests/0"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-per-1",
+     "statementType": "personStatement",
+     "statementDate": "2025-01-31",
+     "personType": "knownPerson",
+     "names": [
+      {
+       "type": "individual",
+       "fullName": "Jordan Example (fictional)"
+      }
+     ],
+     "nationalities": [
+      {
+       "code": "GB"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ooc-2",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2025-01-31",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-ent-uk-1"
+     },
+     "interestedParty": {
+      "describedByPersonStatement": "oo-fixture-per-1"
+     },
+     "interests": [
+      {
+       "type": "significant-influence-or-control",
+       "interestLevel": "indirect",
+       "beneficialOwnershipOrControl": true,
+       "startDate": "2025-01-01",
+       "details": "significant-influence-or-control"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ent-hold-1",
+     "statementType": "entityStatement",
+     "statementDate": "2025-01-31",
+     "entityType": "registeredEntity",
+     "name": "EXAMPLA HOLDINGS PLC",
+     "incorporatedInJurisdiction": {
+      "name": "United Kingdom",
+      "code": "GB"
+     },
+     "identifiers": [
+      {
+       "scheme": "GB-COH",
+       "id": "09990001"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ooc-3",
+     "statementType": "ownershipOrControlStatement",
+     "statementDate": "2025-01-31",
+     "subject": {
+      "describedByEntityStatement": "oo-fixture-ent-hold-1"
+     },
+     "interestedParty": {
+      "unspecified": {
+       "reason": "interested-party-exempt-from-disclosure",
+       "description": "PSC exemption: trading on a regulated market"
+      }
+     },
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ent-decoy-1",
+     "statementType": "entityStatement",
+     "statementDate": "2025-01-31",
+     "entityType": "registeredEntity",
+     "name": "Exampla Holdings Ltd",
+     "incorporatedInJurisdiction": {
+      "name": "United Kingdom",
+      "code": "GB"
+     },
+     "identifiers": [],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "GB Persons Of Significant Control Register",
+      "url": "http://download.companieshouse.gov.uk/en_pscdata.html",
+      "retrievedAt": "2025-01-31"
+     }
+    },
+    {
+     "statementID": "oo-fixture-ent-dk-1",
+     "statementType": "entityStatement",
+     "statementDate": "2025-01-31",
+     "entityType": "registeredEntity",
+     "name": "Eksempel ApS (fictional)",
+     "incorporatedInJurisdiction": {
+      "name": "Denmark",
+      "code": "DK"
+     },
+     "identifiers": [
+      {
+       "scheme": "DK-CVR",
+       "id": "99990004"
+      }
+     ],
+     "publicationDetails": {
+      "publicationDate": "2025-02-01",
+      "bodsVersion": "0.2",
+      "license": "https://register.openownership.org/terms-and-conditions",
+      "publisher": {
+       "name": "Open Ownership Register",
+       "url": "https://register.openownership.org"
+      }
+     },
+     "source": {
+      "type": [
+       "officialRegister"
+      ],
+      "description": "Denmark Central Business Register (Centrale Virksomhedsregister [CVR])"
+     }
+    },
+    {
+     "recordId": "fixture-bods-0.4-record",
+     "recordType": "entity",
+     "recordDetails": {
+      "name": "BODS 0.4 record (unsupported here)"
+     }
+    }
+   ]
+  }
+ ]
+}

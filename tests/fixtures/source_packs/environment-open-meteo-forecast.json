@@ -1,0 +1,41 @@
+{
+ "captured_at": "authored 2026-09-26 (not a capture)",
+ "provider": "open-meteo-forecast",
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "endpoint": "https://api.open-meteo.com/v1/forecast",
+ "scenarios": [
+  "open_meteo",
+  "open_meteo_meta"
+ ],
+ "native_pages": [
+  {
+   "url": "https://api.open-meteo.com/data/dwd_icon_d2/static/meta.json",
+   "params": {},
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "open_meteo_meta",
+   "body_sha256": "4438b60f9a60515d9c209cc23ea4f096467abcf6276dc7b811b56dc8c19d75d9",
+   "body": "{\n \"crs_wkt\": \"GEOGCRS[...]\",\n \"data_end_time\": 1790445600,\n \"last_run_availability_time\": 1790400600,\n \"last_run_initialisation_time\": 1790391600,\n \"last_run_modification_time\": 1790400500,\n \"temporal_resolution_seconds\": 3600,\n \"update_interval_seconds\": 10800\n}\n"
+  },
+  {
+   "url": "https://api.open-meteo.com/v1/forecast",
+   "params": {
+    "latitude": "52.5219",
+    "longitude": "13.4132",
+    "hourly": "temperature_2m,precipitation",
+    "models": "icon_d2",
+    "timezone": "GMT",
+    "forecast_days": "1"
+   },
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "parse": "open_meteo",
+   "body_sha256": "18e078e8e1671982a7c982fd050f47352e44c2b506dd3bb43c11f8b30a4b65d6",
+   "body": "{\n \"latitude\": 52.52,\n \"longitude\": 13.419998,\n \"generationtime_ms\": 0.21,\n \"utc_offset_seconds\": 0,\n \"timezone\": \"GMT\",\n \"timezone_abbreviation\": \"GMT\",\n \"elevation\": 38.0,\n \"hourly_units\": {\n  \"time\": \"iso8601\",\n  \"temperature_2m\": \"°C\",\n  \"precipitation\": \"mm\"\n },\n \"hourly\": {\n  \"time\": [\n   \"2026-09-26T09:00\",\n   \"2026-09-26T10:00\",\n   \"2026-09-26T11:00\",\n   \"2026-09-26T12:00\"\n  ],\n  \"temperature_2m\": [\n   12.8,\n   12.3,\n   11.9,\n   11.5\n  ],\n  \"precipitation\": [\n   0.0,\n   0.1,\n   0.3,\n   0.0\n  ]\n }\n}\n"
+  }
+ ]
+}

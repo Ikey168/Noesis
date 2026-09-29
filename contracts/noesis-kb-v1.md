@@ -136,3 +136,40 @@ typed trace entries. Impossible mandatory-evidence budgets return a deterministi
 `refused` response rather than uncited text. The governed schemas are
 `noesis-context-request-v1` and `noesis-context-response-v1`; offline regression
 reports are available through `scripts/evaluate_context_assembly.py`.
+
+## API-key permissions
+
+This addition does not change the contract version. It changes only which
+callers may make a call; no response shape changes. Requests authenticated
+with an `nn_` API key (`Authorization: Bearer nn_…`, `X-API-Key` or
+`?api_key=`) are limited by the permission strings the key carries:
+
+| Permission | Grants |
+|---|---|
+| `kb:read:<domain>` | every read of that domain: `/{domain}/…` routes, body-level `domain` fields (temporal, political, economic, technical), `/brief` and watches |
+| `kb:read:*` | reads of every domain |
+| `documents:ingest` | `POST /documents/ingest` for any `source_type` |
+| `documents:ingest:<source_type>` | `POST /documents/ingest` for that `source_type` only |
+
+How the permissions are applied:
+
+- **Missing permission.** A call on a domain the key does not permit returns
+  HTTP 403 with `{"code": "unauthorized", "message", "required"}`.
+- **Cross-domain calls and `kb_context`.**
+  - An explicitly listed unpermitted domain fails with `unauthorized`.
+  - `all_authorized=true` skips unpermitted domains. They are recorded in
+    `scope.excluded_domains` with the reason `api_key_not_permitted`.
+- **`/brief` without `domains`.** It covers only the permitted domains.
+- **JWT users and requests without an API key.** Their behaviour is unchanged.
+- **API-key identities.** They authenticate private routes as `sub` with no
+  role, so they never pass admin checks.
+- **Legacy keys** (no `kb:` or `documents:` permission at all):
+  - denied by default
+  - `NOESIS_API_KEY_LEGACY_ACCESS=allow` restores the previous unrestricted
+    access while permissions are assigned
+
+The key store is selected with `NOESIS_API_KEY_BACKEND`:
+
+- `local` (default): the DuckDB `local_api_keys` table, managed through
+  `/security/api-keys`, which accepts `permissions`
+- `dynamodb`: `api_key_manager`

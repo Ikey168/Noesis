@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-jev-review-priority-evaluation-v1.json",
+  "title": "Fixed-budget review priority evaluation",
+  "type": "object",
+  "required": ["contract", "cases", "reviewer_budget", "high_impact_errors_total", "found_baseline", "found_suggested", "delta_found", "label_origins", "automatic_priority_update_enabled"],
+  "properties": {
+    "contract": {"const": "noesis-jev-review-priority-evaluation-v1"},
+    "cases": {"type": "integer", "minimum": 1},
+    "reviewer_budget": {"type": "integer", "minimum": 1},
+    "high_impact_errors_total": {"type": "integer", "minimum": 0},
+    "found_baseline": {"type": "integer", "minimum": 0},
+    "found_suggested": {"type": "integer", "minimum": 0},
+    "delta_found": {"type": "integer"},
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "fixture"]}},
+    "automatic_priority_update_enabled": {"const": false}
+  },
+  "additionalProperties": false
+}

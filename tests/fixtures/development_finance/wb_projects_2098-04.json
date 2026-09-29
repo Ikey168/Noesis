@@ -1,0 +1,49 @@
+{
+  "rows": 50,
+  "os": 0,
+  "page": 1,
+  "total": 3,
+  "note": "Authored fixture in the World Bank Projects API v2 shape: every project, name and amount is fictional.",
+  "projects": {
+    "P999001": {
+      "id": "P999001",
+      "project_name": "Fictional Lakeside Water Security Project",
+      "countryshortname": "Kenya",
+      "countrycode": ["KE"],
+      "regionname": "Eastern and Southern Africa",
+      "status": "Active",
+      "boardapprovaldate": "2097-11-20T00:00:00Z",
+      "closingdate": "6/30/2102 12:00:00 AM",
+      "lendinginstr": "Investment Project Financing",
+      "projectfinancialtype": "IDA",
+      "totalcommamt": "150,000,000",
+      "idacommamt": "150,000,000",
+      "ibrdcommamt": "0",
+      "sector": [{"Name": "Water Supply"}],
+      "theme_list": [{"name": "Rural Development"}]
+    },
+    "P999002": {
+      "id": "P999002",
+      "project_name": "Fictional Primary Education Support Project",
+      "countryshortname": "Uganda",
+      "countrycode": ["UG"],
+      "status": "Active",
+      "boardapprovaldate": "2098-01-10T00:00:00Z",
+      "closingdate": "2103-06-30T00:00:00Z",
+      "projectfinancialtype": "IDA",
+      "totalcommamt": "400,000",
+      "idacommamt": "400,000",
+      "sector": [{"Name": "Primary Education"}]
+    },
+    "P999003": {
+      "id": "P999003",
+      "project_name": "Fictional Coastal Roads Project",
+      "countryshortname": "Tanzania",
+      "countrycode": ["TZ"],
+      "status": "Pipeline",
+      "boardapprovaldate": "",
+      "totalcommamt": "",
+      "sector": [{"Name": "Roads"}]
+    }
+  }
+}

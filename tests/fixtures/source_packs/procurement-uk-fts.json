@@ -1,0 +1,425 @@
+{
+ "authored": true,
+ "provider": "Find a Tender OCDS release packages (GET /api/1.0/ocdsReleasePackages)",
+ "note": "Authored OCDS 1.1 releases for a fictional council and supplier; not a live capture. The supplier states an XI-LEI identifier.",
+ "scenarios": [
+  "tender-with-lots",
+  "award-and-contract",
+  "contract-amendment",
+  "links-next-pagination"
+ ],
+ "native_pages": [
+  {
+   "request": {
+    "url": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages",
+    "params": {
+     "stages": "tender,award",
+     "updatedFrom": "2026-09-01T00:00:00"
+    }
+   },
+   "body": {
+    "uri": "https://example.invalid/package",
+    "version": "1.1",
+    "publishedDate": "2026-09-26T08:00:00Z",
+    "publisher": {
+     "name": "Find a Tender Service"
+    },
+    "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+    "releases": [
+     {
+      "ocid": "ocds-h6vhtk-0fx001",
+      "id": "ocds-h6vhtk-0fx001-tender-1",
+      "date": "2026-09-08T09:00:00+01:00",
+      "tag": [
+       "tender"
+      ],
+      "initiationType": "tender",
+      "language": "en",
+      "parties": [
+       {
+        "id": "GB-GOR-FX0001",
+        "name": "Fixture Borough Council",
+        "identifier": {
+         "scheme": "GB-GOR",
+         "id": "FX0001"
+        },
+        "address": {
+         "countryName": "United Kingdom",
+         "region": "UKI"
+        },
+        "roles": [
+         "buyer"
+        ]
+       },
+       {
+        "id": "GB-COH-00000001",
+        "name": "Fixture Digital Ltd",
+        "identifier": {
+         "scheme": "GB-COH",
+         "id": "00000001"
+        },
+        "additionalIdentifiers": [
+         {
+          "scheme": "XI-LEI",
+          "id": "213800FIXTUREDIGI007"
+         }
+        ],
+        "address": {
+         "countryName": "United Kingdom"
+        },
+        "roles": [
+         "supplier"
+        ]
+       }
+      ],
+      "buyer": {
+       "id": "GB-GOR-FX0001",
+       "name": "Fixture Borough Council"
+      },
+      "tender": {
+       "id": "FX-2026-0042",
+       "title": "Digital services: helpdesk and hosting",
+       "status": "active",
+       "description": "Two lots: a user helpdesk and managed hosting.",
+       "procurementMethod": "open",
+       "procurementMethodDetails": "Open procedure",
+       "mainProcurementCategory": "services",
+       "value": {
+        "amount": 1000000,
+        "amountGross": 1200000,
+        "currency": "GBP"
+       },
+       "items": [
+        {
+         "id": "1",
+         "classification": {
+          "scheme": "CPV",
+          "id": "72253000-3",
+          "description": "Helpdesk and support services"
+         },
+         "relatedLot": "1",
+         "deliveryAddresses": [
+          {
+           "region": "UKI"
+          }
+         ]
+        },
+        {
+         "id": "2",
+         "classification": {
+          "scheme": "CPV",
+          "id": "72415000-2",
+          "description": "World wide web (www) site operation host services"
+         },
+         "relatedLot": "2",
+         "deliveryAddresses": [
+          {
+           "region": "UKI"
+          }
+         ]
+        }
+       ],
+       "lots": [
+        {
+         "id": "1",
+         "title": "User helpdesk",
+         "value": {
+          "amount": 400000,
+          "amountGross": 480000,
+          "currency": "GBP"
+         },
+         "status": "active"
+        },
+        {
+         "id": "2",
+         "title": "Managed hosting",
+         "value": {
+          "amount": 600000,
+          "amountGross": 720000,
+          "currency": "GBP"
+         },
+         "status": "active"
+        }
+       ],
+       "tenderPeriod": {
+        "startDate": "2026-09-08T09:00:00+01:00",
+        "endDate": "2026-11-10T12:00:00Z"
+       },
+       "enquiryPeriod": {
+        "endDate": "2026-10-27T17:00:00Z"
+       },
+       "selectionCriteria": {
+        "criteria": [
+         {
+          "type": "economic",
+          "description": "Minimum annual turnover of GBP 800,000.",
+          "relatedLots": [
+           "1"
+          ]
+         },
+         {
+          "type": "economic",
+          "description": "Minimum annual turnover of GBP 1,500,000.",
+          "relatedLots": [
+           "2"
+          ]
+         },
+         {
+          "type": "technical",
+          "description": "Cyber Essentials Plus certification is required.",
+          "relatedLots": [
+           "2"
+          ]
+         }
+        ]
+       },
+       "exclusionGrounds": {
+        "grounds": [
+         {
+          "code": "corruption",
+          "description": "Mandatory exclusion: corruption or bribery offences (Procurement Act 2023, Schedule 6)."
+         },
+         {
+          "code": "tax-pay",
+          "description": "Mandatory exclusion: non-payment of tax."
+         }
+        ]
+       },
+       "submissionMethodDetails": "Tenders are submitted through the buyer's e-tendering system; Noesis never submits.",
+       "documents": [
+        {
+         "id": "d1",
+         "documentType": "tenderNotice",
+         "title": "Invitation to tender",
+         "url": "https://etender.fixture-borough.example/itt/FX-2026-0042"
+        }
+       ]
+      }
+     },
+     {
+      "ocid": "ocds-h6vhtk-0fx900",
+      "id": "ocds-h6vhtk-0fx900-award-1",
+      "date": "2025-02-14T10:00:00Z",
+      "tag": [
+       "award",
+       "contract"
+      ],
+      "initiationType": "tender",
+      "language": "en",
+      "parties": [
+       {
+        "id": "GB-GOR-FX0001",
+        "name": "Fixture Borough Council",
+        "identifier": {
+         "scheme": "GB-GOR",
+         "id": "FX0001"
+        },
+        "address": {
+         "countryName": "United Kingdom",
+         "region": "UKI"
+        },
+        "roles": [
+         "buyer"
+        ]
+       },
+       {
+        "id": "GB-COH-00000001",
+        "name": "Fixture Digital Ltd",
+        "identifier": {
+         "scheme": "GB-COH",
+         "id": "00000001"
+        },
+        "additionalIdentifiers": [
+         {
+          "scheme": "XI-LEI",
+          "id": "213800FIXTUREDIGI007"
+         }
+        ],
+        "address": {
+         "countryName": "United Kingdom"
+        },
+        "roles": [
+         "supplier"
+        ]
+       }
+      ],
+      "buyer": {
+       "id": "GB-GOR-FX0001",
+       "name": "Fixture Borough Council"
+      },
+      "awards": [
+       {
+        "id": "AW-1",
+        "title": "User helpdesk 2025-2027",
+        "status": "active",
+        "date": "2025-02-10T00:00:00Z",
+        "value": {
+         "amount": 350000,
+         "amountGross": 420000,
+         "currency": "GBP"
+        },
+        "suppliers": [
+         {
+          "id": "GB-COH-00000001",
+          "name": "Fixture Digital Ltd"
+         }
+        ]
+       }
+      ],
+      "contracts": [
+       {
+        "id": "CT-1",
+        "awardID": "AW-1",
+        "status": "active",
+        "dateSigned": "2025-02-14T00:00:00Z",
+        "value": {
+         "amount": 350000,
+         "amountGross": 420000,
+         "currency": "GBP"
+        },
+        "period": {
+         "startDate": "2025-03-01T00:00:00Z",
+         "endDate": "2027-02-28T00:00:00Z"
+        }
+       }
+      ],
+      "tender": {
+       "id": "FX-2024-0007",
+       "title": "User helpdesk 2025-2027",
+       "items": [
+        {
+         "id": "1",
+         "classification": {
+          "scheme": "CPV",
+          "id": "72253000-3"
+         }
+        }
+       ]
+      }
+     }
+    ],
+    "links": {
+     "next": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages?cursor=fx-page-2"
+    }
+   }
+  },
+  {
+   "request": {
+    "url": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages",
+    "params": {
+     "cursor": "fx-page-2"
+    }
+   },
+   "body": {
+    "uri": "https://example.invalid/package",
+    "version": "1.1",
+    "publishedDate": "2026-09-26T08:00:00Z",
+    "publisher": {
+     "name": "Find a Tender Service"
+    },
+    "license": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+    "publicationPolicy": "https://www.gov.uk/government/publications/open-contracting",
+    "releases": [
+     {
+      "ocid": "ocds-h6vhtk-0fx900",
+      "id": "ocds-h6vhtk-0fx900-contractAmendment-1",
+      "date": "2026-03-01T10:00:00Z",
+      "tag": [
+       "contractAmendment"
+      ],
+      "initiationType": "tender",
+      "language": "en",
+      "parties": [
+       {
+        "id": "GB-GOR-FX0001",
+        "name": "Fixture Borough Council",
+        "identifier": {
+         "scheme": "GB-GOR",
+         "id": "FX0001"
+        },
+        "address": {
+         "countryName": "United Kingdom",
+         "region": "UKI"
+        },
+        "roles": [
+         "buyer"
+        ]
+       },
+       {
+        "id": "GB-COH-00000001",
+        "name": "Fixture Digital Ltd",
+        "identifier": {
+         "scheme": "GB-COH",
+         "id": "00000001"
+        },
+        "additionalIdentifiers": [
+         {
+          "scheme": "XI-LEI",
+          "id": "213800FIXTUREDIGI007"
+         }
+        ],
+        "address": {
+         "countryName": "United Kingdom"
+        },
+        "roles": [
+         "supplier"
+        ]
+       }
+      ],
+      "buyer": {
+       "id": "GB-GOR-FX0001",
+       "name": "Fixture Borough Council"
+      },
+      "awards": [
+       {
+        "id": "AW-1",
+        "title": "User helpdesk 2025-2027",
+        "status": "active",
+        "suppliers": [
+         {
+          "id": "GB-COH-00000001",
+          "name": "Fixture Digital Ltd"
+         }
+        ]
+       }
+      ],
+      "contracts": [
+       {
+        "id": "CT-1",
+        "awardID": "AW-1",
+        "status": "active",
+        "value": {
+         "amount": 385000,
+         "amountGross": 462000,
+         "currency": "GBP"
+        },
+        "amendments": [
+         {
+          "id": "CA-1",
+          "date": "2026-03-01T00:00:00Z",
+          "rationale": "Additional service hours",
+          "description": "Extended support hours; value increased by 10%."
+         }
+        ]
+       }
+      ],
+      "tender": {
+       "id": "FX-2024-0007",
+       "title": "User helpdesk 2025-2027",
+       "items": [
+        {
+         "id": "1",
+         "classification": {
+          "scheme": "CPV",
+          "id": "72253000-3"
+         }
+        }
+       ]
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

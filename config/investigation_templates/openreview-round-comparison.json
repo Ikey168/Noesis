@@ -1,0 +1,27 @@
+{
+  "name": "OpenReview Round Comparison",
+  "description": "Compare selected public review rounds and submission revisions in one OpenReview forum.",
+  "parameters": {
+    "forum_id": "Exact public OpenReview forum identifier",
+    "before_round": "First pinned round identifier, for example round:1",
+    "after_round": "Second pinned round identifier, for example round:2"
+  },
+  "questions": [
+    "What concerns were recorded in ${before_round} of forum ${forum_id}?",
+    "Which responses and manuscript changes are visible by ${after_round}?",
+    "Which concerns remain unresolved, disputed, or unassessable?"
+  ],
+  "success_criteria": [
+    "Pin exact public note and manuscript document revisions",
+    "Separate author claims, machine correspondence, and independent human review",
+    "Cite before and after source revisions and state missing coverage"
+  ],
+  "scope": {"domains": ["research"], "namespaces": []},
+  "source_packs": [{"pack_id": "openreview-research", "version": "1.0.0"}],
+  "report_outline": [
+    "Forum ${forum_id} and public-note coverage",
+    "Concerns in ${before_round}",
+    "Responses and manuscript changes through ${after_round}",
+    "Resolution states, disputes, limitations, and citations"
+  ]
+}

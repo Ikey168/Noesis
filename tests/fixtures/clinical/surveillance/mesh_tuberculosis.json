@@ -1,0 +1,11 @@
+{
+ "note": "Authored subset in the shape of MeSH descriptor records; identifiers and tree numbers are believed to match MeSH but were not verified in this environment.",
+ "version": "2026.1.0",
+ "descriptors": [
+  {"ui": "D007239", "name": "Infections", "tree_numbers": ["C01"], "entry_terms": [], "scope_note": "Invasion of the host organism by microorganisms or their toxins."},
+  {"ui": "D001424", "name": "Bacterial Infections", "tree_numbers": ["C01.150.252"], "entry_terms": [], "scope_note": "Infections by bacteria, general or unspecified."},
+  {"ui": "D009164", "name": "Mycobacterium Infections", "tree_numbers": ["C01.150.252.410.040.552"], "entry_terms": [], "scope_note": "Infections with bacteria of the genus MYCOBACTERIUM."},
+  {"ui": "D014376", "name": "Tuberculosis", "tree_numbers": ["C01.150.252.410.040.552.846"], "entry_terms": ["Tuberculoses", "Koch's Disease"], "scope_note": "Any of the infectious diseases of man and other animals caused by species of MYCOBACTERIUM TUBERCULOSIS."},
+  {"ui": "D014397", "name": "Tuberculosis, Pulmonary", "tree_numbers": ["C01.150.252.410.040.552.846.899"], "entry_terms": ["Pulmonary Tuberculosis"], "scope_note": "MYCOBACTERIUM infections of the lung."}
+ ]
+}

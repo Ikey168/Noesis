@@ -1,0 +1,92 @@
+{
+  "check": "cultural-live-acceptance",
+  "started_at": "2026-09-26T02:49:40.495983+00:00",
+  "environment_note": "Claude Code build container on 2026-09-26; no DDB or Europeana API key; outbound access to api.deutsche-digitale-bibliothek.de and api.europeana.eu is not permitted by the network policy",
+  "credentials_present": {
+    "NOESIS_DDB_API_KEY": false,
+    "NOESIS_EUROPEANA_API_KEY": false
+  },
+  "readiness": {
+    "pack_id": "primary-scientific-evidence",
+    "providers": {
+      "ddb": {
+        "sources": [
+          "ddb-berlin-photographs"
+        ],
+        "fixture": "ready",
+        "live": "blocked",
+        "live_verification": "unverified-live",
+        "blockers": [
+          {
+            "code": "credential_missing",
+            "secret_ref": "NOESIS_DDB_API_KEY",
+            "severity": "blocking-live"
+          }
+        ]
+      },
+      "europeana": {
+        "sources": [
+          "europeana-berlin-images"
+        ],
+        "fixture": "ready",
+        "live": "blocked",
+        "live_verification": "unverified-live",
+        "blockers": [
+          {
+            "code": "credential_missing",
+            "secret_ref": "NOESIS_EUROPEANA_API_KEY",
+            "severity": "blocking-live"
+          }
+        ]
+      }
+    },
+    "notice": "Cultural sources extend the scientific source pack; no separate domain pack exists."
+  },
+  "sources": {
+    "ddb-berlin-photographs": {
+      "status": "blocked",
+      "failure": [
+        {
+          "source_id": "ddb-berlin-photographs",
+          "classification": "preflight",
+          "detail": [
+            "credential_missing"
+          ]
+        }
+      ],
+      "elapsed_s": 0.25
+    },
+    "europeana-berlin-images": {
+      "status": "blocked",
+      "failure": [
+        {
+          "source_id": "europeana-berlin-images",
+          "classification": "preflight",
+          "detail": [
+            "credential_missing"
+          ]
+        }
+      ],
+      "elapsed_s": 0.03
+    }
+  },
+  "objects": {
+    "count": 0,
+    "by_provider": {},
+    "rights_categories": {},
+    "place_states": {},
+    "missing": {
+      "dates": 0,
+      "creators": 0,
+      "places": 0,
+      "languages": 0,
+      "representations": 0
+    }
+  },
+  "matches": {},
+  "acceptance": {
+    "both_providers_live": false,
+    "note": "Fixture success or one provider never establishes production readiness."
+  },
+  "finished_at": "2026-09-26T02:49:41.342593+00:00"
+}

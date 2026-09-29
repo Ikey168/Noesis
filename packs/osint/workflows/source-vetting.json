@@ -1,0 +1,92 @@
+{
+  "contract": "noesis-workflow-template-v1",
+  "id": "osint.source-vetting",
+  "version": "1.0.0",
+  "pack": "osint",
+  "profile": "osint.investigator",
+  "description": "Vet a source: refresh its declared registry facts (RDAP registration and certificate transparency) through the source pack, read its reliability card with separately rated grades, pivot over organization-keyed infrastructure relations, and record the finding in the session.",
+  "parameters": {
+    "source": {
+      "type": "string",
+      "required": true,
+      "description": "Source name to vet (as carried by its documents)"
+    },
+    "identifier": {
+      "type": "string",
+      "required": true,
+      "description": "The source's domain or source-identity id; person-keyed identifiers are refused"
+    }
+  },
+  "requires": [
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "osint.corroboration",
+      "contract": "noesis-osint-corroboration",
+      "range": "^1.1.0"
+    },
+    {
+      "capability": "osint.source-infrastructure",
+      "contract": "noesis-osint-source-infrastructure",
+      "range": "^1.0.0"
+    },
+    {
+      "capability": "platform.session-artifacts",
+      "contract": "noesis-intake-session-artifact",
+      "range": "^1.0.0"
+    }
+  ],
+  "steps": [
+    {
+      "id": "acquire",
+      "capability": "platform.source-acquisition",
+      "operation": "acquire",
+      "effect": "acquisition",
+      "optional": true,
+      "produces": "source-run"
+    },
+    {
+      "id": "reliability",
+      "capability": "osint.corroboration",
+      "operation": "source-reliability",
+      "effect": "read-only",
+      "produces": "reliability-card"
+    },
+    {
+      "id": "pivot",
+      "capability": "osint.source-infrastructure",
+      "operation": "infrastructure-pivot",
+      "effect": "read-only",
+      "produces": "infrastructure-paths"
+    },
+    {
+      "id": "record",
+      "capability": "platform.session-artifacts",
+      "operation": "record-artifact",
+      "effect": "local-mutation",
+      "depends_on": [
+        "reliability",
+        "pivot"
+      ],
+      "produces": "session-artifact"
+    }
+  ],
+  "artifacts": [
+    {
+      "id": "source-vetting-finding",
+      "kind": "session-artifact",
+      "description": "Reliability card with Admiralty grades, cited registration and certificate history, and probable infrastructure relations with their caveat"
+    }
+  ],
+  "questions": [
+    "How reliable is ${source}, and which other sources share its registrant organization or certificates?"
+  ],
+  "success_criteria": [
+    "Every infrastructure hop cites the RDAP or certificate-transparency observation it comes from",
+    "Source reliability and information credibility are reported as separate axes"
+  ],
+  "content_hash": "sha256:f326c26760eafabc8e0d57c221b359c490a827b80afd905956e0615ffbd1338e"
+}

@@ -144,13 +144,23 @@ def honesty_output_schema(
     properties: Optional[Dict[str, Any]] = None,
     required: Iterable[str] = (),
 ) -> Dict[str, Any]:
-    """Build an MCP ``outputSchema`` that requires the honesty fields plus the
-    caller's own ``properties``. Used as ``output_schema=`` on analytic
-    tools so the contract is advertised through discovery."""
-    props = {**_HONESTY_SCHEMA_FIELDS, **(properties or {})}
+    """Build an MCP ``outputSchema`` for analytic results and explicit errors.
+
+    Successful results require the honesty fields and caller-required fields.
+    Error results have no estimate, matching :func:`validate_analytic_output`.
+    """
+    success_required = [*REQUIRED_FIELDS, *required]
+    props = {
+        **_HONESTY_SCHEMA_FIELDS,
+        **(properties or {}),
+        "error": {"type": ["string", "object"]},
+    }
     return {
         "type": "object",
         "properties": props,
-        "required": [*REQUIRED_FIELDS, *required],
+        "anyOf": [
+            {"required": success_required},
+            {"required": ["error"]},
+        ],
         "additionalProperties": True,
     }

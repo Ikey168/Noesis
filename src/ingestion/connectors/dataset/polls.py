@@ -22,7 +22,7 @@ from __future__ import annotations
 
 import re
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, Optional
 
 from services.ingest.common.series_model import Observation, SeriesRecord
 from src.analytics.honesty import analytic_envelope, interval
@@ -36,6 +36,12 @@ class PollMethodology:
     house: Optional[str] = None
     population: Optional[str] = None     # adults / likely voters / ...
     question: Optional[str] = None
+    # Fieldwork window (ISO dates) and who commissioned / published the poll, when the source states them (#1908).
+    fieldwork_start: Optional[str] = None
+    fieldwork_end: Optional[str] = None
+    client: Optional[str] = None
+    publisher: Optional[str] = None
+    published_on: Optional[str] = None
 
     def to_metadata(self) -> Dict[str, Any]:
         return {k: v for k, v in {
@@ -45,6 +51,11 @@ class PollMethodology:
             "house": self.house,
             "population": self.population,
             "question": self.question,
+            "fieldwork_start": self.fieldwork_start,
+            "fieldwork_end": self.fieldwork_end,
+            "client": self.client,
+            "publisher": self.publisher,
+            "published_on": self.published_on,
         }.items() if v is not None}
 
 
@@ -62,7 +73,8 @@ def poll_to_series(reading: PollReading, poll_id: str, as_of: int = 0, source_ur
     """A poll reading as a document-store series (provider='poll')."""
     slug = re.sub(r"[^a-z0-9]+", "-", f"{reading.topic}-{reading.option}".lower()).strip("-")
     series_id = f"poll:{poll_id}:{slug}"
-    meta = {"topic": reading.topic, "option": reading.option, **reading.methodology.to_metadata()}
+    # ``record_type`` keeps a poll reading typed as a poll series: it is never a result.
+    meta = {"topic": reading.topic, "option": reading.option, "record_type": "poll", **reading.methodology.to_metadata()}
     return SeriesRecord(
         series_id=series_id,
         provider="poll",

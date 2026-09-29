@@ -1,0 +1,52 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-economic-release-comparison-v1.json",
+  "type": "object",
+  "required": ["contract", "comparison_id", "namespace", "owner", "left_snapshot_id", "right_snapshot_id", "left_release_id", "right_release_id", "precision", "conversions", "assumptions", "items", "coverage", "limitations", "created_at_ms", "request_hash"],
+  "properties": {
+    "contract": {"const": "noesis-economic-release-comparison-v1"},
+    "comparison_id": {"type": "string", "minLength": 1},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": "string", "minLength": 1},
+    "left_snapshot_id": {"type": "string", "minLength": 1},
+    "right_snapshot_id": {"type": "string", "minLength": 1},
+    "left_release_id": {"type": "string", "minLength": 1},
+    "right_release_id": {"type": "string", "minLength": 1},
+    "precision": {"type": "integer", "minimum": 0, "maximum": 12},
+    "conversions": {"type": "array", "maxItems": 50},
+    "assumptions": {"type": "array", "maxItems": 30, "items": {"type": "string"}},
+    "items": {"type": "array", "maxItems": 100, "items": {"$ref": "#/definitions/item"}},
+    "coverage": {"enum": ["complete_for_retained_selection", "incomplete"]},
+    "limitations": {"type": "array", "items": {"type": "string"}},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "request_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": true,
+  "definitions": {
+    "item": {
+      "type": "object",
+      "required": ["indicator_id", "geography", "status", "same_period_revisions", "new_period_changes", "added_observations", "removed_observations", "unchanged_count", "missing_value_count", "blockers", "conversion"],
+      "properties": {
+        "indicator_id": {"type": "string", "minLength": 1},
+        "geography": {"type": ["string", "null"]},
+        "status": {"enum": ["compared", "blocked", "unavailable"]},
+        "same_period_revisions": {"type": "array", "items": {"$ref": "#/definitions/change"}},
+        "new_period_changes": {"type": "array", "items": {"$ref": "#/definitions/change"}},
+        "added_observations": {"type": "array"},
+        "removed_observations": {"type": "array"},
+        "unchanged_count": {"type": "integer", "minimum": 0},
+        "missing_value_count": {"type": "integer", "minimum": 0},
+        "blockers": {"type": "array", "items": {"type": "string"}},
+        "conversion": {"type": ["object", "null"]}
+      }, "additionalProperties": true
+    },
+    "change": {
+      "type": "object", "required": ["period_before", "period_after", "receipt", "source_citations"],
+      "properties": {
+        "period_before": {"type": "string"}, "period_after": {"type": "string"},
+        "receipt": {"type": "object", "required": ["operation", "inputs", "formula", "result", "calculation_id"], "properties": {"calculation_id": {"type": "string", "minLength": 1}}, "additionalProperties": true},
+        "source_citations": {"type": "array", "minItems": 2, "maxItems": 2}
+      }, "additionalProperties": false
+    }
+  }
+}

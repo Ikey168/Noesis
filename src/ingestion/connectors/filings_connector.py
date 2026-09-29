@@ -34,9 +34,15 @@ from src.ingestion.connectors.base import (
     RawDocument,
     SourceRef,
 )
-from src.ingestion.connectors.edgar import EdgarClient, harvest_filing
+from src.ingestion.connectors.edgar import (
+    EdgarClient,
+    harvest_filing,
+    harvest_market_financial_facts,
+    reconcile_market_financial_facts_with_sec,
+)
 from src.ingestion.connectors.filings import Filing, FilingFact, filing_to_document
 from src.ingestion.connectors.registry import register_connector
+from src.domains.market.financial_facts import MarketFinancialFactStore
 
 FILERS_ENV = "NOESIS_EDGAR_FILERS"
 
@@ -66,8 +72,10 @@ class FilingsConnector(Connector):
 
     def discover(self, query: Optional[Any] = None) -> Iterable[SourceRef]:
         filers = (
-            list(query) if query is not None
-            else self._filers if self._filers is not None
+            list(query)
+            if query is not None
+            else self._filers
+            if self._filers is not None
             else _env_filers()
         )
         for filer in filers:
@@ -96,3 +104,108 @@ class FilingsConnector(Connector):
         facts = [FilingFact(**f) for f in payload.pop("facts", [])]
         filing = Filing(facts=facts, **payload)
         return [filing_to_document(filing, ingested_at=raw.fetched_at)]
+
+    def ingest_market_financial_facts(
+        self,
+        query: str | int,
+        *,
+        issuer_id: str,
+        namespace: str,
+        store: MarketFinancialFactStore,
+        principal_id: str,
+        scopes: set[str],
+        retrieved_at_ms: int | None = None,
+    ) -> dict[str, Any] | None:
+        """Fetch and index full as-filed facts alongside the legacy note harvest.
+
+        The issuer identity must be resolved by the market instrument master;
+        the connector never infers Noesis identity from today's ticker alone.
+        """
+
+        batch = harvest_market_financial_facts(
+            query,
+            issuer_id=issuer_id,
+            namespace=namespace,
+            retrieved_at_ms=retrieved_at_ms,
+            client=self._get_client(),
+        )
+        if batch is None:
+            return None
+        indexed = store.ingest_batch(
+            namespace,
+            batch,
+            principal_id=principal_id,
+            scopes=scopes,
+        )
+        return {
+            **indexed,
+            "cik": batch.get("cik"),
+            "entity_name": batch.get("entity_name"),
+            "counts": batch.get("counts", {}),
+        }
+
+    def ingest_market_materials(
+        self,
+        query: str | int,
+        *,
+        issuer_id: str,
+        namespace: str,
+        artifact_id: str,
+        version: int,
+        cutoff_ms: int,
+        store: Any,
+        principal_id: str,
+        scopes: set[str],
+        **harvest_options: Any,
+    ) -> dict[str, Any]:
+        """Acquire public SEC company materials and save a versioned materials artifact.
+
+        ``store`` is a ``MarketResearchStore``. Rows that SEC cannot supply
+        (transcripts, consensus, 13F holdings) are saved as explicitly
+        unavailable rather than omitted.
+        """
+
+        from src.ingestion.connectors.edgar_materials import harvest_sec_company_materials
+
+        harvest = harvest_sec_company_materials(
+            query, issuer_id=issuer_id, client=self._get_client(), **harvest_options
+        )
+        artifact = store.save_materials(
+            namespace,
+            issuer_id=issuer_id,
+            artifact_id=artifact_id,
+            version=version,
+            materials=harvest["materials"],
+            cutoff_ms=cutoff_ms,
+            owner=None,
+            principal_id=principal_id,
+            scopes=scopes,
+        )
+        return {
+            "artifact": artifact,
+            "cik": harvest["cik"],
+            "coverage": harvest["coverage"],
+            "unavailable": harvest["unavailable"],
+            "diagnostics": harvest["diagnostics"],
+            "readiness": harvest["readiness"],
+        }
+
+    def reconcile_market_financial_facts(
+        self,
+        query: str | int,
+        *,
+        issuer_id: str,
+        namespace: str,
+        accession: str,
+        retrieved_at_ms: int | None = None,
+    ) -> dict[str, Any]:
+        """Compare normalized CompanyFacts with the selected filed Inline XBRL."""
+
+        return reconcile_market_financial_facts_with_sec(
+            query,
+            issuer_id=issuer_id,
+            namespace=namespace,
+            accession=accession,
+            client=self._get_client(),
+            retrieved_at_ms=retrieved_at_ms,
+        )

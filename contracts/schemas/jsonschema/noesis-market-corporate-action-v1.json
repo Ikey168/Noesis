@@ -1,0 +1,55 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-corporate-action-v1.json",
+  "title": "Noesis market corporate action v1",
+  "description": "A sourced, revisioned corporate action. Announced, effective, ex, record and payable dates remain distinct; corrections and cancellations append revisions. Share ratios mean new or distributed shares per old share. Cash amount basis is explicit.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "action_id", "issuer_id", "security_id", "listing_id", "related_security_id", "related_listing_id", "revision_id", "revision", "provider", "provider_record_id", "action_type", "status", "announced_at_ms", "public_at_ms", "effective_date", "ex_date", "record_date", "payable_date", "ratio_numerator", "ratio_denominator", "cash_amount", "cash_amount_basis", "distribution_type", "currency", "prior_revision_id", "source_refs", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-corporate-action-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "action_id": {"type": "string", "minLength": 1, "description": "Stable logical identity for an action across provider corrections."},
+    "issuer_id": {"type": "string", "minLength": 1},
+    "security_id": {"type": "string", "minLength": 1},
+    "listing_id": {"type": ["string", "null"]},
+    "revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "provider_record_id": {"type": ["string", "null"]},
+    "related_security_id": {"type": ["string", "null"], "description": "Successor, acquired, or distributed security for a merger or spin-off."},
+    "related_listing_id": {"type": ["string", "null"]},
+    "action_type": {"enum": ["split", "reverse_split", "cash_dividend", "stock_dividend", "spin_off", "merger", "delisting", "symbol_change", "unknown"]},
+    "status": {"enum": ["announced", "confirmed", "corrected", "cancelled", "unknown"]},
+    "announced_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "public_at_ms": {"type": ["integer", "null"], "minimum": 0},
+    "effective_date": {"type": ["string", "null"], "format": "date"},
+    "ex_date": {"type": ["string", "null"], "format": "date"},
+    "record_date": {"type": ["string", "null"], "format": "date"},
+    "payable_date": {"type": ["string", "null"], "format": "date"},
+    "ratio_numerator": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "ratio_denominator": {"type": ["number", "null"], "exclusiveMinimum": 0},
+    "cash_amount": {"type": ["string", "null"], "pattern": "^-?[0-9]+(\\.[0-9]+)?$", "description": "Decimal lexical value retained from the source where possible."},
+    "cash_amount_basis": {"enum": ["per_share_before_action", "per_share_after_action", "not_applicable"], "description": "For cash distributions, identifies the share unit used to quote the amount."},
+    "distribution_type": {"enum": ["regular", "special", "return_of_capital", "liquidating", "not_applicable"], "description": "Distinguishes simultaneous regular/special distributions so cross-provider duplicates can be deduplicated without combining conflicting observations."},
+    "currency": {"type": ["string", "null"], "pattern": "^[A-Z]{3}$"},
+    "prior_revision_id": {"type": ["string", "null"]},
+    "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/source_ref"}},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "source_ref": {
+      "type": "object",
+      "required": ["source_ref_id", "provider", "provider_object_id", "source_revision_id", "public_at_ms", "source_snapshot_id", "source_url", "retrieved_at_ms", "content_hash", "license_id", "entitlement_id"],
+      "properties": {
+        "source_ref_id": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}, "provider_object_id": {"type": "string", "minLength": 1},
+        "source_revision_id": {"type": ["string", "null"]}, "public_at_ms": {"type": ["integer", "null"], "minimum": 0}, "source_snapshot_id": {"type": ["string", "null"]}, "source_url": {"type": ["string", "null"], "format": "uri"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0}, "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license_id": {"type": "string", "minLength": 1}, "entitlement_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

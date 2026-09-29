@@ -23,6 +23,7 @@ import logging
 from dataclasses import dataclass, field
 from typing import Callable, Dict, List, Optional
 
+from services.ingest.common.series_model import SeriesRecord
 from src.ingestion.connectors.dataset.polls import PollMethodology, PollReading, poll_to_series
 from src.ingestion.connectors.dataset.store import ObservationStore
 
@@ -43,6 +44,41 @@ class PollColumnMap:
     population: str = "population"
     question: str = "question"
     options: Dict[str, str] = field(default_factory=lambda: {"support": "support_pct", "oppose": "oppose_pct"})
+    # Optional columns (#1908): fieldwork start, commissioning client, publisher and publication date; absent
+    # columns stay unset.
+    start_date: Optional[str] = None
+    client: Optional[str] = None
+    publisher: Optional[str] = None
+    published_on: Optional[str] = None
+
+
+# Column maps for the poll layouts selected in the elections source audit (#1918). A publisher's own release
+# table: one row per poll, fieldwork window, sample, method and one column per party. Party columns are
+# supplied per release (``with_options``) because each publisher lists its own party set.
+PROVIDER_COLUMN_MAPS: Dict[str, PollColumnMap] = {
+    "poll-release-csv": PollColumnMap(
+        topic="question",
+        pollster="publisher",
+        end_date="fieldwork_end",
+        sample_size="sample_size",
+        mode="method",
+        margin_of_error="margin_of_error",
+        population="population",
+        question="question",
+        options={},
+        start_date="fieldwork_start",
+        client="client",
+        publisher="publisher",
+        published_on="published_on",
+    ),
+}
+
+
+def with_options(column_map: PollColumnMap, options: Dict[str, str]) -> PollColumnMap:
+    """A copy of ``column_map`` measuring the given answer-option (e.g. party) columns."""
+    from dataclasses import replace
+
+    return replace(column_map, options=dict(options))
 
 
 def _to_float(value: Optional[str]) -> Optional[float]:
@@ -60,6 +96,13 @@ def _to_float(value: Optional[str]) -> Optional[float]:
 def _to_int(value: Optional[str]) -> Optional[int]:
     number = _to_float(value)
     return int(number) if number is not None else None
+
+
+def _iso_day(value: Optional[str]) -> Optional[str]:
+    text = str(value or "").strip()
+    if len(text) >= 10 and text[4] in "-/" and text[7] in "-/" and text[:4].isdigit():
+        return f"{text[:4]}-{text[5:7]}-{text[8:10]}"
+    return None
 
 
 def _period(end_date: Optional[str]) -> Optional[str]:
@@ -98,6 +141,11 @@ def parse_poll_csv(
             house=(row.get(cmap.pollster) or "").strip() or None,
             population=(row.get(cmap.population) or "").strip() or None,
             question=(row.get(cmap.question) or "").strip() or None,
+            fieldwork_start=_iso_day(row.get(cmap.start_date)) if cmap.start_date else None,
+            fieldwork_end=_iso_day(row.get(cmap.end_date)),
+            client=((row.get(cmap.client) or "").strip() or None) if cmap.client else None,
+            publisher=((row.get(cmap.publisher) or "").strip() or None) if cmap.publisher else None,
+            published_on=_iso_day(row.get(cmap.published_on)) if cmap.published_on else None,
         )
         for option, column in cmap.options.items():
             pct = _to_float(row.get(column))
@@ -122,12 +170,19 @@ def harvest_polls(
     column_map: Optional[PollColumnMap] = None,
     topic: Optional[str] = None,
     as_of: int = 0,
+    poll_id: Optional[Callable[[PollReading], str]] = None,
+    as_of_for: Optional[Callable[[PollReading], int]] = None,
+    on_stored: Optional[Callable[[PollReading, SeriesRecord], None]] = None,
 ) -> int:
     """Fetch an aggregate CSV and store every reading as a poll series.
 
     One series per (poll house, topic, option); readings from the same house
     across waves accumulate as observations. Returns readings stored. With no
     ``fetch`` injected, uses urllib (operators: check the aggregate's terms).
+    ``poll_id`` overrides the per-reading poll identifier (default: house and
+    fieldwork month), ``as_of_for`` the per-reading vintage (default:
+    ``as_of``), and ``on_stored`` receives each stored series, so a caller can
+    cite the stored series per reading (#1908).
     """
     if fetch is None:
         def fetch(u: str) -> str:  # pragma: no cover - trivial network shim
@@ -140,6 +195,11 @@ def harvest_polls(
     stored = 0
     for reading in readings:
         house_slug = (reading.methodology.house or "aggregate").lower().replace(" ", "-")
-        store.upsert(poll_to_series(reading, poll_id=f"{house_slug}-{reading.period}", as_of=as_of, source_url=url))
+        identifier = poll_id(reading) if poll_id else f"{house_slug}-{reading.period}"
+        vintage = as_of_for(reading) if as_of_for else as_of
+        record = poll_to_series(reading, poll_id=identifier, as_of=vintage, source_url=url)
+        store.upsert(record)
+        if on_stored:
+            on_stored(reading, record)
         stored += 1
     return stored

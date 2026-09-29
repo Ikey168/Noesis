@@ -3,9 +3,10 @@
 from __future__ import annotations
 
 import json
+import re
 import time
 from typing import Any
-from urllib.parse import urlsplit
+from urllib.parse import quote, urlsplit
 
 from src.ingestion.provider_execution import ProviderError, _safe_url
 from src.ingestion.source_packs import SourcePackError, _validate_endpoint
@@ -87,8 +88,10 @@ def _item_id(original_url: str, source_id: str) -> str:
     return "feed:" + _hash(original_url or source_id)[:32]
 
 
-def _item_url(value: str) -> str:
+def _item_url(value: str, *, allow_message: bool = False) -> str:
     url = _text(value, "item URL", limit=8192)
+    if allow_message and re.fullmatch(r"mid:[A-Za-z0-9._~%-]{3,1000}", url):
+        return url
     parsed = urlsplit(url)
     if (
         parsed.scheme not in {"http", "https"}
@@ -149,12 +152,18 @@ class IntakeInboxStore:
     ) -> dict[str, Any]:
         namespace = _text(namespace, "namespace", limit=128)
         _authorize(namespace, principal_id, principal_id, scopes, write=True)
-        url = _safe_feed_url(url)
         name = _text(name, "subscription name", limit=256)
-        if source_kind not in {"rss_atom", "newsletter_feed"}:
+        if source_kind not in {"rss_atom", "newsletter_feed", "newsletter_input"}:
             raise IntakeError(
-                "invalid_source_kind", "source kind must be rss_atom or newsletter_feed"
+                "invalid_source_kind", "source kind must be rss_atom, newsletter_feed or newsletter_input"
             )
+        if source_kind == "newsletter_input":
+            sender = url.removeprefix("mailto:").strip().casefold()
+            if not re.fullmatch(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+", sender):
+                raise IntakeError("invalid_sender", "newsletter input requires a sender address")
+            url = "mailto:" + sender
+        else:
+            url = _safe_feed_url(url)
         subscription_id = "subscription:" + _hash([namespace, principal_id, url])[:32]
         now_ms = self.now()
         self.conn.execute(
@@ -240,7 +249,7 @@ class IntakeInboxStore:
             for source in self.subscriptions(
                 namespace, principal_id=principal_id, scopes=scopes
             )["subscriptions"]
-            if source["enabled"]
+            if source["enabled"] and source["source_kind"] != "newsletter_input"
         ]
         if len(subscriptions) > 50:
             raise IntakeError(
@@ -318,7 +327,7 @@ class IntakeInboxStore:
         for doc in documents:
             if not isinstance(doc, dict):
                 raise IntakeError("invalid_item", "feed item must be an object")
-            url = _item_url(doc.get("url"))
+            url = _item_url(doc.get("url"), allow_message=source["source_kind"] == "newsletter_input")
             title = _text(doc.get("title"), "item title", limit=1024)
             content = doc.get("content") or ""
             if not isinstance(content, str) or len(content) > 100_000:
@@ -427,6 +436,37 @@ class IntakeInboxStore:
             **counts,
             "total": len(normalized),
         }
+
+    def ingest_newsletter_message(
+        self, namespace: str, subscription_id: str, *,
+        message_id: str, sender: str, subject: str, body: str,
+        published_at_ms: int, principal_id: str, scopes: set[str],
+    ) -> dict[str, Any]:
+        """Ingest one caller-supplied message from an explicitly configured sender."""
+        _authorize(namespace, principal_id, principal_id, scopes, write=True)
+        source = self._subscription(namespace, principal_id, subscription_id)
+        if source["source_kind"] != "newsletter_input":
+            raise IntakeError("invalid_source_kind", "source is not a newsletter input")
+        sender = _text(sender, "sender", limit=320).casefold()
+        if source["url"] != "mailto:" + sender:
+            raise IntakeError("sender_mismatch", "message sender differs from configured input")
+        identity = _text(message_id, "message ID", limit=500).strip("<>")
+        if not re.fullmatch(r"[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+", identity):
+            raise IntakeError("invalid_message_id", "RFC message ID required")
+        if type(published_at_ms) is not int or published_at_ms < 0:
+            raise IntakeError("invalid_publication_time", "message publication time is required")
+        subject = _text(subject, "subject", limit=1024)
+        if not isinstance(body, str) or len(body) > 100_000:
+            raise IntakeError("invalid_item", "message text exceeds its budget")
+        locator = "mid:" + quote(identity, safe="")
+        result = self.ingest(
+            namespace, subscription_id,
+            [{"url": locator, "title": subject, "content": body,
+              "published_at_ms": published_at_ms}],
+            principal_id=principal_id, scopes=scopes)
+        return {**result, "source_kind": "newsletter_input",
+                "authentication_state": "caller_supplied_unverified",
+                "original_locator": locator}
 
     def _item(
         self, namespace: str, owner: str, item_id: str, revision: int | None = None

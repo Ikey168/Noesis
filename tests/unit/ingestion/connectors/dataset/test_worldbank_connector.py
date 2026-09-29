@@ -72,6 +72,11 @@ def test_harvest_builds_contract_series():
     ]
     # lastupdated 2025-01-01 -> ms epoch
     assert rec.as_of == 1735689600000
+    assert rec.metadata["provider_vintage_ms"] == rec.as_of
+    assert rec.metadata["acquired_at_ms"] > rec.as_of
+    assert rec.metadata["vintage_basis"] == "world_bank_lastupdated"
+    assert rec.metadata["pagination"]["complete"] is True
+    assert rec.metadata["seasonal_adjustment"] == "unknown"
 
 
 def test_url_targets_country_indicator_endpoint():
@@ -103,3 +108,35 @@ def test_fetch_failure_is_skipped_not_raised():
     conn = WorldBankConnector(http_get=boom)
     # harvest() must swallow the fetch error and yield nothing rather than raise.
     assert list(conn.harvest(("SL.UEM.TOTL.ZS", "DE"))) == []
+    report = conn.harvest_with_report(("SL.UEM.TOTL.ZS", "DE"))
+    assert report["status"] == "unavailable"
+    assert report["diagnostics"][0]["code"] == "ConnectionError"
+
+
+def test_paginated_series_is_combined_or_rejected_as_a_whole():
+    original = json.loads(WB_PAYLOAD)
+    page_one = [
+        {"page": 1, "pages": 2, "per_page": 2, "total": 3, "lastupdated": "2025-01-01"},
+        original[1][:2],
+    ]
+    page_two = [
+        {"page": 2, "pages": 2, "per_page": 2, "total": 3, "lastupdated": "2025-01-01"},
+        original[1][2:],
+    ]
+    calls = []
+
+    def fake_get(url: str) -> str:
+        calls.append(url)
+        return json.dumps(page_one if "page=1" in url else page_two)
+
+    conn = WorldBankConnector(http_get=fake_get, per_page=2, max_pages=2)
+    record = list(conn.harvest(("SL.UEM.TOTL.ZS", "DE")))[0]
+    assert len(calls) == 2
+    assert len(record.observations) == 3
+    assert record.metadata["pagination"]["pages_retrieved"] == 2
+    assert record.metadata["pagination"]["total"] == 3
+
+    over_budget = WorldBankConnector(http_get=fake_get, per_page=2, max_pages=1)
+    report = over_budget.harvest_with_report(("SL.UEM.TOTL.ZS", "DE"))
+    assert report["status"] == "unavailable"
+    assert report["diagnostics"][0]["code"] == "ValueError"

@@ -11,8 +11,15 @@ READ_SCOPE = "knowledge:projects:read"
 WRITE_SCOPE = "knowledge:projects:write"
 _KINDS = {
     "plan", "run", "hypothesis", "evidence", "snapshot", "finding",
-    "intake_source",
+    "intake_source", "funding_opportunity", "funding_profile", "funding_shortlist",
 }
+# Funding references pin an exact revision so a call amendment or profile
+# change is visible as a superseded link, never silently followed.
+_FUNDING_KINDS = {"funding_opportunity", "funding_profile", "funding_shortlist"}
+# Public Procurement bid workspaces pin notice, supplier-profile and shortlist revisions the same way.
+_PROCUREMENT_KINDS = {"procurement_notice", "procurement_profile", "procurement_shortlist"}
+_KINDS |= _PROCUREMENT_KINDS
+_FUNDING_KINDS |= _PROCUREMENT_KINDS
 _COSTS = {"tokens", "requests", "usd_micros"}
 _DDL = """
 CREATE TABLE IF NOT EXISTS research_projects(
@@ -74,6 +81,12 @@ def _links(values):
                 and "generation" not in link and "revision" not in link):
             raise ResearchProjectError(
                 "invalid_links", "source, evidence and snapshot references require a revision or generation"
+            )
+        if link["kind"] in _FUNDING_KINDS and (
+            not link.get("namespace") or type(link.get("revision")) is not int or link["revision"] < 1
+        ):
+            raise ResearchProjectError(
+                "invalid_links", "funding references need a namespace and positive revision"
             )
         if link["kind"] == "intake_source" and (
             not link["id"].startswith(("feed:", "explore:"))
@@ -264,8 +277,10 @@ class ResearchProjectStore:
         return {"projects": result}
 
     def revise(self, namespace, project_id, expected_revision, *, principal_id, scopes,
-               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None):
-        self.conn.execute("BEGIN TRANSACTION")
+               questions=None, success_criteria=None, add_links=None, status=None, replace_links=None,
+               _within_transaction=False):
+        if not _within_transaction:
+            self.conn.execute("BEGIN TRANSACTION")
         try:
             state = self._state(namespace, project_id)
             self._authorize(state, principal_id, scopes, write=True)
@@ -292,9 +307,12 @@ class ResearchProjectStore:
                     raise ResearchProjectError("invalid_status", "unsupported project lifecycle state")
                 state["status"] = status
             state = self._append(state, expected_revision)
-            self.conn.execute("COMMIT")
+            if not _within_transaction:
+                self.conn.execute("COMMIT")
             return state
         except Exception as exc:
+            if _within_transaction:
+                raise
             self._abort(exc)
 
     def record_expenditure(self, namespace, project_id, receipt_id, costs, expected_revision, *, principal_id, scopes):

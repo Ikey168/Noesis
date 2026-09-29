@@ -1,0 +1,22 @@
+{
+ "messages": [
+  {
+   "status": "ok",
+   "count": 1
+  }
+ ],
+ "collection": [
+  {
+   "doi": "10.5555/noetic2.preprint",
+   "title": "Noetiglutide dose finding in type 2 diabetes: preprint (fixture)",
+   "authors": "Fixture, C.",
+   "date": "2020-06-15",
+   "version": "1",
+   "type": "new results",
+   "category": "endocrinology",
+   "abstract": "Preprint of the NOETIC-2 report (NCT09000002). Authored fixture.",
+   "published": "10.5555/noetic2.2021",
+   "server": "medrxiv"
+  }
+ ]
+}

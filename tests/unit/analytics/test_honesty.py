@@ -1,5 +1,7 @@
 """Unit tests for the statistical-honesty convention (src/analytics/honesty.py)."""
 
+import pytest
+
 from src.analytics.honesty import (
     REQUIRED_FIELDS,
     analytic_envelope,
@@ -64,9 +66,16 @@ def test_validate_rejects_non_object():
 
 
 def test_honesty_output_schema_requires_the_fields():
+    import jsonschema
+
     schema = honesty_output_schema({"outlet": {"type": "string"}}, required=["outlet"])
     assert schema["type"] == "object"
+    success_required = schema["anyOf"][0]["required"]
     for field in REQUIRED_FIELDS:
         assert field in schema["properties"]
-        assert field in schema["required"]
-    assert "outlet" in schema["properties"] and "outlet" in schema["required"]
+        assert field in success_required
+    assert "outlet" in schema["properties"] and "outlet" in success_required
+    jsonschema.validate({"n": 1, "method": "count", "assumptions": [], "outlet": "A"}, schema)
+    jsonschema.validate({"error": "warehouse locked"}, schema)
+    with pytest.raises(jsonschema.ValidationError):
+        jsonschema.validate({"outlet": "A"}, schema)

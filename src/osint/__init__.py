@@ -32,6 +32,7 @@ from src.osint.investigations import (
     osint_telemetry,
 )
 from src.osint.independence import document_signals, origin_graph, origin_summary
+from src.osint.infrastructure import infrastructure_pivot
 from src.osint.paths import relationship_path
 from src.osint.provenance import trace_artifact
 from src.osint.reliability import source_reliability
@@ -50,6 +51,7 @@ __all__ = [
     "relationship_path",
     "timeline_reconstruct",
     "trace_artifact",
+    "infrastructure_pivot",
     "investigation_audit",
     "list_investigations",
     "osint_telemetry",

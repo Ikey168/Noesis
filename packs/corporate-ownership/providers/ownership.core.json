@@ -1,0 +1,366 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "ownership.core",
+  "version": "1.0.0",
+  "description": "Corporate ownership records (what sources state), reviewable identity candidates, ownership-graph and timeline queries and dossiers. No beneficial-ownership, sanctions or AML determination.",
+  "implementation": {
+    "name": "src.kb.ownership_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "ownership.records",
+      "contract": {
+        "name": "noesis-ownership-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "provider-contracts",
+        "acquire-sources",
+        "record-register-document",
+        "lookup-entity",
+        "inspect-record",
+        "record-history"
+      ],
+      "semantic_constraints": {
+        "assertions": "what each source states; conflicting assertions coexist",
+        "coverage": "declared per provider; not-implemented registers are never scraped"
+      }
+    },
+    {
+      "id": "ownership.identity",
+      "contract": {
+        "name": "noesis-ownership-identity-candidate",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-identity",
+        "list-identity",
+        "review-identity",
+        "revert-identity"
+      ],
+      "semantic_constraints": {
+        "merging": "never; accepted matches are entity identity decisions, reversible"
+      }
+    },
+    {
+      "id": "ownership.graph",
+      "contract": {
+        "name": "noesis-ownership-graph",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "graph-query"
+      ],
+      "semantic_constraints": {
+        "conflicts": "returned together with reasons, never resolved by rank",
+        "bounds": "explicit max_depth and cycle reporting"
+      }
+    },
+    {
+      "id": "ownership.timeline",
+      "contract": {
+        "name": "noesis-ownership-timeline",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "timeline",
+        "state-as-of"
+      ],
+      "semantic_constraints": {
+        "dates": "unknown dates stay unknown; never interpolated"
+      }
+    },
+    {
+      "id": "ownership.dossier",
+      "contract": {
+        "name": "noesis-ownership-dossier",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "build-dossier",
+        "export-dossier"
+      ],
+      "semantic_constraints": {
+        "determination": "never a beneficial-ownership, sanctions or AML determination"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "provider-contracts",
+      "tool": "noesis-knowledge-engine.ownership_provider_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-sources",
+      "tool": "noesis-knowledge-engine.acquire_ownership_sources",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "run_key",
+        "receipt": "source_pack_runs"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms",
+        "credentials",
+        "network"
+      ]
+    },
+    {
+      "id": "record-register-document",
+      "tool": "noesis-knowledge-engine.record_ownership_register_document",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "lookup-entity",
+      "tool": "noesis-knowledge-engine.lookup_ownership_entity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-record",
+      "tool": "noesis-knowledge-engine.inspect_ownership_record",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-history",
+      "tool": "noesis-knowledge-engine.ownership_record_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity",
+      "tool": "noesis-knowledge-engine.propose_ownership_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_ownership_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_ownership_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_ownership_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "graph-query",
+      "tool": "noesis-knowledge-engine.ownership_graph",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "timeline",
+      "tool": "noesis-knowledge-engine.ownership_timeline",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "state-as-of",
+      "tool": "noesis-knowledge-engine.ownership_state_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "build-dossier",
+      "tool": "noesis-knowledge-engine.build_ownership_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-dossier",
+      "tool": "noesis-knowledge-engine.export_ownership_dossier",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:reports:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "ownership-record",
+      "store": "src.kb.ownership_store",
+      "tables": [
+        "ownership_records",
+        "ownership_record_revisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "ownership-identity-candidate",
+      "store": "src.kb.ownership_identity",
+      "tables": [
+        "ownership_identity_candidates"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "ownership_records"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "ownership_identity_candidates"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "corporate-ownership",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

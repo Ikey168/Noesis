@@ -1,0 +1,14 @@
+{
+  "publicationDate": "2099-02-12",
+  "meetings": [
+    {
+      "meetingId": "EC-99001",
+      "date": "2099-02-09",
+      "location": "Brussels",
+      "official": {"id": "cab-99", "name": "Fictional Cabinet Member", "role": "Cabinet member", "portfolio": "Energy (fictional)"},
+      "organisations": [{"name": "Example Public Affairs SARL", "transparencyRegisterId": "000000000202-02"}],
+      "subject": "Network tariffs regulation",
+      "legislativeFiles": [{"scheme": "eu-procedure", "value": "2099/0101(COD)"}]
+    }
+  ]
+}

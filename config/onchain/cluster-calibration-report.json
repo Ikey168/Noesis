@@ -1,0 +1,107 @@
+{
+ "fixture": "config/onchain/cluster-calibration.json",
+ "levels": [
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 12,
+   "fpr": 0.8571,
+   "min_score": 0.05,
+   "related_pairs": 11,
+   "tpr": 1.0,
+   "true_positives": 11
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 9,
+   "fpr": 0.6429,
+   "min_score": 0.1,
+   "related_pairs": 11,
+   "tpr": 1.0,
+   "true_positives": 11
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 6,
+   "fpr": 0.4286,
+   "min_score": 0.15,
+   "related_pairs": 11,
+   "tpr": 1.0,
+   "true_positives": 11
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 6,
+   "fpr": 0.4286,
+   "min_score": 0.2,
+   "related_pairs": 11,
+   "tpr": 1.0,
+   "true_positives": 11
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 3,
+   "fpr": 0.2143,
+   "min_score": 0.25,
+   "related_pairs": 11,
+   "tpr": 1.0,
+   "true_positives": 11
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 1,
+   "fpr": 0.0714,
+   "min_score": 0.3,
+   "related_pairs": 11,
+   "tpr": 0.8182,
+   "true_positives": 9
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 1,
+   "fpr": 0.0714,
+   "min_score": 0.4,
+   "related_pairs": 11,
+   "tpr": 0.8182,
+   "true_positives": 9
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 1,
+   "fpr": 0.0714,
+   "min_score": 0.5,
+   "related_pairs": 11,
+   "tpr": 0.8182,
+   "true_positives": 9
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 1,
+   "fpr": 0.0714,
+   "min_score": 0.75,
+   "related_pairs": 11,
+   "tpr": 0.2727,
+   "true_positives": 3
+  },
+  {
+   "coincidental_pairs": 14,
+   "false_positives": 1,
+   "fpr": 0.0714,
+   "min_score": 1.0,
+   "related_pairs": 11,
+   "tpr": 0.2727,
+   "true_positives": 3
+  }
+ ],
+ "min_tpr": 0.5,
+ "recommended": {
+  "coincidental_pairs": 14,
+  "false_positives": 1,
+  "fpr": 0.0714,
+  "min_score": 0.3,
+  "related_pairs": 11,
+  "tpr": 0.8182,
+  "true_positives": 9
+ },
+ "scenarios": 12,
+ "target_fpr": 0.1
+}

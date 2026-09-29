@@ -1,0 +1,171 @@
+{
+  "pack_id": "procurement",
+  "version": "1.0.0",
+  "description": "Bounded public-procurement notice sources for the Public Procurement pack: TED eForms search, UK Find a Tender and Contracts Finder OCDS releases and SAM.gov opportunities. Explicit selections only; notices are read, no bid is submitted and no buyer is contacted.",
+  "domains": [
+    "procurement"
+  ],
+  "defaults": {
+    "temporal_semantics": "notice publication date and source-stated deadlines (original text and offset kept) as valid time; acquisition time recorded separately; absence from a listing or a failed refresh never closes a procedure",
+    "mapping": {
+      "target_schema": "noesis-procurement-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "procurement-providers:1.0.0"
+    ],
+    "operations": [
+      "notices"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 259200
+    }
+  },
+  "sources": [
+    {
+      "source_id": "ted-notices",
+      "connector": "ted",
+      "publisher": "Publications Office of the European Union (TED)",
+      "endpoint": "https://api.ted.europa.eu/v3",
+      "scope": "One pinned TED expert-search query (IT services and catering in Germany); eForms notices only",
+      "update_cadence": "daily publication (Monday to Friday); change notices and result notices appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "ted-reuse",
+        "terms_url": "https://op.europa.eu/en/web/about-us/legal-notices/publications-office-of-the-european-union-copyright",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 20000000,
+        "max_pages": 5
+      },
+      "procurement": {
+        "provider": "ted",
+        "namespace": "procurement",
+        "query": "classification-cpv IN (72000000 55520000 48000000) AND buyer-country=DEU AND publication-date>=20240101",
+        "page_size": 50
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/procurement-ted.json",
+        "sha256": "f9a1113409eb08be88863a2f8a6e4692208752d5c6236f40f5953e37e6535dd7",
+        "expected_output_hash": "d7607cfbe405544dd40c54ed5a3ae42da7f2a34a2483e5372c1d3332b7dec269"
+      }
+    },
+    {
+      "source_id": "uk-fts-ocds",
+      "connector": "ocds",
+      "publisher": "UK Cabinet Office (Find a Tender)",
+      "endpoint": "https://www.find-tender.service.gov.uk/api/1.0/ocdsReleasePackages",
+      "scope": "OCDS tender and award releases updated since the pinned date",
+      "update_cadence": "continuous",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "ogl-3.0",
+        "terms_url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "redistribution": "Open Government Licence v3.0 with attribution"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 20000000,
+        "max_pages": 5
+      },
+      "procurement": {
+        "provider": "uk-fts",
+        "namespace": "procurement",
+        "params": {
+          "stages": "tender,award",
+          "updatedFrom": "2026-09-01T00:00:00"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/procurement-uk-fts.json",
+        "sha256": "dc6a3f846532b2952ff506ba77fd109fc2dcc3422bb7b67d7bb4e4b66026fc7e",
+        "expected_output_hash": "eb052f7bc5f1a6818b88c647a5dac99e70e1a671a8512ec65278181f78046ce1"
+      }
+    },
+    {
+      "source_id": "uk-contracts-finder-ocds",
+      "connector": "ocds",
+      "publisher": "UK Crown Commercial Service (Contracts Finder)",
+      "endpoint": "https://www.contractsfinder.service.gov.uk/Published/Notices/OCDS/Search",
+      "scope": "OCDS notices published since the pinned date (mostly below threshold)",
+      "update_cadence": "continuous",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "ogl-3.0",
+        "terms_url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "redistribution": "Open Government Licence v3.0 with attribution"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 20000000,
+        "max_pages": 5
+      },
+      "procurement": {
+        "provider": "uk-cf",
+        "namespace": "procurement",
+        "params": {
+          "publishedFrom": "2026-09-01",
+          "size": "100"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/procurement-uk-cf.json",
+        "sha256": "66aae76276cbc24b24a800440ac2fa3f8932a7a7f298b6c996dae020cc821242",
+        "expected_output_hash": "57ba435ba82a353672b44ef3a88be1322a3580320df2d72cd84b30bf8a4fc68e"
+      }
+    },
+    {
+      "source_id": "sam-opportunities",
+      "connector": "sam-gov",
+      "publisher": "U.S. General Services Administration (SAM.gov)",
+      "endpoint": "https://api.sam.gov/opportunities/v2/search",
+      "scope": "Opportunities posted in the pinned window (all notice types)",
+      "update_cadence": "continuous; refresh at most daily within the key's quota",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_SAM_API_KEY"
+      },
+      "license": {
+        "id": "us-government-public-data",
+        "terms_url": "https://open.gsa.gov/api/get-opportunities-public-api/",
+        "redistribution": "US Government public data; GSA API terms apply to the key holder"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 20000000,
+        "max_pages": 5
+      },
+      "procurement": {
+        "provider": "sam-gov",
+        "namespace": "procurement",
+        "params": {
+          "postedFrom": "09/01/2026",
+          "postedTo": "09/30/2026"
+        },
+        "page_size": 100
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/procurement-sam.json",
+        "sha256": "83e741dcb548cf0cf594eb6a10bab6efde255f41bccc60e02e479efec72261d7",
+        "expected_output_hash": "d5033628fe807dc7315b5da30d1d91ca1e39f651d874dad3ce73a088d6be3aba"
+      }
+    }
+  ]
+}

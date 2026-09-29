@@ -1,0 +1,819 @@
+{
+  "pack_id": "geospatial-berlin",
+  "version": "1.3.0",
+  "description": "Official Berlin vector layers (district boundaries and school locations) acquired through native WFS 2.0.0 and projected into the geospatial store, plus a pinned VBB GTFS timetable feed whose stops and route shapes project into the same store. Version 1.2.0 (Climate and Environment) adds selected Berlin Umweltatlas layers (low-emission zone, strategic noise map bands, climate functions) through the same WFS 2.0.0 path; existing sources are unchanged. Version 1.3.0 (Geospatial housing) adds Berlin housing, land-value and planning sources: BORIS Bodenrichtwert zones, Bebauungsplan areas and Wohnlagen through the same WFS 2.0.0 path, the Berliner Mietspiegel table, Statistik Berlin-Brandenburg building permits and completions and Destatis GENESIS 31111/31231 through the housing connector; existing sources are unchanged.",
+  "domains": [
+    "geospatial"
+  ],
+  "defaults": {
+    "connector": "wfs",
+    "publisher": "Geoportal Berlin",
+    "temporal_semantics": "provider-snapshot; no declared valid time; acquisition time recorded separately",
+    "mapping": {
+      "target_schema": "noesis-geospatial-feature-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "wfs-2.0.0-geojson:1.0.0",
+      "geospatial-feature-projection:1.0.0"
+    ],
+    "operations": [
+      "features"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "license": {
+      "id": "dl-de-zero-2.0",
+      "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+      "redistribution": "permitted-without-conditions"
+    },
+    "health": {
+      "required": true,
+      "max_staleness_s": 1209600
+    }
+  },
+  "sources": [
+    {
+      "source_id": "berlin-bezirksgrenzen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/alkis_bezirke",
+      "scope": "The 12 Berlin districts (ALKIS Bezirksgrenzen); complete collection",
+      "update_cadence": "irregular; follows ALKIS cadastral updates",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "alkis_bezirke:bezirksgrenzen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "name",
+        "page_size": 6
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "namgem",
+        "precision": {
+          "status": "unknown",
+          "basis": "WFS capabilities and the GeoJSON encoding declare no positional accuracy"
+        },
+        "geometry_types": [
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://gdi.berlin.de/geonetwork/srv/ger/csw?service=CSW&request=GetRecordById&version=2.0.2&outputschema=http://www.isotc211.org/2005/gmd&elementsetname=full&id=0a7c53a5-b29d-3f45-9734-1c811045e6c2",
+        "attribution": "Geoportal Berlin / ALKIS Berlin Bezirke (dl-de/zero-2-0; attribution not required)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-bezirksgrenzen.json",
+        "sha256": "fc9bfb719627c64f937faa727c9924930d27f5709a6dac46a602eb8d17143ce4",
+        "expected_output_hash": "d6b465080372930416fbe2797405e3db326c731b19c49fb4aeaac156ae6665e5"
+      }
+    },
+    {
+      "source_id": "berlin-schulen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/schulen",
+      "scope": "Public and private school sites in Berlin (Schulen); complete collection",
+      "update_cadence": "per school year",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 5000,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "schulen:schulen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "bsn",
+        "page_size": 250
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "schulname",
+        "precision": {
+          "status": "unknown",
+          "basis": "WFS capabilities and the GeoJSON encoding declare no positional accuracy"
+        },
+        "geometry_types": [
+          "Point"
+        ],
+        "metadata_url": "https://gdi.berlin.de/geonetwork/srv/ger/csw?service=CSW&request=GetRecordById&version=2.0.2&outputschema=http://www.isotc211.org/2005/gmd&elementsetname=full&id=2656f411-e4e9-3e57-8dc7-b4533426e048",
+        "attribution": "Geoportal Berlin / Schulen (dl-de/zero-2-0; attribution not required)"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-schulen.json",
+        "sha256": "c4cd0d3c01fa457079a3b033cd0211276746097e241c9265c6a73c20cf8ca871",
+        "expected_output_hash": "6e9b17de9bccbfb21831b8ab20b1e19df154aa0a8574c470dbbcc82819324680"
+      }
+    },
+    {
+      "source_id": "vbb-gtfs",
+      "connector": "gtfs",
+      "endpoint": "https://www.vbb.de/vbbgtfs",
+      "publisher": "Verkehrsverbund Berlin-Brandenburg (VBB)",
+      "scope": "GTFS Schedule for pinned VBB routes (routes, trips, stop times, stops, calendars, shapes); no realtime endpoint declared",
+      "update_cadence": "irregular; VBB republishes the timetable feed, typically weekly",
+      "temporal_semantics": "schedule as published per feed version (ZIP hash + feed_info); acquisition time recorded; a replaced feed is not evidence of past operations",
+      "license": {
+        "id": "cc-by-vbb",
+        "terms_url": "https://www.vbb.de/vbb-services/api-open-data/datensaetze/",
+        "redistribution": "CC BY per VBB open-data terms with attribution (operator must confirm)"
+      },
+      "mapping": {
+        "target_schema": "noesis-transit-feed-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "transit-sources:1.0.0"
+      ],
+      "operations": [
+        "feed"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 10,
+        "max_bytes": 100000000,
+        "max_pages": 2
+      },
+      "transit": {
+        "namespace": "global",
+        "feed": "vbb",
+        "route_ids": [
+          "R1",
+          "R2"
+        ],
+        "max_stop_times": 20000,
+        "stop_precision_m": 10
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/transit-gtfs.json",
+        "sha256": "c33583bf39ac5f14710acf0f0cd0783731135f395760ec39be0238d217a690da",
+        "expected_output_hash": "7bdb4ee8a9a2c65adc1914d8881dff1feed8440d502a86ff6df957874f2f606a"
+      }
+    },
+    {
+      "source_id": "umweltatlas-umweltzone",
+      "endpoint": "https://gdi.berlin.de/services/wfs/ua_umweltzone",
+      "publisher": "Geoportal Berlin (Umweltatlas)",
+      "scope": "Berlin low-emission zone (Umweltzone) outline; complete collection",
+      "update_cadence": "irregular; per Umweltatlas map edition",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "ua_umweltzone:umweltzone",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "gml_id",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "bezeichnung",
+        "precision": {
+          "status": "unknown",
+          "basis": "Umweltatlas map products declare no positional accuracy in the WFS response"
+        },
+        "geometry_types": [
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Umweltatlas (dl-de/zero-2-0; attribution not required)",
+        "live_verification": "blocked",
+        "layer_kind": "map product (modelled or administrative), not measurements"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/umweltatlas-umweltzone.json",
+        "sha256": "da486dc9f6c546025e02dceb5d858a4acb545a141dd3f3d82b1ff36cb6d94964",
+        "expected_output_hash": "beb5f09e0f00d1be0a3926bbdb3557dda66049c27f522845c646d369c7f1d6d4"
+      }
+    },
+    {
+      "source_id": "umweltatlas-laerm-lden",
+      "endpoint": "https://gdi.berlin.de/services/wfs/ua_stratlaerm_2022",
+      "publisher": "Geoportal Berlin (Umweltatlas)",
+      "scope": "Strategic noise map 2022, road traffic L_DEN bands (computed map, not measurements); complete collection",
+      "update_cadence": "irregular; per Umweltatlas map edition",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "ua_stratlaerm_2022:laerm_lden",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "gml_id",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "lden_klasse",
+        "precision": {
+          "status": "unknown",
+          "basis": "Umweltatlas map products declare no positional accuracy in the WFS response"
+        },
+        "geometry_types": [
+          "Polygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Umweltatlas (dl-de/zero-2-0; attribution not required)",
+        "live_verification": "blocked",
+        "layer_kind": "map product (modelled or administrative), not measurements"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/umweltatlas-laerm-lden.json",
+        "sha256": "48dbfe75148fba09277eec6d340a86eb3daca8a596b69d7c400e252237106cd3",
+        "expected_output_hash": "2a5fbafbdcec64fc5ca3cbeb91ee269d130564e07ae1a41bf19108bdff2789cf"
+      }
+    },
+    {
+      "source_id": "umweltatlas-klimafunktion",
+      "endpoint": "https://gdi.berlin.de/services/wfs/ua_klimaanalyse_2022",
+      "publisher": "Geoportal Berlin (Umweltatlas)",
+      "scope": "Climate analysis map 2022, climate functions (model result, not measurements); complete collection",
+      "update_cadence": "irregular; per Umweltatlas map edition",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "ua_klimaanalyse_2022:klimafunktion",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "gml_id",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "klimafunktion",
+        "precision": {
+          "status": "unknown",
+          "basis": "Umweltatlas map products declare no positional accuracy in the WFS response"
+        },
+        "geometry_types": [
+          "Polygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Umweltatlas (dl-de/zero-2-0; attribution not required)",
+        "live_verification": "blocked",
+        "layer_kind": "map product (modelled or administrative), not measurements"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/umweltatlas-klimafunktion.json",
+        "sha256": "0295584772e83b1ded38d65d8eb071fe0835ea123db2eeb15aa5ccbff04206bd",
+        "expected_output_hash": "27a9cbca4cc4ebad01590a61b7b0233eae667170bc7eff02f20ecf9ae5a0e532"
+      }
+    },
+    {
+      "source_id": "berlin-boris-bodenrichtwerte",
+      "endpoint": "https://gdi.berlin.de/services/wfs/brw",
+      "publisher": "Gutachterausschuss für Grundstückswerte in Berlin (BORIS Bodenrichtwerte)",
+      "scope": "Bodenrichtwertzonen of one Stichtag (zone number, value, valuation date, type of use and qualifiers); complete collection (operator must verify the layer per Stichtag)",
+      "update_cadence": "annual (Stichtag 1 January)",
+      "temporal_semantics": "provider-snapshot geometry; housing attributes carry their own valuation date, stage date or edition, never the acquisition time",
+      "license": {
+        "id": "dl-de-zero-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+        "redistribution": "permitted-without-conditions (operator must confirm for this layer)"
+      },
+      "mapping": {
+        "target_schema": "noesis-housing-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "wfs-2.0.0-geojson:1.0.0",
+        "geospatial-feature-projection:1.0.0",
+        "housing-attribute-projection:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 5000,
+        "max_bytes": 20000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "brw:bodenrichtwertzonen",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "wnum",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "brzname",
+        "precision": {
+          "status": "unknown",
+          "basis": "the WFS response declares no positional accuracy"
+        },
+        "geometry_types": [
+          "Polygon",
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://www.boris-berlin.de/",
+        "attribution": "Geoportal Berlin / Gutachterausschuss für Grundstückswerte in Berlin (BORIS Bodenrichtwerte) (dl-de/zero-2-0; verify attribution terms)",
+        "live_verification": "blocked"
+      },
+      "housing": {
+        "layer": "land-value",
+        "namespace": "global",
+        "attributes": {
+          "zone_id": "wnum",
+          "land_value": "brw",
+          "valuation_date": "stag",
+          "use": "nuta",
+          "zone_name": "brzname"
+        },
+        "qualifiers": {
+          "floor_area_ratio": "gfz",
+          "development_state": "entw",
+          "contribution_state": "beit",
+          "municipality": "gena"
+        },
+        "unit": {
+          "published": "EUR/m²",
+          "currency": "EUR"
+        },
+        "number_format": "plain"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-housing-berlin-boris-bodenrichtwerte.json",
+        "sha256": "3e8098e3b6f13de1e9db4af1da919c6f0514bacd61a8c87d8cb0cfe859b96ceb",
+        "expected_output_hash": "abcd695af45665bae26a45f8d08c23245e47badd169158b191b9f79c703b7b21"
+      }
+    },
+    {
+      "source_id": "berlin-bebauungsplaene",
+      "endpoint": "https://gdi.berlin.de/services/wfs/bplan",
+      "publisher": "Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin (Bebauungspläne)",
+      "scope": "Bebauungsplan areas with plan number, district, published procedural stage and stage dates; complete collection (operator must verify stage attribute and vocabulary)",
+      "update_cadence": "irregular; continuous plan procedures",
+      "temporal_semantics": "provider-snapshot geometry; housing attributes carry their own valuation date, stage date or edition, never the acquisition time",
+      "license": {
+        "id": "dl-de-zero-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+        "redistribution": "permitted-without-conditions (operator must confirm for this layer)"
+      },
+      "mapping": {
+        "target_schema": "noesis-housing-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "wfs-2.0.0-geojson:1.0.0",
+        "geospatial-feature-projection:1.0.0",
+        "housing-attribute-projection:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 5000,
+        "max_bytes": 20000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "bplan:bplan_geltungsbereiche",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "planname",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "planname",
+        "precision": {
+          "status": "unknown",
+          "basis": "the WFS response declares no positional accuracy"
+        },
+        "geometry_types": [
+          "Polygon",
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://fbinter.stadt-berlin.de/fb/index.jsp",
+        "attribution": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin (Bebauungspläne) (dl-de/zero-2-0; verify attribution terms)",
+        "live_verification": "blocked"
+      },
+      "housing": {
+        "layer": "development-plan",
+        "namespace": "global",
+        "attributes": {
+          "plan_id": "planname",
+          "stage": "status",
+          "district": "bezirk",
+          "plan_label": "bereich"
+        },
+        "stages": {
+          "Aufstellungsbeschluss": "aufstellungsbeschluss",
+          "frühzeitige Beteiligung": "fruehzeitige_beteiligung",
+          "öffentliche Auslegung": "oeffentliche_auslegung",
+          "festgesetzt": "festgesetzt",
+          "aufgehoben": "aufgehoben"
+        },
+        "stage_dates": {
+          "aufstellungsbeschluss": "afs_beschl",
+          "festgesetzt": "festsg_am"
+        },
+        "reference_attributes": {
+          "afs_abl": {
+            "scheme": "berlin-amtsblatt",
+            "relation": "stage_decided_by",
+            "stage": "aufstellungsbeschluss"
+          },
+          "gvbl": {
+            "scheme": "berlin-gvbl",
+            "relation": "published_in",
+            "stage": "festgesetzt"
+          }
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-housing-berlin-bebauungsplaene.json",
+        "sha256": "4928ac3ba35a5cc76650d17cf221ce9679a9bd4d997e4a861095b26cb0bd8b30",
+        "expected_output_hash": "5c8de4b89e51751769f54783a69702306f3faaf33314c3a2bcd93509720a59cb"
+      }
+    },
+    {
+      "source_id": "berlin-wohnlagen",
+      "endpoint": "https://gdi.berlin.de/services/wfs/wohnlagen",
+      "publisher": "Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin (Wohnlagenkarte zum Mietspiegel)",
+      "scope": "Wohnlage categories (einfach, mittel, gut) of the Mietspiegel 2099 edition per block; complete collection (operator must verify blocks versus address points)",
+      "update_cadence": "per Mietspiegel edition",
+      "temporal_semantics": "provider-snapshot geometry; housing attributes carry their own valuation date, stage date or edition, never the acquisition time",
+      "license": {
+        "id": "dl-de-zero-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+        "redistribution": "permitted-without-conditions (operator must confirm for this layer)"
+      },
+      "mapping": {
+        "target_schema": "noesis-housing-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "wfs-2.0.0-geojson:1.0.0",
+        "geospatial-feature-projection:1.0.0",
+        "housing-attribute-projection:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 5000,
+        "max_bytes": 20000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 31536000
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "wohnlagen:wohnlagen_2099",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25833",
+        "axis_order": "east_north",
+        "sort_by": "blk",
+        "page_size": 50
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "blk",
+        "precision": {
+          "status": "unknown",
+          "basis": "the WFS response declares no positional accuracy"
+        },
+        "geometry_types": [
+          "Polygon",
+          "MultiPolygon"
+        ],
+        "metadata_url": "https://www.stadtentwicklung.berlin.de/wohnen/mietspiegel/",
+        "attribution": "Geoportal Berlin / Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin (Wohnlagenkarte zum Mietspiegel) (dl-de/zero-2-0; verify attribution terms)",
+        "live_verification": "blocked"
+      },
+      "housing": {
+        "layer": "residential-area",
+        "namespace": "global",
+        "attributes": {
+          "category": "wol"
+        },
+        "edition": {
+          "edition_id": "berliner-mietspiegel-2099",
+          "edition": "Berliner Mietspiegel 2099",
+          "valid_from": "2099-05-15"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-housing-berlin-wohnlagen.json",
+        "sha256": "bd7457062b37debc4c907c6de4bc7c1ad2efad3d8e0bb4cd61a4e8a099183d93",
+        "expected_output_hash": "2bf5c952852698d832a9e69386400e229ba59e2cd19ac0e55c0fb125d5d3ef35"
+      }
+    },
+    {
+      "source_id": "berlin-mietspiegel",
+      "connector": "housing",
+      "endpoint": "https://www.stadtentwicklung.berlin.de",
+      "publisher": "Senatsverwaltung für Stadtentwicklung, Bauen und Wohnen Berlin (Berliner Mietspiegel)",
+      "scope": "The Mietspiegeltabelle of each declared Berliner Mietspiegel edition (cells by Wohnlage, Baualter and Wohnfläche with lower, middle and upper values), with the edition's qualifying date, publication URL and page (operator must verify the table file per edition)",
+      "update_cadence": "every two years (qualified Mietspiegel)",
+      "temporal_semantics": "each edition with its qualifying date and the date it applies from; an edition never overwrites another",
+      "license": {
+        "id": "berlin-official-publication",
+        "terms_url": "https://www.berlin.de/impressum/",
+        "redistribution": "official publication, reuse with attribution (operator must confirm)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 4
+      },
+      "housing": {
+        "namespace": "global",
+        "provider": "berlin-mietspiegel",
+        "format": "rent-index-table-csv",
+        "documents": [
+          {
+            "label": "Berliner Mietspiegel 2099 - Mietspiegeltabelle (fiktiv)",
+            "url": "https://www.stadtentwicklung.berlin.de/wohnen/mietspiegel/2099/mietspiegeltabelle.csv",
+            "edition_id": "berliner-mietspiegel-2099",
+            "edition": "Berliner Mietspiegel 2099",
+            "published_on": "2099-05-15",
+            "qualifying_date": "2098-09-01",
+            "qualifying_date_semantics": "Stichtag der Datenerhebung (rents agreed or changed in the four years before)",
+            "valid_from": "2099-05-15",
+            "publication_url": "https://www.stadtentwicklung.berlin.de/wohnen/mietspiegel/2099/mietspiegel2099.pdf",
+            "page": "S. 14, Mietspiegeltabelle",
+            "extraction": "operator-extracted table from the PDF edition (authored fixture)",
+            "unit": "EUR/m² monthly",
+            "number_format": "de",
+            "columns": {
+              "cell_key": "Feld",
+              "dimensions": {
+                "Wohnlage": "wohnlage",
+                "Baualter": "baualter",
+                "Wohnflaeche": "wohnflaeche"
+              },
+              "lower": "Unterwert",
+              "middle": "Mittelwert",
+              "upper": "Oberwert"
+            },
+            "references": [
+              {
+                "scheme": "berlin-amtsblatt",
+                "identifier": "ABl. 2099 S. 1234",
+                "relation": "published_in",
+                "locator": "Bekanntmachung"
+              },
+              {
+                "scheme": "berlin-gvbl",
+                "identifier": "GVBl. 2098 S. 42",
+                "relation": "legal_basis",
+                "locator": "§ 1"
+              },
+              {
+                "scheme": "de-bgbl",
+                "identifier": "BGBl. I 2097 S. 99",
+                "relation": "legal_basis",
+                "locator": "§ 558d BGB"
+              }
+            ]
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-housing-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "housing-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 63072000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-housing-berlin-mietspiegel.json",
+        "sha256": "c6fe158052a238f8a2d5d6353a81966cc3f3edf05690cf379d26fa4aa6a39c72",
+        "expected_output_hash": "05076fda937a5da29301391190c90a1ac94e5e4825eb61f772c227a17415b958"
+      }
+    },
+    {
+      "source_id": "statistik-bb-bautaetigkeit",
+      "connector": "housing",
+      "endpoint": "https://www.statistik-berlin-brandenburg.de",
+      "publisher": "Amt für Statistik Berlin-Brandenburg",
+      "scope": "Building permits (Baugenehmigungen) and completions (Baufertigstellungen) of dwellings per Berlin Bezirk and year in a declared column layout (operator must verify files and columns)",
+      "update_cadence": "annual (monthly tables exist)",
+      "temporal_semantics": "reporting year per row and the publication date as the vintage; revised figures are new vintages",
+      "license": {
+        "id": "cc-by-3.0-de",
+        "terms_url": "https://www.statistik-berlin-brandenburg.de/impressum",
+        "redistribution": "CC BY 3.0 DE with attribution (operator must confirm)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 2000000,
+        "max_pages": 4
+      },
+      "housing": {
+        "namespace": "global",
+        "provider": "statistik-bb",
+        "format": "statbb-building-csv",
+        "documents": [
+          {
+            "label": "Statistik Berlin-Brandenburg baugenehmigungen 2098 nach Bezirken (fiktiv)",
+            "url": "https://www.statistik-berlin-brandenburg.de/downloads/bautaetigkeit/baugenehmigungen-2098-bezirke.csv",
+            "statistic": "permits",
+            "number_format": "de",
+            "columns": {
+              "geography": "Bezirk",
+              "geography_label": "Bezirksname",
+              "period": "Jahr",
+              "values": {
+                "Wohnungen": "dwellings_permitted",
+                "Wohnflaeche": "floor_area_permitted"
+              }
+            },
+            "units": {
+              "dwellings_permitted": "dwellings",
+              "floor_area_permitted": "1000 m²"
+            },
+            "total_codes": {
+              "00": {
+                "scheme": "ags",
+                "code": "11"
+              }
+            }
+          },
+          {
+            "label": "Statistik Berlin-Brandenburg baufertigstellungen 2098 nach Bezirken (fiktiv)",
+            "url": "https://www.statistik-berlin-brandenburg.de/downloads/bautaetigkeit/baufertigstellungen-2098-bezirke.csv",
+            "statistic": "completions",
+            "number_format": "de",
+            "columns": {
+              "geography": "Bezirk",
+              "geography_label": "Bezirksname",
+              "period": "Jahr",
+              "values": {
+                "Wohnungen": "dwellings_completed",
+                "Wohnflaeche": "floor_area_completed"
+              }
+            },
+            "units": {
+              "dwellings_completed": "dwellings",
+              "floor_area_completed": "1000 m²"
+            },
+            "total_codes": {
+              "00": {
+                "scheme": "ags",
+                "code": "11"
+              }
+            }
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-housing-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "housing-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 63072000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-housing-statistik-bb-bautaetigkeit.json",
+        "sha256": "64221a3c2bd7819a7d9c51d1b0030fe13b14f2f00af38bd6c6bba6b978134f5d",
+        "expected_output_hash": "12200dc837b63bc7b5971d30cacfebc71a8d637c3fb49eae76f34be6ac6ef9ba"
+      }
+    },
+    {
+      "source_id": "destatis-genesis-bautaetigkeit",
+      "connector": "housing",
+      "endpoint": "https://www-genesis.destatis.de/genesisWS/rest/2020",
+      "publisher": "Statistisches Bundesamt (Destatis), GENESIS-Online",
+      "scope": "GENESIS tables 31111 (building permits) and 31231 (building completions) by Land and year, with the table's Updated stamp (credentialed; operator must verify table codes and value codes)",
+      "update_cadence": "annual",
+      "temporal_semantics": "the table's Updated stamp as the vintage and Zeit as the reference year",
+      "license": {
+        "id": "dl-de-by-2.0",
+        "terms_url": "https://www-genesis.destatis.de/genesis/online?Menu=Impressum",
+        "redistribution": "Datenlizenz Deutschland - Namensnennung 2.0 (operator must confirm)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_DESTATIS_GENESIS_TOKEN"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 10000000,
+        "max_pages": 2
+      },
+      "housing": {
+        "namespace": "global",
+        "provider": "destatis",
+        "format": "destatis-genesis-ffcsv",
+        "documents": [
+          {
+            "label": "31111-0004 Baugenehmigungen im Hochbau: Bundesländer, Jahre (fiktiv)",
+            "table": "31111-0004",
+            "geography_attribute": "DLAND",
+            "frequency": "annual",
+            "measures": {
+              "BAUGEN": "dwellings_permitted"
+            }
+          },
+          {
+            "label": "31231-0003 Baufertigstellungen im Hochbau: Bundesländer, Jahre (fiktiv)",
+            "table": "31231-0003",
+            "geography_attribute": "DLAND",
+            "frequency": "annual",
+            "measures": {
+              "BAUFER": "dwellings_completed"
+            }
+          }
+        ]
+      },
+      "mapping": {
+        "target_schema": "noesis-housing-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "housing-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 63072000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/geospatial-housing-destatis-genesis-bautaetigkeit.json",
+        "sha256": "ecdbc926da0396fe6df251144813d7f0c445e147e9f6b29c2ad00f5275e5253b",
+        "expected_output_hash": "8b8098f0744cb19dafb62e71a9e642f7cc9fe61b3fd5063830ee494445635f86"
+      }
+    }
+  ]
+}
