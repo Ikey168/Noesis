@@ -117,11 +117,11 @@ def test_empty_pack_is_rejected():
     assert any("at least one capability" in e for e in errors)
 
 
-def test_shipped_energy_pack_is_valid():
-    # The distributable artifact under packs/ must always be contract-valid.
-    path = REPO / "packs" / "energy" / "pack.json"
+@pytest.mark.parametrize("path", sorted((REPO / "packs").glob("*/pack.json")), ids=lambda p: p.parent.name)
+def test_shipped_packs_are_valid(path):
+    # Every distributable artifact under packs/ must always be contract-valid.
     data = json.loads(path.read_text(encoding="utf-8"))
     assert validate_manifest(data) == []
     loaded = load_manifest(str(path))
-    assert loaded.name == "energy"
+    assert loaded.name == path.parent.name
     assert loaded.pack_format == pack_format.PACK_FORMAT

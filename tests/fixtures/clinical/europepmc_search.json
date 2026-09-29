@@ -1,0 +1,42 @@
+{
+ "version": "6.9",
+ "hitCount": 1,
+ "nextCursorMark": "AoE",
+ "resultList": {
+  "result": [
+   {
+    "id": "99000004",
+    "source": "MED",
+    "pmid": "99000004",
+    "doi": "10.5555/noetic3.protocol",
+    "title": "Design of a phase 3 trial of noetiglutide versus metformin (fixture protocol paper)",
+    "authorString": "Fixture E.",
+    "authorList": {
+     "author": [
+      {
+       "fullName": "Fixture E"
+      }
+     ]
+    },
+    "abstractText": "This protocol paper describes NOETIC-3 (NCT09000003), an ongoing trial. Authored fixture.",
+    "firstPublicationDate": "2024-06-01",
+    "pubTypeList": {
+     "pubType": [
+      "Journal Article"
+     ]
+    },
+    "journalInfo": {
+     "journal": {
+      "title": "Fixture Trials"
+     }
+    },
+    "hasTMAccessionNumbers": "Y",
+    "tmAccessionTypeList": {
+     "accessionType": [
+      "nct"
+     ]
+    }
+   }
+  ]
+ }
+}

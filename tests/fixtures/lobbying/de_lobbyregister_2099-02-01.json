@@ -1,0 +1,44 @@
+{
+  "source": "Lobbyregister beim Deutschen Bundestag (authored fixture)",
+  "sourceDate": "2099-02-01",
+  "totalResultCount": 2,
+  "results": [
+    {
+      "registerNumber": "R009901",
+      "registerEntryDetails": {"registerEntryId": 99001, "version": 3, "validFromDate": "2099-01-20", "firstPublicationDate": "2098-03-01", "activeLobbyist": true},
+      "lobbyistIdentity": {
+        "name": "Fiktiver Netzverband e.V.",
+        "legalForm": {"code": "EV", "de": "Eingetragener Verein (e. V.)"},
+        "address": {"street": "Beispielweg 1", "zipCode": "10999", "city": "Fiktivstadt", "country": {"code": "DE"}},
+        "websites": ["https://netzverband.example"],
+        "euTransparencyRegisterId": "000000000101-01",
+        "lei": "5299000FIXTURE000017"
+      },
+      "activitiesAndInterests": {"activity": "Interessenverband", "fieldsOfInterest": [{"code": "FOI_ENERGY", "de": "Energie"}]},
+      "financialExpenses": {"financialExpensesEuro": {"from": 100001, "to": 110000}, "relatedFiscalYearStart": "2098-01-01", "relatedFiscalYearEnd": "2098-12-31"},
+      "clientIdentity": {"clientOrganizations": [], "principalOrganizations": []},
+      "regulatoryProjects": {"regulatoryProjects": [
+        {"regulatoryProjectNumber": "RV0099", "title": "Fiktives Netzentgeltgesetz", "printedMatters": [{"printingNumber": "21/9901", "title": "Gesetzentwurf (fiktiv)"}]}
+      ]},
+      "statements": {"statements": [
+        {"statementNumber": "SG0099", "regulatoryProjectNumber": "RV0099", "title": "Stellungnahme zum fiktiven Netzentgeltgesetz", "pdfUrl": "https://www.lobbyregister.bundestag.de/fixture/SG0099.pdf", "text": "Authored fixture text that must not be retained."}
+      ]}
+    },
+    {
+      "registerNumber": "R009902",
+      "registerEntryDetails": {"registerEntryId": 99002, "version": 1, "validFromDate": "2099-01-25", "firstPublicationDate": "2099-01-25", "activeLobbyist": true},
+      "lobbyistIdentity": {
+        "name": "Example Public Affairs SARL",
+        "legalForm": {"code": "OTHER", "de": "Ausländische Gesellschaft"},
+        "address": {"street": "2 Rue Exemple", "zipCode": "75999", "city": "Paris", "country": {"code": "FR"}},
+        "websites": ["https://public-affairs.example"],
+        "euTransparencyRegisterId": "000000000202-02"
+      },
+      "activitiesAndInterests": {"activity": "Beratungsunternehmen", "fieldsOfInterest": [{"code": "FOI_ENERGY", "de": "Energie"}]},
+      "financialExpenses": {"financialExpensesEuro": {"from": 20001, "to": 30000}, "relatedFiscalYearStart": "2098-01-01", "relatedFiscalYearEnd": "2098-12-31"},
+      "clientIdentity": {"clientOrganizations": [{"name": "Fiktiver Netzverband e.V.", "registerNumber": "R009901"}, {"name": "Other Example GmbH"}]},
+      "regulatoryProjects": {"regulatoryProjects": []},
+      "statements": {"statements": []}
+    }
+  ]
+}

@@ -1,0 +1,99 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-development-finance-record-v1",
+  "title": "Development-finance record: publisher, activity revision, transaction, publisher coverage, CRS cell or vintage, World Bank project",
+  "description": "Records of the Funding & Grants development-finance feature. A publisher is its own record, separate from the organisations it reports on. Every activity revision points to its publisher and to the dataset version (capture digest) it came from, with its observation time, and keeps the IATI identifier as reported. Transactions keep value text, currency (stated or the activity default), value date and type as reported; an amount without a value, currency or value date is unknown. Coverage states what a selection requested and returned and why reading stopped. CRS cells are statistics with vintages, never activities. No record carries an effectiveness or impact judgement, a cross-publisher total or an averaged value.",
+  "type": "object",
+  "required": ["record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "instant": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "decimal": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+    "org": {
+      "type": ["object", "null"],
+      "properties": {"ref": {"type": ["string", "null"]}, "name": {"type": ["string", "null"]}, "type": {"type": ["string", "null"]}}
+    }
+  },
+  "properties": {
+    "record_type": {"enum": ["publisher", "activity_revision", "transaction", "publisher_coverage", "crs_cell", "crs_vintage", "world_bank_project"]},
+    "contract": {"const": "noesis-development-finance-record-v1"},
+    "namespace": {"type": "string"}
+  },
+  "not": {"anyOf": [
+    {"required": ["effectiveness"]}, {"required": ["impact_score"]}, {"required": ["verdict"]},
+    {"required": ["combined_total"]}, {"required": ["total_all_publishers"]}, {"required": ["average"]}
+  ]},
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "publisher"}}},
+      "then": {"required": ["publisher_id", "provider"], "properties": {
+        "publisher_id": {"type": "string", "minLength": 1}, "provider": {"enum": ["iati", "oecd-crs", "world-bank-projects"]},
+        "publisher_ref": {"type": ["string", "null"]}, "name": {"type": ["string", "null"]}}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "activity_revision"}}},
+      "then": {"required": ["revision_id", "activity_key", "publisher_id", "iati_identifier", "revision_no", "arrival", "order_stamp", "stamp_basis", "activity", "content_hash", "dataset_id", "capture_sha256", "observed_at_ms", "source", "transactions"],
+        "properties": {
+          "revision_id": {"type": "string", "pattern": "^devfin-rev:"},
+          "publisher_id": {"type": "string", "minLength": 1},
+          "iati_identifier": {"type": "string", "minLength": 1},
+          "revision_no": {"type": "integer", "minimum": 1},
+          "supersedes": {"type": ["string", "null"]},
+          "arrival": {"enum": ["first", "newer", "reversion", "late-older", "same-stamp-conflict"]},
+          "last_updated_at": {"$ref": "#/definitions/instant"},
+          "stamp_basis": {"enum": ["last-updated-datetime", "observed-at (last-updated-datetime absent)"]},
+          "content_hash": {"$ref": "#/definitions/sha256"},
+          "capture_sha256": {"$ref": "#/definitions/sha256"},
+          "observed_at_ms": {"type": "integer"},
+          "source": {"type": "object", "required": ["provider", "dataset_id", "capture_sha256", "observed_at_ms"]},
+          "activity": {"type": "object", "required": ["iati_identifier", "reporting_org", "transactions"]}
+        }}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "transaction"}}},
+      "then": {"required": ["transaction_id", "revision_id", "transaction_key", "value_text", "value", "currency", "currency_source", "value_date", "amount_state", "publisher_id"],
+        "properties": {
+          "value": {"$ref": "#/definitions/decimal"},
+          "currency": {"type": ["string", "null"], "minLength": 1},
+          "currency_source": {"enum": ["stated", "activity-default", null]},
+          "value_date": {"$ref": "#/definitions/day"},
+          "date": {"$ref": "#/definitions/day"},
+          "amount_state": {"enum": ["reported", "unknown"]},
+          "provider_org": {"$ref": "#/definitions/org"},
+          "receiver_org": {"$ref": "#/definitions/org"}
+        }}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "publisher_coverage"}}},
+      "then": {"required": ["coverage_id", "provider", "selection_key", "requested", "returned", "pages_read", "complete", "observed_at_ms"],
+        "properties": {"complete": {"type": "boolean"}, "pages_read": {"type": "integer", "minimum": 0},
+                       "returned": {"type": "object", "additionalProperties": {"type": "integer", "minimum": 0}},
+                       "failure_code": {"type": ["string", "null"]}, "stop_reason": {"type": ["string", "null"]},
+                       "rejected": {"type": "array", "items": {"type": "object", "required": ["reason"]}}}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "crs_cell"}}},
+      "then": {"required": ["cell_id", "dataflow", "dimensions", "recipient", "price_basis", "publisher_id"],
+        "properties": {"price_basis": {"enum": ["current", "constant", "unknown"]},
+                       "recipient": {"type": "object", "required": ["code", "kind"], "properties": {"kind": {"enum": ["country", "aggregate", "unknown"]}}}}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "crs_vintage"}}},
+      "then": {"required": ["vintage_id", "cell_id", "vintage_no", "vintage_basis", "observations", "file_sha256", "evidence_origin", "observed_at_ms"],
+        "properties": {"vintage_basis": {"enum": ["provider_last_update", "declared_release", "retrieval_time"]},
+                       "published_on": {"$ref": "#/definitions/day"},
+                       "base_year_state": {"enum": ["stated", "not-stated", "not-applicable", "conflicting"]},
+                       "evidence_origin": {"enum": ["fixture", "live", "operator"]},
+                       "observations": {"type": "array", "items": {"type": "object", "required": ["period", "value_text", "value"],
+                         "properties": {"value": {"$ref": "#/definitions/decimal"}}}}}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "world_bank_project"}}},
+      "then": {"required": ["project_id", "revision_id", "project", "dataset_id", "observed_at_ms", "publisher_id"],
+        "properties": {"project_id": {"type": "string", "pattern": "^P\\d{6}$"},
+                       "project": {"type": "object", "required": ["project_id", "commitments", "countries"],
+                         "properties": {"approval_date": {"$ref": "#/definitions/day"}, "closing_date": {"$ref": "#/definitions/day"}}}}}
+    }
+  ]
+}

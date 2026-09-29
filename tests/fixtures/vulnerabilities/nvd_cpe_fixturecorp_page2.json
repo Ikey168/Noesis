@@ -1,0 +1,32 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 2,
+  "totalResults": 3,
+  "format": "NVD_CPE",
+  "version": "2.0",
+  "timestamp": "2099-03-01T00:00:00.000",
+  "products": [
+    {
+      "cpe": {
+        "deprecated": true,
+        "cpeName": "cpe:2.3:a:fixture_corp:fixture_parser:1.3.0:*:*:*:*:python:*:*",
+        "cpeNameId": "B0000000-0000-4000-8000-000000000003",
+        "lastModified": "2099-01-02T00:00:00.000",
+        "created": "2099-01-01T00:00:00.000",
+        "titles": [
+          {
+            "title": "Fixture Corp fixture parser 1.3.0 (old vendor name)",
+            "lang": "en"
+          }
+        ],
+        "refs": [],
+        "deprecatedBy": [
+          {
+            "cpeName": "cpe:2.3:a:fixturecorp:fixture_parser:1.3.0:*:*:*:*:python:*:*",
+            "cpeNameId": "B0000000-0000-4000-8000-000000000001"
+          }
+        ]
+      }
+    }
+  ]
+}

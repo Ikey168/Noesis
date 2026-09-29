@@ -1,0 +1,36 @@
+{
+  "resultsPerPage": 1,
+  "startIndex": 0,
+  "totalResults": 1,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2099-02-03T00:00:00.000",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2099-0003",
+        "sourceIdentifier": "security@fixturecorp.example",
+        "published": "2099-01-06T10:00:00.000",
+        "lastModified": "2099-02-02T10:00:00.000",
+        "vulnStatus": "Rejected",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "Rejected reason: authored fixture; this candidate was withdrawn by its CNA as a duplicate."
+          }
+        ],
+        "metrics": {},
+        "weaknesses": [],
+        "configurations": [],
+        "references": [
+          {
+            "url": "https://fixturecorp.example/advisories/2099-003",
+            "source": "security@fixturecorp.example",
+            "tags": []
+          }
+        ]
+      }
+    }
+  ]
+}

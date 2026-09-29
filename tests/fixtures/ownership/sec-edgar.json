@@ -1,0 +1,122 @@
+{
+ "authored": true,
+ "provider": "SEC EDGAR (data.sec.gov submissions and company facts; www.sec.gov Archives)",
+ "note": "Authored responses for a fictional issuer (CIK 0009999101) and filer; field names follow the data.sec.gov submissions and companyfacts JSON. The Schedule 13G XML uses element names as read from the EDGAR Schedule 13D/13G XML technical specification and is unverified against live filings.",
+ "scenarios": [
+  "submissions-recent-filings",
+  "former-name",
+  "companyfacts-shares-outstanding",
+  "xml-13g-cover-page",
+  "html-13g-unparsed",
+  "beneficial-ownership-forms-as-references"
+ ],
+ "native_pages": [
+  {
+   "request": "/submissions/CIK0009999101.json",
+   "require_header": "User-Agent",
+   "body": {
+    "cik": "9999101",
+    "entityType": "operating",
+    "sic": "2834",
+    "sicDescription": "Pharmaceutical Preparations",
+    "name": "EXAMPLA HOLDINGS PLC",
+    "tickers": [
+     "EXMP"
+    ],
+    "exchanges": [
+     "NYSE"
+    ],
+    "ein": null,
+    "lei": null,
+    "stateOfIncorporation": "X0",
+    "formerNames": [
+     {
+      "name": "EXAMPLA GROUP PLC",
+      "from": "2011-01-10T00:00:00.000Z",
+      "to": "2014-05-01T00:00:00.000Z"
+     }
+    ],
+    "filings": {
+     "recent": {
+      "accessionNumber": [
+       "0009999101-25-000011",
+       "0009999101-25-000010",
+       "0001888001-25-000003",
+       "0001888001-23-000002"
+      ],
+      "filingDate": [
+       "2025-05-02",
+       "2025-04-15",
+       "2025-04-10",
+       "2023-02-14"
+      ],
+      "reportDate": [
+       "",
+       "2024-12-31",
+       "",
+       ""
+      ],
+      "form": [
+       "6-K",
+       "20-F",
+       "SCHEDULE 13G",
+       "SC 13G"
+      ],
+      "primaryDocument": [
+       "exampla-6k.htm",
+       "exampla-20f.htm",
+       "primary_doc.xml",
+       "northwind13g.htm"
+      ],
+      "primaryDocDescription": [
+       "6-K",
+       "20-F",
+       "",
+       "SC 13G"
+      ]
+     },
+     "files": []
+    }
+   }
+  },
+  {
+   "request": "/api/xbrl/companyfacts/CIK0009999101.json",
+   "require_header": "User-Agent",
+   "body": {
+    "cik": 9999101,
+    "entityName": "EXAMPLA HOLDINGS PLC",
+    "facts": {
+     "dei": {
+      "EntityCommonStockSharesOutstanding": {
+       "label": "Entity Common Stock, Shares Outstanding",
+       "description": "fixture",
+       "units": {
+        "shares": [
+         {
+          "end": "2024-12-31",
+          "val": 50000000,
+          "accn": "0009999101-25-000010",
+          "fy": 2024,
+          "fp": "FY",
+          "form": "20-F",
+          "filed": "2025-04-15"
+         }
+        ]
+       }
+      }
+     }
+    }
+   }
+  },
+  {
+   "request": "/Archives/edgar/data/9999101/000188800125000003/primary_doc.xml",
+   "require_header": "User-Agent",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<edgarSubmission xmlns=\"http://www.sec.gov/edgar/schedule13g\">\n  <headerData><submissionType>SCHEDULE 13G</submissionType></headerData>\n  <formData>\n    <coverPageHeader>\n      <securitiesClassTitle>Ordinary Shares</securitiesClassTitle>\n      <eventDateRequiresFilingThisStatement>2025-03-31</eventDateRequiresFilingThisStatement>\n      <issuerInfo><issuerCik>0009999101</issuerCik><issuerName>EXAMPLA HOLDINGS PLC</issuerName><issuerCusip>G0000FX01</issuerCusip></issuerInfo>\n    </coverPageHeader>\n    <coverPageHeaderReportingPersonDetails>\n      <reportingPersonName>Northwind Capital LP (fictional)</reportingPersonName>\n      <reportingPersonCIK>0001888001</reportingPersonCIK>\n      <soleVotingPower>0</soleVotingPower><sharedVotingPower>4100000</sharedVotingPower>\n      <soleDispositivePower>0</soleDispositivePower><sharedDispositivePower>4100000</sharedDispositivePower>\n      <aggregateAmountOwned>4,100,000</aggregateAmountOwned>\n      <classPercent>8.2</classPercent>\n      <typeOfReportingPerson>PN</typeOfReportingPerson>\n    </coverPageHeaderReportingPersonDetails>\n    <coverPageHeaderReportingPersonDetails>\n      <reportingPersonName>Northwind GP LLC (fictional)</reportingPersonName>\n      <sharedVotingPower>4100000</sharedVotingPower><sharedDispositivePower>4100000</sharedDispositivePower>\n      <aggregateAmountOwned>4100000</aggregateAmountOwned>\n      <classPercent>8.2%</classPercent>\n      <typeOfReportingPerson>OO</typeOfReportingPerson>\n    </coverPageHeaderReportingPersonDetails>\n  </formData>\n</edgarSubmission>\n"
+  },
+  {
+   "request": "/Archives/edgar/data/9999101/000188800123000002/northwind13g.htm",
+   "require_header": "User-Agent",
+   "body": "<html><body><p>SCHEDULE 13G (fictional, pre-2024 HTML filing)</p><p>Percent of class: 6.9%<br></p></body></html>"
+  }
+ ]
+}

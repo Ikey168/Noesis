@@ -1,0 +1,40 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-legal-retrieval-evaluation-v1.json",
+  "title": "Noesis legal retrieval evaluation v1",
+  "description": "Held-out, human-judged legal retrieval evaluation per mode, stratified by jurisdiction, language and version, with assessor agreement.",
+  "type": "object",
+  "required": [
+    "contract",
+    "k",
+    "split",
+    "queries",
+    "modes"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-legal-retrieval-evaluation-v1"
+    },
+    "k": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "split": {
+      "type": "string",
+      "minLength": 1
+    },
+    "queries": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "cohen_kappa_mean": {
+      "type": [
+        "number",
+        "null"
+      ]
+    },
+    "modes": {
+      "type": "object"
+    }
+  }
+}

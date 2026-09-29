@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-bar-v1.json",
+  "title": "Noesis market bar v1",
+  "description": "A revisioned OHLCV observation for one listing and interval. Timestamps are UTC epoch milliseconds; a daily bar's start/end are normalized to the venue session open/close so it joins the listing's local session date. Price adjustment basis is explicit; raw observations and Noesis adjustments remain separately traceable.",
+  "type": "object",
+  "required": ["contract", "namespace", "owner", "bar_id", "listing_id", "provider", "interval", "bar_start_ms", "bar_end_ms", "public_at_ms", "retrieved_at_ms", "revision_id", "revision", "provider_record_id", "provider_revision_id", "open", "high", "low", "close", "volume", "currency", "price_basis", "adjustment_method", "adjustment_cutoff_ms", "adjustment_action_revision_ids", "adjustment_calculation_id", "prior_revision_id", "source_refs", "recorded_at_ms", "record_hash"],
+  "properties": {
+    "contract": {"const": "noesis-market-bar-v1"},
+    "namespace": {"type": "string", "minLength": 1},
+    "owner": {"type": ["string", "null"]},
+    "bar_id": {"type": "string", "minLength": 1, "description": "Stable logical observation identity for provider, listing, interval and bar start; revisions use distinct revision_id values."},
+    "listing_id": {"type": "string", "minLength": 1},
+    "provider": {"type": "string", "minLength": 1},
+    "interval": {"enum": ["1m", "5m", "15m", "30m", "1h", "1d", "1w", "1mo"]},
+    "bar_start_ms": {"type": "integer", "minimum": 0, "description": "UTC epoch milliseconds; daily bars start at the venue session open."},
+    "bar_end_ms": {"type": "integer", "minimum": 0, "description": "UTC epoch milliseconds; daily bars end at the venue session close."},
+    "public_at_ms": {"type": ["integer", "null"], "minimum": 0, "description": "When this value or vintage became publicly available, if known."},
+    "retrieved_at_ms": {"type": "integer", "minimum": 0},
+    "revision_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "provider_record_id": {"type": ["string", "null"]},
+    "provider_revision_id": {"type": ["string", "null"]},
+    "open": {"type": "number", "minimum": 0},
+    "high": {"type": "number", "minimum": 0},
+    "low": {"type": "number", "minimum": 0},
+    "close": {"type": "number", "minimum": 0},
+    "volume": {"type": ["number", "null"], "minimum": 0},
+    "trade_count": {"type": ["integer", "null"], "minimum": 0},
+    "vwap": {"type": ["number", "null"], "minimum": 0},
+    "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+    "price_basis": {"enum": ["unadjusted", "split_adjusted", "total_return_adjusted"]},
+    "adjustment_method": {"type": ["string", "null"]},
+    "adjustment_cutoff_ms": {"type": ["integer", "null"], "minimum": 0},
+    "adjustment_action_revision_ids": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "adjustment_calculation_id": {"type": ["string", "null"]},
+    "prior_revision_id": {"type": ["string", "null"]},
+    "source_refs": {"type": "array", "minItems": 1, "items": {"$ref": "#/definitions/source_ref"}},
+    "recorded_at_ms": {"type": "integer", "minimum": 0},
+    "record_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "source_ref": {
+      "type": "object",
+      "required": ["source_ref_id", "provider", "provider_object_id", "source_revision_id", "public_at_ms", "source_snapshot_id", "source_url", "retrieved_at_ms", "content_hash", "license_id", "entitlement_id"],
+      "properties": {
+        "source_ref_id": {"type": "string", "minLength": 1}, "provider": {"type": "string", "minLength": 1}, "provider_object_id": {"type": "string", "minLength": 1},
+        "source_revision_id": {"type": ["string", "null"]}, "public_at_ms": {"type": ["integer", "null"], "minimum": 0}, "source_snapshot_id": {"type": ["string", "null"]}, "source_url": {"type": ["string", "null"], "format": "uri"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0}, "content_hash": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "license_id": {"type": "string", "minLength": 1}, "entitlement_id": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

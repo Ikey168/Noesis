@@ -1,0 +1,98 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-election-record-v1",
+  "title": "Political election record: release, election, constituency, contest, candidate-or-list, result vintage, poll series or poll reading",
+  "description": "Every record carries its namespace and cites the source revision it came from (an acquired result release or a poll publisher's release), with retrieval time kept apart from the dates the source states. Preliminary, certified, recount and corrected results are separate vintages of one contest; figures are copied as published. A poll reading is typed as a poll and never as a result. No record carries a prediction, a poll aggregate or a causal field.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "vintage_kind": {"enum": ["preliminary", "certified", "recount", "corrected"]},
+    "source_revision": {
+      "type": "object",
+      "required": ["release_id", "provider", "file_sha256", "published_on", "evidence_origin"],
+      "properties": {
+        "release_id": {"type": "string"},
+        "provider": {"type": "string"},
+        "source_id": {"type": ["string", "null"]},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "url": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live", "operator-import"]},
+        "retrieved_at_ms": {"type": "integer"}
+      }
+    },
+    "count": {"type": ["integer", "null"], "minimum": 0},
+    "entry": {
+      "type": "object",
+      "required": ["key", "kind", "name"],
+      "properties": {
+        "key": {"type": "string"},
+        "kind": {"enum": ["party", "candidate"]},
+        "name": {"type": "string"},
+        "party": {"type": ["string", "null"]},
+        "votes": {"$ref": "#/definitions/count"},
+        "share_published": {"type": ["string", "null"], "pattern": "^\\d+(\\.\\d+)?$"},
+        "mode": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-election-record-v1"},
+    "record_type": {"enum": ["release", "election", "constituency", "contest", "candidate_or_list", "result_vintage",
+                             "poll_series", "poll_reading"]},
+    "namespace": {"type": "string"},
+    "release_id": {"type": "string"},
+    "provider": {"type": "string"},
+    "vintage_kind": {"$ref": "#/definitions/vintage_kind"},
+    "published_on": {"$ref": "#/definitions/day"},
+    "file_sha256": {"$ref": "#/definitions/sha256"},
+    "evidence_origin": {"enum": ["fixture", "live", "operator-import"]},
+    "election_id": {"type": "string"},
+    "election_date": {"$ref": "#/definitions/day"},
+    "constituency_id": {"type": ["string", "null"]},
+    "scheme": {"type": "string"},
+    "native_id": {"type": "string"},
+    "boundary_vintage": {"type": "string"},
+    "geometry_ref": {"type": ["object", "null"], "required": ["provider", "layer", "vintage", "crs", "native_id"]},
+    "contest_id": {"type": "string"},
+    "ballot": {"type": "string"},
+    "rules": {"type": "object", "required": ["source_url"]},
+    "record_key": {"type": "string", "pattern": "^elections:"},
+    "vintage_id": {"type": "string"},
+    "vintage_no": {"type": "integer", "minimum": 1},
+    "kind": {"type": "string"},
+    "previous_vintage_id": {"type": ["string", "null"]},
+    "figures": {
+      "type": "object",
+      "required": ["totals", "entries"],
+      "properties": {"totals": {"type": "object"}, "entries": {"type": "array", "items": {"$ref": "#/definitions/entry"}}}
+    },
+    "source_revision": {"$ref": "#/definitions/source_revision"},
+    "series_id": {"type": "string"},
+    "publisher": {"type": "string"},
+    "fieldwork_start": {"$ref": "#/definitions/day"},
+    "fieldwork_end": {"$ref": "#/definitions/day"},
+    "sample_size": {"type": ["integer", "null"]},
+    "typed_as": {"const": "poll"},
+    "redistribution": {"enum": ["allowed", "link-only", "unknown"]}
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"const": "release"}}},
+     "then": {"required": ["release_id", "provider", "vintage_kind", "published_on", "file_sha256", "evidence_origin"]}},
+    {"if": {"properties": {"record_type": {"const": "constituency"}}},
+     "then": {"required": ["constituency_id", "scheme", "native_id", "boundary_vintage", "record_key"]}},
+    {"if": {"properties": {"record_type": {"const": "contest"}}},
+     "then": {"required": ["contest_id", "election_id", "ballot", "rules"]}},
+    {"if": {"properties": {"record_type": {"const": "result_vintage"}}},
+     "then": {"required": ["vintage_id", "contest_id", "vintage_no", "kind", "published_on", "figures", "source_revision"],
+              "properties": {"kind": {"$ref": "#/definitions/vintage_kind"}}}},
+    {"if": {"properties": {"record_type": {"enum": ["poll_series", "poll_reading"]}}},
+     "then": {"required": ["series_id", "publisher", "typed_as", "redistribution"]}},
+    {"if": {"properties": {"record_type": {"const": "poll_reading"}}},
+     "then": {"required": ["fieldwork_start", "fieldwork_end", "sample_size", "source_revision"]}}
+  ],
+  "not": {"anyOf": [{"required": ["prediction"]}, {"required": ["poll_average"]}, {"required": ["seat_projection"]},
+                    {"required": ["correlation"]}, {"required": ["causation"]}, {"required": ["win_probability"]}]}
+}

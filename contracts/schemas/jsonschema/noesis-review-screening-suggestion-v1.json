@@ -1,0 +1,25 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-review-screening-suggestion-v1.json",
+  "title": "Source-bound machine screening suggestion",
+  "type": "object",
+  "required": ["contract", "namespace", "candidate_id", "candidate_hash", "protocol_id", "protocol_revision", "protocol_hash", "source_binding", "stage", "run_id", "status", "suggested_decision", "coverage", "criteria", "machine_only", "human_vote_counted", "decision_run", "remote_processing_used", "created_at_ms"],
+  "properties": {
+    "contract": {"const": "noesis-review-screening-suggestion-v1"},
+    "namespace": {"type": "string"}, "candidate_id": {"type": "string"},
+    "candidate_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "protocol_id": {"type": "string"}, "protocol_revision": {"type": "integer", "minimum": 1},
+    "protocol_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "source_binding": {"type": "array", "minItems": 1},
+    "stage": {"enum": ["title_abstract", "full_text"]}, "run_id": {"type": "string"},
+    "status": {"enum": ["suggested", "pending", "stale"]},
+    "suggested_decision": {"enum": ["include", "exclude", "pending", null]},
+    "coverage": {"type": "object", "required": ["covered_characters", "available_characters", "complete", "missing"], "properties": {"covered_characters": {"type": "integer", "minimum": 0}, "available_characters": {"type": "integer", "minimum": 0}, "complete": {"type": "boolean"}, "missing": {"type": "array", "items": {"type": "string"}}}},
+    "criteria": {"type": "array", "maxItems": 20, "items": {"type": "object", "required": ["code", "type", "text", "status", "reason", "locator"], "properties": {"code": {"type": "string"}, "type": {"enum": ["inclusion", "exclusion"]}, "text": {"type": "string"}, "status": {"enum": ["satisfied", "not_satisfied", "not_reported", "abstained"]}, "reason": {"type": "string"}, "locator": {"type": ["object", "null"]}}}},
+    "machine_only": {"const": true}, "human_vote_counted": {"const": false},
+    "decision_run": {"type": ["object", "null"]}, "remote_processing_used": {"type": "boolean"},
+    "created_at_ms": {"type": "integer", "minimum": 0},
+    "valid": {"type": "boolean"}, "replayed": {"type": "boolean"}
+  },
+  "additionalProperties": false
+}

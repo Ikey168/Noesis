@@ -1,0 +1,10 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-event-study-v1.json",
+  "type": "object",
+  "required": ["contract", "namespace", "formula_version", "run_id", "owner", "input_manifest", "events", "multiple_comparisons", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-event-study-v1"}, "namespace": {"type": "string"}, "formula_version": {"type": "string"}, "run_id": {"type": "string"}, "owner": {"type": "string"}, "input_manifest": {"type": "object"}, "events": {"type": "array", "maxItems": 500}, "multiple_comparisons": {"type": "object"}, "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

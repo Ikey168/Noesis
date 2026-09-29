@@ -12,10 +12,11 @@ import time
 from contextlib import contextmanager
 from typing import Any, Dict, Iterator, List, Optional
 
-from fastapi import APIRouter, BackgroundTasks, HTTPException, Query
+from fastapi import APIRouter, BackgroundTasks, HTTPException, Query, Request
 from pydantic import BaseModel, Field
 
 from services.ingest.common.document_model import SOURCE_TYPES
+from src.api.auth.key_permissions import PermissionDenied, require_ingest
 from src.ingestion.document_store import DocumentStore
 
 router = APIRouter(prefix="/documents", tags=["documents"])
@@ -94,6 +95,7 @@ def _store_ctx() -> Iterator[DocumentStore]:
 async def ingest_document(
     doc: DocumentIn,
     background_tasks: BackgroundTasks,
+    http: Request = None,
 ) -> Dict[str, Any]:
     """Ingest a document into the knowledge engine.
 
@@ -104,7 +106,17 @@ async def ingest_document(
     A background task updates the live knowledge graph after the response is
     sent, extracting entity mentions and recording new connections so they
     are visible via GET /kg/connections/emerging and GET /kg/topics/evolving.
+
+    Requests authenticated with an API key need ``documents:ingest`` (or
+    ``documents:ingest:<source_type>``); see ``src/api/auth/key_permissions.py``.
     """
+    try:
+        require_ingest(http, doc.source_type)
+    except PermissionDenied as exc:
+        raise HTTPException(
+            status_code=403,
+            detail={"code": exc.code, "message": str(exc), "required": exc.required},
+        ) from exc
     if doc.source_type not in SOURCE_TYPES:
         raise HTTPException(
             status_code=422,

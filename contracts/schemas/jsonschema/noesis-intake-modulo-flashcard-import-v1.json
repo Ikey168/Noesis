@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-intake-modulo-flashcard-import-v1.json",
+  "title": "Bounded Modulo flashcard import provenance",
+  "type": "object",
+  "required": [
+    "contract", "preview_id", "preview_source", "preview_inventory_sha256",
+    "preview_observed_at_ms", "workspace_id", "account_id", "records",
+    "history_imported_as_native_reviews", "limitations"
+  ],
+  "properties": {
+    "contract": {"const": "noesis-intake-modulo-flashcard-import-v1"},
+    "preview_id": {"type": "string", "minLength": 1},
+    "preview_source": {"enum": ["fixture", "caller_supplied_plugin_state", "authenticated_plugin_state"]},
+    "preview_inventory_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "preview_observed_at_ms": {"type": "integer", "minimum": 0},
+    "workspace_id": {"type": "string", "minLength": 1},
+    "account_id": {"type": ["string", "null"]},
+    "records": {
+      "type": "array", "minItems": 1, "maxItems": 100,
+      "items": {
+        "type": "object",
+        "required": [
+          "native_card_id", "source_card_id", "plugin_id", "workspace_id", "account_id",
+          "collection", "record_id", "authoritative_version", "schema_id", "schema_version",
+          "content_sha256", "source_value", "source_review_history", "source_schedule_params",
+          "schedule_mapping"
+        ],
+        "properties": {
+          "native_card_id": {"type": "string", "minLength": 1},
+          "source_card_id": {"type": "string", "minLength": 1},
+          "plugin_id": {"const": "flashcards-spaced-repetition"},
+          "workspace_id": {"type": "string", "minLength": 1},
+          "account_id": {"type": ["string", "null"]},
+          "collection": {"type": "string", "minLength": 1},
+          "record_id": {"type": "string", "minLength": 1},
+          "authoritative_version": {"type": "integer", "minimum": 1},
+          "schema_id": {"type": "string", "minLength": 1},
+          "schema_version": {"type": "integer", "minimum": 1},
+          "content_sha256": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+          "source_value": {"type": "object"},
+          "source_review_history": {"type": "array", "maxItems": 500},
+          "source_schedule_params": {"type": ["object", "null"]},
+          "schedule_mapping": {
+            "type": "object",
+            "required": ["source_algorithm", "target_algorithm", "status", "reason", "mapped"],
+            "properties": {
+              "source_algorithm": {"type": "string"},
+              "target_algorithm": {"const": "noesis_fixed_intervals"},
+              "status": {"const": "review_required"},
+              "reason": {"enum": ["unsupported_fsrs_mapping", "schedule_equivalence_not_verified"]},
+              "mapped": {"const": false}
+            },
+            "additionalProperties": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "history_imported_as_native_reviews": {"const": false},
+    "limitations": {"type": "array", "minItems": 1, "items": {"type": "string", "minLength": 1}}
+  },
+  "additionalProperties": false
+}

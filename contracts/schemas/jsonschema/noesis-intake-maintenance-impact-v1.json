@@ -1,0 +1,94 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-intake-maintenance-impact-v1.json",
+  "title": "Noesis intake Maintenance impact preview",
+  "type": "object",
+  "required": [
+    "contract",
+    "namespace",
+    "finding_id",
+    "action",
+    "target",
+    "impact_root",
+    "affected",
+    "retention",
+    "remote_action_required",
+    "deletion_authorized",
+    "limitations"
+  ],
+  "properties": {
+    "contract": {
+      "const": "noesis-intake-maintenance-impact-v1"
+    },
+    "namespace": {
+      "type": "string",
+      "minLength": 1
+    },
+    "finding_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "action": {
+      "enum": [
+        "refresh",
+        "archive",
+        "delete"
+      ]
+    },
+    "target": {
+      "type": "object"
+    },
+    "impact_root": {
+      "type": "object"
+    },
+    "affected": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "kind",
+          "id",
+          "revision",
+          "relation"
+        ],
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "revision": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "relation": {
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "retention": {
+      "type": "object"
+    },
+    "remote_action_required": {
+      "type": "boolean"
+    },
+    "deletion_authorized": {
+      "const": false
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "preview_hash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$",
+      "description": "Digest a caller passes to execute_intake_maintenance_action; changes when dependents, holds or revisions change."
+    }
+  },
+  "additionalProperties": false
+}

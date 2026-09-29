@@ -1,0 +1,309 @@
+{
+ "pack_id": "market-live-sec-statements-v1",
+ "status": "live_verified",
+ "evidence_kind": "live_provider",
+ "provider": "sec_edgar",
+ "recorded_at": "2026-09-24T14:36:12+00:00",
+ "check": "companyfacts_vs_inline_xbrl_statement_reconciliation",
+ "universe": [
+  "MSFT",
+  "ORCL",
+  "CRM",
+  "ADBE",
+  "NOW"
+ ],
+ "forms": [
+  "10-K",
+  "10-Q"
+ ],
+ "totals": {
+  "filings": 10,
+  "consistent_filings": 10,
+  "compared_facts": 4897,
+  "matched": 4897,
+  "mismatched": 0
+ },
+ "rows": [
+  {
+   "ticker": "MSFT",
+   "cik": "0000789019",
+   "form": "10-K",
+   "accession": "0001193125-26-323660",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526323660/msft-20260630.htm",
+   "status": "consistent",
+   "compared_facts": 598,
+   "matched": 598,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 567,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 826,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "dei": 3,
+     "msft": 55
+    },
+    "consistent_duplicate_filing_facts": 3
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 10.5
+  },
+  {
+   "ticker": "MSFT",
+   "cik": "0000789019",
+   "form": "10-Q",
+   "accession": "0001193125-26-191507",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/789019/000119312526191507/msft-20260331.htm",
+   "status": "consistent",
+   "compared_facts": 494,
+   "matched": 494,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 457,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 794,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "dei": 2,
+     "msft": 42
+    },
+    "consistent_duplicate_filing_facts": 0
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 42.9
+  },
+  {
+   "ticker": "ORCL",
+   "cik": "0001341439",
+   "form": "10-Q",
+   "accession": "0001193125-26-389274",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526389274/orcl-20260831.htm",
+   "status": "consistent",
+   "compared_facts": 284,
+   "matched": 284,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 259,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 205,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "dei": 1,
+     "orcl": 51
+    },
+    "consistent_duplicate_filing_facts": 4
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 8.8
+  },
+  {
+   "ticker": "ORCL",
+   "cik": "0001341439",
+   "form": "10-K",
+   "accession": "0001193125-26-277521",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/1341439/000119312526277521/orcl-20260531.htm",
+   "status": "consistent",
+   "compared_facts": 664,
+   "matched": 664,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 626,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 969,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "dei": 2,
+     "orcl": 109
+    },
+    "consistent_duplicate_filing_facts": 9
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 11.2
+  },
+  {
+   "ticker": "CRM",
+   "cik": "0001108524",
+   "form": "10-Q",
+   "accession": "0001108524-26-000190",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000190/crm-20260731.htm",
+   "status": "consistent",
+   "compared_facts": 441,
+   "matched": 441,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 399,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 549,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "crm": 25,
+     "dei": 1
+    },
+    "consistent_duplicate_filing_facts": 3
+   },
+   "inline_diagnostics": {},
+   "value_diagnostics": [],
+   "seconds": 8.4
+  },
+  {
+   "ticker": "CRM",
+   "cik": "0001108524",
+   "form": "10-K",
+   "accession": "0001108524-26-000060",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/1108524/000110852426000060/crm-20260131.htm",
+   "status": "consistent",
+   "compared_facts": 602,
+   "matched": 602,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 570,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 642,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "crm": 44,
+     "dei": 2
+    },
+    "consistent_duplicate_filing_facts": 1
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 8.5
+  },
+  {
+   "ticker": "ADBE",
+   "cik": "0000796343",
+   "form": "10-Q",
+   "accession": "0000796343-26-000156",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/796343/000079634326000156/adbe-20260828.htm",
+   "status": "consistent",
+   "compared_facts": 344,
+   "matched": 344,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 310,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 610,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "adbe": 12,
+     "dei": 1
+    },
+    "consistent_duplicate_filing_facts": 11
+   },
+   "inline_diagnostics": {},
+   "value_diagnostics": [],
+   "seconds": 7.5
+  },
+  {
+   "ticker": "ADBE",
+   "cik": "0000796343",
+   "form": "10-K",
+   "accession": "0000796343-26-000003",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/796343/000079634326000003/adbe-20251128.htm",
+   "status": "consistent",
+   "compared_facts": 514,
+   "matched": 514,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 482,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 637,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "adbe": 46,
+     "dei": 2
+    },
+    "consistent_duplicate_filing_facts": 7
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 7.7
+  },
+  {
+   "ticker": "NOW",
+   "cik": "0001373715",
+   "form": "10-Q",
+   "accession": "0001373715-26-000076",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000076/now-20260630.htm",
+   "status": "consistent",
+   "compared_facts": 392,
+   "matched": 392,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 357,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 516,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "dei": 1,
+     "now": 30
+    },
+    "consistent_duplicate_filing_facts": 1
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 6.0
+  },
+  {
+   "ticker": "NOW",
+   "cik": "0001373715",
+   "form": "10-K",
+   "accession": "0001373715-26-000007",
+   "filing_url": "https://www.sec.gov/Archives/edgar/data/1373715/000137371526000007/now-20251231.htm",
+   "status": "consistent",
+   "compared_facts": 564,
+   "matched": 564,
+   "mismatched": 0,
+   "missing_normalized": 0,
+   "unmatched_normalized": 0,
+   "conflicting_contexts": 0,
+   "unsupported_mapping_rows": 531,
+   "coverage": {
+    "dimensional_filing_facts_not_compared": 471,
+    "filing_facts_outside_companyfacts_taxonomies": {
+     "dei": 2,
+     "now": 36
+    },
+    "consistent_duplicate_filing_facts": 2
+   },
+   "inline_diagnostics": {
+    "nil_fact": 2
+   },
+   "value_diagnostics": [],
+   "seconds": 5.9
+  }
+ ],
+ "limitations": [
+  "Compares SEC CompanyFacts with the same accession's Inline XBRL; it does not validate a commercial price or fundamentals vendor.",
+  "Dimensional (segment/member) facts and filer extension taxonomies are counted as outside CompanyFacts coverage, not compared.",
+  "No analyst usefulness review is implied by this pack."
+ ]
+}

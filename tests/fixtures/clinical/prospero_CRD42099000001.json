@@ -1,0 +1,15 @@
+{
+ "registration_number": "CRD42099000001",
+ "title": "Noetiglutide for type 2 diabetes: a systematic review of randomised trials (fixture)",
+ "review_question": "In adults with type 2 diabetes, what is the effect of noetiglutide compared with placebo or active comparators on glycaemic control?",
+ "condition_or_domain": "Type 2 diabetes",
+ "participants": "Adults with type 2 diabetes",
+ "interventions": "Noetiglutide",
+ "comparators": "Placebo or any active comparator",
+ "main_outcomes": "Change in HbA1c",
+ "searches": "MEDLINE, Embase, CENTRAL, ClinicalTrials.gov, EU CTR",
+ "date_of_registration": "2022-03-14",
+ "stage_of_review": "Ongoing",
+ "version": 2,
+ "last_updated": "2023-01-20"
+}

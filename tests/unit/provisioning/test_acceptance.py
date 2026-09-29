@@ -138,12 +138,14 @@ def test_no_domain_pack_code_is_imported(seed):
     import sys
 
     _seed_two_domains(seed)
+    before = {name for name in sys.modules if name.startswith("src.domains.")}
     prov = Provisioner(seed.conn, quotas=Quotas(), clock=_now)
     _provision(prov, "finance", "Earnings", sources=["Acme Earnings"])
-    # No finance/legal domain pack module exists or was loaded.
+    _provision(prov, "legal", "Policy", sources=["Federal Register"])
+    # Provisioning loads no domain pack module, even for a name that also has
+    # a built-in pack (the standalone Legal pack, #1729).
+    assert {name for name in sys.modules if name.startswith("src.domains.")} == before
     assert "src.domains.finance" not in sys.modules
-    assert "src.domains.legal" not in sys.modules
     import importlib.util
 
     assert importlib.util.find_spec("src.domains.finance") is None
-    assert importlib.util.find_spec("src.domains.legal") is None

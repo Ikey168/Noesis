@@ -24,6 +24,7 @@ QUERY_TYPES = frozenset(
         "supersedes",
         "implements",
         "breaking_changes",
+        "advisory",
     }
 )
 
@@ -230,6 +231,68 @@ def _affected(
     return results, citations
 
 
+def _advisory_as_of(conn: Any, identifier: str | None, observed: int, limit: int) -> dict[str, Any]:
+    """Advisory revisions, ranges, weaknesses, exploitation evidence and scores as they stood at ``observed``.
+
+    Reads the public (``global``) namespace of ``technology.vulnerabilities``;
+    sources stay side by side and nothing is scored or prioritised.
+    """
+    from src.kb.vulnerabilities import DEFAULT_NAMESPACE, READ_SCOPE, VulnerabilityError
+    from src.kb.vulnerability_queries import VulnerabilityQueries
+
+    if not identifier:
+        raise TechnicalQueryError("bad_request", "advisory queries need a CVE/advisory id or a package coordinate")
+    if not conn.execute(
+        "SELECT 1 FROM information_schema.tables WHERE table_name='vuln_revisions'"
+    ).fetchone():
+        raise TechnicalQueryError("not_found", "no vulnerability evidence has been acquired")
+    try:
+        answer = VulnerabilityQueries(conn).advisory_as_of(
+            DEFAULT_NAMESPACE, identifier, as_of=observed,
+            scopes={READ_SCOPE, f"namespace:{DEFAULT_NAMESPACE}:read"},
+        )
+    except VulnerabilityError as exc:
+        raise TechnicalQueryError(exc.code, str(exc)) from exc
+    answers = answer["vulnerabilities"] if "vulnerabilities" in answer else [answer]
+    answers = answers[:limit]
+    citations = [
+        {
+            "revision_id": advisory["revision_id"],
+            "source": advisory["source"],
+            "native_id": advisory["native_id"],
+            "content_digest": advisory["content_digest"],
+            "source_document_id": advisory["document_id"],
+            "observed_at_ms": advisory["observed_at_ms"],
+            "locator_available": True,
+        }
+        for item in answers
+        for advisory in item["advisories"]
+    ]
+    return {
+        "contract": TECHNICAL_RESEARCH_CONTRACT,
+        "query": {
+            "query_type": "advisory",
+            "coordinate": identifier,
+            "observed_before_ms": observed,
+            "vulnerability_namespace": DEFAULT_NAMESPACE,
+        },
+        "results": answers,
+        "citations": citations,
+        "assumptions": [
+            "identifiers resolve through source-stated aliases only",
+            f"revisions observed after {observed} are excluded",
+            "sources are shown side by side; no severity, verdict or priority is derived",
+        ],
+        "cycles": [],
+        "coverage": {
+            "incomplete": not answers,
+            "conflicting_lockfiles": False,
+            "result_count": len(answers),
+            "unknowns": [u for item in answers for u in item.get("unknowns", [])],
+        },
+    }
+
+
 def technical_research(
     backing: Any,
     *,
@@ -263,6 +326,8 @@ def technical_research(
         raise TechnicalQueryError("bad_time", "observed_before is invalid") from exc
     conn, domain = backing.conn, backing.definition.name
     ensure_technical_schema(conn)
+    if query_type == "advisory":
+        return _advisory_as_of(conn, target_id or coordinate, observed, page_size)
     root, resolved_object = _root_id(conn, domain, coordinate, version)
     assumptions = [
         "coordinates and aliases resolve exactly; ambiguous package names are not guessed",

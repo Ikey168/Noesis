@@ -1,0 +1,23 @@
+{
+ "table_id": "fixture-dual-use-cn-correlation",
+ "title": "Authored correlation between Annex I control codes and CN8 codes",
+ "source": {
+  "citation": "Authored fixture standing in for the Commission's published dual-use/CN correlation table (verify the live table before use)",
+  "url": "https://policy.trade.ec.europa.eu/help-exporters-and-importers/exporting-dual-use-items_en",
+  "published": "2026-01-01"
+ },
+ "rows": [
+  {
+   "control_code": "1C350",
+   "product_code": "29309098",
+   "product_scheme": "CN8",
+   "note": "fixture row"
+  },
+  {
+   "control_code": "1C350",
+   "product_code": "293090",
+   "product_scheme": "HS6",
+   "note": "fixture row"
+  }
+ ]
+}

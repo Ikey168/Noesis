@@ -1,0 +1,20 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-market-intraday-replay-v1.json",
+  "type": "object",
+  "required": ["contract", "asset_class", "formula_version", "status", "entitlement", "events", "replay", "quality", "source_revision_ids", "source_rights", "limitations"],
+  "properties": {
+    "contract": {"const": "noesis-market-intraday-replay-v1"},
+    "asset_class": {"const": "intraday"},
+    "formula_version": {"type": "string"},
+    "status": {"enum": ["complete", "degraded", "no_data"]},
+    "entitlement": {"type": "object"},
+    "events": {"type": "array"},
+    "replay": {"type": "object"},
+    "quality": {"type": "object"},
+    "source_revision_ids": {"type": "array", "items": {"type": "string"}},
+    "source_rights": {"type": "object"},
+    "limitations": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": true
+}

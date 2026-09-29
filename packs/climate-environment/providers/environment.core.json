@@ -1,0 +1,511 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "environment.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.environment_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "environment.records",
+      "contract": {
+        "name": "noesis-environment-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "provider-contracts",
+        "acquire-source",
+        "register-schemas",
+        "lookup-series",
+        "list-grid-events",
+        "list-facilities",
+        "bundle-status"
+      ],
+      "semantic_constraints": {
+        "kinds": "observation, model and forecast stay distinct; kind is mandatory",
+        "units": "pint-normalised with published unit retained",
+        "coverage": "explicit bounded selections per provider"
+      }
+    },
+    {
+      "id": "environment.place-dossiers",
+      "contract": {
+        "name": "noesis-environment-dossier",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "build-dossier",
+        "inspect-dossier",
+        "replay-dossier",
+        "export-dossier"
+      ],
+      "semantic_constraints": {
+        "spatial": "geospatial.core within/relations with replayable receipts",
+        "gaps": "explicit coverage gaps; no inference"
+      }
+    },
+    {
+      "id": "environment.vintages",
+      "contract": {
+        "name": "noesis-environment-vintage-comparison",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "compare-vintages"
+      ],
+      "semantic_constraints": {
+        "vintages": "economic provider-vintage clocks and basis labels"
+      }
+    },
+    {
+      "id": "environment.identity",
+      "contract": {
+        "name": "noesis-environment-operator-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-operator-links",
+        "review-operator-link",
+        "list-operator-links"
+      ],
+      "semantic_constraints": {
+        "review": "candidates only; reviewed by another principal"
+      }
+    },
+    {
+      "id": "environment.obligation-evidence",
+      "contract": {
+        "name": "noesis-environment-obligation-evidence",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "attach-evidence",
+        "inspect-evidence"
+      ],
+      "semantic_constraints": {
+        "determination": "none; evidence shown beside obligations"
+      }
+    },
+    {
+      "id": "environment.monitoring",
+      "contract": {
+        "name": "noesis-environment-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "committed watermarks from source-pack runs / maintenance orchestrator",
+        "thresholds": "user-declared or user-cited; never asserted by the pack"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "provider-contracts",
+      "tool": "noesis-knowledge-engine.environment_provider_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-source",
+      "tool": "noesis-knowledge-engine.acquire_environment_source",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": false,
+        "receipt": "provider_execution_requests"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_environment_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "lookup-series",
+      "tool": "noesis-knowledge-engine.lookup_environment_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-grid-events",
+      "tool": "noesis-knowledge-engine.list_environment_grid_events",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-facilities",
+      "tool": "noesis-knowledge-engine.list_environment_facilities",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "build-dossier",
+      "tool": "noesis-knowledge-engine.build_environment_place_dossier",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "dossiers",
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-dossier",
+      "tool": "noesis-knowledge-engine.inspect_environment_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dossiers",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "replay-dossier",
+      "tool": "noesis-knowledge-engine.replay_environment_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dossiers",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "export-dossier",
+      "tool": "noesis-knowledge-engine.export_environment_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "dossiers",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "compare-vintages",
+      "tool": "noesis-knowledge-engine.compare_environment_vintages",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-operator-links",
+      "tool": "noesis-knowledge-engine.propose_environment_operator_links",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "facility + target"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-operator-link",
+      "tool": "noesis-knowledge-engine.review_environment_operator_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "environment_operator_links"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:environment:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-operator-links",
+      "tool": "noesis-knowledge-engine.list_environment_operator_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "attach-evidence",
+      "tool": "noesis-knowledge-engine.attach_environment_obligation_evidence",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "obligation + series vintage + period"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "inspect-evidence",
+      "tool": "noesis-knowledge-engine.inspect_environment_obligation_evidence",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_environment_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_environment_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_environment_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.climate_environment_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "environment-record",
+      "store": "src.kb.environment_store",
+      "tables": [
+        "environment_records",
+        "environment_record_revisions",
+        "environment_record_current",
+        "environment_vintages",
+        "environment_values",
+        "environment_record_links",
+        "environment_provider_state"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "environment-dossier",
+      "store": "src.kb.environment_places",
+      "tables": [
+        "environment_dossiers"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "environment-operator-link",
+      "store": "src.kb.environment_identity",
+      "tables": [
+        "environment_operator_links",
+        "environment_obligation_evidence"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "environment-monitor",
+      "store": "src.kb.environment_monitoring",
+      "tables": [
+        "environment_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "environment_records"
+    },
+    {
+      "id": "dossiers",
+      "kind": "table-exists",
+      "target": "environment_dossiers"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "environment_operator_links"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "environment_monitors"
+    },
+    {
+      "id": "environment-source",
+      "kind": "source-pack-enabled",
+      "target": "climate-environment"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "climate-environment",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

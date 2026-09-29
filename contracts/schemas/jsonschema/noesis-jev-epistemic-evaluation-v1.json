@@ -1,0 +1,69 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-jev-epistemic-evaluation-v1.json",
+  "title": "Held-out Jev epistemic statement-kind evaluation",
+  "type": "object",
+  "required": ["contract", "cases", "independent_human_cases", "required_human_phenomena", "covered_human_phenomena", "by_content_type", "by_language", "by_phenomenon", "statuses", "label_origins", "task_ready", "readiness_requires"],
+  "properties": {
+    "contract": {"const": "noesis-jev-epistemic-evaluation-v1"},
+    "cases": {"$ref": "#/$defs/case_metrics"},
+    "independent_human_cases": {"type": "integer", "minimum": 0},
+    "required_human_phenomena": {"const": ["attribution", "hedging", "quoted_allegation"]},
+    "covered_human_phenomena": {"type": "array", "uniqueItems": true, "items": {"enum": ["attribution", "hedging", "quoted_allegation"]}},
+    "by_content_type": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/case_metrics"}},
+    "by_language": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/case_metrics"}},
+    "by_phenomenon": {"type": "object", "additionalProperties": {"$ref": "#/$defs/case_metrics"}},
+    "statuses": {
+      "type": "object",
+      "required": ["completed", "abstained", "unavailable", "failed"],
+      "properties": {
+        "completed": {"type": "integer", "minimum": 0},
+        "abstained": {"type": "integer", "minimum": 0},
+        "unavailable": {"type": "integer", "minimum": 0},
+        "failed": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "label_origins": {"type": "array", "items": {"enum": ["independent-human", "assisted-human", "fixture"]}},
+    "task_ready": {"const": false},
+    "readiness_requires": {"type": "string", "minLength": 1}
+  },
+  "$defs": {
+    "probability": {"type": "number", "minimum": 0, "maximum": 1},
+    "label_metrics": {
+      "type": "object",
+      "required": ["precision", "recall", "f1", "support"],
+      "properties": {
+        "precision": {"$ref": "#/$defs/probability"},
+        "recall": {"$ref": "#/$defs/probability"},
+        "f1": {"$ref": "#/$defs/probability"},
+        "support": {"type": "integer", "minimum": 0}
+      },
+      "additionalProperties": false
+    },
+    "system_metrics": {
+      "type": "object",
+      "required": ["macro_f1", "per_label", "accuracy", "coverage"],
+      "properties": {
+        "macro_f1": {"$ref": "#/$defs/probability"},
+        "per_label": {"type": "object", "minProperties": 1, "additionalProperties": {"$ref": "#/$defs/label_metrics"}},
+        "accuracy": {"$ref": "#/$defs/probability"},
+        "coverage": {"$ref": "#/$defs/probability"}
+      },
+      "additionalProperties": false
+    },
+    "case_metrics": {
+      "type": "object",
+      "required": ["cases", "independent_human_cases", "jev", "rules", "jev_minus_rules_macro_f1"],
+      "properties": {
+        "cases": {"type": "integer", "minimum": 1},
+        "independent_human_cases": {"type": "integer", "minimum": 0},
+        "jev": {"$ref": "#/$defs/system_metrics"},
+        "rules": {"$ref": "#/$defs/system_metrics"},
+        "jev_minus_rules_macro_f1": {"type": "number", "minimum": -1, "maximum": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "additionalProperties": false
+}

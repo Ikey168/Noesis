@@ -385,6 +385,22 @@ def test_extract_claims_success():
     assert body["claims"][0]["confidence"] == 0.7778
 
 
+def test_extract_claims_from_paper_document_uses_stored_source_type():
+    conn = FakeConn(routes=[
+        ("from documents where document_id", [("paper:1", "Setun", "A ternary computer was developed.", "paper")]),
+    ])
+    with patch_conn(conn), \
+         patch("src.argument_mining.evidence.run_pipeline", return_value=([], [])) as pipeline:
+        r = make_client(conn).post(
+            "/api/v1/arguments/claims/extract",
+            params={"document_id": "paper:1"},
+        )
+    assert r.status_code == 200
+    assert r.json()["source_type"] == "paper"
+    assert pipeline.call_args.args[0].source_type == "paper"
+    assert not any("from news_articles" in sql.lower() for sql, _ in conn.calls)
+
+
 def test_extract_claims_not_found():
     conn = FakeConn(routes=[("from news_articles where id", [])])
     with patch_conn(conn):

@@ -1,0 +1,148 @@
+{
+ "version": "2.0",
+ "class": "dataset",
+ "label": "Immigration by age group, sex and citizenship (authored fixture: fictional values, not Eurostat data)",
+ "source": "ESTAT",
+ "updated": "2099-03-15T23:00:00+0100",
+ "id": [
+  "freq",
+  "citizen",
+  "agedef",
+  "age",
+  "unit",
+  "sex",
+  "geo",
+  "time"
+ ],
+ "size": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  3
+ ],
+ "dimension": {
+  "freq": {
+   "label": "Time frequency",
+   "category": {
+    "index": {
+     "A": 0
+    },
+    "label": {
+     "A": "Annual"
+    }
+   }
+  },
+  "citizen": {
+   "label": "Country of citizenship",
+   "category": {
+    "index": {
+     "TOTAL": 0
+    },
+    "label": {
+     "TOTAL": "Total"
+    }
+   }
+  },
+  "agedef": {
+   "label": "Age definition",
+   "category": {
+    "index": {
+     "COMPLET": 0
+    },
+    "label": {
+     "COMPLET": "Age in completed years"
+    }
+   }
+  },
+  "age": {
+   "label": "Age class",
+   "category": {
+    "index": {
+     "TOTAL": 0
+    },
+    "label": {
+     "TOTAL": "Total"
+    }
+   }
+  },
+  "unit": {
+   "label": "Unit of measure",
+   "category": {
+    "index": {
+     "NR": 0
+    },
+    "label": {
+     "NR": "Number"
+    }
+   }
+  },
+  "sex": {
+   "label": "Sex",
+   "category": {
+    "index": {
+     "T": 0
+    },
+    "label": {
+     "T": "Total"
+    }
+   }
+  },
+  "geo": {
+   "label": "Geopolitical entity (reporting)",
+   "category": {
+    "index": {
+     "DE": 0
+    },
+    "label": {
+     "DE": "Germany"
+    }
+   }
+  },
+  "time": {
+   "label": "Time",
+   "category": {
+    "index": {
+     "2096": 0,
+     "2097": 1,
+     "2098": 2
+    },
+    "label": {
+     "2096": "2096",
+     "2097": "2097",
+     "2098": "2098"
+    }
+   }
+  }
+ },
+ "value": {
+  "0": 1200100,
+  "1": 1300200,
+  "2": 1250300
+ },
+ "extension": {
+  "lang": "EN",
+  "datasetId": "migr_imm1ctz",
+  "status": {
+   "label": {
+    "p": "provisional",
+    "e": "estimated value",
+    "b": "break in time series",
+    "c": "confidential",
+    "d": "definition differs"
+   }
+  },
+  "annotation": [
+   {
+    "type": "DISSEMINATION_OBJECT_TYPE",
+    "title": "DATASET"
+   }
+  ]
+ },
+ "status": {
+  "2": "e"
+ }
+}

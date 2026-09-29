@@ -1,0 +1,270 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: fictional products, brands, companies and notice numbers in the provider's documented shape (docs/roadmaps/products-safety-source-audit.md). Field names are unverified-live.",
+ "provider": "safety-gate",
+ "native_pages": [
+  {
+   "request": "/safety-gate-alerts/public/api/notification/alerts?reference=SR%2F00417%2F26",
+   "status": 200,
+   "body": {
+    "alert": {
+     "reference": "SR/00417/26",
+     "notificationType": "Alert notification",
+     "notifyingCountry": {
+      "code": "DE",
+      "name": "Germany"
+     },
+     "publicationDate": "2026-03-13",
+     "lastUpdateDate": null,
+     "product": {
+      "category": "Electrical appliances and equipment",
+      "name": "Computer monitor with external power adapter",
+      "brand": "Exampla",
+      "typeNumberOfModel": "EX-32U8",
+      "batchNumber": "B2025-11",
+      "barcode": "4012345000029",
+      "description": "32-inch UHD monitor, black, supplied with a 19 V external power adapter.",
+      "countryOfOrigin": {
+       "code": "CN",
+       "name": "China"
+      }
+     },
+     "risk": {
+      "riskType": [
+       "Electric shock"
+      ],
+      "level": "Serious risk",
+      "description": "The insulation of the power adapter is insufficient. The user may touch live parts and receive an electric shock.",
+      "compliance": "The product does not comply with the requirements of Directive 2014/35/EU and the relevant European standard EN 62368-1:2014+A11:2017; the notification refers to Regulation (EU) 2023/988."
+     },
+     "measures": [
+      {
+       "measureType": "Recall of the product from end users",
+       "takenBy": "Economic operator",
+       "category": "Voluntary measures"
+      }
+     ],
+     "followUps": [],
+     "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-00417-26"
+    }
+   }
+  },
+  {
+   "request": "/safety-gate-alerts/public/api/notification/alerts?reference=SR%2F00431%2F26",
+   "status": 200,
+   "body": {
+    "alert": {
+     "reference": "SR/00431/26",
+     "notificationType": "Alert notification",
+     "notifyingCountry": {
+      "code": "NL",
+      "name": "Netherlands"
+     },
+     "publicationDate": "2026-03-20",
+     "lastUpdateDate": null,
+     "product": {
+      "category": "Electrical appliances and equipment",
+      "name": "Computer monitor",
+      "brand": "Exampla",
+      "typeNumberOfModel": "EX-27Q4",
+      "batchNumber": "B2026-02",
+      "barcode": "4012345000016",
+      "description": "27-inch QHD monitor with integrated power supply."
+     },
+     "risk": {
+      "riskType": [
+       "Fire"
+      ],
+      "level": "Serious risk",
+      "description": "The internal power supply can overheat and ignite the housing.",
+      "compliance": "The product does not comply with EN 62368-1:2014+A11:2017."
+     },
+     "measures": [
+      {
+       "measureType": "Withdrawal of the product from the market",
+       "takenBy": "Economic operator",
+       "category": "Voluntary measures"
+      }
+     ],
+     "followUps": [],
+     "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-00431-26"
+    }
+   }
+  },
+  {
+   "request": "/safety-gate-alerts/public/api/notification/alerts?reference=SR%2F00502%2F26",
+   "status": 200,
+   "body": {
+    "alert": {
+     "reference": "SR/00502/26",
+     "notificationType": "Alert notification",
+     "notifyingCountry": {
+      "code": "AT",
+      "name": "Austria"
+     },
+     "publicationDate": "2026-04-03",
+     "lastUpdateDate": null,
+     "product": {
+      "category": "Electrical appliances and equipment",
+      "name": "Desk monitor",
+      "brand": "Othermark",
+      "typeNumberOfModel": "OM-9",
+      "batchNumber": null,
+      "barcode": "4012345000030",
+      "description": "24-inch monitor sold online."
+     },
+     "risk": {
+      "riskType": [
+       "Electric shock"
+      ],
+      "level": "Serious risk",
+      "description": "Live parts are accessible through the ventilation openings.",
+      "compliance": null
+     },
+     "measures": [
+      {
+       "measureType": "Stop of sales",
+       "takenBy": "Authorities",
+       "category": "Compulsory measures"
+      }
+     ],
+     "followUps": [],
+     "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-00502-26"
+    }
+   }
+  },
+  {
+   "request": "/safety-gate-alerts/public/api/notification/alerts?reference=SR%2F00388%2F26",
+   "status": 200,
+   "body": {
+    "alert": {
+     "reference": "SR/00388/26",
+     "notificationType": "Alert notification",
+     "notifyingCountry": {
+      "code": "IE",
+      "name": "Ireland"
+     },
+     "publicationDate": "2026-02-27",
+     "lastUpdateDate": null,
+     "product": {
+      "category": "Electrical appliances and equipment",
+      "name": "Electric kettle",
+      "brand": "Brightway",
+      "typeNumberOfModel": "BW-KT200",
+      "batchNumber": "2025/48",
+      "barcode": "0012345678905",
+      "description": "1.7 L stainless steel kettle with 360-degree base."
+     },
+     "risk": {
+      "riskType": [
+       "Burns"
+      ],
+      "level": "Serious risk",
+      "description": "The base can overheat; the user may suffer burns.",
+      "compliance": "The product does not comply with EN 60335-2-15."
+     },
+     "measures": [
+      {
+       "measureType": "Recall of the product from end users",
+       "takenBy": "Economic operator",
+       "category": "Voluntary measures"
+      }
+     ],
+     "followUps": [],
+     "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-00388-26"
+    }
+   }
+  },
+  {
+   "request": "/safety-gate-alerts/public/api/notification/alerts?reference=SR%2F09999%2F26",
+   "status": 404,
+   "body": null
+  },
+  {
+   "request": "/safety-gate-alerts/public/api/notification/weekly-reports/2026/11",
+   "status": 200,
+   "body": {
+    "week": "2026-W11",
+    "alerts": [
+     {
+      "reference": "SR/00417/26",
+      "notificationType": "Alert notification",
+      "notifyingCountry": {
+       "code": "DE",
+       "name": "Germany"
+      },
+      "publicationDate": "2026-03-13",
+      "lastUpdateDate": null,
+      "product": {
+       "category": "Electrical appliances and equipment",
+       "name": "Computer monitor with external power adapter",
+       "brand": "Exampla",
+       "typeNumberOfModel": "EX-32U8",
+       "batchNumber": "B2025-11",
+       "barcode": "4012345000029",
+       "description": "32-inch UHD monitor, black, supplied with a 19 V external power adapter.",
+       "countryOfOrigin": {
+        "code": "CN",
+        "name": "China"
+       }
+      },
+      "risk": {
+       "riskType": [
+        "Electric shock"
+       ],
+       "level": "Serious risk",
+       "description": "The insulation of the power adapter is insufficient. The user may touch live parts and receive an electric shock.",
+       "compliance": "The product does not comply with the requirements of Directive 2014/35/EU and the relevant European standard EN 62368-1:2014+A11:2017; the notification refers to Regulation (EU) 2023/988."
+      },
+      "measures": [
+       {
+        "measureType": "Recall of the product from end users",
+        "takenBy": "Economic operator",
+        "category": "Voluntary measures"
+       }
+      ],
+      "followUps": [],
+      "url": "https://ec.europa.eu/safety-gate-alerts/screen/webReport/alertDetail/SR-00417-26"
+     },
+     {
+      "reference": "SR/00420/26",
+      "notificationType": "Alert notification",
+      "notifyingCountry": {
+       "code": "FR",
+       "name": "France"
+      },
+      "publicationDate": "2026-03-13",
+      "product": {
+       "category": "Toys",
+       "name": "Plush toy",
+       "brand": "Fluffo",
+       "typeNumberOfModel": "FL-1",
+       "barcode": "4012345000047"
+      },
+      "risk": {
+       "riskType": [
+        "Choking"
+       ],
+       "level": "Serious risk",
+       "description": "Small parts detach."
+      },
+      "measures": [
+       {
+        "measureType": "Withdrawal of the product from the market",
+        "takenBy": "Distributor"
+       }
+      ]
+     }
+    ]
+   }
+  }
+ ],
+ "scenarios": [
+  "alert-by-number",
+  "weekly-report-category-filter",
+  "gtin-contradicting-brand",
+  "same-gtin-two-authorities",
+  "not-found-selector"
+ ]
+}

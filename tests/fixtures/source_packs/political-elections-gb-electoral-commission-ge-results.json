@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "ONS ID,Constituency name,Country name,Candidate first name,Candidate surname,Party name,Party abbreviation,Votes,Share,Electorate,Valid votes,Invalid votes,Elected\nE14099901,Exampleton,England,Alex,Sample,Example Party,EXP,21000,45.2,72000,46500,120,Yes\nE14099901,Exampleton,England,Sam,Placeholder,Demo Union,DU,19500,41.9,72000,46500,120,No\nE14099901,Exampleton,England,Jo,Fictive,Imaginary Greens,IG,6000,12.9,72000,46500,120,No\nE14099902,Sampleford,England,Chris,Mock,Example Party,EXP,15000,40.5,68000,37000,90,No\nE14099902,Sampleford,England,Pat,Dummy,Demo Union,DU,22000,59.5,68000,37000,90,Yes\nW07099903,Aberfictional,Wales,Rhys,Testun,Example Party,EXP,9000,45.0,51000,20000,60,No\nW07099903,Aberfictional,Wales,Ceri,Enghraifft,Demo Union,DU,11000,55.0,51000,20000,60,Yes\n",
+   "headers": {
+    "Content-Type": "text/csv",
+    "Last-Modified": "Fri, 15 May 2099 10:00:00 GMT"
+   },
+   "request": "/sites/default/files/electoral-data/ge-2024-candidate-results.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored release in the documented gb-ec-candidates-csv shape; every area, party and candidate is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

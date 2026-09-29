@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ListOfIRPublicDetail generationDate="2099-01-15">
+  <interestRepresentative>
+    <identificationCode>000000000101-01</identificationCode>
+    <status>ACTIVE</status>
+    <registrationDate>2098-05-02</registrationDate>
+    <lastUpdateDate>2099-01-10</lastUpdateDate>
+    <name><originalName>Fictional Grid Association</originalName></name>
+    <legalStatus>Association (fictional)</legalStatus>
+    <webSiteURL>https://grid-association.example</webSiteURL>
+    <registrationCategory>Trade and business associations</registrationCategory>
+    <section>II - In-house lobbyists and trade/business/professional associations</section>
+    <headOffice><address>1 Example Allee</address><postCode>10999</postCode><city>Fictionburg</city><country>DE</country></headOffice>
+    <identifiers><identifier scheme="lei">5299000FIXTURE000017</identifier></identifiers>
+    <interests><interest><name>Energy</name></interest><interest><name>Internal Market</name></interest></interests>
+    <EULegislativeProposals>
+      <proposal procedureReference="2099/0101(COD)">Proposal for a Regulation on fictional grid tariffs</proposal>
+    </EULegislativeProposals>
+    <financialData>
+      <closedYear start="2098-01-01" end="2098-12-31"/>
+      <closedYearCosts currency="EUR" min="100000" max="199999">100 000 - 199 999</closedYearCosts>
+      <grants><grant source="European Commission" programme="Fictional Research Programme" currency="EUR" amount="50000" year="2098">50 000</grant></grants>
+    </financialData>
+  </interestRepresentative>
+  <interestRepresentative>
+    <identificationCode>000000000202-02</identificationCode>
+    <status>ACTIVE</status>
+    <registrationDate>2097-11-20</registrationDate>
+    <lastUpdateDate>2099-01-05</lastUpdateDate>
+    <name><originalName>Example Public Affairs SARL</originalName></name>
+    <legalStatus>SARL (fictional)</legalStatus>
+    <webSiteURL>https://public-affairs.example</webSiteURL>
+    <registrationCategory>Professional consultancies</registrationCategory>
+    <section>I - Professional consultancies/law firms/self-employed consultants</section>
+    <headOffice><address>2 Rue Exemple</address><postCode>75999</postCode><city>Paris</city><country>FR</country></headOffice>
+    <interests><interest><name>Energy</name></interest></interests>
+    <financialData>
+      <closedYear start="2098-01-01" end="2098-12-31"/>
+      <closedYearRevenue currency="EUR" min="500000" max="999999">500 000 - 999 999</closedYearRevenue>
+      <clients>
+        <client name="Fictional Grid Association" identificationCode="000000000101-01"><revenue currency="EUR" min="10000" max="24999">10 000 - 24 999</revenue></client>
+        <client name="Nordic Example Energy AB"><revenue currency="EUR">&lt; 10 000</revenue></client>
+      </clients>
+    </financialData>
+  </interestRepresentative>
+  <interestRepresentative>
+    <identificationCode>000000000303-03</identificationCode>
+    <status>ACTIVE</status>
+    <registrationDate>2098-09-01</registrationDate>
+    <lastUpdateDate>2098-12-01</lastUpdateDate>
+    <name><originalName>Sample Mobility Forum</originalName></name>
+    <legalStatus>Non-profit (fictional)</legalStatus>
+    <registrationCategory>Non-governmental organisations</registrationCategory>
+    <section>III - Non-governmental organisations</section>
+    <headOffice><address>3 Voorbeeldstraat</address><postCode>1999</postCode><city>Brussels</city><country>BE</country></headOffice>
+    <interests><interest><name>Transport</name></interest></interests>
+    <EULegislativeProposals>Views on fictional grid tariffs and electric vehicle charging networks</EULegislativeProposals>
+  </interestRepresentative>
+</ListOfIRPublicDetail>
