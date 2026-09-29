@@ -53,6 +53,9 @@ from src.kb.agrifood_records import (
 from src.kb.agrifood_store import AgrifoodStore, table_exists
 
 KINDS = ("equivalent", "broader", "narrower")
+# Classification schemes other packs cite (trade flows by HS/CN/CPC heading); a reviewer may map an acquired code to
+# one of them, so a trade record citing that heading reaches the commodity through the reviewed mapping only.
+EXTERNAL_SCHEMES = ("hs", "cn", "cpc")
 INVERSE = {"equivalent": "equivalent", "broader": "narrower", "narrower": "broader"}
 OWNER = "agrifood.core"
 GEO_READ, GEO_WRITE = "knowledge:geospatial:read", "knowledge:geospatial:write"
@@ -218,14 +221,15 @@ class AgrifoodIdentity:
         authorize(namespace, scopes, REVIEW_SCOPE, write=True)
         a, b = parse_code(left), parse_code(right)
         labels = self._labels(namespace)
-        if a is None or b is None or a not in labels or b not in labels or a[0] == b[0]:
-            raise AgrifoodError("not_found", "both codes must be acquired commodity codes of different schemes "
-                                             "(scheme:code)")
+        known = [x is not None and (x in labels or x[0] in EXTERNAL_SCHEMES) for x in (a, b)]
+        if not all(known) or a[0] == b[0] or (a[0] in EXTERNAL_SCHEMES and b[0] in EXTERNAL_SCHEMES):
+            raise AgrifoodError("not_found", "both codes must be commodity codes of different schemes (scheme:code): "
+                                             f"acquired codes, or one acquired code and a {EXTERNAL_SCHEMES} heading")
         if not str(evidence or "").strip():
             raise AgrifoodError("invalid_crosswalk", "a manual mapping states its evidence")
         record = {"rule": "reviewer-stated", "stated": evidence.strip(),
-                  "left": {"scheme": a[0], "code": a[1], "labels": sorted(labels[a]["labels"])},
-                  "right": {"scheme": b[0], "code": b[1], "labels": sorted(labels[b]["labels"])}}
+                  "left": {"scheme": a[0], "code": a[1], "labels": sorted(labels.get(a, {}).get("labels", set()))},
+                  "right": {"scheme": b[0], "code": b[1], "labels": sorted(labels.get(b, {}).get("labels", set()))}}
         result = self._offer(namespace, a, b, kind, record, origin="manual", principal_id=principal_id)
         return self.crosswalk(namespace, result["crosswalk_id"], scopes=scopes)
 
@@ -458,4 +462,4 @@ def _cite(crosswalk: Mapping[str, Any]) -> dict[str, Any]:
             "evidence": crosswalk["evidence"]}
 
 
-__all__ = ["INVERSE", "KINDS", "PLACES", "AgrifoodIdentity", "label_names", "parse_code"]
+__all__ = ["EXTERNAL_SCHEMES", "INVERSE", "KINDS", "PLACES", "AgrifoodIdentity", "label_names", "parse_code"]
