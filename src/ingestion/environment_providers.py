@@ -101,7 +101,9 @@ PROVIDER_CONTRACTS = {
     },
     "entsoe": {
         "documentation": "https://transparencyplatform.zendesk.com/hc/en-us/articles/12845911031188-How-to-get-security-token",
-        "access": "Transparency Platform RESTful API (XML): A75 generation per type, A65 load (A16 actual, A01 day-ahead), A80 generation-unit unavailability",
+        "access": ("Transparency Platform RESTful API (XML): A75 generation per type, A65 load (A16 actual, A01 day-ahead), "
+                   "A80 generation-unit unavailability; for the Energy Systems pack also A44 day-ahead prices, A68/A71 "
+                   "installed capacity (zone, production unit) and A11 physical cross-border flows (energy records)"),
         "authentication": "required securityToken query parameter (secret ref NOESIS_ENTSOE_SECURITY_TOKEN); token by e-mail request to the platform",
         "terms": "ENTSO-E Transparency Platform terms and conditions; reuse with source attribution",
         "rate_limits": "400 requests/min per token documented; budgets stay far below",
@@ -275,6 +277,17 @@ _ENTSOE_DOCUMENTS = {
     "load-forecast": {"documentType": "A65", "processType": "A01", "zone": "outBiddingZone_Domain", "event_type": "load", "kind": "forecast"},
     "unavailability": {"documentType": "A80", "zone": "biddingZone_Domain", "event_type": "unavailability", "kind": "observation"},
 }
+# Energy Systems documents (#2236): the same ENTSO-E client, token and plan serve the energy pack; these
+# documents parse into ``noesis-energy-record-v1`` records (src/kb/energy_records.py), never environment records.
+_ENTSOE_ENERGY_DOCUMENTS = {
+    "day-ahead-price": {"documentType": "A44", "zones": ("in_Domain", "out_Domain"), "record_type": "price",
+                        "extra": {"contract_MarketAgreement.type": "A01"}},
+    "installed-capacity": {"documentType": "A68", "processType": "A33", "zones": ("in_Domain",),
+                           "record_type": "capacity"},
+    "installed-capacity-units": {"documentType": "A71", "processType": "A33", "zones": ("in_Domain",),
+                                 "record_type": "capacity"},
+    "cross-border-flow": {"documentType": "A11", "record_type": "cross_border_flow", "border": True},
+}
 _PSR = {"B01": "Biomass", "B04": "Fossil Gas", "B02": "Fossil Brown coal/Lignite", "B05": "Fossil Hard coal",
         "B06": "Fossil Oil", "B14": "Nuclear", "B16": "Solar", "B18": "Wind Offshore", "B19": "Wind Onshore",
         "B10": "Hydro Pumped Storage", "B11": "Hydro Run-of-river and poundage", "B20": "Other"}
@@ -334,8 +347,19 @@ def _duration(text):
 
 
 def _record(record):
-    """Validate an adapter record through the E02 constructors (fail closed)."""
+    """Validate an adapter record through the E02 constructors (fail closed).
 
+    Energy Systems records (``noesis-energy-record-v1``, from the energy ENTSO-E documents) validate
+    through their own constructors in :mod:`src.kb.energy_records`.
+    """
+
+    if record.get("contract") == "noesis-energy-record-v1":
+        from src.kb.energy_records import EnergyRecordError, validate
+
+        try:
+            return validate(record)
+        except EnergyRecordError as exc:
+            raise ProviderError("schema_drift", f"record failed validation: {exc}") from exc
     try:
         return er.validate(record)
     except er.EnvironmentRecordError as exc:
@@ -397,7 +421,11 @@ def plan(provider, selection):
         zone = str(selection.get("bidding_zone") or "")
         if not _EIC.fullmatch(zone):
             raise ProviderError("unbounded_selection", "ENTSO-E selections name one EIC bidding zone")
-        for document in _bounded_list(selection.get("documents"), "documents", 4):
+        for document in _bounded_list(selection.get("documents"), "documents", 8):
+            energy = _ENTSOE_ENERGY_DOCUMENTS.get(document)
+            if energy is not None:
+                steps.extend(_entsoe_energy_steps(document, energy, zone, selection))
+                continue
             spec = _ENTSOE_DOCUMENTS.get(document)
             if spec is None:
                 raise ProviderError("unbounded_selection", f"unsupported ENTSO-E document {document}")
@@ -468,6 +496,30 @@ def plan(provider, selection):
                       "context": {"station": station, "parameter": selection["parameter"], "period": period}})
     if not steps or len(steps) > MAX_STEPS:
         raise ProviderError("unbounded_selection", "selection compiles to no or too many requests")
+    return steps
+
+
+def _entsoe_energy_steps(document, spec, zone, selection):
+    """Request steps for one energy document; cross-border flows are requested per declared border, both ways."""
+
+    base = {"documentType": spec["documentType"], "periodStart": selection["period_start"],
+            "periodEnd": selection["period_end"], **spec.get("extra", {})}
+    if "processType" in spec:
+        base["processType"] = spec["processType"]
+    context = {"document": document, "zone": zone, "zone_name": selection.get("zone_name"),
+               "retrieved_at": selection.get("retrieved_at")}
+    if not spec.get("border"):
+        return [{"parse": "entsoe_energy", "url": "https://web-api.tp.entsoe.eu/api",
+                 "params": {**base, **{name: zone for name in spec["zones"]}}, "context": context}]
+    steps = []
+    for border in _bounded_list(selection.get("border_zones"), "border_zones", 6):
+        if not _EIC.fullmatch(border):
+            raise ProviderError("unbounded_selection", "border zones are EIC codes")
+        for out_zone, in_zone, direction in ((zone, border, "out_of_subject"), (border, zone, "into_subject")):
+            steps.append({"parse": "entsoe_energy", "url": "https://web-api.tp.entsoe.eu/api",
+                          "params": {**base, "out_Domain": out_zone, "in_Domain": in_zone},
+                          "context": {**context, "border": border, "direction": direction,
+                                      "border_name": (selection.get("border_names") or {}).get(border)}})
     return steps
 
 
@@ -678,13 +730,13 @@ def _instant_z(text):
     return datetime.fromisoformat(str(text).replace("Z", "+00:00"))
 
 
-def _points(period, *, resolution, curve=None):
+def _points(period, *, resolution, curve=None, tag="quantity"):
     """Period points; curve A03 (variable blocks) holds a value until the next point or the interval end."""
 
     start = _instant_z(_text_at(period, "timeInterval/start"))
     end = _instant_z(_text_at(period, "timeInterval/end"))
     step = _duration(resolution)
-    rows = [(int(_text_at(p, "position")), _text_at(p, "quantity")) for p in period.findall("Point")]
+    rows = [(int(_text_at(p, "position")), _text_at(p, tag)) for p in period.findall("Point")]
     points = []
     for index, (position, quantity) in enumerate(rows):
         begin = start + step * (position - 1)
@@ -692,7 +744,7 @@ def _points(period, *, resolution, curve=None):
             finish = start + step * (rows[index + 1][0] - 1) if index + 1 < len(rows) else end
         else:
             finish = begin + step
-        points.append({"start": _utc(begin), "end": _utc(finish), "value": _num(quantity, "quantity"),
+        points.append({"start": _utc(begin), "end": _utc(finish), "value": _num(quantity, tag),
                        "status": "unknown", "flags": {"position": position, "curve_type": curve}})
     return points
 
@@ -765,6 +817,126 @@ def parse_entsoe(content, context, carry, *, url):
                 kind=spec["kind"], resolution=resolution, production_type=production, unit=unit, points=points,
                 document={**document, "issue_time": document["created"] if spec["kind"] == "forecast" else None}))
     return records, carry
+
+
+def _entsoe_period_points(period, *, curve, tag):
+    resolution = _text_at(period, "resolution")
+    if resolution in {"P1Y", "P1M", "P7D", "P1D"}:
+        # One value for the whole declared interval (installed capacity is published per year).
+        start, end = _text_at(period, "timeInterval/start"), _text_at(period, "timeInterval/end")
+        points = period.findall("Point")
+        if len(points) != 1:
+            raise ProviderError("schema_drift", f"{resolution} periods carry exactly one point")
+        return resolution, [{"start": _utc(_instant_z(start)), "end": _utc(_instant_z(end)),
+                             "value": _num(_text_at(points[0], tag), tag),
+                             "flags": {"position": int(_text_at(points[0], "position") or 1), "curve_type": curve}}]
+    return resolution, [{k: v for k, v in p.items() if k != "status"}
+                        for p in _points(period, resolution=resolution, curve=curve, tag=tag)]
+
+
+def parse_entsoe_energy(content, context, carry, *, url):
+    """ENTSO-E day-ahead prices, installed capacity (zone and unit) and physical flows as energy records."""
+
+    from src.kb import energy_records as enr
+
+    spec = _ENTSOE_ENERGY_DOCUMENTS[context["document"]]
+    zone = context["zone"]
+    retrieved = context.get("retrieved_at")
+    if not retrieved:
+        raise ProviderError("schema_drift", "energy parsing needs the retrieval time of the response")
+    records = []
+    for name, raw in _entsoe_documents(content):
+        try:
+            root = _strip(ET.fromstring(raw))
+        except ET.ParseError as exc:
+            raise ProviderError("schema_drift", "ENTSO-E response is not XML") from exc
+        if root.tag == "Acknowledgement_MarketDocument":
+            code, text = _text_at(root, "Reason/code"), _text_at(root, "Reason/text")
+            if code == "999":
+                label = context["document"] + (f":{context['border']}:{context['direction']}" if context.get("border") else "")
+                return [], {**carry, "entsoe_no_data": [*carry.get("entsoe_no_data", []), label]}
+            raise ProviderError("provider_rejected", f"ENTSO-E acknowledgement {code}: {(text or '')[:120]}")
+        document = {"mrid": _text_at(root, "mRID"), "revision": _text_at(root, "revisionNumber"),
+                    "type": _text_at(root, "type"), "created": _text_at(root, "createdDateTime"),
+                    "process_type": _text_at(root, "process.processType"), "file": name}
+        if not document["mrid"] or document["type"] != spec["documentType"]:
+            raise ProviderError("schema_drift", "ENTSO-E document mRID/type does not match the request")
+        status, basis = enr.entsoe_status(document)
+        release = enr.entsoe_release(document, retrieved)
+        for index, series in enumerate(root.findall("TimeSeries")):
+            curve = _text_at(series, "curveType")
+            tag = "price.amount" if spec["record_type"] == "price" else "quantity"
+            resolution, points = None, []
+            for period in series.findall("Period"):
+                resolution, period_points = _entsoe_period_points(period, curve=curve, tag=tag)
+                points += period_points
+            if spec["record_type"] == "price":
+                currency = _text_at(series, "currency_Unit.name")
+                if not currency or _text_at(series, "price_Measure_Unit.name") != "MWH":
+                    raise ProviderError("schema_drift", "day-ahead prices state a currency per MWH")
+                unit = f"{currency}/MWh"
+            else:
+                raw_unit = _text_at(series, "quantity_Measure_Unit.name")
+                if raw_unit is None:
+                    raise ProviderError("schema_drift", "ENTSO-E time series has no unit")
+                unit = {"MAW": "MW"}.get(raw_unit, raw_unit)
+            psr = _text_at(series, "MktPSRType/psrType")
+            fuel = None if psr is None else {"code": psr, "label": _PSR.get(psr), "scheme": "entsoe-psr-type"}
+            facets = {"document_type": document["type"], "process_type": document["process_type"], "fuel": fuel}
+            zone_label = context.get("zone_name") or zone
+            subject = {"kind": "bidding-zone", "scheme": "eic", "code": zone, "name": context.get("zone_name")}
+            counterpart, capacity = None, None
+            native = f"{document['type']}:{zone}"
+            if spec["record_type"] == "price":
+                title = f"Day-ahead price ({zone_label})"
+                native += f":{resolution}"
+            elif spec["record_type"] == "cross_border_flow":
+                counterpart = {"kind": "bidding-zone", "scheme": "eic", "code": context["border"],
+                               "name": context.get("border_name")}
+                facets["direction"] = context["direction"]
+                native += f":{context['border']}:{context['direction']}:{resolution}"
+                arrow = "to" if context["direction"] == "out_of_subject" else "from"
+                title = f"Physical flow {zone_label} {arrow} {context.get('border_name') or context['border']}"
+            elif context["document"] == "installed-capacity":
+                capacity = {"level": "zone", "effective_from": points[0]["start"] if points else None,
+                            "effective_to": points[-1]["end"] if points else None, "operating_status": None,
+                            "plant": None}
+                native += f":{psr or 'total'}"
+                title = f"Installed capacity{' - ' + fuel['label'] if fuel and fuel['label'] else ''} ({zone_label})"
+            else:
+                unit_mrid = (_text_at(series, "MktPSRType/PowerSystemResources/mRID")
+                             or _text_at(series, "registeredResource.mRID"))
+                unit_name = (_text_at(series, "MktPSRType/PowerSystemResources/name")
+                             or _text_at(series, "registeredResource.name"))
+                if not unit_mrid:
+                    raise ProviderError("schema_drift", "unit capacity series lacks the production unit mRID")
+                subject = {"kind": "unit", "scheme": "entsoe-unit", "code": unit_mrid, "name": unit_name}
+                capacity = {"level": "unit", "effective_from": points[0]["start"] if points else None,
+                            "effective_to": points[-1]["end"] if points else None, "operating_status": None,
+                            "plant": {"bidding_zone": zone, "unit_name": unit_name}}
+                native = f"{document['type']}:{unit_mrid}"
+                title = f"Installed capacity of {unit_name or unit_mrid} ({zone_label})"
+            records.append(_build_energy(
+                enr.record, spec["record_type"], "entsoe", f"entsoe:{document['type']}:{document['process_type'] or '-'}",
+                native, title, source_url="https://transparency.entsoe.eu/", attribution=enr.ENTSOE_ATTRIBUTION,
+                licence=enr.ENTSOE_LICENCE, subject=subject, counterpart=counterpart, unit=unit,
+                resolution=resolution,
+                reference_period={"start": points[0]["start"] if points else retrieved,
+                                  "end": points[-1]["end"] if points else None},
+                values=points, release=release, status=status, status_basis=basis, retrieved_at=retrieved,
+                facets=facets, capacity=capacity,
+                locator={"document_mrid": document["mrid"], "revision": document["revision"], "file": name,
+                         "time_series": _text_at(series, "mRID") or str(index + 1)}))
+    return records, carry
+
+
+def _build_energy(factory, *args, **kwargs):
+    from src.kb.energy_records import EnergyRecordError
+
+    try:
+        return factory(*args, **kwargs)
+    except EnergyRecordError as exc:
+        raise ProviderError(exc.code if exc.code == "forecast_refused" else "schema_drift", str(exc)) from exc
 
 
 def parse_smard(content, context, carry, *, url):
@@ -1014,7 +1186,7 @@ def parse_dwd_product(content, context, carry, *, url):
 PARSERS: dict[str, Callable[..., tuple[list[dict[str, Any]], dict[str, Any]]]] = {
     "openaq_location": parse_openaq_location, "openaq_hours": parse_openaq_hours,
     "uba_stations": parse_uba_stations, "uba_components": parse_uba_components, "uba_measures": parse_uba_measures,
-    "entsoe": parse_entsoe, "smard": parse_smard, "eea_industry": parse_eea_industry, "eu_ets": parse_eu_ets,
+    "entsoe": parse_entsoe, "entsoe_energy": parse_entsoe_energy, "smard": parse_smard, "eea_industry": parse_eea_industry, "eu_ets": parse_eu_ets,
     "open_meteo_meta": parse_open_meteo_meta, "open_meteo": parse_open_meteo,
     "dwd_stations": parse_dwd_stations, "dwd_product": parse_dwd_product,
 }

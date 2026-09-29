@@ -1,0 +1,427 @@
+{
+ "pack_id": "energy-systems",
+ "version": "1.0.0",
+ "description": "Energy Systems sources: generation by fuel, load, day-ahead prices, installed capacity (zone and plant/unit), cross-border flows and energy balances as published, each release a vintage. ENTSO-E reuses the Climate and Environment adapter (no second acquisition path); EIA Open Data v2, Ember, Eurostat energy balances (SDMX connector) and Energy-Charts public power (licence decision: public_power acquired, prices link-only). Access audit: docs/roadmaps/energy-systems-source-audit.md. Every source is unverified-live until a dated run. Observations only: no forecasts, dispatch modelling, emissions estimation or trading advice.",
+ "domains": [
+  "energy"
+ ],
+ "defaults": {
+  "connector": "energy",
+  "mapping": {
+   "target_schema": "noesis-energy-record-v1",
+   "version": "1.0.0"
+  },
+  "extractor_versions": [
+   "energy-sources:1.0.0"
+  ],
+  "operations": [
+   "observe"
+  ],
+  "schedule": {
+   "kind": "interval",
+   "interval_s": 86400
+  },
+  "auth": {
+   "kind": "none"
+  },
+  "budgets": {
+   "timeout_ms": 60000,
+   "max_results": 500,
+   "max_bytes": 20000000,
+   "max_pages": 40
+  },
+  "health": {
+   "required": false,
+   "max_staleness_s": 259200
+  }
+ },
+ "sources": [
+  {
+   "source_id": "energy-entsoe-de-lu",
+   "endpoint": "https://web-api.tp.entsoe.eu/api",
+   "publisher": "ENTSO-E Transparency Platform",
+   "scope": "Bidding zone DE-LU (10Y1001A1001A82H) through the Climate and Environment entsoe adapter: actual generation per type (A75), actual load (A65 A16), day-ahead prices (A44), installed capacity per type and per production unit (A68/A71) and physical flows to and from FR and PL (A11) for one pinned window; forecasts refused",
+   "license": {
+    "id": "entsoe-transparency-terms",
+    "terms_url": "https://transparency.entsoe.eu/content/static_content/Static%20content/terms%20and%20conditions/terms%20and%20conditions.html",
+    "redistribution": "reuse with attribution to the ENTSO-E Transparency Platform"
+   },
+   "update_cadence": "hourly",
+   "temporal_semantics": "document createdDateTime and revisionNumber date each vintage; revision 1 provisional, later revisions revised",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_ENTSOE_SECURITY_TOKEN"
+   },
+   "energy": {
+    "provider": "entsoe",
+    "namespace": "energy",
+    "access_decision": "acquire (reuse the Climate and Environment entsoe adapter; no second acquisition path)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "bidding_zone": "10Y1001A1001A82H",
+     "zone_name": "DE-LU",
+     "period_start": "202609240000",
+     "period_end": "202609240400",
+     "border_zones": [
+      "10YFR-RTE------C",
+      "10YPL-AREA-----S"
+     ],
+     "border_names": {
+      "10YFR-RTE------C": "FR",
+      "10YPL-AREA-----S": "PL"
+     },
+     "documents": [
+      "generation",
+      "load",
+      "day-ahead-price",
+      "installed-capacity",
+      "installed-capacity-units",
+      "cross-border-flow"
+     ]
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-entsoe.json",
+    "sha256": "c4f4b9e203776a3a224fa01697d31f137556a30671b7ed6da8474c04ef10a8b8",
+    "expected_output_hash": "b6606e76e400b0d46aa908a9090f957253253f58829b15ad22a125446eebd685"
+   }
+  },
+  {
+   "source_id": "energy-eia-fuel-type-ciso",
+   "endpoint": "https://api.eia.gov/v2/electricity/rto/fuel-type-data/data/",
+   "publisher": "U.S. Energy Information Administration",
+   "scope": "Hourly Electric Grid Monitor net generation by energy source for balancing authority CISO, one pinned window",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "public domain; cite EIA"
+   },
+   "update_cadence": "hourly",
+   "temporal_semantics": "EIA publishes no per-value release date: a changed value set is a new vintage dated by the declared EIA release or by retrieval time (labelled)",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EIA_API_KEY"
+   },
+   "energy": {
+    "provider": "eia",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "route": "fuel-type-data",
+     "balancing_areas": [
+      "CISO"
+     ],
+     "start": "2026-09-24T00",
+     "end": "2026-09-24T02"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-eia-fuel-type.json",
+    "sha256": "2ced95012ca3802613e84490fff4ea8524c86d4ed53b63ba69415477d6de522c",
+    "expected_output_hash": "358801fdf80fabfa9a1f5dda8d37076da6ff49dcac06ac9cbb0657751837eaf0"
+   }
+  },
+  {
+   "source_id": "energy-eia-demand-ciso",
+   "endpoint": "https://api.eia.gov/v2/electricity/rto/region-data/data/",
+   "publisher": "U.S. Energy Information Administration",
+   "scope": "Hourly demand (type D) for balancing authority CISO; demand forecasts (DF) are refused",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "public domain; cite EIA"
+   },
+   "update_cadence": "hourly",
+   "temporal_semantics": "EIA publishes no per-value release date: a changed value set is a new vintage dated by the declared EIA release or by retrieval time (labelled)",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EIA_API_KEY"
+   },
+   "energy": {
+    "provider": "eia",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "route": "region-data",
+     "balancing_areas": [
+      "CISO"
+     ],
+     "types": [
+      "D"
+     ],
+     "start": "2026-09-24T00",
+     "end": "2026-09-24T02"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-eia-region.json",
+    "sha256": "f168d388586c2e826c63ee2bee756afa94713dd1f0b60d6d2f683cc590c687ca",
+    "expected_output_hash": "9a39f2ef5cc354d9a1ac3371eac57f2c5a4c89662ce2a088a77e3b61d00c2f16"
+   }
+  },
+  {
+   "source_id": "energy-eia-interchange-ciso",
+   "endpoint": "https://api.eia.gov/v2/electricity/rto/interchange-data/data/",
+   "publisher": "U.S. Energy Information Administration",
+   "scope": "Hourly interchange from CISO to each adjacent balancing authority as published",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "public domain; cite EIA"
+   },
+   "update_cadence": "hourly",
+   "temporal_semantics": "EIA publishes no per-value release date: a changed value set is a new vintage dated by the declared EIA release or by retrieval time (labelled)",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EIA_API_KEY"
+   },
+   "energy": {
+    "provider": "eia",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "route": "interchange-data",
+     "balancing_areas": [
+      "CISO"
+     ],
+     "start": "2026-09-24T00",
+     "end": "2026-09-24T02"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-eia-interchange.json",
+    "sha256": "72688d956a1fcaac85938989b2872faff6c2a47a9600123d32c718cfdd988aa1",
+    "expected_output_hash": "920c5d22ff7902ff920c8d10eb6e315fd15f3a760431c30c84a63ba180833a46"
+   }
+  },
+  {
+   "source_id": "energy-eia-capacity-plants",
+   "endpoint": "https://api.eia.gov/v2/electricity/operating-generator-capacity/data/",
+   "publisher": "U.S. Energy Information Administration (EIA-860M)",
+   "scope": "Monthly operating generator capacity (EIA-860M) for explicitly named plants, with generator status and dates",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "public domain; cite EIA"
+   },
+   "update_cadence": "monthly",
+   "temporal_semantics": "EIA publishes no per-value release date: a changed value set is a new vintage dated by the declared EIA release or by retrieval time (labelled)",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EIA_API_KEY"
+   },
+   "energy": {
+    "provider": "eia",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "route": "operating-generator-capacity",
+     "plants": [
+      "99901"
+     ],
+     "start": "2026-06",
+     "end": "2026-07",
+     "release": {
+      "label": "EIA-860M July 2026",
+      "published_on": "2026-08-26"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-eia-capacity.json",
+    "sha256": "dff0a80e72ece169c553143e15bfe1d1624c417373b2a83a464d06bff8210713",
+    "expected_output_hash": "9ab35065c322ca3d032273faffac20f77230f4500e24bb63df57572fe5a9c8b0"
+   }
+  },
+  {
+   "source_id": "energy-ember-generation-deu",
+   "endpoint": "https://api.ember-energy.org/v1/electricity-generation/monthly",
+   "publisher": "Ember",
+   "scope": "Monthly generation by series for Germany (DEU); Ember's shares quoted as Ember's",
+   "license": {
+    "id": "ember-cc-by-4.0",
+    "terms_url": "https://ember-energy.org/creative-commons/",
+    "redistribution": "CC BY 4.0; attribute Ember"
+   },
+   "update_cadence": "monthly release",
+   "temporal_semantics": "the declared Ember dataset release (label and date) is the vintage; a new release is stored beside the prior one",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EMBER_API_KEY"
+   },
+   "energy": {
+    "provider": "ember",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "endpoint": "electricity-generation/monthly",
+     "entities": [
+      "DEU"
+     ],
+     "start_date": "2026-06",
+     "end_date": "2026-07",
+     "release": {
+      "label": "Ember monthly electricity data 2026-08",
+      "published_on": "2026-08-28"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-ember-generation.json",
+    "sha256": "efbda4c3c84c2cdf5b1a9248000bd950bdccbe1bc26bf511c1fadd3ade112473",
+    "expected_output_hash": "c09dd097ebd6eca7a1f76145c7292ac9e609babf7c252ba466fd65c11f9266d7"
+   }
+  },
+  {
+   "source_id": "energy-ember-demand-deu",
+   "endpoint": "https://api.ember-energy.org/v1/electricity-demand/monthly",
+   "publisher": "Ember",
+   "scope": "Monthly electricity demand for Germany (DEU)",
+   "license": {
+    "id": "ember-cc-by-4.0",
+    "terms_url": "https://ember-energy.org/creative-commons/",
+    "redistribution": "CC BY 4.0; attribute Ember"
+   },
+   "update_cadence": "monthly release",
+   "temporal_semantics": "the declared Ember dataset release (label and date) is the vintage; a new release is stored beside the prior one",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EMBER_API_KEY"
+   },
+   "energy": {
+    "provider": "ember",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "endpoint": "electricity-demand/monthly",
+     "entities": [
+      "DEU"
+     ],
+     "start_date": "2026-06",
+     "end_date": "2026-07",
+     "release": {
+      "label": "Ember monthly electricity data 2026-08",
+      "published_on": "2026-08-28"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-ember-demand.json",
+    "sha256": "af04c77b491ecbdf3b757a6ea811a3c07f9be53e4cca5151671edcbefe2d7c8c",
+    "expected_output_hash": "4dfabdbb911218fc8542d1f9a917f72d42dc7ce7c9f4990b42948bf53e4a7f36"
+   }
+  },
+  {
+   "source_id": "energy-ember-capacity-deu",
+   "endpoint": "https://api.ember-energy.org/v1/installed-capacity/yearly",
+   "publisher": "Ember",
+   "scope": "Yearly installed capacity by series for Germany (DEU)",
+   "license": {
+    "id": "ember-cc-by-4.0",
+    "terms_url": "https://ember-energy.org/creative-commons/",
+    "redistribution": "CC BY 4.0; attribute Ember"
+   },
+   "update_cadence": "yearly release",
+   "temporal_semantics": "the declared Ember dataset release (label and date) is the vintage; a new release is stored beside the prior one",
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_EMBER_API_KEY"
+   },
+   "energy": {
+    "provider": "ember",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "endpoint": "installed-capacity/yearly",
+     "entities": [
+      "DEU"
+     ],
+     "start_date": "2024",
+     "end_date": "2025",
+     "release": {
+      "label": "Ember yearly electricity data 2026",
+      "published_on": "2026-04-30"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-ember-capacity.json",
+    "sha256": "65fad6166a382885c2bab885ada45a195e21a63f4096aeebe04b36c2e0dbf4da",
+    "expected_output_hash": "3d45b7e0bfca6727872c533869abf57033eef90e28e8a3c6bc7ee744e4dffc8c"
+   }
+  },
+  {
+   "source_id": "energy-eurostat-balances",
+   "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/nrg_bal_c",
+   "publisher": "Eurostat",
+   "scope": "Complete energy balances (nrg_bal_c): gross inland consumption and total supply, all products, KTOE, DE and FR, 2023-2024, through the SDMX connector; flags verbatim",
+   "license": {
+    "id": "eurostat-reuse",
+    "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+    "redistribution": "reuse with attribution (Commission Decision 2011/833/EU)"
+   },
+   "update_cadence": "annual with revisions",
+   "temporal_semantics": "the SDMX-CSV LAST UPDATE stamp dates the vintage; flags p/e/b kept verbatim",
+   "energy": {
+    "provider": "eurostat",
+    "namespace": "energy",
+    "access_decision": "acquire (unverified-live) through the existing SDMX connector",
+    "live_verification": "unverified-live",
+    "selection": {
+     "dataset": "nrg_bal_c",
+     "keys": [
+      "A.GIC+NRGSUP.TOTAL.KTOE.DE+FR"
+     ],
+     "params": {
+      "startPeriod": "2023",
+      "endPeriod": "2024"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-eurostat-balances.json",
+    "sha256": "fb7aa5e96586b62c6213457c68ce52e9e296669801518a0240ddd84ee4143ad1",
+    "expected_output_hash": "801bfbee2267614a8296f42fc7aa6a9ffa5ca3399b95dc4d1400f42fa8b6b27d"
+   }
+  },
+  {
+   "source_id": "energy-charts-public-power-de",
+   "endpoint": "https://api.energy-charts.info/public_power",
+   "publisher": "Energy-Charts (Fraunhofer ISE)",
+   "scope": "Public net power by production type and load for Germany for one pinned hour; re-published ENTSO-E data marked derived_from entsoe; price endpoints link-only",
+   "license": {
+    "id": "energy-charts-cc-by-4.0",
+    "terms_url": "https://www.energy-charts.info/",
+    "redistribution": "CC BY 4.0 as stated by Energy-Charts (verify per series)"
+   },
+   "update_cadence": "quarter-hourly",
+   "temporal_semantics": "no release marker: retrieval time dates the vintage (labelled)",
+   "energy": {
+    "provider": "energy-charts",
+    "namespace": "energy",
+    "access_decision": "acquire public_power only; price endpoints link-only (not acquired)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "endpoint": "public_power",
+     "countries": [
+      "de"
+     ],
+     "start": "2026-09-24T00:00Z",
+     "end": "2026-09-24T01:00Z"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/energy-charts-public-power.json",
+    "sha256": "92827946affad73b7ac1be65d066388dd4bae7327e3b1031c3692429fd9903c3",
+    "expected_output_hash": "49288a26c2dcc060569154a4064850776169cedc47f8f04075b8413bbf0ab64b"
+   }
+  }
+ ]
+}

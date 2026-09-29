@@ -1,0 +1,67 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "data": [
+     {
+      "capacity_gw": "90.3",
+      "date": "2024-01-01",
+      "entity": "Germany",
+      "entity_code": "DEU",
+      "is_aggregate_entity": false,
+      "is_aggregate_series": false,
+      "series": "Solar"
+     },
+     {
+      "capacity_gw": "106.8",
+      "date": "2025-01-01",
+      "entity": "Germany",
+      "entity_code": "DEU",
+      "is_aggregate_entity": false,
+      "is_aggregate_series": false,
+      "series": "Solar"
+     },
+     {
+      "capacity_gw": "72.6",
+      "date": "2024-01-01",
+      "entity": "Germany",
+      "entity_code": "DEU",
+      "is_aggregate_entity": false,
+      "is_aggregate_series": false,
+      "series": "Wind"
+     },
+     {
+      "capacity_gw": "76.1",
+      "date": "2025-01-01",
+      "entity": "Germany",
+      "entity_code": "DEU",
+      "is_aggregate_entity": false,
+      "is_aggregate_series": false,
+      "series": "Wind"
+     }
+    ],
+    "stats": {
+     "number_of_records": 4
+    }
+   },
+   "body_sha256": "53a6a063fd0dd9b5baa1c3aa8361d999482b2357bfa1bd3043f6d72eaeec5d0d",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "end_date": "2025",
+    "entity_code": "DEU",
+    "start_date": "2024"
+   },
+   "status": 200,
+   "url": "https://api.ember-energy.org/v1/installed-capacity/yearly"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "ember",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "capacity"
+ ]
+}

@@ -268,6 +268,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
+# Energy Systems: ENTSO-E (via the environment adapter), EIA, Ember, Eurostat balances, Energy-Charts (#2211).
+NATIVE_CONNECTOR_MODULES["energy"] = "src.ingestion.energy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"energy"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
