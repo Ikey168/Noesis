@@ -1,0 +1,43 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"bill\": {\n  \"congress\": 156,\n  \"type\": \"HR\",\n  \"number\": \"9901\",\n  \"originChamber\": \"House\",\n  \"title\": \"Example Grid Reliability Act\",\n  \"introducedDate\": \"2099-02-03\",\n  \"updateDate\": \"2099-03-12T08:00:00Z\",\n  \"updateDateIncludingText\": \"2099-03-12T08:00:00Z\",\n  \"sponsors\": [\n   {\n    \"bioguideId\": \"S009901\",\n    \"firstName\": \"Jane\",\n    \"lastName\": \"Sample\",\n    \"fullName\": \"Rep. Sample, Jane [D-CA-99]\",\n    \"party\": \"D\",\n    \"state\": \"CA\",\n    \"district\": 99,\n    \"isByRequest\": \"N\"\n   }\n  ],\n  \"latestAction\": {\n   \"actionDate\": \"2099-03-11\",\n   \"text\": \"Received in the Senate.\"\n  },\n  \"laws\": []\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v3/bill/156/hr/9901?format=json",
+   "status": 200
+  },
+  {
+   "body": "{\n \"actions\": [\n  {\n   \"actionCode\": \"B00100\",\n   \"actionDate\": \"2099-03-11\",\n   \"sourceSystem\": {\n    \"code\": 0,\n    \"name\": \"Senate\"\n   },\n   \"text\": \"Received in the Senate.\",\n   \"type\": \"Floor\"\n  },\n  {\n   \"actionCode\": \"H38310\",\n   \"actionDate\": \"2099-03-10\",\n   \"sourceSystem\": {\n    \"code\": 2,\n    \"name\": \"House floor actions\"\n   },\n   \"text\": \"On passage Passed by the Yeas and Nays: 2 - 1 (Roll no. 101).\",\n   \"type\": \"Floor\",\n   \"recordedVotes\": [\n    {\n     \"chamber\": \"House\",\n     \"congress\": 156,\n     \"date\": \"2099-03-10T19:02:11Z\",\n     \"rollNumber\": 101,\n     \"sessionNumber\": 1,\n     \"url\": \"https://clerk.house.gov/evs/2099/roll101.xml\"\n    }\n   ]\n  },\n  {\n   \"actionCode\": \"H12200\",\n   \"actionDate\": \"2099-03-05\",\n   \"sourceSystem\": {\n    \"code\": 2,\n    \"name\": \"House floor actions\"\n   },\n   \"text\": \"Reported (Amended) by the Committee on Energy and Commerce. H. Rept. 156-10.\",\n   \"type\": \"Committee\"\n  },\n  {\n   \"actionCode\": \"H11100\",\n   \"actionDate\": \"2099-02-03\",\n   \"sourceSystem\": {\n    \"code\": 2,\n    \"name\": \"House floor actions\"\n   },\n   \"text\": \"Referred to the House Committee on Energy and Commerce.\",\n   \"type\": \"IntroReferral\"\n  },\n  {\n   \"actionCode\": \"Intr-H\",\n   \"actionDate\": \"2099-02-03\",\n   \"sourceSystem\": {\n    \"code\": 9,\n    \"name\": \"Library of Congress\"\n   },\n   \"text\": \"Introduced in House\",\n   \"type\": \"IntroReferral\"\n  }\n ],\n \"pagination\": {\n  \"count\": 5\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v3/bill/156/hr/9901/actions?format=json&limit=250",
+   "status": 200
+  },
+  {
+   "body": "{\n \"cosponsors\": [\n  {\n   \"bioguideId\": \"P009903\",\n   \"firstName\": \"Maria\",\n   \"lastName\": \"Placeholder\",\n   \"fullName\": \"Rep. Placeholder, Maria [D-NY-97]\",\n   \"party\": \"D\",\n   \"state\": \"NY\",\n   \"district\": 97,\n   \"sponsorshipDate\": \"2099-02-20\",\n   \"sponsorshipWithdrawnDate\": \"2099-03-01\",\n   \"isOriginalCosponsor\": false\n  },\n  {\n   \"bioguideId\": \"E009902\",\n   \"firstName\": \"Robert\",\n   \"lastName\": \"Example\",\n   \"fullName\": \"Rep. Example, Robert [R-TX-98]\",\n   \"party\": \"R\",\n   \"state\": \"TX\",\n   \"district\": 98,\n   \"sponsorshipDate\": \"2099-02-03\",\n   \"isOriginalCosponsor\": true\n  }\n ],\n \"pagination\": {\n  \"count\": 2\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v3/bill/156/hr/9901/cosponsors?format=json&limit=250",
+   "status": 200
+  },
+  {
+   "body": "{\n \"summaries\": [\n  {\n   \"actionDate\": \"2099-02-03\",\n   \"actionDesc\": \"Introduced in House\",\n   \"text\": \"<p><strong>Example Grid Reliability Act</strong></p><p>This bill directs a fictional agency to publish grid reliability reports. (Synthetic fixture text.)</p>\",\n   \"updateDate\": \"2099-02-10T12:00:00Z\",\n   \"versionCode\": \"00\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v3/bill/156/hr/9901/summaries?format=json&limit=250",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

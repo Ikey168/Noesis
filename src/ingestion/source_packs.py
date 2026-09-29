@@ -269,6 +269,11 @@ NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_fin
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
 
+# Political legislation: congress.gov, senate.gov, GovInfo and UK Parliament Bills/Votes/Hansard (#2208).
+NATIVE_CONNECTOR_MODULES["legislation"] = "src.ingestion.legislation_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"legislation"})
+
+
 def native_connector_module(connector: str) -> Any:
     import importlib
 

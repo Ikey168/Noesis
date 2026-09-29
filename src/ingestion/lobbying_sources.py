@@ -80,6 +80,12 @@ REGISTERS = {
         "jurisdiction": "EU",
         "label": "European Commission meeting declarations",
     },
+    # US Lobbying Disclosure Act quarterly reports, whose issue descriptions name bills (#2208, LT08).
+    "us-lda": {
+        "kind": "registrant",
+        "jurisdiction": "US",
+        "label": "US Lobbying Disclosure Act filings",
+    },
 }
 FORMATS = {
     "eu-tr-xml": "eu-tr",
@@ -87,6 +93,7 @@ FORMATS = {
     "ep-meetings-csv": "ep-meetings",
     "ec-meetings-json": "ec-meetings",
     "uk-orcl-csv": "uk-orcl",
+    "us-lda-json": "us-lda",
 }
 # Formats whose file can be the whole register: an entry absent from a newer full export was removed from it.
 # (A Lobbyregister export is full only when it states a total equal to its entries.)
@@ -98,6 +105,7 @@ REFERENCE_SCHEMES = {
     "eli": "EU",
     "de-drucksache": "DE",
     "de-regulatory-project": "DE",
+    "us-bill": "US",
 }
 IDENTIFIER_SCHEMES = (
     "lei",
@@ -231,6 +239,27 @@ PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
         "access_decision": "unverified-live",
         "reason": "fixture-verified parser; column names and the download URL must be verified",
     },
+    "us-lda": {
+        "register": "us-lda",
+        "publisher": "Secretary of the Senate and Clerk of the House (Lobbying Disclosure Act filings, lda.senate.gov)",
+        "access": "LDA REST API filings endpoint (/api/v1/filings/) for a declared, bounded query (verify parameters "
+        "such as filing_year, filing_period and client_name)",
+        "format": "us-lda-json",
+        "authentication": "anonymous access with a lower rate limit; an optional API key raises it (verify)",
+        "rate_limits": "documented per-key and anonymous throttles (verify); one bounded page per run",
+        "pagination": "count/next/previous; a page with a next link is budget_exhausted, never truncated",
+        "cadence": "quarterly LD-2 reports and their amendments",
+        "record_kinds": ["registrant", "client", "declared-interest", "revision"],
+        "identifiers": ["registrant id and client id (one registration)", "filing uuid", "filing year and period"],
+        "revisions": "each quarterly report is its own revision of the registrant-client registration; an amendment "
+        "replaces the report it amends for that quarter (latest posting kept)",
+        "references": "US bill numbers (H.R., S., joint and concurrent resolutions) written in the issue description, "
+        "in the Congress of the filing year; a bill named without a number is only a discovery candidate",
+        "terms": "US government work, public domain (verify)",
+        "access_decision": "unverified-live",
+        "reason": "fixture-verified parser for the documented filings JSON; field names must be verified; income and "
+        "expense figures are not ingested (they are rounded point figures, not declared ranges)",
+    },
     "bundestag-party-financing": {
         "register": None,
         "publisher": "Deutscher Bundestag (Parteienfinanzierung: Rechenschaftsberichte, Großspenden)",
@@ -350,7 +379,41 @@ def reference_key(scheme: str, value: Any) -> str | None:
     if scheme == "de-regulatory-project":
         match = re.fullmatch(r"(RV\d{1,10})", text.upper())
         return f"de-regulatory-project:{match[1]}" if match else None
+    if scheme == "us-bill":
+        # congress-type-number, as a US dossier's bill key carries it (us-bill:156-hr-9901)
+        match = re.fullmatch(
+            r"(?:us-bill:)?(\d{1,3})-(hr|s|hjres|sjres|hconres|sconres|hres|sres)-(\d{1,5})",
+            text.lower(),
+        )
+        return f"us-bill:{int(match[1])}-{match[2]}-{int(match[3])}" if match else None
     return None
+
+
+# A bill number as LDA issue descriptions write it (H.R. 9901, S. 12, H.J.Res. 5); never a bare number.
+_US_BILL = re.compile(
+    r"(?<![A-Za-z.])(H\.\s?R\.|S\.|H\.\s?J\.\s?Res\.|S\.\s?J\.\s?Res\.|H\.\s?Con\.\s?Res\.|S\.\s?Con\.\s?Res\."
+    r"|H\.\s?Res\.|S\.\s?Res\.)\s?(\d{1,5})(?!\d)",
+    re.IGNORECASE,
+)
+
+
+def us_bill_references(text: Any, congress: int, *, source_field: str) -> list[dict[str, Any]]:
+    """Exact US bill numbers in an LDA issue description, in the Congress of the filing year (stated as such)."""
+    found = {}
+    for match in _US_BILL.finditer(str(text or "")):
+        kind = re.sub(r"[^a-z]", "", match[1].lower())
+        ref = reference(
+            "us-bill",
+            f"{congress}-{kind}-{int(match[2])}",
+            source_field=source_field,
+            extracted_from_text=True,
+        )
+        if ref:
+            found.setdefault(
+                ref["key"],
+                {**ref, "as_written": match.group(0), "congress_basis": "filing year"},
+            )
+    return list(found.values())
 
 
 def references_in_text(text: Any, *, source_field: str) -> list[dict[str, Any]]:
@@ -1192,6 +1255,101 @@ def parse_uk_orcl(raw: bytes) -> dict[str, Any]:
     }
 
 
+_LDA_PERIODS = {
+    "first_quarter": 1,
+    "second_quarter": 2,
+    "third_quarter": 3,
+    "fourth_quarter": 4,
+}
+
+
+def parse_us_lda(raw: bytes) -> dict[str, Any]:
+    """LDA quarterly reports: one revision per registrant-client registration and quarter, issues as filed."""
+    payload = _json(raw)
+    if not isinstance(payload, dict) or not isinstance(payload.get("results"), list):
+        raise LobbyingFormatError("schema_drift", "LDA response has no results list")
+    if payload.get("next"):
+        raise LobbyingFormatError(
+            "input_limit", "LDA response continues on another page; a truncated query is refused"
+        )
+    reports: dict[tuple[str, str], dict[str, Any]] = {}
+    for filing in payload["results"]:
+        if not isinstance(filing, dict):
+            raise LobbyingFormatError("schema_drift", "LDA filing is not an object")
+        quarter_no = _LDA_PERIODS.get(str(filing.get("filing_period") or ""))
+        if quarter_no is None:
+            continue  # registrations and terminations carry no quarterly issues
+        year = int(filing["filing_year"])
+        quarter = _quarter(f"{year}-Q{quarter_no}")
+        registrant = dict(filing.get("registrant") or {})
+        client = dict(filing.get("client") or {})
+        if registrant.get("id") in (None, "") or client.get("id") in (None, ""):
+            raise LobbyingFormatError("schema_drift", "LDA filing lacks registrant or client id")
+        native_id = f"{registrant['id']}-{client['id']}"
+        posted = _day(filing.get("dt_posted"))
+        congress = (year - 1789) // 2 + 1
+        interests = []
+        for activity in filing.get("lobbying_activities") or []:
+            description = _clean(activity.get("description"))
+            interests.append(
+                {
+                    "kind": "lobbying_issue",
+                    "code": _clean(activity.get("general_issue_code")),
+                    "text": description,
+                    "government_entities": sorted(
+                        _clean(g.get("name")) or ""
+                        for g in activity.get("government_entities") or []
+                    ),
+                    "references": us_bill_references(
+                        description,
+                        congress,
+                        source_field="lobbying_activities.description",
+                    ),
+                }
+            )
+        entry = _entry(
+            "us-lda",
+            native_id,
+            name=_clean(registrant.get("name")),
+            legal_form=None,
+            category="LDA registrant",
+            section=None,
+            country="US",
+            address=None,
+            identifiers=[],
+            lifecycle="active",
+            registered_on=None,
+            declared_on=posted,
+            native_version=quarter[0],
+            filing_uuid=_clean(filing.get("filing_uuid")),
+            filing_type=_clean(filing.get("filing_type")),
+            clients=[
+                {
+                    "name": _clean(client.get("name")),
+                    "native_ids": [str(client["id"])],
+                    "role": "client",
+                    "spend": None,
+                }
+            ],
+            interests=interests,
+            spend=[],
+            grants=[],
+            documents=[
+                {"kind": "filing", "url": _clean(filing.get("filing_document_url")), "retention": "link-only"}
+            ]
+            if filing.get("filing_document_url")
+            else [],
+            period={"return": quarter[0], "start": quarter[1], "end": quarter[2]},
+        )
+        key = (native_id, quarter[0])
+        # An amendment replaces the report it amends for that quarter: the latest posting is the statement.
+        if key not in reports or (posted or "") >= (reports[key]["declared_on"] or ""):
+            reports[key] = entry
+    entries = sorted(reports.values(), key=lambda e: (e["native_id"], e["native_version"]))
+    published = max((e["declared_on"] for e in entries if e["declared_on"]), default=None)
+    return {"register": "us-lda", "format": "us-lda-json", "publication_date": published, "entries": entries}
+
+
 def parse_export(
     format_id: str, raw: bytes, *, documents: str = "link-only"
 ) -> dict[str, Any]:
@@ -1207,6 +1365,7 @@ def parse_export(
         "ep-meetings-csv": parse_ep_meetings,
         "ec-meetings-json": parse_ec_meetings,
         "uk-orcl-csv": parse_uk_orcl,
+        "us-lda-json": parse_us_lda,
     }
     export = parsers[format_id](raw)
     if export["publication_date"] is None:

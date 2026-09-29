@@ -1,0 +1,34 @@
+{
+ "billId": 3901,
+ "shortTitle": "Example Heat Networks Bill",
+ "longTitle": "A Bill to make provision about example heat networks. (Synthetic fixture.)",
+ "currentHouse": "Lords",
+ "originatingHouse": "Commons",
+ "lastUpdate": "2099-03-02T10:00:00",
+ "billWithdrawn": null,
+ "isDefeated": false,
+ "billTypeId": 1,
+ "introducedSessionId": 39,
+ "includedSessionIds": [
+  39
+ ],
+ "isAct": false,
+ "sponsors": [
+  {
+   "member": {
+    "memberId": 4001,
+    "name": "Sam Minister",
+    "party": "Example Party",
+    "partyColour": "000000",
+    "house": "Commons",
+    "memberFrom": "Exampleton North",
+    "memberPhoto": null
+   },
+   "organisation": {
+    "name": "Department for Example",
+    "url": null
+   },
+   "sortOrder": 1
+  }
+ ]
+}

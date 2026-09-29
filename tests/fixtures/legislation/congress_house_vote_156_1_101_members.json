@@ -1,0 +1,41 @@
+{
+ "houseRollCallVoteMemberVotes": {
+  "congress": 156,
+  "sessionNumber": 1,
+  "rollCallNumber": 101,
+  "results": [
+   {
+    "bioguideID": "S009901",
+    "firstName": "Jane",
+    "lastName": "Sample",
+    "voteCast": "Yea",
+    "voteParty": "D",
+    "voteState": "CA"
+   },
+   {
+    "bioguideID": "E009902",
+    "firstName": "Robert",
+    "lastName": "Example",
+    "voteCast": "Yea",
+    "voteParty": "R",
+    "voteState": "TX"
+   },
+   {
+    "bioguideID": "P009903",
+    "firstName": "Maria",
+    "lastName": "Placeholder",
+    "voteCast": "Nay",
+    "voteParty": "D",
+    "voteState": "NY"
+   },
+   {
+    "bioguideID": "A009904",
+    "firstName": "Alex",
+    "lastName": "Fixture",
+    "voteCast": "Not Voting",
+    "voteParty": "D",
+    "voteState": "WA"
+   }
+  ]
+ }
+}

@@ -1,0 +1,30 @@
+{
+ "cosponsors": [
+  {
+   "bioguideId": "P009903",
+   "firstName": "Maria",
+   "lastName": "Placeholder",
+   "fullName": "Rep. Placeholder, Maria [D-NY-97]",
+   "party": "D",
+   "state": "NY",
+   "district": 97,
+   "sponsorshipDate": "2099-02-20",
+   "sponsorshipWithdrawnDate": "2099-03-01",
+   "isOriginalCosponsor": false
+  },
+  {
+   "bioguideId": "E009902",
+   "firstName": "Robert",
+   "lastName": "Example",
+   "fullName": "Rep. Example, Robert [R-TX-98]",
+   "party": "R",
+   "state": "TX",
+   "district": 98,
+   "sponsorshipDate": "2099-02-03",
+   "isOriginalCosponsor": true
+  }
+ ],
+ "pagination": {
+  "count": 2
+ }
+}

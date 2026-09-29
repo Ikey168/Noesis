@@ -7,7 +7,7 @@
   "required": ["contract", "record_type"],
   "definitions": {
     "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
-    "register": {"enum": ["eu-tr", "de-lobbyregister", "uk-orcl", "ep-meetings", "ec-meetings"]},
+    "register": {"enum": ["eu-tr", "de-lobbyregister", "uk-orcl", "ep-meetings", "ec-meetings", "us-lda"]},
     "amount": {"type": ["string", "null"], "pattern": "^\\d+(\\.\\d+)?$"},
     "source_revision": {"type": "object", "required": ["export_id", "file_sha256", "publication_date"], "properties": {
       "export_id": {"type": "string"}, "file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
@@ -24,7 +24,7 @@
     "namespace": {"type": "string"},
     "register": {"$ref": "#/definitions/register"},
     "native_id": {"type": "string", "minLength": 1},
-    "record_key": {"type": "string", "pattern": "^lobbying:(eu-tr|de-lobbyregister|uk-orcl|ep-meetings|ec-meetings):"},
+    "record_key": {"type": "string", "pattern": "^lobbying:(eu-tr|de-lobbyregister|uk-orcl|ep-meetings|ec-meetings|us-lda):"},
     "revision_id": {"type": "string"},
     "revision_no": {"type": "integer", "minimum": 1},
     "previous_revision_id": {"type": ["string", "null"]},

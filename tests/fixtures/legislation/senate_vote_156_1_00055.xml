@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<roll_call_vote>
+  <congress>156</congress>
+  <session>1</session>
+  <congress_year>2099</congress_year>
+  <vote_number>55</vote_number>
+  <vote_date>April 20, 2099,  02:15 PM</vote_date>
+  <modify_date>April 20, 2099,  03:00 PM</modify_date>
+  <vote_question_text>On Passage of the Bill (H.R. 9901)</vote_question_text>
+  <vote_result>Bill Passed</vote_result>
+  <document>
+    <document_congress>156</document_congress>
+    <document_type>H.R.</document_type>
+    <document_number>9901</document_number>
+    <document_name>H.R. 9901</document_name>
+    <document_title>Example Grid Reliability Act</document_title>
+  </document>
+  <count><yeas>1</yeas><nays>1</nays><present></present><absent>0</absent></count>
+  <members>
+    <member><member_full>Fixture (D-CA)</member_full><last_name>Fixture</last_name><first_name>Casey</first_name><party>D</party><state>CA</state><vote_cast>Yea</vote_cast><lis_member_id>S901</lis_member_id></member>
+    <member><member_full>Example (R-TX)</member_full><last_name>Example</last_name><first_name>Jordan</first_name><party>R</party><state>TX</state><vote_cast>Nay</vote_cast><lis_member_id>S902</lis_member_id></member>
+  </members>
+</roll_call_vote>

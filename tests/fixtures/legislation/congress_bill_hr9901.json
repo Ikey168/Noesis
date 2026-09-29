@@ -1,0 +1,29 @@
+{
+ "bill": {
+  "congress": 156,
+  "type": "HR",
+  "number": "9901",
+  "originChamber": "House",
+  "title": "Example Grid Reliability Act",
+  "introducedDate": "2099-02-03",
+  "updateDate": "2099-03-12T08:00:00Z",
+  "updateDateIncludingText": "2099-03-12T08:00:00Z",
+  "sponsors": [
+   {
+    "bioguideId": "S009901",
+    "firstName": "Jane",
+    "lastName": "Sample",
+    "fullName": "Rep. Sample, Jane [D-CA-99]",
+    "party": "D",
+    "state": "CA",
+    "district": 99,
+    "isByRequest": "N"
+   }
+  ],
+  "latestAction": {
+   "actionDate": "2099-03-11",
+   "text": "Received in the Senate."
+  },
+  "laws": []
+ }
+}

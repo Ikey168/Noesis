@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n<billStatus>\n  <bill>\n    <number>9901</number>\n    <updateDate>2099-03-06T04:00:00Z</updateDate>\n    <type>HR</type>\n    <introducedDate>2099-02-03</introducedDate>\n    <congress>156</congress>\n    <title>Example Grid Reliability Act</title>\n    <actions>\n      <item><actionDate>2099-02-03</actionDate><text>Introduced in House</text><type>IntroReferral</type><actionCode>Intr-H</actionCode><sourceSystem><name>Library of Congress</name></sourceSystem></item>\n      <item><actionDate>2099-02-03</actionDate><text>Referred to the House Committee on Energy and Commerce.</text><type>IntroReferral</type><actionCode>H11100</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>\n      <item><actionDate>2099-03-05</actionDate><text>Reported (Amended) by the Committee on Energy and Commerce. H. Rept. 156-10.</text><type>Committee</type><actionCode>H12200</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>\n    </actions>\n    <sponsors>\n      <item><bioguideId>S009901</bioguideId><fullName>Rep. Sample, Jane [D-CA-99]</fullName><firstName>Jane</firstName><lastName>Sample</lastName><party>D</party><state>CA</state><district>99</district></item>\n    </sponsors>\n    <cosponsors>\n      <item><bioguideId>E009902</bioguideId><fullName>Rep. Example, Robert [R-TX-98]</fullName><firstName>Robert</firstName><lastName>Example</lastName><party>R</party><state>TX</state><district>98</district><sponsorshipDate>2099-02-03</sponsorshipDate><isOriginalCosponsor>True</isOriginalCosponsor></item>\n      <item><bioguideId>P009903</bioguideId><fullName>Rep. Placeholder, Maria [D-NY-97]</fullName><firstName>Maria</firstName><lastName>Placeholder</lastName><party>D</party><state>NY</state><district>97</district><sponsorshipDate>2099-02-20</sponsorshipDate><isOriginalCosponsor>False</isOriginalCosponsor></item>\n    </cosponsors>\n    <laws/>\n    <textVersions>\n      <item><type>Reported in House</type><date>2099-03-05T04:00:00Z</date><formats><item><url>https://www.govinfo.gov/content/pkg/BILLS-156hr9901rh/xml/BILLS-156hr9901rh.xml</url></item></formats></item>\n      <item><type>Introduced in House</type><date>2099-02-03T05:00:00Z</date><formats><item><url>https://www.govinfo.gov/content/pkg/BILLS-156hr9901ih/xml/BILLS-156hr9901ih.xml</url></item></formats></item>\n    </textVersions>\n  </bill>\n</billStatus>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/bulkdata/BILLSTATUS/156/hr/BILLSTATUS-156hr9901.xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}
