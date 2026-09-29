@@ -326,6 +326,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.fisheries import FISHERIES_WRITES
     if name in FISHERIES_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.agrifood import AGRIFOOD_WRITES
+    if name in AGRIFOOD_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.sanctions import SANCTIONS_WRITES
     if name in SANCTIONS_WRITES:
         return "write"
@@ -953,6 +956,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.fisheries import required_scopes as fisheries_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in FISHERIES_TOOLS:
         return fisheries_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.agrifood import AGRIFOOD_TOOLS
+    from tools.knowledge_engine_mcp.agrifood import required_scopes as agrifood_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in AGRIFOOD_TOOLS:
+        return agrifood_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.sanctions import SANCTIONS_TOOLS
     from tools.knowledge_engine_mcp.sanctions import required_scopes as sanctions_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:

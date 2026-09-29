@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -41,7 +41,7 @@
             "type": "object",
             "description": "Clinical Evidence selection: the namespace records belong to plus pinned NCT/EU CT/EudraCT numbers, openFDA products or EMA product numbers (1-50), or one bounded ClinicalTrials.gov query.",
             "required": ["namespace"],
-            "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
+            "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts", "drugsfda-submissions"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
           },
           "surveillance": {
             "type": "object",
@@ -515,6 +515,18 @@
               "products": {"type": "array", "maxItems": 50, "items": {"type": "object", "required": ["product_number"], "properties": {"product_number": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}, "product_information_path": {"type": "string"}, "public_statement_path": {"type": "string"}}, "additionalProperties": false}},
               "set_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}},
               "communications": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^/drugs/drug-safety-and-availability/"}}
+            },
+            "additionalProperties": false
+          },
+          "agrifood": {
+            "type": "object",
+            "description": "Bounded series selection for the agrifood connector (#2213): provider (faostat, nass-quickstats, fas-psd, eurostat-agri, agri-food-portal), namespace, live-verification state and 1-50 explicit selections (a FAOSTAT domain, area, item, elements and years; a NASS short_desc, geography and years; a PSD commodity, country, attributes and market years; a Eurostat dataset and series key; a portal sector, product and member state).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["faostat", "nass-quickstats", "fas-psd", "eurostat-agri", "agri-food-portal"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
             },
             "additionalProperties": false
           },

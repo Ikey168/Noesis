@@ -262,6 +262,11 @@ For the project overview and local setup, start with the
   precision codes and release history, per place or crisis as of a date, with reviewable identity, citation links
   and monitors; no casualty estimation, merged counts, forecasts or personal data, ACLED not acquired (licence);
   [source audit](development/humanitarian-evidence/source-audit.md)
+- [Agriculture and Food Systems guide](guides/agrifood-series.md) — from a commodity and place to published
+  production, yield, area, prices and food balances per source (FAOSTAT, NASS Quick Stats, FAS PSD, Eurostat, Agri-food
+  portal) with flags verbatim, release vintages and as-of selection, reviewable commodity crosswalks, citation links to
+  trade flows, climate/weather and RASFF alerts, and monitors; no forecasting or food-security scoring;
+  [source audit](roadmaps/agrifood-source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

@@ -1,0 +1,159 @@
+{
+  "description": "Authored offline fixture in the provider's documented response shape. Codes (FAOSTAT area/item/element, NASS short_desc and FIPS, PSD commodity/attribute ids, Eurostat dimension codes, portal product codes) are the publishers' public codes; every figure, flag, release date and load time is authored for illustration and is NOT live evidence. Verify against the live sources before any live run (#2370).",
+  "scenarios": [
+    "marketing-year balances kept as published, never converted",
+    "newest marketing year of a release labelled a USDA projection, the previous one a USDA estimate",
+    "release month (calendarYear, month) as the vintage",
+    "attributes outside the selection are not stored"
+  ],
+  "native_pages": [
+    {
+      "request": "/OpenData/api/psd/commodityAttributes",
+      "status": 200,
+      "body": [
+        {
+          "attributeId": 4,
+          "attributeName": "Area Harvested"
+        },
+        {
+          "attributeId": 28,
+          "attributeName": "Production"
+        },
+        {
+          "attributeId": 57,
+          "attributeName": "Imports"
+        },
+        {
+          "attributeId": 88,
+          "attributeName": "Exports"
+        },
+        {
+          "attributeId": 176,
+          "attributeName": "Ending Stocks"
+        }
+      ]
+    },
+    {
+      "request": "/OpenData/api/psd/unitsOfMeasure",
+      "status": 200,
+      "body": [
+        {
+          "unitId": 4,
+          "unitDescription": "(1000 HA)"
+        },
+        {
+          "unitId": 8,
+          "unitDescription": "(1000 MT)"
+        }
+      ]
+    },
+    {
+      "request": "/OpenData/api/psd/commodity/0440000/country/US/year/2024",
+      "status": 200,
+      "body": [
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2024",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 4,
+          "unitId": 4,
+          "value": 32901.0
+        },
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2024",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 28,
+          "unitId": 8,
+          "value": 377633.0
+        },
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2024",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 88,
+          "unitId": 8,
+          "value": 71500.0
+        },
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2024",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 176,
+          "unitId": 8,
+          "value": 33873.0
+        }
+      ]
+    },
+    {
+      "request": "/OpenData/api/psd/commodity/0440000/country/US/year/2025",
+      "status": 200,
+      "body": [
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2025",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 28,
+          "unitId": 8,
+          "value": 425260.0
+        },
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2025",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 88,
+          "unitId": 8,
+          "value": 75000.0
+        },
+        {
+          "commodityCode": "0440000",
+          "countryCode": "US",
+          "marketYear": "2025",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 176,
+          "unitId": 8,
+          "value": 53800.0
+        }
+      ]
+    },
+    {
+      "request": "/OpenData/api/psd/commodity/0410000/country/E4/year/2025",
+      "status": 200,
+      "body": [
+        {
+          "commodityCode": "0410000",
+          "countryCode": "E4",
+          "marketYear": "2025",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 28,
+          "unitId": 8,
+          "value": 143000.0
+        },
+        {
+          "commodityCode": "0410000",
+          "countryCode": "E4",
+          "marketYear": "2025",
+          "calendarYear": "2025",
+          "month": "09",
+          "attributeId": 57,
+          "unitId": 8,
+          "value": 4000.0
+        }
+      ]
+    }
+  ]
+}

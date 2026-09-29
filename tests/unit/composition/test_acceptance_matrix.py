@@ -156,6 +156,11 @@ MATRIX = {
     "Place or crisis to humanitarian dossier":
         "tests/unit/domains/test_humanitarian_acceptance.py::"
         "test_place_and_crisis_to_a_cited_dossier_with_precision_history_identity_and_gaps",
+    # The Agriculture and Food Systems bundle's offline journey (#2369) composes its record owner with the Economics
+    # series storage, geospatial place resolution, Products safety notices and subscriptions.
+    "Commodity and place to cited series":
+        "tests/unit/domains/test_agrifood_acceptance.py::"
+        "test_commodity_and_place_to_cited_series_with_vintages_and_flags",
 }
 
 

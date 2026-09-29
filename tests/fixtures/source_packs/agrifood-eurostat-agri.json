@@ -1,0 +1,21 @@
+{
+  "description": "Authored offline fixture in the provider's documented response shape. Codes (FAOSTAT area/item/element, NASS short_desc and FIPS, PSD commodity/attribute ids, Eurostat dimension codes, portal product codes) are the publishers' public codes; every figure, flag, release date and load time is authored for illustration and is NOT live evidence. Verify against the live sources before any live run (#2370).",
+  "scenarios": [
+    "SDMX-CSV through the existing SDMX connector",
+    "OBS_FLAG letters kept verbatim (p, e, combined ep)",
+    "a confidential ':' value is withheld, never a number",
+    "dataset LAST UPDATE as the release vintage"
+  ],
+  "native_pages": [
+    {
+      "request": "/eurostat/api/dissemination/sdmx/2.1/data/apro_cpsh1/A.C1110.AR+PR_HU_EU+YI_HU_EU.FR+DE?endPeriod=2023&format=SDMX-CSV&startPeriod=2022",
+      "status": 200,
+      "body": "DATAFLOW,LAST UPDATE,freq,crops,strucpro,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,AR,DE,2022,2878.1,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,AR,DE,2023,2837.9,p\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,AR,FR,2022,4735.0,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,AR,FR,2023,4731.2,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,PR_HU_EU,DE,2022,22627.9,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,PR_HU_EU,DE,2023,21539.7,p\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,PR_HU_EU,FR,2022,33456.7,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,PR_HU_EU,FR,2023,35085.5,e\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,YI_HU_EU,DE,2022,7.86,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,YI_HU_EU,DE,2023,:,c\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,YI_HU_EU,FR,2022,7.07,\nESTAT:APRO_CPSH1(1.0),15/07/25 23:00:00,A,C1110,YI_HU_EU,FR,2023,7.42,ep\n"
+    },
+    {
+      "request": "/eurostat/api/dissemination/sdmx/2.1/data/apri_ap_crpouta/A.01110000.EUR.FR?endPeriod=2023&format=SDMX-CSV&startPeriod=2022",
+      "status": 200,
+      "body": "DATAFLOW,LAST UPDATE,freq,prod_veg,currency,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:APRI_AP_CRPOUTA(1.0),02/06/25 11:00:00,A,01110000,EUR,FR,2022,29.84,\nESTAT:APRI_AP_CRPOUTA(1.0),02/06/25 11:00:00,A,01110000,EUR,FR,2023,22.61,p\n"
+    }
+  ]
+}

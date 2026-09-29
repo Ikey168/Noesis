@@ -342,6 +342,13 @@ def _fisheries_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-fisheries-record-v1"] = _fisheries_projector
+def _agrifood_projector(conn: Any) -> Any:
+    from src.kb.agrifood_store import AgrifoodProjector
+
+    return AgrifoodProjector(conn)
+
+
+PROJECTORS["noesis-agrifood-record-v1"] = _agrifood_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

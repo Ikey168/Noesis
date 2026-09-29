@@ -336,6 +336,11 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fisheries"})
 NATIVE_CONNECTOR_MODULES["humanitarian"] = "src.ingestion.humanitarian_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
 
+# Agriculture and Food Systems: FAOSTAT, USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture, EU Agri-food data
+# portal (#2213).
+NATIVE_CONNECTOR_MODULES["agrifood"] = "src.ingestion.agrifood_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"agrifood"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

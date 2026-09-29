@@ -47,9 +47,11 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Natural Hazards pack (#2207),
     # plus the Energy Systems pack (#2211),
     # plus the Fisheries and Maritime Activity pack (#2222),
-    # plus the Humanitarian Response and Conflict Events pack (#2206).
-    assert len(packs) == 28
+    # plus the Humanitarian Response and Conflict Events pack (#2206),
+    # plus the Agriculture and Food Systems pack (#2213).
+    assert len(packs) == 29
     assert {domain for pack in packs for domain in pack["domains"]} == {
+        "agrifood",
         "astronomy",
         "chemicals",
         "clinical",
@@ -105,8 +107,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Energy Systems pack's ten ENTSO-E, EIA, Ember, Eurostat and Energy-Charts selections (#2211),
     # plus the Fisheries pack's GFW, FishStat, ICCAT, WCPFC, IOTC and Combined IUU Vessel List sources (#2222),
     # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206),
-    # plus the Clinical Evidence medicines feature's four EMA, Drugs@FDA, DailyMed and FDA DSC sources (#2214).
-    assert sum(len(pack["sources"]) for pack in packs) == 224
+    # plus the Clinical Evidence medicines feature's four EMA, Drugs@FDA, DailyMed and FDA DSC sources (#2214),
+    # plus the Agriculture and Food Systems pack's FAOSTAT, NASS, PSD, Eurostat and Agri-food portal sources (#2213).
+    assert sum(len(pack["sources"]) for pack in packs) == 229
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -367,6 +370,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     assert "must-not-leak" not in encoded
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
+        "agrifood",
         "astronomy",
         "chemicals",
         "clinical",

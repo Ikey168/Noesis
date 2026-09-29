@@ -1,0 +1,107 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "agrifood.series",
+        "provider": "agrifood.core",
+        "contract": {
+          "name": "noesis-agrifood-series",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "agrifood.crosswalks",
+        "provider": "agrifood.core",
+        "contract": {
+          "name": "noesis-agrifood-crosswalk",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "agrifood.citations",
+        "provider": "agrifood.core",
+        "contract": {
+          "name": "noesis-agrifood-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "agrifood.monitoring",
+        "provider": "agrifood.core",
+        "contract": {
+          "name": "noesis-agrifood-notification",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "agrifood.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "agrifood",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "agrifood.series",
+      "contract": "noesis-agrifood-series",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "agrifood.crosswalks",
+      "contract": "noesis-agrifood-crosswalk",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "agrifood.citations",
+      "contract": "noesis-agrifood-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "agrifood.monitoring",
+      "contract": "noesis-agrifood-notification",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "economics.knowledge",
+      "contract": "noesis-economic-knowledge",
+      "range": "^1.0.0",
+      "reason": "numeric figures are kept in the Economics series storage (ObservationStore) per release vintage"
+    },
+    {
+      "capability": "products.safety-notices",
+      "contract": "noesis-product-safety-notice",
+      "range": "^1.0.0",
+      "reason": "RASFF food alerts that name a commodity are linked by citation"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "places resolve by the codes each source uses"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "agri-food monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "FAOSTAT, NASS, PSD, Eurostat and the Agri-food portal run through the source-pack runtime"
+    }
+  ]
+}
