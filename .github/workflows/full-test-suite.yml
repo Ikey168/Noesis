@@ -23,7 +23,7 @@ jobs:
       - run: python -m pytest tests -q --junitxml=test-results.xml
       - name: Upload test report on failure
         if: failure()
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: full-suite-triage
           path: |
