@@ -58,6 +58,11 @@ MATRIX = {
     "Condition to surveillance dossier":
         "tests/unit/domains/test_surveillance_acceptance.py::"
         "test_condition_and_geography_to_a_cited_surveillance_dossier",
+    # The Clinical Evidence medicines feature's offline journey (#2425) composes clinical records, terms, publication
+    # links, subscriptions and the source-pack runtime.
+    "Medicine to regulatory timeline":
+        "tests/unit/domains/test_medicines_acceptance.py::"
+        "test_medicine_to_a_cited_regulatory_timeline_with_label_diffs_and_linked_trials",
     # The Products safety feature's offline journey (#2030) composes products, technology (standards), legal
     # (works), news, entity identity, subscriptions and the source-pack runtime.
     "Product to safety-notice dossier":

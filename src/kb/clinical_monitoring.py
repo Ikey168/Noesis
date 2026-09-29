@@ -268,7 +268,10 @@ class MedicinesMonitor(ClinicalMonitor):
                                   "safety-communication-updated", "title": content["title"],
                                   "issued": content.get("issued"), "updates_added": added if previous else [],
                                   "named_substances": content.get("named_substances") or [],
-                                  "citation": {**cite, "revision": revision["revision"]}, "identity_match": match})
+                                  "citation": {**cite, "revision": revision["revision"],
+                                               "native_version": content["native_version"],
+                                               "observed_at_ms": revision["observed_at_ms"]},
+                                  "identity_match": match})
                     previous = content
             if self.records.provider_state(namespace, _state_provider(item["provider"])).get("last_failure_ms"):
                 stale.add(_state_provider(item["provider"]))
