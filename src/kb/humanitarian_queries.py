@@ -113,9 +113,7 @@ class HumanitarianQueries:
         authorize(namespace, scopes, READ_SCOPE)
         if bool(place_id or pcode) == bool(crisis_key):
             raise HumanitarianError("invalid_request", "ask about one place (place_id or pcode) or one crisis")
-        as_of_ms = to_ms(as_of)
-        if as_of_ms is None:
-            raise HumanitarianError("invalid_request", "as_of is required")
+        as_of_ms = to_ms(as_of)  # None: the latest revision of every record (monitoring views)
         items, none_on_record, boundary = [], [], {}
         if crisis_key:
             crisis = self.store.revision(namespace, crisis_key, scopes=scopes, as_of_ms=as_of_ms, basis=basis)
