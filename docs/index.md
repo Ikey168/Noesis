@@ -183,6 +183,11 @@ For the project overview and local setup, start with the
   Hansard references as published, answered as of a date with reviewable member identity, lobbying and enactment
   links by citation and monitors; no passage prediction, member scoring or legal-effect summary;
   [source audit](development/legislation-evidence/source-audit.md)
+- [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
+  opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
+  party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and
+  comparability notes; no personal profiles, risk scores, safety ratings or rankings;
+  [source audit](development/courts-justice-evidence/source-audit.md)
 - [Economics public finance guide](guides/economics-public-finance.md) — budget plans, supplementary budgets and
   outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
   without verdicts, acts and dossiers linked by citation and basis-aware comparisons;

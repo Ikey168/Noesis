@@ -1,0 +1,70 @@
+{
+ "count": 4,
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "id": 7100001,
+   "entry_number": 1,
+   "date_filed": "2099-01-15",
+   "date_modified": "2099-01-16T09:00:00Z",
+   "description": "COMPLAINT against Jane Roe ( Filing fee $ 405) filed by Example Data Co.. Alleges violations of 42 U.S.C. § 1983 and 15 U.S.C. § 45(a). (Attachments: # 1 Civil Cover Sheet)",
+   "recap_documents": [
+    {
+     "id": 7200001,
+     "document_number": "1",
+     "attachment_number": null,
+     "description": "Complaint",
+     "is_available": true,
+     "page_count": 14,
+     "filepath_local": "recap/gov.uscourts.dcd.990101/gov.uscourts.dcd.990101.1.0.pdf",
+     "absolute_url": "/docket/70001/1/example-data-co-v-roe/"
+    }
+   ]
+  },
+  {
+   "id": 7100002,
+   "entry_number": 2,
+   "date_filed": "2099-02-10",
+   "date_modified": "2099-02-10T12:00:00Z",
+   "description": "ANSWER to Complaint by Jane Roe.",
+   "recap_documents": [
+    {
+     "id": 7200002,
+     "document_number": "2",
+     "attachment_number": null,
+     "description": "Answer",
+     "is_available": false,
+     "page_count": null,
+     "absolute_url": "/docket/70001/2/"
+    }
+   ]
+  },
+  {
+   "id": 7100003,
+   "entry_number": 3,
+   "date_filed": "2099-06-15",
+   "date_modified": "2099-06-15T15:00:00Z",
+   "description": "MEMORANDUM OPINION AND ORDER granting in part and denying in part 1 Complaint. See 42 U.S.C. § 1983; cf. 990 F.4th 12. Signed by Judge Fixture on 6/15/2099.",
+   "recap_documents": [
+    {
+     "id": 7200003,
+     "document_number": "3",
+     "attachment_number": null,
+     "description": "Memorandum Opinion",
+     "is_available": true,
+     "page_count": 22,
+     "absolute_url": "/docket/70001/3/"
+    }
+   ]
+  },
+  {
+   "id": 7100004,
+   "entry_number": 4,
+   "date_filed": "2099-06-20",
+   "date_modified": "2099-06-20T10:00:00Z",
+   "description": "JUDGMENT entered in accordance with 3 Memorandum Opinion and Order. Case closed.",
+   "recap_documents": []
+  }
+ ]
+}

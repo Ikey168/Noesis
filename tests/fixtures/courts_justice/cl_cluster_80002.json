@@ -1,0 +1,23 @@
+{
+ "id": 80002,
+ "docket_id": 70002,
+ "docket": "https://www.courtlistener.com/api/rest/v4/dockets/70002/",
+ "case_name": "Sample Holdings LLC v. Example Agency",
+ "date_filed": "2098-05-01",
+ "judges": "Panel",
+ "citations": [
+  {
+   "volume": 990,
+   "reporter": "F.4th",
+   "page": "12",
+   "type": 1
+  }
+ ],
+ "disposition": "AFFIRMED",
+ "precedential_status": "Published",
+ "sub_opinions": [
+  "https://www.courtlistener.com/api/rest/v4/opinions/90002/"
+ ],
+ "date_modified": "2098-05-02T08:00:00Z",
+ "absolute_url": "/opinion/80002/sample-holdings-llc-v-example-agency/"
+}

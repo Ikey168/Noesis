@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1379,
+      "tool_count": 1400,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1096,6 +1096,7 @@
         "noesis-knowledge-engine.compare_government_finance_vintages",
         "noesis-knowledge-engine.compare_hypotheses",
         "noesis-knowledge-engine.compare_inventory_with_graph",
+        "noesis-knowledge-engine.compare_justice_statistics",
         "noesis-knowledge-engine.compare_land_value_revisions",
         "noesis-knowledge-engine.compare_legal_versions",
         "noesis-knowledge-engine.compare_legislative_dossier",
@@ -1121,6 +1122,8 @@
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.correct_paper_family_relation",
         "noesis-knowledge-engine.correlate_knowledge_anomaly",
+        "noesis-knowledge-engine.courts_justice_readiness",
+        "noesis-knowledge-engine.courts_justice_source_contracts",
         "noesis-knowledge-engine.create_access_share_grant",
         "noesis-knowledge-engine.create_agrifood_monitor",
         "noesis-knowledge-engine.create_astronomy_monitor",
@@ -1129,6 +1132,7 @@
         "noesis-knowledge-engine.create_binary_forecast",
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_clinical_monitor",
+        "noesis-knowledge-engine.create_courts_justice_monitor",
         "noesis-knowledge-engine.create_decision_condition_watch",
         "noesis-knowledge-engine.create_demographic_monitor",
         "noesis-knowledge-engine.create_development_finance_monitor",
@@ -1226,6 +1230,8 @@
         "noesis-knowledge-engine.discover_intake_workflows",
         "noesis-knowledge-engine.discover_quantitative_metrics",
         "noesis-knowledge-engine.discover_research_gaps",
+        "noesis-knowledge-engine.docket_as_of",
+        "noesis-knowledge-engine.dockets_citing_provision",
         "noesis-knowledge-engine.document_generation_delta",
         "noesis-knowledge-engine.document_revision",
         "noesis-knowledge-engine.document_revision_health",
@@ -1498,6 +1504,7 @@
         "noesis-knowledge-engine.inspect_zotero_item",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.instantiate_investigation_template",
+        "noesis-knowledge-engine.justice_statistics_for_place",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.languoid_profile",
         "noesis-knowledge-engine.legal_readiness",
@@ -1524,6 +1531,7 @@
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_clinical_publications",
         "noesis-knowledge-engine.link_company_identity",
+        "noesis-knowledge-engine.link_court_citations",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_cultural_research",
         "noesis-knowledge-engine.link_demographic_dossier",
@@ -1558,6 +1566,8 @@
         "noesis-knowledge-engine.list_bill_votes",
         "noesis-knowledge-engine.list_budget_lines",
         "noesis-knowledge-engine.list_change_briefs",
+        "noesis-knowledge-engine.list_court_citation_links",
+        "noesis-knowledge-engine.list_court_identity_candidates",
         "noesis-knowledge-engine.list_decision_review_tasks",
         "noesis-knowledge-engine.list_demographic_comparability_notes",
         "noesis-knowledge-engine.list_demographic_links",
@@ -1600,6 +1610,7 @@
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
         "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
+        "noesis-knowledge-engine.list_justice_place_resolutions",
         "noesis-knowledge-engine.list_legislation_identity_candidates",
         "noesis-knowledge-engine.list_linguistic_identity_candidates",
         "noesis-knowledge-engine.list_lobbying_dossier_links",
@@ -1652,6 +1663,7 @@
         "noesis-knowledge-engine.lookup_clinical_trial",
         "noesis-knowledge-engine.lookup_component",
         "noesis-knowledge-engine.lookup_crs_aggregates",
+        "noesis-knowledge-engine.lookup_dockets",
         "noesis-knowledge-engine.lookup_environment_series",
         "noesis-knowledge-engine.lookup_launches",
         "noesis-knowledge-engine.lookup_legal_work",
@@ -1710,6 +1722,7 @@
         "noesis-knowledge-engine.poll_bafin_notice_monitor",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
+        "noesis-knowledge-engine.poll_courts_justice_monitor",
         "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.poll_demographic_monitor",
         "noesis-knowledge-engine.poll_development_finance_monitor",
@@ -1787,6 +1800,7 @@
         "noesis-knowledge-engine.propose_bafin_identity_link",
         "noesis-knowledge-engine.propose_bafin_identity_matches",
         "noesis-knowledge-engine.propose_certificate_product_links",
+        "noesis-knowledge-engine.propose_court_party_matches",
         "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_demographic_link_candidates",
         "noesis-knowledge-engine.propose_development_finance_identity_matches",
@@ -1867,6 +1881,7 @@
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_iso_code_events",
+        "noesis-knowledge-engine.record_justice_comparability",
         "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_maintenance_finding",
         "noesis-knowledge-engine.record_math_object",
@@ -1983,6 +1998,7 @@
         "noesis-knowledge-engine.resolve_geospatial_boundary",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
         "noesis-knowledge-engine.resolve_hazard_places",
+        "noesis-knowledge-engine.resolve_justice_places",
         "noesis-knowledge-engine.resolve_research_package_closure",
         "noesis-knowledge-engine.resolve_review_inbox_task",
         "noesis-knowledge-engine.resolve_sanctions_legal_bases",
@@ -2008,6 +2024,7 @@
         "noesis-knowledge-engine.revert_bafin_identity_match",
         "noesis-knowledge-engine.revert_bill_record_link",
         "noesis-knowledge-engine.revert_component_manufacturer_link",
+        "noesis-knowledge-engine.revert_court_party_match",
         "noesis-knowledge-engine.revert_demographic_comparability",
         "noesis-knowledge-engine.revert_demographic_link",
         "noesis-knowledge-engine.revert_development_finance_identity_match",
@@ -2047,6 +2064,7 @@
         "noesis-knowledge-engine.review_clinical_publication_link",
         "noesis-knowledge-engine.review_company_identity_link",
         "noesis-knowledge-engine.review_component_manufacturer_link",
+        "noesis-knowledge-engine.review_court_party_match",
         "noesis-knowledge-engine.review_cross_language_alignment",
         "noesis-knowledge-engine.review_cultural_match",
         "noesis-knowledge-engine.review_cultural_research_candidate",
@@ -2067,6 +2085,8 @@
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_humanitarian_identity",
         "noesis-knowledge-engine.review_intake_iteration_stability",
+        "noesis-knowledge-engine.review_justice_comparability",
+        "noesis-knowledge-engine.review_justice_place",
         "noesis-knowledge-engine.review_languoid_location",
         "noesis-knowledge-engine.review_legislation_identity_match",
         "noesis-knowledge-engine.review_linguistic_identity_match",
@@ -2125,6 +2145,7 @@
         "noesis-knowledge-engine.run_astronomy_monitor",
         "noesis-knowledge-engine.run_bafin_notice_monitor",
         "noesis-knowledge-engine.run_clinical_monitor",
+        "noesis-knowledge-engine.run_courts_justice_monitor",
         "noesis-knowledge-engine.run_demographic_monitor",
         "noesis-knowledge-engine.run_development_finance_monitor",
         "noesis-knowledge-engine.run_election_monitor",
@@ -2338,7 +2359,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1379
+      "visible_tool_count": 1400
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2349,11 +2370,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 137,
+      "available": 138,
       "degraded": 173,
-      "unauthorized": 1393
+      "unauthorized": 1413
     },
-    "tools": 1703
+    "tools": 1724
   },
   "tools": [
     {
@@ -29096,6 +29117,68 @@
     },
     {
       "cost_class": "low",
+      "description": "Statistics of several jurisdictions, each series separately, with the comparability notes of every\npair; the aligned view is refused unless every cross-jurisdiction pair has a stated comparability note.\nNothing is ranked, merged or scored.",
+      "id": "noesis-knowledge-engine.compare_justice_statistics",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "places": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "places"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_justice_statistics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "One zone's values across valuation dates and sources side by side; no change or trend is computed.",
       "id": "noesis-knowledge-engine.compare_land_value_revisions",
       "input_schema": {
@@ -30438,6 +30521,56 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Whether the courts / justice-statistics features are selected and what each provider has acquired.",
+      "id": "noesis-knowledge-engine.courts_justice_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "courts_justice_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access, key handling, licences, rate limits, revision models, the party minimisation\ndecision, bounded coverage and LIVE_VERIFICATION for CourtListener, FBI CDE, data.police.uk and Eurostat.",
+      "id": "noesis-knowledge-engine.courts_justice_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "courts_justice_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Create a recipient-, purpose-, and expiry-bound export grant.",
       "id": "noesis-knowledge-engine.create_access_share_grant",
@@ -30951,6 +31084,63 @@
       ],
       "required_scopes": [
         "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a docket, court, organisational party (entity id), provision or place series; natural\npersons cannot be monitored.",
+      "id": "noesis-knowledge-engine.create_courts_justice_monitor",
+      "input_schema": {
+        "properties": {
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_courts_justice_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -36729,6 +36919,102 @@
       ],
       "required_scopes": [
         "knowledge:gaps:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One docket's revision current at a date: entries filed by then (verbatim, documents linked), parties\nminimised (organisations by name, natural persons pseudonymised) and the cited revision.",
+      "id": "noesis-knowledge-engine.docket_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "docket_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Dockets (citing entries) and decisions (citing passages) whose text cites a US Code or CFR provision,\nlinked by exact citation parsing only, as of a date; quoted dispositions only, no legal advice.",
+      "id": "noesis-knowledge-engine.dockets_citing_provision",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "provision"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "dockets_citing_provision",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -49478,6 +49764,87 @@
     },
     {
       "cost_class": "low",
+      "description": "Official crime and justice statistics for a place ('us-state:CA', 'fbi-ori:...', 'eurostat-geo:DE',\n'police-uk-neighbourhood:force/id' or a geospatial place_id) from each source side by side, with the\ndefinition, unit, flags, coverage notes and vintage in force at the date; gaps and suppressed values are\nexplicit. No rankings, neighbourhood safety ratings or risk scores.",
+      "id": "noesis-knowledge-engine.justice_statistics_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "justice_statistics_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Describe declarative ingestion, extraction, events, and artifact rebuild contracts.",
       "id": "noesis-knowledge-engine.knowledge_engine_capabilities",
       "input_schema": {
@@ -50640,6 +51007,40 @@
       ],
       "required_scopes": [
         "knowledge:companies:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Parse acquired docket entries and opinions for exact statute, regulation and reporter citations and\nlink them to Legal works; idempotent.",
+      "id": "noesis-knowledge-engine.link_court_citations",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_court_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -52466,6 +52867,106 @@
       ],
       "required_scopes": [
         "knowledge:briefs:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Exact citation links from docket entries and opinions to provisions and decisions, with unresolved\ncitations kept as source text; the citing relationship is never characterised.",
+      "id": "noesis-knowledge-engine.list_court_citation_links",
+      "input_schema": {
+        "properties": {
+          "citing_record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_court_citation_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Courts by CourtListener id and the reviewable identity candidates of organisational parties.",
+      "id": "noesis-knowledge-engine.list_court_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "party_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_court_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -54672,6 +55173,39 @@
       ],
       "required_scopes": [
         "knowledge:projects:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Place resolutions with their candidates, mapping source and review state.",
+      "id": "noesis-knowledge-engine.list_justice_place_resolutions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_justice_place_resolutions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -57346,6 +57880,84 @@
       ],
       "required_scopes": [
         "knowledge:funding:development-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Dockets and decisions on record at a date for a court (CourtListener court id), an organisational party\n(canonical entity reached by an accepted identity match only) or a provision (exact citation), with docket\nentries verbatim and dispositions as quoted text with locators; 'no_docket_on_record' is explicit. Natural\npersons are never a query key. No win/loss labels, outcome predictions or legal advice.",
+      "id": "noesis-knowledge-engine.lookup_dockets",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "court_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provision": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_dockets",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60249,6 +60861,44 @@
       ],
       "required_scopes": [
         "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a courts-justice monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_courts_justice_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_courts_justice_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -63849,6 +64499,52 @@
       ],
       "required_scopes": [
         "knowledge:standards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose organisational parties against ownership entities and canonical aliases (identifiers first;\nnames are low evidence and never auto-accepted). Natural persons are never proposed.",
+      "id": "noesis-knowledge-engine.propose_court_party_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_court_party_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -67702,6 +68398,64 @@
       ],
       "required_scopes": [
         "knowledge:linguistics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a comparability note between two series (definition differences, reporting coverage,\nclassification mappings or not comparable), citing the definitions or source texts it rests on.",
+      "id": "noesis-knowledge-engine.record_justice_comparability",
+      "input_schema": {
+        "properties": {
+          "cited": {
+            "items": {
+              "additionalProperties": true,
+              "type": "object"
+            },
+            "type": "array"
+          },
+          "left_series": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "right_series": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_series",
+          "right_series",
+          "relation",
+          "statement",
+          "cited"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_justice_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -75198,6 +75952,45 @@
     },
     {
       "cost_class": "medium",
+      "description": "Resolve statistic reporting areas (states, ORIs, police.uk neighbourhoods, GEO codes) to geospatial\nplaces by exact published code; ambiguous mappings stay review candidates.",
+      "id": "noesis-knowledge-engine.resolve_justice_places",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "geo_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resolve_justice_places",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Resolve deterministic dependency closure with redactions and omissions.",
       "id": "noesis-knowledge-engine.resolve_research_package_closure",
       "input_schema": {
@@ -76244,6 +77037,48 @@
         "knowledge:entity-history:write",
         "knowledge:entity-history:review",
         "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert a reviewed organisational party identity decision.",
+      "id": "noesis-knowledge-engine.revert_court_party_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_court_party_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -77932,6 +78767,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject an organisational party identity candidate with a reason (an entity identity\ndecision; records are never merged).",
+      "id": "noesis-knowledge-engine.review_court_party_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_court_party_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Review a cross-language claim relation without erasing either claim.",
       "id": "noesis-knowledge-engine.review_cross_language_alignment",
       "input_schema": {
@@ -78890,6 +79771,109 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a comparability note (by someone other than its author) with a reason.",
+      "id": "noesis-knowledge-engine.review_justice_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_justice_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept (naming one candidate place) or reject a place resolution with a reason.",
+      "id": "noesis-knowledge-engine.review_justice_place",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "resolution_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_justice_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -81915,6 +82899,51 @@
       ],
       "required_scopes": [
         "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark: new entries, opinions, citing decisions, vintages and\nrevised observations, each citing its before and after revision.",
+      "id": "noesis-knowledge-engine.run_courts_justice_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_courts_justice_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

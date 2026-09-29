@@ -105,7 +105,9 @@ def run(runtime, value, key, **controls):
     return runtime.run(
         {"pack_id": value["pack_id"], "run_key": key, "operation": "records", "max_results": 200,
          "max_bytes": 50_000_000, "timeout_ms": 60_000, **controls},
-        principal_id="operator", adapters=runtime.fixture_adapters(value["pack_id"], ROOT), dns_resolver=PUBLIC_DNS)
+        principal_id="operator", adapters=runtime.fixture_adapters(value["pack_id"], ROOT), dns_resolver=PUBLIC_DNS,
+        # The CourtListener and FBI CDE sources (#2218) require a secret; the fixture adapters use a placeholder.
+        secret_resolver=lambda _ref: "fixture-credential-not-a-real-key")
 
 
 @pytest.fixture(scope="module")
@@ -130,8 +132,9 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
     value = manifest()
     assert {s["connector"] for s in value["sources"]} == {"cellar", "rii", "berlin-law",
                                                           "sanctions-list", "gesetze-im-internet",
-                                                          "rechtsinformationen-bund", "recht-bund"
-                                                          } <= SUPPORTED_CONNECTORS
+                                                          "rechtsinformationen-bund", "recht-bund",
+                                                          # Courts and justice-statistics features (#2218).
+                                                          "courts-justice"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {s["source_id"]: s["records"] for s in result["sources"]} == {
@@ -144,7 +147,11 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
         "cellar-product-safety-acts-eng": 2,
         # Federal statutes feature (#2105): the pinned fixtures hold no text of the FL01 statute set (the
         # selected statutes are not_found and the listed fictional acts amend none of them).
-        "gii-federal-statutes": 0, "ris-federal-statute-versions": 0, "bgbl-federal-promulgations": 0}
+        "gii-federal-statutes": 0, "ris-federal-statute-versions": 0, "bgbl-federal-promulgations": 0,
+        # Courts and justice-statistics features (#2218): one docket, two opinion clusters, two FBI CDE series, one
+        # police.uk month and one Eurostat release.
+        "courtlistener-dockets": 1, "courtlistener-opinions": 2, "fbi-cde-summarized": 2,
+        "police-uk-street-crime": 1, "eurostat-crime-iccs": 1}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():
@@ -243,8 +250,9 @@ def test_run_projects_every_source_and_repeats_idempotently(loaded):
               for t in ("legal_works", "legal_versions", "legal_passages", "legal_citations", "legal_facts")}
     # GDPR, C-362/14, three federal decisions, a Berlin law and judgment; plus (sanctions feature) Regulation
     # 269/2014, Regulation 2021/821, Delegated Regulation 2024/2547 and one consolidated-editions work; plus
-    # (products safety feature) Regulation (EU) 2023/988 and Regulation (EC) No 178/2002.
-    assert counts["legal_works"] == 13
+    # (products safety feature) Regulation (EU) 2023/988 and Regulation (EC) No 178/2002; plus (courts feature,
+    # #2218) one CourtListener docket and two opinion clusters as docket and decision works.
+    assert counts["legal_works"] == 16
     # CELLAR runs are bounded to the captured first page, so an incremental
     # run continues at offset 100, which was never captured.
     resumed = run(runtime, value, "incremental-2")

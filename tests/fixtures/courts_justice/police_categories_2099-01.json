@@ -1,0 +1,18 @@
+[
+ {
+  "url": "all-crime",
+  "name": "All crime"
+ },
+ {
+  "url": "anti-social-behaviour",
+  "name": "Anti-social behaviour"
+ },
+ {
+  "url": "burglary",
+  "name": "Burglary"
+ },
+ {
+  "url": "vehicle-crime",
+  "name": "Vehicle crime"
+ }
+]

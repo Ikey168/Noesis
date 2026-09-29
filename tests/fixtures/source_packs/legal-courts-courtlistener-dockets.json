@@ -1,0 +1,35 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"id\": 70001,\n \"court\": \"https://www.courtlistener.com/api/rest/v4/courts/dcd/\",\n \"court_id\": \"dcd\",\n \"docket_number\": \"1:99-cv-00101\",\n \"case_name\": \"Example Data Co. v. Roe\",\n \"case_name_full\": \"Example Data Co. v. Jane Roe\",\n \"date_filed\": \"2099-01-15\",\n \"date_terminated\": null,\n \"date_modified\": \"2099-03-01T10:00:00Z\",\n \"pacer_case_id\": \"990101\",\n \"cause\": \"42:1983 Civil Rights Act\",\n \"nature_of_suit\": \"440 Civil Rights: Other\",\n \"assigned_to_str\": \"Judge Fixture\",\n \"absolute_url\": \"/docket/70001/example-data-co-v-roe/\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/dockets/70001/",
+   "status": 200
+  },
+  {
+   "body": "{\n \"count\": 2,\n \"next\": null,\n \"previous\": null,\n \"results\": [\n  {\n   \"id\": 7100001,\n   \"entry_number\": 1,\n   \"date_filed\": \"2099-01-15\",\n   \"date_modified\": \"2099-01-16T09:00:00Z\",\n   \"description\": \"COMPLAINT against Jane Roe ( Filing fee $ 405) filed by Example Data Co.. Alleges violations of 42 U.S.C. § 1983 and 15 U.S.C. § 45(a). (Attachments: # 1 Civil Cover Sheet)\",\n   \"recap_documents\": [\n    {\n     \"id\": 7200001,\n     \"document_number\": \"1\",\n     \"attachment_number\": null,\n     \"description\": \"Complaint\",\n     \"is_available\": true,\n     \"page_count\": 14,\n     \"filepath_local\": \"recap/gov.uscourts.dcd.990101/gov.uscourts.dcd.990101.1.0.pdf\",\n     \"absolute_url\": \"/docket/70001/1/example-data-co-v-roe/\"\n    }\n   ]\n  },\n  {\n   \"id\": 7100002,\n   \"entry_number\": 2,\n   \"date_filed\": \"2099-02-10\",\n   \"date_modified\": \"2099-02-10T12:00:00Z\",\n   \"description\": \"ANSWER to Complaint by Jane Roe.\",\n   \"recap_documents\": [\n    {\n     \"id\": 7200002,\n     \"document_number\": \"2\",\n     \"attachment_number\": null,\n     \"description\": \"Answer\",\n     \"is_available\": false,\n     \"page_count\": null,\n     \"absolute_url\": \"/docket/70001/2/\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/docket-entries/?docket=70001&page_size=100",
+   "status": 200
+  },
+  {
+   "body": "{\n \"count\": 3,\n \"next\": null,\n \"previous\": null,\n \"results\": [\n  {\n   \"id\": 7300001,\n   \"name\": \"Example Data Co.\",\n   \"extra_info\": \"100 Example Street, Example City\",\n   \"party_types\": [\n    {\n     \"name\": \"Plaintiff\",\n     \"docket\": 70001,\n     \"date_terminated\": null,\n     \"extra_info\": \"a Delaware corporation\"\n    }\n   ],\n   \"attorneys\": [\n    {\n     \"attorney_id\": 1,\n     \"name\": \"Counsel Fixture\",\n     \"contact_raw\": \"1 Law Plaza\"\n    }\n   ]\n  },\n  {\n   \"id\": 7300002,\n   \"name\": \"Jane Roe\",\n   \"extra_info\": \"12 Private Lane, Example City; born 01/01/2060\",\n   \"party_types\": [\n    {\n     \"name\": \"Defendant\",\n     \"docket\": 70001,\n     \"date_terminated\": null,\n     \"extra_info\": \"\"\n    }\n   ],\n   \"attorneys\": []\n  },\n  {\n   \"id\": 7300003,\n   \"name\": \"United States Department of Examples\",\n   \"extra_info\": \"\",\n   \"party_types\": [\n    {\n     \"name\": \"Interested Party\",\n     \"docket\": 70001,\n     \"date_terminated\": null\n    }\n   ],\n   \"attorneys\": []\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/rest/v4/parties/?docket=70001&page_size=100",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (verify live); every docket, party, opinion, place and figure is fictional placeholder data (years 2096-2099).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

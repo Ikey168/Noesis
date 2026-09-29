@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"offenses\": {\n  \"actuals\": {\n   \"Examplestate Offenses\": {\n    \"01-2098\": 410,\n    \"02-2098\": 385,\n    \"03-2098\": 402\n   },\n   \"Examplestate Clearances\": {\n    \"01-2098\": 52,\n    \"02-2098\": 48,\n    \"03-2098\": null\n   },\n   \"United States Offenses\": {\n    \"01-2098\": 90000,\n    \"02-2098\": 88000,\n    \"03-2098\": 91000\n   }\n  },\n  \"rates\": {\n   \"Examplestate Offenses\": {\n    \"01-2098\": 10.5,\n    \"02-2098\": 9.9,\n    \"03-2098\": 10.3\n   }\n  }\n },\n \"populations\": {\n  \"population\": {\n   \"Examplestate\": {\n    \"01-2098\": 3900000,\n    \"02-2098\": 3900000,\n    \"03-2098\": 3900000\n   }\n  },\n  \"participated_population\": {\n   \"Examplestate\": {\n    \"01-2098\": 3700000,\n    \"02-2098\": 3700000,\n    \"03-2098\": 3700000\n   }\n  }\n },\n \"cde_properties\": {\n  \"last_refresh_date\": {\n   \"UCR\": \"2099-09-15\"\n  },\n  \"max_data_date\": {\n   \"UCR\": \"12/2098\"\n  }\n },\n \"tooltips\": {\n  \"Percent of Population Coverage\": {\n   \"Examplestate\": {\n    \"01-2098\": 94.9,\n    \"02-2098\": 94.9,\n    \"03-2098\": 94.9\n   }\n  }\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/crime/fbi/cde/summarized/state/EX/burglary?from=01-2098&to=03-2098",
+   "status": 200
+  },
+  {
+   "body": "{\n \"offenses\": {\n  \"actuals\": {\n   \"Example City Police Department Offenses\": {\n    \"01-2098\": 61,\n    \"02-2098\": 58,\n    \"03-2098\": 64\n   },\n   \"Example City Police Department Clearances\": {\n    \"01-2098\": 9,\n    \"02-2098\": 7,\n    \"03-2098\": 8\n   },\n   \"United States Offenses\": {\n    \"01-2098\": 90000,\n    \"02-2098\": 88000,\n    \"03-2098\": 91000\n   }\n  },\n  \"rates\": {\n   \"Example City Police Department Offenses\": {\n    \"01-2098\": 22.1,\n    \"02-2098\": 21.0,\n    \"03-2098\": 23.2\n   }\n  }\n },\n \"populations\": {\n  \"population\": {\n   \"Example City Police Department\": {\n    \"01-2098\": 276000,\n    \"02-2098\": 276000,\n    \"03-2098\": 276000\n   }\n  },\n  \"participated_population\": {\n   \"Example City Police Department\": {\n    \"01-2098\": 276000,\n    \"02-2098\": 276000,\n    \"03-2098\": 276000\n   }\n  }\n },\n \"cde_properties\": {\n  \"last_refresh_date\": {\n   \"UCR\": \"2099-09-15\"\n  },\n  \"max_data_date\": {\n   \"UCR\": \"12/2098\"\n  }\n },\n \"tooltips\": {\n  \"Percent of Population Coverage\": {\n   \"Example City Police Department\": {\n    \"01-2098\": 100.0,\n    \"02-2098\": 100.0,\n    \"03-2098\": 100.0\n   }\n  }\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/crime/fbi/cde/summarized/agency/EX0000100/burglary?from=01-2098&to=03-2098",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (verify live); every docket, party, opinion, place and figure is fictional placeholder data (years 2096-2099).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

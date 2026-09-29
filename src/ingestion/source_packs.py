@@ -341,6 +341,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
 NATIVE_CONNECTOR_MODULES["agrifood"] = "src.ingestion.agrifood_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"agrifood"})
 
+# Legal court dockets and justice statistics: CourtListener, FBI CDE, data.police.uk and Eurostat crime (#2218).
+NATIVE_CONNECTOR_MODULES["courts-justice"] = "src.ingestion.courts_justice_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"courts-justice"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

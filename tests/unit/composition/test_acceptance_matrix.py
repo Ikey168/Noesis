@@ -161,6 +161,11 @@ MATRIX = {
     "Commodity and place to cited series":
         "tests/unit/domains/test_agrifood_acceptance.py::"
         "test_commodity_and_place_to_cited_series_with_vintages_and_flags",
+    # The Legal courts and justice-statistics features' offline journey (#2430) composes the Legal work model, the
+    # source-pack runtime, ownership identity, geospatial places and subscriptions.
+    "Provision or party to cited dockets; place to cited justice statistics":
+        "tests/unit/domains/test_courts_justice_acceptance.py::"
+        "test_provision_and_party_to_cited_dockets_and_place_to_cited_statistics",
 }
 
 
