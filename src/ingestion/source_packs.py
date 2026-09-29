@@ -289,6 +289,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"engineering-safety"})
 NATIVE_CONNECTOR_MODULES["materials"] = "src.ingestion.materials_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"materials"})
 
+# Astronomy and Space (MPC, JPL SBDB/Sentry, NASA Exoplanet Archive, GCAT, CelesTrak SATCAT, NOAA SWPC; #2149).
+NATIVE_CONNECTOR_MODULES["astronomy"] = "src.ingestion.astronomy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

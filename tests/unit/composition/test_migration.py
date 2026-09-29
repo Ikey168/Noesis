@@ -44,6 +44,7 @@ PROJECTOR_OWNERS = {
     "noesis-demographic-series-v1": "src.kb.demographics",
     "noesis-development-finance-record-v1": "src.kb.development_finance",
     "noesis-bafin-notice-v1": "src.domains.market.bafin_notices",
+    "noesis-astronomy-record-v1": "src.kb.astronomy_store",
     "noesis-housing-record-v1": "src.kb.housing",
     "noesis-surveillance-record-v1": "src.kb.surveillance",
     "noesis-engineering-safety-record-v1": "src.kb.engineering_safety_store",

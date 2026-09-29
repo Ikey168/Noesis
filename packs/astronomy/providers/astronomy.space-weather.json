@@ -1,0 +1,60 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "astronomy.space-weather",
+  "version": "1.0.0",
+  "description": "NOAA SWPC alerts, watches, warnings and summaries as an issued history kept beyond the rolling feed.",
+  "implementation": {
+    "name": "src.kb.astronomy_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "astronomy.space-weather",
+      "contract": {
+        "name": "noesis-astronomy-space-weather",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "space-weather-alerts"
+      ],
+      "semantic_constraints": {
+        "products": "verbatim messages deduplicated by product id and serial; cancellations and extensions linked from structured header fields only",
+        "exclusions": "no operational space-weather advice"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "space-weather-alerts",
+      "tool": "noesis-knowledge-engine.space_weather_alerts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "astronomy_record_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "astronomy-and-space",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ],
+  "content_hash": "sha256:4c5516363a9a81ceebc609cadf1bae3dd6eb28c51d50d26f722e66e120a2d7d4"
+}

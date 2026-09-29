@@ -9272,6 +9272,12 @@ from tools.knowledge_engine_mcp.engineering_safety import (
 
 register_engineering_safety_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.astronomy import (
+    register as register_astronomy_tools,
+)
+
+register_astronomy_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )

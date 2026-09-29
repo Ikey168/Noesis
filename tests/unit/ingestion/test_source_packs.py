@@ -37,9 +37,11 @@ def test_all_production_packs_validate_against_contract() -> None:
     packs = load_source_packs(PACK_DIR)
     # 15 plus the Market bafin-notices feature's bafin-capital-market-notices pack (#2106),
     # plus the Engineering Safety pack (#2059),
-    # plus the Materials pack's materials source pack (#2060).
-    assert len(packs) == 18
+    # plus the Materials pack's materials source pack (#2060),
+    # plus the Astronomy pack's astronomy-and-space pack (#2149).
+    assert len(packs) == 19
     assert {domain for pack in packs for domain in pack["domains"]} == {
+        "astronomy",
         "clinical",
         "corporate-ownership",
         "economic",
@@ -71,8 +73,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Market bafin-notices feature's voting-rights, dealings, short-position, company and warning sources (#2106),
     # plus the Products expansion's two EPREL groups, two Open Icecat categories and two BMEcat catalogues (#2061),
     # plus the Engineering Safety pack's FAA, EASA, NTSB, PHMSA, CSB, ODI, complaint, BFU and BEA sources (#2059),
-    # plus the Materials pack's Materials Project, JARVIS-DFT, OQMD, NIST WebBook and COD sources (#2060).
-    assert sum(len(pack["sources"]) for pack in packs) == 132
+    # plus the Materials pack's Materials Project, JARVIS-DFT, OQMD, NIST WebBook and COD sources (#2060),
+    # plus the Astronomy pack's MPC, JPL, Exoplanet Archive, GCAT, CelesTrak and SWPC sources (#2149).
+    assert sum(len(pack["sources"]) for pack in packs) == 146
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -333,6 +336,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     assert "must-not-leak" not in encoded
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
+        "astronomy",
         "clinical",
         "corporate-ownership",
         "economic",

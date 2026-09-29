@@ -89,6 +89,11 @@ MATRIX = {
     "Material to cited property dossier":
         "tests/unit/domains/test_materials_acceptance.py::"
         "test_material_to_cited_property_dossier_comparison_search_citations_and_release_diff",
+    # The Astronomy and Space bundle's offline journey (#2161) composes its own record owner, science (papers by
+    # bibcode and DOI), entity identity, geospatial (launch sites), subscriptions and the source-pack runtime.
+    "Object to cited astronomy history":
+        "tests/unit/domains/test_astronomy_acceptance.py::"
+        "test_object_to_cited_designations_vintages_dispositions_launches_alerts_and_monitors",
 }
 
 

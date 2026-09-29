@@ -1,0 +1,6 @@
+#JCAT	Satcat	Launch_Tag	Piece	Type	Name	PLName	LDate	Parent	SDate	Primary	DDate	Status	Dest	Owner	State	Manufacturer	Bus	Motor	Mass
+# Updated 2099 Jul  1 (fictional authored extract)
+S99901	99901	2099-001	A	P	Fictsat 1	Fictsat 1	2099 Mar  3	-	-	Earth	2099 Jun 20?	R	LEO	FICTOPS	US	FICTMFR	-	-	250
+S99902	99902	2099-001	B	R2	Fictron 2 Stage 2	Fictron 2 Stage 2	2099 Mar  3	-	-	Earth	2099 Mar 10	R	LEO	FICTSPACE	US	FICTMFR	-	-	250
+S99903	-	2099-002	A	P	Fictsat 2	Fictsat 2	2099 Apr 10	-	-	Earth	2099 Apr 10	F	LEO	FICTOPS	US	FICTMFR	-	-	250
+S99904	99904	2099-003	A	P	Fictsat 3	Fictsat 3	2099 Apr 28	-	-	Earth	-	O	LEO	FICTOPS	US	FICTMFR	-	-	250

@@ -1,0 +1,323 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "astronomy.small-bodies",
+  "version": "1.0.0",
+  "description": "Small bodies as the MPC and JPL publish them: designations, MPC identifications, orbit solution vintages per publisher and quoted Sentry listings; also the pack's record owner (every astronomy record), reviewable identity, citation links to Science papers and monitors.",
+  "implementation": {
+    "name": "src.kb.astronomy_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "astronomy.small-bodies",
+      "contract": {
+        "name": "noesis-astronomy-small-body",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "small-body-history",
+        "orbit-solution-as-of",
+        "impact-risk-listing-as-of"
+      ],
+      "semantic_constraints": {
+        "as_of": "published by the as-of cutoff (a date counts as its end, UTC) and, when given, acquired by acquired_by_ms; not_yet_published before the first publication",
+        "solutions": "one vintage per publisher solution ID with epoch, arc and observation count; never averaged or merged across publishers",
+        "identity": "designations link only through MPC identifications and source-stated designations",
+        "exclusions": "no orbit, ephemeris, conjunction, risk verdict, disposition or advice is computed by Noesis"
+      }
+    },
+    {
+      "id": "astronomy.identity",
+      "contract": {
+        "name": "noesis-astronomy-identity-candidate",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-identity",
+        "review-identity",
+        "revert-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "matching": "source-stated identifiers link deterministically; everything else is a reviewable candidate recorded as an entity identity decision; similar names are never accepted"
+      }
+    },
+    {
+      "id": "astronomy.citations",
+      "contract": {
+        "name": "noesis-astronomy-citation-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-citations",
+        "revert-citation",
+        "list-citations"
+      ],
+      "semantic_constraints": {
+        "composition": "links point to Science literature records (science.literature) by exact bibcode or DOI; the Science pack owns the paper; unresolved references stay visible"
+      }
+    },
+    {
+      "id": "astronomy.monitoring",
+      "contract": {
+        "name": "noesis-astronomy-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "refresh": "platform.subscriptions watermarks; no separate scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "small-body-history",
+      "tool": "noesis-knowledge-engine.small_body_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "orbit-solution-as-of",
+      "tool": "noesis-knowledge-engine.orbit_solution_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "impact-risk-listing-as-of",
+      "tool": "noesis-knowledge-engine.impact_risk_listing_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity",
+      "tool": "noesis-knowledge-engine.propose_astronomy_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_astronomy_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "receipt": "entity identity decisions"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_astronomy_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "receipt": "entity identity decisions"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_astronomy_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-citations",
+      "tool": "noesis-knowledge-engine.link_astronomy_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-citation",
+      "tool": "noesis-knowledge-engine.revert_astronomy_citation",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-citations",
+      "tool": "noesis-knowledge-engine.astronomy_citations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_astronomy_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_astronomy_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "receipt": "subscription snapshots"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_astronomy_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "astronomy-record",
+      "store": "src.kb.astronomy_store",
+      "tables": [
+        "astronomy_records",
+        "astronomy_record_revisions",
+        "astronomy_record_keys",
+        "astronomy_listing_observations",
+        "astronomy_page_receipts",
+        "astronomy_identity_candidates",
+        "astronomy_site_resolutions",
+        "astronomy_citation_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "astronomy_record_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "astronomy-and-space",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ],
+  "content_hash": "sha256:c9eaf0da5bc8c88d526112dbd2d3b363e6d4d936fdb14d18f362e309ab7f0a0a"
+}

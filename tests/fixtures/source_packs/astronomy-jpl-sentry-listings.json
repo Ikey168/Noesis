@@ -1,0 +1,30 @@
+{
+  "captured": false,
+  "provider": "jpl-sentry",
+  "note": "Authored documents naming fictional objects (2099 designations, Fict-* hosts, 2099 launches, SWPC serials 9001-9004), served for the production document URLs. The production bounds are therefore out of scope for every bounded row; parsing is exercised with the fictional bounds in tests/unit/astronomy/harness.py.",
+  "native_pages": [
+    {
+      "request": "/sentry.api?des=99942",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Sentry Data API\", \"version\": \"2.0\"},\n  \"summary\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"method\": \"IOBS\", \"cdate\": \"2099-02-05 12:00:00\",\n              \"ip\": \"3.1e-07\", \"ps_cum\": \"-5.20\", \"ps_max\": \"-5.31\", \"ts_max\": \"0\", \"n_imp\": 2,\n              \"v_inf\": \"11.2\", \"h\": \"18.4\", \"diameter\": \"0.61\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\"},\n  \"data\": [{\"date\": \"2140-03-01.12\", \"ip\": \"2.9e-07\", \"ps\": \"-5.31\", \"ts\": \"0\"}]\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/sentry.api?des=101955",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Sentry Data API\", \"version\": \"2.0\"},\n  \"summary\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"method\": \"IOBS\", \"cdate\": \"2099-02-05 12:00:00\",\n              \"ip\": \"3.1e-07\", \"ps_cum\": \"-5.20\", \"ps_max\": \"-5.31\", \"ts_max\": \"0\", \"n_imp\": 2,\n              \"v_inf\": \"11.2\", \"h\": \"18.4\", \"diameter\": \"0.61\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\"},\n  \"data\": [{\"date\": \"2140-03-01.12\", \"ip\": \"2.9e-07\", \"ps\": \"-5.31\", \"ts\": \"0\"}]\n}\n",
+      "authored": true
+    },
+    {
+      "request": "/sentry.api?des=2024%20YR4",
+      "status": 200,
+      "body": "{\n  \"signature\": {\"source\": \"NASA/JPL Sentry Data API\", \"version\": \"2.0\"},\n  \"summary\": {\"des\": \"2099 AB12\", \"fullname\": \"(2099 AB12)\", \"method\": \"IOBS\", \"cdate\": \"2099-02-05 12:00:00\",\n              \"ip\": \"3.1e-07\", \"ps_cum\": \"-5.20\", \"ps_max\": \"-5.31\", \"ts_max\": \"0\", \"n_imp\": 2,\n              \"v_inf\": \"11.2\", \"h\": \"18.4\", \"diameter\": \"0.61\", \"first_obs\": \"2099-01-17\", \"last_obs\": \"2099-01-31\"},\n  \"data\": [{\"date\": \"2140-03-01.12\", \"ip\": \"2.9e-07\", \"ps\": \"-5.31\", \"ts\": \"0\"}]\n}\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}
