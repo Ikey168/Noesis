@@ -4,7 +4,7 @@ The `noesis-knowledge-engine` MCP server exposes a durable session ledger for th
 
 The session response follows [`noesis-intake-session-v1`](../../contracts/schemas/jsonschema/noesis-intake-session-v1.json). The schema covers current and historical revisions, including redacted references after access revocation.
 
-[The acceptance matrix](intake-acceptance-matrix.md) separates current native operations from Modulo handoffs, deterministic checks, live evidence, and user-assessed outcomes for every mode.
+[The acceptance matrix](intake-acceptance-matrix.md) separates current native operations from Modulo handoffs, deterministic checks, live evidence, and user-assessed outcomes for every mode. [The milestone verification](../development/intake-milestone-verification.md) maps every acceptance criterion of #1570–#1583 to its MCP operations and test, and [the cross-repo identity map](../architecture/intake-cross-repo-identity-map.md) states which system is authoritative for each object kind.
 
 ## Supported contract
 
@@ -191,19 +191,37 @@ availability. Flashcard IDs, review logs, schedule parameters, attachments,
 and relations must be checked against the authoritative Modulo records during
 an actual migration.
 
+`reconcile_modulo_intake_migration(namespace, request_key, legacy_preview_id,
+plugin_state_preview_id)` compares a preview of browser-local
+(`legacy_local`) records with a preview of durable plugin state and returns
+[`noesis-modulo-intake-reconciliation-v1`](../../contracts/schemas/jsonschema/noesis-modulo-intake-reconciliation-v1.json).
+Each local record is `already_durable` (same plugin, record ID and content
+hash), `conflict` (same identity, different hash) or `import_required`, with
+counts, duplicate-content and collection flags. `cross_device_replacement` is
+`blocked_by_unreconciled_records`, `unverified_inventory_source` or
+`pending_modulo_migration_receipt`; it is never established by Noesis, and
+`cross_device_replacement_claimed` is always false. The report writes nothing to
+Modulo and deletes nothing. `inspect_modulo_intake_reconciliation` reads it
+back under current owner access to both previews. The procedure is in
+[the identity map](../architecture/intake-cross-repo-identity-map.md#reconciling-browser-local-records-with-durable-plugin-state).
+
 ## Current limits
 
 The ledger and MCP tools implement the common session, handoff, history, access, and recorded-exit layer. Native inbox, Exploration, problem-trail, draft-playbook, and practice operations exist, along with an initial signed-in Modulo connector. Problem-Solving has a restricted action proposal/preview/consent/execution path for two action types; the public adapter registry is empty, and a configured integration plus live verification are still required. The roadmap still needs an authenticated newsletter delivery adapter, live quality evaluation of Exploration suggestions, complete Modulo workbenches, and a representative plugin-state migration. The token map gives the Knowledge Engine server's shared context a distinct caller identity when the token carries scopes. The full server still needs an authorization audit before exposure as a general multi-tenant Modulo gateway. The current daily-brief Blueprint node is a read-only input, not a triage workflow.
 
-Reconciled with the issue checklists on 2026-09-24. The native Noesis
-criteria of each mode are met and verified by deterministic tests, including
-the artifact-level MCP journeys in
-`tests/unit/tools/test_intake_native_journeys_mcp.py`. What remains is listed
-below. It is predominantly cross-repository (signed-in Modulo), live-source, or
-user-assessed evidence, and no mode issue is closed on deterministic evidence
-alone.
+Verified against the issue checklists on 2026-09-29 for
+[#2465](https://github.com/Ikey168/Noesis/issues/2465); the per-criterion
+record is [the milestone verification](../development/intake-milestone-verification.md).
+The native Noesis criteria of each mode are met and verified by deterministic
+tests, including the artifact-level MCP journeys in
+`tests/unit/tools/test_intake_native_journeys_mcp.py` and the MCP coverage in
+`tests/unit/tools/test_intake_milestone_gaps_mcp.py`. The mode issues are closed
+as repository scope complete. What remains is cross-repository (signed-in
+Modulo), live-source, cadence, or user-assessed evidence, tracked in
+[#1781](https://github.com/Ikey168/Noesis/issues/1781); deterministic evidence
+is not recorded as satisfying any of it.
 
-| Issue | Native state | Remaining acceptance work |
+| Issue | Native state | Remaining acceptance work (#1781) |
 | --- | --- | --- |
 | [#1570](https://github.com/Ikey168/Noesis/issues/1570) Awareness | All native criteria met | Modulo same-record handoff; authenticated mailbox delivery; live daily-cadence evidence |
 | [#1571](https://github.com/Ikey168/Noesis/issues/1571) Exploration | All native criteria met | Modulo device/restart workflow; suggestion quality with live use |
@@ -216,8 +234,47 @@ alone.
 | [#1578](https://github.com/Ikey168/Noesis/issues/1578) Iteration | All native criteria met | Signed-in Modulo cycles returning to the same plugin record; real feedback |
 | [#1579](https://github.com/Ikey168/Noesis/issues/1579) Maintenance | All native criteria met; executed refresh/repair/archive/delete | Modulo dependents in impact previews; a live monthly review |
 | [#1580](https://github.com/Ikey168/Noesis/issues/1580) Workflow foundations | All native criteria met | The versioned cross-repo mapping and authority contract proven with Modulo round trips |
-| [#1581](https://github.com/Ikey168/Noesis/issues/1581) Migration | Preflight and flashcard import are native | Inventory, in-place linking and verification against installed Modulo plugins with user data |
+| [#1581](https://github.com/Ikey168/Noesis/issues/1581) Migration | Preflight, flashcard import and the browser-local reconciliation report are native | Inventory, in-place linking and verification against installed Modulo plugins with user data |
 | [#1582](https://github.com/Ikey168/Noesis/issues/1582) MCP foundations | All native criteria met | Publish the Modulo connector contract; render links validated by Modulo |
 | [#1583](https://github.com/Ikey168/Noesis/issues/1583) Acceptance | Deterministic native journeys pass | Separate live/user evidence; cadence measurements; signed-in Modulo journeys |
+
+### Tested, untested, and known limitations
+
+**Tested (deterministic, offline).** Every native operation named on this page
+is exercised through the Knowledge Engine MCP server, with owner and namespace
+isolation, optimistic revisions, command-key replay, and a store restart
+between calls. Stdio and Streamable HTTP transports are both tested, including a
+denied cross-owner read and a server restart. The five cross-mode journeys of
+[#1583](https://github.com/Ikey168/Noesis/issues/1583) run end to end over a
+real MCP client.
+
+**Untested.** No signed-in Modulo journey, second device, offline Modulo,
+Modulo plugin write-back, or reconciliation of real browser-local records has
+been run. No live feed, page, or newsletter source has been evaluated for
+completeness or suggestion quality. No time box has been measured against a
+user's actual Awareness, Exploration, or Maintenance sessions. No outcome has
+been assessed by a person: decisions, fixes, finished artifacts, procedures,
+practice mastery, iteration learning, and system health are all recorded by
+the caller.
+
+**Known limitations.**
+
+- Recorded completion checks, self-rated practice, caller-reported rehearsals,
+  attempts, verifications and iteration observations are claims, not proof.
+- Suggestions, playbook search, and signal rules use keyword overlap only.
+- The public server configures no problem-action, step-automation, or Creation
+  build adapter; those paths report `unavailable` until a deployment adds one.
+- Newsletter sender authentication is caller supplied; mailbox polling needs an
+  external adapter.
+- Source independence is a recorded human review, not established lineage.
+- `cadence` is recorded, not scheduled; Modulo owns calendar blocks.
+- Maintenance does not scan Modulo records or dependents.
+- `recheck_modulo_plugin_link` reports `unavailable` until a deployment installs
+  a provider, and an authenticated plugin inventory is only available
+  in process, not over MCP.
+
+These workflows replace the manual intake flows they were designed for, within
+the scopes above. They are not a general replacement for browsers, feed
+readers, note tools, spaced-repetition apps, or build and deployment tooling.
 
 The migration source is Modulo plugin state and existing browser-local intake records, as directed for [#1581](https://github.com/Ikey168/Noesis/issues/1581). Miniflux, Wallabag, Notion, and Anki exports are not part of this roadmap.

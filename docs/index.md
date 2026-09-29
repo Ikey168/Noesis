@@ -135,7 +135,10 @@ For the project overview and local setup, start with the
   auth, and worked examples
 - [MCP server notes](integration/mcp-server.md) — the standalone MCP server
 - [Information intake modes](subsystems/intake-modes.md) — durable ten-mode
-  sessions, Modulo links, caller-scoped access, and outstanding native workflows
+  sessions, Modulo links, caller-scoped access, tested capabilities and known
+  limitations; [acceptance matrix](subsystems/intake-acceptance-matrix.md) ·
+  [milestone verification](development/intake-milestone-verification.md) ·
+  [cross-repo authority and identity map](architecture/intake-cross-repo-identity-map.md)
 - [Portable evidence bundles](../contracts/noesis-evidence-bundle-v1.md) —
   content-addressed answer, claim, integrity, and receipt exports with offline
   verification
