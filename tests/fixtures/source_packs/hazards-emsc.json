@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"type\": \"FeatureCollection\",\n \"metadata\": {\n  \"count\": 1,\n  \"note\": \"Authored in the documented EMSC FDSN json shape; values are fictional (not EMSC data).\"\n },\n \"features\": [\n  {\n   \"type\": \"Feature\",\n   \"id\": \"20990810_0000031\",\n   \"geometry\": {\n    \"type\": \"Point\",\n    \"coordinates\": [\n     26.81,\n     37.89,\n     -12.0\n    ]\n   },\n   \"properties\": {\n    \"source_id\": \"1500031\",\n    \"source_catalog\": \"EMSC-RTS\",\n    \"lastupdate\": \"2099-08-10T07:10:00.0Z\",\n    \"time\": \"2099-08-10T03:12:46.1Z\",\n    \"flynn_region\": \"DODECANESE ISLANDS, GREECE\",\n    \"lat\": 37.89,\n    \"lon\": 26.81,\n    \"depth\": 12.0,\n    \"evtype\": \"ke\",\n    \"auth\": \"NOA\",\n    \"mag\": 6.0,\n    \"magtype\": \"mw\",\n    \"unid\": \"20990810_0000031\"\n   }\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/fdsnws/event/1/query?end=2099-08-31&format=json&limit=200&maxlat=43&maxlon=45&minlat=34&minlon=19&minmag=4.5&start=2099-08-01",
+   "status": 200
+  }
+ ],
+ "note": "Authored documents in the provider's documented shape (GloFAS: a declared export shape); every event, storm, fire, identifier and value is fictional and dated 2099 (not provider data).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "author-agency-revision"
+ ]
+}

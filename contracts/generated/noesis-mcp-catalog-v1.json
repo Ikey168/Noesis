@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1056,
+      "tool_count": 1074,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1082,6 +1082,7 @@
         "noesis-knowledge-engine.create_funding_monitor",
         "noesis-knowledge-engine.create_funding_profile",
         "noesis-knowledge-engine.create_funding_workspace",
+        "noesis-knowledge-engine.create_hazard_monitor",
         "noesis-knowledge-engine.create_housing_monitor",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
@@ -1143,6 +1144,7 @@
         "noesis-knowledge-engine.development_finance_source_contracts",
         "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
+        "noesis-knowledge-engine.discover_hazard_links",
         "noesis-knowledge-engine.discover_intake_modes",
         "noesis-knowledge-engine.discover_intake_workflows",
         "noesis-knowledge-engine.discover_quantitative_metrics",
@@ -1201,6 +1203,7 @@
         "noesis-knowledge-engine.export_event_dossier_comparison",
         "noesis-knowledge-engine.export_formal_references",
         "noesis-knowledge-engine.export_funding_application_draft",
+        "noesis-knowledge-engine.export_hazard_bundle",
         "noesis-knowledge-engine.export_hypothesis_workspace",
         "noesis-knowledge-engine.export_intake_creation",
         "noesis-knowledge-engine.export_intake_mode",
@@ -1267,6 +1270,10 @@
         "noesis-knowledge-engine.get_source_capability",
         "noesis-knowledge-engine.get_study_replication_graph",
         "noesis-knowledge-engine.handoff_intake_creation",
+        "noesis-knowledge-engine.hazard_alerts_in_force",
+        "noesis-knowledge-engine.hazard_event_revisions",
+        "noesis-knowledge-engine.hazard_events_for_place",
+        "noesis-knowledge-engine.hazard_provider_contracts",
         "noesis-knowledge-engine.housing_dossier",
         "noesis-knowledge-engine.housing_indicator_values",
         "noesis-knowledge-engine.housing_readiness",
@@ -1437,6 +1444,8 @@
         "noesis-knowledge-engine.list_funding_opportunities",
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_government_finance_series",
+        "noesis-knowledge-engine.list_hazard_correspondences",
+        "noesis-knowledge-engine.list_hazard_links",
         "noesis-knowledge-engine.list_housing_links",
         "noesis-knowledge-engine.list_housing_projection_outcomes",
         "noesis-knowledge-engine.list_housing_records",
@@ -1496,6 +1505,7 @@
         "noesis-knowledge-engine.math_source_contracts",
         "noesis-knowledge-engine.merge_canonical_events",
         "noesis-knowledge-engine.multilingual_search",
+        "noesis-knowledge-engine.natural_hazards_bundle_status",
         "noesis-knowledge-engine.normalise_development_finance_activities",
         "noesis-knowledge-engine.openreview_concern_review_target",
         "noesis-knowledge-engine.ownership_bundle_status",
@@ -1521,6 +1531,7 @@
         "noesis-knowledge-engine.poll_election_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
+        "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
@@ -1576,6 +1587,7 @@
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
+        "noesis-knowledge-engine.propose_hazard_correspondences",
         "noesis-knowledge-engine.propose_housing_link_candidates",
         "noesis-knowledge-engine.propose_intake_concept_revision",
         "noesis-knowledge-engine.propose_intake_decision_revision",
@@ -1664,6 +1676,7 @@
         "noesis-knowledge-engine.register_evidence_freshness_policy",
         "noesis-knowledge-engine.register_extractor",
         "noesis-knowledge-engine.register_geospatial_place",
+        "noesis-knowledge-engine.register_hazard_schemas",
         "noesis-knowledge-engine.register_jev_intake_intent",
         "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_multimodal_asset",
@@ -1722,6 +1735,7 @@
         "noesis-knowledge-engine.resolve_event_report",
         "noesis-knowledge-engine.resolve_geospatial_boundary",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
+        "noesis-knowledge-engine.resolve_hazard_places",
         "noesis-knowledge-engine.resolve_research_package_closure",
         "noesis-knowledge-engine.resolve_review_inbox_task",
         "noesis-knowledge-engine.resolve_sanctions_legal_bases",
@@ -1745,6 +1759,7 @@
         "noesis-knowledge-engine.revert_development_finance_identity_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
+        "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
@@ -1774,6 +1789,7 @@
         "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
+        "noesis-knowledge-engine.review_hazard_correspondence",
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_lobbying_dossier_link",
@@ -1823,6 +1839,7 @@
         "noesis-knowledge-engine.run_election_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
+        "noesis-knowledge-engine.run_hazard_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
@@ -1870,6 +1887,7 @@
         "noesis-knowledge-engine.set_clinical_bundle_enabled",
         "noesis-knowledge-engine.set_funding_bundle_enabled",
         "noesis-knowledge-engine.set_maintenance_schedule_paused",
+        "noesis-knowledge-engine.set_natural_hazards_bundle_enabled",
         "noesis-knowledge-engine.set_ownership_bundle_enabled",
         "noesis-knowledge-engine.set_procurement_bundle_enabled",
         "noesis-knowledge-engine.set_research_package_trust_policy",
@@ -1984,7 +2002,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1056
+      "visible_tool_count": 1074
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1995,11 +2013,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 121,
+      "available": 123,
       "degraded": 159,
-      "unauthorized": 1086
+      "unauthorized": 1102
     },
-    "tools": 1366
+    "tools": 1384
   },
   "tools": [
     {
@@ -28580,6 +28598,108 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to record changes (new events, revisions, advisories, alerts) for an area; not a warning channel.",
+      "id": "noesis-knowledge-engine.create_hazard_monitor",
+      "input_schema": {
+        "properties": {
+          "bbox": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_hazard_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription for new land-value publications, plan-stage changes and rent-index editions for one\nplace_id, district_code, plan_id or zone_id. Conditional scope: knowledge:geospatial:read for a place or\ndistrict selector.",
       "id": "noesis-knowledge-engine.create_housing_monitor",
       "input_schema": {
@@ -32071,6 +32191,43 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Links from explicit citations, shared identifiers or accepted correspondences; missing providers reported.",
+      "id": "noesis-knowledge-engine.discover_hazard_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "discover_hazard_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "List the ten workflow intents and their session budgets and completion inputs.",
       "id": "noesis-knowledge-engine.discover_intake_modes",
@@ -34733,6 +34890,105 @@
       "required_scopes": [
         "knowledge:funding:read",
         "knowledge:reports:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A noesis-evidence-bundle-v1 citing every record with source, revision and as-of time.",
+      "id": "noesis-knowledge-engine.export_hazard_bundle",
+      "input_schema": {
+        "properties": {
+          "alerts_at": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "start": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "export_hazard_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -37647,6 +37903,282 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Alerts and advisories whose published validity covered the place at a time, quoted with supersession chain.",
+      "id": "noesis-knowledge-engine.hazard_alerts_in_force",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "at": {
+            "type": "string"
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "at"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "hazard_alerts_in_force",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every published revision of one hazard record with the parameter changes each made, source and update time.",
+      "id": "noesis-knowledge-engine.hazard_event_revisions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "hazard_event_revisions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Events whose published geometry relates to the place in the window, as known at as_of, with revision history.",
+      "id": "noesis-knowledge-engine.hazard_events_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "basis": {
+            "default": "publisher",
+            "type": "string"
+          },
+          "bbox": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "type": "string"
+          },
+          "hazard_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "start": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "hazard_events_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access contracts (licence, rate limits, revision markers), bounded coverage and live state.",
+      "id": "noesis-knowledge-engine.hazard_provider_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "hazard_provider_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -45708,6 +46240,105 @@
     },
     {
       "cost_class": "low",
+      "description": "Correspondences with method, evidence, confidence and review history, plus unmatched events.",
+      "id": "noesis-knowledge-engine.list_hazard_correspondences",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_hazard_correspondences",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Recorded links with basis and pinned revisions; no causal claims.",
+      "id": "noesis-knowledge-engine.list_hazard_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_hazard_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Citation links, unresolved references and candidates of editions and plans, each with its evidence.",
       "id": "noesis-knowledge-engine.list_housing_links",
       "input_schema": {
@@ -48790,6 +49421,39 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Declared contributions, per-provider fixture-only/ready/stale/unavailable/key-gated state and exclusions.",
+      "id": "noesis-knowledge-engine.natural_hazards_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "natural_hazards_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Side records of normalised codes and allocation checks for each publisher's current revisions.",
       "id": "noesis-knowledge-engine.normalise_development_finance_activities",
@@ -49859,6 +50523,48 @@
       ],
       "required_scopes": [
         "knowledge:funding:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a monitor's delivered record-change events.",
+      "id": "noesis-knowledge-engine.poll_hazard_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_hazard_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -52551,6 +53257,39 @@
       ],
       "required_scopes": [
         "knowledge:funding:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Correspondence candidates across publishers (shared ID, GLIDE, origin proximity); nothing is merged.",
+      "id": "noesis-knowledge-engine.propose_hazard_correspondences",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_hazard_correspondences",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -58155,6 +58894,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register noesis-hazard-record-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_hazard_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_hazard_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Retain a bounded free-text intent as an owner-scoped versioned input.",
       "id": "noesis-knowledge-engine.register_jev_intake_intent",
       "input_schema": {
@@ -61710,6 +62483,43 @@
     },
     {
       "cost_class": "medium",
+      "description": "Relate a record's published geometry to geospatial places, recording the boundary vintage used.",
+      "id": "noesis-knowledge-engine.resolve_hazard_places",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resolve_hazard_places",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Resolve deterministic dependency closure with redactions and omissions.",
       "id": "noesis-knowledge-engine.resolve_research_package_closure",
       "input_schema": {
@@ -62678,6 +63488,47 @@
       ],
       "required_scopes": [
         "knowledge:political:elections:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert an accepted or rejected correspondence (undoes the identity decision).",
+      "id": "noesis-knowledge-engine.revert_hazard_correspondence",
+      "input_schema": {
+        "properties": {
+          "correspondence_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "correspondence_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_hazard_correspondence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63995,6 +64846,51 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a correspondence (another principal; recorded as an entity-identity decision, merge=false).",
+      "id": "noesis-knowledge-engine.review_hazard_correspondence",
+      "input_schema": {
+        "properties": {
+          "correspondence_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "correspondence_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_hazard_correspondence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -66618,6 +67514,55 @@
       ],
       "required_scopes": [
         "knowledge:funding:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark; returns cited record-change notices (idempotent).",
+      "id": "noesis-knowledge-engine.run_hazard_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_hazard_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:hazards:write",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -69258,6 +70203,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Natural Hazards (a coordinator selection change once composed); shared providers keep working.",
+      "id": "noesis-knowledge-engine.set_natural_hazards_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_natural_hazards_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

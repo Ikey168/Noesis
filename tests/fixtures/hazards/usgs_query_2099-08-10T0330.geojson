@@ -1,0 +1,71 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "generated": 4090015800000,
+  "title": "Authored in the documented FDSN GeoJSON shape; every event, identifier and value is fictional (not USGS data).",
+  "status": 200,
+  "count": 2
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "mag": 5.8,
+    "place": "fictional Aegean Sea location",
+    "time": 4090014765120,
+    "updated": 4090015200000,
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz01",
+    "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz01&format=geojson",
+    "alert": null,
+    "status": "automatic",
+    "tsunami": 0,
+    "net": "us",
+    "code": "7000zz01",
+    "ids": ",us7000zz01,at00zz01,",
+    "sources": ",us,at,",
+    "magType": "mb",
+    "type": "earthquake",
+    "title": "M 5.8 - fictional Aegean Sea event"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     26.8,
+     37.9,
+     10
+    ]
+   },
+   "id": "us7000zz01"
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "mag": 4.7,
+    "place": "fictional Aegean Sea location",
+    "time": 4090014062000,
+    "updated": 4090014600000,
+    "url": "https://earthquake.usgs.gov/earthquakes/eventpage/us7000zz02",
+    "detail": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz02&format=geojson",
+    "alert": null,
+    "status": "automatic",
+    "tsunami": 0,
+    "net": "us",
+    "code": "7000zz02",
+    "ids": ",us7000zz02,",
+    "sources": ",us,",
+    "magType": "ml",
+    "type": "earthquake",
+    "title": "M 4.7 - fictional western Anatolia event"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     27.3,
+     38.2,
+     8.2
+    ]
+   },
+   "id": "us7000zz02"
+  }
+ ]
+}

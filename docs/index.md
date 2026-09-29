@@ -203,6 +203,11 @@ For the project overview and local setup, start with the
   classifications with every ATP revision, REACH registration, SVHC and Annex XIV/XVII status as of a date, the
   regulation text and product notices linked by citation, published data points and monitors; no hazard verdict,
   safety advice or synthesis information; [source audit](roadmaps/chemicals-substances-source-audit.md)
+- [Natural Hazards pack guide](guides/natural-hazards-pack.md) — earthquakes (USGS with PAGER, EMSC), GDACS
+  multi-hazard episodes, NHC advisories as issued, EFFIS burnt areas and key-gated GloFAS notifications for a place
+  and window, with every parameter revision, reviewable cross-source correspondences, alerts in force and monitors;
+  no prediction, risk scores, damage estimates or safety advice;
+  [source audit](development/hazards-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or

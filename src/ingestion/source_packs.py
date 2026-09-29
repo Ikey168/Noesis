@@ -268,6 +268,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
+# Natural Hazards: USGS, EMSC, GDACS, NHC, EFFIS and GloFAS records as published (#2207).
+NATIVE_CONNECTOR_MODULES["natural-hazards"] = "src.ingestion.hazard_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"natural-hazards"})
+
 
 # Chemicals and Substances: PubChem, ECHA CHEM (CLP, REACH lists) and US EPA CompTox (#2212).
 NATIVE_CONNECTOR_MODULES["substances"] = "src.ingestion.substance_sources"

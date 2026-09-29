@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"type\": \"FeatureCollection\",\n \"note\": \"Authored in the EFFIS burnt-area GeoJSON shape (property names to verify); the fire, place and area are fictional.\",\n \"features\": [\n  {\n   \"type\": \"Feature\",\n   \"id\": \"modis.ba.poly.99001\",\n   \"geometry\": {\n    \"type\": \"Polygon\",\n    \"coordinates\": [\n     [\n      [\n       26.65,\n       37.75\n      ],\n      [\n       26.72,\n       37.75\n      ],\n      [\n       26.72,\n       37.8\n      ],\n      [\n       26.65,\n       37.8\n      ],\n      [\n       26.65,\n       37.75\n      ]\n     ]\n    ]\n   },\n   \"properties\": {\n    \"id\": 99001,\n    \"FIREDATE\": \"2099-08-12\",\n    \"LASTUPDATE\": \"2099-08-15\",\n    \"AREA_HA\": 342,\n    \"COUNTRY\": \"EL\",\n    \"PROVINCE\": \"Samos (fictional)\",\n    \"COMMUNE\": \"Karlovasi (fictional)\"\n   }\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/effis?bbox=37.5%2C26.5%2C38.0%2C27.2&count=500&outputFormat=application%2Fjson&request=GetFeature&service=WFS&typeNames=ms%3Amodis.ba.poly&version=2.0.0",
+   "status": 200
+  }
+ ],
+ "note": "Authored documents in the provider's documented shape (GloFAS: a declared export shape); every event, storm, fire, identifier and value is fictional and dated 2099 (not provider data).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "burnt-area-polygon"
+ ]
+}

@@ -1,0 +1,34 @@
+ZCZC MIATCPAT5 ALL
+TTAA00 KNHC DDHHMM
+
+AUTHORED FIXTURE - FICTIONAL STORM, NOT AN NHC PRODUCT
+
+BULLETIN
+Hurricane Fictia Intermediate Advisory Number  12A
+NWS National Hurricane Center Miami FL       AL052099
+800 AM EDT Wed Sep 01 2099
+
+SUMMARY OF 800 AM EDT...1200 UTC...INFORMATION
+----------------------------------------------
+LOCATION...25.6N 71.5W
+ABOUT 330 MI...530 KM ESE OF A FICTIONAL ISLAND
+MAXIMUM SUSTAINED WINDS...100 MPH...155 KM/H
+PRESENT MOVEMENT...WNW OR 295 DEGREES AT 12 MPH...19 KM/H
+MINIMUM CENTRAL PRESSURE...972 MB...28.70 INCHES
+
+WATCHES AND WARNINGS
+--------------------
+CHANGES WITH THIS ADVISORY:
+
+None.
+
+SUMMARY OF WATCHES AND WARNINGS IN EFFECT:
+
+A Hurricane Warning is in effect for...
+* Northwestern Bahamas
+
+A Tropical Storm Watch is in effect for...
+* East coast of Florida from Jupiter Inlet to Sebastian Inlet
+
+$$
+Forecaster Fictional

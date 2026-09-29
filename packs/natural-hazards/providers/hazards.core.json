@@ -1,0 +1,459 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "hazards.core",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.hazards_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "hazards.records",
+      "contract": {
+        "name": "noesis-hazard-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "provider-contracts",
+        "register-schemas",
+        "bundle-status",
+        "event-revisions"
+      ],
+      "semantic_constraints": {
+        "parameters": "quoted as published with units; every update an appended revision",
+        "estimates": "PAGER and GDACS scores are the publisher's, with product version"
+      }
+    },
+    {
+      "id": "hazards.place-events",
+      "contract": {
+        "name": "noesis-hazard-place-events",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "events-for-place",
+        "export-bundle"
+      ],
+      "semantic_constraints": {
+        "as_of": "revision in force on the publisher or acquisition clock, stated",
+        "empty": "none on record vs source not covered",
+        "spatial": "published geometry only, geospatial.core relations with receipts"
+      }
+    },
+    {
+      "id": "hazards.alerts",
+      "contract": {
+        "name": "noesis-hazard-alerts",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "alerts-in-force"
+      ],
+      "semantic_constraints": {
+        "validity": "published issue/expiry times only; supersession chains",
+        "wording": "quoted, never re-classified"
+      }
+    },
+    {
+      "id": "hazards.identity",
+      "contract": {
+        "name": "noesis-hazard-correspondence",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-correspondences",
+        "review-correspondence",
+        "revert-correspondence",
+        "list-correspondences",
+        "resolve-places"
+      ],
+      "semantic_constraints": {
+        "review": "candidates only; reviewed by another principal",
+        "merge": "never merged or averaged"
+      }
+    },
+    {
+      "id": "hazards.links",
+      "contract": {
+        "name": "noesis-hazard-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "discover-links",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "basis": "explicit citation, shared identifier or accepted correspondence only",
+        "causation": "none"
+      }
+    },
+    {
+      "id": "hazards.monitoring",
+      "contract": {
+        "name": "noesis-hazard-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "committed watermarks; no scheduler",
+        "notices": "record changes, not warnings"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "provider-contracts",
+      "tool": "noesis-knowledge-engine.hazard_provider_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_hazard_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:hazards:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.natural_hazards_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "event-revisions",
+      "tool": "noesis-knowledge-engine.hazard_event_revisions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "events-for-place",
+      "tool": "noesis-knowledge-engine.hazard_events_for_place",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "spatial receipt calculation hash"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-bundle",
+      "tool": "noesis-knowledge-engine.export_hazard_bundle",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "spatial receipt calculation hash"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "alerts-in-force",
+      "tool": "noesis-knowledge-engine.hazard_alerts_in_force",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "spatial receipt calculation hash"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-correspondences",
+      "tool": "noesis-knowledge-engine.propose_hazard_correspondences",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "namespace + record pair + method"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:hazards:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-correspondence",
+      "tool": "noesis-knowledge-engine.review_hazard_correspondence",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:hazards:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-correspondence",
+      "tool": "noesis-knowledge-engine.revert_hazard_correspondence",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:hazards:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-correspondences",
+      "tool": "noesis-knowledge-engine.list_hazard_correspondences",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-places",
+      "tool": "noesis-knowledge-engine.resolve_hazard_places",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record revision + place geometry"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:hazards:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "discover-links",
+      "tool": "noesis-knowledge-engine.discover_hazard_links",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record revision + target revision + basis"
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:hazards:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_hazard_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:hazards:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_hazard_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:hazards:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_hazard_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:hazards:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_hazard_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:hazards:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "hazard-record",
+      "store": "src.kb.hazards_store",
+      "tables": [
+        "hazard_records",
+        "hazard_record_revisions",
+        "hazard_provider_state"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "hazard-correspondence",
+      "store": "src.kb.hazards_identity",
+      "tables": [
+        "hazard_correspondences",
+        "hazard_correspondence_reviews",
+        "hazard_place_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "hazard-link",
+      "store": "src.kb.hazards_links",
+      "tables": [
+        "hazard_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "hazard-monitor",
+      "store": "src.kb.hazards_monitoring",
+      "tables": [
+        "hazard_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "hazard_records"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "hazard_correspondences"
+    },
+    {
+      "id": "links",
+      "kind": "table-exists",
+      "target": "hazard_links"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "hazard_monitors"
+    },
+    {
+      "id": "hazards-source",
+      "kind": "source-pack-enabled",
+      "target": "natural-hazards"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "natural-hazards",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

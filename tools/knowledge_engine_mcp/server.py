@@ -9301,6 +9301,9 @@ from tools.knowledge_engine_mcp.substances import (
 )
 
 register_substance_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.hazards import register as register_hazards_tools
+
+register_hazards_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

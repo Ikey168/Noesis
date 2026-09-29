@@ -79,6 +79,11 @@ MATRIX = {
     "Substance to cited regulatory dossier":
         "tests/unit/domains/test_chemicals_acceptance.py::"
         "test_substance_name_or_identifier_to_a_cited_regulatory_dossier",
+    # The Natural Hazards bundle's offline journey (#2372) composes its own record owner, geospatial places and
+    # relations, entity identity, subscriptions and the source-pack runtime.
+    "Place and window to cited hazard events":
+        "tests/unit/domains/test_natural_hazards_acceptance.py::"
+        "test_place_and_window_to_cited_events_with_revision_history_correspondents_and_alerts_as_issued",
 }
 
 

@@ -28,6 +28,12 @@
     "geospatial.place-resolution",
     "geospatial.spatial-relation",
     "geospatial.transit-schedules",
+    "hazards.alerts",
+    "hazards.identity",
+    "hazards.links",
+    "hazards.monitoring",
+    "hazards.place-events",
+    "hazards.records",
     "legal.works",
     "market.instruments",
     "market.legal-entities",
@@ -76,6 +82,7 @@
     "geospatial",
     "legal",
     "market",
+    "natural-hazards",
     "news",
     "onchain",
     "osint",
@@ -118,6 +125,7 @@
     "noesis-knowledge-engine.create_funding_monitor",
     "noesis-knowledge-engine.create_funding_profile",
     "noesis-knowledge-engine.create_funding_workspace",
+    "noesis-knowledge-engine.create_hazard_monitor",
     "noesis-knowledge-engine.create_paper_family",
     "noesis-knowledge-engine.create_procurement_monitor",
     "noesis-knowledge-engine.create_procurement_profile",
@@ -127,17 +135,23 @@
     "noesis-knowledge-engine.create_review_protocol",
     "noesis-knowledge-engine.create_substance_monitor",
     "noesis-knowledge-engine.decide_procurement_party_link",
+    "noesis-knowledge-engine.discover_hazard_links",
     "noesis-knowledge-engine.draft_funding_application",
     "noesis-knowledge-engine.draft_procurement_bid",
     "noesis-knowledge-engine.environment_provider_contracts",
     "noesis-knowledge-engine.expand_clinical_question",
     "noesis-knowledge-engine.export_clinical_evidence_bundle",
     "noesis-knowledge-engine.export_environment_dossier",
+    "noesis-knowledge-engine.export_hazard_bundle",
     "noesis-knowledge-engine.export_ownership_dossier",
     "noesis-knowledge-engine.funding_provider_contracts",
     "noesis-knowledge-engine.get_entity_identity_history",
     "noesis-knowledge-engine.get_legal_passages",
     "noesis-knowledge-engine.get_methodology_study",
+    "noesis-knowledge-engine.hazard_alerts_in_force",
+    "noesis-knowledge-engine.hazard_event_revisions",
+    "noesis-knowledge-engine.hazard_events_for_place",
+    "noesis-knowledge-engine.hazard_provider_contracts",
     "noesis-knowledge-engine.import_prospero_registration",
     "noesis-knowledge-engine.inspect_authored_report",
     "noesis-knowledge-engine.inspect_certificate",
@@ -167,6 +181,8 @@
     "noesis-knowledge-engine.list_environment_grid_events",
     "noesis-knowledge-engine.list_environment_operator_links",
     "noesis-knowledge-engine.list_funding_opportunities",
+    "noesis-knowledge-engine.list_hazard_correspondences",
+    "noesis-knowledge-engine.list_hazard_links",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
     "noesis-knowledge-engine.list_procurement_notices",
     "noesis-knowledge-engine.list_substance_identity_candidates",
@@ -178,6 +194,7 @@
     "noesis-knowledge-engine.lookup_ownership_entity",
     "noesis-knowledge-engine.lookup_product_models",
     "noesis-knowledge-engine.lookup_product_notices",
+    "noesis-knowledge-engine.natural_hazards_bundle_status",
     "noesis-knowledge-engine.ownership_graph",
     "noesis-knowledge-engine.ownership_provider_contracts",
     "noesis-knowledge-engine.ownership_record_history",
@@ -186,12 +203,14 @@
     "noesis-knowledge-engine.patent_family_members",
     "noesis-knowledge-engine.poll_clinical_monitor",
     "noesis-knowledge-engine.poll_environment_monitor",
+    "noesis-knowledge-engine.poll_hazard_monitor",
     "noesis-knowledge-engine.poll_substance_monitor",
     "noesis-knowledge-engine.procurement_award_history",
     "noesis-knowledge-engine.procurement_notice_history",
     "noesis-knowledge-engine.procurement_party_candidates",
     "noesis-knowledge-engine.procurement_provider_contracts",
     "noesis-knowledge-engine.propose_environment_operator_links",
+    "noesis-knowledge-engine.propose_hazard_correspondences",
     "noesis-knowledge-engine.propose_ownership_identity_matches",
     "noesis-knowledge-engine.propose_product_notice_matches",
     "noesis-knowledge-engine.propose_product_notice_party_links",
@@ -203,16 +222,20 @@
     "noesis-knowledge-engine.record_geospatial_resolution",
     "noesis-knowledge-engine.record_ownership_register_document",
     "noesis-knowledge-engine.register_environment_schemas",
+    "noesis-knowledge-engine.register_hazard_schemas",
     "noesis-knowledge-engine.register_methodology_study",
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
     "noesis-knowledge-engine.resolve_entity_history",
+    "noesis-knowledge-engine.resolve_hazard_places",
     "noesis-knowledge-engine.resolve_substance",
+    "noesis-knowledge-engine.revert_hazard_correspondence",
     "noesis-knowledge-engine.revert_ownership_identity_match",
     "noesis-knowledge-engine.revert_substance_identity",
     "noesis-knowledge-engine.review_clinical_publication_link",
     "noesis-knowledge-engine.review_environment_operator_link",
     "noesis-knowledge-engine.review_geospatial_resolution",
+    "noesis-knowledge-engine.review_hazard_correspondence",
     "noesis-knowledge-engine.review_ownership_identity_match",
     "noesis-knowledge-engine.review_product_notice_match",
     "noesis-knowledge-engine.review_product_notice_party_link",
@@ -221,6 +244,7 @@
     "noesis-knowledge-engine.run_clinical_monitor",
     "noesis-knowledge-engine.run_environment_monitor",
     "noesis-knowledge-engine.run_funding_monitor",
+    "noesis-knowledge-engine.run_hazard_monitor",
     "noesis-knowledge-engine.run_procurement_monitor",
     "noesis-knowledge-engine.run_source_pack_execution",
     "noesis-knowledge-engine.run_substance_monitor",
@@ -2499,6 +2523,391 @@
         ],
         "reason": null,
         "tool": "noesis-market.lookup_market_instrument"
+      }
+    ],
+    "natural-hazards": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_hazard_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_hazard_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.discover_hazard_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "links"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.discover_hazard_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_hazard_bundle"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_hazard_bundle"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_alerts_in_force"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_alerts_in_force"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_event_revisions"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_event_revisions"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_events_for_place"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_events_for_place"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_provider_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.hazard_provider_contracts"
+      },
+      {
+        "annotation": "intended: once composition-managed, the tool follows its bundle's enablement; legacy authority applies until cutover",
+        "bundle": "natural-hazards",
+        "composition": "disabled",
+        "field": "state",
+        "legacy": "available",
+        "reason": "required domain pack is disabled",
+        "tool": "noesis-knowledge-engine.hazard_provider_contracts"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_hazard_correspondences"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_hazard_correspondences"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_hazard_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "links"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_hazard_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.natural_hazards_bundle_status"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.natural_hazards_bundle_status"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_hazard_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_hazard_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_hazard_correspondences"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_hazard_correspondences"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_hazard_schemas"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_hazard_schemas"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.resolve_hazard_places"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.resolve_hazard_places"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_hazard_correspondence"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_hazard_correspondence"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_hazard_correspondence"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "identity"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_hazard_correspondence"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "natural-hazards",
+        "composition": "natural-hazards",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_hazard_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "natural-hazards",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_hazard_monitor"
       }
     ],
     "news": [
