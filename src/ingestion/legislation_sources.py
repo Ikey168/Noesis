@@ -373,8 +373,10 @@ def _us_bill_key(congress: Any, bill_type: Any, number: Any) -> str:
 
 
 def _actions(items: list[Any]) -> list[dict[str, Any]]:
+    """Actions oldest first. Providers list them newest first (verify), so same-day actions keep the reverse of the
+    provider's order; nothing is reordered by code or text."""
     actions = []
-    for item in items:
+    for item in reversed(items):
         item = _mapping(item, "action")
         day = _day(item.get("actionDate"))
         if not day or not _clean(item.get("text")):
@@ -395,8 +397,7 @@ def _actions(items: list[Any]) -> list[dict[str, Any]]:
             "source_system": _clean(source_system.get("name") if isinstance(source_system, Mapping) else None),
             "recorded_votes": votes,
         })
-    return sorted(actions, key=lambda a: (a["action_date"], a["action_time"] or "", a["action_code"] or "",
-                                          a["text"]))
+    return sorted(actions, key=lambda a: (a["action_date"], a["action_time"] or ""))  # stable within a day
 
 
 def _cosponsors(items: list[Any]) -> list[dict[str, Any]]:

@@ -8,9 +8,9 @@
     <congress>156</congress>
     <title>Example Grid Reliability Act</title>
     <actions>
-      <item><actionDate>2099-02-03</actionDate><text>Introduced in House</text><type>IntroReferral</type><actionCode>Intr-H</actionCode><sourceSystem><name>Library of Congress</name></sourceSystem></item>
-      <item><actionDate>2099-02-03</actionDate><text>Referred to the House Committee on Energy and Commerce.</text><type>IntroReferral</type><actionCode>H11100</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>
       <item><actionDate>2099-03-05</actionDate><text>Reported (Amended) by the Committee on Energy and Commerce. H. Rept. 156-10.</text><type>Committee</type><actionCode>H12200</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>
+      <item><actionDate>2099-02-03</actionDate><text>Referred to the House Committee on Energy and Commerce.</text><type>IntroReferral</type><actionCode>H11100</actionCode><sourceSystem><name>House floor actions</name></sourceSystem></item>
+      <item><actionDate>2099-02-03</actionDate><text>Introduced in House</text><type>IntroReferral</type><actionCode>Intr-H</actionCode><sourceSystem><name>Library of Congress</name></sourceSystem></item>
     </actions>
     <sponsors>
       <item><bioguideId>S009901</bioguideId><fullName>Rep. Sample, Jane [D-CA-99]</fullName><firstName>Jane</firstName><lastName>Sample</lastName><party>D</party><state>CA</state><district>99</district></item>
