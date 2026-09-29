@@ -32,14 +32,17 @@ def test_catalog_is_generated_from_every_registered_fastmcp_server():
         server for server in catalog["servers"] if server["kind"] == "noesis"
     ]
 
-    assert len(project_servers) == 27  # 26 plus noesis-onchain (#2058)
+    assert len(project_servers) == 28  # 26 plus noesis-onchain (#2058) plus the noesis gateway
     assert catalog["conformance"] == {
         "passed": True,
         "errors": [],
         "missing_registrations": [],
         "stale_registrations": [],
     }
-    assert all(server["name"].startswith("noesis-") for server in project_servers)
+    assert all(
+        server["name"] == "noesis" or server["name"].startswith("noesis-")
+        for server in project_servers
+    )
     assert all(server["tool_count"] > 0 for server in project_servers)
     assert sum(server["tool_count"] for server in project_servers) == len(
         catalog["tools"]

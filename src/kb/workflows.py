@@ -628,6 +628,22 @@ def reference_manifest(namespace: str = "reference") -> dict[str, Any]:
     }
 
 
+def production_ingest_manifest(namespace: str, domain: str) -> dict[str, Any]:
+    """Return the bounded production ingest-to-index workflow used by local clients."""
+
+    manifest = reference_manifest(namespace)
+    manifest["workflow_id"] = "noesis-production-ingest-v1"
+    manifest["domains"] = [domain]
+    manifest["stages"] = manifest["stages"][:4]
+    manifest["capabilities"] = [
+        stage["capability"] for stage in manifest["stages"]
+    ]
+    for stage in manifest["stages"]:
+        if stage["name"] == "extract":
+            stage["resources"]["timeout_ms"] = 120_000
+    return manifest
+
+
 class _FixtureExtractor:
     def extract(self, value: Mapping[str, Any]) -> Sequence[Mapping[str, Any]]:
         return list(dict(value.get("metadata") or {}).get("knowledge") or [])
@@ -639,34 +655,168 @@ class _ArgumentMiningExtractor:
         from src.argument_mining.evidence import extract_claims
 
         document = Document.from_dict(dict(value["document"]))
-        text = document.content or ""
+        source_text = document.content or ""
+        analysis_text = source_text
+        title = str(document.title or "").strip()
+        if title and source_text.casefold().startswith(title.casefold()):
+            remainder = source_text[len(title) :].lstrip(" \t\r\n:-—")
+            if remainder:
+                analysis_text = remainder
+        if analysis_text != source_text:
+            from dataclasses import replace
+
+            analysis_document = replace(document, content=analysis_text)
+        else:
+            analysis_document = document
         outputs = []
-        for claim in extract_claims(document):
+        for claim in extract_claims(analysis_document):
             locator = {"document_id": document.document_id, "revision_id": value["revision"]}
             # A unique exact span is safe; ambiguous or normalized text retains
             # its document revision locator without invented character offsets.
-            if claim.claim_text and text.count(claim.claim_text) == 1:
-                locator["start"] = text.index(claim.claim_text)
+            if claim.claim_text and source_text.count(claim.claim_text) == 1:
+                locator["start"] = source_text.index(claim.claim_text)
                 locator["end"] = locator["start"] + len(claim.claim_text)
             outputs.append({"output_type": "claim", "value": {
-                "statement": claim.claim_text, "confidence": claim.confidence,
-                "document_id": document.document_id, "prediction_mode": claim.prediction_mode,
+                "claim_id": claim.claim_id,
+                "statement": claim.claim_text,
+                "confidence": claim.confidence,
+                "document_id": document.document_id,
+                "source_type": claim.source_type,
+                "prediction_mode": claim.prediction_mode,
+                "extracted_at": claim.extracted_at,
+                "attributed": claim.attributed,
+                "attribution_text": claim.attribution_text,
                 "source_locator": locator}})
         return outputs
 
 
-def production_handlers(conn: Any, *, principal_id="maintenance-runner", extractor_definition=None,
-                        extractor_implementation=None) -> dict[str, StageHandler]:
-    """Use a versioned plain-text extractor with explicit unavailable outcomes."""
+def _materialize_argument_claims(
+    conn: Any,
+    documents: Sequence[Mapping[str, Any]],
+    extraction: Mapping[str, Any],
+    *,
+    run_id: str,
+) -> dict[str, Any]:
+    """Reconcile one production extraction into the answer-facing claim store."""
+
+    from src.database.local_warehouse_seed import ensure_schema
+    from src.kb.clusters import ensure_cluster_schema, run_clustering_pass
+
+    ensure_schema(conn)
+    ensure_cluster_schema(conn)
+    failed_inputs = {
+        str(failure.get("input_id"))
+        for failure in extraction.get("failures") or []
+        if failure.get("input_id")
+    }
+    document_map = {
+        str(document["document_id"]): dict(document)
+        for document in documents
+        if document.get("document_id")
+        and str(document["document_id"]) not in failed_inputs
+    }
+    document_ids = sorted(document_map)
+    if document_ids:
+        placeholders = ", ".join("?" for _ in document_ids)
+        existing = [
+            row[0]
+            for row in conn.execute(
+                f"SELECT claim_id FROM argument_claims WHERE document_id IN ({placeholders})",
+                document_ids,
+            ).fetchall()
+        ]
+        conn.execute(
+            f"DELETE FROM claim_evidence WHERE evidence_document_id IN ({placeholders})",
+            document_ids,
+        )
+        if existing:
+            claim_placeholders = ", ".join("?" for _ in existing)
+            conn.execute(
+                f"DELETE FROM claim_evidence WHERE claim_id IN ({claim_placeholders})",
+                existing,
+            )
+            conn.execute(
+                f"DELETE FROM claim_links WHERE claim_a IN ({claim_placeholders}) "
+                f"OR claim_b IN ({claim_placeholders})",
+                [*existing, *existing],
+            )
+            conn.execute(
+                f"DELETE FROM claim_clusters WHERE claim_id IN ({claim_placeholders})",
+                existing,
+            )
+        conn.execute(
+            f"DELETE FROM argument_claims WHERE document_id IN ({placeholders})",
+            document_ids,
+        )
+
+    stored = 0
+    for output in extraction.get("outputs") or []:
+        item = dict(output.get("output") or {})
+        if output.get("status") != "produced" or item.get("output_type") != "claim":
+            continue
+        value = dict(item.get("value") or {})
+        document_id = str(value.get("document_id") or output.get("input_id") or "")
+        document = document_map.get(document_id, {})
+        claim_id = str(value.get("claim_id") or output.get("output_id") or "")
+        statement = str(value.get("statement") or "").strip()
+        if not claim_id or not statement or document_id not in document_map:
+            continue
+        conn.execute(
+            """
+            INSERT INTO argument_claims
+                (claim_id, claim_text, document_id, source_type, confidence,
+                 prediction_mode, extracted_at, attributed, attribution_text)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                claim_id,
+                statement,
+                document_id,
+                str(value.get("source_type") or document.get("source_type") or "unknown"),
+                value.get("confidence"),
+                value.get("prediction_mode"),
+                value.get("extracted_at"),
+                value.get("attributed"),
+                value.get("attribution_text"),
+            ],
+        )
+        stored += 1
+
+    clustering = run_clustering_pass(conn, run_id=f"{run_id}:clusters")
+    return {
+        "documents_reconciled": len(document_ids),
+        "claims_indexed": stored,
+        "clustering": clustering,
+    }
+
+
+def production_handlers(
+    conn: Any,
+    *,
+    principal_id="maintenance-runner",
+    extractor_definition=None,
+    extractor_implementation=None,
+    tolerate_extractor_unavailable: bool = False,
+) -> dict[str, StageHandler]:
+    """Use versioned production extraction and publish answer-facing claims."""
+
     from src.argument_mining.model_registry import resolved_pins
     from src.kb.extractors import ExtractorRegistry
 
     definition = extractor_definition or {
-        "name": "argument-mining-text", "semantic_version": "1.0.0",
-        "capabilities": ["claim"], "accepted_object_types": ["document"],
+        "name": "argument-mining-text",
+        "semantic_version": "1.0.0",
+        "capabilities": ["claim"],
+        "accepted_object_types": ["document"],
         "output_schemas": {"claim": "argument-claim-v1"},
-        "implementation": {"model_version": resolved_pins()["claim"]["revision"], "rule_version": "1.0.0"},
-        "configuration": {"model": resolved_pins()["claim"]["model"], "source": "document.content"},
+        "implementation": {
+            "model_version": resolved_pins()["claim"]["revision"],
+            "rule_version": "1.0.0",
+        },
+        "configuration": {
+            "model": resolved_pins()["claim"]["model"],
+            "source": "document.content",
+        },
         "resources": {"network": False},
     }
     registry = ExtractorRegistry(conn)
@@ -676,31 +826,120 @@ def production_handlers(conn: Any, *, principal_id="maintenance-runner", extract
     registered = registry.register(definition, implementation)
 
     def extract(context, state):
-        inputs = [{"id": item["document_id"], "object_type": "document",
-                   "revision": item.get("_revision_id") or _digest(item), "document": item}
-                  for item in state.get("documents") or []]
-        result = registry.run(registered["extractor_id"], context.namespace, inputs, now_ms=context.now_ms)
+        inputs = [
+            {
+                "id": item["document_id"],
+                "object_type": "document",
+                "revision": item.get("_revision_id") or _digest(item),
+                "document": item,
+            }
+            for item in state.get("documents") or []
+        ]
+        result = registry.run(
+            registered["extractor_id"],
+            context.namespace,
+            inputs,
+            now_ms=context.now_ms,
+        )
+        if result["failures"] and not tolerate_extractor_unavailable:
+            raise WorkflowError(
+                "handler_unavailable",
+                "configured text extractor could not process the document inputs",
+            )
+        coverage = dict(state.get("coverage") or {})
+        warnings = list(state.get("warnings") or [])
         if result["failures"]:
-            raise WorkflowError("handler_unavailable", "configured text extractor could not process the document inputs")
-        return {**state, "extraction": result,
-                "contract_versions": {"extractor": registered["extractor_id"]}, "execution_mode": "production"}
+            coverage.update(
+                {
+                    "complete": False,
+                    "extraction_failures": len(result["failures"]),
+                }
+            )
+            warnings.append(
+                {
+                    "code": "extractor_unavailable",
+                    "message": "one or more documents could not be claim-extracted",
+                }
+            )
+        return {
+            **state,
+            "extraction": result,
+            "coverage": coverage,
+            "warnings": warnings,
+            "contract_versions": {"extractor": registered["extractor_id"]},
+            "execution_mode": "production",
+        }
 
     handlers = reference_handlers(conn, principal_id=principal_id)
-    canonical_ingest = handlers['ingest']
+
     def ingest(context, state):
+        from src.ingestion.document_store import DocumentStore
         from src.ingestion.revisions import DocumentRevisionStore
-        result = canonical_ingest(context, state)
+
+        documents = list(state.get("documents") or [])
+        supplied_revisions = {
+            str(item.get("document_id")): item.get("_revision_id")
+            for item in documents
+            if item.get("document_id")
+        }
+        store = DocumentStore(conn)
+        summary = store.upsert(documents)
+        stored = []
+        for item in documents:
+            document = store.get(str(item.get("document_id", "")))
+            if document is not None:
+                stored.append(document)
+        result = {
+            **state,
+            "documents": stored,
+            "ingest": summary.as_dict(),
+            "document_ids": sorted(
+                str(item["document_id"]) for item in stored
+            ),
+            "coverage": {
+                "complete": summary.invalid == 0,
+                "invalid": summary.invalid,
+            },
+            "lineage": [
+                {
+                    "source_id": item.get("source_id"),
+                    "document_id": item["document_id"],
+                }
+                for item in stored
+            ],
+        }
         revisions = DocumentRevisionStore(conn)
-        for item in result['documents']:
-            revision = revisions.revision(item['document_id'])
+        for item in result["documents"]:
+            revision = revisions.revision(item["document_id"])
             if revision is None:
-                raise WorkflowError('source_unavailable','production extraction requires a committed active source revision')
-            if item.get('_revision_id') and item['_revision_id'] != revision['revision_id']:
-                raise WorkflowError('source_revision_mismatch','supplied production source revision does not match the committed canonical input')
-            item['_revision_id'] = revision['revision_id']
+                raise WorkflowError(
+                    "source_unavailable",
+                    "production extraction requires a committed active source revision",
+                )
+            supplied = supplied_revisions.get(str(item["document_id"]))
+            if supplied and supplied != revision["revision_id"]:
+                raise WorkflowError(
+                    "source_revision_mismatch",
+                    "supplied production source revision does not match the committed canonical input",
+                )
+            item["_revision_id"] = revision["revision_id"]
         return result
-    handlers['ingest'] = ingest
+
+    base_index = handlers["index"]
+
+    def index(context, state):
+        result = dict(base_index(context, state))
+        result["argument_claims"] = _materialize_argument_claims(
+            conn,
+            result.get("documents") or [],
+            result.get("extraction") or {},
+            run_id=context.run_id,
+        )
+        return result
+
+    handlers["ingest"] = ingest
     handlers["extract"] = extract
+    handlers["index"] = index
     return handlers
 
 
