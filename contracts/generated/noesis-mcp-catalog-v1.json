@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1242,
+      "tool_count": 1267,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1068,6 +1068,7 @@
         "noesis-knowledge-engine.compare_study_methodologies",
         "noesis-knowledge-engine.compare_surveillance_vintages",
         "noesis-knowledge-engine.compare_technical_impact_reports",
+        "noesis-knowledge-engine.compare_trade_mirror",
         "noesis-knowledge-engine.configure_jev_task_rollout",
         "noesis-knowledge-engine.consent_problem_action",
         "noesis-knowledge-engine.control_list_entry_as_of",
@@ -1131,6 +1132,7 @@
         "noesis-knowledge-engine.create_substance_monitor",
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
+        "noesis-knowledge-engine.create_trade_monitor",
         "noesis-knowledge-engine.create_vulnerability_monitor",
         "noesis-knowledge-engine.create_weather_monitor",
         "noesis-knowledge-engine.cultural_readiness",
@@ -1252,6 +1254,7 @@
         "noesis-knowledge-engine.export_sports_records",
         "noesis-knowledge-engine.export_systematic_review",
         "noesis-knowledge-engine.export_technical_impact_report",
+        "noesis-knowledge-engine.export_trade_evidence_bundle",
         "noesis-knowledge-engine.export_zotero_bibliography",
         "noesis-knowledge-engine.extract_math_text_objects",
         "noesis-knowledge-engine.extract_methodology_statements",
@@ -1324,6 +1327,7 @@
         "noesis-knowledge-engine.import_sports_olympic_results",
         "noesis-knowledge-engine.import_surveillance_export",
         "noesis-knowledge-engine.import_technical_inventory",
+        "noesis-knowledge-engine.import_trade_concordance",
         "noesis-knowledge-engine.index_linguistic_texts",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_intake_newsletter_message",
@@ -1463,6 +1467,8 @@
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.link_substance_citations",
         "noesis-knowledge-engine.link_surveillance_series",
+        "noesis-knowledge-engine.link_trade_ownership",
+        "noesis-knowledge-engine.link_trade_sanctions",
         "noesis-knowledge-engine.list_amendment_acts",
         "noesis-knowledge-engine.list_astronomy_identity_candidates",
         "noesis-knowledge-engine.list_audit_findings",
@@ -1536,6 +1542,11 @@
         "noesis-knowledge-engine.list_substance_links",
         "noesis-knowledge-engine.list_surveillance_resolutions",
         "noesis-knowledge-engine.list_surveillance_series",
+        "noesis-knowledge-engine.list_trade_comparability_notes",
+        "noesis-knowledge-engine.list_trade_concordances",
+        "noesis-knowledge-engine.list_trade_identity_assertions",
+        "noesis-knowledge-engine.list_trade_links",
+        "noesis-knowledge-engine.list_trade_series",
         "noesis-knowledge-engine.list_unmatched_substances",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
@@ -1561,6 +1572,7 @@
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
+        "noesis-knowledge-engine.map_trade_product_code",
         "noesis-knowledge-engine.mark_intake_feed_read",
         "noesis-knowledge-engine.material_properties",
         "noesis-knowledge-engine.material_release_changes",
@@ -1620,6 +1632,7 @@
         "noesis-knowledge-engine.poll_statute_monitor",
         "noesis-knowledge-engine.poll_substance_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
+        "noesis-knowledge-engine.poll_trade_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
         "noesis-knowledge-engine.poll_weather_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
@@ -1707,6 +1720,8 @@
         "noesis-knowledge-engine.propose_sports_identity_matches",
         "noesis-knowledge-engine.propose_substance_identities",
         "noesis-knowledge-engine.propose_substance_identity_manual",
+        "noesis-knowledge-engine.propose_trade_area_matches",
+        "noesis-knowledge-engine.propose_trade_product_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
@@ -1719,6 +1734,8 @@
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
         "noesis-knowledge-engine.query_knowledge",
+        "noesis-knowledge-engine.query_sanctioned_trade_flows",
+        "noesis-knowledge-engine.query_trade_flows",
         "noesis-knowledge-engine.queue_jev_entity_merge_review",
         "noesis-knowledge-engine.rank_by_quality",
         "noesis-knowledge-engine.read_quantitative_series",
@@ -1753,6 +1770,7 @@
         "noesis-knowledge-engine.record_sports_decision",
         "noesis-knowledge-engine.record_sports_table_rule",
         "noesis-knowledge-engine.record_sports_transfer",
+        "noesis-knowledge-engine.record_trade_comparability",
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
@@ -1890,6 +1908,7 @@
         "noesis-knowledge-engine.revert_sports_identity_match",
         "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_substance_identity",
+        "noesis-knowledge-engine.revert_trade_identity_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.revert_weather_station_match",
         "noesis-knowledge-engine.review_astronomy_identity_match",
@@ -1943,6 +1962,8 @@
         "noesis-knowledge-engine.review_study_field",
         "noesis-knowledge-engine.review_substance_identity",
         "noesis-knowledge-engine.review_surveillance_resolution",
+        "noesis-knowledge-engine.review_trade_comparability",
+        "noesis-knowledge-engine.review_trade_identity_match",
         "noesis-knowledge-engine.review_translation",
         "noesis-knowledge-engine.review_vulnerability_component_match",
         "noesis-knowledge-engine.review_weather_evidence_link",
@@ -1997,6 +2018,7 @@
         "noesis-knowledge-engine.run_statute_monitor",
         "noesis-knowledge-engine.run_substance_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
+        "noesis-knowledge-engine.run_trade_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
         "noesis-knowledge-engine.run_weather_monitor",
         "noesis-knowledge-engine.sanctions_readiness",
@@ -2127,6 +2149,9 @@
         "noesis-knowledge-engine.surveillance_series_values",
         "noesis-knowledge-engine.sync_control_list_entries",
         "noesis-knowledge-engine.sync_zotero_library",
+        "noesis-knowledge-engine.trade_readiness",
+        "noesis-knowledge-engine.trade_series_values",
+        "noesis-knowledge-engine.trade_source_contracts",
         "noesis-knowledge-engine.transform_quantitative_frequency",
         "noesis-knowledge-engine.transit_departures",
         "noesis-knowledge-engine.transit_feed_versions",
@@ -2170,7 +2195,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1242
+      "visible_tool_count": 1267
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2181,11 +2206,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 127,
+      "available": 128,
       "degraded": 159,
-      "unauthorized": 1266
+      "unauthorized": 1290
     },
-    "tools": 1552
+    "tools": 1577
   },
   "tools": [
     {
@@ -28014,6 +28039,67 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Reporter-versus-mirror comparison for one product and direction: per period the two published figures,\ntheir releases and the displayed asymmetry (reporter minus mirror), never reconciled.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.compare_trade_mirror",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "direction": {
+            "default": "export",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partner": {
+            "type": "string"
+          },
+          "product": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "reporter": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "reporter",
+          "partner",
+          "product"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_trade_mirror",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Set an authorized off, shadow or suggestion mode for one pinned task.",
       "id": "noesis-knowledge-engine.configure_jev_task_rollout",
@@ -32090,6 +32176,61 @@
       ],
       "required_scopes": [
         "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a country pair (both report directions), optionally products and providers: notices when a\nrelease publishes or revises flows there (record changes, not trade alerts).",
+      "id": "noesis-knowledge-engine.create_trade_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "flow_filter": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "flow_filter"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_trade_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -37871,6 +38012,70 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "A noesis-evidence-bundle-v1 for a pair's flows citing every figure with source, classification vintage,\nrelease vintage and as-of time; none-reported pairs, confidential cells and non-exact mappings are\nomissions.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.export_trade_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partner": {
+            "type": "string"
+          },
+          "product": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reporter": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "reporter",
+          "partner"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_trade_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Export stable-key CSL JSON/BibTeX with pinned item versions and optional report citation closure.",
       "id": "noesis-knowledge-engine.export_zotero_bibliography",
@@ -41480,6 +41685,44 @@
       ],
       "required_scopes": [
         "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record an operator-imported correlation table (UNSD workbook) with its URL, publication date and file\ndigest; relationships as published, weights only when published; a changed table is a new revision.",
+      "id": "noesis-knowledge-engine.import_trade_concordance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "table": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "table"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_trade_concordance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -47731,6 +47974,103 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Link an observation vintage to an ownership record a cited source names (source and locator required);\nnever inferred from trade values; target_missing and provider_absent are reported.",
+      "id": "noesis-knowledge-engine.link_trade_ownership",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "vintage_id",
+          "ownership_namespace",
+          "record_id",
+          "citation",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_trade_ownership",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:write",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link observation vintages to sanctions measures that cite their product codes (and cited areas); unmatched\nmeasures reported; provider_absent without the Sanctions store.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.link_trade_sanctions",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "sanctions_namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_trade_sanctions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:write",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Acquired Federal Law Gazette amendment acts (optionally touching one statute or provision): BGBl citation,\npromulgation date, entry-into-force text, instructions with locators, DIP dossier and EU implementation\nlinks. Instructions are never applied.",
       "id": "noesis-knowledge-engine.list_amendment_acts",
@@ -51630,6 +51970,303 @@
     },
     {
       "cost_class": "low",
+      "description": "Reviewable comparability notes between trade series (valuation basis, classification vintage, period,\npartner attribution); notes never merge series.",
+      "id": "noesis-knowledge-engine.list_trade_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_trade_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Concordance tables in force (source and target classification vintages, revision, provider, release).",
+      "id": "noesis-knowledge-engine.list_trade_concordances",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_trade_concordances",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Area and product identity assertions in force (proposed, accepted, rejected, reverted, unmatched,\nspecial-area) with method and evidence.",
+      "id": "noesis-knowledge-engine.list_trade_identity_assertions",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_trade_identity_assertions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Sanctions and ownership links of trade series, each on one observation vintage with its basis and\ncitation; target_missing and provider_absent are reported.",
+      "id": "noesis-knowledge-engine.list_trade_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_trade_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Trade series with reporter, partner, flow, product, classification vintage, valuation basis and role\n(the pair reporter's report or the partner's mirror report). No estimated or reconciled series exist.",
+      "id": "noesis-knowledge-engine.list_trade_series",
+      "input_schema": {
+        "properties": {
+          "flow_direction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "product": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reporter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "role": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_trade_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Provider records no accepted identity match connects, with their identifiers.",
       "id": "noesis-knowledge-engine.list_unmatched_substances",
       "input_schema": {
@@ -53056,6 +53693,64 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A product code's targets in another classification vintage through the concordance in force (or the CN\nstructure), each citing its basis; non-exact mappings flagged; nothing weighted.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.map_trade_product_code",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "code": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "code",
+          "source",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "map_trade_product_code",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -55627,6 +56322,44 @@
       ],
       "required_scopes": [
         "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a trade monitor's events (new releases and revisions of the watched pair).",
+      "id": "noesis-knowledge-engine.poll_trade_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_trade_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -59832,6 +60565,82 @@
     },
     {
       "cost_class": "medium",
+      "description": "Offer every reporter and partner code to Geospatial places by published code, stated ISO3 or ISO\nalpha-2 equivalence; special areas stay distinct; nothing is linked until reviewed.",
+      "id": "noesis-knowledge-engine.propose_trade_area_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_trade_area_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Resolve every stated product code to a target classification vintage through the concordances (cited,\nnon-exact flagged); unmatched codes stay visible.",
+      "id": "noesis-knowledge-engine.propose_trade_product_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_trade_product_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A reviewer's candidate (package:/product: to cpe-product:/advisory-package:); it still needs review.",
       "id": "noesis-knowledge-engine.propose_vulnerability_component_link",
       "input_schema": {
@@ -60391,6 +61200,192 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "The pair's flows in products a cited sanctions measure covers (links and lookup-aid notice attached);\ncovered products without a flow are none_reported; provider_absent without the Sanctions store. A link\nsays a product code is cited, never that goods were controlled.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.query_sanctioned_trade_flows",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "control_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partner": {
+            "type": "string"
+          },
+          "reporter": {
+            "type": "string"
+          },
+          "table_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "reporter",
+          "partner"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_sanctioned_trade_flows",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Flows of a country pair as of a release: the reporter's figure and the partner's mirror figure side by\nside per period with the release each used, valuation basis, classification vintage, a displayed asymmetry\nand comparability notes; product {code, scheme, vintage} across vintages only through a cited concordance\n(non-exact mappings flagged); no figure is 'none_reported', never zero.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.query_trade_flows",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "directions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "partner": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "product": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reporter": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "reporter",
+          "partner"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_trade_flows",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -62704,6 +63699,55 @@
       ],
       "required_scopes": [
         "knowledge:sports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a typed comparability note between two series; notes never merge or reconcile series.",
+      "id": "noesis-knowledge-engine.record_trade_comparability",
+      "input_schema": {
+        "properties": {
+          "left_series_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "right_series_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_series_id",
+          "right_series_id",
+          "relation",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_trade_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70444,6 +71488,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed match; the code is unmatched again.",
+      "id": "noesis-knowledge-engine.revert_trade_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_trade_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a decision; the match returns to candidate and no record changes.",
       "id": "noesis-knowledge-engine.revert_vulnerability_component_match",
       "input_schema": {
@@ -72978,6 +74063,96 @@
       ],
       "required_scopes": [
         "knowledge:clinical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed comparability note with a reason.",
+      "id": "noesis-knowledge-engine.review_trade_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_trade_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed area or product match with a reason.",
+      "id": "noesis-knowledge-engine.review_trade_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_trade_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -75890,6 +77065,51 @@
       "required_scopes": [
         "knowledge:clinical:read",
         "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a trade monitor at a committed watermark; notices cite the new vintage and the changed values.",
+      "id": "noesis-knowledge-engine.run_trade_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_trade_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -83549,6 +84769,137 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the trade-comtrade and trade-comext features are selected, stores and per-provider releases.",
+      "id": "noesis-knowledge-engine.trade_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "trade_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One series' values in one vintage (or the vintage released by as_of_ms), flags and quantities verbatim;\nconfidential cells carry no value.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.trade_series_values",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "trade_series_values",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (UN Comtrade, Eurostat Comext, WITS, UNSD), key handling, limits, terms,\nrelease and classification-vintage models and the bounded coverage.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
+      "id": "noesis-knowledge-engine.trade_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "trade_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

@@ -1,0 +1,107 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-trade-flow-record-v1",
+  "title": "Trade-flow record: release, trade series, vintage, observation, classification concordance, concordance row, code label or comparability note",
+  "description": "Every record carries its namespace and cites the source revision (an acquired release) it came from, with the release clock and the retrieval clock kept apart, each with its basis label. A trade series is keyed by provider, reporter, partner, flow direction, product code, classification scheme and vintage, frequency, valuation (customs) basis, the reporter-versus-mirror role and the pair it serves, measure and unit: the reporter's own report and the partner's mirror report are always two series. Each release is an appended vintage; a revised value never overwrites an earlier vintage. Confidential and unpublished cells keep their status and no value. Concordance rows map codes between classifications or vintages with the mapping type as published or derived from the published pairs (labelled), and weights only when published. No record carries an estimated, imputed, nowcast or reconciled value or a sanctions-evasion inference.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "area": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["m49", "eurostat-geo"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]},
+        "iso3": {"type": ["string", "null"]}
+      }
+    },
+    "classification": {
+      "type": "object",
+      "required": ["scheme", "vintage"],
+      "properties": {
+        "scheme": {"enum": ["HS", "CN", "SITC"]},
+        "vintage": {"type": "string", "minLength": 1},
+        "code": {"type": ["string", "null"]}
+      }
+    },
+    "source_revision": {
+      "type": "object",
+      "required": ["release_id", "provider", "file_sha256", "published_on", "release_basis", "evidence_origin", "retrieved_at_ms"],
+      "properties": {
+        "release_id": {"type": "string"},
+        "provider": {"enum": ["un-comtrade", "eurostat-comext", "wits", "unsd-classifications"]},
+        "source_id": {"type": ["string", "null"]},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "published_at": {"type": ["string", "null"]},
+        "release_basis": {"enum": ["comtrade_last_released", "eurostat_dataset_updated", "declared_release", "retrieval_time"]},
+        "url": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live", "operator"]},
+        "retrieved_at_ms": {"type": "integer"}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-trade-flow-record-v1"},
+    "record_type": {"enum": ["release", "series", "vintage", "observation", "concordance", "concordance_row", "code_label", "comparability_note"]},
+    "namespace": {"type": "string"},
+    "release_id": {"type": "string"},
+    "series_id": {"type": "string"},
+    "vintage_id": {"type": "string"},
+    "provider": {"type": "string"},
+    "reporter": {"$ref": "#/definitions/area"},
+    "partner": {"$ref": "#/definitions/area"},
+    "flow": {
+      "type": "object",
+      "required": ["code", "direction"],
+      "properties": {
+        "code": {"type": "string"},
+        "label": {"type": ["string", "null"]},
+        "direction": {"enum": ["import", "export", "re-import", "re-export"]}
+      }
+    },
+    "product": {"type": "object", "required": ["code"], "properties": {"code": {"type": "string"}, "label": {"type": ["string", "null"]}}},
+    "classification": {"$ref": "#/definitions/classification"},
+    "frequency": {"enum": ["annual", "monthly", "quarterly", "unknown"]},
+    "valuation": {
+      "type": "object",
+      "required": ["basis", "source"],
+      "properties": {"basis": {"enum": ["CIF", "FOB"]}, "source": {"enum": ["reported", "documented-convention"]}}
+    },
+    "role": {"enum": ["reporter", "mirror"]},
+    "pair": {"type": "object", "required": ["reporter", "partner"], "properties": {"reporter": {"type": "string"}, "partner": {"type": "string"}}},
+    "release_at_ms": {"type": "integer"},
+    "release_at_basis": {"type": "string"},
+    "retrieved_at_ms": {"type": "integer"},
+    "revision_of": {"type": ["string", "null"]},
+    "period": {"type": "string"},
+    "value_text": {"type": ["string", "null"]},
+    "value": {"type": ["string", "null"]},
+    "status": {"enum": ["reported", "confidential", "not_published"]},
+    "flags": {"type": "object"},
+    "quantities": {"type": "array", "items": {"type": "object"}},
+    "concordance_id": {"type": "string"},
+    "source": {"$ref": "#/definitions/classification"},
+    "target": {"$ref": "#/definitions/classification"},
+    "source_code": {"type": "string"},
+    "target_code": {"type": "string"},
+    "mapping_type": {"enum": ["1:1", "1:n", "n:1", "n:n"]},
+    "mapping_basis": {"enum": ["published", "derived-from-published-pairs"]},
+    "weight_state": {"enum": ["published", "not-published"]},
+    "relation": {"enum": ["different_valuation_basis", "different_classification_vintage", "different_reporting_period", "different_partner_attribution", "not_comparable"]},
+    "source_revision": {"$ref": "#/definitions/source_revision"}
+  },
+  "not": {
+    "anyOf": [
+      {"required": ["estimated_value"]},
+      {"required": ["imputed_value"]},
+      {"required": ["nowcast"]},
+      {"required": ["reconciled_value"]},
+      {"required": ["evasion_risk"]},
+      {"required": ["compliance_status"]}
+    ]
+  }
+}

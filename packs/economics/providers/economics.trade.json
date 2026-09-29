@@ -1,0 +1,284 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.trade",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.trade_flows",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.trade",
+      "contract": {
+        "name": "noesis-trade-flow-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-series",
+        "series-values",
+        "flows-as-of",
+        "mirror-comparison",
+        "sanctioned-product-flows",
+        "evidence-bundle",
+        "product-mapping",
+        "concordances",
+        "identity-assertions",
+        "links",
+        "comparability-notes",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "series": "a trade series is keyed by reporter, partner, flow direction, product code, classification scheme and vintage, frequency, CIF/FOB basis and role; the pair reporter's report and the partner's mirror report are always separate series",
+        "vintages": "each release is an appended vintage with release and retrieval clocks and revision_of; as-of answers select the vintage released by the date and cite it per figure; a revised value never overwrites an earlier vintage",
+        "asymmetry": "reporter and mirror figures are shown side by side with a displayed difference; they are never reconciled, averaged or replaced by one value",
+        "classifications": "a product in another classification vintage is matched only through a cited concordance (or the CN structure); 1:n, n:1 and n:n mappings are flagged non-exact and no weight is invented",
+        "missing": "a pair without a reported figure is none_reported, never zero; confidential and unpublished cells carry no value",
+        "links": "sanctions links rest on product codes and areas a measure cites (lookup aid); ownership links need an explicit citation; missing providers or targets are reported",
+        "exclusions": "no estimation or imputation of flows, no nowcasting, no reconciliation, no re-allocation between areas, no sanctions-evasion inference or compliance determination"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_trade_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-values",
+      "tool": "noesis-knowledge-engine.trade_series_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "flows-as-of",
+      "tool": "noesis-knowledge-engine.query_trade_flows",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "mirror-comparison",
+      "tool": "noesis-knowledge-engine.compare_trade_mirror",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "sanctioned-product-flows",
+      "tool": "noesis-knowledge-engine.query_sanctioned_trade_flows",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read",
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_trade_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "product-mapping",
+      "tool": "noesis-knowledge-engine.map_trade_product_code",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "concordances",
+      "tool": "noesis-knowledge-engine.list_trade_concordances",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-assertions",
+      "tool": "noesis-knowledge-engine.list_trade_identity_assertions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_trade_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.list_trade_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_trade_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:trade:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "trade-flow-record",
+      "store": "src.kb.trade_flows",
+      "tables": [
+        "trade_releases",
+        "trade_series",
+        "trade_vintages",
+        "trade_observations",
+        "trade_release_members",
+        "trade_concordances",
+        "trade_concordance_rows",
+        "trade_code_labels",
+        "trade_comparability"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "trade-identity-assertion",
+      "store": "src.kb.trade_identity",
+      "tables": [
+        "trade_identity_assertions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "trade-link",
+      "store": "src.kb.trade_links",
+      "tables": [
+        "trade_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "trade-refresh-receipt",
+      "store": "src.kb.trade_monitoring",
+      "tables": [
+        "trade_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "trade_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.5.0",
+      "range": "^1.5.0"
+    }
+  ]
+}

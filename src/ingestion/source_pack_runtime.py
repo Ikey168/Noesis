@@ -246,6 +246,10 @@ def _linguistics_projector(conn: Any) -> Any:
     from src.kb.linguistics_store import LinguisticsProjector
 
     return LinguisticsProjector(conn)
+def _trade_flow_projector(conn: Any) -> Any:
+    from src.kb.trade_flows import TradeFlowProjector
+
+    return TradeFlowProjector(conn)
 
 
 def _vulnerability_projector(conn: Any) -> Any:
@@ -288,6 +292,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-bafin-notice-v1": _bafin_notice_projector,
     "noesis-astronomy-record-v1": _astronomy_projector,
     "noesis-weather-record-v1": _weather_projector,
+    "noesis-trade-flow-record-v1": _trade_flow_projector,
     "noesis-housing-record-v1": _housing_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
     "noesis-hazard-record-v1": _hazard_projector,

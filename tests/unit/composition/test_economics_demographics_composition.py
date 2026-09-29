@@ -160,7 +160,8 @@ def test_each_selection_resolves_independently_and_together(selection):
         assert bound(plan) == {"economics.core"}
     if selection == ["demographics"]:
         assert bound(plan) == FEATURE_PROVIDERS
-        assert PACK in plan["source_packs"]
+        # The bundle now pins 1.5.0 (the trade sources, #2210); this provider still declares ^1.3.0, which it meets.
+        assert {**PACK, "version": "1.5.0", "range": "^1.5.0"} in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     assert ("noesis-knowledge-engine.query_demographic_boundary" in view.tools) == (
         "demographics" in selection

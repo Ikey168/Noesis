@@ -313,6 +313,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
 # Open-source Software Ecosystems: registry history, deps.dev, SPDX list releases, Software Heritage (#2192).
 NATIVE_CONNECTOR_MODULES["oss-ecosystem"] = "src.ingestion.oss_ecosystem_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
+# Economics trade flows: UN Comtrade, Eurostat Comext and WITS concordances (#2210).
+NATIVE_CONNECTOR_MODULES["trade-flows"] = "src.ingestion.trade_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
 
 
 def native_connector_module(connector: str) -> Any:

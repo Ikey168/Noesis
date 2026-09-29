@@ -93,8 +93,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Linguistics pack's Wikidata, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 sources (#2178),
     # plus the OSS Ecosystems pack's four registries, deps.dev, the SPDX License List and Software Heritage (#2192),
     # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212),
-    # plus the Natural Hazards pack's six hazard sources (#2207).
-    assert sum(len(pack["sources"]) for pack in packs) == 185
+    # plus the Natural Hazards pack's six hazard sources (#2207),
+    # plus the Economics trade features' Comtrade, Comext and WITS concordance sources (#2210).
+    assert sum(len(pack["sources"]) for pack in packs) == 188
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
