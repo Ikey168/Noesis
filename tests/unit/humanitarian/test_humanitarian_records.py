@@ -74,6 +74,8 @@ def test_revision_appends_and_never_overwrites(store):
     assert [h["seq"] for h in history] == [1, 2]
     assert history[1]["predecessor_revision_id"] == history[0]["revision_id"]
     assert history[0]["content"]["title"] == "Fixture situation report No. 1"  # the old revision is intact
+    late = store.apply(NS, [report()], run_id="run-4", principal_id="alice", scopes=SCOPES)
+    assert late["unchanged"] and len(store.history(NS, "reliefweb:situation_report:9900001", scopes=SCOPES)) == 2
 
 
 def test_as_of_lookup_returns_the_revision_available_then(store):

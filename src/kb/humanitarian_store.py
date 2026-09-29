@@ -122,7 +122,10 @@ class HumanitarianStore:
         body = {k: v for k, v in record.items() if k != "retrieved_at"}
         content_hash = digest(body)
         latest = self._latest(namespace, key)
-        if latest is not None and latest["content_hash"] == content_hash:
+        # A re-observed revision (the latest, or an older one arriving again, e.g. a candidate release re-read after
+        # the final release) adds nothing; a genuine reversion carries a new provider change time, so a new hash.
+        if self.conn.execute("SELECT 1 FROM humanitarian_revisions WHERE namespace=? AND record_key=? AND "
+                             "content_hash=? LIMIT 1", [namespace, key, content_hash]).fetchone():
             return "unchanged", None
         seq_row = self.conn.execute("SELECT max(seq) FROM humanitarian_revisions WHERE namespace=? AND record_key=?",
                                     [namespace, key]).fetchone()
