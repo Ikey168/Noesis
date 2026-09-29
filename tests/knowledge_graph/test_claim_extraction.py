@@ -164,7 +164,7 @@ def test_literature_on_returns_cited_claims_with_evidence(literature_store):
 
 
 def test_paper_eval_golden_set_is_valid():
-    path = Path(__file__).resolve().parents[2] / "evals" / "qa_papers.jsonl"
+    path = Path(__file__).resolve().parents[2] / "legacy" / "evals" / "qa_papers.jsonl"
     rows = [json.loads(line) for line in path.read_text().splitlines() if line.strip()]
     assert len(rows) >= 3
     for row in rows:

@@ -14,7 +14,7 @@ sudo supervisorctl restart neuronews
 sudo service nginx restart
 
 # Start background tasks if needed
-python3 scripts/run.sh &
+bash legacy/scripts/run.sh &
 
 # Wait for services to start
 sleep 5
