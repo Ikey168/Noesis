@@ -1,0 +1,266 @@
+{
+  "description": "Authored later acquisitions: a FAOSTAT QCL domain update revising United States maize production 2023, a NASS reload revising US corn production 2023, and the October PSD release revising the US corn 2025/26 production projection. Illustrative values, not live evidence.",
+  "payloads": {
+    "/api/v1/en/groupsanddomains": {
+      "data": [
+        {
+          "group_code": "Q",
+          "group_name": "Production",
+          "domain_code": "QCL",
+          "domain_name": "Crops and livestock products",
+          "date_update": "2025-03-20"
+        },
+        {
+          "group_code": "P",
+          "group_name": "Prices",
+          "domain_code": "PP",
+          "domain_name": "Producer Prices",
+          "date_update": "2024-11-06"
+        },
+        {
+          "group_code": "FB",
+          "group_name": "Food Balances",
+          "domain_code": "FBS",
+          "domain_name": "Food Balances (2010-)",
+          "date_update": "2024-07-24"
+        }
+      ]
+    },
+    "/api/v1/en/data/QCL?area=231&element=5510%2C5312%2C5412&item=56&output_type=objects&show_flags=true&show_notes=true&year=2022%2C2023": {
+      "data": [
+        {
+          "Domain Code": "QCL",
+          "Domain": "Crops and livestock products",
+          "Area Code (M49)": "'840",
+          "Area Code": "231",
+          "Area": "United States of America",
+          "Element Code": "5510",
+          "Element": "Production",
+          "Item Code (CPC)": "'0112",
+          "Item Code": "56",
+          "Item": "Maize (corn)",
+          "Year Code": "2022",
+          "Year": "2022",
+          "Unit": "t",
+          "Value": 348750840,
+          "Flag": "A",
+          "Flag Description": "Official figure",
+          "Note": ""
+        },
+        {
+          "Domain Code": "QCL",
+          "Domain": "Crops and livestock products",
+          "Area Code (M49)": "'840",
+          "Area Code": "231",
+          "Area": "United States of America",
+          "Element Code": "5510",
+          "Element": "Production",
+          "Item Code (CPC)": "'0112",
+          "Item Code": "56",
+          "Item": "Maize (corn)",
+          "Year Code": "2023",
+          "Year": "2023",
+          "Unit": "t",
+          "Value": 389667000,
+          "Flag": "A",
+          "Flag Description": "Official figure",
+          "Note": ""
+        },
+        {
+          "Domain Code": "QCL",
+          "Domain": "Crops and livestock products",
+          "Area Code (M49)": "'840",
+          "Area Code": "231",
+          "Area": "United States of America",
+          "Element Code": "5312",
+          "Element": "Area harvested",
+          "Item Code (CPC)": "'0112",
+          "Item Code": "56",
+          "Item": "Maize (corn)",
+          "Year Code": "2022",
+          "Year": "2022",
+          "Unit": "ha",
+          "Value": 32074060,
+          "Flag": "A",
+          "Flag Description": "Official figure",
+          "Note": ""
+        },
+        {
+          "Domain Code": "QCL",
+          "Domain": "Crops and livestock products",
+          "Area Code (M49)": "'840",
+          "Area Code": "231",
+          "Area": "United States of America",
+          "Element Code": "5312",
+          "Element": "Area harvested",
+          "Item Code (CPC)": "'0112",
+          "Item Code": "56",
+          "Item": "Maize (corn)",
+          "Year Code": "2023",
+          "Year": "2023",
+          "Unit": "ha",
+          "Value": 35012780,
+          "Flag": "A",
+          "Flag Description": "Official figure",
+          "Note": ""
+        },
+        {
+          "Domain Code": "QCL",
+          "Domain": "Crops and livestock products",
+          "Area Code (M49)": "'840",
+          "Area Code": "231",
+          "Area": "United States of America",
+          "Element Code": "5412",
+          "Element": "Yield",
+          "Item Code (CPC)": "'0112",
+          "Item Code": "56",
+          "Item": "Maize (corn)",
+          "Year Code": "2022",
+          "Year": "2022",
+          "Unit": "kg/ha",
+          "Value": 10873.3,
+          "Flag": "E",
+          "Flag Description": "Estimated value",
+          "Note": ""
+        },
+        {
+          "Domain Code": "QCL",
+          "Domain": "Crops and livestock products",
+          "Area Code (M49)": "'840",
+          "Area Code": "231",
+          "Area": "United States of America",
+          "Element Code": "5412",
+          "Element": "Yield",
+          "Item Code (CPC)": "'0112",
+          "Item Code": "56",
+          "Item": "Maize (corn)",
+          "Year Code": "2023",
+          "Year": "2023",
+          "Unit": "kg/ha",
+          "Value": 11130.3,
+          "Flag": "E",
+          "Flag Description": "Estimated value",
+          "Note": ""
+        }
+      ]
+    },
+    "/api/api_GET/?agg_level_desc=NATIONAL&format=JSON&short_desc=CORN%2C+GRAIN+-+PRODUCTION%2C+MEASURED+IN+BU&year__GE=2022&year__LE=2023": {
+      "data": [
+        {
+          "source_desc": "SURVEY",
+          "sector_desc": "CROPS",
+          "group_desc": "FIELD CROPS",
+          "commodity_desc": "CORN",
+          "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+          "statisticcat_desc": "PRODUCTION",
+          "unit_desc": "BU",
+          "agg_level_desc": "NATIONAL",
+          "state_fips_code": "99",
+          "state_name": "US TOTAL",
+          "county_code": "",
+          "county_name": "",
+          "year": 2022,
+          "freq_desc": "ANNUAL",
+          "reference_period_desc": "YEAR",
+          "load_time": "2023-01-12 12:00:00.000",
+          "Value": "13,651,159,000",
+          "CV (%)": ""
+        },
+        {
+          "source_desc": "SURVEY",
+          "sector_desc": "CROPS",
+          "group_desc": "FIELD CROPS",
+          "commodity_desc": "CORN",
+          "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+          "statisticcat_desc": "PRODUCTION",
+          "unit_desc": "BU",
+          "agg_level_desc": "NATIONAL",
+          "state_fips_code": "99",
+          "state_name": "US TOTAL",
+          "county_code": "",
+          "county_name": "",
+          "year": 2023,
+          "freq_desc": "ANNUAL",
+          "reference_period_desc": "YEAR",
+          "load_time": "2024-09-30 12:00:00.000",
+          "Value": "15,341,000,000",
+          "CV (%)": ""
+        }
+      ]
+    },
+    "/OpenData/api/psd/commodity/0440000/country/US/year/2024": [
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2024",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 4,
+        "unitId": 4,
+        "value": 32901.0
+      },
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2024",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 28,
+        "unitId": 8,
+        "value": 377633.0
+      },
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2024",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 88,
+        "unitId": 8,
+        "value": 71500.0
+      },
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2024",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 176,
+        "unitId": 8,
+        "value": 33873.0
+      }
+    ],
+    "/OpenData/api/psd/commodity/0440000/country/US/year/2025": [
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2025",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 28,
+        "unitId": 8,
+        "value": 427000.0
+      },
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2025",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 88,
+        "unitId": 8,
+        "value": 75000.0
+      },
+      {
+        "commodityCode": "0440000",
+        "countryCode": "US",
+        "marketYear": "2025",
+        "calendarYear": "2025",
+        "month": "10",
+        "attributeId": 176,
+        "unitId": 8,
+        "value": 53800.0
+      }
+    ]
+  }
+}

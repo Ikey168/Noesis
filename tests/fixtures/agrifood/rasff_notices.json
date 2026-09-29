@@ -1,0 +1,56 @@
+{
+  "description": "Authored RASFF notifications in the RASFF Window notification shape (parsed and stored by the Products pack's own parser and store). References, products and hazards are illustrative, not live evidence.",
+  "notifications": [
+    {
+      "reference": "2026.1101",
+      "classification": "border rejection notification",
+      "subject": "Aflatoxins in maize from Ukraine",
+      "notificationDate": "2026-03-02",
+      "lastUpdate": "2026-03-05",
+      "notifyingCountry": {"code": "FR", "name": "France"},
+      "product": {"category": "cereals and bakery products", "name": "maize", "brand": null, "description": "Bulk maize kernels for feed and food processing"},
+      "hazards": [{"category": "mycotoxins", "name": "aflatoxin B1", "analyticalResult": "12.4 µg/kg"}],
+      "riskDecision": "serious",
+      "actionTaken": "re-dispatch",
+      "distributionStatus": "product not distributed",
+      "origin": [{"code": "UA", "name": "Ukraine"}],
+      "distribution": [],
+      "followUps": [],
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.1101"
+    },
+    {
+      "reference": "2026.1187",
+      "classification": "alert notification",
+      "subject": "Ochratoxin A in organic wheat flour",
+      "notificationDate": "2026-03-10",
+      "lastUpdate": "2026-03-12",
+      "notifyingCountry": {"code": "DE", "name": "Germany"},
+      "product": {"category": "cereals and bakery products", "name": "organic wheat flour", "brand": "Mühlenhof", "description": "Type 550, 1 kg paper bags"},
+      "hazards": [{"category": "mycotoxins", "name": "ochratoxin A", "analyticalResult": "6.1 µg/kg"}],
+      "riskDecision": "serious",
+      "actionTaken": "withdrawal from the market",
+      "distributionStatus": "distribution restricted to notifying country",
+      "origin": [{"code": "DE", "name": "Germany"}],
+      "distribution": [{"code": "DE", "name": "Germany"}],
+      "followUps": [],
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.1187"
+    },
+    {
+      "reference": "2026.1203",
+      "classification": "information notification for attention",
+      "subject": "Salmonella in sesame paste",
+      "notificationDate": "2026-03-14",
+      "lastUpdate": "2026-03-14",
+      "notifyingCountry": {"code": "NL", "name": "Netherlands"},
+      "product": {"category": "nuts, nut products and seeds", "name": "sesame paste", "brand": "Tahinia", "description": "Jar 300 g"},
+      "hazards": [{"category": "pathogenic micro-organisms", "name": "Salmonella spp.", "analyticalResult": "presence /25g"}],
+      "riskDecision": "serious",
+      "actionTaken": "recall from consumers",
+      "distributionStatus": "distribution to other member countries",
+      "origin": [{"code": "TR", "name": "Türkiye"}],
+      "distribution": [{"code": "NL", "name": "Netherlands"}],
+      "followUps": [],
+      "url": "https://webgate.ec.europa.eu/rasff-window/screen/notification/2026.1203"
+    }
+  ]
+}

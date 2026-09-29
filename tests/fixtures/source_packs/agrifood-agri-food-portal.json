@@ -1,0 +1,82 @@
+{
+  "description": "Authored offline fixture in the provider's documented response shape. Codes (FAOSTAT area/item/element, NASS short_desc and FIPS, PSD commodity/attribute ids, Eurostat dimension codes, portal product codes) are the publishers' public codes; every figure, flag, release date and load time is authored for illustration and is NOT live evidence. Verify against the live sources before any live run (#2370).",
+  "scenarios": [
+    "weekly market prices keyed by product, member state, market and week",
+    "price text kept verbatim beside its number",
+    "no release stamp: the answer's content is the vintage, dated by first retrieval"
+  ],
+  "native_pages": [
+    {
+      "request": "/agrifood/api/cereal/prices?beginDate=01%2F01%2F2024&endDate=21%2F01%2F2024&memberStateCodes=FR&productCodes=BLTPAN",
+      "status": 200,
+      "body": [
+        {
+          "memberStateCode": "FR",
+          "memberStateName": "France",
+          "beginDate": "01/01/2024",
+          "endDate": "07/01/2024",
+          "weekNumber": 1,
+          "price": "€226.00",
+          "unit": "€/t",
+          "productName": "Milling wheat",
+          "marketName": "Rouen",
+          "stageName": "Delivered port"
+        },
+        {
+          "memberStateCode": "FR",
+          "memberStateName": "France",
+          "beginDate": "08/01/2024",
+          "endDate": "14/01/2024",
+          "weekNumber": 2,
+          "price": "€223.50",
+          "unit": "€/t",
+          "productName": "Milling wheat",
+          "marketName": "Rouen",
+          "stageName": "Delivered port"
+        },
+        {
+          "memberStateCode": "FR",
+          "memberStateName": "France",
+          "beginDate": "15/01/2024",
+          "endDate": "21/01/2024",
+          "weekNumber": 3,
+          "price": "€219.75",
+          "unit": "€/t",
+          "productName": "Milling wheat",
+          "marketName": "Rouen",
+          "stageName": "Delivered port"
+        }
+      ]
+    },
+    {
+      "request": "/agrifood/api/cereal/prices?beginDate=01%2F01%2F2024&endDate=14%2F01%2F2024&memberStateCodes=DE&productCodes=MAI",
+      "status": 200,
+      "body": [
+        {
+          "memberStateCode": "DE",
+          "memberStateName": "Germany",
+          "beginDate": "01/01/2024",
+          "endDate": "07/01/2024",
+          "weekNumber": 1,
+          "price": "€205.00",
+          "unit": "€/t",
+          "productName": "Maize",
+          "marketName": "Hamburg",
+          "stageName": "Free on truck"
+        },
+        {
+          "memberStateCode": "DE",
+          "memberStateName": "Germany",
+          "beginDate": "08/01/2024",
+          "endDate": "14/01/2024",
+          "weekNumber": 2,
+          "price": "€203.00",
+          "unit": "€/t",
+          "productName": "Maize",
+          "marketName": "Hamburg",
+          "stageName": "Free on truck"
+        }
+      ]
+    }
+  ]
+}

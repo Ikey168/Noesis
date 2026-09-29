@@ -1,0 +1,263 @@
+{
+  "description": "Authored offline fixture in the provider's documented response shape. Codes (FAOSTAT area/item/element, NASS short_desc and FIPS, PSD commodity/attribute ids, Eurostat dimension codes, portal product codes) are the publishers' public codes; every figure, flag, release date and load time is authored for illustration and is NOT live evidence. Verify against the live sources before any live run (#2370).",
+  "scenarios": [
+    "national, state and county geographies (FIPS)",
+    "(D) withheld value kept as text, never a number",
+    "NASS August forecast labelled as the publisher's forecast",
+    "marketing-year price period kept as published",
+    "survey and census programs kept as separate series",
+    "load_time as the release vintage",
+    "a selection with no data (HTTP 400 no data) is a no_data outcome"
+  ],
+  "native_pages": [
+    {
+      "request": "/api/api_GET/?agg_level_desc=NATIONAL&format=JSON&short_desc=CORN%2C+GRAIN+-+PRODUCTION%2C+MEASURED+IN+BU&year__GE=2022&year__LE=2023",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+            "statisticcat_desc": "PRODUCTION",
+            "unit_desc": "BU",
+            "agg_level_desc": "NATIONAL",
+            "state_fips_code": "99",
+            "state_name": "US TOTAL",
+            "county_code": "",
+            "county_name": "",
+            "year": 2022,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2023-01-12 12:00:00.000",
+            "Value": "13,651,159,000",
+            "CV (%)": ""
+          },
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+            "statisticcat_desc": "PRODUCTION",
+            "unit_desc": "BU",
+            "agg_level_desc": "NATIONAL",
+            "state_fips_code": "99",
+            "state_name": "US TOTAL",
+            "county_code": "",
+            "county_name": "",
+            "year": 2023,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2024-01-12 12:00:00.000",
+            "Value": "15,340,520,000",
+            "CV (%)": ""
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/api_GET/?agg_level_desc=STATE&format=JSON&short_desc=CORN%2C+GRAIN+-+YIELD%2C+MEASURED+IN+BU+%2F+ACRE&state_fips_code=19&year__GE=2022&year__LE=2023",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - YIELD, MEASURED IN BU / ACRE",
+            "statisticcat_desc": "YIELD",
+            "unit_desc": "BU / ACRE",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "state_name": "IOWA",
+            "county_code": "",
+            "county_name": "",
+            "year": 2022,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2023-01-12 12:00:00.000",
+            "Value": "200",
+            "CV (%)": ""
+          },
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - YIELD, MEASURED IN BU / ACRE",
+            "statisticcat_desc": "YIELD",
+            "unit_desc": "BU / ACRE",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "state_name": "IOWA",
+            "county_code": "",
+            "county_name": "",
+            "year": 2023,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR - AUG FORECAST",
+            "load_time": "2023-08-11 12:00:00.000",
+            "Value": "204",
+            "CV (%)": ""
+          },
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - YIELD, MEASURED IN BU / ACRE",
+            "statisticcat_desc": "YIELD",
+            "unit_desc": "BU / ACRE",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "state_name": "IOWA",
+            "county_code": "",
+            "county_name": "",
+            "year": 2023,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2024-01-12 12:00:00.000",
+            "Value": "201",
+            "CV (%)": ""
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/api_GET/?agg_level_desc=COUNTY&county_code=169&format=JSON&short_desc=CORN%2C+GRAIN+-+PRODUCTION%2C+MEASURED+IN+BU&state_fips_code=19&year__GE=2022&year__LE=2022",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+            "statisticcat_desc": "PRODUCTION",
+            "unit_desc": "BU",
+            "agg_level_desc": "COUNTY",
+            "state_fips_code": "19",
+            "state_name": "IOWA",
+            "county_code": "169",
+            "county_name": "STORY",
+            "year": 2022,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2023-02-23 15:00:00.000",
+            "Value": "(D)",
+            "CV (%)": ""
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/api_GET/?agg_level_desc=NATIONAL&format=JSON&short_desc=CORN%2C+GRAIN+-+PRICE+RECEIVED%2C+MEASURED+IN+%24+%2F+BU&year__GE=2022&year__LE=2023",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - PRICE RECEIVED, MEASURED IN $ / BU",
+            "statisticcat_desc": "PRICE RECEIVED",
+            "unit_desc": "$ / BU",
+            "agg_level_desc": "NATIONAL",
+            "state_fips_code": "99",
+            "state_name": "US TOTAL",
+            "county_code": "",
+            "county_name": "",
+            "year": 2022,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "MARKETING YEAR",
+            "load_time": "2023-09-29 12:00:00.000",
+            "Value": "6.54",
+            "CV (%)": ""
+          },
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "CORN",
+            "short_desc": "CORN, GRAIN - PRICE RECEIVED, MEASURED IN $ / BU",
+            "statisticcat_desc": "PRICE RECEIVED",
+            "unit_desc": "$ / BU",
+            "agg_level_desc": "NATIONAL",
+            "state_fips_code": "99",
+            "state_name": "US TOTAL",
+            "county_code": "",
+            "county_name": "",
+            "year": 2023,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "MARKETING YEAR",
+            "load_time": "2024-09-30 12:00:00.000",
+            "Value": "4.55",
+            "CV (%)": ""
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/api_GET/?agg_level_desc=STATE&format=JSON&short_desc=SOYBEANS+-+ACRES+HARVESTED&state_fips_code=19&year__GE=2022&year__LE=2022",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "source_desc": "SURVEY",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "SOYBEANS",
+            "short_desc": "SOYBEANS - ACRES HARVESTED",
+            "statisticcat_desc": "AREA HARVESTED",
+            "unit_desc": "ACRES",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "state_name": "IOWA",
+            "county_code": "",
+            "county_name": "",
+            "year": 2022,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2023-01-12 12:00:00.000",
+            "Value": "10,000,000",
+            "CV (%)": ""
+          },
+          {
+            "source_desc": "CENSUS",
+            "sector_desc": "CROPS",
+            "group_desc": "FIELD CROPS",
+            "commodity_desc": "SOYBEANS",
+            "short_desc": "SOYBEANS - ACRES HARVESTED",
+            "statisticcat_desc": "AREA HARVESTED",
+            "unit_desc": "ACRES",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "state_name": "IOWA",
+            "county_code": "",
+            "county_name": "",
+            "year": 2022,
+            "freq_desc": "ANNUAL",
+            "reference_period_desc": "YEAR",
+            "load_time": "2024-02-13 12:00:00.000",
+            "Value": "9,950,522",
+            "CV (%)": "1.2"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/api_GET/?agg_level_desc=STATE&format=JSON&short_desc=WHEAT+-+PRODUCTION%2C+MEASURED+IN+BU&state_fips_code=19&year__GE=2022&year__LE=2022",
+      "status": 400,
+      "body": {
+        "error": [
+          "no data"
+        ]
+      }
+    }
+  ]
+}

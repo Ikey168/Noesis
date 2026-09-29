@@ -1,0 +1,347 @@
+{
+  "description": "Authored offline fixture in the provider's documented response shape. Codes (FAOSTAT area/item/element, NASS short_desc and FIPS, PSD commodity/attribute ids, Eurostat dimension codes, portal product codes) are the publishers' public codes; every figure, flag, release date and load time is authored for illustration and is NOT live evidence. Verify against the live sources before any live run (#2370).",
+  "scenarios": [
+    "QCL production, area and yield with official and estimated flags",
+    "imputed flag with its note kept verbatim",
+    "PP producer price with a missing value (flag O) never imputed",
+    "FBS food balance elements",
+    "domain update date as the release vintage",
+    "a commodity and place with no data (no_data outcome)"
+  ],
+  "native_pages": [
+    {
+      "request": "/api/v1/en/groupsanddomains",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "group_code": "Q",
+            "group_name": "Production",
+            "domain_code": "QCL",
+            "domain_name": "Crops and livestock products",
+            "date_update": "2024-12-18"
+          },
+          {
+            "group_code": "P",
+            "group_name": "Prices",
+            "domain_code": "PP",
+            "domain_name": "Producer Prices",
+            "date_update": "2024-11-06"
+          },
+          {
+            "group_code": "FB",
+            "group_name": "Food Balances",
+            "domain_code": "FBS",
+            "domain_name": "Food Balances (2010-)",
+            "date_update": "2024-07-24"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/v1/en/data/QCL?area=231&element=5510%2C5312%2C5412&item=56&output_type=objects&show_flags=true&show_notes=true&year=2022%2C2023",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5510",
+            "Element": "Production",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "t",
+            "Value": 348750840,
+            "Flag": "A",
+            "Flag Description": "Official figure",
+            "Note": ""
+          },
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5510",
+            "Element": "Production",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2023",
+            "Year": "2023",
+            "Unit": "t",
+            "Value": 389694460,
+            "Flag": "A",
+            "Flag Description": "Official figure",
+            "Note": ""
+          },
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5312",
+            "Element": "Area harvested",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "ha",
+            "Value": 32074060,
+            "Flag": "A",
+            "Flag Description": "Official figure",
+            "Note": ""
+          },
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5312",
+            "Element": "Area harvested",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2023",
+            "Year": "2023",
+            "Unit": "ha",
+            "Value": 35012780,
+            "Flag": "A",
+            "Flag Description": "Official figure",
+            "Note": ""
+          },
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5412",
+            "Element": "Yield",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "kg/ha",
+            "Value": 10873.3,
+            "Flag": "E",
+            "Flag Description": "Estimated value",
+            "Note": ""
+          },
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5412",
+            "Element": "Yield",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2023",
+            "Year": "2023",
+            "Unit": "kg/ha",
+            "Value": 11130.3,
+            "Flag": "E",
+            "Flag Description": "Estimated value",
+            "Note": ""
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/v1/en/data/QCL?area=68&element=5510&item=15&output_type=objects&show_flags=true&show_notes=true&year=2022%2C2023",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'250",
+            "Area Code": "68",
+            "Area": "France",
+            "Element Code": "5510",
+            "Element": "Production",
+            "Item Code (CPC)": "'0111",
+            "Item Code": "15",
+            "Item": "Wheat",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "t",
+            "Value": 33830000,
+            "Flag": "A",
+            "Flag Description": "Official figure",
+            "Note": ""
+          },
+          {
+            "Domain Code": "QCL",
+            "Domain": "Crops and livestock products",
+            "Area Code (M49)": "'250",
+            "Area Code": "68",
+            "Area": "France",
+            "Element Code": "5510",
+            "Element": "Production",
+            "Item Code (CPC)": "'0111",
+            "Item Code": "15",
+            "Item": "Wheat",
+            "Year Code": "2023",
+            "Year": "2023",
+            "Unit": "t",
+            "Value": 35060000,
+            "Flag": "I",
+            "Flag Description": "Imputed value",
+            "Note": "Imputed from the national crop survey total"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/v1/en/data/PP?area=231&element=5532&item=56&output_type=objects&show_flags=true&show_notes=true&year=2022%2C2023",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "Domain Code": "PP",
+            "Domain": "Producer Prices",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5532",
+            "Element": "Producer Price (USD/tonne)",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "USD",
+            "Value": 259.4,
+            "Flag": "A",
+            "Flag Description": "Official figure",
+            "Note": ""
+          },
+          {
+            "Domain Code": "PP",
+            "Domain": "Producer Prices",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5532",
+            "Element": "Producer Price (USD/tonne)",
+            "Item Code (CPC)": "'0112",
+            "Item Code": "56",
+            "Item": "Maize (corn)",
+            "Year Code": "2023",
+            "Year": "2023",
+            "Unit": "USD",
+            "Value": null,
+            "Flag": "O",
+            "Flag Description": "Missing value",
+            "Note": "Not yet reported"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/v1/en/data/FBS?area=231&element=5511%2C5142&item=2514&output_type=objects&show_flags=true&show_notes=true&year=2021%2C2022",
+      "status": 200,
+      "body": {
+        "data": [
+          {
+            "Domain Code": "FBS",
+            "Domain": "Food Balances (2010-)",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5511",
+            "Element": "Production",
+            "Item Code (CPC)": "'S2514",
+            "Item Code": "2514",
+            "Item": "Maize and products",
+            "Year Code": "2021",
+            "Year": "2021",
+            "Unit": "1000 t",
+            "Value": 383943,
+            "Flag": "E",
+            "Flag Description": "Estimated value",
+            "Note": ""
+          },
+          {
+            "Domain Code": "FBS",
+            "Domain": "Food Balances (2010-)",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5511",
+            "Element": "Production",
+            "Item Code (CPC)": "'S2514",
+            "Item Code": "2514",
+            "Item": "Maize and products",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "1000 t",
+            "Value": 348751,
+            "Flag": "E",
+            "Flag Description": "Estimated value",
+            "Note": ""
+          },
+          {
+            "Domain Code": "FBS",
+            "Domain": "Food Balances (2010-)",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5142",
+            "Element": "Food",
+            "Item Code (CPC)": "'S2514",
+            "Item Code": "2514",
+            "Item": "Maize and products",
+            "Year Code": "2021",
+            "Year": "2021",
+            "Unit": "1000 t",
+            "Value": 3874,
+            "Flag": "I",
+            "Flag Description": "Imputed value",
+            "Note": ""
+          },
+          {
+            "Domain Code": "FBS",
+            "Domain": "Food Balances (2010-)",
+            "Area Code (M49)": "'840",
+            "Area Code": "231",
+            "Area": "United States of America",
+            "Element Code": "5142",
+            "Element": "Food",
+            "Item Code (CPC)": "'S2514",
+            "Item Code": "2514",
+            "Item": "Maize and products",
+            "Year Code": "2022",
+            "Year": "2022",
+            "Unit": "1000 t",
+            "Value": 3902,
+            "Flag": "I",
+            "Flag Description": "Imputed value",
+            "Note": ""
+          }
+        ]
+      }
+    },
+    {
+      "request": "/api/v1/en/data/QCL?area=79&element=5510&item=236&output_type=objects&show_flags=true&show_notes=true&year=2022%2C2023",
+      "status": 200,
+      "body": {
+        "data": []
+      }
+    }
+  ]
+}
