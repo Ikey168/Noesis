@@ -107,6 +107,38 @@ def apply(conn, source_id: str, *, run_id: str | None = None, v2: bool = False, 
     return results
 
 
+def apply_lda(conn, *, run_id: str = "run:us-senate-lda") -> dict:
+    """The US LDA filings (lobbying register ``us-lda``) through the lobbying feature's own adapter and projector."""
+    from src.ingestion.lobbying_sources import LobbyingRegisterAdapter
+    from src.ingestion.lobbying_sources import fixture_transport as lobbying_transport
+    from src.kb.lobbying import LobbyingProjector
+
+    item = source("us-senate-lda")
+    pages = json.loads((ROOT / item["fixture"]["path"]).read_text())["native_pages"]
+    fetched = LobbyingRegisterAdapter(item, transport=lobbying_transport(pages)).fetch_page(
+        {"operation": "export", "parameters": {}, "limit": 100}, cursor=None)
+    return LobbyingProjector(conn).project_page(run_id=run_id, manifest=None, source=item, records=fetched.records,
+                                                documents=[], page_receipt=fetched.receipt,
+                                                principal_id="operator")[0]
+
+
+def seed_uk_act(conn, namespace: str = DOSSIER_NS) -> str:
+    """A Legal work carrying the Act citation, as a future UK legislation provider would project it.
+
+    The Legal pack ships no UK or US statute provider yet; this row stands in for one so the enactment link can be
+    exercised offline. It is test data only.
+    """
+    from src.kb.legal import LegalStore
+
+    LegalStore(conn)
+    work_id = "legal-work:fixture-ukpga-2099-5"
+    conn.execute("INSERT INTO legal_works VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                 [work_id, namespace, "fixture-uk-statutes", "GB", "act", "normative", "ukpga/2099/5",
+                  json.dumps({"official_id": "ukpga/2099/5", "citation": "2099 c. 5"}), "Parliament of the "
+                  "United Kingdom", "Example Heat Networks Act 2099", "run:fixture", 1])
+    return work_id
+
+
 def load_all(conn, *, v2: bool = False) -> None:
     for source_id in SOURCES:
         apply(conn, source_id, v2=v2)

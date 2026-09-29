@@ -101,6 +101,20 @@ def test_uk_divisions_and_debates_stay_candidates_until_a_reviewer_accepts(conn)
     assert any(c["legislation"]["record_key"] == "uk-division:commons-1701" for c in reverted["review_candidates"])
 
 
+def test_an_action_saying_withdrawn_is_evidence_not_a_withdrawn_revision(conn):
+    actions = json.loads((h.FIXTURES / "congress_bill_hr9901_actions.json").read_text())
+    actions["actions"].insert(0, {"actionCode": "H30000", "actionDate": "2099-03-12", "type": "Floor",
+                                  "text": "Motion to reconsider withdrawn; the amendment was retracted by its sponsor.",
+                                  "sourceSystem": {"code": 2, "name": "House floor actions"}})
+    actions["pagination"]["count"] += 1
+    (result,) = h.apply(conn, "us-congress-gov-bills", run_id="run:withdrawn",
+                        bodies={"/v3/bill/156/hr/9901/actions?format=json&limit=250": json.dumps(actions)})
+    assert result["counts"]["revised"] == 1
+    saved = LegislationDossiers(conn).build(h.NS, h.US_BILL, h.DOSSIER_NS, principal_id="alice", scopes=h.SCOPES)
+    bill = next(s for s in saved["stages"] if s["legislation"]["record_kind"] == "us-bill")
+    assert bill["legislation"]["fields"]["actions"][-1]["text"].startswith("Motion to reconsider withdrawn")
+
+
 def test_a_bill_with_no_record_is_reported(conn):
     with pytest.raises(LegislationError) as none:
         LegislationDossiers(conn).build(h.NS, "us-bill:156-s-1", h.DOSSIER_NS, principal_id="alice",

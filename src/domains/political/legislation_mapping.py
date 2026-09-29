@@ -283,6 +283,10 @@ def document_for(record: Mapping[str, Any], source_id: str, *, observed_at_ms: i
             "canonical_url": record["locator"],
             "source_manifest_id": source_id,
             "political": json.dumps(political_metadata(record), sort_keys=True),
+            # Action texts and CRS summaries routinely say "withdrawn" (a cosponsor, a motion); that is source
+            # evidence, not a withdrawal of the record. Only an explicit lifecycle operation withdraws a revision.
+            "regional_contract": "noesis-native-regional-v1",
+            "registry_status_is_source_lifecycle": False,
         },
     }
 

@@ -745,7 +745,7 @@ def parse_uk_bill(responses: Mapping[str, bytes]) -> list[dict[str, Any]]:
             "originating_house": _clean(bill.get("originatingHouse")),
             "current_house": _clean(bill.get("currentHouse")),
             "last_update": _clean(bill.get("lastUpdate")),
-            "withdrawn": _clean(bill.get("billWithdrawn")), "defeated": bool(bill.get("isDefeated")),
+            "bill_withdrawn": _clean(bill.get("billWithdrawn")), "defeated": bool(bill.get("isDefeated")),
             "is_act": bool(bill.get("isAct")),
             "introduced_date": first_sitting,
             "royal_assent": "published" if royal_assent and royal_assent[0] else "not published",
