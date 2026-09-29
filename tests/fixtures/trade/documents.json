@@ -1,0 +1,189 @@
+{
+ "comext": [
+  {
+   "dataset": "DS-045409",
+   "filters": {
+    "flow": [
+     "1",
+     "2"
+    ],
+    "freq": "M",
+    "indicators": [
+     "VALUE_IN_EUROS",
+     "QUANTITY_IN_100KG"
+    ],
+    "partner": [
+     "FR"
+    ],
+    "product": [
+     "29309098",
+     "85414300"
+    ],
+    "time": [
+     "2099M01",
+     "2099M02"
+    ]
+   },
+   "label": "Comext DS-045409: Germany reports trade with France, CN8 29309098 and 85414300, 2099M01-2099M02",
+   "pair": {
+    "partner": "FR",
+    "reporter": "DE"
+   },
+   "partners": [
+    "FR"
+   ],
+   "reporter": "DE",
+   "role": "reporter"
+  },
+  {
+   "dataset": "DS-045409",
+   "filters": {
+    "flow": [
+     "1",
+     "2"
+    ],
+    "freq": "M",
+    "indicators": [
+     "VALUE_IN_EUROS",
+     "QUANTITY_IN_100KG"
+    ],
+    "partner": [
+     "DE"
+    ],
+    "product": [
+     "29309098",
+     "85414300"
+    ],
+    "time": [
+     "2099M01",
+     "2099M02"
+    ]
+   },
+   "label": "Comext DS-045409 mirror: France reports trade with Germany, CN8 29309098 and 85414300, 2099M01-2099M02",
+   "pair": {
+    "partner": "FR",
+    "reporter": "DE"
+   },
+   "partners": [
+    "DE"
+   ],
+   "reporter": "FR",
+   "role": "mirror"
+  }
+ ],
+ "comtrade": [
+  {
+   "classification": "HS",
+   "commodities": [
+    "293090",
+    "854143"
+   ],
+   "filters": {
+    "customsCode": "C00",
+    "motCode": "0",
+    "partner2Code": "0"
+   },
+   "flows": [
+    "M",
+    "X"
+   ],
+   "freq": "A",
+   "label": "Comtrade: Germany (276) reports trade with China (156), HS 293090 and 854143, 2097-2098",
+   "pair": {
+    "partner": "156",
+    "reporter": "276"
+   },
+   "partners": [
+    "156"
+   ],
+   "periods": [
+    "2097",
+    "2098"
+   ],
+   "reporter": "276",
+   "role": "reporter",
+   "type": "C"
+  },
+  {
+   "classification": "HS",
+   "commodities": [
+    "293090",
+    "854140",
+    "854143"
+   ],
+   "filters": {
+    "customsCode": "C00",
+    "motCode": "0",
+    "partner2Code": "0"
+   },
+   "flows": [
+    "M",
+    "X"
+   ],
+   "freq": "A",
+   "label": "Comtrade mirror: China (156) reports trade with Germany (276), HS 293090, 854140 and 854143, 2097-2098",
+   "pair": {
+    "partner": "156",
+    "reporter": "276"
+   },
+   "partners": [
+    "276"
+   ],
+   "periods": [
+    "2097",
+    "2098"
+   ],
+   "reporter": "156",
+   "role": "mirror",
+   "type": "C"
+  }
+ ],
+ "wits": [
+  {
+   "columns": {
+    "source_code": "HS 2022 Product Code",
+    "source_label": "HS 2022 Product Description",
+    "target_code": "HS 2017 Product Code",
+    "target_label": "HS 2017 Product Description"
+   },
+   "label": "WITS concordance HS 2022 (H6) to HS 2017 (H5)",
+   "member": "JobID-64_Concordance_H6_to_H5.CSV",
+   "release": {
+    "label": "WITS concordance file as declared by the operator (verify the file date)",
+    "published_on": "2099-01-10"
+   },
+   "source": {
+    "scheme": "HS",
+    "vintage": "HS2022"
+   },
+   "target": {
+    "scheme": "HS",
+    "vintage": "HS2017"
+   },
+   "url": "https://wits.worldbank.org/data/public/concordance/Concordance_H6_to_H5.zip"
+  },
+  {
+   "columns": {
+    "source_code": "HS 2022 Product Code",
+    "source_label": "HS 2022 Product Description",
+    "target_code": "SITC Revision 4 Product Code",
+    "target_label": "SITC Revision 4 Product Description"
+   },
+   "label": "WITS concordance HS 2022 (H6) to SITC Rev.4 (S4)",
+   "member": "JobID-65_Concordance_H6_to_S4.CSV",
+   "release": {
+    "label": "WITS concordance file as declared by the operator (verify the file date)",
+    "published_on": "2099-01-10"
+   },
+   "source": {
+    "scheme": "HS",
+    "vintage": "HS2022"
+   },
+   "target": {
+    "scheme": "SITC",
+    "vintage": "SITC4"
+   },
+   "url": "https://wits.worldbank.org/data/public/concordance/Concordance_H6_to_S4.zip"
+  }
+ ]
+}

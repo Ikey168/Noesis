@@ -1,0 +1,30 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAKu7ARZMBywAAAHECAAAhAAAASm9iSUQtNjRfQ29uY29yZGFuY2VfSDZfdG9fSDUuQ1NWnY/BqsIwEEX3D/yHoWuFNvp4r7jUhTsFvyAmgw2kmZBJ+v2OQkWki9LtzTlzc6vTFVStFFwS2WIyHMhita6+4yOySS5mR2F8bf4mpY/4U1r9VKrd1m0t3DnddaANFx+7ksBQH6kEy3ug3GESYjYqZ/9/d82uEfbSUaaBfNbOgEHvGQJl0MzY3zxacAF6+ZlHFvql1aPGGNhlNyAI7AyF5wBKYHFwRvixR83oWb9nLOvYTndM7QDRe20RSpQ0E0Qd0C+f184U9osnPgBQSwECFAMUAAAACAAAACruwEWTAcsAAABxAgAAIQAAAAAAAAAAAAAAgAEAAAAASm9iSUQtNjRfQ29uY29yZGFuY2VfSDZfdG9fSDUuQ1NWUEsFBgAAAAABAAEATwAAAAoBAAAAAA==",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/data/public/concordance/Concordance_H6_to_H5.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAKu4cfWd84QAAAOwBAAAhAAAASm9iSUQtNjVfQ29uY29yZGFuY2VfSDZfdG9fUzQuQ1NWrZBPS8RADMXvgt8h9KSwlm7/2C17XA96cnH9AnUm2sB0Mkxmih/fVBBkQQ/iMXkvP95LcX+CuqprOEa22SQ4sMViU5yv71BMpJCIvaqnh+cDPOFCojO058c/yd8hlxdFPTTVUKn/Mb6Nnm8kuzDlCIbnwNlb2QOnCaM6um3XDr84N+BLLKVcsbuu3baNmo8TJ17YpZEMGHROYBTB+cWhBfIwayqHAhxhHi1CDrpNDGH06EQBfX/b9F8gQS+UaEFQBBn2ayU9tdrTKOXqld5TjioHR+n6/5N89l//AeFveT4AUEsBAhQDFAAAAAgAAAAq7hx9Z3zhAAAA7AEAACEAAAAAAAAAAAAAAIABAAAAAEpvYklELTY1X0NvbmNvcmRhbmNlX0g2X3RvX1M0LkNTVlBLBQYAAAAAAQABAE8AAAAgAQAAAAA=",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/data/public/concordance/Concordance_H6_to_S4.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data). Rows follow the HS 2022 split of 8541.40.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "n-to-1",
+  "1-to-n",
+  "hs-to-sitc",
+  "zip-csv"
+ ]
+}

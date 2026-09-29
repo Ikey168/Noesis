@@ -120,9 +120,83 @@ class EurostatConnector(DatasetConnector):
 
     def _url(self, dataset: str, geography: str, filters: Dict[str, Any], api: str = "statistics") -> str:
         base, geo_dimension = _BASES[api]
-        params = {"format": "JSON", geo_dimension: geography}
-        params.update({str(key): str(value) for key, value in filters.items()})
-        return f"{base}/{quote(dataset, safe='')}?{urlencode(params)}"
+        params: Dict[str, Any] = {"format": "JSON", geo_dimension: geography}
+        # A list value repeats the parameter (``partner=CN&partner=US``), as the dissemination API accepts for a
+        # multi-category selection (Comext trade flows, #2541); scalar filters encode exactly as before.
+        params.update({
+            str(key): [str(v) for v in value] if isinstance(value, (list, tuple)) else str(value)
+            for key, value in filters.items()
+        })
+        return f"{base}/{quote(dataset, safe='')}?{urlencode(params, doseq=True)}"
+
+    def comext_url(self, dataset: str, reporter: str, filters: Dict[str, Any]) -> str:
+        """The Comext dissemination URL of one dataset, reporter and dimension selection (no network access)."""
+        return self._url(dataset, reporter, filters, "comext")
+
+    def parse_cells(self, raw: RawSeries, *, max_cells: int = 20000) -> Dict[str, Any]:
+        """Every cell of a JSON-stat cube, one per dimension combination and time category (Comext flows, #2541).
+
+        Unlike :meth:`parse`, no dimension is collapsed to its first category. A value stays as published; a cell
+        with a status flag and no value (confidential, not available) is kept with its flag and no value; a cell
+        absent from the sparse value map without a flag is never invented or zero-filled - it is only counted in
+        ``absent_cells``. The cube's ``updated`` stamp, dimension and category labels and status labels are kept
+        as evidence.
+        """
+        cube = json.loads(raw.content if isinstance(raw.content, str) else raw.content.decode("utf-8"))
+        dim_ids: List[str] = list(cube.get("id") or [])
+        size: List[int] = [int(s) for s in cube.get("size") or []]
+        dimension: Dict[str, Any] = cube.get("dimension") or {}
+        if not dim_ids or len(dim_ids) != len(size) or "time" not in dim_ids:
+            raise ValueError("not a JSON-stat cube with a time dimension")
+        total = 1
+        for s in size:
+            total *= s
+        if total > max_cells:
+            raise ValueError(f"cube has {total} cells, more than the {max_cells} allowed")
+        strides = _strides(size)
+        ordered: Dict[str, List[str]] = {}
+        labels: Dict[str, Dict[str, Any]] = {}
+        for d in dim_ids:
+            category = (dimension.get(d) or {}).get("category") or {}
+            index_map = category.get("index") or {}
+            if isinstance(index_map, list):
+                index_map = {code: i for i, code in enumerate(index_map)}
+            ordered[d] = [code for code, _ in sorted(index_map.items(), key=lambda kv: kv[1])]
+            labels[d] = {
+                "label": (dimension.get(d) or {}).get("label"),
+                "categories": dict(category.get("label") or {}),
+            }
+        values: Dict[str, Any] = cube.get("value") or {}
+        if isinstance(values, list):
+            values = {str(i): v for i, v in enumerate(values) if v is not None}
+        extension = cube.get("extension") if isinstance(cube.get("extension"), dict) else {}
+        cells: List[Dict[str, Any]] = []
+        absent = 0
+        for flat in range(total):
+            position = {d: (flat // strides[i]) % size[i] for i, d in enumerate(dim_ids)}
+            value = values.get(str(flat))
+            flag = _status_at(cube.get("status"), flat)
+            if value is None and flag is None:
+                absent += 1
+                continue
+            cells.append({
+                "dimensions": {d: ordered[d][position[d]] for d in dim_ids if d != "time"},
+                "time": ordered["time"][position["time"]],
+                "value": value,
+                "status": flag,
+            })
+        return {
+            "label": cube.get("label"),
+            "updated": cube.get("updated"),
+            "updated_at_ms": _parse_updated(cube.get("updated")),
+            "dimension_ids": dim_ids,
+            "dimensions": labels,
+            "status_labels": dict(dict((extension or {}).get("status") or {}).get("label") or {}),
+            "cells": cells,
+            "absent_cells": absent,
+            "cell_count": total,
+            "source_url": raw.source_url,
+        }
 
     def fetch(self, ref: SeriesRef) -> RawSeries:
         url = self._url(ref.metadata["dataset"], ref.metadata["geography"], ref.metadata.get("filters", {}),

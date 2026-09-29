@@ -268,6 +268,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
+# Economics trade flows: UN Comtrade, Eurostat Comext and WITS concordances (#2210).
+NATIVE_CONNECTOR_MODULES["trade-flows"] = "src.ingestion.trade_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib
