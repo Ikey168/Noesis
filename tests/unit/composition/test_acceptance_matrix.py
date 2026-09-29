@@ -135,6 +135,11 @@ MATRIX = {
     "US or UK bill to cited legislative dossier":
         "tests/unit/domains/test_legislation_acceptance.py::"
         "test_us_and_uk_bills_to_cited_dossiers_with_stages_versions_votes_and_linked_disclosures",
+    # The Legal courts and justice-statistics features' offline journey (#2430) composes the Legal work model, the
+    # source-pack runtime, ownership identity, geospatial places and subscriptions.
+    "Provision or party to cited dockets; place to cited justice statistics":
+        "tests/unit/domains/test_courts_justice_acceptance.py::"
+        "test_provision_and_party_to_cited_dockets_and_place_to_cited_statistics",
 }
 
 
