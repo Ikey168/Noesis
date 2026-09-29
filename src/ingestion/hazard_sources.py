@@ -681,7 +681,8 @@ class HazardAdapter:
         return RuntimePage(tuple(records), next_cursor, len(raw), receipt=receipt)
 
 
-FIXTURE_SECRET = None
+# The token the key-gated GloFAS fixture expects (sources without auth ignore it).
+FIXTURE_SECRET = "fixture-glofas-token"
 ADAPTERS = {CONNECTOR: HazardAdapter}
 
 
@@ -716,8 +717,7 @@ def fixture_request(url: str) -> str:
 
 
 def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any]) -> list[dict[str, Any]]:
-    secret = "fixture-token" if dict(source.get("auth") or {}).get("kind") == "required-secret" else None
-    adapter = HazardAdapter(source, transport=fixture_transport(list(fixture["native_pages"])), secret=secret)
+    adapter = HazardAdapter(source, transport=fixture_transport(list(fixture["native_pages"])), secret=FIXTURE_SECRET)
     records, cursor = [], None
     while True:
         page = adapter.fetch_page({"operation": min(source["operations"]), "parameters": {},

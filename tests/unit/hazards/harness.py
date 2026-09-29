@@ -21,7 +21,13 @@ from pathlib import Path
 
 import duckdb
 
-from src.ingestion.hazard_sources import HazardAdapter, fixture_request, fixture_transport, replay_native_fixture
+from src.ingestion.hazard_sources import (
+    FIXTURE_SECRET,
+    HazardAdapter,
+    fixture_request,
+    fixture_transport,
+    replay_native_fixture,
+)
 from src.ingestion.source_packs import validate_source_pack
 from src.kb import hazards_records as hr
 from src.kb.hazards_store import HazardProjector
@@ -97,7 +103,7 @@ def records(provider: str, files) -> list[dict]:
     item["natural_hazards"]["documents"] = [documents[index] for index, _ in files]
     natives = [{"request": fixture_request(documents[index]["url"]), "status": 200,
                 "headers": {"Content-Type": _content_type(name)}, "body": body(name)} for index, name in files]
-    secret = "fixture-token" if item["auth"]["kind"] == "required-secret" else None
+    secret = FIXTURE_SECRET if item["auth"]["kind"] == "required-secret" else None
     adapter = HazardAdapter(item, transport=fixture_transport(natives), secret=secret)
     pages, cursor = [], None
     while True:

@@ -60,6 +60,25 @@ def identifier_tokens(content):
     return sorted(t for t in tokens if len(t) >= 8)
 
 
+def linked_providers(conn):
+    """Which target owners exist here; a missing one is reported, not skipped."""
+
+    state = {
+        "climate-environment": {"status": "available" if _table(conn, "environment_record_revisions")
+                                else "unavailable", "reason": None if _table(conn, "environment_record_revisions")
+                                else "no environment records in this deployment"},
+        "documents (news, osint)": {"status": "available" if _table(conn, "documents") else "unavailable",
+                                    "reason": None if _table(conn, "documents") else "document store not initialised"},
+        "natural-hazards (accepted correspondences)": {"status": "available", "reason": None},
+    }
+    for name, (modules, table, issue) in OPTIONAL_PROVIDERS.items():
+        shipped = any(importlib.util.find_spec(m) is not None for m in modules)
+        state[name] = {"status": "available" if shipped and _table(conn, table) else "unavailable",
+                       "reason": None if shipped and _table(conn, table) else
+                       f"{name} provider ({issue}) is not shipped or has no records in this deployment"}
+    return state
+
+
 class HazardLinks:
     def __init__(self, conn, *, initialize=True, now=None):
         self.conn = conn
@@ -71,20 +90,7 @@ class HazardLinks:
     def providers(self):
         """Which target owners exist here; a missing one is reported, not skipped."""
 
-        state = {
-            "climate-environment": {"status": "available" if _table(self.conn, "environment_record_revisions")
-                                    else "unavailable", "reason": None if _table(self.conn, "environment_record_revisions")
-                                    else "no environment records in this deployment"},
-            "documents (news, osint)": {"status": "available" if _table(self.conn, "documents") else "unavailable",
-                                        "reason": None if _table(self.conn, "documents") else "document store not initialised"},
-            "natural-hazards (accepted correspondences)": {"status": "available", "reason": None},
-        }
-        for name, (modules, table, issue) in OPTIONAL_PROVIDERS.items():
-            shipped = any(importlib.util.find_spec(m) is not None for m in modules)
-            state[name] = {"status": "available" if shipped and _table(self.conn, table) else "unavailable",
-                           "reason": None if shipped and _table(self.conn, table) else
-                           f"{name} provider ({issue}) is not shipped or has no records in this deployment"}
-        return state
+        return linked_providers(self.conn)
 
     # ------------------------------------------------------------------ writes
 
