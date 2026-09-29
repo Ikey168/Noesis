@@ -108,12 +108,12 @@ def world(polls=(1, 2)) -> duckdb.DuckDBPyConnection:
     return conn
 
 
-def install_pack(conn):
+def install_pack(conn, now_ms: int = fb.POLL_MS[1]):
     from src.ingestion.source_pack_runtime import SourcePackRuntime
 
     value = manifest()
     SourcePackStore(conn).install(value, principal_id="operator", enable=True, now_ms=1)
-    runtime = SourcePackRuntime(conn, sleep=lambda _s: None)
+    runtime = SourcePackRuntime(conn, sleep=lambda _s: None, now=lambda: now_ms)
     for item in value["sources"]:
         runtime.accept_license(
             value["pack_id"], item["source_id"], principal_id="operator"

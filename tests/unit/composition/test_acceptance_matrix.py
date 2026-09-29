@@ -79,6 +79,12 @@ MATRIX = {
     "Multi-category product lookup, match and compare":
         "tests/unit/domains/test_products_expansion_acceptance.py::"
         "test_multi_category_lookup_match_compare_and_cite",
+    # The OSS Ecosystems bundle's offline journey (#2204) composes its registries, graph and licence providers with
+    # technology (identities, inventories, vulnerabilities by citation), entity identity, subscriptions and the
+    # source-pack runtime.
+    "Package to release history and dependency graphs":
+        "tests/unit/domains/test_oss_ecosystems_acceptance.py::"
+        "test_package_to_cited_history_graphs_licences_identity_advisories_and_monitoring",
 }
 
 
