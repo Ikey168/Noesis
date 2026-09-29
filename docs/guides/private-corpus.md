@@ -1,10 +1,14 @@
 # Private corpus quickstart
 
-Noesis can index a personal corpus without RSS or cloud storage. For a strictly
-local workflow with no external model API calls, leave `TYPESAFE_API_KEY` unset
-or set `NOESIS_JEV_ENABLED=false`; Noesis then uses its dedicated local
-classifiers. The supplied `private` domain has no feeds; only files you
-explicitly ingest receive its `private` membership tag.
+Noesis can index a personal corpus without RSS or cloud storage, and
+classification is local by default: claim, stance, and frame decisions use the
+dedicated local classifiers and no document text leaves the machine. Only if
+you set both `NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` (or
+`NOESIS_JEV_API_KEY`) does TypeSafe Jev become the primary classifier; then
+the text being classified (document sentences for claims and stance, up to the first 12,000 characters of title and body for frames) is sent to `api.typesafe.ai` (or `NOESIS_JEV_ENDPOINT`). A key alone,
+as used by the separate suggestion-only Jev tools, does not enable this. The
+supplied `private` domain has no feeds; only files you explicitly ingest
+receive its `private` membership tag.
 
 ```bash
 python -m venv .venv
