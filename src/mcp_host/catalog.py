@@ -316,6 +316,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.environment import ENVIRONMENT_WRITES
     if name in ENVIRONMENT_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.substances import SUBSTANCE_WRITES
+    if name in SUBSTANCE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.sanctions import SANCTIONS_WRITES
     if name in SANCTIONS_WRITES:
         return "write"
@@ -891,6 +894,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
         return environment_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.substances import SUBSTANCE_TOOLS
+    from tools.knowledge_engine_mcp.substances import required_scopes as substance_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in SUBSTANCE_TOOLS:
+        return substance_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.sanctions import SANCTIONS_TOOLS
     from tools.knowledge_engine_mcp.sanctions import required_scopes as sanctions_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in SANCTIONS_TOOLS:

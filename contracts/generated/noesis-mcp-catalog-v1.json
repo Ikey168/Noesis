@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1037,
+      "tool_count": 1056,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -942,6 +942,7 @@
         "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.acquire_ownership_sources",
         "noesis-knowledge-engine.acquire_product_documents",
+        "noesis-knowledge-engine.acquire_substance_sources",
         "noesis-knowledge-engine.acquire_world_bank_projects",
         "noesis-knowledge-engine.add_paper_family_member",
         "noesis-knowledge-engine.add_review_candidate",
@@ -1011,6 +1012,7 @@
         "noesis-knowledge-engine.capture_citation_snapshot",
         "noesis-knowledge-engine.capture_claim_timeline_state",
         "noesis-knowledge-engine.capture_exploration_page",
+        "noesis-knowledge-engine.chemicals_bundle_status",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.climate_environment_bundle_status",
         "noesis-knowledge-engine.clinical_bundle_status",
@@ -1105,6 +1107,7 @@
         "noesis-knowledge-engine.create_sanctions_monitor",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
+        "noesis-knowledge-engine.create_substance_monitor",
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
         "noesis-knowledge-engine.create_vulnerability_monitor",
@@ -1404,6 +1407,7 @@
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_study_artifact",
+        "noesis-knowledge-engine.link_substance_citations",
         "noesis-knowledge-engine.link_surveillance_series",
         "noesis-knowledge-engine.list_audit_findings",
         "noesis-knowledge-engine.list_beneficiary_payments",
@@ -1463,8 +1467,11 @@
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.list_substance_identity_candidates",
+        "noesis-knowledge-engine.list_substance_links",
         "noesis-knowledge-engine.list_surveillance_resolutions",
         "noesis-knowledge-engine.list_surveillance_series",
+        "noesis-knowledge-engine.list_unmatched_substances",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
         "noesis-knowledge-engine.list_world_bank_project_links",
@@ -1520,6 +1527,7 @@
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
+        "noesis-knowledge-engine.poll_substance_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
@@ -1589,6 +1597,8 @@
         "noesis-knowledge-engine.propose_public_finance_identity_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
+        "noesis-knowledge-engine.propose_substance_identities",
+        "noesis-knowledge-engine.propose_substance_identity_manual",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
@@ -1716,6 +1726,7 @@
         "noesis-knowledge-engine.resolve_review_inbox_task",
         "noesis-knowledge-engine.resolve_sanctions_legal_bases",
         "noesis-knowledge-engine.resolve_source_alias",
+        "noesis-knowledge-engine.resolve_substance",
         "noesis-knowledge-engine.resolve_surveillance_geographies",
         "noesis-knowledge-engine.restore_knowledge_archive",
         "noesis-knowledge-engine.resume_maintenance_schedule",
@@ -1743,6 +1754,7 @@
         "noesis-knowledge-engine.revert_public_finance_identity_match",
         "noesis-knowledge-engine.revert_public_finance_link",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
+        "noesis-knowledge-engine.revert_substance_identity",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
@@ -1781,6 +1793,7 @@
         "noesis-knowledge-engine.review_research_claim_independence",
         "noesis-knowledge-engine.review_sanctions_identity_match",
         "noesis-knowledge-engine.review_study_field",
+        "noesis-knowledge-engine.review_substance_identity",
         "noesis-knowledge-engine.review_surveillance_resolution",
         "noesis-knowledge-engine.review_translation",
         "noesis-knowledge-engine.review_vulnerability_component_match",
@@ -1823,6 +1836,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.run_substance_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
         "noesis-knowledge-engine.sanctions_readiness",
@@ -1850,6 +1864,7 @@
         "noesis-knowledge-engine.search_multimodal_assets",
         "noesis-knowledge-engine.select_legal_version_as_of",
         "noesis-knowledge-engine.select_paper_family_citation",
+        "noesis-knowledge-engine.set_chemicals_bundle_enabled",
         "noesis-knowledge-engine.set_cited_evidence_subscription_status",
         "noesis-knowledge-engine.set_climate_environment_bundle_enabled",
         "noesis-knowledge-engine.set_clinical_bundle_enabled",
@@ -1894,6 +1909,10 @@
         "noesis-knowledge-engine.subscribe_cited_evidence",
         "noesis-knowledge-engine.subscribe_intake_feed",
         "noesis-knowledge-engine.subscribe_intake_newsletter_input",
+        "noesis-knowledge-engine.substance_dossier",
+        "noesis-knowledge-engine.substance_history",
+        "noesis-knowledge-engine.substance_source_contracts",
+        "noesis-knowledge-engine.substance_status_as_of",
         "noesis-knowledge-engine.suggest_awareness_with_jev",
         "noesis-knowledge-engine.suggest_cultural_research_candidates",
         "noesis-knowledge-engine.suggest_dataset_joins",
@@ -1965,7 +1984,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1037
+      "visible_tool_count": 1056
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -1976,11 +1995,11 @@
     },
     "servers": 31,
     "states": {
-      "available": 119,
+      "available": 121,
       "degraded": 159,
-      "unauthorized": 1069
+      "unauthorized": 1086
     },
-    "tools": 1347
+    "tools": 1366
   },
   "tools": [
     {
@@ -20395,6 +20414,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded, receipted run of the chemicals-substances source pack's explicit selection (secrets from NOESIS_*).",
+      "id": "noesis-knowledge-engine.acquire_substance_sources",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_key": {
+            "type": "string"
+          },
+          "source_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "run_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_substance_sources",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Bounded World Bank Projects API acquisition for named countries or project IDs.",
       "id": "noesis-knowledge-engine.acquire_world_bank_projects",
       "input_schema": {
@@ -24879,6 +24950,39 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Declared contributions plus ready/fixture-only/unavailable per provider; live verification kept separate.",
+      "id": "noesis-knowledge-engine.chemicals_bundle_status",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "chemicals_bundle_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -30183,6 +30287,63 @@
       ],
       "required_scopes": [
         "knowledge:source-planner:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch substances for new ATP classifications, SVHC and Annex XIV/XVII events and linked notices.",
+      "id": "noesis-knowledge-engine.create_substance_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "substances": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "substances"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_substance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -43889,6 +44050,56 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link cited legal acts (exact CELEX/ELI), product notices and literature by explicit citation only.",
+      "id": "noesis-knowledge-engine.link_substance_citations",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "targets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_substance_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:write",
+        "knowledge:legal:read",
+        "knowledge:products:read",
+        "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link series to publications and trials by explicit dataset citation only; mentions become candidates.",
       "id": "noesis-knowledge-engine.link_surveillance_series",
       "input_schema": {
@@ -47044,6 +47255,109 @@
     },
     {
       "cost_class": "low",
+      "description": "Identity candidates with basis, evidence and review state.",
+      "id": "noesis-knowledge-engine.list_substance_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_substance_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Citation links (legal, products, materials, clinical) of one substance and its reviewed matches.",
+      "id": "noesis-knowledge-engine.list_substance_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_substance_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Geography-code resolutions with code system, code-list version, boundary revision and review state.",
       "id": "noesis-knowledge-engine.list_surveillance_resolutions",
       "input_schema": {
@@ -47173,6 +47487,39 @@
       ],
       "required_scopes": [
         "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Provider records no accepted identity match connects, with their identifiers.",
+      "id": "noesis-knowledge-engine.list_unmatched_substances",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_unmatched_substances",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -49744,6 +50091,48 @@
       ],
       "required_scopes": [
         "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll delivered monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_substance_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_substance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -53188,6 +53577,84 @@
         "knowledge:legal:read",
         "knowledge:ownership:read",
         "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidate matches across PubChem, ECHA and CompTox by exact identifier, InChIKey or synonym (none accepted).",
+      "id": "noesis-knowledge-engine.propose_substance_identities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_substance_identities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A reviewer's explicit proposal (the only way a group entry, mixture or salt joins another record).",
+      "id": "noesis-knowledge-engine.propose_substance_identity_manual",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "type": "string"
+          },
+          "left_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left_key",
+          "right_key",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_substance_identity_manual",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -61434,6 +61901,43 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Name, CAS, EC, index number, InChIKey or DTXSID to reviewable substances with the matches joining them.",
+      "id": "noesis-knowledge-engine.resolve_substance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_substance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Resolve every series geography code to a boundary feature by the published code; unresolved stay so.",
       "id": "noesis-knowledge-engine.resolve_surveillance_geographies",
@@ -62542,6 +63046,47 @@
       ],
       "required_scopes": [
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo an accepted or rejected identity decision; both records stay intact.",
+      "id": "noesis-knowledge-engine.revert_substance_identity",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_substance_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -64390,6 +64935,51 @@
       ],
       "required_scopes": [
         "knowledge:reviews:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate as an entity identity decision, with a reason; records are never merged.",
+      "id": "noesis-knowledge-engine.review_substance_identity",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_substance_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -66745,6 +67335,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed complete run (latest when omitted); replay creates no new events.",
+      "id": "noesis-knowledge-engine.run_substance_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_substance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a monitor at a committed watermark; replaying a watermark emits no new events.",
       "id": "noesis-knowledge-engine.run_surveillance_monitor",
       "input_schema": {
@@ -68392,6 +69031,43 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Enable/disable Chemicals and Substances (a coordinator selection change once composed).",
+      "id": "noesis-knowledge-engine.set_chemicals_bundle_enabled",
+      "input_schema": {
+        "properties": {
+          "enabled": {
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "enabled"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "set_chemicals_bundle_enabled",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "operator"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -70880,6 +71556,217 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cited dossier: identity, status as of a date, history, regulation text, linked notices, data points.",
+      "id": "noesis-knowledge-engine.substance_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "substance_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every classification, list and registration revision with dates and citations.",
+      "id": "noesis-knowledge-engine.substance_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "substance_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access contracts (endpoints, auth, licence, attribution, limits, revision behaviour).",
+      "id": "noesis-knowledge-engine.substance_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "substance_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Harmonised classification, SVHC, Annex XIV/XVII and registration status in force on a date, cited.",
+      "id": "noesis-knowledge-engine.substance_status_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "substance_status_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:substances:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
