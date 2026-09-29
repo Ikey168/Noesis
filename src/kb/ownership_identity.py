@@ -51,7 +51,8 @@ CONFIDENCE = {"exact-identifier": 0.95, "cross-referenced-identifier": 0.8,
               "unqualified-identifier": 0.5, "name-jurisdiction": 0.35, "similar-name": 0.1}
 NEVER_ACCEPTED = frozenset({"similar-name"})
 # Record keys owned by other bundles that share this state machine through ``offer``.
-FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:")
+FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:",
+                        "legislation:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """
