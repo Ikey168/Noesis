@@ -21,6 +21,14 @@ classifier is unavailable, the document is still indexed and the ingest result
 reports degraded coverage; `noesis ask` then answers only from extracted claims
 or paper abstracts and otherwise refuses explicitly.
 
+Claim, stance, and frame classification is local by default. With both
+`NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` set, TypeSafe Jev is tried
+first and the text being classified (document sentences for claims and stance, up to the first 12,000 characters of title and body for frames) is sent to `api.typesafe.ai`; low-confidence or failed Jev
+calls fall back to the pinned local classifiers. A key alone, as used by the
+separate suggestion-only Jev tools, keeps classification local. Tune the
+fallback gates with `NOESIS_JEV_NOUL_MARGIN`, `NOESIS_JEV_CHOICE_CONFIDENCE`,
+and `NOESIS_JEV_FRAME_MARGIN`.
+
 Machine consumers use `--format json` for answers and briefs, or `--json` for
 lifecycle commands. JSON stdout is reserved for the documented contract;
 diagnostic/progress text goes to stderr.

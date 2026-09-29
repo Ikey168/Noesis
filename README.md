@@ -58,12 +58,18 @@ surface. The full design lives in the
 - **Argument mining.** Detects claims, classifies stances, identifies frames
   (economic, security, humanitarian, legal, political, scientific, other),
   extracts actor and entity mentions, and tracks how policy positions evolve.
+  Classification is local by default. Setting both `NOESIS_JEV_ENABLED=true`
+  and `TYPESAFE_API_KEY` makes TypeSafe Jev the primary claim, stance, and
+  frame classifier, with the local models as automatic fallbacks.
 - **Fact-check and corroboration.** Links claims to verdicts, scores
   corroboration by independent-source count, flags unsourced assertions, and
   keeps a contradiction ledger of where the public record disagrees with itself.
-- **Private corpus, local first.** Applies the same claim, contradiction,
+- **Private corpus, local by default.** Applies the same claim, contradiction,
   provenance, and diff surfaces to PDFs, DOCX, email, books, filings, notes,
-  and transcripts without uploading them to a hosted service. See the
+  and transcripts. By default nothing is uploaded to a hosted service. Only if
+  you set both `NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` is the text
+  being classified sent to TypeSafe at `api.typesafe.ai`. This is separate
+  from the suggestion-only Jev tools, which use the key alone. See the
   [private-corpus quickstart](docs/guides/private-corpus.md).
 - **Integrity ledger.** Unifies cited snapshots, silent corrections, image
   reuse, C2PA content credentials, and prose-versus-figure checks behind one
@@ -116,7 +122,7 @@ surface. The full design lives in the
 |---|---|
 | Backend | FastAPI, uvicorn |
 | Analytics warehouse | DuckDB (local file, single-writer) |
-| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy |
+| Argument mining | Pinned ClaimBuster and DeBERTa NLI models, distilbert, scikit-learn, spaCy (default); optional TypeSafe Jev primary with `NOESIS_JEV_ENABLED=true` and `TYPESAFE_API_KEY` |
 | Scraping | Scrapy, Playwright, Selenium |
 | Orchestration | Apache Airflow |
 | MLOps | MLflow |
@@ -315,6 +321,9 @@ corpus.
 ---
 
 ## Model benchmarks (current defaults)
+
+These are the local classifiers: the default, and the fallback when TypeSafe
+Jev-primary is enabled. This table is not a benchmark of Jev.
 
 | Model | F1 | Notes |
 |---|---|---|
