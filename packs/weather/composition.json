@@ -1,0 +1,177 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "weather.observations",
+        "provider": "weather.observations",
+        "contract": {
+          "name": "noesis-weather-observation",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "weather.forecasts",
+        "provider": "weather.forecasts",
+        "contract": {
+          "name": "noesis-weather-forecast-issuance",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "weather.warnings",
+        "provider": "weather.warnings",
+        "contract": {
+          "name": "noesis-weather-warning",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "weather.verification",
+        "provider": "weather.verification",
+        "contract": {
+          "name": "noesis-weather-verification",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "weather.observations",
+        "version": "1.0.0"
+      },
+      {
+        "id": "weather.forecasts",
+        "version": "1.0.0"
+      },
+      {
+        "id": "weather.warnings",
+        "version": "1.0.0"
+      },
+      {
+        "id": "weather.verification",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "weather-operational",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "weather.observations",
+      "contract": "noesis-weather-observation",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "weather.forecasts",
+      "contract": "noesis-weather-forecast-issuance",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "weather.warnings",
+      "contract": "noesis-weather-warning",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "environment.records",
+      "contract": "noesis-environment-record",
+      "range": "^1.0.0",
+      "reason": "stations stay Climate & Environment station records; weather records cite them and their series"
+    },
+    {
+      "capability": "geospatial.feature-query",
+      "contract": "noesis-geospatial-feature-query",
+      "range": "^1.0.0",
+      "reason": "warning areas and location vintages are Geospatial features; containment answers warnings in force"
+    },
+    {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0",
+      "reason": "place-to-station proximity with replayable receipts"
+    },
+    {
+      "capability": "geospatial.geometry-store",
+      "contract": "noesis-geospatial-geometry",
+      "range": "^2.0.0",
+      "reason": "each location vintage is a place with a point geometry"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "places resolve to points"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "station matches are reviewable, reversible identity decisions (review-inbox targets)"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "weather monitors are knowledge subscriptions; no scheduler of their own"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "DWD, aviationweather.gov and NWS sources run through the source-pack runtime"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "weather-open-meteo",
+      "default": false,
+      "description": "Open-Meteo pinned-model forecast runs as issuance vintages through the Climate adapter. The free API is for non-commercial use (WX01 terms decision); off by default, and the projector refuses Open-Meteo pages unless this feature is selected in a composed deployment.",
+      "requires": [
+        {
+          "capability": "weather.forecasts",
+          "contract": "noesis-weather-forecast-issuance",
+          "range": "^1.0.0",
+          "reason": "Open-Meteo runs are forecast issuances of their own"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the open-meteo-icon-d2 source runs through the source-pack runtime under its non-commercial licence"
+        }
+      ]
+    },
+    {
+      "id": "weather-verification",
+      "default": false,
+      "description": "Verification of published forecasts against recorded observations with stated metrics, sample sizes and exclusions; no ranking or best-provider verdict.",
+      "requires": [
+        {
+          "capability": "weather.verification",
+          "contract": "noesis-weather-verification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "weather.forecasts",
+          "contract": "noesis-weather-forecast-issuance",
+          "range": "^1.0.0",
+          "reason": "published issuances are verified"
+        },
+        {
+          "capability": "weather.observations",
+          "contract": "noesis-weather-observation",
+          "range": "^1.0.0",
+          "reason": "recorded observations are the reference"
+        }
+      ]
+    }
+  ]
+}

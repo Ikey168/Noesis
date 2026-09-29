@@ -1,0 +1,33 @@
+{
+ "captured": false,
+ "provider": "open-meteo",
+ "note": "Authored bodies served for the production URLs. They name fictional stations, warncells and alerts only, so the production selection is out of scope for every item; parsing is exercised with fictional selections in tests/unit/weather/harness.py.",
+ "native_pages": [
+  {
+   "url": "https://api.open-meteo.com/data/dwd_icon_d2/static/meta.json",
+   "params": {},
+   "status": 200,
+   "body": "{\"last_run_initialisation_time\": 1781049600, \"last_run_availability_time\": 1781055000, \"last_run_modification_time\": 1781054900}",
+   "authored": true
+  },
+  {
+   "url": "https://api.open-meteo.com/v1/forecast",
+   "params": {
+    "latitude": "52.4675",
+    "longitude": "13.4021",
+    "hourly": "relative_humidity_2m,temperature_2m",
+    "models": "icon_d2",
+    "timezone": "GMT",
+    "forecast_days": "1"
+   },
+   "status": 200,
+   "body": "{\"latitude\": 52.47, \"longitude\": 13.4, \"utc_offset_seconds\": 0, \"hourly_units\": {\"time\": \"iso8601\", \"relative_humidity_2m\": \"\\u00b0C\", \"temperature_2m\": \"\\u00b0C\"}, \"hourly\": {\"time\": [], \"relative_humidity_2m\": [], \"temperature_2m\": []}}",
+   "authored": true
+  }
+ ],
+ "scenarios": [
+  "bounded-selection",
+  "out-of-scope-items-counted",
+  "user-agent-sent"
+ ]
+}

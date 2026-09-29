@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "materials", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "lobbying-register", "manifest", "materials", "nhtsa", "ocds", "oeis", "openfda", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -297,6 +297,20 @@
               "files": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"type": "string", "pattern": "^[^/][^:]*$"}},
               "rules": {"type": "object", "required": ["points", "tiebreakers", "source_url"], "properties": {"points": {"type": "object"}, "tiebreakers": {"type": "array", "items": {"type": "string"}}, "valid_from": {"type": "string"}, "source_url": {"type": "string", "pattern": "^https://"}}, "additionalProperties": false},
               "licence": {"type": "object", "required": ["id"], "properties": {"id": {"type": "string"}, "url": {"type": "string"}, "attribution": {"type": "string"}, "non_commercial": {"type": "boolean"}, "share_alike": {"type": "boolean"}}, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "weather": {
+            "type": "object",
+            "description": "Declared bounded selection for the weather connector (#2163): provider, namespace, the environment namespace that owns stations, the User-Agent sent on every request and the provider selection (stations, elements, warncells, points, alert zones or a pinned model grid point).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["dwd-cdc", "dwd-mosmix", "dwd-cap", "aviationweather", "nws", "open-meteo"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "environment_namespace": {"type": "string", "minLength": 1},
+              "user_agent": {"type": "string", "minLength": 1},
+              "live_verification": {"type": "string"},
+              "selection": {"type": "object"}
             },
             "additionalProperties": false
           },

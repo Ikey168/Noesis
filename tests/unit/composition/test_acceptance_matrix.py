@@ -99,6 +99,11 @@ MATRIX = {
     "Competition and date to a cited table":
         "tests/unit/domains/test_sports_acceptance.py::"
         "test_competition_and_date_to_a_cited_table_with_revisions_identity_forecast_and_monitor",
+    # The Weather bundle's offline journey (#2176) composes its own record owner, Climate & Environment stations
+    # and series, Geospatial places and containment, entity identity, subscriptions and the source-pack runtime.
+    "Place to cited weather record":
+        "tests/unit/domains/test_weather_acceptance.py::"
+        "test_place_to_cited_observations_forecasts_warnings_verification_links_and_monitors",
 }
 
 

@@ -200,6 +200,9 @@ For the project overview and local setup, start with the
   vintaged statistics, World Bank projects linked by stated identifiers, reviewable organisation identity with an
   open-call cross-reference, as-of answers with publisher coverage and monitors; no totals across publishers and no
   impact judgement; [source audit](roadmaps/development-finance-source-audit.md)
+- [Weather pack guide](guides/weather-pack.md) — operational observations with QC flags and location
+  vintages, forecasts as issued, CAP warnings in force and verification of published forecasts;
+  [source audit](development/weather-evidence/source-audit.md), [record contract](contracts/weather-records.md)
 - [On-chain Observations guide](guides/onchain-observations.md) — cited public-ledger transactions, token
   transfers, contract deployer and first-funding chains for one explicit address, transaction or contract, quoted
   label assertions and probable address clustering with declared heuristics, a null model and a measured

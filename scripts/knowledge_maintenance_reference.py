@@ -105,7 +105,7 @@ def main() -> int:
         == [
             "astronomy", "clinical", "corporate-ownership", "economic", "engineering-safety", "geospatial", "legal",
             "market", "materials", "onchain", "osint", "political", "procurement", "products", "research",
-            "scientific", "sports", "technical",
+            "scientific", "sports", "technical", "weather",
         ]
         and statuses == {"complete", "partial"}
         and all(item["matched"] for item in replays)

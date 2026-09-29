@@ -75,7 +75,10 @@
     "sports.records",
     "technology.knowledge",
     "technology.patents",
-    "technology.standards"
+    "technology.standards",
+    "weather.forecasts",
+    "weather.observations",
+    "weather.warnings"
   ],
   "bundles_resolved": [
     "astronomy",
@@ -97,7 +100,8 @@
     "products",
     "science",
     "sports",
-    "technology"
+    "technology",
+    "weather"
   ],
   "composed_tools": [
     "noesis-kb.kb_economic",
@@ -111,6 +115,7 @@
     "noesis-knowledge-engine.assess_procurement_eligibility",
     "noesis-knowledge-engine.astronomy_citations",
     "noesis-knowledge-engine.attach_environment_obligation_evidence",
+    "noesis-knowledge-engine.attach_weather_evidence",
     "noesis-knowledge-engine.build_clinical_evidence_map",
     "noesis-knowledge-engine.build_environment_place_dossier",
     "noesis-knowledge-engine.build_funding_shortlist",
@@ -143,6 +148,7 @@
     "noesis-knowledge-engine.create_research_project",
     "noesis-knowledge-engine.create_review_protocol",
     "noesis-knowledge-engine.create_sports_monitor",
+    "noesis-knowledge-engine.create_weather_monitor",
     "noesis-knowledge-engine.decide_procurement_party_link",
     "noesis-knowledge-engine.directives_as_of",
     "noesis-knowledge-engine.draft_funding_application",
@@ -155,6 +161,8 @@
     "noesis-knowledge-engine.export_environment_dossier",
     "noesis-knowledge-engine.export_ownership_dossier",
     "noesis-knowledge-engine.export_sports_records",
+    "noesis-knowledge-engine.forecast_as_issued",
+    "noesis-knowledge-engine.forecast_evolution",
     "noesis-knowledge-engine.funding_provider_contracts",
     "noesis-knowledge-engine.get_entity_identity_history",
     "noesis-knowledge-engine.get_legal_passages",
@@ -197,6 +205,7 @@
     "noesis-knowledge-engine.list_procurement_notices",
     "noesis-knowledge-engine.list_safety_subject_matches",
     "noesis-knowledge-engine.list_sports_identity_candidates",
+    "noesis-knowledge-engine.list_weather_station_matches",
     "noesis-knowledge-engine.lookup_clinical_trial",
     "noesis-knowledge-engine.lookup_environment_series",
     "noesis-knowledge-engine.lookup_legal_work",
@@ -220,6 +229,7 @@
     "noesis-knowledge-engine.poll_environment_monitor",
     "noesis-knowledge-engine.poll_material_watch",
     "noesis-knowledge-engine.poll_sports_monitor",
+    "noesis-knowledge-engine.poll_weather_monitor",
     "noesis-knowledge-engine.procurement_award_history",
     "noesis-knowledge-engine.procurement_notice_history",
     "noesis-knowledge-engine.procurement_party_candidates",
@@ -229,6 +239,7 @@
     "noesis-knowledge-engine.propose_ownership_identity_matches",
     "noesis-knowledge-engine.propose_safety_subject_matches",
     "noesis-knowledge-engine.propose_sports_identity_matches",
+    "noesis-knowledge-engine.propose_weather_station_matches",
     "noesis-knowledge-engine.query_geospatial_features_within",
     "noesis-knowledge-engine.record_clinical_trial_design",
     "noesis-knowledge-engine.record_entity_identity_decision",
@@ -242,6 +253,7 @@
     "noesis-knowledge-engine.register_environment_schemas",
     "noesis-knowledge-engine.register_material_schemas",
     "noesis-knowledge-engine.register_methodology_study",
+    "noesis-knowledge-engine.register_weather_schemas",
     "noesis-knowledge-engine.replay_environment_dossier",
     "noesis-knowledge-engine.replay_procurement_shortlist",
     "noesis-knowledge-engine.resolve_entity_history",
@@ -251,6 +263,7 @@
     "noesis-knowledge-engine.revert_safety_subject_match",
     "noesis-knowledge-engine.revert_sports_identity_match",
     "noesis-knowledge-engine.revert_sports_news_link",
+    "noesis-knowledge-engine.revert_weather_station_match",
     "noesis-knowledge-engine.review_astronomy_identity_match",
     "noesis-knowledge-engine.review_clinical_publication_link",
     "noesis-knowledge-engine.review_environment_operator_link",
@@ -259,6 +272,8 @@
     "noesis-knowledge-engine.review_safety_subject_match",
     "noesis-knowledge-engine.review_sports_identity_match",
     "noesis-knowledge-engine.review_sports_news_link",
+    "noesis-knowledge-engine.review_weather_evidence_link",
+    "noesis-knowledge-engine.review_weather_station_match",
     "noesis-knowledge-engine.revise_geospatial_place",
     "noesis-knowledge-engine.run_astronomy_monitor",
     "noesis-knowledge-engine.run_clinical_monitor",
@@ -269,6 +284,7 @@
     "noesis-knowledge-engine.run_procurement_monitor",
     "noesis-knowledge-engine.run_source_pack_execution",
     "noesis-knowledge-engine.run_sports_monitor",
+    "noesis-knowledge-engine.run_weather_monitor",
     "noesis-knowledge-engine.search_defect_investigations",
     "noesis-knowledge-engine.search_directives",
     "noesis-knowledge-engine.search_materials_by_property",
@@ -291,6 +307,9 @@
     "noesis-knowledge-engine.transit_departures",
     "noesis-knowledge-engine.transit_stops_in_bbox",
     "noesis-knowledge-engine.undo_entity_identity_change",
+    "noesis-knowledge-engine.warnings_in_force",
+    "noesis-knowledge-engine.weather_observations",
+    "noesis-knowledge-engine.weather_source_contracts",
     "noesis-market.get_market_price_history",
     "noesis-market.lookup_market_instrument",
     "noesis-onchain.address_cluster",
@@ -4732,6 +4751,338 @@
         ],
         "reason": null,
         "tool": "noesis-knowledge-engine.patent_family_members"
+      }
+    ],
+    "weather": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.attach_weather_evidence"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.attach_weather_evidence"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_weather_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.create_weather_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.forecast_as_issued"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.forecast_as_issued"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.forecast_evolution"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.forecast_evolution"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_weather_station_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_weather_station_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_weather_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_weather_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_weather_station_matches"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.propose_weather_station_matches"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_weather_schemas"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.register_weather_schemas"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_weather_station_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.revert_weather_station_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_weather_evidence_link"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_weather_evidence_link"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_weather_station_match"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.review_weather_station_match"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_weather_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "monitors"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.run_weather_monitor"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.warnings_in_force"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.warnings_in_force"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.weather_observations"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.weather_observations"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "weather",
+        "composition": "weather",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.weather_source_contracts"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "weather",
+        "composition": [
+          "records"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.weather_source_contracts"
       }
     ]
   },

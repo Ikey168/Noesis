@@ -920,7 +920,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1146,
+      "tool_count": 1163,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -984,6 +984,7 @@
         "noesis-knowledge-engine.attach_environment_obligation_evidence",
         "noesis-knowledge-engine.attach_event_account",
         "noesis-knowledge-engine.attach_paper_family_notice",
+        "noesis-knowledge-engine.attach_weather_evidence",
         "noesis-knowledge-engine.authorize_access_export",
         "noesis-knowledge-engine.bafin_authorisation_status",
         "noesis-knowledge-engine.bafin_holders_as_of",
@@ -1124,6 +1125,7 @@
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
         "noesis-knowledge-engine.create_vulnerability_monitor",
+        "noesis-knowledge-engine.create_weather_monitor",
         "noesis-knowledge-engine.cultural_readiness",
         "noesis-knowledge-engine.cultural_rights_policy",
         "noesis-knowledge-engine.cultural_source_contracts",
@@ -1245,6 +1247,8 @@
         "noesis-knowledge-engine.extract_review_field",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.filter_access_bound_query",
+        "noesis-knowledge-engine.forecast_as_issued",
+        "noesis-knowledge-engine.forecast_evolution",
         "noesis-knowledge-engine.formal_declaration_dependencies",
         "noesis-knowledge-engine.funding_bundle_status",
         "noesis-knowledge-engine.funding_opportunity_history",
@@ -1504,6 +1508,7 @@
         "noesis-knowledge-engine.list_surveillance_series",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
+        "noesis-knowledge-engine.list_weather_station_matches",
         "noesis-knowledge-engine.list_world_bank_project_links",
         "noesis-knowledge-engine.list_zotero_items",
         "noesis-knowledge-engine.lobbying_grant_candidates",
@@ -1574,6 +1579,7 @@
         "noesis-knowledge-engine.poll_statute_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
+        "noesis-knowledge-engine.poll_weather_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
         "noesis-knowledge-engine.preflight_source_pack_run",
         "noesis-knowledge-engine.preview_anomaly_baseline",
@@ -1652,6 +1658,7 @@
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
+        "noesis-knowledge-engine.propose_weather_station_matches",
         "noesis-knowledge-engine.public_finance_readiness",
         "noesis-knowledge-engine.public_finance_source_contracts",
         "noesis-knowledge-engine.publish_development_finance_codelists",
@@ -1735,6 +1742,7 @@
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.register_sports_forecast",
+        "noesis-knowledge-engine.register_weather_schemas",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
         "noesis-knowledge-engine.release_retention_legal_hold",
@@ -1769,6 +1777,7 @@
         "noesis-knowledge-engine.replay_spatial_relation",
         "noesis-knowledge-engine.replay_surveillance_query",
         "noesis-knowledge-engine.replay_tabular_ingestion",
+        "noesis-knowledge-engine.replay_weather_verification",
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
         "noesis-knowledge-engine.reserve_research_project_budget",
@@ -1820,6 +1829,7 @@
         "noesis-knowledge-engine.revert_sports_identity_match",
         "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
+        "noesis-knowledge-engine.revert_weather_station_match",
         "noesis-knowledge-engine.review_astronomy_identity_match",
         "noesis-knowledge-engine.review_astronomy_launch_site",
         "noesis-knowledge-engine.review_bafin_identity_match",
@@ -1868,6 +1878,8 @@
         "noesis-knowledge-engine.review_surveillance_resolution",
         "noesis-knowledge-engine.review_translation",
         "noesis-knowledge-engine.review_vulnerability_component_match",
+        "noesis-knowledge-engine.review_weather_evidence_link",
+        "noesis-knowledge-engine.review_weather_station_match",
         "noesis-knowledge-engine.revise_authored_report",
         "noesis-knowledge-engine.revise_binary_forecast",
         "noesis-knowledge-engine.revise_event_dossier",
@@ -1915,6 +1927,7 @@
         "noesis-knowledge-engine.run_statute_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
+        "noesis-knowledge-engine.run_weather_monitor",
         "noesis-knowledge-engine.sanctions_readiness",
         "noesis-knowledge-engine.sanctions_source_contracts",
         "noesis-knowledge-engine.sanctions_trade_context",
@@ -2060,12 +2073,16 @@
         "noesis-knowledge-engine.verify_intake_research_bundle_export",
         "noesis-knowledge-engine.verify_practice_export",
         "noesis-knowledge-engine.verify_preserved_citation",
+        "noesis-knowledge-engine.verify_published_forecasts",
         "noesis-knowledge-engine.verify_research_package",
         "noesis-knowledge-engine.verify_retention_checkpoint",
         "noesis-knowledge-engine.visit_exploration_feed_item",
         "noesis-knowledge-engine.vulnerability_readiness",
         "noesis-knowledge-engine.vulnerability_source_contracts",
         "noesis-knowledge-engine.vulnerability_standard_links",
+        "noesis-knowledge-engine.warnings_in_force",
+        "noesis-knowledge-engine.weather_observations",
+        "noesis-knowledge-engine.weather_source_contracts",
         "noesis-knowledge-engine.withdraw_funding_profile",
         "noesis-knowledge-engine.withdraw_procurement_profile"
       ],
@@ -2074,7 +2091,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1146
+      "visible_tool_count": 1163
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2087,9 +2104,9 @@
     "states": {
       "available": 122,
       "degraded": 159,
-      "unauthorized": 1175
+      "unauthorized": 1192
     },
-    "tools": 1456
+    "tools": 1473
   },
   "tools": [
     {
@@ -23326,6 +23343,66 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose a warning or observation revision as cited evidence beside an environment place dossier or an\nevent record; another principal reviews it and it can be reverted. Nothing is written into the target.",
+      "id": "noesis-knowledge-engine.attach_weather_evidence",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          },
+          "revision_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_kind": {
+            "type": "string"
+          },
+          "target_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "revision_id",
+          "target_kind",
+          "target_id",
+          "note"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "attach_weather_evidence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Authorize an export without revealing ungranted object details.",
       "id": "noesis-knowledge-engine.authorize_access_export",
       "input_schema": {
@@ -31563,6 +31640,61 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "A subscription on a place (warnings by containment), a station, a provider + parameter or a warning event\nand severity; events warning_issued/updated/cancelled, forecast_issued, observation_corrected,\nstation_relocated. No new scheduler; notifications quote the issuer and add no advice.",
+      "id": "noesis-knowledge-engine.create_weather_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_weather_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Per-provider readiness of the cultural sources inside the scientific source pack.",
       "id": "noesis-knowledge-engine.cultural_readiness",
@@ -37303,6 +37435,222 @@
       ],
       "required_scopes": [
         "knowledge:views:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "The published forecast for a valid time as issued at or before `issued_before`: per provider, product and\nmodel the latest issuance, with lead time and the issuer. Published forecasts only; Noesis forecasts nothing.",
+      "id": "noesis-knowledge-engine.forecast_as_issued",
+      "input_schema": {
+        "properties": {
+          "issued_before": {
+            "type": "string"
+          },
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "parameter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "station": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_time": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "valid_time",
+          "issued_before"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "read",
+      "name": "forecast_as_issued",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "high",
+      "description": "Every recorded issuance that forecast one valid time (forecast evolution), oldest first, with lead times.",
+      "id": "noesis-knowledge-engine.forecast_evolution",
+      "input_schema": {
+        "properties": {
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "parameter": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "station": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "valid_time": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "valid_time"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "read",
+      "name": "forecast_evolution",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -49548,6 +49896,50 @@
     },
     {
       "cost_class": "low",
+      "description": "Station match candidates with their decision state and the source-stated identifier links.",
+      "id": "noesis-knowledge-engine.list_weather_station_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "station": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_weather_station_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "World Bank projects beside IATI activities: linked by a stated identifier, or a marked candidate.",
       "id": "noesis-knowledge-engine.list_world_bank_project_links",
       "input_schema": {
@@ -52904,6 +53296,44 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a weather monitor's events through the subscription delivery path.",
+      "id": "noesis-knowledge-engine.poll_weather_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_weather_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -56773,6 +57203,40 @@
         "knowledge:technical:read",
         "knowledge:technical:write",
         "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link stations by source-stated identifiers and propose cross-provider proximity candidates for review;\nnothing is merged, same-provider ids are never proposed and a reused id stays split into sites.",
+      "id": "noesis-knowledge-engine.propose_weather_station_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_weather_station_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63233,6 +63697,33 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register noesis-weather-record-v1 in the shared schema registry (idempotent per version).",
+      "id": "noesis-knowledge-engine.register_weather_schemas",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_weather_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a sourced predecessor, successor, recurrence, cause, or consequence edge.",
       "id": "noesis-knowledge-engine.relate_events",
       "input_schema": {
@@ -64638,6 +65129,43 @@
       ],
       "required_scopes": [
         "knowledge:dataset:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Recompute a recorded verification run from its pinned revisions and check it against its receipt.",
+      "id": "noesis-knowledge-engine.replay_weather_verification",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "run_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "run_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "replay_weather_verification",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -66839,6 +67367,48 @@
       ],
       "required_scopes": [
         "knowledge:technical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert a reviewed station match; the candidate becomes reverted and never reactivates.",
+      "id": "noesis-knowledge-engine.revert_weather_station_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_weather_station_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -69165,6 +69735,97 @@
       ],
       "required_scopes": [
         "knowledge:technical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert a weather evidence link (`accept` | `reject` | `revert`).",
+      "id": "noesis-knowledge-engine.review_weather_evidence_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_weather_evidence_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed station match (another principal than the proposer) as an entity identity\ndecision; the review inbox can route the same decision.",
+      "id": "noesis-knowledge-engine.review_weather_station_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_weather_station_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -71749,6 +72410,52 @@
         "knowledge:technical:read",
         "knowledge:subscriptions:write",
         "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a weather monitor at a committed watermark; replaying a watermark adds no events.",
+      "id": "noesis-knowledge-engine.run_weather_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_weather_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -80164,6 +80871,100 @@
       "version": "1"
     },
     {
+      "cost_class": "high",
+      "description": "Compare published forecasts with the observations later recorded at the same (or an equivalent or\ndeclared) station: bias, MAE, RMSE, Brier score and user-threshold hit rate / false-alarm ratio with\ndefinitions, sample sizes and exclusions, by provider, lead bucket and period. No ranking; a replayable\nreceipt pins every revision used. Requires the optional weather-verification feature when composed.",
+      "id": "noesis-knowledge-engine.verify_published_forecasts",
+      "input_schema": {
+        "properties": {
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "parameter": {
+            "type": "string"
+          },
+          "period_from": {
+            "type": "string"
+          },
+          "period_to": {
+            "type": "string"
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "station": {
+            "type": "string"
+          },
+          "thresholds": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "tolerance_s": {
+            "default": 600,
+            "type": "integer"
+          }
+        },
+        "required": [
+          "namespace",
+          "station",
+          "parameter",
+          "period_from",
+          "period_to"
+        ],
+        "type": "object"
+      },
+      "latency_class": "batch",
+      "mutability": "write",
+      "name": "verify_published_forecasts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:weather:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Verify checksums and optional Ed25519 signature fully offline.",
       "id": "noesis-knowledge-engine.verify_research_package",
@@ -80432,6 +81233,212 @@
       "required_scopes": [
         "knowledge:technical:read",
         "knowledge:standards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Warnings in force at a place as of a time: CAP Alert/Update/Cancel chains threaded by references and\nevaluated at `as_of` over the areas containing the place (replayable containment receipt). Warnings are\nquoted as issued with their issuer and validity; no advice is added.",
+      "id": "noesis-knowledge-engine.warnings_in_force",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "warnings_in_force",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Observation reports at a station (`dwd:00433`, `aviationweather:EDDB`) or near a place, as recorded by\nthe knowledge cutoff: QC flag verbatim with its common state, corrections, raw METAR text and the location\nvintage valid at each report's time. A time without data answers \"no report on record\"; nothing is inferred.",
+      "id": "noesis-knowledge-engine.weather_observations",
+      "input_schema": {
+        "properties": {
+          "knowledge_cutoff": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "point": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "radius_m": {
+            "anyOf": [
+              {
+                "type": "number"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "station": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "window_from": {
+            "type": "string"
+          },
+          "window_to": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "window_from",
+          "window_to"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "weather_observations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Access contracts, attribution, decisions and live-verification state per weather source, with each\nprovider's last run in the namespace (never a claim of live coverage).",
+      "id": "noesis-knowledge-engine.weather_source_contracts",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "weather_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:weather:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

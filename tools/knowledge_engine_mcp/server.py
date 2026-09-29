@@ -9278,6 +9278,12 @@ from tools.knowledge_engine_mcp.astronomy import (
 
 register_astronomy_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.weather import (
+    register as register_weather_tools,
+)
+
+register_weather_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.lobbying import (
     register as register_lobbying_tools,
 )

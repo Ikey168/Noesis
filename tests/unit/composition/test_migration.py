@@ -45,6 +45,7 @@ PROJECTOR_OWNERS = {
     "noesis-development-finance-record-v1": "src.kb.development_finance",
     "noesis-bafin-notice-v1": "src.domains.market.bafin_notices",
     "noesis-astronomy-record-v1": "src.kb.astronomy_store",
+    "noesis-weather-record-v1": "src.kb.weather_store",
     "noesis-housing-record-v1": "src.kb.housing",
     "noesis-surveillance-record-v1": "src.kb.surveillance",
     "noesis-engineering-safety-record-v1": "src.kb.engineering_safety_store",
@@ -290,6 +291,15 @@ def test_disabling_climate_environment_is_a_selection_change_that_keeps_geospati
     assert environment_bundle.is_enabled(conn, "environment")
     status = environment_bundle.readiness(conn, "environment", scopes={"operator", "knowledge:environment:read"})
     assert {o["provider"] for o in status["composition"]["operations"]} >= {"environment.core"}
+    # The Weather bundle (#2175) requires Climate & Environment's stations: while Weather is selected, deselecting
+    # Climate & Environment keeps it in the plan as a retained dependency.
+    retained = environment_bundle.set_enabled(conn, "environment", False, principal_id="operator",
+                                              scopes={"operator"})
+    assert retained["receipt"]["status"] == "published" and retained["enabled"] is True
+    assert "climate-environment" in {p["id"] for p in coordinator.active()["plan"]["packs"]}
+    coordinator.select("climate-environment", "^0.1.0")
+    coordinator.activate("climate-environment:reselect")
+    assert coordinator.disable("weather", "weather:disable")["status"] == "published"
     result = environment_bundle.set_enabled(conn, "environment", False, principal_id="operator", scopes={"operator"})
     assert result["authority"] == "composition-coordinator" and result["enabled"] is False
     assert result["receipt"]["status"] == "published" and result["receipt"]["receipt_id"].startswith("activation:")

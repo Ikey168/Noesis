@@ -1,0 +1,367 @@
+{
+  "pack_id": "weather-operational",
+  "version": "1.0.0",
+  "description": "Operational weather for the Weather pack: DWD station observations with quality levels and location history, MOSMIX_L forecast issuances, DWD CAP warnings, aviationweather.gov METAR/TAF and station info, NWS gridpoint forecasts and alerts, and Open-Meteo runs (default-off, non-commercial). Bounded selections; published data only, never a Noesis forecast or advice. Every source is unverified-live until a dated run (WX14).",
+  "domains": [
+    "weather"
+  ],
+  "defaults": {
+    "connector": "weather",
+    "mapping": {
+      "target_schema": "noesis-weather-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "weather-sources:1.0.0"
+    ],
+    "operations": [
+      "observe"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 3600
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 5000,
+      "max_bytes": 5000000,
+      "max_pages": 24
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 21600
+    }
+  },
+  "sources": [
+    {
+      "source_id": "dwd-10min-air-temperature",
+      "endpoint": "https://opendata.dwd.de/climate_environment/CDC/",
+      "publisher": "Deutscher Wetterdienst, Climate Data Center",
+      "scope": "10-minute air_temperature (TT_10, RF_10) with QN for DWD stations 00433 and 03987 (verify), recent files",
+      "license": {
+        "id": "dwd-open-data-cc-by-4.0",
+        "terms_url": "https://www.dwd.de/EN/service/copyright/copyright_node.html",
+        "redistribution": "CC BY 4.0 / GeoNutzV; attribution 'Quelle: Deutscher Wetterdienst' (verify)"
+      },
+      "update_cadence": "daily",
+      "temporal_semantics": "observation time (MESS_DATUM, UTC) as the reference time; recent vs historical release as a precedence tier; acquisition time per revision",
+      "weather": {
+        "provider": "dwd-cdc",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "stations": [
+            "00433",
+            "03987"
+          ],
+          "resolution": "10_minutes",
+          "period": "recent",
+          "columns": [
+            "RF_10",
+            "TT_10"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-dwd-10min-air-temperature.json",
+        "sha256": "b184fd2092c4356f8656bb2555d972f134ca4f1df39392a6846ab2d6a488f829",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "dwd-hourly-air-temperature",
+      "endpoint": "https://opendata.dwd.de/climate_environment/CDC/",
+      "publisher": "Deutscher Wetterdienst, Climate Data Center",
+      "scope": "hourly air_temperature (TT_TU, RF_TU) with QN_9 for stations 00433 and 03987, through the Climate & Environment DWD plan",
+      "license": {
+        "id": "dwd-open-data-cc-by-4.0",
+        "terms_url": "https://www.dwd.de/EN/service/copyright/copyright_node.html",
+        "redistribution": "CC BY 4.0 / GeoNutzV; attribution 'Quelle: Deutscher Wetterdienst' (verify)"
+      },
+      "update_cadence": "daily",
+      "temporal_semantics": "observation time (MESS_DATUM, UTC) as the reference time; recent vs historical release as a precedence tier; acquisition time per revision",
+      "weather": {
+        "provider": "dwd-cdc",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "stations": [
+            "00433",
+            "03987"
+          ],
+          "resolution": "hourly",
+          "period": "recent"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-dwd-hourly-air-temperature.json",
+        "sha256": "cbb9cb5aa28b419f40f07d78850e92b8ba57bb256a2f86b438b4775dc6259101",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "dwd-hourly-precipitation",
+      "endpoint": "https://opendata.dwd.de/climate_environment/CDC/",
+      "publisher": "Deutscher Wetterdienst, Climate Data Center",
+      "scope": "hourly precipitation (R1) with QN_8 for stations 00433 and 03987 (verify the interval convention)",
+      "license": {
+        "id": "dwd-open-data-cc-by-4.0",
+        "terms_url": "https://www.dwd.de/EN/service/copyright/copyright_node.html",
+        "redistribution": "CC BY 4.0 / GeoNutzV; attribution 'Quelle: Deutscher Wetterdienst' (verify)"
+      },
+      "update_cadence": "daily",
+      "temporal_semantics": "observation time (MESS_DATUM, UTC) as the reference time; recent vs historical release as a precedence tier; acquisition time per revision",
+      "weather": {
+        "provider": "dwd-cdc",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "stations": [
+            "00433",
+            "03987"
+          ],
+          "resolution": "hourly",
+          "period": "recent",
+          "parameter": "precipitation"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-dwd-hourly-precipitation.json",
+        "sha256": "104b65696c67592305efceb190f7136368316fcd8d5cae7a634585b01e895a58",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "dwd-mosmix-l",
+      "endpoint": "https://opendata.dwd.de/weather/local_forecasts/mos/",
+      "publisher": "Deutscher Wetterdienst, MOSMIX",
+      "scope": "MOSMIX_L latest run for MOSMIX stations 10384 and 10379 (verify), elements TTT, Td, FF, DD, PPPP, RR1c, N, R101, plus the catalogue's ICAO cross-identifiers",
+      "license": {
+        "id": "dwd-open-data-cc-by-4.0",
+        "terms_url": "https://www.dwd.de/EN/service/copyright/copyright_node.html",
+        "redistribution": "CC BY 4.0 / GeoNutzV; attribution 'Quelle: Deutscher Wetterdienst' (verify)"
+      },
+      "update_cadence": "four runs a day (verify)",
+      "temporal_semantics": "IssueTime as the issuance time; each run is a new issuance; valid time and lead time per element; acquisition time per revision",
+      "weather": {
+        "provider": "dwd-mosmix",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "stations": [
+            "10384",
+            "10379"
+          ],
+          "elements": [
+            "DD",
+            "FF",
+            "N",
+            "PPPP",
+            "R101",
+            "RR1c",
+            "TTT",
+            "Td"
+          ],
+          "catalogue": true
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-dwd-mosmix-l.json",
+        "sha256": "c8ffbe89651b080d5b75cdba3aed0ce2a1903f8ebd005d32199cfe94d5434100",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "dwd-cap-warnings",
+      "endpoint": "https://opendata.dwd.de/weather/alerts/cap/",
+      "publisher": "Deutscher Wetterdienst, warnings (CAP)",
+      "scope": "latest-state CAP messages for warncells 111000000 (Berlin) and 112054000 (Potsdam) (verify)",
+      "license": {
+        "id": "dwd-open-data-cc-by-4.0",
+        "terms_url": "https://www.dwd.de/EN/service/copyright/copyright_node.html",
+        "redistribution": "DWD open data; warnings quoted as issued with issuer and validity (verify)"
+      },
+      "update_cadence": "every few minutes (verify)",
+      "temporal_semantics": "CAP sent as the message time; onset/effective to expires as validity; Update/Cancel threaded by references at read time",
+      "weather": {
+        "provider": "dwd-cap",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "warncells": [
+            "111000000",
+            "112054000"
+          ],
+          "archive": "DISTRICT_DWD_STAT",
+          "language": "de-DE"
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-dwd-cap-warnings.json",
+        "sha256": "38a1c48033701089d5d28a2c829c67adb07d1c11e02c3d485d08bf7979528dff",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "aviationweather-metar-taf",
+      "endpoint": "https://aviationweather.gov/api/data/",
+      "publisher": "NOAA / NWS Aviation Weather Center",
+      "scope": "station info, METAR (last 3 hours) and the current TAF for EDDB and KBOS (verify)",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://www.weather.gov/disclaimer",
+        "redistribution": "U.S. Government work, public domain; attribution to NOAA/NWS recorded (verify)"
+      },
+      "update_cadence": "hourly and SPECI",
+      "temporal_semantics": "obsTime as the reference time; receiptTime orders COR revisions; TAF issueTime and validity period",
+      "weather": {
+        "provider": "aviationweather",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "stations": [
+            "EDDB",
+            "KBOS"
+          ],
+          "products": [
+            "metar",
+            "stationinfo",
+            "taf"
+          ],
+          "hours": 3
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-aviationweather-metar-taf.json",
+        "sha256": "dea03cd51a975bb7c3fe77ee7250500439c822e7091e3b68b16cafd5f1654e6a",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "nws-gridpoint-forecast",
+      "endpoint": "https://api.weather.gov/",
+      "publisher": "NOAA / National Weather Service",
+      "scope": "hourly gridpoint forecast for one point (Boston, grid BOX/71,90, declared station KBOS) (verify)",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://www.weather.gov/disclaimer",
+        "redistribution": "U.S. Government work, public domain; attribution to NOAA/NWS recorded (verify)"
+      },
+      "update_cadence": "hourly (verify)",
+      "temporal_semantics": "updateTime as the issuance time, generatedAt recorded separately; period start as valid time",
+      "weather": {
+        "provider": "nws",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "points": [
+            {
+              "latitude": "42.3601",
+              "longitude": "-71.0589",
+              "grid": {
+                "wfo": "BOX",
+                "x": "71",
+                "y": "90"
+              },
+              "declared_station": {
+                "provider": "aviationweather",
+                "native_id": "KBOS"
+              }
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-nws-gridpoint-forecast.json",
+        "sha256": "1a7b2564e4faef6ef41793d29753c1e0476b54b177a667785828607223997460",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "nws-alerts",
+      "endpoint": "https://api.weather.gov/",
+      "publisher": "NOAA / National Weather Service",
+      "scope": "CAP-derived alerts for zone MAZ015 (verify)",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://www.weather.gov/disclaimer",
+        "redistribution": "U.S. Government work, public domain; attribution to NOAA/NWS recorded (verify)"
+      },
+      "update_cadence": "as issued",
+      "temporal_semantics": "sent as the message time; onset/effective to expires; references thread updates and cancellations",
+      "weather": {
+        "provider": "nws",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "alert_zones": [
+            "MAZ015"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-nws-alerts.json",
+        "sha256": "b97a28556fe6bffb6275bf91b35fedafd9390ced628ee51c9ba9f8e743c97573",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "open-meteo-icon-d2",
+      "endpoint": "https://api.open-meteo.com/",
+      "publisher": "Open-Meteo (DWD ICON-D2 model output)",
+      "scope": "DWD ICON-D2 via Open-Meteo at 52.4675,13.4021 (declared station dwd:00433), temperature_2m and relative_humidity_2m, one day; only behind the default-off weather-open-meteo feature",
+      "license": {
+        "id": "open-meteo-free-api-non-commercial",
+        "terms_url": "https://open-meteo.com/en/terms",
+        "redistribution": "data CC BY 4.0 with attribution to Open-Meteo and the model originator (DWD ICON); the free API is for non-commercial use only (verify)"
+      },
+      "update_cadence": "per model run (verify)",
+      "temporal_semantics": "meta.json last_run_initialisation_time as the issuance time; model grid values, never observations",
+      "weather": {
+        "provider": "open-meteo",
+        "namespace": "weather",
+        "environment_namespace": "environment",
+        "user_agent": "noesis-weather-pack/1.0 (+https://github.com/Ikey168/Noesis; operator contact to be set per deployment)",
+        "live_verification": "unverified-live",
+        "selection": {
+          "latitude": "52.4675",
+          "longitude": "13.4021",
+          "model": "icon_d2",
+          "hourly": [
+            "relative_humidity_2m",
+            "temperature_2m"
+          ],
+          "forecast_days": 1,
+          "declared_station": {
+            "provider": "dwd",
+            "native_id": "00433"
+          }
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/weather-open-meteo-icon-d2.json",
+        "sha256": "8105942777ef1a57c661e915e3335b8554ca4f09e8129cc7c4fbe4b9c38175e1",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    }
+  ]
+}

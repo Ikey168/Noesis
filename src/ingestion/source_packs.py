@@ -295,6 +295,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy"})
 # Sports results, fixtures, tables and tennis archives (football-data.org, StatsBomb, openfootball, Sackmann; #2135).
 NATIVE_CONNECTOR_MODULES["sports-results"] = "src.ingestion.sports_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"sports-results"})
+# Weather operational sources (DWD CDC/MOSMIX/CAP, aviationweather.gov, NWS API, Open-Meteo; #2163).
+NATIVE_CONNECTOR_MODULES["weather"] = "src.ingestion.weather_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
 
 
 def native_connector_module(connector: str) -> Any:
