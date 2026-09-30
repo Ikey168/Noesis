@@ -133,6 +133,16 @@ class EurostatConnector(DatasetConnector):
         """The Comext dissemination URL of one dataset, reporter and dimension selection (no network access)."""
         return self._url(dataset, reporter, filters, "comext")
 
+    def dataset_url(self, dataset: str, filters: Dict[str, Any]) -> str:
+        """The statistics dissemination URL of a dataset selected by its own dimensions only, without a ``geo``
+        parameter (maritime datasets key ports by ``rep_mar``/``par_mar``, #2229); list values repeat the parameter."""
+        params: Dict[str, Any] = {"format": "JSON"}
+        params.update({
+            str(key): [str(v) for v in value] if isinstance(value, (list, tuple)) else str(value)
+            for key, value in filters.items()
+        })
+        return f"{_API_BASE}/{quote(dataset, safe='')}?{urlencode(params, doseq=True)}"
+
     def parse_cells(self, raw: RawSeries, *, max_cells: int = 20000) -> Dict[str, Any]:
         """Every cell of a JSON-stat cube, one per dimension combination and time category (Comext flows, #2541).
 

@@ -1,0 +1,34 @@
+{
+ "document": {
+  "countries": [
+   "DE",
+   "NL"
+  ],
+  "encoding": "latin-1",
+  "label": "UN/LOCODE release 2099-2, port entries of Germany and the Netherlands",
+  "member": "2099-2 UNLOCODE CodeListPart1.csv",
+  "release": {
+   "label": "UN/LOCODE 2099-2 (declared by the operator; verify the release file)",
+   "published_on": "2099-12-15",
+   "version": "2099-2"
+  },
+  "url": "https://service.unece.org/trade/locode/loc992csv.zip"
+ },
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe5G6Yrk1gAAAHoBAAAhAAAAMjA5OS0yIFVOTE9DT0RFIENvZGVMaXN0UGFydDEuY3N2XZDLboMwEEX3+Yruc6lsjNWwhMSqI4EXzgPaHVWtUglaiZKqi3x8PORB6Gx8x55zZzxYKeDxWdk8MS+4xAz+NrV7pJ1rXVdXv+5ronUKHoiAAskajDEOSCGEeWBsIaTCbE4ey12J5eHvDN2EWU/oOGYh0TIc6Cj09JFoneTQVft26D7GU4OHIpLB08hS3bV5LBceLwkv9gbFZ1O7pv05N55m/8a4fYIPYzDygcn8dozaamWzxKw244b8i93msN9977r3qr1Tr9cZ74ypVnIpyTsSzHufAFBLAQIUAxQAAAAIAAAAIe5G6Yrk1gAAAHoBAAAhAAAAAAAAAAAAAACAAQAAAAAyMDk5LTIgVU5MT0NPREUgQ29kZUxpc3RQYXJ0MS5jc3ZQSwUGAAAAAAEAAQBPAAAAFQEAAAAA",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/trade/locode/loc992csv.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data) and dated in 2097-2099 so it cannot be mistaken for a published figure.",
+ "scenarios": [
+  "changed-entry",
+  "added-entry",
+  "marked-for-removal",
+  "removed-code"
+ ]
+}

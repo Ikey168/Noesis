@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-logistics-record-v1",
+  "title": "Logistics record: port (UN/LOCODE revision), logistics series (indicator mapping), vintage, observation, port match or link",
+  "description": "Records of the Economics logistics feature (#2229). A port record is a UN/LOCODE entry as published in one code-list release (a changed entry is a new revision, a code absent from a later release of a covered country is a removed revision, never deleted). A logistics series maps one published source series (source series id, concept, unit, frequency, geography kind port, country or published route with the source's own codes, definition reference, licence and, for a freight index, the licence decision) onto the existing Economics series storage: its numeric observations live in dataset_series/dataset_observations and economic_vintages, one vintage per release that changed values. Observations keep value text, status, flags and footnotes as published; a confidential or unpublished value has no number. A port match maps a source port code to a UN/LOCODE (embedded UN/LOCODE or published crosswalk: exact; name or coordinates: a candidate requiring review). A link joins a logistics series to a trade-flow or Economics series by a shared published identifier or an explicit citation, never combining values. No record carries a forecast, a derived, rebased or interpolated index, an inferred route or a merged value.",
+  "type": "object",
+  "required": ["record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "geography": {
+      "type": "object",
+      "required": ["kind", "scheme", "code"],
+      "properties": {
+        "kind": {"enum": ["port", "country", "route"]},
+        "scheme": {"enum": ["unlocode", "unctad-port", "m49", "eurostat-port", "eurostat-geo", "iso2", "us"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]},
+        "unlocode": {"type": ["string", "null"], "pattern": "^[A-Z]{2}[A-Z0-9]{3}$"}
+      }
+    },
+    "partner": {
+      "type": ["object", "null"],
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"type": "string"},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]},
+        "unlocode": {"type": ["string", "null"]}
+      }
+    },
+    "licence": {
+      "type": "object",
+      "required": ["id"],
+      "properties": {"id": {"type": "string"}, "attribution": {"type": "string"}, "terms_url": {"type": "string"},
+                     "redistribution": {"type": "string"}}
+    },
+    "freight_index": {
+      "type": ["object", "null"],
+      "required": ["index_id", "decision", "reason", "base"],
+      "properties": {
+        "index_id": {"type": "string"},
+        "decision": {"const": "in-scope"},
+        "reason": {"type": "string"},
+        "base": {"type": "string"},
+        "publisher": {"type": "string"},
+        "name": {"type": "string"}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "flags", "footnotes"],
+      "properties": {
+        "period": {"type": "string", "minLength": 4},
+        "period_published": {"type": ["string", "null"]},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+        "status": {"enum": ["reported", "confidential", "not_published"]},
+        "flags": {"type": "object"},
+        "footnotes": {"type": "array", "items": {"type": ["string", "null"]}},
+        "licence": {"$ref": "#/definitions/licence"}
+      },
+      "if": {"properties": {"status": {"enum": ["confidential", "not_published"]}}},
+      "then": {"properties": {"value": {"type": "null"}}}
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "record_type": {"const": "port"},
+        "unlocode": {"type": "string", "pattern": "^[A-Z]{2}[A-Z0-9]{3}$"},
+        "revision": {"type": "integer", "minimum": 1},
+        "release_version": {"type": ["string", "null"]},
+        "state": {"enum": ["active", "marked-for-removal", "removed"]},
+        "record": {
+          "type": "object",
+          "required": ["unlocode", "country", "location", "function"],
+          "properties": {
+            "name": {"type": ["string", "null"]},
+            "subdivision": {"type": ["string", "null"]},
+            "function": {"type": "string"},
+            "status": {"type": ["string", "null"]},
+            "coordinates": {"type": ["object", "null"]},
+            "change_indicator": {"type": ["string", "null"]}
+          }
+        }
+      },
+      "required": ["record_type", "unlocode", "revision", "state", "record"]
+    },
+    {
+      "properties": {
+        "record_type": {"const": "series"},
+        "contract": {"const": "noesis-logistics-record-v1"},
+        "series_id": {"type": "string", "pattern": "^logistics-series:"},
+        "provider": {"enum": ["unctadstat", "eurostat-maritime", "bls-ppi"]},
+        "source_series_id": {"type": "string", "minLength": 1},
+        "concept": {"type": "string", "minLength": 1},
+        "measure_label": {"type": "string", "minLength": 1},
+        "frequency": {"enum": ["annual", "semiannual", "quarterly", "monthly"]},
+        "geography": {"$ref": "#/definitions/geography"},
+        "partner": {"$ref": "#/definitions/partner"},
+        "definition": {"type": "object", "required": ["reference"]},
+        "licence": {"$ref": "#/definitions/licence"},
+        "freight_index": {"$ref": "#/definitions/freight_index"},
+        "economic_series": {"type": "object", "required": ["domain", "series_id"]}
+      },
+      "required": ["record_type", "series_id", "provider", "source_series_id", "concept", "measure_label",
+                   "frequency", "geography", "definition", "licence", "economic_series"]
+    },
+    {
+      "properties": {
+        "record_type": {"const": "vintage"},
+        "vintage_id": {"type": "string"},
+        "series_id": {"type": "string"},
+        "release_id": {"type": "string"},
+        "release_at_ms": {"type": "integer"},
+        "release_basis": {"enum": ["declared_release", "eurostat_dataset_updated", "retrieval_time"]},
+        "retrieved_at_ms": {"type": "integer"},
+        "revision_of": {"type": ["string", "null"]},
+        "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
+      },
+      "required": ["record_type", "vintage_id", "series_id", "release_id", "release_at_ms", "release_basis",
+                   "retrieved_at_ms"]
+    },
+    {
+      "properties": {
+        "record_type": {"const": "port_match"},
+        "match_id": {"type": "string"},
+        "source": {"type": "object", "required": ["scheme", "code"]},
+        "unlocode": {"type": "string"},
+        "basis": {"enum": ["embedded-unlocode", "published-crosswalk", "name", "coordinates"]},
+        "exact": {"type": "boolean"},
+        "state": {"enum": ["proposed", "accepted", "rejected", "reverted", "superseded", "target-removed"]}
+      },
+      "required": ["record_type", "match_id", "source", "unlocode", "basis", "exact", "state"],
+      "allOf": [{"if": {"properties": {"basis": {"enum": ["name", "coordinates"]}}},
+                 "then": {"properties": {"exact": {"const": false}}}}]
+    },
+    {
+      "properties": {
+        "record_type": {"const": "link"},
+        "link_id": {"type": "string"},
+        "series_id": {"type": "string"},
+        "target": {"type": "object", "required": ["kind", "id"],
+                   "properties": {"kind": {"enum": ["trade-series", "economic-series"]}}},
+        "basis": {"enum": ["shared-m49-code", "shared-eurostat-geo-code", "unlocode-country-code",
+                           "shared-country-code", "explicit-citation"]},
+        "side_by_side": {"type": "object", "required": ["combined"], "properties": {"combined": {"const": false}}}
+      },
+      "required": ["record_type", "link_id", "series_id", "target", "basis", "side_by_side"]
+    }
+  ]
+}

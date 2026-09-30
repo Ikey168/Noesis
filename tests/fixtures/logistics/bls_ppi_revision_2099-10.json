@@ -1,0 +1,106 @@
+{
+ "document": {
+  "index_id": "bls-ppi-deep-sea-freight",
+  "label": "BLS PPI deep sea freight transportation (PCU483111483111), 2099",
+  "params": {
+   "endyear": "2099",
+   "startyear": "2099"
+  },
+  "release": {
+   "label": "PPI release of 2099-10-15 (declared by the operator; verify)",
+   "published_on": "2099-10-15"
+  },
+  "series": {
+   "base": "December 2003=100 (verify)",
+   "concept": "freight_price_index",
+   "definition": {
+    "reference": "https://www.bls.gov/ppi/",
+    "text": "Industry PPI for NAICS 483111, deep sea freight transportation"
+   },
+   "frequency": "monthly",
+   "geography": {
+    "code": "US",
+    "kind": "country",
+    "label": "United States",
+    "scheme": "iso2"
+   },
+   "measure_label": "Producer price index: deep sea freight transportation",
+   "unit": "index"
+  },
+  "series_id": "PCU483111483111"
+ },
+ "native_pages": [
+  {
+   "body": {
+    "Results": {
+     "series": [
+      {
+       "data": [
+        {
+         "footnotes": [
+          {
+           "code": "P",
+           "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+          }
+         ],
+         "latest": "true",
+         "period": "M09",
+         "periodName": "September",
+         "value": "114.0",
+         "year": "2099"
+        },
+        {
+         "footnotes": [
+          {
+           "code": "P",
+           "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+          }
+         ],
+         "period": "M08",
+         "periodName": "August",
+         "value": "113.1",
+         "year": "2099"
+        },
+        {
+         "footnotes": [
+          {
+           "code": "P",
+           "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+          }
+         ],
+         "period": "M07",
+         "periodName": "July",
+         "value": "111.9",
+         "year": "2099"
+        },
+        {
+         "footnotes": [
+          {}
+         ],
+         "period": "M06",
+         "periodName": "June",
+         "value": "110.4",
+         "year": "2099"
+        }
+       ],
+       "seriesID": "PCU483111483111"
+      }
+     ]
+    },
+    "message": [],
+    "responseTime": 42,
+    "status": "REQUEST_SUCCEEDED"
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/publicAPI/v2/timeseries/data/PCU483111483111?endyear=2099&startyear=2099",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data) and dated in 2097-2099 so it cannot be mistaken for a published figure.",
+ "scenarios": [
+  "revised-preliminary-value",
+  "new-month"
+ ]
+}
