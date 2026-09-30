@@ -1,0 +1,28 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/echo/case_rest_services.get_case_info?output=JSON&p_id=09-2025-9901",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n  \"Results\": {\n    \"Message\": \"Success\",\n    \"CaseNumber\": \"09-2025-9901\",\n    \"CaseName\": \"Exampla Trading Ltd\",\n    \"CivilCriminal\": \"Civil\",\n    \"CaseCategoryDesc\": \"Judicial\",\n    \"CaseStatusDesc\": \"Active\",\n    \"FiledDate\": \"03/04/2025\",\n    \"SettlementDate\": null,\n    \"EnforcementOutcome\": null,\n    \"ViolationDescription\": \"Failure to implement a risk management program for a covered process\",\n    \"CourtDocketNumber\": \"3:25-cv-09903\",\n    \"Court\": \"N.D. Cal.\",\n    \"DataRefreshDate\": \"2025-04-05\",\n    \"Laws\": [{\"Law\": \"CAA\", \"Sections\": \"112(r)\"}],\n    \"Defendants\": [{\"DefendantName\": \"Exampla Trading Ltd\"}, {\"DefendantName\": \"Casey Placeholder\"}],\n    \"Facilities\": [{\"RegistryID\": \"110099990001\", \"FacilityName\": \"Exampla Trading Ltd - Bayview Terminal\", \"Latitude\": \"37.8001\", \"Longitude\": \"-122.3002\", \"State\": \"CA\"}],\n    \"Penalties\": {}\n  }\n}\n"
+  },
+  {
+   "request": "/echo/case_rest_services.get_case_info?output=JSON&p_id=05-2024-9902",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n  \"Results\": {\n    \"Message\": \"Success\",\n    \"CaseNumber\": \"05-2024-9902\",\n    \"CaseName\": \"Northwind Chemicals Inc.\",\n    \"CivilCriminal\": \"Civil\",\n    \"CaseCategoryDesc\": \"Administrative - Formal\",\n    \"CaseStatusDesc\": \"Closed\",\n    \"FiledDate\": \"10/01/2024\",\n    \"SettlementDate\": \"01/20/2025\",\n    \"EnforcementOutcome\": \"Final Order with Penalty\",\n    \"ViolationDescription\": \"Late submission of toxic release inventory reports\",\n    \"DataRefreshDate\": \"2025-02-01\",\n    \"Laws\": [{\"Law\": \"EPCRA\", \"Sections\": \"313\"}],\n    \"Defendants\": [{\"DefendantName\": \"Northwind Chemicals Inc.\"}],\n    \"Facilities\": [{\"RegistryID\": \"110099990002\", \"FacilityName\": \"Northwind Chemicals Inc. - Lakeside Plant\", \"Latitude\": null, \"Longitude\": null, \"State\": \"OH\"}],\n    \"Penalties\": {\"FedPenalty\": \"$42,000\", \"CostRecovery\": \"$0\"}\n  }\n}\n"
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every action, respondent, identifier, facility and amount is fictional placeholder data; individuals are placeholders and are not stored by the adapter.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-respondents",
+  "individuals-minimised"
+ ]
+}
