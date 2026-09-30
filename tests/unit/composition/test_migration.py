@@ -75,6 +75,7 @@ PROJECTOR_OWNERS = {
     "noesis-logistics-record-v1": "src.kb.logistics_series",
     "noesis-competition-record-v1": "src.kb.competition",  # #2217
     "noesis-media-metadata-record-v1": "src.kb.media_metadata",  # Cultural Collections media metadata (#2225)
+    "noesis-campaign-finance-record-v1": "src.kb.campaign_finance_records",
 }
 
 

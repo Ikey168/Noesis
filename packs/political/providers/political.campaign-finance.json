@@ -1,0 +1,356 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "political.campaign-finance",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.campaign_finance_records",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "political.campaign-finance",
+      "contract": {
+        "name": "noesis-campaign-finance-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "committee-totals-as-of",
+        "filing-amendment-chain",
+        "list-filing-items",
+        "affiliate-donations",
+        "contest-filings",
+        "export-evidence-bundle",
+        "list-identity-candidates",
+        "list-links",
+        "propose-identity-matches",
+        "review-identity-match",
+        "revert-identity-match",
+        "link-contests",
+        "link-lobbying",
+        "link-ownership",
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "US FEC (OpenFEC committees, candidates, filings, Schedules A, B and E) and UK Electoral Commission (donations and spending exports) records as published, keyed by official identifiers, each with source, record revision, filing revision and observation time",
+        "amendments": "every filing version is its own record with its amendment chain and most-recent flag as published; amended versions are never overwritten or re-aggregated without naming the versions used",
+        "totals": "totals are as reported per filing version; any cross-period sum is labelled derived and lists the versions used",
+        "matching": "committee, candidate, party and organisational-donor matches are reviewable, reversible identity decisions; nothing is merged or auto-accepted",
+        "minimisation": "the CF01 donor data-minimisation decision: individual donors and payees keep no name, address, employer, occupation or donor id, are never matched or expanded, and individual contributions are returned only with the individual-items scope",
+        "exclusions": "no influence scoring, no dark-money or undisclosed-funding inference and no profiling of individual donors"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "committee-totals-as-of",
+      "tool": "noesis-knowledge-engine.campaign_finance_totals_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "filing-amendment-chain",
+      "tool": "noesis-knowledge-engine.campaign_finance_amendment_chain",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-filing-items",
+      "tool": "noesis-knowledge-engine.campaign_finance_filing_items",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "affiliate-donations",
+      "tool": "noesis-knowledge-engine.campaign_finance_affiliate_donations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "contest-filings",
+      "tool": "noesis-knowledge-engine.campaign_finance_contest_filings",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_campaign_finance_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_campaign_finance_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_campaign_finance_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_campaign_finance_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity-match",
+      "tool": "noesis-knowledge-engine.review_campaign_finance_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity-match",
+      "tool": "noesis-knowledge-engine.revert_campaign_finance_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-contests",
+      "tool": "noesis-knowledge-engine.link_campaign_finance_contests",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:political:campaign-finance:write",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-lobbying",
+      "tool": "noesis-knowledge-engine.link_campaign_finance_lobbying",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:political:campaign-finance:write",
+        "knowledge:ownership:read",
+        "knowledge:political:lobbying:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-ownership",
+      "tool": "noesis-knowledge-engine.link_campaign_finance_ownership",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:political:campaign-finance:write",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_campaign_finance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_campaign_finance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_campaign_finance_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "campaign-finance-record",
+      "store": "src.kb.campaign_finance_records",
+      "tables": [
+        "campaign_finance_records",
+        "campaign_finance_revisions",
+        "campaign_finance_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "campaign-finance-link",
+      "store": "src.kb.campaign_finance_links",
+      "tables": [
+        "campaign_finance_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "campaign_finance_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "official-political-records",
+      "version": "1.4.0",
+      "range": "^1.4.0"
+    }
+  ]
+}

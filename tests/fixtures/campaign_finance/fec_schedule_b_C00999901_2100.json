@@ -1,0 +1,60 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 2,
+  "per_page": 100,
+  "last_indexes": null
+ },
+ "results": [
+  {
+   "committee_id": "C00999901",
+   "file_number": 1500101,
+   "sub_id": "4100001",
+   "transaction_id": "SB23.0001",
+   "image_number": "209915001010005",
+   "line_number": "23",
+   "filing_form": "F3P",
+   "report_type": "Q1",
+   "report_year": 2099,
+   "two_year_transaction_period": 2100,
+   "amendment_indicator": "N",
+   "memo_code": null,
+   "entity_type": "ORG",
+   "recipient_name": "EXAMPLE MEDIA BUYING LLC",
+   "recipient_city": "EXAMPLETON",
+   "recipient_state": "EX",
+   "recipient_committee_id": null,
+   "disbursement_amount": 12000.0,
+   "disbursement_date": "2099-03-10",
+   "disbursement_description": "MEDIA BUY",
+   "disbursement_purpose_category": "ADVERTISING"
+  },
+  {
+   "committee_id": "C00999901",
+   "file_number": 1500101,
+   "sub_id": "4100002",
+   "transaction_id": "SB23.0002",
+   "image_number": "209915001010006",
+   "line_number": "23",
+   "filing_form": "F3P",
+   "report_type": "Q1",
+   "report_year": 2099,
+   "two_year_transaction_period": 2100,
+   "amendment_indicator": "N",
+   "memo_code": null,
+   "entity_type": "IND",
+   "recipient_name": "SAMPLE, JO",
+   "recipient_first_name": "JO",
+   "recipient_last_name": "SAMPLE",
+   "recipient_street_1": "3 MOCK LANE",
+   "recipient_city": "EXAMPLETON",
+   "recipient_state": "EX",
+   "recipient_zip": "99004",
+   "disbursement_amount": 3000.0,
+   "disbursement_date": "2099-03-31",
+   "disbursement_description": "SALARY",
+   "disbursement_purpose_category": "ADMINISTRATIVE",
+   "memo_text": "PAYROLL FOR SAMPLE, JO"
+  }
+ ]
+}

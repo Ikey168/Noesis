@@ -230,6 +230,11 @@ MATRIX = {
     "Company to cited competition cases and state aid":
         "tests/unit/domains/test_competition_acceptance.py::"
         "test_company_to_cited_cases_and_aid_awards_with_stage_history",
+    # The Political campaign-finance features' offline journey (#2526) composes its record owner with the
+    # source-pack runtime, ownership identity and graph, the elections and lobbying features and subscriptions.
+    "Committee or organisation to cited campaign-finance filings":
+        "tests/unit/domains/test_campaign_finance_acceptance.py::"
+        "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
 }
 
 

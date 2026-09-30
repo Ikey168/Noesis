@@ -388,6 +388,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"competition"})
 # Cultural Collections books, music and authority metadata (Open Library, MusicBrainz, Wikidata, DNB, LoC; #2225).
 NATIVE_CONNECTOR_MODULES["media-metadata"] = "src.ingestion.media_metadata_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
+# Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
+NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
 
 
 def native_connector_module(connector: str) -> Any:

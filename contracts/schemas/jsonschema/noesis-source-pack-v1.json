@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -823,6 +823,25 @@
               "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
               "coverage_decision": {"type": "string", "minLength": 1},
               "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "campaign_finance": {
+            "type": "object",
+            "description": "One bounded OpenFEC or UK Electoral Commission selection for the campaign-finance connector (#2209): provider, documented format, namespace, LIVE_VERIFICATION status, the CF01 donor data-minimisation policy and the declared units (FEC committees, candidates or committee two-year periods; Commission regulated entities with a date window of at most one year).",
+            "required": ["provider", "format", "selection", "live_verification", "minimisation"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["openfec", "uk-electoral-commission"]},
+              "format": {"enum": ["openfec-committee-history-json", "openfec-candidate-history-json", "openfec-filings-json", "openfec-schedule-a-json", "openfec-schedule-b-json", "openfec-schedule-e-json", "ukec-donations-csv", "ukec-spending-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "minimisation": {"const": "campaign-finance-minimisation-v1"},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "committees": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^C\\d{8}$"}},
+                "candidates": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[HSP][0-9A-Z]{8}$"}},
+                "committee_cycles": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["committee_id", "cycle"], "properties": {"committee_id": {"type": "string", "pattern": "^C\\d{8}$"}, "cycle": {"type": "integer", "minimum": 1980}}, "additionalProperties": false}},
+                "regulated_entities": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["id", "from", "to"], "properties": {"id": {"type": "string", "pattern": "^\\d{1,8}$"}, "from": {"type": "string", "format": "date"}, "to": {"type": "string", "format": "date"}}, "additionalProperties": false}}
+              }, "additionalProperties": false}
             },
             "additionalProperties": false
           },

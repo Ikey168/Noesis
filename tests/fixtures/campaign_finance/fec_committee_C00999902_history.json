@@ -1,0 +1,30 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 1,
+  "page": 1,
+  "pages": 1,
+  "per_page": 100
+ },
+ "results": [
+  {
+   "committee_id": "C00999902",
+   "cycle": 2100,
+   "name": "EXAMPLE INDUSTRIES INC POLITICAL ACTION COMMITTEE",
+   "committee_type": "Q",
+   "committee_type_full": "PAC - Qualified",
+   "designation": "B",
+   "designation_full": "Lobbyist/Registrant PAC",
+   "organization_type": "C",
+   "party": null,
+   "state": "EX",
+   "filing_frequency": "Q",
+   "affiliated_committee_name": "EXAMPLE INDUSTRIES INC",
+   "candidate_ids": [],
+   "first_file_date": "2090-02-01",
+   "last_file_date": "2099-04-10",
+   "last_f1_date": "2095-03-01",
+   "treasurer_name": "PLACEHOLDER, CHRIS"
+  }
+ ]
+}

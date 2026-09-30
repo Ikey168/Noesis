@@ -1,0 +1,51 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-campaign-finance-record-v1.json",
+  "title": "Campaign-finance record as published by a regulator",
+  "description": "One acquired record (#2209): an FEC committee or candidate registration, a UK Electoral Commission regulated entity, a filing version (an FEC file number; a Commission return per regulated entity and reporting period or election), or a line item (contribution, expenditure, independent expenditure) tied to the filing version it was reported in. Each carries its provider, revision stamp or order, locator and evidence origin. Filing versions keep their amendment indicator, amendment chain and most-recent flag as published; amended versions are separate records and never overwritten. Line items keep amounts and dates as reported and memo items labelled. A natural-person counterparty (FEC entity type IND or CAN, Commission donor status Individual) carries no name, address, city, ZIP or postcode, employer, occupation, donor or contributor id, per-person aggregate or memo text (CF01 minimisation decision). No record carries an influence score, an inferred funder or a donor profile.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "jurisdiction", "record_kind", "record_key", "committee_key", "filing_key", "filing_group", "native_revision", "revision_order", "effective_on", "title", "locator", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-campaign-finance-record-v1"},
+    "format": {"enum": ["openfec-committee-history-json", "openfec-candidate-history-json", "openfec-filings-json", "openfec-schedule-a-json", "openfec-schedule-b-json", "openfec-schedule-e-json", "ukec-donations-csv", "ukec-spending-csv"]},
+    "provider": {"enum": ["openfec", "uk-electoral-commission"]},
+    "jurisdiction": {"enum": ["US", "GB"]},
+    "record_kind": {"enum": ["committee", "candidate", "regulated-entity", "filing", "contribution", "expenditure", "independent-expenditure"]},
+    "record_key": {"type": "string", "pattern": "^campaign-finance:(fec|ukec):[a-z-]+:[A-Za-z0-9:._-]+$"},
+    "committee_key": {"type": ["string", "null"], "pattern": "^campaign-finance:(fec:committee|ukec:entity):[A-Za-z0-9]+$"},
+    "filing_key": {"type": ["string", "null"], "pattern": "^campaign-finance:(fec|ukec):filing:[A-Za-z0-9:._-]+$"},
+    "filing_group": {"type": ["string", "null"]},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "effective_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "minimisation": {
+      "type": "object",
+      "required": ["policy", "counterparty", "withheld"],
+      "properties": {
+        "policy": {"const": "campaign-finance-minimisation-v1"},
+        "counterparty": {"enum": ["natural-person", "organisation", null]},
+        "withheld": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "fields": {
+      "type": "object",
+      "properties": {
+        "counterparty": {
+          "type": "object",
+          "required": ["kind"],
+          "properties": {"kind": {"enum": ["natural-person", "organisation"]}},
+          "if": {"properties": {"kind": {"const": "natural-person"}}},
+          "then": {"properties": {"name": {"type": "null"}}, "propertyNames": {"enum": ["kind", "entity_type", "status", "name"]}}
+        },
+        "amendment_chain": {"type": "array", "items": {"type": "integer"}},
+        "most_recent": {"type": "boolean"},
+        "totals_as_reported": {"type": ["object", "null"]}
+      }
+    }
+  },
+  "not": {"anyOf": [{"required": ["influence_score"]}, {"required": ["dark_money"]}, {"required": ["inferred_funder"]},
+                    {"required": ["donor_profile"]}, {"required": ["score"]}]}
+}

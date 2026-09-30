@@ -1,0 +1,102 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 3,
+  "page": 1,
+  "pages": 1,
+  "per_page": 100
+ },
+ "results": [
+  {
+   "committee_id": "C00999901",
+   "file_number": 1500101,
+   "form_type": "F3P",
+   "report_type": "Q1",
+   "report_type_full": "APRIL QUARTERLY",
+   "report_year": 2099,
+   "cycle": 2100,
+   "coverage_start_date": "2099-01-01",
+   "coverage_end_date": "2099-03-31",
+   "receipt_date": "2099-04-15",
+   "amendment_indicator": "N",
+   "amendment_indicator_full": "NEW",
+   "amendment_chain": [
+    1500101
+   ],
+   "most_recent": false,
+   "most_recent_file_number": 1500150,
+   "previous_file_number": null,
+   "is_amended": true,
+   "beginning_image_number": "209915001010001",
+   "pdf_url": "https://docquery.fec.gov/pdf/101/209915001010001/209915001010001.pdf",
+   "fec_url": "https://docquery.fec.gov/cgi-bin/forms/C00999901/1500101/",
+   "document_description": "Q1 2099",
+   "total_receipts": 107500.0,
+   "total_disbursements": 15000.0,
+   "cash_on_hand_beginning_period": 20000.0,
+   "cash_on_hand_end_period": 112500.0,
+   "total_individual_contributions": 102500.0
+  },
+  {
+   "committee_id": "C00999901",
+   "file_number": 1500150,
+   "form_type": "F3P",
+   "report_type": "Q1",
+   "report_type_full": "APRIL QUARTERLY",
+   "report_year": 2099,
+   "cycle": 2100,
+   "coverage_start_date": "2099-01-01",
+   "coverage_end_date": "2099-03-31",
+   "receipt_date": "2099-05-20",
+   "amendment_indicator": "A",
+   "amendment_indicator_full": "AMENDMENT",
+   "amendment_chain": [
+    1500101,
+    1500150
+   ],
+   "most_recent": true,
+   "most_recent_file_number": 1500150,
+   "previous_file_number": 1500101,
+   "is_amended": false,
+   "beginning_image_number": "209915001500001",
+   "pdf_url": "https://docquery.fec.gov/pdf/150/209915001500001/209915001500001.pdf",
+   "fec_url": "https://docquery.fec.gov/cgi-bin/forms/C00999901/1500150/",
+   "document_description": "Q1 2099",
+   "total_receipts": 107400.0,
+   "total_disbursements": 15000.0,
+   "cash_on_hand_beginning_period": 20000.0,
+   "cash_on_hand_end_period": 112400.0,
+   "total_individual_contributions": 102400.0
+  },
+  {
+   "committee_id": "C00999901",
+   "file_number": 1500201,
+   "form_type": "F3P",
+   "report_type": "Q2",
+   "report_type_full": "JULY QUARTERLY",
+   "report_year": 2099,
+   "cycle": 2100,
+   "coverage_start_date": "2099-04-01",
+   "coverage_end_date": "2099-06-30",
+   "receipt_date": "2099-07-15",
+   "amendment_indicator": "N",
+   "amendment_indicator_full": "NEW",
+   "amendment_chain": [
+    1500201
+   ],
+   "most_recent": true,
+   "most_recent_file_number": 1500201,
+   "previous_file_number": null,
+   "is_amended": false,
+   "beginning_image_number": "209915002010001",
+   "pdf_url": "https://docquery.fec.gov/pdf/201/209915002010001/209915002010001.pdf",
+   "fec_url": "https://docquery.fec.gov/cgi-bin/forms/C00999901/1500201/",
+   "document_description": "Q2 2099",
+   "total_receipts": 64000.0,
+   "total_disbursements": 30000.0,
+   "cash_on_hand_beginning_period": 112400.0,
+   "cash_on_hand_end_period": 146400.0,
+   "total_individual_contributions": 60000.0
+  }
+ ]
+}

@@ -1,0 +1,3 @@
+ECRef,RegulatedEntityId,RegulatedEntityName,RegulatedEntityType,ElectionName,ExpenseCategoryName,SupplierName,Amount,DateIncurred,DatePaid,RegisterName
+RS0990001,9901,Example Party,Political Party,UK Parliamentary General Election 2099,Advertising,Example Print Ltd,"£8,000.00",20/04/2099,30/04/2099,Great Britain
+RS0990002,9901,Example Party,Political Party,UK Parliamentary General Election 2099,Rallies and other events,Example Venues Ltd,"£3,500.00",01/05/2099,05/05/2099,Great Britain

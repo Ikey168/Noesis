@@ -1,0 +1,36 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"api_version\": \"1.0\",\n \"pagination\": {\n  \"count\": 2,\n  \"page\": 1,\n  \"pages\": 1,\n  \"per_page\": 100\n },\n \"results\": [\n  {\n   \"committee_id\": \"C00999901\",\n   \"cycle\": 2100,\n   \"name\": \"ALEX EXAMPLE FOR PRESIDENT\",\n   \"committee_type\": \"P\",\n   \"committee_type_full\": \"Presidential\",\n   \"designation\": \"P\",\n   \"designation_full\": \"Principal campaign committee\",\n   \"organization_type\": null,\n   \"party\": \"EXP\",\n   \"state\": \"EX\",\n   \"filing_frequency\": \"Q\",\n   \"affiliated_committee_name\": null,\n   \"candidate_ids\": [\n    \"P99000001\"\n   ],\n   \"first_file_date\": \"2097-05-01\",\n   \"last_file_date\": \"2099-07-15\",\n   \"last_f1_date\": \"2099-01-10\",\n   \"treasurer_name\": \"SAMPLE, TREASURER\",\n   \"street_1\": \"1 EXAMPLE WAY\",\n   \"city\": \"EXAMPLETON\",\n   \"zip\": \"99001\"\n  },\n  {\n   \"committee_id\": \"C00999901\",\n   \"cycle\": 2098,\n   \"name\": \"EXAMPLE 2100 EXPLORATORY COMMITTEE\",\n   \"committee_type\": \"P\",\n   \"committee_type_full\": \"Presidential\",\n   \"designation\": \"A\",\n   \"designation_full\": \"Authorized by a candidate\",\n   \"organization_type\": null,\n   \"party\": \"EXP\",\n   \"state\": \"EX\",\n   \"filing_frequency\": \"Q\",\n   \"affiliated_committee_name\": null,\n   \"candidate_ids\": [\n    \"P99000001\"\n   ],\n   \"first_file_date\": \"2097-05-01\",\n   \"last_file_date\": \"2098-12-31\",\n   \"last_f1_date\": \"2097-05-01\",\n   \"treasurer_name\": \"SAMPLE, TREASURER\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1/committee/C00999901/history/?page=1&per_page=100&sort=-cycle",
+   "status": 200
+  },
+  {
+   "body": "{\n \"api_version\": \"1.0\",\n \"pagination\": {\n  \"count\": 1,\n  \"page\": 1,\n  \"pages\": 1,\n  \"per_page\": 100\n },\n \"results\": [\n  {\n   \"committee_id\": \"C00999902\",\n   \"cycle\": 2100,\n   \"name\": \"EXAMPLE INDUSTRIES INC POLITICAL ACTION COMMITTEE\",\n   \"committee_type\": \"Q\",\n   \"committee_type_full\": \"PAC - Qualified\",\n   \"designation\": \"B\",\n   \"designation_full\": \"Lobbyist/Registrant PAC\",\n   \"organization_type\": \"C\",\n   \"party\": null,\n   \"state\": \"EX\",\n   \"filing_frequency\": \"Q\",\n   \"affiliated_committee_name\": \"EXAMPLE INDUSTRIES INC\",\n   \"candidate_ids\": [],\n   \"first_file_date\": \"2090-02-01\",\n   \"last_file_date\": \"2099-04-10\",\n   \"last_f1_date\": \"2095-03-01\",\n   \"treasurer_name\": \"PLACEHOLDER, CHRIS\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1/committee/C00999902/history/?page=1&per_page=100&sort=-cycle",
+   "status": 200
+  },
+  {
+   "body": "{\n \"api_version\": \"1.0\",\n \"pagination\": {\n  \"count\": 1,\n  \"page\": 1,\n  \"pages\": 1,\n  \"per_page\": 100\n },\n \"results\": [\n  {\n   \"committee_id\": \"C00999903\",\n   \"cycle\": 2100,\n   \"name\": \"FUTURE EXAMPLES ACTION FUND\",\n   \"committee_type\": \"O\",\n   \"committee_type_full\": \"Super PAC (Independent Expenditure-Only)\",\n   \"designation\": \"U\",\n   \"designation_full\": \"Unauthorized\",\n   \"organization_type\": null,\n   \"party\": null,\n   \"state\": \"EX\",\n   \"filing_frequency\": \"T\",\n   \"affiliated_committee_name\": null,\n   \"candidate_ids\": [],\n   \"first_file_date\": \"2099-06-01\",\n   \"last_file_date\": \"2099-12-31\",\n   \"last_f1_date\": \"2099-06-01\",\n   \"treasurer_name\": \"MOCK, DANA\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1/committee/C00999903/history/?page=1&per_page=100&sort=-cycle",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (cycle 2100 and state EX are placeholders); every committee, candidate and organisation is fictional and individual donors carry placeholder names that the parser discards (CF01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-individuals"
+ ]
+}

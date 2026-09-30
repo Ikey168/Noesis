@@ -452,6 +452,16 @@ def _media_metadata_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-media-metadata-record-v1"] = _media_metadata_projector
 
+
+def _campaign_finance_projector(conn: Any) -> Any:
+    from src.kb.campaign_finance_records import CampaignFinanceProjector
+
+    return CampaignFinanceProjector(conn)
+
+
+# Political campaign-finance features (#2209).
+PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,
