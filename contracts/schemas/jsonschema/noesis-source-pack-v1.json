@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -841,6 +841,30 @@
                 "candidates": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[HSP][0-9A-Z]{8}$"}},
                 "committee_cycles": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["committee_id", "cycle"], "properties": {"committee_id": {"type": "string", "pattern": "^C\\d{8}$"}, "cycle": {"type": "integer", "minimum": 1980}}, "additionalProperties": false}},
                 "regulated_entities": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["id", "from", "to"], "properties": {"id": {"type": "string", "pattern": "^\\d{1,8}$"}, "from": {"type": "string", "format": "date"}, "to": {"type": "string", "format": "date"}}, "additionalProperties": false}}
+              }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "medical_devices": {
+            "type": "object",
+            "description": "One bounded openFDA device, AccessGUDID or EUDAMED selection for the medical-devices connector (#2654): provider, documented format, namespace, LIVE_VERIFICATION status, the MD01 data-minimisation policy and the declared units (510(k), PMA or recall numbers, product codes, MAUDE product-code windows, primary DIs, SRNs, Basic UDI-DIs or certificates).",
+            "required": ["provider", "format", "selection", "live_verification", "minimisation"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["openfda-device", "accessgudid", "eudamed"]},
+              "format": {"enum": ["openfda-510k-json", "openfda-pma-json", "openfda-classification-json", "openfda-recall-json", "openfda-event-json", "gudid-device-json", "eudamed-actor-json", "eudamed-device-json", "eudamed-certificate-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "minimisation": {"const": "medical-devices-minimisation-v1"},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "k_numbers": {"type": "array", "minItems": 1, "maxItems": 25},
+                "pma_numbers": {"type": "array", "minItems": 1, "maxItems": 25},
+                "product_codes": {"type": "array", "minItems": 1, "maxItems": 25},
+                "recall_numbers": {"type": "array", "minItems": 1, "maxItems": 25},
+                "event_windows": {"type": "array", "minItems": 1, "maxItems": 25},
+                "device_identifiers": {"type": "array", "minItems": 1, "maxItems": 25},
+                "actors": {"type": "array", "minItems": 1, "maxItems": 25},
+                "basic_udi_dis": {"type": "array", "minItems": 1, "maxItems": 25},
+                "certificates": {"type": "array", "minItems": 1, "maxItems": 25}
               }, "additionalProperties": false}
             },
             "additionalProperties": false

@@ -78,7 +78,7 @@ def test_a_case_definition_change_is_not_presented_as_a_data_revision(env):
     from src.ingestion.source_packs import SourcePackStore, validate_source_pack
 
     manifest = json.loads(h.PACK.read_text())
-    manifest["version"] = "0.1.5"
+    manifest["version"] = "0.1.6"  # after upgrade_rki (0.1.5); 0.1.4 is the devices release (#2654)
     source = next(s for s in manifest["sources"] if s["source_id"] == h.SOURCES["rki"])
     source["surveillance"]["documents"] = [document]
     SourcePackStore(env.conn).install(

@@ -1,0 +1,21 @@
+{
+ "content": [
+  {
+   "certificateNumber": "EX-9999-0001",
+   "notifiedBodyNumber": "9999",
+   "notifiedBodyName": "Fictional Notified Body 9999",
+   "certificateType": "EU technical documentation assessment certificate (MDR Annex IX Chapter II)",
+   "certificateStatus": "Valid",
+   "issueDate": "2022-01-10",
+   "startingValidityDate": "2022-01-10",
+   "expiryDate": "2027-01-09",
+   "manufacturerSrn": "US-MF-000099902",
+   "basicUdiDis": [
+    "0899999EXFLOWSENSEZ7"
+   ],
+   "statusChangeReason": null,
+   "versionNumber": "1",
+   "lastUpdateDate": "2022-01-10"
+  }
+ ]
+}

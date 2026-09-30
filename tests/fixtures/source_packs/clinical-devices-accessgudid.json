@@ -1,0 +1,25 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"gudid\": {\n  \"device\": {\n   \"publicVersionNumber\": \"1\",\n   \"publicVersionDate\": \"2021-04-01\",\n   \"publicVersionStatus\": \"Update\",\n   \"deviceRecordStatus\": \"Published\",\n   \"devicePublishDate\": \"2021-04-01\",\n   \"brandName\": \"Exampla FlowSense\",\n   \"versionModelNumber\": \"FS-100\",\n   \"catalogNumber\": \"FS-100-US\",\n   \"companyName\": \"EXAMPLA MEDICAL DEVICES INC.\",\n   \"dunsNumber\": \"999000111\",\n   \"deviceDescription\": \"Exampla FlowSense (fictional Noesis fixture)\",\n   \"deviceCommDistributionStatus\": \"In Commercial Distribution\",\n   \"identifiers\": {\n    \"identifier\": [\n     {\n      \"deviceId\": \"00899999000011\",\n      \"deviceIdType\": \"Primary\",\n      \"deviceIdIssuingAgency\": \"GS1\"\n     }\n    ]\n   },\n   \"productCodes\": {\n    \"fdaProductCode\": [\n     {\n      \"productCode\": \"ZXA\",\n      \"productCodeName\": \"Pump, Infusion (fictional)\"\n     }\n    ]\n   },\n   \"premarketSubmissions\": {\n    \"premarketSubmission\": [\n     {\n      \"submissionNumber\": \"K999001\",\n      \"supplementNumber\": null\n     }\n    ]\n   },\n   \"gmdnTerms\": {\n    \"gmdn\": [\n     {\n      \"gmdnPTName\": \"General-purpose infusion pump\"\n     }\n    ]\n   },\n   \"contacts\": {\n    \"customerContact\": [\n     {\n      \"phone\": \"+1(555)0100\",\n      \"email\": \"support@example.invalid\"\n     }\n    ]\n   }\n  }\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v3/devices/lookup.json?di=00899999000011",
+   "status": 200
+  },
+  {
+   "body": "{\n \"gudid\": {\n  \"device\": {\n   \"publicVersionNumber\": \"3\",\n   \"publicVersionDate\": \"2024-09-01\",\n   \"publicVersionStatus\": \"Update\",\n   \"deviceRecordStatus\": \"Published\",\n   \"devicePublishDate\": \"2021-04-01\",\n   \"brandName\": \"Exampla CardioPace\",\n   \"versionModelNumber\": \"CP-7\",\n   \"catalogNumber\": \"CP-7-US\",\n   \"companyName\": \"EXAMPLA MEDICAL DEVICES INC.\",\n   \"dunsNumber\": \"999000111\",\n   \"deviceDescription\": \"Exampla CardioPace (fictional Noesis fixture)\",\n   \"deviceCommDistributionStatus\": \"In Commercial Distribution\",\n   \"identifiers\": {\n    \"identifier\": [\n     {\n      \"deviceId\": \"00899999000028\",\n      \"deviceIdType\": \"Primary\",\n      \"deviceIdIssuingAgency\": \"GS1\"\n     }\n    ]\n   },\n   \"productCodes\": {\n    \"fdaProductCode\": [\n     {\n      \"productCode\": \"ZXB\",\n      \"productCodeName\": \"Electrode, Pacemaker, Permanent (fictional)\"\n     }\n    ]\n   },\n   \"premarketSubmissions\": {\n    \"premarketSubmission\": [\n     {\n      \"submissionNumber\": \"P999001\",\n      \"supplementNumber\": \"S001\"\n     },\n     {\n      \"submissionNumber\": \"NDA999001\",\n      \"supplementNumber\": null\n     }\n    ]\n   },\n   \"gmdnTerms\": {\n    \"gmdn\": [\n     {\n      \"gmdnPTName\": \"Implantable pacemaker lead\"\n     }\n    ]\n   },\n   \"contacts\": {\n    \"customerContact\": [\n     {\n      \"phone\": \"+1(555)0100\",\n      \"email\": \"support@example.invalid\"\n     }\n    ]\n   }\n  }\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v3/devices/lookup.json?di=00899999000028",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

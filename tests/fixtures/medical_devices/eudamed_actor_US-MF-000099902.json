@@ -1,0 +1,28 @@
+{
+ "content": [
+  {
+   "srn": "US-MF-000099902",
+   "name": "Exampla Medical Devices Inc.",
+   "abbreviatedName": "Exampla",
+   "actorType": "Manufacturer",
+   "countryIso2Code": "US",
+   "city": "Springfield",
+   "actorStatus": "Active",
+   "versionNumber": "2",
+   "lastUpdateDate": "2024-02-01",
+   "contactPersons": [
+    {
+     "firstName": "Max",
+     "lastName": "Fictional",
+     "email": "x@example.invalid"
+    }
+   ],
+   "prrcs": [
+    {
+     "firstName": "Erika",
+     "lastName": "Fictional"
+    }
+   ]
+  }
+ ]
+}

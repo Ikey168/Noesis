@@ -50,7 +50,7 @@ def test_the_bounded_coverage_names_indicator_codes_places_and_years_and_exclude
 
 def test_the_sources_are_entries_of_the_existing_pack_with_pinned_fixtures_that_replay():
     manifest = validate_source_pack(json.loads(h.PACK.read_text()))
-    assert manifest["pack_id"] == "clinical-evidence" and manifest["version"] == "0.1.3"
+    assert manifest["pack_id"] == "clinical-evidence" and manifest["version"] == "0.1.4"  # 0.1.4: devices (#2654)
     capacity = [s for s in manifest["sources"] if s["connector"] == "health-capacity"]
     assert {s["source_id"] for s in capacity} == set(h.SOURCES.values())
     assert {s["surveillance"]["format"] for s in capacity} == set(hs.FORMATS)

@@ -391,6 +391,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 # Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
 NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
+# Clinical Evidence medical devices: openFDA device endpoints, AccessGUDID and EUDAMED public modules (#2654).
+NATIVE_CONNECTOR_MODULES["medical-devices"] = "src.ingestion.medical_devices_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medical-devices"})
 
 
 def native_connector_module(connector: str) -> Any:

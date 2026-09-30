@@ -1,0 +1,27 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2025-06-25",
+  "results": {
+   "skip": 0,
+   "limit": 1,
+   "total": 1
+  }
+ },
+ "results": [
+  {
+   "recall_number": "Z-9901-2025",
+   "event_id": "99901",
+   "classification": "Class II",
+   "status": "Ongoing",
+   "recalling_firm": "Exampla Medical Devices Inc.",
+   "product_type": "Devices",
+   "reason_for_recall": "Software anomaly may cause the pump to display an incorrect occlusion alarm.",
+   "center_classification_date": "20250512",
+   "recall_initiation_date": "20250402",
+   "report_date": "20250521"
+  }
+ ]
+}

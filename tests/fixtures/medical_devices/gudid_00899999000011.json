@@ -1,0 +1,58 @@
+{
+ "gudid": {
+  "device": {
+   "publicVersionNumber": "1",
+   "publicVersionDate": "2021-04-01",
+   "publicVersionStatus": "Update",
+   "deviceRecordStatus": "Published",
+   "devicePublishDate": "2021-04-01",
+   "brandName": "Exampla FlowSense",
+   "versionModelNumber": "FS-100",
+   "catalogNumber": "FS-100-US",
+   "companyName": "EXAMPLA MEDICAL DEVICES INC.",
+   "dunsNumber": "999000111",
+   "deviceDescription": "Exampla FlowSense (fictional Noesis fixture)",
+   "deviceCommDistributionStatus": "In Commercial Distribution",
+   "identifiers": {
+    "identifier": [
+     {
+      "deviceId": "00899999000011",
+      "deviceIdType": "Primary",
+      "deviceIdIssuingAgency": "GS1"
+     }
+    ]
+   },
+   "productCodes": {
+    "fdaProductCode": [
+     {
+      "productCode": "ZXA",
+      "productCodeName": "Pump, Infusion (fictional)"
+     }
+    ]
+   },
+   "premarketSubmissions": {
+    "premarketSubmission": [
+     {
+      "submissionNumber": "K999001",
+      "supplementNumber": null
+     }
+    ]
+   },
+   "gmdnTerms": {
+    "gmdn": [
+     {
+      "gmdnPTName": "General-purpose infusion pump"
+     }
+    ]
+   },
+   "contacts": {
+    "customerContact": [
+     {
+      "phone": "+1(555)0100",
+      "email": "support@example.invalid"
+     }
+    ]
+   }
+  }
+ }
+}

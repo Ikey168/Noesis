@@ -1,0 +1,25 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"content\": [\n  {\n   \"srn\": \"US-MF-000099902\",\n   \"name\": \"Exampla Medical Devices Inc.\",\n   \"abbreviatedName\": \"Exampla\",\n   \"actorType\": \"Manufacturer\",\n   \"countryIso2Code\": \"US\",\n   \"city\": \"Springfield\",\n   \"actorStatus\": \"Active\",\n   \"versionNumber\": \"2\",\n   \"lastUpdateDate\": \"2024-02-01\",\n   \"contactPersons\": [\n    {\n     \"firstName\": \"Max\",\n     \"lastName\": \"Fictional\",\n     \"email\": \"x@example.invalid\"\n    }\n   ],\n   \"prrcs\": [\n    {\n     \"firstName\": \"Erika\",\n     \"lastName\": \"Fictional\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/tools/eudamed/api/actors?srn=US-MF-000099902",
+   "status": 200
+  },
+  {
+   "body": "{\n \"content\": [\n  {\n   \"srn\": \"DE-MF-000099901\",\n   \"name\": \"Northwind Medtech GmbH\",\n   \"abbreviatedName\": \"Northwind\",\n   \"actorType\": \"Manufacturer\",\n   \"countryIso2Code\": \"DE\",\n   \"city\": \"Hamburg\",\n   \"actorStatus\": \"Active\",\n   \"versionNumber\": \"1\",\n   \"lastUpdateDate\": \"2023-11-15\",\n   \"contactPersons\": [\n    {\n     \"firstName\": \"Max\",\n     \"lastName\": \"Fictional\",\n     \"email\": \"x@example.invalid\"\n    }\n   ],\n   \"prrcs\": [\n    {\n     \"firstName\": \"Erika\",\n     \"lastName\": \"Fictional\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/tools/eudamed/api/actors?srn=DE-MF-000099901",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

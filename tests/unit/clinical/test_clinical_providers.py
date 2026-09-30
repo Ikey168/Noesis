@@ -47,11 +47,11 @@ def test_contracts_document_access_identifiers_and_unavailable_fallbacks():
 
 def test_source_pack_declares_each_source_with_pinned_fixtures_that_replay():
     pack = next(p for p in load_source_packs(ROOT / "config/source_packs") if p["pack_id"] == "clinical-evidence")
-    # surveillance (#1917) and medicines (#2214) sources have their own tests
+    # surveillance (#1917), medicines (#2214) and medical-devices (#2654) sources have their own tests
     clinical = [s for s in pack["sources"] if s["mapping"]["target_schema"] == "noesis-clinical-record-v1"]
     assert {s["connector"] for s in clinical} == {"ctgov", "ctis", "eu-ctr", "openfda", "ema-medicines"}
     assert {s["mapping"]["target_schema"] for s in pack["sources"] if s not in clinical} == {
-        "noesis-surveillance-record-v1", "noesis-clinical-medicines-record-v1"}
+        "noesis-surveillance-record-v1", "noesis-clinical-medicines-record-v1", "noesis-medical-device-record-v1"}
     openfda = next(s for s in pack["sources"] if s["connector"] == "openfda")
     assert openfda["auth"] == {"kind": "optional-secret", "secret_ref": "NOESIS_OPENFDA_API_KEY"}
     result = SourcePackConformance(ROOT).offline(pack)
