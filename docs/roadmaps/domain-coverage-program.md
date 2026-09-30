@@ -1,13 +1,15 @@
 # Domain coverage program
 
-Status: planned, 2026-09-30. Decision:
+Status: in progress. Wave 1 delivered offline (tracker
+[#2578](https://github.com/Ikey168/Noesis/issues/2578)); waves 2 and 3 planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
-classified provider names it. Today 56 are covered and 33 are gaps. This
-program fills every gap, one track per subdomain.
+classified provider names it. Today 66 are covered offline and 23 are gaps.
+No subdomain is live-covered yet. This program fills every gap, one track per
+subdomain.
 
 ## How coverage is counted
 
@@ -34,14 +36,18 @@ Each track follows the existing domain-track pattern:
 4. **Live validation.** Open a "Validate live coverage" issue for the track.
 
 Two domains have no bundle suited to their gaps, so two new bundles are
-proposed: `society` (Society and population) and `culture` (Culture and
-leisure). Every other gap becomes a provider in an existing bundle. Existing
+planned: `society` (Society and population), created by wave 1's income
+track, and `culture` (Culture and leisure), still proposed. Every other gap becomes a provider in an existing bundle. Existing
 providers stay where they are; their ids are preserved.
 
 ## Waves
 
 - **Wave 1:** strong links to existing packs, and open sources with known
-  machine access.
+  machine access. Delivered offline: treaties, regulatory enforcement,
+  income and poverty, extractives, water, life-science reference data,
+  research entities, medical devices, platform transparency and fact-checks.
+  Each track's live-validation issue stays open, and several sources are
+  recorded as not implemented on their terms (see each track's source audit).
 - **Wave 2:** useful, with some access or modelling work.
 - **Wave 3:** restrictive terms, registration-gated data or narrow demand.
 
@@ -73,4 +79,4 @@ providers stay where they are; their ids are preserved.
 | `religion-belief` | Culture and leisure | `culture.religion` (new bundle) | Census religion tables; Pew Research religious composition data; ARDA | demographics | 3 |
 | `media-outlets-ownership` | Information and investigation | `news.outlets` | Media Ownership Monitor; MAVISE; KEK media database | news, ownership | 2 |
 
-Wave 1 has 10 tracks, wave 2 has 14 and wave 3 has 9.
+The table lists the 23 remaining gaps: 14 in wave 2 and 9 in wave 3.
