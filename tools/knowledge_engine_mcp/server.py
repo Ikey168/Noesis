@@ -9380,6 +9380,12 @@ from tools.knowledge_engine_mcp.humanitarian import register as register_humanit
 
 register_humanitarian_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.labour import (  # noqa: E402 - registration order
+    register as register_labour_tools,
+)
+
+register_labour_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

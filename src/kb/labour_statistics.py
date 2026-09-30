@@ -1285,7 +1285,7 @@ class LabourQueries:
     def _identity(self):
         from src.kb.labour_identity import LabourIdentity
 
-        return LabourIdentity(self.conn, initialize=True, now=self.store.now)
+        return LabourIdentity(self.conn, initialize=False, now=self.store.now)
 
     def _place_codes(self, namespace: str, place: Any) -> dict[str, Any]:
         """Area codes of a place: accepted mappings for a place id, else the native code as given."""
