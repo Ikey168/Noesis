@@ -332,6 +332,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fisheries"})
 # Humanitarian Response and Conflict Events: ReliefWeb, HDX, UCDP and the gated ACLED entry (#2206).
 NATIVE_CONNECTOR_MODULES["humanitarian"] = "src.ingestion.humanitarian_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
+# Astronomy space-object registration, operators and re-entries (UNOOSA, ESA DISCOS, Aerospace; #2224).
+NATIVE_CONNECTOR_MODULES["astronomy-registration"] = "src.ingestion.astronomy_registration_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy-registration"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -1,0 +1,10 @@
+ST/SG/SER.E/9950
+Notification of change in supervision of a space object (authored fictional document)
+
+1. International designator: 2099-001A
+   Name of space object: FICTSAT 1
+   State previously supervising: Fictland
+   State assuming supervision: Republic of Examplia
+   Date of change in supervision: 2099-05-01
+   Operator: Examplia Orbital Services
+   Reference: Transfer of FICTSAT 1 to Examplia (fictional) | doi:10.5555/fict.2099.reg1

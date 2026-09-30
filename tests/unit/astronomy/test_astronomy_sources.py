@@ -43,8 +43,10 @@ def one(conn, kind, **filters):
 def test_production_pack_validates_and_replays_its_pinned_fixtures():
     packs = {p["pack_id"]: p for p in load_source_packs(ROOT / "config/source_packs")}
     pack = packs["astronomy-and-space"]
-    assert pack["domains"] == ["astronomy"] and len(pack["sources"]) == 14
-    assert all(s["connector"] == "astronomy" for s in pack["sources"])
+    # 14 astronomy sources plus the space-object registration feature's 5 (#2224).
+    assert pack["domains"] == ["astronomy"] and len(pack["sources"]) == 19
+    assert {s["connector"] for s in pack["sources"]} == {"astronomy", "astronomy-registration"}
+    assert sum(s["connector"] == "astronomy" for s in pack["sources"]) == 14
     report = SourcePackConformance(ROOT).offline(
         json.loads((ROOT / "config/source_packs/astronomy.json").read_text())
     )

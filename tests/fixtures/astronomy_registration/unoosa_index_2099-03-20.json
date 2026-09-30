@@ -1,0 +1,9 @@
+{
+  "note": "Authored fictional UNOOSA Online Index search result (not captured data).",
+  "results": [
+    {"internationalDesignator": "2099-001A", "nationalDesignator": "FL-2099-01", "objectName": "FICTSAT 1", "catalogueNumber": "99901", "stateOfRegistry": "Fictland", "dateOfLaunch": "2099-03-03", "status": "in orbit", "function": "Earth observation", "unRegistered": "yes", "registrationDocuments": ["ST/SG/SER.E/9901"], "dateOfDecay": null},
+    {"internationalDesignator": "2099-001B", "nationalDesignator": null, "objectName": "FICTRON 2 R/B", "catalogueNumber": "99902", "stateOfRegistry": null, "dateOfLaunch": "2099-03-03", "status": "decayed", "function": null, "unRegistered": "no", "registrationDocuments": [], "dateOfDecay": "2099-03-10"},
+    {"internationalDesignator": "2098-077A", "objectName": "OLDSAT", "stateOfRegistry": "Fictland", "dateOfLaunch": "2098-12-30", "status": "in orbit", "unRegistered": "yes", "registrationDocuments": ["ST/SG/SER.E/9800"]},
+    {"objectName": "NO DESIGNATOR ROW", "stateOfRegistry": "Fictland"}
+  ]
+}

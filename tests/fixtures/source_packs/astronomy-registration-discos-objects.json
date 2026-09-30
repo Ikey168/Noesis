@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "esa-discos",
+  "note": "Authored documents naming fictional objects (2099 designators, ST/SG/SER.E/99xx symbols, Fictland, Republic of Examplia, European Fictional Space Organisation), served for the production document URLs. The production bounds leave the fictional rows out of scope or rejected; parsing is exercised with the fictional bounds in tests/unit/astronomy/registration_harness.py.",
+  "native_pages": [
+    {
+      "request": "/api/objects?filter=eq(cosparId,%272025-001A%27)&include=operators",
+      "status": 200,
+      "body": "{\n  \"note\": \"Authored fictional DISCOSweb JSON:API response (not captured, not ESA data).\",\n  \"data\": [\n    {\"type\": \"object\", \"id\": \"70001\", \"attributes\": {\"cosparId\": \"2099-001A\", \"satno\": 99901, \"name\": \"Fictsat-1\", \"objectClass\": \"Payload\"},\n     \"relationships\": {\"operators\": {\"data\": [{\"type\": \"operator\", \"id\": \"501\"}]}}},\n    {\"type\": \"object\", \"id\": \"70004\", \"attributes\": {\"cosparId\": \"2099-003B\", \"satno\": 99904, \"name\": \"Fictsat-3\", \"objectClass\": \"Payload\"},\n     \"relationships\": {\"operators\": {\"data\": [{\"type\": \"operator\", \"id\": \"502\"}]}}},\n    {\"type\": \"object\", \"id\": \"70999\", \"attributes\": {\"cosparId\": \"2098-077A\", \"satno\": 99877, \"name\": \"Oldsat\", \"objectClass\": \"Payload\"}}\n  ],\n  \"included\": [\n    {\"type\": \"operator\", \"id\": \"501\", \"attributes\": {\"name\": \"Fictional Satellite Operations\", \"acronym\": \"FSO\"}},\n    {\"type\": \"operator\", \"id\": \"502\", \"attributes\": {\"name\": \"European Fictional Space Organisation\", \"acronym\": \"EFSO\"}}\n  ]\n}\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}
