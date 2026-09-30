@@ -266,6 +266,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"surveillance"})
 # Clinical Evidence medicines regulation (EMA EPARs, DailyMed SPL, FDA Drug Safety Communications; #2214).
 NATIVE_CONNECTOR_MODULES["medicines"] = "src.ingestion.medicines_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medicines"})
+# Clinical Evidence health-system capacity (WHO GHO, OECD Health Statistics, Eurostat; #2215): the surveillance
+# connector restricted to capacity documents.
+NATIVE_CONNECTOR_MODULES["health-capacity"] = "src.ingestion.health_capacity_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"health-capacity"})
 
 # Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
 NATIVE_CONNECTOR_MODULES.update({

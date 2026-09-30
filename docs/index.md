@@ -217,6 +217,10 @@ For the project overview and local setup, start with the
   versions and FDA Drug Safety Communications as authorisation, label-revision and safety-communication records with
   RxNorm identity review, section diffs, as-of answers, cited timelines and monitors;
   [source audit](roadmaps/clinical-medicines-source-audit.md)
+- [Clinical Evidence health-system capacity guide](guides/clinical-health-capacity.md) — hospital beds, health
+  workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics and Eurostat with definitions,
+  definition breaks, comparability notes and vintages, place resolution, surveillance co-display and monitors;
+  [source audit](roadmaps/clinical-health-capacity-source-audit.md)
 - [Products pack guide: safety notices and recalls](guides/products-pack.md#safety-notices-and-recalls) — EU Safety
   Gate alerts, CPSC and NHTSA recalls and RASFF notifications with every revision, verbatim hazard, affected
   identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,

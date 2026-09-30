@@ -1,0 +1,28 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,facility,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:HLTH_RS_BDS1(1.0),15/03/98 11:00:00,A,HBEDT,P_HTHAB,DE,2096,790.5,\nESTAT:HLTH_RS_BDS1(1.0),15/03/98 11:00:00,A,HBEDT,P_HTHAB,DE,2097,782.0,p\nESTAT:HLTH_RS_BDS1(1.0),15/03/98 11:00:00,A,HBEDT,P_HTHAB,FR,2096,575.2,\nESTAT:HLTH_RS_BDS1(1.0),15/03/98 11:00:00,A,HBEDT,P_HTHAB,FR,2097,569.9,\nESTAT:HLTH_RS_BDS1(1.0),15/03/98 11:00:00,A,HBEDT,P_HTHAB,EU27_2020,2097,526.3,e\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/hlth_rs_bds1/A.HBEDT.P_HTHAB.DE+FR+EU27_2020?format=SDMX-CSV&startPeriod=2096",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,icha11_hf,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:HLTH_SHA11_HF(1.0),15/03/98 11:00:00,A,PC_CHE,TOT_HF,DE,2096,100,\nESTAT:HLTH_SHA11_HF(1.0),15/03/98 11:00:00,A,PC_CHE,TOT_HF,DE,2097,100,\nESTAT:HLTH_SHA11_HF(1.0),15/03/98 11:00:00,A,PC_CHE,HF1,DE,2096,77.9,\nESTAT:HLTH_SHA11_HF(1.0),15/03/98 11:00:00,A,PC_CHE,HF1,DE,2097,78.3,b\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/hlth_sha11_hf/A.PC_CHE.TOT_HF+HF1.DE?format=SDMX-CSV&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are the publishers' codes, every value, year, definition wording and note is fictional. Not live evidence.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}
