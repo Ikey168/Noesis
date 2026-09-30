@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1344,
+      "tool_count": 1360,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1169,6 +1169,7 @@
         "noesis-knowledge-engine.create_sanctions_monitor",
         "noesis-knowledge-engine.create_source_acquisition_plan",
         "noesis-knowledge-engine.create_source_research_objective",
+        "noesis-knowledge-engine.create_space_registration_monitor",
         "noesis-knowledge-engine.create_sports_monitor",
         "noesis-knowledge-engine.create_statute_monitor",
         "noesis-knowledge-engine.create_substance_monitor",
@@ -1213,6 +1214,7 @@
         "noesis-knowledge-engine.diff_claim_timeline_states",
         "noesis-knowledge-engine.diff_event_revisions",
         "noesis-knowledge-engine.directives_as_of",
+        "noesis-knowledge-engine.discos_access_status",
         "noesis-knowledge-engine.discover_hazard_links",
         "noesis-knowledge-engine.discover_intake_modes",
         "noesis-knowledge-engine.discover_intake_workflows",
@@ -1301,6 +1303,7 @@
         "noesis-knowledge-engine.export_research_analysis_package",
         "noesis-knowledge-engine.export_research_recipe_run",
         "noesis-knowledge-engine.export_review_annotation_dataset",
+        "noesis-knowledge-engine.export_space_registration_evidence",
         "noesis-knowledge-engine.export_sports_records",
         "noesis-knowledge-engine.export_systematic_review",
         "noesis-knowledge-engine.export_technical_impact_report",
@@ -1530,6 +1533,7 @@
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_safety_citations",
+        "noesis-knowledge-engine.link_space_registration_citations",
         "noesis-knowledge-engine.link_sports_venue_place",
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.link_substance_citations",
@@ -1615,6 +1619,7 @@
         "noesis-knowledge-engine.list_source_pack_quarantine",
         "noesis-knowledge-engine.list_source_pack_schedules",
         "noesis-knowledge-engine.list_source_packs",
+        "noesis-knowledge-engine.list_space_registration_candidates",
         "noesis-knowledge-engine.list_sports_identity_candidates",
         "noesis-knowledge-engine.list_substance_identity_candidates",
         "noesis-knowledge-engine.list_substance_links",
@@ -1653,6 +1658,8 @@
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.map_trade_product_code",
         "noesis-knowledge-engine.mark_intake_feed_read",
+        "noesis-knowledge-engine.match_space_registration_objects",
+        "noesis-knowledge-engine.match_space_registration_parties",
         "noesis-knowledge-engine.material_properties",
         "noesis-knowledge-engine.material_release_changes",
         "noesis-knowledge-engine.materials_bundle_status",
@@ -1663,6 +1670,7 @@
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.natural_hazards_bundle_status",
         "noesis-knowledge-engine.normalise_development_finance_activities",
+        "noesis-knowledge-engine.object_registration_as_of",
         "noesis-knowledge-engine.openreview_concern_review_target",
         "noesis-knowledge-engine.orbit_solution_as_of",
         "noesis-knowledge-engine.orbital_object_history",
@@ -1711,6 +1719,7 @@
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
+        "noesis-knowledge-engine.poll_space_registration_monitor",
         "noesis-knowledge-engine.poll_sports_monitor",
         "noesis-knowledge-engine.poll_statute_monitor",
         "noesis-knowledge-engine.poll_substance_monitor",
@@ -1864,6 +1873,7 @@
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
         "noesis-knowledge-engine.recover_stale_maintenance_jobs",
+        "noesis-knowledge-engine.reentry_record",
         "noesis-knowledge-engine.refresh_election_news_links",
         "noesis-knowledge-engine.refresh_funding_workspace",
         "noesis-knowledge-engine.refresh_intake_feed_inbox",
@@ -2001,6 +2011,8 @@
         "noesis-knowledge-engine.revert_public_finance_link",
         "noesis-knowledge-engine.revert_safety_subject_match",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
+        "noesis-knowledge-engine.revert_space_registration_citation",
+        "noesis-knowledge-engine.revert_space_registration_party",
         "noesis-knowledge-engine.revert_sports_identity_match",
         "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_substance_identity",
@@ -2058,6 +2070,7 @@
         "noesis-knowledge-engine.review_research_claim_independence",
         "noesis-knowledge-engine.review_safety_subject_match",
         "noesis-knowledge-engine.review_sanctions_identity_match",
+        "noesis-knowledge-engine.review_space_registration_party",
         "noesis-knowledge-engine.review_sports_identity_match",
         "noesis-knowledge-engine.review_sports_news_link",
         "noesis-knowledge-engine.review_study_field",
@@ -2119,6 +2132,7 @@
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
+        "noesis-knowledge-engine.run_space_registration_monitor",
         "noesis-knowledge-engine.run_sports_monitor",
         "noesis-knowledge-engine.run_statute_monitor",
         "noesis-knowledge-engine.run_substance_monitor",
@@ -2187,6 +2201,8 @@
         "noesis-knowledge-engine.source_pack_coverage",
         "noesis-knowledge-engine.source_pack_runtime_coverage",
         "noesis-knowledge-engine.source_relationship_path",
+        "noesis-knowledge-engine.space_object_registration_status",
+        "noesis-knowledge-engine.space_registration_citations",
         "noesis-knowledge-engine.space_weather_alerts",
         "noesis-knowledge-engine.split_source_alias",
         "noesis-knowledge-engine.sports_fixture_history",
@@ -2303,7 +2319,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1344
+      "visible_tool_count": 1360
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2316,9 +2332,9 @@
     "states": {
       "available": 135,
       "degraded": 173,
-      "unauthorized": 1360
+      "unauthorized": 1376
     },
-    "tools": 1668
+    "tools": 1684
   },
   "tools": [
     {
@@ -33726,6 +33742,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch an object, operator or registering State for new registrations, status changes, transfers,\noperator changes and re-entry reports, as a knowledge subscription; no separate scheduler.",
+      "id": "noesis-knowledge-engine.create_space_registration_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_space_registration_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a competition season, team or match for reschedules, results, corrections, forfeits, table changes\nand resolvable forecasts through subscriptions.",
       "id": "noesis-knowledge-engine.create_sports_monitor",
       "input_schema": {
@@ -36027,6 +36089,32 @@
       ],
       "required_scopes": [
         "knowledge:engineering-safety:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether ESA DISCOS is configured and selected, and its documented access decision (permitted subset or\ncitation only; never redistributed). The token is never shown.",
+      "id": "noesis-knowledge-engine.discos_access_status",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "discos_access_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40215,6 +40303,58 @@
       "required_scopes": [
         "knowledge:inbox:read",
         "knowledge:inbox:datasets"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The object_registration_as_of answer as an evidence bundle with every revision and identity match used;\naccount-restricted DISCOS values are cited only.",
+      "id": "noesis-knowledge-engine.export_space_registration_evidence",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "identifier",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_space_registration_evidence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -50884,6 +51024,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Resolve the instrument identifiers, DOIs and bibcodes registrations state to Legal works and Science\npapers by exact identifier; absent packs are skipped; idempotent; never reactivates a revert.",
+      "id": "noesis-knowledge-engine.link_space_registration_citations",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_space_registration_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Save a reviewable Geospatial place resolution for a venue with its city or country; never by name alone.",
       "id": "noesis-knowledge-engine.link_sports_venue_place",
       "input_schema": {
@@ -55377,6 +55562,50 @@
     },
     {
       "cost_class": "low",
+      "description": "Reviewable identity candidates of registrations (identifier conflicts, name-only objects) and of parties\n(registering States, intergovernmental registrants, operators), with the exact object links.",
+      "id": "noesis-knowledge-engine.list_space_registration_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_space_registration_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Proposed, accepted, rejected and reverted identity candidates between sports records, with evidence.",
       "id": "noesis-knowledge-engine.list_sports_identity_candidates",
       "input_schema": {
@@ -57528,6 +57757,86 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Link registrations, DISCOS and re-entry records to SATCAT/GCAT objects on exact COSPAR/NORAD agreement\nwith evidence; conflicting identifiers and name-only registrations become reviewable candidates (reviewed\nwith review_astronomy_identity_match). Records are never merged.",
+      "id": "noesis-knowledge-engine.match_space_registration_objects",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "match_space_registration_objects",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer registering States, intergovernmental registrants and operators for review against canonical\nentities (and, with ownership_namespace, ownership legal entities by published LEI). Nothing is accepted\nhere and no attribution beyond the published records is created.",
+      "id": "noesis-knowledge-engine.match_space_registration_parties",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "match_space_registration_parties",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Cited property dossier: value, unit, conditions, method, uncertainty, release, locator and citations.\n\nConditional scope: standards_namespace also needs knowledge:standards:read and read access to it.",
       "id": "noesis-knowledge-engine.material_properties",
@@ -57960,6 +58269,58 @@
       ],
       "required_scopes": [
         "knowledge:funding:development-finance:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A space object's registration (registering and supervising State, status, UN documents with locators),\noperator assertions, catalogue status and re-entry record at a date (YYYY-MM-DD, end of day UTC), cited.\n\nThe object is a COSPAR designator, NORAD number, discos:<id> or name. Missing registration answers 'none on\nrecord' with the sources consulted (never 'unregistered'); re-entry predictions and the confirmed report stay\ndistinct and Noesis adds no prediction.",
+      "id": "noesis-knowledge-engine.object_registration_as_of",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "identifier",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "object_registration_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60055,6 +60416,44 @@
       ],
       "required_scopes": [
         "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a registration monitor's recorded events.",
+      "id": "noesis-knowledge-engine.poll_space_registration_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_space_registration_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -68089,6 +68488,65 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "An object's published re-entry predictions and confirmed report per publisher, and UN re-entry notices,\nas published. No re-entry or collision prediction is computed.",
+      "id": "noesis-knowledge-engine.reentry_record",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "reentry_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Link articles by explicit mentions of a contest's published parties or candidates; shared words only\nyield keyword candidates. No causal reading.",
       "id": "noesis-knowledge-engine.refresh_election_news_links",
@@ -75778,6 +76236,89 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert one registration citation link (final for that target revision).",
+      "id": "noesis-knowledge-engine.revert_space_registration_citation",
+      "input_schema": {
+        "properties": {
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_space_registration_citation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert an accepted or rejected space-registration party decision; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_space_registration_party",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_space_registration_party",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected sports identity decision; records stay intact.",
       "id": "noesis-knowledge-engine.revert_sports_identity_match",
       "input_schema": {
@@ -78493,6 +79034,52 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a space-registration party candidate with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_space_registration_party",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_space_registration_party",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
         "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
@@ -81731,6 +82318,52 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a registration monitor at a committed watermark: dated events cite the new revision.",
+      "id": "noesis-knowledge-engine.run_space_registration_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_space_registration_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -85388,6 +86021,76 @@
       ],
       "required_scopes": [
         "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Registration sources with their access decision and LIVE_VERIFICATION, feature selection and whether\nESA DISCOS is enabled (it is off without a configured account).",
+      "id": "noesis-knowledge-engine.space_object_registration_status",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "space_object_registration_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links from registrations to Legal works (by the instrument identifier the document names) and Science\npapers (by DOI or bibcode), and unresolved citations.",
+      "id": "noesis-knowledge-engine.space_registration_citations",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "space_registration_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

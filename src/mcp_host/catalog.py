@@ -343,6 +343,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.astronomy import ASTRONOMY_WRITES
     if name in ASTRONOMY_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.astronomy_registration import REGISTRATION_WRITES
+    if name in REGISTRATION_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.weather import WEATHER_WRITES
     if name in WEATHER_WRITES:
         return "write"
@@ -983,6 +986,12 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in ASTRONOMY_TOOLS:
         return astronomy_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.astronomy_registration import REGISTRATION_TOOLS
+    from tools.knowledge_engine_mcp.astronomy_registration import (
+        required_scopes as astronomy_registration_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in REGISTRATION_TOOLS:
+        return astronomy_registration_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.weather import WEATHER_TOOLS
     from tools.knowledge_engine_mcp.weather import (
         required_scopes as weather_scopes,

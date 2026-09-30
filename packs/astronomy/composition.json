@@ -94,6 +94,50 @@
           "reason": "the bundle's own entry points use these operations"
         }
       ]
+    },
+    {
+      "id": "astronomy-space-object-registration",
+      "default": false,
+      "description": "UNOOSA index entries and UN registration documents, operator assertions and Aerospace re-entry reports linked to SATCAT/GCAT objects, with parties matched through ownership identity",
+      "requires": [
+        {
+          "capability": "astronomy.space-object-registration",
+          "contract": "noesis-astronomy-space-object-registration",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        },
+        {
+          "capability": "astronomy.launches",
+          "contract": "noesis-astronomy-launch",
+          "range": "^1.0.0",
+          "reason": "registrations link to the GCAT and CelesTrak SATCAT orbital objects"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "registering States and operators are matched to entities through ownership identity review"
+        }
+      ]
+    },
+    {
+      "id": "astronomy-discos",
+      "default": false,
+      "description": "ESA DISCOS objects, operators and re-entry epochs under the account terms (permitted subset or citation only, never redistributed); off without a configured account",
+      "requires": [
+        {
+          "capability": "astronomy.space-object-registration",
+          "contract": "noesis-astronomy-space-object-registration",
+          "range": "^1.0.0",
+          "reason": "DISCOS assertions are registration records"
+        },
+        {
+          "capability": "astronomy.discos",
+          "contract": "noesis-astronomy-discos-access",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        }
+      ]
     }
   ],
   "exclusions": [
@@ -101,6 +145,7 @@
     "impact-risk, hazard or collision verdicts (only published Sentry listings are quoted with their date)",
     "exoplanet validation or disposition by Noesis (the archive's disposition is quoted)",
     "classified, export-controlled or account-restricted catalogue data (Space-Track is not implemented)",
-    "operational space-weather advice (alerts are quoted as issued)"
+    "operational space-weather advice (alerts are quoted as issued)",
+    "re-entry or collision prediction, and attribution of space objects to operators, owners or States beyond published registrations and operator assertions"
   ]
 }

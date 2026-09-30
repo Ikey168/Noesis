@@ -1,0 +1,347 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "astronomy.space-object-registration",
+  "version": "1.0.0",
+  "description": "Space-object registration, operator assertions and re-entry records as published: UNOOSA Online Index entries and UN registration documents (symbol, locator, language, verbatim; transfers and status changes as dated entries), ESA DISCOS under its account terms (optional, never redistributed) and Aerospace Corporation re-entry predictions and confirmed reports, linked to SATCAT/GCAT objects and parties through reviewable identity and to Legal and Science records by citation.",
+  "implementation": {
+    "name": "src.kb.astronomy_registration_queries",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "astronomy.space-object-registration",
+      "contract": {
+        "name": "noesis-astronomy-space-object-registration",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "object-registration-as-of",
+        "reentry-record",
+        "export-registration-evidence",
+        "registration-status",
+        "list-registration-candidates",
+        "list-registration-citations",
+        "match-registration-objects",
+        "match-registration-parties",
+        "review-registration-party",
+        "revert-registration-party",
+        "link-registration-citations",
+        "revert-registration-citation",
+        "create-registration-monitor",
+        "run-registration-monitor",
+        "poll-registration-monitor"
+      ],
+      "semantic_constraints": {
+        "as_of": "published by the as-of cutoff (a date counts as its end, UTC) and, when given, acquired by acquired_by_ms; missing registration is 'none on record' with the sources consulted",
+        "registration": "UN document symbol, paragraph locator, language and verbatim quotation; registered orbital values never reconciled with catalogue elements; transfers and status changes are dated entries beside the original",
+        "identity": "exact COSPAR/NORAD links with evidence; conflicts and name-only registrations reviewable; parties through ownership.identity (space-registration: keys); records never merged",
+        "exclusions": "no re-entry or collision prediction; no attribution beyond published registrations and operator assertions"
+      }
+    },
+    {
+      "id": "astronomy.discos",
+      "contract": {
+        "name": "noesis-astronomy-discos-access",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "discos-access-status"
+      ],
+      "semantic_constraints": {
+        "access": "account-gated (NOESIS_ESA_DISCOS_TOKEN); disabled without a token; permitted subset or citation only; never redistributed or exported"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "object-registration-as-of",
+      "tool": "noesis-knowledge-engine.object_registration_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "reentry-record",
+      "tool": "noesis-knowledge-engine.reentry_record",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-registration-evidence",
+      "tool": "noesis-knowledge-engine.export_space_registration_evidence",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "registration-status",
+      "tool": "noesis-knowledge-engine.space_object_registration_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "source",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "list-registration-candidates",
+      "tool": "noesis-knowledge-engine.list_space_registration_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-registration-citations",
+      "tool": "noesis-knowledge-engine.space_registration_citations",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "match-registration-objects",
+      "tool": "noesis-knowledge-engine.match_space_registration_objects",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "match-registration-parties",
+      "tool": "noesis-knowledge-engine.match_space_registration_parties",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-registration-party",
+      "tool": "noesis-knowledge-engine.review_space_registration_party",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-registration-party",
+      "tool": "noesis-knowledge-engine.revert_space_registration_party",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "link-registration-citations",
+      "tool": "noesis-knowledge-engine.link_space_registration_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:astronomy:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-registration-citation",
+      "tool": "noesis-knowledge-engine.revert_space_registration_citation",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "create-registration-monitor",
+      "tool": "noesis-knowledge-engine.create_space_registration_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-registration-monitor",
+      "tool": "noesis-knowledge-engine.run_space_registration_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-registration-monitor",
+      "tool": "noesis-knowledge-engine.poll_space_registration_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "source",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "discos-access-status",
+      "tool": "noesis-knowledge-engine.discos_access_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "source",
+      "required_scopes": [
+        "knowledge:astronomy:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "astronomy-registration-record",
+      "store": "src.kb.astronomy_registration",
+      "tables": [
+        "astronomy_registration_records",
+        "astronomy_registration_revisions",
+        "astronomy_registration_keys",
+        "astronomy_registration_receipts",
+        "astronomy_registration_citations",
+        "astronomy_registration_object_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "astronomy_registration_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "astronomy-and-space"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "astronomy-and-space",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ],
+  "content_hash": "sha256:b4ba674de1c1bc853e0faa5b7cb92c16063ba1a15c5e1ecd471eb790b9a301e2"
+}
