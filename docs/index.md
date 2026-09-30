@@ -191,6 +191,10 @@ For the project overview and local setup, start with the
   series with first-class definitions, geography levels and vintages, publishers side by side with comparability
   notes, boundary projections as of a release date and citation links to acts, decisions and dossiers;
   [source audit](roadmaps/economics-demographics-source-audit.md)
+- [Products food composition guide](guides/products-food-composition.md) — Open Food Facts (crowd-sourced, ODbL),
+  USDA FoodData Central and Ciqual (reference) ingredients, allergens, nutrient values and label claims per provider
+  and label revision as of a date, reviewable GTIN identity, citation-only links to RASFF notices and monitors; no
+  nutrition score, ranking or diet advice; [source audit](development/food-composition-evidence/source-audit.md)
 - [Economics trade-flows guide](guides/economics-trade-flows.md) — UN Comtrade and Eurostat Comext flows by reporter,
   partner and product as of a release, reporter and mirror figures side by side with displayed asymmetries,
   classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership
