@@ -80,6 +80,12 @@ MATRIX = {
     "Country pair to trade flows":
         "tests/unit/domains/test_trade_flows_acceptance.py::"
         "test_country_pair_and_product_to_cited_flows_with_release_vintages_and_mirror_asymmetries",
+    # The Science education-statistics feature's offline journey (#2441) composes science (IPEDS, ETER, UIS),
+    # economics SDMX handling (OECD EAG, Eurostat R&D), ROR entity identity, Funding and document records,
+    # subscriptions and the source-pack runtime.
+    "Institution and country to education statistics":
+        "tests/unit/domains/test_education_statistics_acceptance.py::"
+        "test_ror_institution_and_country_to_cited_statistics_with_vintages_and_links",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":
