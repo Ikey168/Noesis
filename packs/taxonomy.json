@@ -277,6 +277,7 @@
     "legal.federal-statutes": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
     "legal.justice-statistics": {"domain": "society-population", "subdomains": ["crime-justice-statistics"], "shapes": ["statistical-series"]},
     "legal.sanctions": {"subdomains": ["sanctions-export-controls"], "shapes": ["registry-records"], "themes": ["security-defence"]},
+    "legal.treaties": {"subdomains": ["treaties-international-law"], "shapes": ["versioned-documents", "events-notices"]},
 
     "linguistics.languoids": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},
     "linguistics.lexicon": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},

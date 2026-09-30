@@ -8,10 +8,12 @@
   "panels": [],
   "planner_keywords": {
     "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung", "designation",
-                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence"],
+                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence",
+                 "treaty", "convention", "reservation", "ratification", "accession", "cets", "mtdsg"],
     "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet", "consolidated list",
                 "ofac", "uk sanctions list", "un security council", "courtlistener", "recap",
-                "fbi crime data explorer", "data.police.uk", "eurostat crime"],
+                "fbi crime data explorer", "data.police.uk", "eurostat crime", "un treaty collection",
+                "council of europe treaty office"],
     "claims": ["article", "artikel", "paragraph", "section"],
     "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal", "delisting",
                "designation", "listing"]
@@ -41,7 +43,13 @@
     "court-party-identity-review",
     "justice-statistics-as-of",
     "justice-statistics-comparability",
-    "courts-justice-monitoring"
+    "courts-justice-monitoring",
+    "treaty-actions-as-published",
+    "treaty-status-as-of",
+    "treaty-reservations-and-objections",
+    "treaty-identity-review",
+    "treaty-citation-links",
+    "treaty-monitoring"
   ],
   "schema_versions": {
     "legal-work": "1.0.0",
@@ -58,7 +66,9 @@
     "justice-statistics-answer": "1.0.0",
     "justice-comparability-note": "1.0.0",
     "court-citation-link": "1.0.0",
-    "court-justice-notification": "1.0.0"
+    "court-justice-notification": "1.0.0",
+    "treaty-record": "1.0.0",
+    "treaty-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -118,6 +128,12 @@
       "semantics": "docket revisions current at the date with citing entries and decisions with quoted dispositions, linked by exact citation only"
     },
     {
+      "intent": "What had Exampland done under UNTC treaty XXVII-99 by 1 January 2095",
+      "tool": "treaty_status_as_of",
+      "arguments": {"namespace": "global", "treaty": "XXVII-99", "participant": "Exampland", "as_of": "2095-01-01"},
+      "semantics": "the participant's actions selected by the dates as published, with reservations, objections and notes verbatim and the depositary revision cited; pending and unclear stay explicit; no legal advice or obligation inference"
+    },
+    {
       "intent": "Official robbery statistics for Germany with definitions and vintages",
       "tool": "justice_statistics_for_place",
       "arguments": {"namespace": "global", "place": "eurostat-geo:DE", "indicator": "ICCS0401"},
@@ -132,6 +148,8 @@
     "scraped sanctions portals (EU Sanctions Map)",
     "personal profiles of private individuals in dockets", "recidivism or risk scoring",
     "neighbourhood safety ratings", "rankings of places or countries", "derived case outcome labels or predictions",
-    "unqualified cross-jurisdiction comparison of crime statistics"
+    "unqualified cross-jurisdiction comparison of crime statistics",
+    "inference of treaty obligations or compliance", "interpretation of the legal effect of reservations",
+    "treaty-text redistribution beyond what each source licenses"
   ]
 }

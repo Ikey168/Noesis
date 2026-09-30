@@ -25,6 +25,14 @@ LEGAL_WRITES = LEGAL_WRITES | COURTS_JUSTICE_WRITES
 LEGAL_TOOLS = LEGAL_TOOLS | COURTS_JUSTICE_TOOLS
 LEGAL_SCOPES = {**LEGAL_SCOPES, **COURTS_JUSTICE_SCOPES}
 
+# Treaties and international agreements (#2581): the legal.treaties provider's tools, registered here.
+from tools.knowledge_engine_mcp.treaties import TREATIES_SCOPES, TREATIES_TOOLS, TREATIES_WRITES  # noqa: E402
+from tools.knowledge_engine_mcp.treaties import register as register_treaties  # noqa: E402
+
+LEGAL_WRITES = LEGAL_WRITES | TREATIES_WRITES
+LEGAL_TOOLS = LEGAL_TOOLS | TREATIES_TOOLS
+LEGAL_SCOPES = {**LEGAL_SCOPES, **TREATIES_SCOPES}
+
 
 def required_scopes(tool_name, mutability):
     return LEGAL_SCOPES.get(tool_name, ["knowledge:legal:write" if mutability == "write" else "knowledge:legal:read"])
@@ -32,6 +40,7 @@ def required_scopes(tool_name, mutability):
 
 def register(mcp, safe, context):
     register_courts_justice(mcp, safe, context)
+    register_treaties(mcp, safe, context)
 
     def who():
         return context()[0], context()[1]
