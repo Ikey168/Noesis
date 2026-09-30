@@ -197,3 +197,11 @@ No implemented source needs a credential. Space-Track would need an account
 and is not implemented. Should a future source need a key it goes through the
 existing `NOESIS_*` secret references of the source-pack runtime and is never
 committed.
+
+## Space-object registration, operators and re-entries (SO01, #2417)
+
+The registration, operator-assertion and re-entry sources of the
+`astronomy.space-object-registration` provider (UNOOSA Online Index and
+registration documents, ESA DISCOS under its account terms, The Aerospace
+Corporation re-entry database) are audited in
+[`space-object-registration-audit.md`](space-object-registration-audit.md).
