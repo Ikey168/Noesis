@@ -12,7 +12,12 @@ from src.kb.lifesci_records import forbidden_keys
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit import lifesci_harness as h
 from tools.knowledge_engine_mcp import server
-from tools.knowledge_engine_mcp.lifesci import LIFESCI_READS, LIFESCI_SCOPES, LIFESCI_TOOLS, LIFESCI_WRITES
+from tools.knowledge_engine_mcp.lifesci import (
+    LIFESCI_READS,
+    LIFESCI_SCOPES,
+    LIFESCI_TOOLS,
+    LIFESCI_WRITES,
+)
 
 
 @pytest.fixture()

@@ -9,7 +9,10 @@ import duckdb
 import pytest
 
 from src.composition.adapter import adapt_all
-from src.composition.contracts import validate_composition_manifest, validate_provider_descriptor
+from src.composition.contracts import (
+    validate_composition_manifest,
+    validate_provider_descriptor,
+)
 from src.composition.readiness import CompositionView
 from src.composition.resolver import resolve
 from src.composition.shadow import provider_descriptors
