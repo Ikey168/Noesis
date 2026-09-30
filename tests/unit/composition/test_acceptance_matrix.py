@@ -111,6 +111,12 @@ MATRIX = {
     "Port to logistics series":
         "tests/unit/domains/test_logistics_acceptance.py::"
         "test_port_and_country_to_cited_logistics_series_with_vintages_identity_and_trade_joins",
+    # The Economics extractives features' offline journey (#2713) composes economics (EITI, USGS MCS, BGS World
+    # Mineral Statistics, trade-flow joins), Corporate Ownership identity, infrastructure, subscriptions and the
+    # source-pack runtime.
+    "Company to extractive payments":
+        "tests/unit/domains/test_extractives_acceptance.py::"
+        "test_company_and_country_to_cited_extractive_payments_and_production_with_versions_identity_and_links",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

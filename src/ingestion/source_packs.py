@@ -404,6 +404,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"water"})
 # Legal regulatory enforcement: SEC releases, FCA final notices, EPA ECHO cases, EDPB Art. 60 register (#2651).
 NATIVE_CONNECTOR_MODULES["enforcement"] = "src.ingestion.enforcement_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"enforcement"})
+# Economics extractives: EITI summary data, USGS Mineral Commodity Summaries and BGS World Mineral Statistics (#2653).
+NATIVE_CONNECTOR_MODULES["extractives"] = "src.ingestion.extractives_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"extractives"})
 
 
 def native_connector_module(connector: str) -> Any:

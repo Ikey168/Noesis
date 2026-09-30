@@ -1,0 +1,390 @@
+{
+ "defaults": {
+  "auth": {
+   "kind": "none"
+  },
+  "connector": "extractives",
+  "extractor_versions": [
+   "extractives:1.0.0"
+  ],
+  "health": {
+   "max_staleness_s": 31536000,
+   "required": false
+  },
+  "mapping": {
+   "target_schema": "noesis-extractives-record-v1",
+   "version": "1.0.0"
+  },
+  "operations": [
+   "release"
+  ],
+  "schedule": {
+   "interval_s": 2592000,
+   "kind": "interval"
+  }
+ },
+ "description": "Published extractive-sector data for the Economics bundle's optional extractives features: EITI summary data (report versions, revenue streams, company payments with government- and company-reported figures and discrepancies as published), USGS Mineral Commodity Summaries production and reserves and BGS World Mineral Statistics production, imports and exports as release vintages, sources side by side. No reconciliation beyond the reports, no own reserve estimate, no risk scoring, no price forecast.",
+ "domains": [
+  "economic"
+ ],
+ "pack_id": "economic-extractives",
+ "sources": [
+  {
+   "budgets": {
+    "max_bytes": 5000000,
+    "max_pages": 2,
+    "max_results": 500,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://eiti.org/api/v2.0",
+   "extractives": {
+    "documents": [
+     {
+      "country": "NL",
+      "fiscal_period": {
+       "end": "2021-12-31",
+       "start": "2021-01-01"
+      },
+      "label": "EITI summary data: Netherlands, fiscal year 2021, report version 1",
+      "release": {
+       "label": "NL-EITI 2021 report, version 1 (declared by the operator; verify)",
+       "published_on": "2023-05-31",
+       "version": "1"
+      },
+      "url": "https://eiti.org/api/v2.0/summary_data/NL-2021"
+     },
+     {
+      "country": "DE",
+      "fiscal_period": {
+       "end": "2021-12-31",
+       "start": "2021-01-01"
+      },
+      "label": "EITI summary data: Germany, fiscal year 2021, report version 1",
+      "release": {
+       "label": "D-EITI 2021 report, version 1 (declared by the operator; verify)",
+       "published_on": "2023-03-31",
+       "version": "1"
+      },
+      "url": "https://eiti.org/api/v2.0/summary_data/DE-2021"
+     }
+    ],
+    "format": "eiti-summary-json",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "eiti"
+   },
+   "fixture": {
+    "expected_output_hash": "ee02f962eb6ebf1e61787e62d6c8b40b92c9d4718f082aa56e1a11f9a4a14f18",
+    "path": "tests/fixtures/source_packs/economic-extractives-eiti.json",
+    "sha256": "04791ee5af70e90844c8a99a2ed4ac08483aafbd3413bdeeacec4e3a95066a7b"
+   },
+   "license": {
+    "id": "eiti-open-data",
+    "redistribution": "open data; reuse with attribution to EITI and the national report (operator must confirm; not re-verified live)",
+    "terms_url": "https://eiti.org/open-data"
+   },
+   "publisher": "Extractive Industries Transparency Initiative (EITI International Secretariat)",
+   "scope": "EITI summary data of the Netherlands and Germany for fiscal year 2021, one declared report version each (operator must verify the API path and field names)",
+   "source_id": "eiti-summary-data",
+   "temporal_semantics": "the declared publication date of the report version; the fiscal period as reference period; a revised report is a new version",
+   "update_cadence": "annual national reports; revised reports irregularly"
+  },
+  {
+   "budgets": {
+    "max_bytes": 2000000,
+    "max_pages": 2,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://www.sciencebase.gov/catalog",
+   "extractives": {
+    "documents": [
+     {
+      "columns": {
+       "country": "Country",
+       "notes": "Reserves_notes"
+      },
+      "commodity": {
+       "code": "copper",
+       "definition": {
+        "reference": "https://www.usgs.gov/centers/national-minerals-information-center/copper-statistics-and-information",
+        "text": "Copper: mine production, recoverable copper content; reserves (USGS definitions; verify)"
+       },
+       "label": "Copper"
+      },
+      "countries": {
+       "Australia": {
+        "iso2": "AU",
+        "m49": "036"
+       },
+       "Chile": {
+        "iso2": "CL",
+        "m49": "152"
+       },
+       "Peru": {
+        "iso2": "PE",
+        "m49": "604"
+       },
+       "United States": {
+        "iso2": "US",
+        "m49": "840"
+       },
+       "World total (rounded)": {
+        "aggregate": true
+       }
+      },
+      "label": "USGS MCS 2024 data release: Copper world mine production and reserves",
+      "release": {
+       "label": "Mineral Commodity Summaries 2024 (declared by the operator; verify)",
+       "published_on": "2024-01-31",
+       "version": "MCS2024"
+      },
+      "table": "MCS2024 world production and reserves: Copper",
+      "url": "https://www.sciencebase.gov/catalog/file/get/fixture-mcs2024?name=MCS2024_Fig_Copper.csv",
+      "value_columns": [
+       {
+        "column": "Prod_t_2022",
+        "statistic": "production",
+        "unit": "metric tons, copper content",
+        "year": "2022"
+       },
+       {
+        "column": "Prod_t_est_2023",
+        "estimated": true,
+        "statistic": "production",
+        "unit": "metric tons, copper content",
+        "year": "2023"
+       },
+       {
+        "column": "Reserves_t",
+        "reference": "reserves as stated in the release (verify the reference date)",
+        "statistic": "reserves",
+        "unit": "metric tons, copper content",
+        "year": "2023"
+       }
+      ]
+     },
+     {
+      "columns": {
+       "country": "Country",
+       "notes": "Reserves_notes"
+      },
+      "commodity": {
+       "code": "lithium",
+       "definition": {
+        "reference": "https://www.usgs.gov/centers/national-minerals-information-center/lithium-statistics-and-information",
+        "text": "Lithium: mine production and reserves, lithium content (USGS definitions; verify)"
+       },
+       "label": "Lithium"
+      },
+      "countries": {
+       "Australia": {
+        "iso2": "AU",
+        "m49": "036"
+       },
+       "Chile": {
+        "iso2": "CL",
+        "m49": "152"
+       },
+       "Peru": {
+        "iso2": "PE",
+        "m49": "604"
+       },
+       "United States": {
+        "iso2": "US",
+        "m49": "840"
+       },
+       "World total (rounded)": {
+        "aggregate": true
+       }
+      },
+      "label": "USGS MCS 2024 data release: Lithium world mine production and reserves",
+      "release": {
+       "label": "Mineral Commodity Summaries 2024 (declared by the operator; verify)",
+       "published_on": "2024-01-31",
+       "version": "MCS2024"
+      },
+      "table": "MCS2024 world production and reserves: Lithium",
+      "url": "https://www.sciencebase.gov/catalog/file/get/fixture-mcs2024?name=MCS2024_Fig_Lithium.csv",
+      "value_columns": [
+       {
+        "column": "Prod_t_2022",
+        "statistic": "production",
+        "unit": "metric tons, lithium content",
+        "year": "2022"
+       },
+       {
+        "column": "Prod_t_est_2023",
+        "estimated": true,
+        "statistic": "production",
+        "unit": "metric tons, lithium content",
+        "year": "2023"
+       },
+       {
+        "column": "Reserves_t",
+        "reference": "reserves as stated in the release (verify the reference date)",
+        "statistic": "reserves",
+        "unit": "metric tons, lithium content",
+        "year": "2023"
+       }
+      ]
+     }
+    ],
+    "format": "usgs-mcs-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "usgs-mcs"
+   },
+   "fixture": {
+    "expected_output_hash": "2ca82797095cd9a9bbf4bdf6f2d71b3bd14578729689b64a8a43b649203d84c9",
+    "path": "tests/fixtures/source_packs/economic-extractives-usgs-mcs.json",
+    "sha256": "da440ae90257ff19ed50492bd90704a5098126db6538c2887dca9941de1ce9ca"
+   },
+   "license": {
+    "id": "us-public-domain",
+    "redistribution": "US federal government work in the public domain; cite USGS (operator must confirm)",
+    "terms_url": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits"
+   },
+   "publisher": "U.S. Geological Survey, National Minerals Information Center (Mineral Commodity Summaries)",
+   "scope": "World mine production and reserves tables for copper and lithium from one declared MCS data release (operator must verify item ids, file names and headers)",
+   "source_id": "usgs-mineral-commodity-summaries",
+   "temporal_semantics": "the declared publication date of the annual release; the column year as reference period",
+   "update_cadence": "annually (late January)"
+  },
+  {
+   "budgets": {
+    "max_bytes": 2000000,
+    "max_pages": 2,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://www2.bgs.ac.uk/mineralsuk/statistics",
+   "extractives": {
+    "documents": [
+     {
+      "columns": {
+       "commodity": "Commodity",
+       "country": "Country",
+       "note": "Notes",
+       "quantity": "Quantity",
+       "statistic": "Statistic",
+       "unit": "Units",
+       "year": "Year"
+      },
+      "commodity": {
+       "code": "copper",
+       "definition": {
+        "reference": "https://www.bgs.ac.uk/mineralsuk/statistics/world-mineral-statistics/",
+        "text": "BGS World Mineral Statistics definitions (verify)"
+       },
+       "label": "Copper"
+      },
+      "commodity_as_published": "Copper",
+      "countries": {
+       "Chile": {
+        "iso2": "CL",
+        "m49": "152"
+       },
+       "Germany": {
+        "iso2": "DE",
+        "m49": "276"
+       },
+       "Netherlands": {
+        "iso2": "NL",
+        "m49": "528"
+       },
+       "Peru": {
+        "iso2": "PE",
+        "m49": "604"
+       }
+      },
+      "label": "BGS World Mineral Statistics (2018-2022): Copper",
+      "release": {
+       "label": "BGS World Mineral Statistics, 2018-2022 (declared by the operator; verify)",
+       "published_on": "2024-03-15",
+       "version": "2018-2022"
+      },
+      "statistics": {
+       "Exports": "exports",
+       "Imports": "imports",
+       "Production": "production"
+      },
+      "url": "https://www2.bgs.ac.uk/mineralsuk/statistics/wms.cfc?agreeToTsAndCs=agreed&commodity=copper&dateFrom=2021&dateTo=2022&method=listResults"
+     },
+     {
+      "columns": {
+       "commodity": "Commodity",
+       "country": "Country",
+       "note": "Notes",
+       "quantity": "Quantity",
+       "statistic": "Statistic",
+       "unit": "Units",
+       "year": "Year"
+      },
+      "commodity": {
+       "code": "crude-petroleum",
+       "definition": {
+        "reference": "https://www.bgs.ac.uk/mineralsuk/statistics/world-mineral-statistics/",
+        "text": "BGS World Mineral Statistics definitions (verify)"
+       },
+       "hydrocarbon": true,
+       "label": "Petroleum crude",
+       "siec": "O4100_TOT"
+      },
+      "commodity_as_published": "Petroleum crude",
+      "countries": {
+       "Chile": {
+        "iso2": "CL",
+        "m49": "152"
+       },
+       "Germany": {
+        "iso2": "DE",
+        "m49": "276"
+       },
+       "Netherlands": {
+        "iso2": "NL",
+        "m49": "528"
+       },
+       "Peru": {
+        "iso2": "PE",
+        "m49": "604"
+       }
+      },
+      "label": "BGS World Mineral Statistics (2018-2022): Petroleum crude",
+      "release": {
+       "label": "BGS World Mineral Statistics, 2018-2022 (declared by the operator; verify)",
+       "published_on": "2024-03-15",
+       "version": "2018-2022"
+      },
+      "statistics": {
+       "Exports": "exports",
+       "Imports": "imports",
+       "Production": "production"
+      },
+      "url": "https://www2.bgs.ac.uk/mineralsuk/statistics/wms.cfc?agreeToTsAndCs=agreed&commodity=petroleum-crude&dateFrom=2021&dateTo=2022&method=listResults"
+     }
+    ],
+    "format": "bgs-wms-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "bgs-wms"
+   },
+   "fixture": {
+    "expected_output_hash": "2b4bf10fb6785e26e052ce88bfd8919e4f8e02d716a06d3f1c0414050197a5a1",
+    "path": "tests/fixtures/source_packs/economic-extractives-bgs-wms.json",
+    "sha256": "72353db5dc72208e53feb3eee198cf28c0a54070756675514aaff0384d084833"
+   },
+   "license": {
+    "id": "bgs-wms-terms",
+    "redistribution": "acknowledge 'British Geological Survey (c) UKRI'; redistribution terms to be confirmed by the operator (not re-verified live)",
+    "terms_url": "https://www.bgs.ac.uk/legal-and-policy/"
+   },
+   "publisher": "British Geological Survey (World Mineral Statistics)",
+   "scope": "Copper production, ores imports and exports and crude petroleum production for CL, PE, DE and NL from one declared BGS publication (operator must verify the query and CSV layout)",
+   "source_id": "bgs-world-mineral-statistics",
+   "temporal_semantics": "the declared publication date of the BGS publication; the year as reference period",
+   "update_cadence": "annually"
+  }
+ ],
+ "version": "1.0.0"
+}

@@ -9433,6 +9433,12 @@ from tools.knowledge_engine_mcp.fact_checks import (  # noqa: E402 - registratio
 
 register_fact_check_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.extractives import (  # noqa: E402 - registration order
+    register as register_extractives_tools,
+)
+
+register_extractives_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

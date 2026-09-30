@@ -55,7 +55,6 @@ providers stay where they are; their ids are preserved.
 | `social-protection` | Society and population | `society.social-protection` (new bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
 | `public-opinion-wellbeing` | Society and population | `society.public-opinion` (new bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
 | `civil-society` | Society and population | `society.civil-society` (new bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
-| `extractives-natural-resources` | Economy and markets | `economics.extractives` | EITI summary data; USGS Mineral Commodity Summaries; BGS World Mineral Statistics | ownership, energy, public finance | 1 |
 | `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `industry-business` | Economy and markets | `economics.business` | Eurostat short-term business statistics and business demography; US Census County Business Patterns | trade, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |

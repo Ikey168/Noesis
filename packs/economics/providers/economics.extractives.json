@@ -1,0 +1,263 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.extractives",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.extractives_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.extractives",
+      "contract": {
+        "name": "noesis-extractives-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "list-series",
+        "series-values",
+        "production-reserves",
+        "company-payments",
+        "country-payments",
+        "record-history",
+        "evidence-bundle",
+        "matches",
+        "links",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "EITI report, government agency, revenue stream, company, project and company payment records are immutable revisions per report version; a revised report is a new version and records it no longer states become removed revisions, never deletions",
+        "series": "production, reserves, imports and exports are keyed by source, commodity, statistic, unit and country; each publication that changes values is an appended vintage in the Economics series storage, withheld, estimated and revised markers kept as published",
+        "as_of": "answers select the report version or vintage published by the date and cite source, record revision and as-of time; all versions and vintages can be listed",
+        "payments": "government- and company-reported figures are shown side by side with the discrepancy the EITI report publishes, in the currency as reported; currencies are never converted or summed across reports",
+        "sources": "USGS and BGS series are separate series, listed side by side and never blended",
+        "identity": "companies reach ownership entities only through reviewed matches (published identifiers first, names as low evidence), commodities reach HS headings only through a recorded published concordance and projects reach infrastructure only through published identifiers or coordinates; nothing is auto-merged and unmatched records stay visible",
+        "links": "links to public finance, trade flows, Energy and infrastructure rest on an explicit citation, a shared published identifier or an accepted match and point at record revisions; absent providers and targets are reported, never dropped",
+        "minimisation": "contact persons and beneficial owners are never stored; individual payers keep their amounts with name and identifier withheld",
+        "exclusions": "no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no corruption or governance risk scoring, no price forecasts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.extractives_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_extractives_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-values",
+      "tool": "noesis-knowledge-engine.extractives_series_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "production-reserves",
+      "tool": "noesis-knowledge-engine.query_extractives_production",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "company-payments",
+      "tool": "noesis-knowledge-engine.query_extractives_company_payments",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "country-payments",
+      "tool": "noesis-knowledge-engine.query_extractives_country_payments",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-history",
+      "tool": "noesis-knowledge-engine.extractives_record_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_extractives_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "matches",
+      "tool": "noesis-knowledge-engine.list_extractives_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_extractives_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_extractives_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "releases",
+      "required_scopes": [
+        "knowledge:extractives:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "extractives-record",
+      "store": "src.kb.extractives_store",
+      "tables": [
+        "extractives_releases",
+        "extractives_records",
+        "extractives_series",
+        "extractives_vintages",
+        "extractives_values"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "extractives-match",
+      "store": "src.kb.extractives_identity",
+      "tables": [
+        "extractives_concordances",
+        "extractives_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "extractives-link",
+      "store": "src.kb.extractives_links",
+      "tables": [
+        "extractives_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "extractives-refresh-receipt",
+      "store": "src.kb.extractives_monitoring",
+      "tables": [
+        "extractives_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "releases",
+      "kind": "table-exists",
+      "target": "extractives_releases"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-extractives",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

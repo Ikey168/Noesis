@@ -247,6 +247,7 @@
 
     "economics.core": {"subdomains": ["macroeconomy-prices"], "shapes": ["statistical-series", "versioned-documents"]},
     "economics.demographics": {"domain": "society-population", "subdomains": ["population-migration"], "shapes": ["statistical-series"]},
+    "economics.extractives": {"subdomains": ["extractives-natural-resources"], "shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
     "economics.labour": {"domain": "society-population", "subdomains": ["labour-employment"], "shapes": ["statistical-series"]},
     "economics.logistics": {"subdomains": ["logistics"], "shapes": ["statistical-series"], "themes": ["transport-mobility"]},
     "economics.public-finance": {"subdomains": ["public-finance"], "shapes": ["statistical-series"]},

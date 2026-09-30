@@ -80,6 +80,7 @@ PROJECTOR_OWNERS = {
     "noesis-treaty-record-v1": "src.kb.treaties_records",  # Legal treaties (#2581)
     "noesis-fact-check-record-v1": "src.kb.fact_checks_records",
     "noesis-enforcement-record-v1": "src.kb.enforcement",  # #2651
+    "noesis-extractives-record-v1": "src.kb.extractives_store",  # Economics extractives (#2653)
 }
 
 

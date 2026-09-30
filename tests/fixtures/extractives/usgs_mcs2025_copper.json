@@ -1,0 +1,78 @@
+{
+ "document": {
+  "columns": {
+   "country": "Country",
+   "notes": "Reserves_notes"
+  },
+  "commodity": {
+   "code": "copper",
+   "definition": {
+    "reference": "https://www.usgs.gov/centers/national-minerals-information-center/copper-statistics-and-information",
+    "text": "Copper: mine production, recoverable copper content; reserves (USGS definitions; verify)"
+   },
+   "label": "Copper"
+  },
+  "countries": {
+   "Australia": {
+    "iso2": "AU",
+    "m49": "036"
+   },
+   "Chile": {
+    "iso2": "CL",
+    "m49": "152"
+   },
+   "Peru": {
+    "iso2": "PE",
+    "m49": "604"
+   },
+   "United States": {
+    "iso2": "US",
+    "m49": "840"
+   },
+   "World total (rounded)": {
+    "aggregate": true
+   }
+  },
+  "label": "USGS MCS 2025 data release: Copper world mine production and reserves",
+  "release": {
+   "label": "Mineral Commodity Summaries 2025 (declared by the operator; verify)",
+   "published_on": "2025-01-31",
+   "version": "MCS2025"
+  },
+  "table": "MCS2025 world production and reserves: Copper",
+  "url": "https://www.sciencebase.gov/catalog/file/get/fixture-mcs2025?name=MCS2025_Fig_Copper.csv",
+  "value_columns": [
+   {
+    "column": "Prod_t_2023",
+    "statistic": "production",
+    "unit": "metric tons, copper content",
+    "year": "2023"
+   },
+   {
+    "column": "Prod_t_est_2024",
+    "estimated": true,
+    "statistic": "production",
+    "unit": "metric tons, copper content",
+    "year": "2024"
+   },
+   {
+    "column": "Reserves_t",
+    "reference": "reserves as stated in the release (verify the reference date)",
+    "statistic": "reserves",
+    "unit": "metric tons, copper content",
+    "year": "2024"
+   }
+  ]
+ },
+ "native_pages": [
+  {
+   "body": "Source,Country,Type,Prod_t_2023,Prod_t_est_2024,Reserves_t,Reserves_notes\nMCS2025,United States,Mine production,1130000,1100000,50000000,\nMCS2025,Chile,Mine production,5250000r,5300000,190000000,\nMCS2025,Peru,Mine production,2600000,2600000,100000000,\nMCS2025,World total (rounded),Mine production,22000000,23000000,980000000,\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/catalog/file/get/fixture-mcs2025?name=MCS2025_Fig_Copper.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented shape as known to the author (not re-verified live); every company, project, amount and figure is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it."
+}

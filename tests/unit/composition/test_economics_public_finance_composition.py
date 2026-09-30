@@ -134,9 +134,11 @@ def test_the_bundle_validates_and_behaves_unchanged_with_the_feature_off_by_defa
     composition = json.loads((ROOT / "packs/economics/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
     # public-finance, the demographics feature (#1914) and the trade features (#2210) are optional and off by default.
-    # The labour-statistics (#2219) and logistics (#2229) features are optional and off by default too.
+    # The labour-statistics (#2219) and logistics (#2229) features are optional and off by default too,
+    # and so are the extractives features (#2653).
     assert set(features) == {
         "public-finance", "demographics", "trade-comtrade", "trade-comext", "labour-statistics", "logistics",
+        "extractives-eiti", "extractives-usgs", "extractives-bgs",
     }
     assert features["demographics"]["default"] is False
     feature = features["public-finance"]
