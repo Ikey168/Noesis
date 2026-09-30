@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "ECRef,RegulatedEntityId,RegulatedEntityName,RegulatedEntityType,ElectionName,ExpenseCategoryName,SupplierName,Amount,DateIncurred,DatePaid,RegisterName\nRS0990001,9901,Example Party,Political Party,UK Parliamentary General Election 2099,Advertising,Example Print Ltd,\"£8,000.00\",20/04/2099,30/04/2099,Great Britain\nRS0990002,9901,Example Party,Political Party,UK Parliamentary General Election 2099,Rallies and other events,Example Venues Ltd,\"£3,500.00\",01/05/2099,05/05/2099,Great Britain\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/api/csv/Spending?from=2099-03-01&order=asc&regulatedEntityId=9901&rows=2000&sort=DateIncurred&start=0&to=2099-06-30",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (cycle 2100 and state EX are placeholders); every committee, candidate and organisation is fictional and individual donors carry placeholder names that the parser discards (CF01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-individuals"
+ ]
+}

@@ -55,7 +55,7 @@ def test_every_provider_has_a_contract_licence_and_live_verification_status():
 
 def test_the_source_pack_declares_every_source_with_live_verification_and_replays_offline():
     manifest = h.manifest()
-    assert manifest["version"] == "1.3.0"
+    assert manifest["version"] == "1.4.0"  # 1.4.0 adds the campaign-finance sources (#2209); ours unchanged
     ours = [s for s in manifest["sources"] if s["connector"] == "legislation"]
     assert {s["source_id"] for s in ours} == set(h.SOURCES)
     for item in ours:

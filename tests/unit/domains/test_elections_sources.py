@@ -53,7 +53,7 @@ def test_access_decisions_record_every_source_and_keep_aggregators_out():
 
 def test_the_source_pack_carries_four_pinned_result_sources_that_replay_offline():
     pack = json.loads(h.PACK.read_text())
-    assert pack["version"] == "1.3.0"  # 1.3.0 adds the legislation sources (#2208); result sources unchanged
+    assert pack["version"] == "1.4.0"  # 1.3.0 legislation (#2208), 1.4.0 campaign finance (#2209); ours unchanged
     ours = [s for s in pack["sources"] if s.get("connector") == CONNECTOR]
     assert {s["source_id"] for s in ours} == set(h.SOURCES.values())
     assert all(

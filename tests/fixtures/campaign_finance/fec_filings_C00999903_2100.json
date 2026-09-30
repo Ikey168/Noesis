@@ -1,0 +1,94 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 3,
+  "page": 1,
+  "pages": 1,
+  "per_page": 100
+ },
+ "results": [
+  {
+   "committee_id": "C00999903",
+   "file_number": 1500301,
+   "form_type": "F24",
+   "report_type": "24",
+   "report_type_full": "24-HOUR REPORT",
+   "report_year": 2099,
+   "cycle": 2100,
+   "coverage_start_date": null,
+   "coverage_end_date": null,
+   "receipt_date": "2099-09-02",
+   "amendment_indicator": "N",
+   "amendment_indicator_full": "NEW",
+   "amendment_chain": [
+    1500301
+   ],
+   "most_recent": true,
+   "most_recent_file_number": 1500301,
+   "previous_file_number": null,
+   "is_amended": false,
+   "beginning_image_number": "209915003010001",
+   "pdf_url": "https://docquery.fec.gov/pdf/301/209915003010001/209915003010001.pdf",
+   "fec_url": "https://docquery.fec.gov/cgi-bin/forms/C00999903/1500301/",
+   "document_description": "24 2099"
+  },
+  {
+   "committee_id": "C00999903",
+   "file_number": 1500310,
+   "form_type": "F3X",
+   "report_type": "Q3",
+   "report_type_full": "OCTOBER QUARTERLY",
+   "report_year": 2099,
+   "cycle": 2100,
+   "coverage_start_date": "2099-06-01",
+   "coverage_end_date": "2099-09-30",
+   "receipt_date": "2099-10-15",
+   "amendment_indicator": "N",
+   "amendment_indicator_full": "NEW",
+   "amendment_chain": [
+    1500310
+   ],
+   "most_recent": true,
+   "most_recent_file_number": 1500310,
+   "previous_file_number": null,
+   "is_amended": false,
+   "beginning_image_number": "209915003100001",
+   "pdf_url": "https://docquery.fec.gov/pdf/310/209915003100001/209915003100001.pdf",
+   "fec_url": "https://docquery.fec.gov/cgi-bin/forms/C00999903/1500310/",
+   "document_description": "Q3 2099",
+   "total_receipts": 160000.0,
+   "total_disbursements": 105000.0,
+   "cash_on_hand_beginning_period": 0.0,
+   "cash_on_hand_end_period": 55000.0
+  },
+  {
+   "committee_id": "C00999903",
+   "file_number": 1500390,
+   "form_type": "F3X",
+   "report_type": "TER",
+   "report_type_full": "TERMINATION REPORT",
+   "report_year": 2099,
+   "cycle": 2100,
+   "coverage_start_date": "2099-10-01",
+   "coverage_end_date": "2099-12-31",
+   "receipt_date": "2099-12-31",
+   "amendment_indicator": "T",
+   "amendment_indicator_full": "TERMINATION",
+   "amendment_chain": [
+    1500390
+   ],
+   "most_recent": true,
+   "most_recent_file_number": 1500390,
+   "previous_file_number": null,
+   "is_amended": false,
+   "beginning_image_number": "209915003900001",
+   "pdf_url": "https://docquery.fec.gov/pdf/390/209915003900001/209915003900001.pdf",
+   "fec_url": "https://docquery.fec.gov/cgi-bin/forms/C00999903/1500390/",
+   "document_description": "TER 2099",
+   "total_receipts": 0.0,
+   "total_disbursements": 55000.0,
+   "cash_on_hand_beginning_period": 55000.0,
+   "cash_on_hand_end_period": 0.0
+  }
+ ]
+}

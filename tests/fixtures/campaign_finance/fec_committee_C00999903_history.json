@@ -1,0 +1,30 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 1,
+  "page": 1,
+  "pages": 1,
+  "per_page": 100
+ },
+ "results": [
+  {
+   "committee_id": "C00999903",
+   "cycle": 2100,
+   "name": "FUTURE EXAMPLES ACTION FUND",
+   "committee_type": "O",
+   "committee_type_full": "Super PAC (Independent Expenditure-Only)",
+   "designation": "U",
+   "designation_full": "Unauthorized",
+   "organization_type": null,
+   "party": null,
+   "state": "EX",
+   "filing_frequency": "T",
+   "affiliated_committee_name": null,
+   "candidate_ids": [],
+   "first_file_date": "2099-06-01",
+   "last_file_date": "2099-12-31",
+   "last_f1_date": "2099-06-01",
+   "treasurer_name": "MOCK, DANA"
+  }
+ ]
+}

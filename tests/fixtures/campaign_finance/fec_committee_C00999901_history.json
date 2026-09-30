@@ -1,0 +1,56 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 2,
+  "page": 1,
+  "pages": 1,
+  "per_page": 100
+ },
+ "results": [
+  {
+   "committee_id": "C00999901",
+   "cycle": 2100,
+   "name": "ALEX EXAMPLE FOR PRESIDENT",
+   "committee_type": "P",
+   "committee_type_full": "Presidential",
+   "designation": "P",
+   "designation_full": "Principal campaign committee",
+   "organization_type": null,
+   "party": "EXP",
+   "state": "EX",
+   "filing_frequency": "Q",
+   "affiliated_committee_name": null,
+   "candidate_ids": [
+    "P99000001"
+   ],
+   "first_file_date": "2097-05-01",
+   "last_file_date": "2099-07-15",
+   "last_f1_date": "2099-01-10",
+   "treasurer_name": "SAMPLE, TREASURER",
+   "street_1": "1 EXAMPLE WAY",
+   "city": "EXAMPLETON",
+   "zip": "99001"
+  },
+  {
+   "committee_id": "C00999901",
+   "cycle": 2098,
+   "name": "EXAMPLE 2100 EXPLORATORY COMMITTEE",
+   "committee_type": "P",
+   "committee_type_full": "Presidential",
+   "designation": "A",
+   "designation_full": "Authorized by a candidate",
+   "organization_type": null,
+   "party": "EXP",
+   "state": "EX",
+   "filing_frequency": "Q",
+   "affiliated_committee_name": null,
+   "candidate_ids": [
+    "P99000001"
+   ],
+   "first_file_date": "2097-05-01",
+   "last_file_date": "2098-12-31",
+   "last_f1_date": "2097-05-01",
+   "treasurer_name": "SAMPLE, TREASURER"
+  }
+ ]
+}
