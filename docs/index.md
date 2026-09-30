@@ -239,6 +239,11 @@ For the project overview and local setup, start with the
   release, UNCTADstat and Eurostat maritime series and openly licensed freight indices as of a vintage, reviewable
   port identity, trade-flow joins by shared code or citation and monitors; no freight-rate forecast or derived index;
   [source audit](roadmaps/economics-logistics-source-audit.md)
+- [Economics extractives guide](guides/economics-extractives.md) — EITI payments per report version for a company,
+  its group or a country with government- and company-reported figures and discrepancies as published, USGS and
+  BGS production and reserves side by side per vintage, reviewable company, commodity and project identity,
+  cross-pack links and monitors; no reconciliation, own reserve estimate, risk score or price forecast;
+  [source audit](development/extractives-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
