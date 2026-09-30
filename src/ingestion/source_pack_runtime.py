@@ -434,6 +434,15 @@ def _competition_projector(conn: Any) -> Any:
 # Corporate Ownership competition feature (#2217).
 PROJECTORS["noesis-competition-record-v1"] = _competition_projector
 
+
+def _osint_movement_projector(conn: Any) -> Any:
+    from src.osint.movements import MovementProjector
+
+    return MovementProjector(conn)
+
+
+PROJECTORS["noesis-osint-movement-record-v1"] = _osint_movement_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

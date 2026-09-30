@@ -121,8 +121,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Science education-statistics feature's IPEDS, ETER, UIS, OECD EAG and Eurostat R&D sources (#2227),
     # plus the Economics logistics feature's UN/LOCODE, UNCTADstat, Eurostat maritime and BLS freight PPI sources (#2229),
     # plus the Market insurance feature's EIOPA, SFCR, NAIC (metadata-only), Florida OIR and NCEI sources (#2230),
-    # plus the Corporate Ownership competition feature's EC, TAM, CMA, FTC and DOJ sources (#2217).
-    assert sum(len(pack["sources"]) for pack in packs) == 277
+    # plus the Corporate Ownership competition feature's EC, TAM, CMA, FTC and DOJ sources (#2217),
+    # plus the OSINT movements feature's FAA, G-INFO, OpenSky, GFW port-visit, open AIS and UNCTAD sources (#2221).
+    assert sum(len(pack["sources"]) for pack in packs) == 283
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

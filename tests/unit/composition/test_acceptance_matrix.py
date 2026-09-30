@@ -147,6 +147,12 @@ MATRIX = {
     "Object to cited registration, operator and re-entry":
         "tests/unit/domains/test_astronomy_registration_acceptance.py::"
         "test_object_to_cited_registration_operator_and_reentry_with_identity_and_revisions",
+    # The OSINT movements feature's offline journey (#2289) composes the movement record owner with the
+    # source-pack runtime, Fisheries GFW identity, geospatial facilities, ownership identity, sanctions and
+    # subscriptions.
+    "Aircraft and vessel to cited movements":
+        "tests/unit/domains/test_osint_movements_acceptance.py::"
+        "test_aircraft_and_vessel_to_cited_registry_records_sampled_movements_and_calls",
     # The Sports bundle's offline journey (#2147) composes its record owner, the source-pack runtime, reviewable
     # identity, the binary forecast ledger and subscriptions.
     "Competition and date to a cited table":

@@ -1,0 +1,14 @@
+{
+  "description": "Authored synthetic payloads in the provider's documented or observed shape (verify against a live run, #2291). Every registration, ICAO address, IMO number, MMSI, owner, airport and port is fictional; positions are illustrative, not live evidence.",
+  "scenarios": [
+    "aggregates-only",
+    "undeclared-economy-dropped"
+  ],
+  "native_pages": [
+    {
+      "request": "/bulkdownload/US.PortCalls/US_PortCalls",
+      "status": 200,
+      "body": "Period,Economy,Economy Label,CommercialMarket,CommercialMarket Label,NumberOfPortCalls,MedianTimeInPort_Days\n2024,578,Norway (synthetic),0,All ships,41000,0.52\n2025,578,Norway (synthetic),0,All ships,42000,0.50\n2024,724,Spain (synthetic),0,All ships,120000,0.71\n2025,724,Spain (synthetic),0,All ships,121500,0.69\n2025,840,United States (synthetic),0,All ships,90000,1.10\n"
+    }
+  ]
+}

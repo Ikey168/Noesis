@@ -1,0 +1,127 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-osint-movement-record-v1",
+  "title": "OSINT movement record: what one source published about one aircraft or vessel, or one aggregate",
+  "description": "One statement the OSINT movement adapters (src/ingestion/osint_movement_sources.py) emit and src/osint/movements.py keeps as an immutable revision (#2221, MV02). Record types: aircraft_identity and vessel_identity (typed identifiers a source states together), registry_record (a registry entry and its dated revisions; deregistration is a revision, never a deletion), sample_window (one bounded request window with its declared volume bound, licence decision and receiver coverage: 'positions_observed' or 'no_coverage_observed', never 'no movement'), position_sample (one position inside a window; a sample without a window is rejected), call (an airport or port call, 'source-published' with the source's confidence or 'derived' with method, samples and facility geometry) and aggregate (a published statistic that is never disaggregated into vessels). Identifiers are typed; names of pilots, crew or owners who are natural persons are never movement keys.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "subject", "record_key", "identifiers", "as_published", "effective", "licence", "source"],
+  "additionalProperties": false,
+  "definitions": {
+    "timestamp": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+    "identifier": {
+      "type": "object",
+      "required": ["scheme", "value"],
+      "properties": {
+        "scheme": {"enum": ["icao24", "registration", "serial_number", "imo", "mmsi", "call_sign", "gfw_vessel_id", "flight_callsign"]},
+        "value": {"type": "string", "minLength": 1},
+        "valid_from": {"$ref": "#/definitions/timestamp"},
+        "valid_to": {"$ref": "#/definitions/timestamp"}
+      },
+      "additionalProperties": false
+    },
+    "window": {
+      "type": "object",
+      "required": ["window_id", "start", "end"],
+      "properties": {
+        "window_id": {"type": "string", "pattern": "^mv-window:[0-9a-f]{24}$"},
+        "start": {"$ref": "#/definitions/timestamp"},
+        "end": {"$ref": "#/definitions/timestamp"}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-osint-movement-record-v1"},
+    "record_type": {"enum": ["aircraft_identity", "vessel_identity", "registry_record", "sample_window", "position_sample", "call", "aggregate"]},
+    "provider": {"enum": ["faa-registry", "uk-caa-ginfo", "opensky", "gfw-port-visits", "kystdatahuset-ais", "unctad-port-calls", "derived"]},
+    "subject": {
+      "type": "object",
+      "required": ["key", "kind"],
+      "properties": {
+        "key": {"type": "string", "pattern": "^(aircraft:(icao24:[0-9a-f]{6}|registration:[A-Z0-9-]+)|vessel:(imo:\\d{7}|mmsi:\\d{9}|gfw:[0-9a-f-]{8,64})|area:[a-z0-9-]+:.+)$"},
+        "kind": {"enum": ["aircraft", "vessel", "area"]}
+      },
+      "additionalProperties": false
+    },
+    "record_key": {"type": "string", "minLength": 1},
+    "identifiers": {"type": "array", "items": {"$ref": "#/definitions/identifier"}},
+    "as_published": {"type": "object"},
+    "effective": {
+      "type": "object",
+      "required": ["event"],
+      "properties": {
+        "from": {"$ref": "#/definitions/timestamp"},
+        "to": {"$ref": "#/definitions/timestamp"},
+        "event": {"enum": ["published", "registered", "amended", "deregistered", "withheld", "observed", "derived", "release"]},
+        "date_basis": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "window": {"$ref": "#/definitions/window"},
+    "bound": {
+      "type": "object",
+      "required": ["max_window_hours", "max_samples", "licence_decision"],
+      "properties": {
+        "max_window_hours": {"type": "number", "exclusiveMinimum": 0},
+        "max_samples": {"type": "integer", "minimum": 0},
+        "gap_seconds": {"type": "integer", "minimum": 1},
+        "licence_decision": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "coverage": {
+      "type": "object",
+      "required": ["status", "samples_published", "samples_stored", "gaps", "caveat"],
+      "properties": {
+        "status": {"enum": ["positions_observed", "no_coverage_observed", "events_published", "no_events_published"]},
+        "samples_published": {"type": "integer", "minimum": 0},
+        "samples_stored": {"type": "integer", "minimum": 0},
+        "thinned": {"type": "boolean"},
+        "gaps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["from", "to", "seconds", "kind"],
+            "properties": {
+              "from": {"$ref": "#/definitions/timestamp"},
+              "to": {"$ref": "#/definitions/timestamp"},
+              "seconds": {"type": "integer", "minimum": 0},
+              "kind": {"enum": ["no positions received", "window edge without positions"]}
+            },
+            "additionalProperties": false
+          }
+        },
+        "receiver_category": {"type": "string"},
+        "caveat": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "licence": {
+      "type": "object",
+      "required": ["id", "decision", "attribution"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "decision": {"type": "string", "pattern": "^docs/security/osint-movements-access\\.md#"},
+        "attribution": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "source": {
+      "type": "object",
+      "required": ["url", "locator", "evidence_origin"],
+      "properties": {
+        "url": {"type": ["string", "null"]},
+        "locator": {"type": "string"},
+        "query": {"type": "object"},
+        "evidence_origin": {"enum": ["fixture", "live", "derived"]},
+        "release": {"type": ["string", "null"]},
+        "dataset_version": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"enum": ["position_sample", "call", "sample_window"]}}}, "then": {"required": ["window"]}},
+    {"if": {"properties": {"record_type": {"const": "sample_window"}}}, "then": {"required": ["bound", "coverage"]}}
+  ]
+}

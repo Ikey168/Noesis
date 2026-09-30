@@ -397,7 +397,7 @@
       "pack": null,
       "reason": null,
       "state": "degraded",
-      "tool_count": 14,
+      "tool_count": 15,
       "tools": [
         "noesis-osint.contradiction_scan",
         "noesis-osint.corroborate",
@@ -408,6 +408,7 @@
         "noesis-osint.image_reuse_findings",
         "noesis-osint.infrastructure_pivot",
         "noesis-osint.investigation_audit",
+        "noesis-osint.movement_source_contracts",
         "noesis-osint.origin_signals",
         "noesis-osint.relationship_path",
         "noesis-osint.source_reliability",
@@ -419,7 +420,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 14
+      "visible_tool_count": 15
     },
     {
       "aliases": [],
@@ -2574,10 +2575,10 @@
     "servers": 32,
     "states": {
       "available": 147,
-      "degraded": 173,
+      "degraded": 174,
       "unauthorized": 1607
     },
-    "tools": 1927
+    "tools": 1928
   },
   "tools": [
     {
@@ -7990,6 +7991,49 @@
       "name": "investigation_audit",
       "output_schema": {
         "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "backend or data readiness is incomplete",
+      "required_data": [
+        "warehouse"
+      ],
+      "required_scopes": [
+        "knowledge:read"
+      ],
+      "server": "noesis-osint",
+      "state": "degraded",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Licence, access and volume decisions for the aircraft and vessel movement sources\n(docs/security/osint-movements-access.md): adopted providers with their bounds\nand live-verification status, excluded sources with reasons, and whether the\noptional movements feature and its gated tools are served. Reads no records.",
+      "id": "noesis-osint.movement_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "movement_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "properties": {
+          "answer_bounds": {
+            "type": "object"
+          },
+          "contract": {
+            "type": "string"
+          },
+          "excluded": {
+            "type": "object"
+          },
+          "feature": {
+            "type": "object"
+          },
+          "providers": {
+            "type": "object"
+          }
+        },
         "type": "object"
       },
       "reason": "backend or data readiness is incomplete",

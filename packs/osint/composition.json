@@ -118,6 +118,37 @@
           "reason": "Save Page Now asks the archive to make a new capture"
         }
       ]
+    },
+    {
+      "id": "movements",
+      "default": false,
+      "description": "Aircraft and vessel registry records and bounded movement samples under documented licence and volume bounds (docs/security/osint-movements-access.md): FAA and G-INFO registry revisions, OpenSky and open AIS samples for one named identifier and window, GFW port visits, derived calls with coverage caveats, reviewable identity and sanctions citations. Tools served only with NOESIS_OSINT_MOVEMENTS; position-bearing tools also behind the osint-review gate. No real-time tracking, continuous mirroring or movement alerts",
+      "requires": [
+        {
+          "capability": "osint.movements",
+          "contract": "noesis-osint-movement-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own records, answers and tools"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "identifier and organisation matches are reviewed in the shared ownership identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "registry, identity and listing monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "movement sources run through the source-pack runtime with receipts"
+        }
+      ]
     }
   ],
   "contributes": {
@@ -145,11 +176,23 @@
           "name": "noesis-osint-source-infrastructure",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "osint.movements",
+        "provider": "osint.movements",
+        "contract": {
+          "name": "noesis-osint-movement-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "osint.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "osint.movements",
         "version": "1.0.0"
       }
     ],

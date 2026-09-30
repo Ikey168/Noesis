@@ -378,6 +378,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"food-composition"})
 # Astronomy space-object registration, operators and re-entries (UNOOSA, ESA DISCOS, Aerospace; #2224).
 NATIVE_CONNECTOR_MODULES["astronomy-registration"] = "src.ingestion.astronomy_registration_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy-registration"})
+# OSINT aircraft and vessel movements: registries, OpenSky, GFW port visits, open AIS, UNCTAD (#2221).
+NATIVE_CONNECTOR_MODULES["osint-movements"] = "src.ingestion.osint_movement_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"osint-movements"})
 
 # Corporate Ownership competition cases and state aid: EC case search, TAM, GOV.UK CMA, FTC and DOJ (#2217).
 NATIVE_CONNECTOR_MODULES["competition"] = "src.ingestion.competition_sources"
