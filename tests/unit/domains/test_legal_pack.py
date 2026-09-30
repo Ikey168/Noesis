@@ -134,7 +134,9 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
                                                           "sanctions-list", "gesetze-im-internet",
                                                           "rechtsinformationen-bund", "recht-bund",
                                                           # Courts and justice-statistics features (#2218).
-                                                          "courts-justice"} <= SUPPORTED_CONNECTORS
+                                                          "courts-justice",
+                                                          # Treaties features (#2581).
+                                                          "treaties"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {s["source_id"]: s["records"] for s in result["sources"]} == {
@@ -151,7 +153,9 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
         # Courts and justice-statistics features (#2218): one docket, two opinion clusters, two FBI CDE series, one
         # police.uk month and one Eurostat release.
         "courtlistener-dockets": 1, "courtlistener-opinions": 2, "fbi-cde-summarized": 2,
-        "police-uk-street-crime": 1, "eurostat-crime-iccs": 1}
+        "police-uk-street-crime": 1, "eurostat-crime-iccs": 1,
+        # Treaties features (#2581): one fictional treaty per source with its participants, actions and statements.
+        "untc-treaty-status": 17, "eu-cellar-agreements": 8, "coe-treaty-office": 17}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():

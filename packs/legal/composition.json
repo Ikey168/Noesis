@@ -40,6 +40,14 @@
           "name": "noesis-justice-statistic",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "legal.treaties",
+        "provider": "legal.treaties",
+        "contract": {
+          "name": "noesis-treaty-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -62,12 +70,16 @@
       {
         "id": "legal.justice-statistics",
         "version": "1.0.0"
+      },
+      {
+        "id": "legal.treaties",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "legal-research",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "range": "^1.1.0"
       }
     ]
@@ -238,6 +250,123 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "statistics are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "treaties-untc",
+      "default": false,
+      "description": "UN Treaty Collection status of multilateral treaties deposited with the Secretary-General: participants, signatures and consents to be bound, reservations, declarations, objections and notes verbatim, a participant's status as of a date and subscription monitors. Legislation, Sanctions and Trade flows links degrade to reported target-missing links when those providers are absent. No legal advice, no inference of obligations or compliance, no interpretation of reservations.",
+      "requires": [
+        {
+          "capability": "legal.treaties",
+          "contract": "noesis-treaty-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "treaty and participant monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "treaty records are acquired through the legal-research source pack runtime"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "participant and treaty matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        }
+      ]
+    },
+    {
+      "id": "treaties-eu",
+      "default": false,
+      "description": "EU international agreements from CELLAR by CELEX and ELI with language expressions, dates as CELLAR states them, contracting parties and the EU acts pointing at them as citations resolved to Legal works. No legal advice, no inference of implementation or compliance.",
+      "requires": [
+        {
+          "capability": "legal.treaties",
+          "contract": "noesis-treaty-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "the EU acts an agreement cites are CELLAR works of the Legal pack"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "treaty and participant monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "treaty records are acquired through the legal-research source pack runtime"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "participant and treaty matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        }
+      ]
+    },
+    {
+      "id": "treaties-coe",
+      "default": false,
+      "description": "Council of Europe treaty signatures, ratifications, entry into force and denunciations per member and non-member state with reservations, declarations and objections verbatim (designated-authority contact details withheld) and subscription monitors. No legal advice, no inference of obligations or compliance, no interpretation of reservations.",
+      "requires": [
+        {
+          "capability": "legal.treaties",
+          "contract": "noesis-treaty-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "treaty and participant monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "treaty records are acquired through the legal-research source pack runtime"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "participant and treaty matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
         }
       ]
     }

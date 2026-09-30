@@ -1,0 +1,344 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "legal.treaties",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.treaties_records",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "legal.treaties",
+      "contract": {
+        "name": "noesis-treaty-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "treaties-source-contracts",
+        "treaties-readiness",
+        "lookup-treaty",
+        "treaty-record-history",
+        "treaty-status-as-of",
+        "participant-treaty-actions",
+        "treaty-reservations-and-objections",
+        "export-treaty-evidence-bundle",
+        "list-treaty-identity-candidates",
+        "propose-treaty-matches",
+        "review-treaty-match",
+        "revert-treaty-match",
+        "link-treaty-records",
+        "list-treaty-links",
+        "create-treaties-monitor",
+        "run-treaties-monitor",
+        "poll-treaties-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "treaties, language expressions, participants, treaty actions and statements exactly as the UN Treaty Collection, CELLAR and the Council of Europe Treaty Office publish them; every record carries its source, record revision and as-of time; depositary corrections are new revisions and rows a source no longer shows are removed-by-source revisions, never deletions",
+        "as_of": "a participant's status at a date is selected by the action, deposit and effective dates as published; pending and unclear statuses are returned with the source text and answers cite the depositary revision; nothing is inferred",
+        "statements": "reservations, declarations, objections and notes are kept verbatim with their anchors, linked to the action and to the objected reservation only where the source links them",
+        "minimisation": "TR01: no natural person is a field, a key, a match or a monitor target; contact details in declarations are withheld at ingestion and any personal field is refused at write time",
+        "identity": "participants match places and each other through reviewable, reversible candidates (published ISO codes before names); treaties match across sources through published cross-references only; nothing is merged or auto-accepted",
+        "links": "Legal works, sanctions legal bases and Trade flows reporters are linked by citation, shared identifier or accepted match only, pointing at record revisions; missing providers and targets are reported",
+        "exclusions": "no legal advice, no inference of obligations or compliance, no interpretation of the legal effect of reservations, no treaty-text redistribution beyond what each source licenses (texts are linked)"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "treaties-source-contracts",
+      "tool": "noesis-knowledge-engine.treaties_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "treaties-readiness",
+      "tool": "noesis-knowledge-engine.treaties_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "lookup-treaty",
+      "tool": "noesis-knowledge-engine.lookup_treaty",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "treaty-record-history",
+      "tool": "noesis-knowledge-engine.treaty_record_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "treaty-status-as-of",
+      "tool": "noesis-knowledge-engine.treaty_status_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "participant-treaty-actions",
+      "tool": "noesis-knowledge-engine.participant_treaty_actions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "treaty-reservations-and-objections",
+      "tool": "noesis-knowledge-engine.treaty_reservations_and_objections",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-treaty-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_treaty_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-treaty-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_treaty_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-treaty-matches",
+      "tool": "noesis-knowledge-engine.propose_treaty_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-treaty-match",
+      "tool": "noesis-knowledge-engine.review_treaty_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-treaty-match",
+      "tool": "noesis-knowledge-engine.revert_treaty_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-treaty-records",
+      "tool": "noesis-knowledge-engine.link_treaty_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-treaty-links",
+      "tool": "noesis-knowledge-engine.list_treaty_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-treaties-monitor",
+      "tool": "noesis-knowledge-engine.create_treaties_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-treaties-monitor",
+      "tool": "noesis-knowledge-engine.run_treaties_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "poll-treaties-monitor",
+      "tool": "noesis-knowledge-engine.poll_treaties_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "treaty-record",
+      "store": "src.kb.treaties_records",
+      "tables": [
+        "treaty_records",
+        "treaty_revisions",
+        "treaty_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "treaty-link",
+      "store": "src.kb.treaties_links",
+      "tables": [
+        "treaty_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "treaties",
+      "kind": "table-exists",
+      "target": "treaty_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "legal-research",
+      "version": "1.5.0",
+      "range": "^1.5.0"
+    }
+  ]
+}

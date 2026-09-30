@@ -200,6 +200,10 @@ For the project overview and local setup, start with the
   donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest
   filings with reviewable identity and monitors; individual donors minimised; no influence scoring or dark-money
   inference; [source audit and minimisation decision](development/campaign-finance-evidence/source-audit.md)
+- [Legal treaties guide](guides/legal-treaties.md) — UN Treaty Collection status, EU international agreements from
+  CELLAR and Council of Europe treaty charts: treaty actions, reservations, declarations and objections as published,
+  a participant's status as of a date, reviewable participant identity, citation links and monitors; no legal advice,
+  obligation or compliance inference; [source audit and minimisation decision](development/treaties-evidence/source-audit.md)
 - [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
   opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and

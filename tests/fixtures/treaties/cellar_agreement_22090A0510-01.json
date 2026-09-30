@@ -1,0 +1,200 @@
+{
+ "head": {
+  "vars": [
+   "work",
+   "celex",
+   "eli",
+   "date_predicate",
+   "date",
+   "party",
+   "act",
+   "act_celex",
+   "act_date",
+   "relation"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "date": {
+     "type": "literal",
+     "value": "2090-05-10"
+    },
+    "date_predicate": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#work_date_document"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "date": {
+     "type": "literal",
+     "value": "2092-01-20"
+    },
+    "date_predicate": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#resource_legal_date_signature"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "party": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/country/XEA"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "party": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/country/XNW"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "act": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000002101"
+    },
+    "act_celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "32092D0101"
+    },
+    "act_date": {
+     "type": "literal",
+     "value": "2092-01-15"
+    },
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "relation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#resource_legal_based_on_resource_legal"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "act": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000002202"
+    },
+    "act_celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "32093D0202"
+    },
+    "act_date": {
+     "type": "literal",
+     "value": "2093-02-02"
+    },
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "relation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#resource_legal_based_on_resource_legal"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "act": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000003303"
+    },
+    "act_celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "32094R0303"
+    },
+    "act_date": {
+     "type": "literal",
+     "value": "2094-03-03"
+    },
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "relation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#work_cites_work"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   }
+  ]
+ }
+}

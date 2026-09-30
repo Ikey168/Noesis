@@ -235,6 +235,12 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The Legal treaties provider's offline journey (#2640) composes its record owner with the source-pack runtime,
+    # the shared identity state machine, geospatial places, Legal works, sanctions and trade stores by citation and
+    # subscriptions.
+    "Treaty or state to cited treaty actions":
+        "tests/unit/domains/test_treaties_acceptance.py::"
+        "test_treaty_and_state_to_cited_actions_with_revision_history_identity_and_links",
 }
 
 

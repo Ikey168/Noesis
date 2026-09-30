@@ -364,6 +364,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"agrifood"})
 # Legal court dockets and justice statistics: CourtListener, FBI CDE, data.police.uk and Eurostat crime (#2218).
 NATIVE_CONNECTOR_MODULES["courts-justice"] = "src.ingestion.courts_justice_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"courts-justice"})
+# Legal treaties: UN Treaty Collection status, EU international agreements (CELLAR), Council of Europe (#2581).
+NATIVE_CONNECTOR_MODULES["treaties"] = "src.ingestion.treaties_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"treaties"})
 # Economics labour statistics: ILOSTAT, OECD and Eurostat LFS through SDMX, US BLS Public Data API (#2219).
 NATIVE_CONNECTOR_MODULES["labour-statistics"] = "src.ingestion.labour_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"labour-statistics"})
