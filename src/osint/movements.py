@@ -807,3 +807,423 @@ def check_window(start: Any, end: Any, *, max_days: int | None = None) -> tuple[
 
 def _today() -> str:
     return date.today().isoformat()
+
+
+# ================================================================== MV08: derived calls
+
+
+DWELL_SECONDS = {"airport": 300, "port": 7200}
+DERIVATION = {"name": "dwell-in-facility-geometry", "version": "1.0.0",
+              "note": "consecutive samples inside a facility geometry from src.kb.geospatial for at least the dwell "
+                      "threshold; no behaviour inference, route prediction or pattern-of-life analysis"}
+FACILITY_TYPES = {"aircraft": "airport", "vessel": "port"}
+
+
+def _facilities(conn: Any, namespace: str, kind: str) -> list[dict[str, Any]]:
+    """Facility places of one type (airport or port) with their polygon geometries, from the geospatial store."""
+    from src.kb.geospatial import READ_SCOPE as GEO_READ
+    from src.kb.geospatial import GeospatialStore
+
+    if not namespace or not table_exists(conn, "geospatial_places"):
+        return []
+    rows = conn.execute(
+        "SELECT p.place_id, p.place_key, r.canonical_name, r.source_ids_json FROM geospatial_places p JOIN "
+        "geospatial_place_current c USING(place_id) JOIN geospatial_place_revisions r ON r.revision_id=c.revision_id "
+        "WHERE p.namespace=? AND r.place_type=? ORDER BY p.place_id", [namespace, kind]).fetchall()
+    store = GeospatialStore(conn, initialize=False)
+    out = []
+    for place_id, place_key, name, source_ids in rows:
+        for geometry in store.geometries(namespace, place_id, scopes={GEO_READ}):
+            shape = geometry["geometry"]
+            if shape["type"] not in {"Polygon", "MultiPolygon"}:
+                continue
+            polygons = [shape["coordinates"]] if shape["type"] == "Polygon" else shape["coordinates"]
+            points = [p for polygon in polygons for ring in polygon for p in ring]
+            out.append({"place_id": place_id, "place_key": place_key, "name": name, "kind": kind,
+                        "code": (json.loads(source_ids) or {}).get("code"), "geometry_id": geometry["geometry_id"],
+                        "bbox": (min(p[0] for p in points), min(p[1] for p in points),
+                                 max(p[0] for p in points), max(p[1] for p in points))})
+            break
+    return out
+
+
+def resolve_facility(conn: Any, namespace: str | None, kind: str, code: Any) -> dict[str, Any]:
+    """A published facility code resolved to a geospatial place by its key; unresolved facilities stay unresolved."""
+    if not namespace or not code:
+        return {"resolution": "unresolved"}
+    for facility in _facilities(conn, namespace, kind):
+        if facility["place_key"] == f"{kind}:{code}" or facility["code"] == code:
+            return {"resolution": "resolved", "place_id": facility["place_id"], "name": facility["name"],
+                    "geometry_id": facility["geometry_id"], "namespace": namespace}
+    return {"resolution": "unresolved"}
+
+
+def _runs(inside: Sequence[tuple[bool, str, str, Any]]) -> list[list[tuple[bool, str, str, Any]]]:
+    runs, current = [], []
+    for item in inside:
+        if item[0]:
+            current.append(item)
+        elif current:
+            runs.append(current)
+            current = []
+    if current:
+        runs.append(current)
+    return runs
+
+
+def derive_calls(conn: Any, namespace: str, *, facilities_namespace: str, principal_id: str, scopes: Iterable[str],
+                 window_ids: Iterable[str] | None = None, now=None) -> dict[str, Any]:
+    """Derive airport and port calls from stored sample windows against geospatial facility geometry.
+
+    Every derived call carries ``derived`` status, the method and thresholds, the samples and the spatial receipts it
+    rests on, and is ``uncertain`` when a coverage gap lies inside it or touches it (the gap could hide or fake a
+    call). A stay shorter than the threshold that touches a gap is recorded as an uncertain call; otherwise nothing is
+    asserted, and the absence of a call is never asserted.
+    """
+    from src.kb.geospatial import CALCULATE_SCOPE, GeospatialStore
+
+    scopes = set(scopes)
+    require(scopes, READ_SCOPE, CALCULATE_SCOPE)
+    store = MovementStore(conn, now=now)
+    geo = GeospatialStore(conn, initialize=False, **({"now": now} if now else {}))
+    wanted = None if window_ids is None else set(window_ids)
+    derived, notes = [], []
+    for record in store.records(namespace, record_type="sample_window"):
+        if wanted is not None and record["window_id"] not in wanted:
+            continue
+        window = store.latest(namespace, record["record_id"])["statement"]
+        kind = window["subject"]["kind"]
+        if window["coverage"]["status"] != "positions_observed":
+            notes.append({"window_id": record["window_id"],
+                          "note": f"{window['coverage']['status']}: no call is asserted or denied for this window"})
+            continue
+        samples = sorted(((store.latest(namespace, r["record_id"]), r) for r in
+                          store.records(namespace, record_type="position_sample", window=record["window_id"])),
+                         key=lambda pair: pair[0]["statement"]["as_published"]["timestamp"])
+        gaps = window["coverage"]["gaps"]
+        for facility in _facilities(conn, facilities_namespace, FACILITY_TYPES[kind]):
+            west, south, east, north = facility["bbox"]
+            inside = []
+            for revision, sample_record in samples:
+                published = revision["statement"]["as_published"]
+                point = [published["lon"], published["lat"]]
+                receipt = None
+                if west <= point[0] <= east and south <= point[1] <= north:
+                    receipt = geo.relation(facilities_namespace, "contains", facility["geometry_id"], point,
+                                           scopes=scopes, principal_id=principal_id)
+                inside.append((bool(receipt and receipt["result"]["contains"]), published["timestamp"],
+                               sample_record["record_id"], receipt))
+            threshold = DWELL_SECONDS[facility["kind"]]
+            for run in _runs(inside):
+                arrival, departure = run[0][1], run[-1][1]
+                dwell = int((parse_time(departure) - parse_time(arrival)).total_seconds())
+                uncertainty = [{"gap": g, "relation": "inside the call" if arrival < g["from"] < departure
+                                else "adjacent to the call"} for g in gaps
+                               if g["to"] == arrival or g["from"] == departure or arrival < g["from"] < departure]
+                if dwell < threshold and not uncertainty:
+                    continue  # a pass below the dwell threshold is no call; nothing is asserted either way
+                if dwell < threshold:
+                    uncertainty.append({"reason": "observed dwell below the threshold; the adjacent gap could hide "
+                                                  "the rest of the stay"})
+                published = {
+                    "status": "derived", "event": "call", "arrival": arrival, "departure": departure,
+                    "dwell_seconds": dwell,
+                    "facility": {"kind": facility["kind"], "place_id": facility["place_id"], "name": facility["name"],
+                                 "code": facility["code"], "geometry_id": facility["geometry_id"],
+                                 "namespace": facilities_namespace, "resolution": "resolved"},
+                    "method": {**DERIVATION, "dwell_threshold_seconds": threshold,
+                               "gap_threshold_seconds": window["bound"].get("gap_seconds")},
+                    "sample_record_ids": [item[2] for item in run],
+                    "spatial_receipts": [item[3]["receipt_id"] for item in run if item[3]],
+                    "source_window": {"window_id": record["window_id"], "provider": record["provider"]},
+                    "uncertain": bool(uncertainty), "uncertainty": uncertainty,
+                    "caveat": "derived from the cited samples and facility geometry; a gap in coverage can hide a "
+                              "call or make a pass look like a stay"}
+                derived.append(statement(
+                    "call", "derived", window["subject"]["key"],
+                    f"derived:{record['window_id']}:{facility['place_id']}:{arrival}", published,
+                    identifiers=window["identifiers"],
+                    source={"url": None, "locator": f"derived:{record['window_id']}", "evidence_origin": "derived"},
+                    event="derived", effective_from=arrival, effective_to=departure,
+                    date_basis="first and last sample inside the facility", window=window["window"]))
+    result = store.observe(namespace, derived, run_id=None, source_id="derived-calls")
+    return {"derived": len(derived), "counts": result["counts"],
+            "records": [r["record_id"] for r in result["results"]], "notes": notes, "method": DERIVATION}
+
+
+# ================================================================== MV09: reviewable identity
+
+
+IDENTITY_PREFIX = "movements:"
+ORG_PREFIX = "movements:org:"
+ORGANISATION_TYPES = ("organization", "organisation", "org", "company", "corporation")
+
+
+def movement_key(subject: str) -> str:
+    return IDENTITY_PREFIX + subject
+
+
+def org_key(name: str) -> str:
+    return ORG_PREFIX + " ".join(re.sub(r"[^\w\s]", " ", str(name).casefold()).split())
+
+
+def _overlaps(a_from: Any, a_to: Any, b_from: Any, b_to: Any) -> bool:
+    lo = max(str(a_from or "0000-00-00")[:10], str(b_from or "0000-00-00")[:10])
+    hi = min(str(a_to or "9999-12-31")[:10], str(b_to or "9999-12-31")[:10])
+    return lo <= hi
+
+
+def _pairs(items: Sequence[Any]) -> list[tuple[Any, Any]]:
+    return [(items[i], items[j]) for i in range(len(items)) for j in range(i + 1, len(items))]
+
+
+def _similar(a: str, b: str) -> bool:
+    from difflib import SequenceMatcher
+
+    return a != b and SequenceMatcher(None, a, b).ratio() >= 0.85
+
+
+class MovementIdentity:
+    """Exact identifier matches and organisation matches as reviewable candidates; records are never merged.
+
+    Candidates live in the shared reviewable state machine
+    (:class:`src.kb.ownership_identity.OwnershipIdentityService`) under ``movements:`` record keys, so review and
+    revert are recorded as entity identity decisions (:mod:`src.kb.entity_history`) and are reversible.
+    """
+
+    def __init__(self, conn: Any, *, now=None) -> None:
+        self.conn = conn
+        self.now = now
+        self.store = MovementStore(conn, initialize=False, now=now)
+
+    # -------------------------------------------------------------- statements of identifier pairs
+
+    def _registry_facts(self, namespace: str) -> list[dict[str, Any]]:
+        facts = []
+        for record in self.store.records(namespace, record_type="registry_record"):
+            revisions = self.store.revisions(namespace, record["record_id"])
+            latest = revisions[-1]
+            valid_from = next((r["effective_from"] for r in revisions if r["event"] == "registered"), None)
+            valid_to = latest["effective_from"] if latest["event"] == "deregistered" else None
+            ids = [(i["scheme"], identifier_key(i["scheme"], i["value"])) for i in latest["statement"]["identifiers"]
+                   if i["scheme"] in KEY_SCHEMES]
+            cites = [{"store": "osint_movement_revisions", "record_id": record["record_id"],
+                      "revision_id": r["revision_id"], "provider": record["provider"], "event": r["event"],
+                      "effective_from": r["effective_from"]} for r in revisions]
+            for (s1, k1), (s2, k2) in _pairs(ids):
+                facts.append({"left": subject_key(s1, k1), "right": subject_key(s2, k2), "valid_from": valid_from,
+                              "valid_to": valid_to, "stated_by": cites, "kind": "registry entry"})
+        return facts
+
+    def _identity_facts(self, namespace: str) -> list[dict[str, Any]]:
+        facts = []
+        for record in self.store.records(namespace):
+            if record["record_type"] not in {"vessel_identity", "aircraft_identity"}:
+                continue
+            revision = self.store.latest(namespace, record["record_id"])
+            value = revision["statement"]
+            ids = [i for i in value["identifiers"] if i["scheme"] in KEY_SCHEMES]
+            for left, right in _pairs(ids):
+                start = right.get("valid_from") or left.get("valid_from") or value["effective"].get("from")
+                finish = right.get("valid_to") or left.get("valid_to") or value["effective"].get("to")
+                facts.append({"left": subject_key(left["scheme"], left["value"]),
+                              "right": subject_key(right["scheme"], right["value"]),
+                              "valid_from": str(start)[:10] if start else None,
+                              "valid_to": str(finish)[:10] if finish else None,
+                              "stated_by": [{"store": "osint_movement_revisions", "record_id": record["record_id"],
+                                             "revision_id": revision["revision_id"], "provider": record["provider"]}],
+                              "kind": value["record_type"]})
+        return facts
+
+    def _fisheries_facts(self, fisheries_namespace: str | None, scopes: set[str]) -> list[dict[str, Any]]:
+        """GFW self-reported identity segments from the Fisheries store, cited, never copied (#2258)."""
+        if not fisheries_namespace or not table_exists(self.conn, "fisheries_records"):
+            return []
+        require(scopes, "knowledge:fisheries:read")
+        from src.kb.fisheries_store import FisheriesStore
+
+        fisheries = FisheriesStore(self.conn, initialize=False)
+        facts = []
+        for record in fisheries.records(fisheries_namespace, record_type="vessel", provider="gfw"):
+            for revision in fisheries.revisions(fisheries_namespace, record["record_id"]):
+                published = revision["statement"]["as_published"]
+                ids = [(scheme, identifier_key(scheme, published.get(field))) for scheme, field in
+                       (("gfw_vessel_id", "gfw_vessel_id"), ("imo", "imo"), ("mmsi", "mmsi"))]
+                ids = [(s, k) for s, k in ids if k]
+                cite = {"store": "fisheries_revisions", "namespace": fisheries_namespace,
+                        "record_id": record["record_id"], "revision_id": revision["revision_id"], "provider": "gfw",
+                        "shared_with": "Fisheries pack (#2222)"}
+                for (s1, k1), (s2, k2) in _pairs(ids):
+                    facts.append({"left": subject_key(s1, k1), "right": subject_key(s2, k2),
+                                  "valid_from": published.get("transmission_from"),
+                                  "valid_to": published.get("transmission_to"), "stated_by": [cite],
+                                  "kind": "GFW self-reported identity segment"})
+        return facts
+
+    def facts(self, namespace: str, *, scopes: Iterable[str], fisheries_namespace: str | None = None
+              ) -> list[dict[str, Any]]:
+        """Every stated identifier pairing with its period and citations; overlapping disagreements marked."""
+        scopes = set(scopes)
+        require(scopes, READ_SCOPE)
+        items = self._registry_facts(namespace) + self._identity_facts(namespace) + \
+            self._fisheries_facts(fisheries_namespace, scopes)
+        by_side: dict[tuple[str, str], list[dict[str, Any]]] = {}
+        for fact in items:
+            for mine, other in (("left", "right"), ("right", "left")):
+                by_side.setdefault((fact[mine], parse_subject(fact[other])[1]), []).append(
+                    {"fact": fact, "other": fact[other]})
+        for (subject, _scheme), entries in sorted(by_side.items()):
+            for a in entries:
+                competing = sorted({b["other"] for b in entries if b["other"] != a["other"] and _overlaps(
+                    a["fact"]["valid_from"], a["fact"]["valid_to"], b["fact"]["valid_from"], b["fact"]["valid_to"])})
+                if competing:
+                    a["fact"].setdefault("competing", {})[subject] = competing
+        return items
+
+    # -------------------------------------------------------------- proposals
+
+    def propose(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
+                fisheries_namespace: str | None = None) -> dict[str, Any]:
+        """Offer exact identifier matches (time-bounded) and organisation-to-entity candidates; idempotent."""
+        from src.kb.ownership_identity import OwnershipIdentityService
+        from src.kb.ownership_store import canonical_entity_id
+
+        scopes = set(scopes)
+        service = OwnershipIdentityService(self.conn, **({"now": self.now} if self.now else {}))
+        grouped: dict[tuple[str, str], list[dict[str, Any]]] = {}
+        for fact in self.facts(namespace, scopes=scopes, fisheries_namespace=fisheries_namespace):
+            a, b = sorted((fact["left"], fact["right"]))
+            grouped.setdefault((a, b), []).append(fact)
+        offered = []
+        for (a, b), facts in sorted(grouped.items()):
+            evidence = [{"method": "exact-identifier", "left": a, "right": b, "valid_from": f["valid_from"],
+                         "valid_to": f["valid_to"], "stated_by": f["stated_by"], "kind": f["kind"],
+                         **({"competing": f["competing"]} if f.get("competing") else {}),
+                         "policy": "a time-bounded identifier pairing as stated; records are never merged"}
+                        for f in facts]
+            offered.append(service.offer(namespace, left_key=movement_key(a), right_key=movement_key(b),
+                                         left_entity=canonical_entity_id(movement_key(a)),
+                                         right_entity=canonical_entity_id(movement_key(b)), basis="exact-identifier",
+                                         evidence=evidence, principal_id=principal_id, scopes=scopes))
+        offered += self._propose_organisations(namespace, service, principal_id, scopes)
+        return {"proposed": sorted({o["candidate_id"] for o in offered if o.get("change")}),
+                "candidates": self.candidates(namespace, scopes=scopes),
+                "notice": "identifier pairings as the sources state them, time-bounded; organisations only, never "
+                          "natural persons; a reviewer decides and records are never merged"}
+
+    def organisations(self, namespace: str) -> list[dict[str, Any]]:
+        """Registrants that are organisations, as published, with the registry records naming them."""
+        found: dict[str, dict[str, Any]] = {}
+        for record in self.store.records(namespace, record_type="registry_record"):
+            revision = self.store.latest(namespace, record["record_id"])
+            registrant = revision["statement"]["as_published"].get("registrant") or {}
+            if registrant.get("natural_person") or not registrant.get("name"):
+                continue  # natural persons are never matched or resolved
+            for name in str(registrant["name"]).split(";"):
+                if not name.strip():
+                    continue
+                item = found.setdefault(org_key(name), {"key": org_key(name), "names": set(), "records": []})
+                item["names"].add(name.strip())
+                item["records"].append({"record_id": record["record_id"], "revision_id": revision["revision_id"],
+                                        "subject": record["subject_key"], "role": "registrant",
+                                        "kind": registrant.get("kind")})
+        return [{**v, "names": sorted(v["names"])} for _, v in sorted(found.items())]
+
+    def _propose_organisations(self, namespace, service, principal_id, scopes) -> list[dict[str, Any]]:
+        from src.kb.ownership_store import canonical_entity_id
+
+        if not table_exists(self.conn, "canonical_entities"):
+            return []
+        entities = self.conn.execute(
+            "SELECT canonical_id, preferred_name FROM canonical_entities WHERE lower(coalesce(entity_type, '')) IN ("
+            + ",".join("?" * len(ORGANISATION_TYPES)) + ") ORDER BY canonical_id", list(ORGANISATION_TYPES)).fetchall()
+        offered = []
+        for organisation in self.organisations(namespace):
+            mine = organisation["key"].removeprefix(ORG_PREFIX)
+            for canonical_id, preferred in entities:
+                theirs = org_key(preferred).removeprefix(ORG_PREFIX)
+                basis = "name-jurisdiction" if theirs == mine else "similar-name" if _similar(mine, theirs) else None
+                if not basis:
+                    continue
+                offered.append(service.offer(
+                    namespace, left_key=organisation["key"], right_key=f"canonical:{canonical_id}",
+                    left_entity=canonical_entity_id(organisation["key"]), right_entity=canonical_id, basis=basis,
+                    evidence=[{"method": basis, "names_as_published": organisation["names"],
+                               "records": organisation["records"],
+                               "right": {"canonical_id": canonical_id, "preferred_name": preferred},
+                               "policy": "an organisation registrant as published; a reviewer decides"}],
+                    principal_id=principal_id, scopes=scopes))
+        return offered
+
+    # -------------------------------------------------------------- review
+
+    def candidates(self, namespace: str, *, scopes: Iterable[str], subject: str | None = None,
+                   state: str | None = None) -> list[dict[str, Any]]:
+        from src.kb.ownership_identity import OwnershipIdentityService
+
+        require(scopes, READ_SCOPE)
+        if not table_exists(self.conn, "ownership_identity_candidates"):
+            return []
+        rows = OwnershipIdentityService(self.conn, initialize=False).candidates(
+            namespace, scopes=set(scopes) | {"knowledge:ownership:read"}, state=state,
+            record_key=movement_key(subject) if subject else None)
+        return [c for c in rows if c["left_key"].startswith(IDENTITY_PREFIX) or
+                c["right_key"].startswith(IDENTITY_PREFIX)]
+
+    def _own(self, namespace: str, candidate_id: str, scopes: Iterable[str]) -> None:
+        if not any(c["candidate_id"] == candidate_id for c in self.candidates(namespace, scopes=scopes)):
+            raise MovementError("not_found", "no movement identity candidate with that id")
+
+    def review(self, namespace: str, candidate_id: str, decision_: str, reason: str, *, principal_id: str,
+               scopes: Iterable[str]) -> dict[str, Any]:
+        from src.kb.ownership_identity import OwnershipIdentityService
+
+        self._own(namespace, candidate_id, scopes)
+        return OwnershipIdentityService(self.conn, **({"now": self.now} if self.now else {})).review(
+            namespace, candidate_id, decision_, reason, principal_id=principal_id, scopes=scopes)
+
+    def revert(self, namespace: str, candidate_id: str, reason: str, *, principal_id: str,
+               scopes: Iterable[str]) -> dict[str, Any]:
+        from src.kb.ownership_identity import OwnershipIdentityService
+
+        self._own(namespace, candidate_id, scopes)
+        return OwnershipIdentityService(self.conn, **({"now": self.now} if self.now else {})).revert(
+            namespace, candidate_id, reason, principal_id=principal_id, scopes=scopes)
+
+    # -------------------------------------------------------------- resolution
+
+    def connected(self, namespace: str, subject: str, start: Any = None, end: Any = None) -> dict[str, Any]:
+        """Subjects joined to one subject by accepted exact-identifier matches whose stated period overlaps the window.
+
+        Proposed and competing candidates never join records; they are reported for review.
+        """
+        rows = []
+        if table_exists(self.conn, "ownership_identity_candidates"):
+            rows = self.conn.execute(
+                "SELECT candidate_id, left_key, right_key, state, evidence_json, decision_id FROM "
+                "ownership_identity_candidates WHERE namespace=? AND basis='exact-identifier' AND (left_key LIKE "
+                "'movements:%' OR right_key LIKE 'movements:%') ORDER BY candidate_id", [namespace]).fetchall()
+        lo, hi = (day(start) if start else None), (day(end) if end else None)
+        seen, frontier, used, pending = {subject}, [subject], [], []
+        while frontier:
+            current = frontier.pop()
+            for candidate_id, left, right, state, evidence_json, decision_id in rows:
+                keys = {left.removeprefix(IDENTITY_PREFIX), right.removeprefix(IDENTITY_PREFIX)}
+                if current not in keys:
+                    continue
+                other = (keys - {current}).pop()
+                evidence = json.loads(evidence_json)
+                periods = [{"valid_from": e.get("valid_from"), "valid_to": e.get("valid_to")} for e in evidence]
+                if not any(_overlaps(p["valid_from"], p["valid_to"], lo, hi) for p in periods):
+                    continue
+                entry = {"candidate_id": candidate_id, "from": current, "to": other, "state": state,
+                         "decision_id": decision_id, "periods": periods,
+                         "competing": [e["competing"] for e in evidence if e.get("competing")],
+                         "stated_by": [c for e in evidence for c in e.get("stated_by") or []]}
+                if state == "accepted" and other not in seen:
+                    seen.add(other)
+                    frontier.append(other)
+                    used.append(entry)
+                elif state == "proposed" and all(p["candidate_id"] != candidate_id for p in pending):
+                    pending.append(entry)
+        return {"subjects": sorted(seen), "accepted": used, "proposed": pending}
