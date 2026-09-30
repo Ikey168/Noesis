@@ -1,0 +1,368 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "osint.platform-transparency",
+  "version": "1.0.0",
+  "description": "Platform transparency records under the SP01 data-minimisation decision (#2580): EU DSA Transparency Database statements of reasons from light daily dumps with their dump versions, Meta Ad Library and Google political ads with advertisers and funding entities as declared and spend and impression ranges exactly as published, each a revision with source and as-of time; reviewable advertiser identity through ownership.identity, citation links to elections, campaign-finance filings and lobbying registers, answers by advertiser, election and platform, and monitors through platform.subscriptions. Lumen takedown notices are recorded as not implemented.",
+  "implementation": {
+    "name": "src.kb.platform_transparency_records",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "osint.platform-transparency",
+      "contract": {
+        "name": "noesis-platform-transparency-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "ads-by-advertiser",
+        "ads-for-election",
+        "moderation-statements",
+        "record-history",
+        "export-evidence-bundle",
+        "list-identity-candidates",
+        "list-links",
+        "propose-identity-matches",
+        "review-identity-match",
+        "revert-identity-match",
+        "register-platforms",
+        "link-elections",
+        "link-campaign-finance",
+        "link-lobbying",
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "optional_features": "platform-transparency-dsa, platform-transparency-meta, platform-transparency-google and platform-transparency-lumen are separate and default off; Lumen is recorded as not implemented (no research token, terms not verifiable) and enabling it adds no source",
+        "default_enabled": false,
+        "records": "statements of reasons keyed by platform and statement uuid with the dump version (platform, day, light, published SHA-1) they were read from; ads keyed by platform ad id with the advertiser and funding entity as declared, delivery dates, and spend and impression ranges with currency as published; every record carries source, record revision and as-of time",
+        "revisions": "records are immutable revisions; corrections, republished dumps and ads a complete listing no longer returns are revisions, never deletions",
+        "ranges": "spend and impression ranges are never converted into midpoints, sums of midpoints or any point estimate",
+        "matching": "advertisers and funding entities match committees, regulated entities, party lists, lobbying registrants and legal entities through reviewable, reversible identity decisions (published FEC ids before names); nothing is merged or auto-accepted; natural persons are never targets; platforms are source identities",
+        "links": "election, campaign-finance and lobbying links rest on accepted matches or published identifiers, point at specific revisions and report missing providers and targets; they degrade gracefully when the Political features are absent",
+        "minimisation": "the SP01 decision: no platform user or content identifier, notifier identity, free-text explanation, targeting or demographic breakdown, creative text or snapshot URL is stored or returned; tool outputs are refused if they would carry one",
+        "exclusions": "no user-level profiling, no collection of private content, no inference of coordinated behaviour, no conversion of spend or impression ranges into point estimates"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "ads-by-advertiser",
+      "tool": "noesis-knowledge-engine.platform_transparency_ads_by_advertiser",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "ads-for-election",
+      "tool": "noesis-knowledge-engine.platform_transparency_ads_for_election",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "moderation-statements",
+      "tool": "noesis-knowledge-engine.platform_transparency_moderation_statements",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-history",
+      "tool": "noesis-knowledge-engine.platform_transparency_record_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_platform_transparency_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_platform_transparency_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_platform_transparency_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_platform_transparency_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity-match",
+      "tool": "noesis-knowledge-engine.review_platform_transparency_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity-match",
+      "tool": "noesis-knowledge-engine.revert_platform_transparency_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-platforms",
+      "tool": "noesis-knowledge-engine.register_platform_transparency_platforms",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:source-identity:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-elections",
+      "tool": "noesis-knowledge-engine.link_platform_transparency_elections",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:osint:platform-transparency:write",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-campaign-finance",
+      "tool": "noesis-knowledge-engine.link_platform_transparency_campaign_finance",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:osint:platform-transparency:write",
+        "knowledge:ownership:read",
+        "knowledge:political:campaign-finance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-lobbying",
+      "tool": "noesis-knowledge-engine.link_platform_transparency_lobbying",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:osint:platform-transparency:write",
+        "knowledge:ownership:read",
+        "knowledge:political:lobbying:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_platform_transparency_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_platform_transparency_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_platform_transparency_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "platform-transparency-record",
+      "store": "src.kb.platform_transparency_records",
+      "tables": [
+        "platform_transparency_records",
+        "platform_transparency_revisions",
+        "platform_transparency_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "platform-transparency-link",
+      "store": "src.kb.platform_transparency_links",
+      "tables": [
+        "platform_transparency_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "platform_transparency_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "bounded-public-osint"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "bounded-public-osint",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

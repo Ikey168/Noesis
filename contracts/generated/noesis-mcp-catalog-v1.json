@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1626,
+      "tool_count": 1645,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1209,6 +1209,7 @@
         "noesis-knowledge-engine.create_package_monitor",
         "noesis-knowledge-engine.create_paper_family",
         "noesis-knowledge-engine.create_persistent_research_loop",
+        "noesis-knowledge-engine.create_platform_transparency_monitor",
         "noesis-knowledge-engine.create_practice_pack",
         "noesis-knowledge-engine.create_procurement_monitor",
         "noesis-knowledge-engine.create_procurement_profile",
@@ -1363,6 +1364,7 @@
         "noesis-knowledge-engine.export_openreview_round_comparison",
         "noesis-knowledge-engine.export_ownership_dossier",
         "noesis-knowledge-engine.export_paper_family",
+        "noesis-knowledge-engine.export_platform_transparency_evidence_bundle",
         "noesis-knowledge-engine.export_practice_pack",
         "noesis-knowledge-engine.export_preserved_citations",
         "noesis-knowledge-engine.export_procurement_bid_draft",
@@ -1640,6 +1642,9 @@
         "noesis-knowledge-engine.link_media_cultural_objects",
         "noesis-knowledge-engine.link_media_news_entities",
         "noesis-knowledge-engine.link_medicine_evidence",
+        "noesis-knowledge-engine.link_platform_transparency_campaign_finance",
+        "noesis-knowledge-engine.link_platform_transparency_elections",
+        "noesis-knowledge-engine.link_platform_transparency_lobbying",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_real_estate_records",
         "noesis-knowledge-engine.link_safety_citations",
@@ -1742,6 +1747,8 @@
         "noesis-knowledge-engine.list_oss_archive_provenance",
         "noesis-knowledge-engine.list_oss_identity_candidates",
         "noesis-knowledge-engine.list_ownership_identity_candidates",
+        "noesis-knowledge-engine.list_platform_transparency_identity_candidates",
+        "noesis-knowledge-engine.list_platform_transparency_links",
         "noesis-knowledge-engine.list_procurement_notices",
         "noesis-knowledge-engine.list_public_finance_identity_candidates",
         "noesis-knowledge-engine.list_public_finance_links",
@@ -1860,6 +1867,12 @@
         "noesis-knowledge-engine.place_retention_legal_hold",
         "noesis-knowledge-engine.plan_extractor_reprocessing",
         "noesis-knowledge-engine.plan_retention_gc",
+        "noesis-knowledge-engine.platform_transparency_ads_by_advertiser",
+        "noesis-knowledge-engine.platform_transparency_ads_for_election",
+        "noesis-knowledge-engine.platform_transparency_moderation_statements",
+        "noesis-knowledge-engine.platform_transparency_readiness",
+        "noesis-knowledge-engine.platform_transparency_record_history",
+        "noesis-knowledge-engine.platform_transparency_source_contracts",
         "noesis-knowledge-engine.poll_agrifood_monitor",
         "noesis-knowledge-engine.poll_astronomy_monitor",
         "noesis-knowledge-engine.poll_bafin_notice_monitor",
@@ -1894,6 +1907,7 @@
         "noesis-knowledge-engine.poll_media_metadata_monitor",
         "noesis-knowledge-engine.poll_medicines_monitor",
         "noesis-knowledge-engine.poll_package_monitor",
+        "noesis-knowledge-engine.poll_platform_transparency_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
@@ -2001,6 +2015,7 @@
         "noesis-knowledge-engine.propose_oss_identity_link",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
         "noesis-knowledge-engine.propose_patent_link",
+        "noesis-knowledge-engine.propose_platform_transparency_identity_matches",
         "noesis-knowledge-engine.propose_problem_action",
         "noesis-knowledge-engine.propose_product_matches",
         "noesis-knowledge-engine.propose_product_notice_matches",
@@ -2122,6 +2137,7 @@
         "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_multimodal_asset",
         "noesis-knowledge-engine.register_oss_schemas",
+        "noesis-knowledge-engine.register_platform_transparency_platforms",
         "noesis-knowledge-engine.register_quality_policy",
         "noesis-knowledge-engine.register_quantitative_metric",
         "noesis-knowledge-engine.register_quantitative_unit",
@@ -2239,6 +2255,7 @@
         "noesis-knowledge-engine.revert_medicine_identity",
         "noesis-knowledge-engine.revert_oss_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
+        "noesis-knowledge-engine.revert_platform_transparency_identity_match",
         "noesis-knowledge-engine.revert_procurement_party_link",
         "noesis-knowledge-engine.revert_product_notice_party_link",
         "noesis-knowledge-engine.revert_public_finance_identity_match",
@@ -2317,6 +2334,7 @@
         "noesis-knowledge-engine.review_paper_family_notice_target",
         "noesis-knowledge-engine.review_paper_family_relation",
         "noesis-knowledge-engine.review_patent_link",
+        "noesis-knowledge-engine.review_platform_transparency_identity_match",
         "noesis-knowledge-engine.review_product_match",
         "noesis-knowledge-engine.review_product_notice_match",
         "noesis-knowledge-engine.review_product_notice_party_link",
@@ -2397,6 +2415,7 @@
         "noesis-knowledge-engine.run_medicines_monitor",
         "noesis-knowledge-engine.run_package_monitor",
         "noesis-knowledge-engine.run_persistent_research_loop",
+        "noesis-knowledge-engine.run_platform_transparency_monitor",
         "noesis-knowledge-engine.run_procurement_monitor",
         "noesis-knowledge-engine.run_product_notice_monitor",
         "noesis-knowledge-engine.run_public_finance_monitor",
@@ -2599,7 +2618,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1626
+      "visible_tool_count": 1645
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2610,11 +2629,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 149,
+      "available": 150,
       "degraded": 174,
-      "unauthorized": 1641
+      "unauthorized": 1659
     },
-    "tools": 1964
+    "tools": 1983
   },
   "tools": [
     {
@@ -35763,6 +35782,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch an advertiser, an election or a platform for new ads, removed ads, revised ranges and new DSA dump\nreleases.",
+      "id": "noesis-knowledge-engine.create_platform_transparency_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_platform_transparency_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a reviewable, author-supplied retrieval pack from versioned references.",
       "id": "noesis-knowledge-engine.create_practice_pack",
       "input_schema": {
@@ -43781,6 +43846,81 @@
       ],
       "required_scopes": [
         "knowledge:paper-family:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence bundle for an advertiser, election or moderation answer (query: advertiser | election |\nmoderation; key: advertiser, election id or platform; start/end for moderation): assertions each citing the\nrecord revision, source and as-of time behind them.",
+      "id": "noesis-knowledge-engine.export_platform_transparency_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          },
+          "start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "query",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_platform_transparency_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56709,6 +56849,157 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link ads to the filing versions of committees their advertiser was accepted as (published FEC id or a\nreviewed name match); degrades when the campaign-finance feature is absent.",
+      "id": "noesis-knowledge-engine.link_platform_transparency_campaign_finance",
+      "input_schema": {
+        "properties": {
+          "campaign_finance_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_platform_transparency_campaign_finance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:osint:platform-transparency:write",
+        "knowledge:ownership:read",
+        "knowledge:political:campaign-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link ads to elections through accepted party-list matches or accepted committee matches with a cited\ncampaign-finance contest link; degrades when the elections feature is absent and reports missing targets.",
+      "id": "noesis-knowledge-engine.link_platform_transparency_elections",
+      "input_schema": {
+        "properties": {
+          "campaign_finance_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "elections_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_platform_transparency_elections",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:osint:platform-transparency:write",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link ads to the lobbying register revision in force through accepted matches; degrades when the lobbying\nfeature is absent. No influence or coordination inference.",
+      "id": "noesis-knowledge-engine.link_platform_transparency_lobbying",
+      "input_schema": {
+        "properties": {
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_platform_transparency_lobbying",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:osint:platform-transparency:write",
+        "knowledge:ownership:read",
+        "knowledge:political:lobbying:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link cited standards (exact reference) and legal acts (exact CELEX/ELI) to the standards catalogue and\nLegal works, per citing revision; never by topic, category or hazard similarity.",
       "id": "noesis-knowledge-engine.link_product_notice_citations",
       "input_schema": {
@@ -62166,6 +62457,117 @@
       ],
       "required_scopes": [
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity candidates and decisions for advertisers and funding entities, with method, evidence and\nconfidence, and the subjects still unmatched. Natural persons are never candidates.",
+      "id": "noesis-knowledge-engine.list_platform_transparency_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_platform_transparency_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Election, campaign-finance and lobbying links with the ad and target revisions they point at and their\nbasis. A link is not evidence of coordination or influence.",
+      "id": "noesis-knowledge-engine.list_platform_transparency_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_platform_transparency_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -68137,6 +68539,272 @@
     },
     {
       "cost_class": "low",
+      "description": "Political ads of an advertiser or funding entity (Meta page id, Google advertiser id, declared name, or an\nFEC committee / campaign-finance / elections / lobbying / ownership record reached through accepted identity\ndecisions) with delivery dates and spend and impression ranges exactly as published, each ad revision cited;\nremoved ads carry their removal revision. No midpoint, sum or point estimate; no user-level profiling.",
+      "id": "noesis-knowledge-engine.platform_transparency_ads_by_advertiser",
+      "input_schema": {
+        "properties": {
+          "advertiser": {
+            "type": "string"
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "advertiser"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "platform_transparency_ads_by_advertiser",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Political ads linked to an election through accepted identity decisions, grouped by advertiser, with each\nlink's basis and the delivery dates relative to election day as published; ranges as published. No\ncoordination or influence reading.",
+      "id": "noesis-knowledge-engine.platform_transparency_ads_for_election",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "election_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "election_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "platform_transparency_ads_for_election",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Counts of stored DSA statements of reasons for a platform and period by decision type, decision ground\nand category, with automated-detection and automated-decision values as published; states the stored\nwindow, the days without a stored dump and cites the dump versions used. No user identifiers.",
+      "id": "noesis-knowledge-engine.platform_transparency_moderation_statements",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "type": "string"
+          },
+          "ground": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_statements": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "platform": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "platform",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "platform_transparency_moderation_statements",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which platform-transparency features (DSA, Meta, Google, Lumen) are selected, and records per provider.",
+      "id": "noesis-knowledge-engine.platform_transparency_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "platform_transparency_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every revision of one platform-transparency record (removals and corrections are revisions), and the\nrevision current as of a time.",
+      "id": "noesis-knowledge-engine.platform_transparency_record_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "platform_transparency_record_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider endpoints, token handling, licences, rate limits, revision and removal models, bounded\ncoverage, LIVE_VERIFICATION status and the SP01 data-minimisation decision for the DSA Transparency\nDatabase, the Meta Ad Library API, Google political ads and Lumen (recorded as not implemented).",
+      "id": "noesis-knowledge-engine.platform_transparency_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "platform_transparency_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll delivered monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_agrifood_monitor",
       "input_schema": {
@@ -69480,6 +70148,44 @@
       "required_scopes": [
         "knowledge:subscriptions:read",
         "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Delivered platform-transparency monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_platform_transparency_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_platform_transparency_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -74407,6 +75113,85 @@
       ],
       "required_scopes": [
         "knowledge:patents:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose reviewable matches of advertisers and funding entities (published FEC ids first, then names in\none country) to campaign-finance committees, party lists, lobbying registrants and Corporate Ownership\nentities; nothing is merged or accepted automatically, persons are never targets and absent providers are\nreported.",
+      "id": "noesis-knowledge-engine.propose_platform_transparency_identity_matches",
+      "input_schema": {
+        "properties": {
+          "campaign_finance_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "elections_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_platform_transparency_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -81861,6 +82646,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register each platform on record as a source identity (idempotent); platforms are never identity\ncandidates.",
+      "id": "noesis-knowledge-engine.register_platform_transparency_platforms",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_platform_transparency_platforms",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:source-identity:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register versioned quality dimensions, defaults, overrides, and calibration.",
       "id": "noesis-knowledge-engine.register_quality_policy",
       "input_schema": {
@@ -87612,6 +88431,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected platform-transparency identity decision; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_platform_transparency_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_platform_transparency_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a party link through an auditable undo decision.",
       "id": "noesis-knowledge-engine.revert_procurement_party_link",
       "input_schema": {
@@ -91226,6 +92087,52 @@
       ],
       "required_scopes": [
         "knowledge:patents:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a platform-transparency identity candidate as an entity identity decision.",
+      "id": "noesis-knowledge-engine.review_platform_transparency_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_platform_transparency_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -95282,6 +96189,52 @@
         "knowledge:source-planner:execute",
         "knowledge:gaps:write",
         "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a platform-transparency monitor at a committed watermark; notices cite the new and previous\nrevision and state what changed.",
+      "id": "noesis-knowledge-engine.run_platform_transparency_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_platform_transparency_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

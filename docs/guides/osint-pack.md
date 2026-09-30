@@ -157,6 +157,20 @@ real-time tracking, continuous ADS-B/AIS mirroring, area queries, movement
 alerts, behaviour inference, route prediction and any evasion, screening or
 compliance verdict. No coverage is reported as "no coverage observed".
 
+## Platform transparency (#2580)
+
+Optional `platform-transparency-dsa`, `-meta`, `-google` and `-lumen` features
+(default off; provider `osint.platform-transparency`, tools on
+`noesis-knowledge-engine`). Walkthrough:
+[`osint-platform-transparency.md`](osint-platform-transparency.md); source and
+minimisation decisions:
+[`source-audit.md`](../development/platform-transparency-evidence/source-audit.md).
+DSA statements of reasons, Meta and Google political ads with ranges as
+published, reviewable advertiser identity, links and monitors. No user-level
+profiling, private content, coordination inference or point estimates; Lumen
+is recorded as not implemented. No tool is behind the review gate because none
+infers location, identity or coordination.
+
 ## Workflows
 
 - `osint.location-investigation`: place a reported event against a boundary.
