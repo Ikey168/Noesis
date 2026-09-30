@@ -2,7 +2,7 @@
   "pack_format": "noesis-pack-v1",
   "name": "science",
   "version": "1.2.0",
-  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places, with book, music and authority metadata (Open Library, MusicBrainz CC0 core data, Wikidata, DNB, Library of Congress) as their identity backbone; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places, with book, music and authority metadata (Open Library, MusicBrainz CC0 core data, Wikidata, DNB, Library of Congress) as their identity backbone; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json). Life-science reference data: UniProtKB proteins, NCBI Gene and Taxonomy, RCSB PDB structures and ChEMBL targets, compounds and published activities with versions, cross-references and reviewable cross-source identity (the science.life-sciences provider).",
   "source_types": [
     "paper"
   ],
@@ -43,7 +43,13 @@
       "gnd",
       "deutsche nationalbibliothek",
       "library of congress",
-      "lcnaf"
+      "lcnaf",
+      "uniprot",
+      "ncbi gene",
+      "ncbi taxonomy",
+      "rcsb pdb",
+      "protein data bank",
+      "chembl"
     ],
     "claims": [
       "finding",
@@ -81,7 +87,15 @@
       "isbn",
       "isrc",
       "mbid",
-      "authority record"
+      "authority record",
+      "gene",
+      "protein",
+      "protein structure",
+      "taxon",
+      "drug target",
+      "compound",
+      "bioactivity",
+      "accession"
     ]
   },
   "enrichers": [],
@@ -113,7 +127,14 @@
     "media-metadata-authority-records",
     "media-revision-history-as-of",
     "reviewable-media-identity",
-    "citation-only-media-links"
+    "citation-only-media-links",
+    "lifesci-reference-records",
+    "lifesci-entry-as-of-release",
+    "lifesci-cross-reference-graph",
+    "lifesci-published-bioactivity",
+    "lifesci-reviewable-identity",
+    "lifesci-cross-pack-links",
+    "lifesci-monitoring"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -130,7 +151,8 @@
     "education-identity": "1.0.0",
     "education-link": "1.0.0",
     "education-notification": "1.0.0",
-    "media-metadata-record": "1.0.0"
+    "media-metadata-record": "1.0.0",
+    "lifesci-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -145,7 +167,8 @@
       "noesis-formal-declaration-v1",
       "noesis-math-link-v1",
       "noesis-education-statistic-record-v1",
-      "noesis-media-metadata-record-v1"
+      "noesis-media-metadata-record-v1",
+      "noesis-lifesci-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -168,7 +191,14 @@
       "recording",
       "release",
       "creator",
-      "authority_link"
+      "authority_link",
+      "gene",
+      "protein",
+      "structure",
+      "taxon",
+      "bioactivity_target",
+      "compound",
+      "activity"
     ],
     "relation_types": [
       "cites",
@@ -190,7 +220,13 @@
       "edition_of",
       "recording_of",
       "has_track",
-      "redirected_to"
+      "redirected_to",
+      "cross_references",
+      "encoded_by",
+      "structure_of",
+      "organism_of",
+      "activity_against",
+      "succeeded_by"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -297,6 +333,26 @@
         "creator": "Mara Quell"
       },
       "semantics": "ranked candidates with title and name evidence, one per identity; never a single asserted answer and no popularity ranking"
+    },
+    {
+      "intent": "A protein entry as of a UniProt release with its structures, gene and targets",
+      "tool": "lifesci_entry_as_of",
+      "arguments": {
+        "namespace": "global",
+        "accession": "X9EXA1",
+        "release": "2099_01"
+      },
+      "semantics": "the entry version in force at the release, its history and successors, and every cross-reference labelled with the source that asserts it; each entry version cited"
+    },
+    {
+      "intent": "Compounds with published activity against a target",
+      "tool": "lifesci_compounds_for_target",
+      "arguments": {
+        "namespace": "global",
+        "target": "CHEMBL9900001",
+        "release": "CHEMBL_99"
+      },
+      "semantics": "ChEMBL activities as published for the release, grouped by assay and activity type with relation, unit and validity comment; never converted, aggregated, ranked or predicted"
     }
   ],
   "exclusions": [
@@ -320,6 +376,11 @@
     "popularity rankings of works or recordings",
     "rights clearance determinations from catalogue notes",
     "MusicBrainz supplementary (non-CC0) data",
-    "bulk provider mirrors"
+    "bulk provider mirrors",
+    "biological or clinical inference from reference records",
+    "activity prediction, scoring or ranking of compounds",
+    "conversion or aggregation of activity values across assays",
+    "sequence analysis beyond storage",
+    "personal names of authors, depositors or submitters"
   ]
 }

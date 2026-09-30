@@ -408,6 +408,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.education_statistics import EDUCATION_WRITES
     if name in EDUCATION_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.life_sciences import LIFESCI_WRITES
+    if name in LIFESCI_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.logistics import LOGISTICS_WRITES
     if name in LOGISTICS_WRITES:
         return "write"
@@ -1115,6 +1118,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.education_statistics import required_scopes as education_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in EDUCATION_TOOLS:
         return education_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.life_sciences import LIFESCI_TOOLS
+    from tools.knowledge_engine_mcp.life_sciences import required_scopes as lifesci_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in LIFESCI_TOOLS:
+        return lifesci_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.logistics import LOGISTICS_TOOLS
     from tools.knowledge_engine_mcp.logistics import required_scopes as logistics_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LOGISTICS_TOOLS:

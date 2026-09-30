@@ -75,6 +75,14 @@
           "name": "noesis-media-metadata-link",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "science.life-sciences",
+        "provider": "science.life-sciences",
+        "contract": {
+          "name": "noesis-lifesci-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -96,6 +104,10 @@
       },
       {
         "id": "science.media-metadata",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.life-sciences",
         "version": "1.0.0"
       }
     ],
@@ -131,6 +143,20 @@
           "as_of": "the vintage published on or before the requested date; every vintage of a value is listed",
           "sources": "side by side with their definitions, never merged or averaged",
           "identity": "exact or accepted ROR matches only"
+        }
+      },
+      {
+        "id": "science.life-sciences",
+        "description": "Life-science reference data: a protein, gene, structure, taxon or compound to the reference records UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL published, with versions, cross-references, published bioactivity and reviewable cross-source identity",
+        "vocabulary": {
+          "entry version": "a source's own version marker (UniProt entry version, PDB major.minor revision) or a content digest where the source publishes none",
+          "release": "the source release a record was observed in (UniProt YYYY_NN, ChEMBL CHEMBL_NN, a declared NCBI or PDB release)",
+          "cross-reference": "an identifier a source publishes for another database, labelled with the source that asserts it"
+        },
+        "workflow_defaults": {
+          "as_of": "the version in force at the requested release or date; merged or obsolete accessions resolved to successors",
+          "bioactivity": "published values side by side by assay and activity type, never converted or aggregated",
+          "identity": "published identifiers first; only accepted matches carry links"
         }
       }
     ],
@@ -268,6 +294,130 @@
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
           "reason": "reviews are entity-history decisions"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-uniprot",
+      "default": false,
+      "description": "UniProtKB protein entries for a declared bounded accession set: entry and sequence versions, reviewed/unreviewed label, cross-references and citations, inactive (merged, demerged, deleted) entries kept with successors. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "identity reviews and source successions are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "life-science monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-ncbi",
+      "default": false,
+      "description": "NCBI Gene and NCBI Taxonomy records for declared Gene and Tax IDs: status with successors, rank, parent and lineage as published per release; optional NCBI API key. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "identity reviews and source successions are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "life-science monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-pdb",
+      "default": false,
+      "description": "RCSB PDB entries linked to the bounded proteins: experimental method, resolution, revision history, entity-to-UniProt mappings and obsolete entries with superseding IDs. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "identity reviews and source successions are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "life-science monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-chembl",
+      "default": false,
+      "description": "ChEMBL targets, compounds, activities and documents for declared targets per ChEMBL release: activity values with relation, unit and data-validity comment as published, each citing its document. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "identity reviews and source successions are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "life-science monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "records are acquired through the source-pack runtime"
         }
       ]
     }
