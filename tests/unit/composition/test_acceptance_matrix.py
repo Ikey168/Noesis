@@ -106,6 +106,12 @@ MATRIX = {
     "Institution and country to education statistics":
         "tests/unit/domains/test_education_statistics_acceptance.py::"
         "test_ror_institution_and_country_to_cited_statistics_with_vintages_and_links",
+    # The Science research-entities features' offline journey (#2644) composes the research-entity record owner,
+    # reviewable entity and ownership identity, Scholarly, Funding and Ownership records, subscriptions and the
+    # source-pack runtime.
+    "Organisation and researcher to research records":
+        "tests/unit/domains/test_research_entities_acceptance.py::"
+        "test_organisation_and_researcher_to_cited_registry_records_works_datasets_and_projects",
     # The Economics logistics feature's offline journey (#2551) composes economics (UN/LOCODE, UNCTADstat, Eurostat
     # maritime, the BLS freight index, trade-flow joins), geospatial places, subscriptions and the source-pack runtime.
     "Port to logistics series":
