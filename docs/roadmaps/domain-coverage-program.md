@@ -67,7 +67,6 @@ providers stay where they are; their ids are preserved.
 | `life-sciences-reference` | Science and knowledge | `science.life-sciences` | UniProt; NCBI Gene and Taxonomy; RCSB PDB; ChEMBL | chemicals, clinical, biodiversity | 1 |
 | `research-entities-data` | Science and knowledge | `science.research-entities` | ORCID public API; ROR; DataCite; OpenAIRE Graph; CORDIS | literature, funding | 1 |
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
-| `medical-devices` | Health | `clinical.devices` | openFDA device endpoints (510(k), PMA, MAUDE, recalls); GUDID; EUDAMED public modules | products safety, engineering safety | 1 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
 | `internet-infrastructure` | Technology | `technology.internet-infrastructure` | RIPEstat; PeeringDB; RDAP; certificate transparency logs; CAIDA datasets (acceptable-use policy) | OSINT, vulnerabilities | 2 |

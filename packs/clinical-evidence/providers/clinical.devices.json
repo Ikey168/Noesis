@@ -1,0 +1,364 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "clinical.devices",
+  "version": "1.0.0",
+  "description": "Medical devices of the Clinical Evidence bundle: openFDA 510(k), PMA with supplements, classification, recall and MAUDE records, AccessGUDID device identifiers and EUDAMED public actor, device and certificate records as versioned records with source, record revision and as-of time; reviewable device and manufacturer identity across FDA, GUDID and EUDAMED, citation links to Product safety, Medicines, trial and ownership records, regulatory history as of a date, adverse-event report counts with caveats and monitors. No safety-signal detection, no causality from adverse-event reports, no clinical advice.",
+  "implementation": {
+    "name": "src.kb.medical_devices_records",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "clinical.devices-records",
+      "contract": {
+        "name": "noesis-medical-device-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "devices-readiness",
+        "record-history",
+        "regulatory-history-as-of",
+        "adverse-event-report-counts",
+        "export-evidence-bundle",
+        "link-records",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "records": "classification, clearance (K number), approval and approval-supplement (P number and supplement number), recall (recall number), adverse-event report (report number), published report count, device identifier (primary DI), EUDAMED actor (SRN), device (Basic UDI-DI) and certificate (notified body and number); every record carries source, record revision and as-of time, and openFDA records keep openFDA's disclaimer",
+        "revisions": "immutable; a changed publication is a new revision, an older version observed later is kept but never current, and a record the publisher stops answering is a not-published revision, never a deletion",
+        "as_of": "the revision the source had published by the date, event dates as published; US and EU shown separately; unavailable EUDAMED modules, missing providers and unselected features stated",
+        "counts": "MAUDE counts are reports as published, never rates, incidence or causal events; FDA's caveats accompany every count and report; answers cite the query window and source revisions",
+        "minimisation": "medical-devices-minimisation-v1: patient, reporter and contact-person fields and street addresses are never stored (refused at write time); MAUDE narratives are returned only with knowledge:clinical:devices:narratives:read",
+        "links": "Product safety notices by recall number, Medicines records by drug application number, trial registrations naming a device identifier and ownership entities by accepted match; each link names its basis and both record revisions; a missing pack or target is reported",
+        "exclusions": "no safety-signal detection, no causality from adverse-event reports, no clinical advice, no patient data beyond what regulators publish"
+      }
+    },
+    {
+      "id": "clinical.devices-identity",
+      "contract": {
+        "name": "noesis-medical-device-identity",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-identity-candidates",
+        "propose-identities",
+        "review-identity",
+        "revert-identity"
+      ],
+      "semantic_constraints": {
+        "devices": "matched across FDA, GUDID and EUDAMED by UDI-DI and premarket numbers; a shared product code is low evidence; names are never used for devices",
+        "manufacturers": "matched to ownership legal entities by DUNS, LEI or SRN first; equal names with non-contradicting countries are low evidence",
+        "review": "proposed, accepted, rejected or reverted with reviewer, time and reason as entity identity decisions; nothing is merged; unmatched subjects stay visible"
+      }
+    },
+    {
+      "id": "clinical.devices-monitoring",
+      "contract": {
+        "name": "noesis-medical-device-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "events": "new clearances, approvals, supplements, recalls, recall status or class changes, certificate status changes and removals, each citing the new and previous record revision",
+        "schedule": "platform subscriptions evaluated at committed watermarks; source-pack schedules; no new scheduler",
+        "notices": "record changes as published, never assessments"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.medical_device_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "devices-readiness",
+      "tool": "noesis-knowledge-engine.medical_devices_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-history",
+      "tool": "noesis-knowledge-engine.medical_device_record_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "regulatory-history-as-of",
+      "tool": "noesis-knowledge-engine.medical_device_regulatory_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "adverse-event-report-counts",
+      "tool": "noesis-knowledge-engine.medical_device_adverse_event_counts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_medical_device_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-records",
+      "tool": "noesis-knowledge-engine.link_medical_device_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record revision, target pack, target key and basis"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_medical_device_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_medical_device_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identities",
+      "tool": "noesis-knowledge-engine.propose_medical_device_identities",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "namespace, subject key and target key"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_medical_device_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate id and decision"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_medical_device_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate id"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_medical_device_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_medical_device_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription and committed watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_medical_device_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "medical-device-record",
+      "store": "src.kb.medical_devices_records",
+      "tables": [
+        "medical_device_records",
+        "medical_device_revisions",
+        "medical_device_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "medical-device-identity-candidate",
+      "store": "src.kb.medical_devices_identity",
+      "tables": [
+        "medical_device_identity_candidates"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "medical-device-link",
+      "store": "src.kb.medical_devices_links",
+      "tables": [
+        "medical_device_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "medical_device_revisions"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "medical_device_identity_candidates"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "knowledge_subscriptions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "clinical-evidence",
+      "version": "0.1.4",
+      "range": "^0.1.4"
+    }
+  ]
+}
