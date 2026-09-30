@@ -172,6 +172,23 @@ class CommonCrawlCollection:
             raise ValueError("Common Crawl index lacks a SHA-1 payload digest")
         return offset, length
 
+    def capture_records(self, client):
+        """Record this collection's completed (WARC-verified) captures as crawl-corpus capture records.
+
+        Each completed record was range-read and its payload SHA-1 recomputed, so
+        the digest is labelled both ``published`` (index) and ``computed``.
+        """
+        ids = []
+        for done in self.inspect()["completed"]:
+            item = done["index_entry"]
+            receipt = client._capture_receipt(f"{self.id}:{item['filename']}:{item['offset']}",
+                                              adapter="common-crawl-collection-v1")
+            record = capture_record_from_index(item, done["crawl"], receipt=receipt)
+            record["digests"] = [*record["digests"], {"algorithm": "sha1-base32", "value": item["digest"],
+                                                      "basis": "computed"}]
+            ids.append(client.record(record)["capture_id"])
+        return ids
+
     def step(self):
         """Advance by one captured record or one empty index page; return state."""
         from warcio.archiveiterator import ArchiveIterator
@@ -284,3 +301,93 @@ class CommonCrawlCollection:
         state["status"] = "running"
         self._save(state)
         return state
+
+
+# ---------------------------------------------------------------------------
+# Common Crawl index hits as archive capture records (#2226, WA07).
+# Common Crawl is a crawl corpus, not a Memento archive: its records are labelled
+# ``crawl-corpus`` and never answer a TimeGate question. Only index lookups are made
+# here; single-record WARC range reads stay with ``CommonCrawlCollection`` above.
+
+_CRAWL = re.compile(r"CC-MAIN-20\d{2}-\d{2}")
+
+
+def capture_record_from_index(item, crawl, *, receipt):
+    """One CDX index hit as a ``noesis-web-archive-capture-v1`` input (crawl id, digest, WARC locator)."""
+    filename = str(item["filename"])
+    if (
+        not filename.startswith("crawl-data/" + crawl + "/")
+        or not re.fullmatch(r"[A-Za-z0-9/._-]+\.warc\.gz", filename)
+        or ".." in filename.split("/")
+        or not re.fullmatch(r"\d{14}", str(item["timestamp"]))
+    ):
+        raise ValueError("Common Crawl index result is outside the crawl's WARC paths")
+    offset, length = int(item["offset"]), int(item["length"])
+    digest = str(item.get("digest") or "")
+    status = str(item.get("status") or "")
+    record = {
+        "archive_id": "common-crawl",
+        "archive_kind": "crawl-corpus",
+        "resolver": "common-crawl-index:" + crawl,
+        "uri_r": item["url"],
+        "uri_m": f"cc-warc:{filename}@{offset}+{length}",
+        "memento_datetime": item["timestamp"],
+        "status": int(status) if status.isdigit() else None,
+        "mimetype": item.get("mime") or item.get("mime-detected") or None,
+        "digests": [{"algorithm": "sha1-base32", "value": digest, "basis": "published"}]
+        if re.fullmatch(r"[A-Z2-7]{32}", digest)
+        else [],
+        "access_condition": "not-replayable",
+        "warc_locator": {"crawl": crawl, "filename": filename, "offset": offset, "length": length},
+        "receipt": receipt,
+    }
+    if status.startswith("3"):
+        record["archive_redirect"] = {"status": int(status), "location": item.get("redirect")}
+    return record
+
+
+def lookup_url_captures(client, url, *, crawl, request_id, max_results=50):
+    """One bounded CDX index lookup for a URL in one crawl, recorded as crawl-corpus captures.
+
+    ``client`` is a :class:`src.ingestion.memento.MementoClient` (shared transport,
+    budget, receipts and store). A 404 from the index is "no capture on record";
+    throttling or a server error is "archive unavailable". Nothing is retried.
+    """
+    from src.ingestion.memento import Budget, MementoError, classify, validate_url
+
+    url = validate_url(url)
+    if not _CRAWL.fullmatch(crawl):
+        raise ValueError("invalid Common Crawl crawl id")
+    budget = Budget("common-crawl", client.transport, max_requests=1)
+    receipt = client._capture_receipt(request_id, adapter="common-crawl-index-v1")
+    resolver = "common-crawl-index:" + crawl
+    try:
+        status, _, raw = budget.get(
+            "https://index.commoncrawl.org/" + crawl + "-index",
+            hosts=["index.commoncrawl.org"],
+            params={"url": url, "output": "json", "limit": min(max(int(max_results), 1), 500)},
+        )
+        outcome = classify(status, raw) if status else "archive_unavailable"
+    except MementoError as exc:
+        outcome, raw, status, failure = "archive_unavailable", b"", None, exc.code
+    else:
+        failure = None
+    ids, rejected = [], 0
+    if outcome == "ok":
+        for line in raw.splitlines():
+            if not line.strip():
+                continue
+            try:
+                item = json.loads(line)
+                ids.append(client.record(capture_record_from_index(item, crawl, receipt=receipt))["capture_id"])
+            except (ValueError, KeyError, TypeError):
+                rejected += 1
+        outcome = "captures" if ids else "no_capture_on_record"
+    elif outcome in {"blocked_by_archive", "excluded_by_archive"}:
+        outcome = "archive_unavailable" if outcome == "blocked_by_archive" else outcome
+    snap = client.snapshot(url, "common-crawl", resolver=resolver, outcome=outcome, capture_ids=ids,
+                           detail={"crawl": crawl, "rejected_index_rows": rejected, "http_status": status or None,
+                                   "failure": failure, "timegate_answer": False},
+                           receipt=receipt)
+    return {"crawl": crawl, "outcome": outcome, "capture_ids": sorted(set(ids)), "timemap_id": snap["timemap_id"],
+            "rejected_index_rows": rejected, "requests": budget.requests}
