@@ -17,6 +17,9 @@ from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp.cultural import MEDIA_READS, MEDIA_SCOPES, MEDIA_TOOLS
 
 ROOT = Path(__file__).resolve().parents[3]
+# The research-entities features (#2639) extend the same bundle; they are off unless selected.
+RESEARCH_ENTITIES = ("research-entities-ror", "research-entities-orcid", "research-entities-datacite",
+                     "research-entities-cordis")
 FEATURE_PROVIDERS = {"science.media-metadata", "science.cultural", "platform.entity-identity",
                      "platform.subscriptions", "platform.source-runtime"}
 
@@ -78,7 +81,7 @@ def test_the_features_are_off_by_default_and_the_bundle_validates():
     features = {f["id"]: f for f in composition["optional_features"]}
     assert {k: f["default"] for k, f in features.items()} == {
         "cultural-collections": False, "education-statistics": False, "media-metadata": False,
-        "media-metadata-news": False}
+        "media-metadata-news": False, **dict.fromkeys(RESEARCH_ENTITIES, False)}
     assert {r["capability"] for r in features["media-metadata"]["requires"]} == {
         "science.media-metadata", "science.cultural-objects", "platform.entity-identity", "platform.subscriptions",
         "platform.source-acquisition"}
@@ -89,7 +92,8 @@ def test_the_features_are_off_by_default_and_the_bundle_validates():
     assert plan["features"]["science"] == []
     assert not {"science.media-metadata", "science.cultural"} & bound(plan)
     omitted = {o["feature"] for o in plan["omissions"] if o["pack"] == "science"}
-    assert omitted == {"cultural-collections", "education-statistics", "media-metadata", "media-metadata-news"}
+    assert omitted == {"cultural-collections", "education-statistics", "media-metadata", "media-metadata-news",
+                       *RESEARCH_ENTITIES}
     pack = json.loads((ROOT / "packs/science/pack.json").read_text())
     assert pack["schema_versions"]["media-metadata-record"] == "1.0.0"
     assert {e["tool"] for e in pack["query_examples"]} >= {"resolve_media_identifier", "search_media_titles"}
@@ -103,10 +107,11 @@ def test_selecting_the_features_binds_their_providers_one_per_capability():
     bindings = [b for b in plan["bindings"] if "science" in b["consumers"]]
     assert len({b["capability"] for b in bindings}) == len(bindings)
     assert {o["feature"] for o in plan["omissions"] if o["pack"] == "science"} == {
-        "cultural-collections", "education-statistics", "media-metadata-news"}
+        "cultural-collections", "education-statistics", "media-metadata-news", *RESEARCH_ENTITIES}
     news = science_plan(["media-metadata", "media-metadata-news"])
     assert {"science.media-metadata", "news.core"} <= bound(news)
-    everything = science_plan(["cultural-collections", "education-statistics", "media-metadata", "media-metadata-news"])
+    everything = science_plan(["cultural-collections", "education-statistics", "media-metadata", "media-metadata-news",
+                               *RESEARCH_ENTITIES])
     assert not [o for o in everything["omissions"] if o["pack"] == "science"]
 
 

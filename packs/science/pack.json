@@ -43,7 +43,9 @@
       "gnd",
       "deutsche nationalbibliothek",
       "library of congress",
-      "lcnaf"
+      "lcnaf",
+      "orcid",
+      "cordis"
     ],
     "claims": [
       "finding",
@@ -81,7 +83,12 @@
       "isbn",
       "isrc",
       "mbid",
-      "authority record"
+      "authority record",
+      "researcher",
+      "research organisation",
+      "dataset doi",
+      "research project",
+      "orcid id"
     ]
   },
   "enrichers": [],
@@ -113,7 +120,12 @@
     "media-metadata-authority-records",
     "media-revision-history-as-of",
     "reviewable-media-identity",
-    "citation-only-media-links"
+    "citation-only-media-links",
+    "research-entity-registry-records",
+    "research-entity-revisions-as-of",
+    "reviewable-research-organisation-identity",
+    "research-entity-citation-links",
+    "research-entity-monitoring"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -130,7 +142,11 @@
     "education-identity": "1.0.0",
     "education-link": "1.0.0",
     "education-notification": "1.0.0",
-    "media-metadata-record": "1.0.0"
+    "media-metadata-record": "1.0.0",
+    "research-entity-record": "1.0.0",
+    "research-entity-answer": "1.0.0",
+    "research-entity-link": "1.0.0",
+    "research-entity-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -145,7 +161,8 @@
       "noesis-formal-declaration-v1",
       "noesis-math-link-v1",
       "noesis-education-statistic-record-v1",
-      "noesis-media-metadata-record-v1"
+      "noesis-media-metadata-record-v1",
+      "noesis-research-entity-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -168,7 +185,11 @@
       "recording",
       "release",
       "creator",
-      "authority_link"
+      "authority_link",
+      "research_organisation",
+      "researcher_record",
+      "dataset_record",
+      "research_project"
     ],
     "relation_types": [
       "cites",
@@ -190,7 +211,12 @@
       "edition_of",
       "recording_of",
       "has_track",
-      "redirected_to"
+      "redirected_to",
+      "asserts_work",
+      "asserts_employment",
+      "successor_of",
+      "participates_in",
+      "funded_by_award"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -297,6 +323,16 @@
         "creator": "Mara Quell"
       },
       "semantics": "ranked candidates with title and name evidence, one per identity; never a single asserted answer and no popularity ranking"
+    },
+    {
+      "intent": "Which projects, datasets and lineage does this organisation have in the registries on a date",
+      "tool": "organisation_lineage_projects_datasets",
+      "arguments": {
+        "namespace": "global",
+        "ror": "https://ror.org/0zzexa101",
+        "as_of": "2099-07-01"
+      },
+      "semantics": "ROR relationships as published in the release in force, CORDIS participation through accepted matches with contributions per currency, datasets citing the organisation; every record version cited; no ranking"
     }
   ],
   "exclusions": [
@@ -320,6 +356,10 @@
     "popularity rankings of works or recordings",
     "rights clearance determinations from catalogue notes",
     "MusicBrainz supplementary (non-CC0) data",
-    "bulk provider mirrors"
+    "bulk provider mirrors",
+    "researcher rankings or metrics",
+    "inference of affiliation from co-authorship",
+    "author disambiguation by name",
+    "personal data beyond the public ORCID fields allowed by the research-entities minimisation decision"
   ]
 }
