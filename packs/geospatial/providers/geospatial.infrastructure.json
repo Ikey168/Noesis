@@ -1,0 +1,474 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "geospatial.infrastructure",
+  "version": "1.0.0",
+  "description": "Critical infrastructure registries in the Geospatial pack (optional infrastructure feature): power plants, generating units, pipelines, LNG terminals, transmission lines, substations, gas points and mines as published by WRI GPPD, Global Energy Monitor, OpenStreetMap (Overpass), EIA and ENTSOG, with status and capacity revisions, owner assertions, reviewable identity, citation links and monitors. No new spatial store; no vulnerability assessment or valuation.",
+  "implementation": {
+    "name": "src.kb.infrastructure_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "source_packs": [
+    {
+      "pack_id": "geospatial-infrastructure",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "geospatial.infrastructure-assets",
+      "contract": {
+        "name": "noesis-infrastructure-asset-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "infrastructure-source-contracts",
+        "infrastructure-readiness",
+        "acquire-infrastructure-source",
+        "register-infrastructure-schemas",
+        "list-infrastructure-assets",
+        "infrastructure-asset-history"
+      ],
+      "semantic_constraints": {
+        "revisions": "every distinct publication is an asset revision; status and capacity changes append revisions, earlier ones kept",
+        "vocabulary": "the publisher's status text is kept beside the normalized status",
+        "owners": "owner, operator and parent names and shares as published; never resolved in the record",
+        "geometry": "projected onto the existing geospatial store with a CRS and precision receipt; unlocated assets are never geocoded",
+        "sensitivity": "only attributes the publisher releases; no vulnerability, criticality or valuation",
+        "coverage": "explicit bounded selections (docs/development/infrastructure-evidence/source-audit.md)"
+      }
+    },
+    {
+      "id": "geospatial.infrastructure-answers",
+      "contract": {
+        "name": "noesis-infrastructure-answer",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-infrastructure-monitor",
+        "infrastructure-assets-in-place",
+        "infrastructure-assets-of-operator",
+        "link-infrastructure-records",
+        "list-infrastructure-asset-matches",
+        "list-infrastructure-links",
+        "list-infrastructure-operator-candidates",
+        "poll-infrastructure-monitor",
+        "propose-infrastructure-asset-matches",
+        "propose-infrastructure-operator-matches",
+        "review-infrastructure-asset-match",
+        "review-infrastructure-link",
+        "review-infrastructure-operator-match",
+        "run-infrastructure-monitor"
+      ],
+      "semantic_constraints": {
+        "as_of": "status by effective date (else first publication), capacity per metric and direction, owners from the revision published by the date; optional known_by cutoff",
+        "side_by_side": "sources grouped only by accepted same_asset matches; disagreements listed, never resolved",
+        "identity": "published cross-references are identifier matches; proximity+name+class pairs are review candidates; operators through the shared ownership identity state machine",
+        "links": "energy, legal and environment links only by explicit identifier or citation; overlap is a candidate; absent packs are skipped",
+        "coverage": "outside the selected areas is not_covered; empty answers are none on record",
+        "monitoring": "knowledge subscriptions at committed watermarks; no scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "infrastructure-source-contracts",
+      "tool": "noesis-knowledge-engine.infrastructure_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "infrastructure-readiness",
+      "tool": "noesis-knowledge-engine.infrastructure_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-infrastructure-source",
+      "tool": "noesis-knowledge-engine.acquire_infrastructure_source",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": false,
+        "receipt": "infra_receipts"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "register-infrastructure-schemas",
+      "tool": "noesis-knowledge-engine.register_infrastructure_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-infrastructure-assets",
+      "tool": "noesis-knowledge-engine.list_infrastructure_assets",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "infrastructure-asset-history",
+      "tool": "noesis-knowledge-engine.infrastructure_asset_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-infrastructure-monitor",
+      "tool": "noesis-knowledge-engine.create_infrastructure_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "infrastructure-assets-in-place",
+      "tool": "noesis-knowledge-engine.infrastructure_assets_in_place",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived spatial receipts"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:infrastructure:read",
+        "knowledge:geospatial:calculate",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "infrastructure-assets-of-operator",
+      "tool": "noesis-knowledge-engine.infrastructure_assets_of_operator",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-infrastructure-records",
+      "tool": "noesis-knowledge-engine.link_infrastructure_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "asset + relation + target + locator"
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:infrastructure:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-infrastructure-asset-matches",
+      "tool": "noesis-knowledge-engine.list_infrastructure_asset_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-infrastructure-links",
+      "tool": "noesis-knowledge-engine.list_infrastructure_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-infrastructure-operator-candidates",
+      "tool": "noesis-knowledge-engine.list_infrastructure_operator_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-infrastructure-monitor",
+      "tool": "noesis-knowledge-engine.poll_infrastructure_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:infrastructure:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "propose-infrastructure-asset-matches",
+      "tool": "noesis-knowledge-engine.propose_infrastructure_asset_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "asset pair + relation"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:geospatial:calculate"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "propose-infrastructure-operator-matches",
+      "tool": "noesis-knowledge-engine.propose_infrastructure_operator_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "party + ownership record"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-infrastructure-asset-match",
+      "tool": "noesis-knowledge-engine.review_infrastructure_asset_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match + review revision"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-infrastructure-link",
+      "tool": "noesis-knowledge-engine.review_infrastructure_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "link + review revision"
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:infrastructure:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-infrastructure-operator-match",
+      "tool": "noesis-knowledge-engine.review_infrastructure_operator_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate + decision"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:infrastructure:review",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-infrastructure-monitor",
+      "tool": "noesis-knowledge-engine.run_infrastructure_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription + watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "infrastructure-asset",
+      "store": "src.kb.infrastructure_assets",
+      "tables": [
+        "infra_assets",
+        "infra_asset_revisions",
+        "infra_status_revisions",
+        "infra_capacity_revisions",
+        "infra_owner_assertions",
+        "infra_receipts",
+        "infra_provider_state"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "infrastructure-identity-match",
+      "store": "src.kb.infrastructure_identity",
+      "tables": [
+        "infra_asset_matches",
+        "infra_match_reviews"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "infrastructure-link",
+      "store": "src.kb.infrastructure_identity",
+      "tables": [
+        "infra_links",
+        "infra_link_reviews"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "infrastructure-monitor",
+      "store": "src.kb.infrastructure_monitoring",
+      "tables": [
+        "infra_monitors"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "infra_asset_revisions"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "infra_asset_matches"
+    },
+    {
+      "id": "links",
+      "kind": "table-exists",
+      "target": "infra_links"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "infra_monitors"
+    }
+  ]
+}

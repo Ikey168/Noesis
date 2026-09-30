@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1344,
+      "tool_count": 1364,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -973,6 +973,7 @@
         "noesis-knowledge-engine.acquire_funding_source",
         "noesis-knowledge-engine.acquire_humanitarian_source",
         "noesis-knowledge-engine.acquire_iati_activities",
+        "noesis-knowledge-engine.acquire_infrastructure_source",
         "noesis-knowledge-engine.acquire_opencitations",
         "noesis-knowledge-engine.acquire_ownership_sources",
         "noesis-knowledge-engine.acquire_product_documents",
@@ -1143,6 +1144,7 @@
         "noesis-knowledge-engine.create_humanitarian_monitor",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.create_infrastructure_monitor",
         "noesis-knowledge-engine.create_intake_skill",
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
@@ -1389,6 +1391,11 @@
         "noesis-knowledge-engine.import_technical_inventory",
         "noesis-knowledge-engine.import_trade_concordance",
         "noesis-knowledge-engine.index_linguistic_texts",
+        "noesis-knowledge-engine.infrastructure_asset_history",
+        "noesis-knowledge-engine.infrastructure_assets_in_place",
+        "noesis-knowledge-engine.infrastructure_assets_of_operator",
+        "noesis-knowledge-engine.infrastructure_readiness",
+        "noesis-knowledge-engine.infrastructure_source_contracts",
         "noesis-knowledge-engine.ingest_event_mentions",
         "noesis-knowledge-engine.ingest_intake_newsletter_message",
         "noesis-knowledge-engine.ingest_tabular_dataset",
@@ -1526,6 +1533,7 @@
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
+        "noesis-knowledge-engine.link_infrastructure_records",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_product_notice_citations",
@@ -1583,6 +1591,10 @@
         "noesis-knowledge-engine.list_housing_records",
         "noesis-knowledge-engine.list_humanitarian_identity",
         "noesis-knowledge-engine.list_humanitarian_links",
+        "noesis-knowledge-engine.list_infrastructure_asset_matches",
+        "noesis-knowledge-engine.list_infrastructure_assets",
+        "noesis-knowledge-engine.list_infrastructure_links",
+        "noesis-knowledge-engine.list_infrastructure_operator_candidates",
         "noesis-knowledge-engine.list_intake_feed_inbox",
         "noesis-knowledge-engine.list_intake_feed_signal_rules",
         "noesis-knowledge-engine.list_intake_feed_subscriptions",
@@ -1702,6 +1714,7 @@
         "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_humanitarian_monitor",
+        "noesis-knowledge-engine.poll_infrastructure_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
@@ -1776,6 +1789,8 @@
         "noesis-knowledge-engine.propose_hazard_correspondences",
         "noesis-knowledge-engine.propose_housing_link_candidates",
         "noesis-knowledge-engine.propose_humanitarian_identity",
+        "noesis-knowledge-engine.propose_infrastructure_asset_matches",
+        "noesis-knowledge-engine.propose_infrastructure_operator_matches",
         "noesis-knowledge-engine.propose_intake_concept_revision",
         "noesis-knowledge-engine.propose_intake_decision_revision",
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
@@ -1890,6 +1905,7 @@
         "noesis-knowledge-engine.register_geospatial_place",
         "noesis-knowledge-engine.register_hazard_schemas",
         "noesis-knowledge-engine.register_humanitarian_schemas",
+        "noesis-knowledge-engine.register_infrastructure_schemas",
         "noesis-knowledge-engine.register_jev_intake_intent",
         "noesis-knowledge-engine.register_material_schemas",
         "noesis-knowledge-engine.register_methodology_study",
@@ -2035,6 +2051,9 @@
         "noesis-knowledge-engine.review_hazard_correspondence",
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_humanitarian_identity",
+        "noesis-knowledge-engine.review_infrastructure_asset_match",
+        "noesis-knowledge-engine.review_infrastructure_link",
+        "noesis-knowledge-engine.review_infrastructure_operator_match",
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_languoid_location",
         "noesis-knowledge-engine.review_legislation_identity_match",
@@ -2104,6 +2123,7 @@
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
         "noesis-knowledge-engine.run_humanitarian_monitor",
+        "noesis-knowledge-engine.run_infrastructure_monitor",
         "noesis-knowledge-engine.run_legislation_monitor",
         "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
@@ -2303,7 +2323,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1344
+      "visible_tool_count": 1364
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2314,11 +2334,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 135,
+      "available": 136,
       "degraded": 173,
-      "unauthorized": 1360
+      "unauthorized": 1379
     },
-    "tools": 1668
+    "tools": 1688
   },
   "tools": [
     {
@@ -21756,6 +21776,65 @@
     },
     {
       "cost_class": "medium",
+      "description": "Bounded acquisition of one explicit selection (GPPD, GEM release, Overpass, EIA layer, ENTSOG), receipted.",
+      "id": "noesis-knowledge-engine.acquire_infrastructure_source",
+      "input_schema": {
+        "properties": {
+          "budget_id": {
+            "type": "string"
+          },
+          "max_requests": {
+            "default": 5,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "observation": {
+            "type": "string"
+          },
+          "provider": {
+            "type": "string"
+          },
+          "reuse_notice": {
+            "type": "string"
+          },
+          "selection": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "provider",
+          "selection",
+          "observation",
+          "budget_id",
+          "reuse_notice"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "acquire_infrastructure_source",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:ingestion:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Capture an OpenCitations response or resume its bounded, persistent graph import.",
       "id": "noesis-knowledge-engine.acquire_opencitations",
       "input_schema": {
@@ -31962,6 +32041,49 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch a place, operator or asset for status, capacity and ownership changes (a knowledge subscription).",
+      "id": "noesis-knowledge-engine.create_infrastructure_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "subject": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "subject"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_infrastructure_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -44629,6 +44751,285 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Every revision of one asset with its status, capacity and owner-assertion histories and citations.",
+      "id": "noesis-knowledge-engine.infrastructure_asset_history",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "asset_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "infrastructure_asset_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Assets located in a place (polygon or bbox) as of a date: status, history, capacity, owners per source.",
+      "id": "noesis-knowledge-engine.infrastructure_assets_in_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "asset_classes": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "bbox": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "number"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "geometry_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "known_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_name": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "infrastructure_assets_in_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read",
+        "knowledge:geospatial:calculate",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Assets under an operator (ownership record key or entity id via accepted matches, or a published name).",
+      "id": "noesis-knowledge-engine.infrastructure_assets_of_operator",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "evidence_bundle": {
+            "default": false,
+            "type": "boolean"
+          },
+          "known_by": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "operator": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "operator"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "infrastructure_assets_of_operator",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Geospatial infrastructure feature is selected, per-source state and optional links.",
+      "id": "noesis-knowledge-engine.infrastructure_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "infrastructure_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access, licence and release decisions, bounded coverage, exclusions and live verification.",
+      "id": "noesis-knowledge-engine.infrastructure_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "infrastructure_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "high",
       "description": "Cluster a bounded multilingual mention batch using deterministic offline features.",
       "id": "noesis-knowledge-engine.ingest_event_mentions",
@@ -50668,6 +51069,72 @@
     },
     {
       "cost_class": "medium",
+      "description": "Citation links to Energy Systems series, legal works and environment facilities; absent packs skipped.",
+      "id": "noesis-knowledge-engine.link_infrastructure_records",
+      "input_schema": {
+        "properties": {
+          "energy_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "environment_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "legal_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_infrastructure_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link a political legislative dossier to an enacted legal work, citing the evidence.",
       "id": "noesis-knowledge-engine.link_legal_dossier",
       "input_schema": {
@@ -53778,6 +54245,204 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Asset matches with basis, distance, score, evidence and review history.",
+      "id": "noesis-knowledge-engine.list_infrastructure_asset_matches",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_infrastructure_asset_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Stored assets (provider, dataset, native id, class); each publication is a revision of one of them.",
+      "id": "noesis-knowledge-engine.list_infrastructure_assets",
+      "input_schema": {
+        "properties": {
+          "asset_class": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_infrastructure_assets",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Citation links and candidates with their citing revision and review state.",
+      "id": "noesis-knowledge-engine.list_infrastructure_links",
+      "input_schema": {
+        "properties": {
+          "asset_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_infrastructure_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Operator/owner candidates from infrastructure parties in the shared ownership identity state machine.",
+      "id": "noesis-knowledge-engine.list_infrastructure_operator_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_infrastructure_operator_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -59713,6 +60378,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_infrastructure_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_infrastructure_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Delivered legislation monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_legislation_monitor",
       "input_schema": {
@@ -63155,6 +63858,79 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Identifier matches from published cross-references and proximity+name+class review candidates.",
+      "id": "noesis-knowledge-engine.propose_infrastructure_asset_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_infrastructure_asset_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer published operators/owners to Corporate Ownership entities (skipped when not installed).",
+      "id": "noesis-knowledge-engine.propose_infrastructure_operator_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_infrastructure_operator_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70023,6 +70799,40 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register noesis-infrastructure-asset-record-v1 (1.0.0) in the schema registry.",
+      "id": "noesis-knowledge-engine.register_infrastructure_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_infrastructure_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write",
         "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
@@ -77382,6 +78192,142 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept, reject or revert an asset match (append-only; records stay intact).",
+      "id": "noesis-knowledge-engine.review_infrastructure_asset_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_infrastructure_asset_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate link (name or proximity overlap is never a link by itself).",
+      "id": "noesis-knowledge-engine.review_infrastructure_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_infrastructure_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert an operator candidate (entity identity decision); assertions are untouched.",
+      "id": "noesis-knowledge-engine.review_infrastructure_operator_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_infrastructure_operator_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:review",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record caller review of the cycle's declared stability criteria.",
       "id": "noesis-knowledge-engine.review_intake_iteration_stability",
       "input_schema": {
@@ -80957,6 +81903,51 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed watermark; notifications cite the old and new revisions.",
+      "id": "noesis-knowledge-engine.run_infrastructure_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_infrastructure_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:infrastructure:write",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

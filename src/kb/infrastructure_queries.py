@@ -384,3 +384,41 @@ class InfrastructureQueries:
         for item in answer.get("not_located") or []:
             builder.add_omission(f"not located: {item['asset_id']} ({item['reason']})")
         return builder.build()
+
+
+OPTIONAL_PACKS = {
+    "corporate-ownership": ("ownership_records", "operators and owners stay published strings; no operator match"),
+    "energy": ("energy_series", "no links to Energy Systems series"),
+    "legal": ("legal_works", "cited permits and dockets stay unresolved references"),
+    "climate-environment": ("environment_records", "no links to environment facilities"),
+}
+
+
+def readiness(conn, namespace, *, scopes, now=None):
+    """Feature selection, per-source state with live verification kept separate, and optional-pack degradation."""
+
+    from src.ingestion.infrastructure_sources import PROVIDER_CONTRACTS
+    from src.kb.infrastructure_assets import feature_enabled
+
+    if READ_SCOPE not in set(scopes) and "operator" not in set(scopes):
+        raise InfrastructureError("unauthorized", "infrastructure read scope is required")
+    store = InfrastructureStore(conn, initialize=False, now=now)
+    providers = {}
+    for provider in PROVIDER_CONTRACTS:
+        state = store.provider_state(namespace, provider)
+        if state.get("last_success_ms") is None:
+            status = "unavailable"
+        elif state["stale"]:
+            status = "stale"
+        elif state.get("last_execution") == "network":
+            status = "ready"
+        else:
+            status = "fixture-only"
+        providers[provider] = {"status": status, "decision": PROVIDER_CONTRACTS[provider]["decision"],
+                               "live_verification": LIVE_VERIFICATION[provider]}
+    optional = {name: {"installed": table_exists(conn, table), "when_absent": effect}
+                for name, (table, effect) in OPTIONAL_PACKS.items()}
+    return {"feature": "infrastructure", "selected": feature_enabled(conn), "stores_ready": store.ready(),
+            "namespace": namespace, "providers": providers, "optional_packs": optional,
+            "evidence": "offline fixture results and live results are reported separately "
+                        "(docs/development/infrastructure-evidence/README.md)"}

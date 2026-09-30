@@ -396,6 +396,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.humanitarian import HUMANITARIAN_WRITES
     if name in HUMANITARIAN_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.infrastructure import INFRASTRUCTURE_WRITES
+    if name in INFRASTRUCTURE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.investigations import (
         ALERT_WRITES,
         COMPARISON_WRITES,
@@ -1067,6 +1070,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.humanitarian import required_scopes as humanitarian_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in HUMANITARIAN_TOOLS:
         return humanitarian_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.infrastructure import INFRASTRUCTURE_TOOLS
+    from tools.knowledge_engine_mcp.infrastructure import required_scopes as infrastructure_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in INFRASTRUCTURE_TOOLS:
+        return infrastructure_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
         "suggest_jev_claim_presence",
         "suggest_jev_checkworthiness",

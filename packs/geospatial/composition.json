@@ -56,6 +56,22 @@
           "name": "noesis-housing-dossier",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "geospatial.infrastructure-assets",
+        "provider": "geospatial.infrastructure",
+        "contract": {
+          "name": "noesis-infrastructure-asset-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.infrastructure-answers",
+        "provider": "geospatial.infrastructure",
+        "contract": {
+          "name": "noesis-infrastructure-answer",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -69,6 +85,10 @@
       },
       {
         "id": "geospatial.housing",
+        "version": "1.0.0"
+      },
+      {
+        "id": "geospatial.infrastructure",
         "version": "1.0.0"
       }
     ],
@@ -191,6 +211,99 @@
           "contract": "noesis-transit-feed",
           "range": "^1.0.0",
           "reason": "stops come from the acquired GTFS feed as accessibility context only"
+        }
+      ]
+    },
+    {
+      "id": "infrastructure",
+      "default": false,
+      "description": "Critical infrastructure registries: power plants, generating units, pipelines, LNG terminals, transmission lines, substations, gas points and mines as published by WRI GPPD, Global Energy Monitor (declared releases, non-commercial constraint), bounded OpenStreetMap Overpass extracts (ODbL), EIA layers and ENTSOG, with status and capacity revisions, owner assertions as published, reviewable asset reconciliation, place and operator answers as of a date and subscription monitors. Geometries use the existing geospatial store. No vulnerability assessment or valuation.",
+      "requires": [
+        {
+          "capability": "geospatial.infrastructure-assets",
+          "contract": "noesis-infrastructure-asset-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own record entry points use these operations"
+        },
+        {
+          "capability": "geospatial.infrastructure-answers",
+          "contract": "noesis-infrastructure-answer",
+          "range": "^1.0.0",
+          "reason": "the feature's own answer, identity, link and monitor entry points use these operations"
+        },
+        {
+          "capability": "geospatial.geometry-store",
+          "contract": "noesis-geospatial-geometry",
+          "range": "^2.0.0",
+          "reason": "asset geometries are projected onto the existing geospatial store"
+        },
+        {
+          "capability": "geospatial.spatial-relation",
+          "contract": "noesis-spatial-relation",
+          "range": "^1.0.0",
+          "reason": "containment and proximity are receipted spatial relations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "places resolve through the gazetteer"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registries are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "infrastructure-ownership",
+      "default": false,
+      "description": "Match published operators and owners to Corporate Ownership legal entities through the shared, reviewable ownership identity state machine; without it operators stay published strings.",
+      "requires": [
+        {
+          "capability": "geospatial.infrastructure-answers",
+          "contract": "noesis-infrastructure-answer",
+          "range": "^1.0.0",
+          "reason": "operator answers and matches"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "operator candidates join the shared ownership identity state machine"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and rejected matches are entity identity decisions"
+        }
+      ]
+    },
+    {
+      "id": "infrastructure-citation-links",
+      "default": false,
+      "description": "Link assets to legal works through the permits and dockets publishers cite; name overlap is only a review candidate. Climate and Environment facilities (which depend on Geospatial) are linked by shared identifier read-only when that bundle is installed, and skipped otherwise.",
+      "requires": [
+        {
+          "capability": "geospatial.infrastructure-answers",
+          "contract": "noesis-infrastructure-answer",
+          "range": "^1.0.0",
+          "reason": "links are infrastructure links"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "cited permits and dockets resolve to legal works by identifier"
         }
       ]
     }
