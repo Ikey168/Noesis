@@ -110,6 +110,12 @@ MATRIX = {
     "Object to cited astronomy history":
         "tests/unit/domains/test_astronomy_acceptance.py::"
         "test_object_to_cited_designations_vintages_dispositions_launches_alerts_and_monitors",
+    # The Astronomy space-object registration features' offline journey (#2459) composes the registration record
+    # owner with the SATCAT objects, entity and ownership identity, Legal and Science citations, geospatial places
+    # and subscriptions.
+    "Object to cited registration, operator and re-entry":
+        "tests/unit/domains/test_astronomy_registration_acceptance.py::"
+        "test_object_to_cited_registration_operator_and_reentry_with_identity_and_revisions",
     # The Sports bundle's offline journey (#2147) composes its record owner, the source-pack runtime, reviewable
     # identity, the binary forecast ledger and subscriptions.
     "Competition and date to a cited table":

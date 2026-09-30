@@ -23,6 +23,7 @@ REGISTRATION_WRITES = {
     "revert_space_registration_party",
     "link_space_registration_citations",
     "revert_space_registration_citation",
+    "project_reentry_locations",
     "create_space_registration_monitor",
     "run_space_registration_monitor",
 }
@@ -45,6 +46,7 @@ REGISTRATION_SCOPES = {
     "revert_space_registration_party": [READ, "knowledge:ownership:review"],
     "link_space_registration_citations": [READ, WRITE],
     "revert_space_registration_citation": [REVIEW],
+    "project_reentry_locations": [READ, "knowledge:geospatial:write"],
     "create_space_registration_monitor": [READ, "knowledge:subscriptions:write"],
     "run_space_registration_monitor": [READ, "knowledge:subscriptions:read", "knowledge:subscriptions:write"],
     "poll_space_registration_monitor": [READ, "knowledge:subscriptions:read"],
@@ -296,6 +298,19 @@ def register(mcp, safe, context):
                                                       scopes=scopes)
 
         return write("revert_space_registration_citation", run)
+
+    @mcp.tool()
+    def project_reentry_locations(namespace: str, geo_namespace: str) -> dict:
+        """Project published re-entry locations into Geospatial places, only where the publisher states
+        coordinates; text-only locations stay text and nothing is computed."""
+
+        def run(conn):
+            from src.kb.astronomy_registration import project_reentry_locations as project
+
+            principal, scopes = who()
+            return project(conn, namespace, geo_namespace, principal_id=principal, scopes=scopes)
+
+        return write("project_reentry_locations", run)
 
     @mcp.tool()
     def create_space_registration_monitor(namespace: str, request_key: str, watch: str, target: str) -> dict:

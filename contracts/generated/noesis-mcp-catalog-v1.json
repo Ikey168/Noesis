@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1360,
+      "tool_count": 1361,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1764,6 +1764,7 @@
         "noesis-knowledge-engine.project_election_boundaries",
         "noesis-knowledge-engine.project_fisheries_areas",
         "noesis-knowledge-engine.project_languoid_locations",
+        "noesis-knowledge-engine.project_reentry_locations",
         "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.promote_intake_work_procedure",
         "noesis-knowledge-engine.promote_problem_playbook",
@@ -2319,7 +2320,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1360
+      "visible_tool_count": 1361
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2332,9 +2333,9 @@
     "states": {
       "available": 135,
       "degraded": 173,
-      "unauthorized": 1376
+      "unauthorized": 1377
     },
-    "tools": 1684
+    "tools": 1685
   },
   "tools": [
     {
@@ -62514,6 +62515,44 @@
       "required_scopes": [
         "knowledge:linguistics:write",
         "knowledge:geospatial:read",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Project published re-entry locations into Geospatial places, only where the publisher states\ncoordinates; text-only locations stay text and nothing is computed.",
+      "id": "noesis-knowledge-engine.project_reentry_locations",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "geo_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "project_reentry_locations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:astronomy:read",
         "knowledge:geospatial:write"
       ],
       "server": "noesis-knowledge-engine",

@@ -28,6 +28,7 @@
         "revert-registration-party",
         "link-registration-citations",
         "revert-registration-citation",
+        "project-reentry-locations",
         "create-registration-monitor",
         "run-registration-monitor",
         "poll-registration-monitor"
@@ -245,6 +246,23 @@
       ]
     },
     {
+      "id": "project-reentry-locations",
+      "tool": "noesis-knowledge-engine.project_reentry_locations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:astronomy:read",
+        "knowledge:geospatial:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
       "id": "create-registration-monitor",
       "tool": "noesis-knowledge-engine.create_space_registration_monitor",
       "side_effect": "local-mutation",
@@ -343,5 +361,5 @@
       "range": "^1.1.0"
     }
   ],
-  "content_hash": "sha256:b4ba674de1c1bc853e0faa5b7cb92c16063ba1a15c5e1ecd471eb790b9a301e2"
+  "content_hash": "sha256:6ee8999dabdf201a5156c41e14e5d707f403f4f7be788f7507c4ce600a0822f8"
 }

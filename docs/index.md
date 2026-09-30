@@ -237,6 +237,11 @@ For the project overview and local setup, start with the
   and CelesTrak launches and objects and NOAA SWPC alerts as of a date, linked to Science papers by bibcode or DOI,
   with reviewable identity and monitors; no orbit determination, risk verdict or disposition by Noesis;
   [source audit](development/astronomy-evidence/source-audit.md)
+- [Space-object registration guide](guides/astronomy-space-object-registration.md) — an object's UN registration
+  (document symbol, locator, verbatim entry), transfers of supervision, status notices, operators as published and
+  Aerospace/DISCOS re-entry predictions and confirmed reports as of a date, linked to SATCAT objects and entities
+  through reviewable identity; no re-entry prediction or attribution beyond published records;
+  [source audit](development/astronomy-evidence/space-object-registration-audit.md)
 - [Linguistics guide](guides/linguistics.md) — word-centred lexemes, forms, senses and definition revisions from
   Wikidata lexemes and Wiktionary, cited etymology chains, languages and dialects resolved to Glottocode and
   ISO 639-3 through reviewable identity, WALS typological profiles and monitors; CC BY-SA attribution travels

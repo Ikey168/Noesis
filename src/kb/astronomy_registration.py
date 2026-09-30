@@ -1169,3 +1169,58 @@ class RegistrationCitations:
             for r in rows
             if r["state"] != "unresolved" or (r["record_id"], r["citation_kind"], r["citation_value"]) not in resolved
         ]
+
+
+# ------------------------------------------------------------------ re-entry locations (SO06)
+
+GEO_WRITE = "knowledge:geospatial:write"
+
+
+def project_reentry_locations(
+    conn: Any, namespace: str, geo_namespace: str, *, principal_id: str, scopes: Iterable[str]
+) -> dict[str, Any]:
+    """Project published re-entry locations into Geospatial places, only where the publisher states coordinates.
+
+    One place per re-entry report revision (``astronomy-reentry:<revision_id>``) holding the published point; a
+    location given only as text stays text, and restricted DISCOS data is never projected. Idempotent; records are
+    never changed.
+    """
+    from src.kb.geospatial import GeospatialStore
+
+    scopes = set(scopes)
+    authorize(namespace, scopes, READ_SCOPE)
+    if "operator" not in scopes and GEO_WRITE not in scopes:
+        raise AstronomyError("unauthorized", f"{GEO_WRITE} is required to project re-entry locations")
+    store = RegistrationStore(conn, initialize=False)
+    store.require_ready()
+    geo = GeospatialStore(conn)
+    projected, text_only = [], []
+    for view in store.visible(namespace, kinds=["reentry_report"])["records"]:
+        for revision in view["revisions"]:
+            record = revision["record"]
+            location = record.get("location") or {}
+            if not location:
+                continue
+            if not (location.get("latitude") and location.get("longitude")) or record.get("restricted"):
+                text_only.append({"revision_id": revision["revision_id"], "location": location["text"]})
+                continue
+            subject = record.get("object_name") or record.get("norad") or record.get("cospar")
+            place = geo.register_place(
+                geo_namespace,
+                f"Re-entry location of {subject} ({record['source']['provider']}, {record['report_kind']})",
+                "reentry-location",
+                names=[{"value": location["text"], "language": "und", "kind": "canonical"}],
+                source_ids={record["source"]["provider"]: record["source"]["source_record_id"]},
+                parent_ids=[],
+                principal_id=principal_id,
+                scopes=scopes | {GEO_WRITE},
+                place_key=f"astronomy-reentry:{revision['revision_id']}",
+                geometry={"type": "Point",
+                          "coordinates": [float(location["longitude"]), float(location["latitude"])]},
+                producer={"name": "astronomy-registration", "version": "1.0.0"},
+                provenance={"record_id": view["record_id"], "revision_id": revision["revision_id"],
+                            "stated": dict(location), "policy": "the publisher's point as published"},
+            )
+            projected.append({"revision_id": revision["revision_id"], "place_id": place["place_id"]})
+    return {"projected": projected, "text_only": text_only,
+            "policy": "only published coordinates are projected; no footprint or window is computed"}
