@@ -9326,7 +9326,7 @@ from tools.knowledge_engine_mcp.housing import (
 
 register_housing_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.real_estate import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.real_estate import (
     register as register_real_estate_tools,
 )
 
@@ -9369,13 +9369,13 @@ from tools.knowledge_engine_mcp.oss_ecosystems import (
 )
 
 register_oss_ecosystem_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.trade import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.trade import (
     register as register_trade_tools,
 )
 
 register_trade_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.education_statistics import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.education_statistics import (
     register as register_education_statistics_tools,
 )
 
@@ -9394,10 +9394,14 @@ from tools.knowledge_engine_mcp.fisheries import (
 )
 
 register_fisheries_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.humanitarian import register as register_humanitarian_tools
+from tools.knowledge_engine_mcp.humanitarian import (
+    register as register_humanitarian_tools,
+)
 
 register_humanitarian_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.infrastructure import register as register_infrastructure_tools
+from tools.knowledge_engine_mcp.infrastructure import (
+    register as register_infrastructure_tools,
+)
 
 register_infrastructure_tools(mcp, _intake_safe, _intake_context)
 
@@ -9406,23 +9410,23 @@ from tools.knowledge_engine_mcp.agrifood import (
 )
 
 register_agrifood_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.labour import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.labour import (
     register as register_labour_tools,
 )
 
 register_labour_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.web_archives import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.web_archives import (
     register as register_web_archive_tools,
 )
 
 register_web_archive_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.campaign_finance import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.campaign_finance import (
     register as register_campaign_finance_tools,
 )
 
 register_campaign_finance_tools(mcp, _intake_safe, _intake_context)
 
-from tools.knowledge_engine_mcp.logistics import (  # noqa: E402 - registration order
+from tools.knowledge_engine_mcp.logistics import (
     register as register_logistics_tools,
 )
 
