@@ -1,0 +1,36 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"claims\": [\n  {\n   \"text\": \"Northwind Widgets exported five million widgets in 2098.\",\n   \"claimant\": \"Robin Sample\",\n   \"claimDate\": \"2099-05-30T00:00:00Z\",\n   \"claimReview\": [\n    {\n     \"publisher\": {\n      \"name\": \"Exampla Fact Desk\",\n      \"site\": \"factdesk.example\"\n     },\n     \"url\": \"https://factdesk.example/checks/widget-exports\",\n     \"title\": \"Did Northwind export five million widgets?\",\n     \"reviewDate\": \"2099-06-02T00:00:00Z\",\n     \"textualRating\": \"False\",\n     \"languageCode\": \"en\"\n    },\n    {\n     \"publisher\": {\n      \"name\": \"Northwind Verify\",\n      \"site\": \"northwind-verify.example\"\n     },\n     \"url\": \"https://northwind-verify.example/2099/widget-claim\",\n     \"title\": \"Widget export claim checked\",\n     \"reviewDate\": \"2099-06-04T00:00:00Z\",\n     \"textualRating\": \"Mostly accurate\",\n     \"languageCode\": \"en\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1alpha1/claims:search?languageCode=en&pageSize=50&query=Northwind+widgets",
+   "status": 200
+  },
+  {
+   "body": "{\n \"claims\": [\n  {\n   \"text\": \"Exampla City cut its bus fares by half in 2099.\",\n   \"claimant\": \"Exampla City Council\",\n   \"claimDate\": \"2099-06-27T00:00:00Z\",\n   \"claimReview\": [\n    {\n     \"publisher\": {\n      \"name\": \"Fabrikam Facts\",\n      \"site\": \"fabrikam-facts.example\"\n     },\n     \"url\": \"https://fabrikam-facts.example/bus-fares\",\n     \"title\": \"Were bus fares halved?\",\n     \"reviewDate\": \"2099-07-01T00:00:00Z\",\n     \"textualRating\": \"Half true\",\n     \"languageCode\": \"en\"\n    }\n   ]\n  }\n ],\n \"nextPageToken\": \"fixture-page-2\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1alpha1/claims:search?pageSize=50&reviewPublisherSiteFilter=fabrikam-facts.example",
+   "status": 200
+  },
+  {
+   "body": "{\n \"claims\": [\n  {\n   \"text\": \"The Fabrikam Mall opened in 2090.\",\n   \"claimDate\": \"2099-02-20T00:00:00Z\",\n   \"claimReview\": [\n    {\n     \"publisher\": {\n      \"name\": \"Fabrikam Facts\",\n      \"site\": \"fabrikam-facts.example\"\n     },\n     \"url\": \"https://fabrikam-facts.example/mall-opening\",\n     \"title\": \"When did the mall open?\",\n     \"reviewDate\": \"2099-03-01T00:00:00Z\",\n     \"textualRating\": \"Correct\",\n     \"languageCode\": \"en\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1alpha1/claims:search?pageSize=50&pageToken=fixture-page-2&reviewPublisherSiteFilter=fabrikam-facts.example",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (the IFCN listing markup is assumed); every publisher, claimant, claim and URL is fictional, and the personal fields present on purpose are dropped by the parser (FC01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-publishers",
+  "minimised-claimants"
+ ]
+}
