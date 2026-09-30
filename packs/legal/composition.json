@@ -48,6 +48,14 @@
           "name": "noesis-treaty-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "legal.enforcement",
+        "provider": "legal.enforcement",
+        "contract": {
+          "name": "noesis-enforcement-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -73,6 +81,10 @@
       },
       {
         "id": "legal.treaties",
+        "version": "1.0.0"
+      },
+      {
+        "id": "legal.enforcement",
         "version": "1.0.0"
       }
     ],
@@ -367,6 +379,130 @@
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
           "reason": "accepted and reverted matches are entity identity decisions"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-sec",
+      "default": false,
+      "description": "Regulatory enforcement coverage: SEC litigation releases and administrative proceedings on the legal.enforcement provider - actions, organisational respondents, notices, penalties and appeals as published with revisions, reviewable respondent identity, exact citation links and subscription monitors. Ownership, competition, court-docket and market-filing links are used when those providers are installed and are reported as provider_unavailable otherwise. No risk or compliance scoring, no inferred wrongdoing, no settled outcome merged into a finding, no profiling of individuals, no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "cited legal bases resolve to Legal works by exact identifier"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-fca",
+      "default": false,
+      "description": "Regulatory enforcement coverage: FCA final notices (penalties before and after the settlement discount, Upper Tribunal references) on the legal.enforcement provider - actions, organisational respondents, notices, penalties and appeals as published with revisions, reviewable respondent identity, exact citation links and subscription monitors. Ownership, competition, court-docket and market-filing links are used when those providers are installed and are reported as provider_unavailable otherwise. No risk or compliance scoring, no inferred wrongdoing, no settled outcome merged into a finding, no profiling of individuals, no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "cited legal bases resolve to Legal works by exact identifier"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-epa",
+      "default": false,
+      "description": "Regulatory enforcement coverage: EPA ECHO enforcement cases (statutes, facilities by FRS id, penalty, SEP and cost-recovery fields kept separate) on the legal.enforcement provider - actions, organisational respondents, notices, penalties and appeals as published with revisions, reviewable respondent identity, exact citation links and subscription monitors. Ownership, competition, court-docket and market-filing links are used when those providers are installed and are reported as provider_unavailable otherwise. No risk or compliance scoring, no inferred wrongdoing, no settled outcome merged into a finding, no profiling of individuals, no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "cited legal bases resolve to Legal works by exact identifier"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-edpb",
+      "default": false,
+      "description": "Regulatory enforcement coverage: EDPB Article 60 final decisions (lead and concerned supervisory authorities, corrective measures and fines) on the legal.enforcement provider - actions, organisational respondents, notices, penalties and appeals as published with revisions, reviewable respondent identity, exact citation links and subscription monitors. Ownership, competition, court-docket and market-filing links are used when those providers are installed and are reported as provider_unavailable otherwise. No risk or compliance scoring, no inferred wrongdoing, no settled outcome merged into a finding, no profiling of individuals, no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "cited legal bases resolve to Legal works by exact identifier"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
         }
       ]
     }

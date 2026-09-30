@@ -79,6 +79,7 @@ PROJECTOR_OWNERS = {
     "noesis-campaign-finance-record-v1": "src.kb.campaign_finance_records",
     "noesis-treaty-record-v1": "src.kb.treaties_records",  # Legal treaties (#2581)
     "noesis-fact-check-record-v1": "src.kb.fact_checks_records",
+    "noesis-enforcement-record-v1": "src.kb.enforcement",  # #2651
 }
 
 

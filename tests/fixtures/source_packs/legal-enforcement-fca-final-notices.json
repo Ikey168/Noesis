@@ -1,0 +1,28 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/publication/final-notices/exampla-uk-limited-2025.pdf",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/plain"
+   },
+   "body": "FINAL NOTICE\n\nTo: Exampla UK Limited\nFirm Reference Number: 999001\nAddress: 1 Example Street, London EC1A 1AA\nDate: 12 March 2025\n\n1. ACTION\n1.1. For the reasons given in this Final Notice, the Authority hereby imposes on Exampla UK Limited (\"Exampla UK\") a financial penalty of £1,400,000 pursuant to section 206 of the Act.\n1.2. Exampla UK agreed to resolve this matter and qualified for a 30% (stage 1) discount under the Authority's executive settlement procedures. Were it not for this discount, the Authority would have imposed a financial penalty of £2,000,000 on Exampla UK.\n\n2. SUMMARY OF REASONS\n2.1. Between 1 January 2022 and 31 December 2023 Exampla UK breached Principle 3 of the Authority's Principles for Businesses and SYSC 6.1.1R by failing to maintain adequate anti-money laundering systems and controls.\n2.2. Mr Alex Placeholder, the firm's money laundering reporting officer at the time, raised concerns in 2022 which were not acted on.\n\n3. DEFINITIONS\n3.1. \"the Act\" means the Financial Services and Markets Act 2000.\n"
+  },
+  {
+   "request": "/publication/final-notices/northwind-brokers-limited-2024.pdf",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/plain"
+   },
+   "body": "FINAL NOTICE\n\nTo: Northwind Brokers Limited\nFirm Reference Number: 999002\nDate: 18 November 2024\n\n1. ACTION\n1.1. For the reasons given in this Final Notice, the Authority hereby imposes on Northwind Brokers Limited a financial penalty of £350,000 pursuant to section 206 of the Act.\n1.2. Northwind Brokers Limited referred the Decision Notice to the Upper Tribunal (reference FS/2023/0017). On 30 September 2024 the Tribunal dismissed the reference and directed the Authority to impose the penalty.\n\n2. SUMMARY OF REASONS\n2.1. Northwind Brokers Limited breached COBS 11.2.1R and Principle 6 of the Authority's Principles for Businesses in its handling of client orders.\n\n3. DEFINITIONS\n3.1. \"the Act\" means the Financial Services and Markets Act 2000.\n"
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every action, respondent, identifier, facility and amount is fictional placeholder data; individuals are placeholders and are not stored by the adapter.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-respondents",
+  "individuals-minimised"
+ ]
+}

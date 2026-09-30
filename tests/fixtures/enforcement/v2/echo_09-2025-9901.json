@@ -1,0 +1,21 @@
+{
+  "Results": {
+    "Message": "Success",
+    "CaseNumber": "09-2025-9901",
+    "CaseName": "Exampla Trading Ltd",
+    "CivilCriminal": "Civil",
+    "CaseCategoryDesc": "Judicial",
+    "CaseStatusDesc": "Closed",
+    "FiledDate": "03/04/2025",
+    "SettlementDate": "09/15/2025",
+    "EnforcementOutcome": "Consent Decree entered; the defendant does not admit liability",
+    "ViolationDescription": "Failure to implement a risk management program for a covered process",
+    "CourtDocketNumber": "3:25-cv-09903",
+    "Court": "N.D. Cal.",
+    "DataRefreshDate": "2025-09-20",
+    "Laws": [{"Law": "CAA", "Sections": "112(r)"}],
+    "Defendants": [{"DefendantName": "Exampla Trading Ltd"}, {"DefendantName": "Casey Placeholder"}],
+    "Facilities": [{"RegistryID": "110099990001", "FacilityName": "Exampla Trading Ltd - Bayview Terminal", "Latitude": "37.8001", "Longitude": "-122.3002", "State": "CA"}],
+    "Penalties": {"FedPenalty": "$180,000", "StateLocalPenalty": "$0", "SEPCost": "$60,000", "CostRecovery": "$12,500", "ComplianceActionCost": "$1,200,000"}
+  }
+}

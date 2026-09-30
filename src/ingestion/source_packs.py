@@ -401,6 +401,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fact-checks"})
 NATIVE_CONNECTOR_MODULES["water"] = "src.ingestion.water_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"water"})
 
+# Legal regulatory enforcement: SEC releases, FCA final notices, EPA ECHO cases, EDPB Art. 60 register (#2651).
+NATIVE_CONNECTOR_MODULES["enforcement"] = "src.ingestion.enforcement_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"enforcement"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

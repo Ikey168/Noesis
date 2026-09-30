@@ -1,7 +1,7 @@
 {
   "pack_id": "legal-research",
   "version": "1.5.0",
-  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores), plus the treaties features' UN Treaty Collection status pages, EU international agreements from CELLAR and Council of Europe treaty charts and declarations (actions, reservations, declarations and objections as published; no legal advice, no inference of obligations or compliance, no interpretation of reservations).",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores), plus the treaties features' UN Treaty Collection status pages, EU international agreements from CELLAR and Council of Europe treaty charts and declarations (actions, reservations, declarations and objections as published; no legal advice, no inference of obligations or compliance, no interpretation of reservations), plus the enforcement features' SEC litigation releases and administrative proceedings, FCA final notices, EPA ECHO enforcement cases and EDPB Article 60 final decisions (organisational respondents; individuals counted, never named; outcomes and penalties as published; no risk or compliance scoring).",
   "domains": [
     "legal"
   ],
@@ -1257,6 +1257,226 @@
         "path": "tests/fixtures/source_packs/legal-treaties-coe-treaty-office.json",
         "sha256": "ae7c1752f7c85adf192d6861fe38fca091a4a3cd1453a7fc5c5f8957c554e2f4",
         "expected_output_hash": "6cad4e9076fcf152b81debb97d3f68e707ef4e765a7379e9ee845cd5e2eb0bae"
+      }
+    },
+    {
+      "source_id": "sec-enforcement-releases",
+      "connector": "enforcement",
+      "publisher": "U.S. Securities and Exchange Commission",
+      "endpoint": "https://www.sec.gov",
+      "scope": "Declared SEC litigation releases and administrative proceedings (organisational respondents; individuals counted, never named): release and file numbers, charges and legal bases as stated, sanctions as stated, the published admission wording of settlements and related court cases as citations",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://www.sec.gov/privacy",
+        "redistribution": "US government work, public domain (17 U.S.C. 105); credit the SEC"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "the release publication date and the dates the release states; the page's modified time as the revision",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "global",
+        "provider": "us-sec",
+        "format": "sec-release-html",
+        "selection": {
+          "releases": [
+            {
+              "path": "litigation-releases/lr-99901"
+            },
+            {
+              "path": "administrative-proceedings/34-99902"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-sec-releases.json",
+        "sha256": "a076f55d3255787a2be45c8ec9c0ebd6d218272357fb95c004ec83356f54c760",
+        "expected_output_hash": "c64a3e6da3ac077e4f0c2572133227193079a9b3fb26e16ba33bd20ed393c223"
+      }
+    },
+    {
+      "source_id": "fca-final-notices",
+      "connector": "enforcement",
+      "publisher": "Financial Conduct Authority",
+      "endpoint": "https://www.fca.org.uk",
+      "scope": "Declared FCA final notices addressed to firms: notice, firm reference number, the penalty imposed and the penalty before the settlement discount as published, Principles and Handbook rules cited, amendments as revisions and Upper Tribunal references",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "fca-website-terms",
+        "terms_url": "https://www.fca.org.uk/legal",
+        "redistribution": "FCA material reproduced free of charge with acknowledgement, accurately and not in a misleading context (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "the notice date as valid time; an amendment date as a correction revision",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "global",
+        "provider": "uk-fca",
+        "format": "fca-final-notice-text",
+        "selection": {
+          "notices": [
+            {
+              "slug": "exampla-uk-limited-2025"
+            },
+            {
+              "slug": "northwind-brokers-limited-2024"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-fca-final-notices.json",
+        "sha256": "87ed5ae59f26623149a348b6488e28662ccf138bc503c6cf94449ef3b7102384",
+        "expected_output_hash": "a177f1f615010174b4078e1989a95aecf723d4e9316cd655be36f9c821aee6e2"
+      }
+    },
+    {
+      "source_id": "epa-echo-enforcement-cases",
+      "connector": "enforcement",
+      "publisher": "U.S. Environmental Protection Agency (ECHO)",
+      "endpoint": "https://echodata.epa.gov",
+      "scope": "Declared EPA civil enforcement cases from the ECHO case web service: statutes and sections, organisational defendants (individuals counted), facilities by FRS id with published coordinates, and federal penalty, state/local penalty, SEP cost, cost recovery and compliance action cost as separate published fields",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://echo.epa.gov/resources/general-info/echo-faq",
+        "redistribution": "US government work, public domain; ECHO data disclaimer applies (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "filed and settlement dates as valid time; the data refresh date as the revision",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "global",
+        "provider": "us-epa-echo",
+        "format": "echo-case-json",
+        "selection": {
+          "cases": [
+            {
+              "case_number": "09-2025-9901"
+            },
+            {
+              "case_number": "05-2024-9902"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-epa-echo-cases.json",
+        "sha256": "2193ca3056055757b501454246462ea6cad0e12c1394db8f5b27520124b79698",
+        "expected_output_hash": "ac9caaa75cfe4019cd1263353897b7ea7e8202fdcd82e81b529a0b894c82fabc"
+      }
+    },
+    {
+      "source_id": "edpb-art60-final-decisions",
+      "connector": "enforcement",
+      "publisher": "European Data Protection Board",
+      "endpoint": "https://www.edpb.europa.eu",
+      "scope": "Declared entries of the EDPB register of Article 60 final decisions: lead and concerned supervisory authorities, GDPR provisions, corrective measures and fines as published, the controller only as published (anonymised entries stay unnamed)",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "edpb-reuse-with-attribution",
+        "terms_url": "https://www.edpb.europa.eu/legal-notice_en",
+        "redistribution": "reuse authorised with acknowledgement of the source (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "the date of the final decision as valid time; the entry digest as the revision",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 5000000,
+        "max_pages": 5
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "global",
+        "provider": "edpb-art60",
+        "format": "edpb-art60-html",
+        "selection": {
+          "entries": [
+            {
+              "slug": "exampla-intermediate-bv-security-of-processing"
+            },
+            {
+              "slug": "anonymised-controller-reprimand-2025"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-edpb-art60.json",
+        "sha256": "fb77959dc17a5e2bc835675ddcccd7691c2c2d783ae7aaac4a765e8362621e17",
+        "expected_output_hash": "a46cfe161d94b64107fca001b51c6020e858c4386751b647e5e8ca36a77ae938"
       }
     }
   ]

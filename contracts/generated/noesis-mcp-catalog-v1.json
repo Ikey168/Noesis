@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1676,
+      "tool_count": 1691,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1178,6 +1178,7 @@
         "noesis-knowledge-engine.create_education_monitor",
         "noesis-knowledge-engine.create_election_monitor",
         "noesis-knowledge-engine.create_energy_monitor",
+        "noesis-knowledge-engine.create_enforcement_monitor",
         "noesis-knowledge-engine.create_engineering_safety_monitor",
         "noesis-knowledge-engine.create_environment_monitor",
         "noesis-knowledge-engine.create_event_dossier",
@@ -1309,6 +1310,11 @@
         "noesis-knowledge-engine.energy_observations",
         "noesis-knowledge-engine.energy_revision_history",
         "noesis-knowledge-engine.energy_source_contracts",
+        "noesis-knowledge-engine.enforcement_action_history",
+        "noesis-knowledge-engine.enforcement_actions_by_authority",
+        "noesis-knowledge-engine.enforcement_actions_for_entity",
+        "noesis-knowledge-engine.enforcement_readiness",
+        "noesis-knowledge-engine.enforcement_source_contracts",
         "noesis-knowledge-engine.engineering_safety_dossier",
         "noesis-knowledge-engine.environment_provider_contracts",
         "noesis-knowledge-engine.evaluate_cited_evidence_subscription",
@@ -1347,6 +1353,7 @@
         "noesis-knowledge-engine.export_coverage_comparison",
         "noesis-knowledge-engine.export_dossier_interests_report",
         "noesis-knowledge-engine.export_economic_release_comparison",
+        "noesis-knowledge-engine.export_enforcement_evidence_bundle",
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_environment_dossier",
         "noesis-knowledge-engine.export_event_dossier_comparison",
@@ -1635,6 +1642,7 @@
         "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
+        "noesis-knowledge-engine.link_enforcement_records",
         "noesis-knowledge-engine.link_fact_checks",
         "noesis-knowledge-engine.link_fisheries_citations",
         "noesis-knowledge-engine.link_food_notices",
@@ -1704,6 +1712,8 @@
         "noesis-knowledge-engine.list_energy_identity_matches",
         "noesis-knowledge-engine.list_energy_links",
         "noesis-knowledge-engine.list_energy_series",
+        "noesis-knowledge-engine.list_enforcement_identity_candidates",
+        "noesis-knowledge-engine.list_enforcement_links",
         "noesis-knowledge-engine.list_environment_facilities",
         "noesis-knowledge-engine.list_environment_grid_events",
         "noesis-knowledge-engine.list_environment_operator_links",
@@ -1898,6 +1908,7 @@
         "noesis-knowledge-engine.poll_education_monitor",
         "noesis-knowledge-engine.poll_election_monitor",
         "noesis-knowledge-engine.poll_energy_monitor",
+        "noesis-knowledge-engine.poll_enforcement_monitor",
         "noesis-knowledge-engine.poll_engineering_safety_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_fact_check_monitor",
@@ -1993,6 +2004,7 @@
         "noesis-knowledge-engine.propose_education_ror_matches",
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_energy_identity_matches",
+        "noesis-knowledge-engine.propose_enforcement_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_fact_check_identity_matches",
         "noesis-knowledge-engine.propose_fisheries_identities",
@@ -2254,6 +2266,7 @@
         "noesis-knowledge-engine.revert_education_ror_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
+        "noesis-knowledge-engine.revert_enforcement_identity_match",
         "noesis-knowledge-engine.revert_fact_check_identity_match",
         "noesis-knowledge-engine.revert_fisheries_identity",
         "noesis-knowledge-engine.revert_hazard_correspondence",
@@ -2312,6 +2325,7 @@
         "noesis-knowledge-engine.review_education_ror_match",
         "noesis-knowledge-engine.review_election_identity_match",
         "noesis-knowledge-engine.review_energy_identity_match",
+        "noesis-knowledge-engine.review_enforcement_identity_match",
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
@@ -2410,6 +2424,7 @@
         "noesis-knowledge-engine.run_education_monitor",
         "noesis-knowledge-engine.run_election_monitor",
         "noesis-knowledge-engine.run_energy_monitor",
+        "noesis-knowledge-engine.run_enforcement_monitor",
         "noesis-knowledge-engine.run_engineering_safety_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_fact_check_monitor",
@@ -2649,7 +2664,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1676
+      "visible_tool_count": 1691
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2660,11 +2675,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 152,
+      "available": 153,
       "degraded": 174,
-      "unauthorized": 1688
+      "unauthorized": 1702
     },
-    "tools": 2014
+    "tools": 2029
   },
   "tools": [
     {
@@ -33709,6 +33724,67 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to an entity (optionally its group), an authority, a legal basis or one action for new actions,\ndecisions, penalties, appeals, corrections and removals (record changes, not assessments).",
+      "id": "noesis-knowledge-engine.create_enforcement_monitor",
+      "input_schema": {
+        "properties": {
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_enforcement_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription watching subjects, issuing authorities, directive numbers or recommendation numbers\n(provider:number); refreshed by the engineering-safety source pack's schedule, no new scheduler.",
       "id": "noesis-knowledge-engine.create_engineering_safety_monitor",
       "input_schema": {
@@ -41194,6 +41270,255 @@
     },
     {
       "cost_class": "low",
+      "description": "An action's revision chain (corrections and removals by the source included), notice versions,\norganisational respondents, penalties, appeals and links.",
+      "id": "noesis-knowledge-engine.enforcement_action_history",
+      "input_schema": {
+        "properties": {
+          "action_key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "action_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "enforcement_action_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Actions of an authority and/or citing a legal basis over a period, with outcomes and penalties as\npublished; penalties are never summed across currencies or authorities and undisclosed penalties stay\nexplicit. No ranking, scoring or legal advice.",
+      "id": "noesis-knowledge-engine.enforcement_actions_by_authority",
+      "input_schema": {
+        "properties": {
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_removed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "legal_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "enforcement_actions_by_authority",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Regulatory enforcement actions (SEC, FCA, EPA, EDPB lead authorities) against a company - or its group\nthrough accepted ownership matches as of the date - with outcomes, settlement admission wording, penalties\nand appeals as published, each citing its record revision and identity decision; 'no_action_on_record' is\nnever a clean bill. No risk or compliance scoring, no inferred wrongdoing, no settled outcome merged into a\nfinding, no profiling of individuals.",
+      "id": "noesis-knowledge-engine.enforcement_actions_for_entity",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity": {
+            "type": "string"
+          },
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "include_removed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "include_unknowns": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "enforcement_actions_for_entity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which enforcement features are selected and what each provider has acquired (unverified live stated).",
+      "id": "noesis-knowledge-engine.enforcement_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "enforcement_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Access decisions, key handling, reuse terms, rate limits, revision and removal models, the data-\nminimisation decision, declined sources, bounded coverage and LIVE_VERIFICATION for the SEC, FCA, EPA ECHO\nand EDPB Article 60 sources.",
+      "id": "noesis-knowledge-engine.enforcement_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "enforcement_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A cited engineering-safety dossier for a subject: directives in effect with chains, investigations with\nverbatim findings, recommendations with status history, defect investigations with linked recalls\n(products_namespace, needs knowledge:products:read), occurrences and complaint counts, with the matches\nthat connected them, conflicts side by side and unknowns. A subject with no records is 'none on record',\nnever 'safe'.",
       "id": "noesis-knowledge-engine.engineering_safety_dossier",
       "input_schema": {
@@ -43024,6 +43349,99 @@
       ],
       "required_scopes": [
         "knowledge:economic:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence-bundle export of an entity or authority answer: every assertion cites its source, record\nrevision and as-of time; exclusions travel with the bundle.",
+      "id": "noesis-knowledge-engine.export_enforcement_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "legal_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_enforcement_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56607,6 +57025,64 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link actions to Legal works, competition cases and court dockets by exact citation, to SEC EDGAR filers by\na published CIK and to ownership entities through accepted matches; missing providers and targets are\nreported, never dropped; no causal link to market events.",
+      "id": "noesis-knowledge-engine.link_enforcement_records",
+      "input_schema": {
+        "properties": {
+          "competition_namespace": {
+            "default": "competition",
+            "type": "string"
+          },
+          "courts_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "legal_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": "ownership"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_enforcement_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link current fact-check revisions to the news articles they cite and, through accepted matches only, to\nclaim timelines, OSINT corroboration and source identities; missing targets and absent providers are\nreported. No inferred verdicts.",
       "id": "noesis-knowledge-engine.link_fact_checks",
       "input_schema": {
@@ -60296,6 +60772,117 @@
       ],
       "required_scopes": [
         "knowledge:energy:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Reviewable identity candidates of organisational respondents, the unmatched respondents (kept as\npublished), the authorities as source identities and, with an ownership namespace, the conflicts.",
+      "id": "noesis-knowledge-engine.list_enforcement_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_enforcement_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Enforcement links with their basis and revisions; unresolved and provider_unavailable links kept.",
+      "id": "noesis-knowledge-engine.list_enforcement_links",
+      "input_schema": {
+        "properties": {
+          "citing_record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_enforcement_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70069,6 +70656,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll an enforcement monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_enforcement_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_enforcement_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll an engineering-safety monitor's events through the subscription delivery path.",
       "id": "noesis-knowledge-engine.poll_engineering_safety_monitor",
       "input_schema": {
@@ -74389,6 +75014,45 @@
       ],
       "required_scopes": [
         "knowledge:energy:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose organisational respondents against ownership entities: published identifiers (CIK, FRN, LEI,\ncompany number) first, names as low evidence; nothing is accepted automatically or merged; individuals are\nnever proposed.",
+      "id": "noesis-knowledge-engine.propose_enforcement_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_enforcement_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -88623,6 +89287,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed respondent identity decision.",
+      "id": "noesis-knowledge-engine.revert_enforcement_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_enforcement_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert an accepted or rejected fact-check identity decision; records stay intact.",
       "id": "noesis-knowledge-engine.revert_fact_check_identity_match",
       "input_schema": {
@@ -91157,6 +91863,52 @@
       ],
       "required_scopes": [
         "knowledge:energy:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a respondent identity candidate with a reason (an entity identity decision with\nreviewer and time; records are never merged).",
+      "id": "noesis-knowledge-engine.review_enforcement_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_enforcement_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -96075,6 +96827,51 @@
       ],
       "required_scopes": [
         "knowledge:energy:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate an enforcement monitor at a committed watermark; each notice cites its before and after\nrevision and states what changed.",
+      "id": "noesis-knowledge-engine.run_enforcement_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_enforcement_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

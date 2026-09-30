@@ -490,6 +490,14 @@ def _fact_check_projector(conn: Any) -> Any:
 
 # News fact-checks provider (#2659).
 PROJECTORS["noesis-fact-check-record-v1"] = _fact_check_projector
+def _enforcement_projector(conn: Any) -> Any:
+    from src.kb.enforcement import EnforcementProjector
+
+    return EnforcementProjector(conn)
+
+
+# Legal regulatory enforcement features (#2651).
+PROJECTORS["noesis-enforcement-record-v1"] = _enforcement_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

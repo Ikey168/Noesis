@@ -136,7 +136,9 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
                                                           # Courts and justice-statistics features (#2218).
                                                           "courts-justice",
                                                           # Treaties features (#2581).
-                                                          "treaties"} <= SUPPORTED_CONNECTORS
+                                                          "treaties",
+                                                          # Regulatory enforcement features (#2651).
+                                                          "enforcement"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {s["source_id"]: s["records"] for s in result["sources"]} == {
@@ -155,7 +157,10 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
         "courtlistener-dockets": 1, "courtlistener-opinions": 2, "fbi-cde-summarized": 2,
         "police-uk-street-crime": 1, "eurostat-crime-iccs": 1,
         # Treaties features (#2581): one fictional treaty per source with its participants, actions and statements.
-        "untc-treaty-status": 17, "eu-cellar-agreements": 8, "coe-treaty-office": 17}
+        "untc-treaty-status": 17, "eu-cellar-agreements": 8, "coe-treaty-office": 17,
+        # Regulatory enforcement features (#2651): authority, action, notice, respondent, penalty and appeal records.
+        "sec-enforcement-releases": 9, "fca-final-notices": 12, "epa-echo-enforcement-cases": 16,
+        "edpb-art60-final-decisions": 7}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():

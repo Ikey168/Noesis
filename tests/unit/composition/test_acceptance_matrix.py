@@ -252,6 +252,11 @@ MATRIX = {
     "Claim or news article to cited fact-checks":
         "tests/unit/domains/test_fact_checks_acceptance.py::"
         "test_claim_or_article_to_cited_fact_checks_with_ratings_as_published_and_reviewable_matches",
+    # The Legal regulatory enforcement features' offline journey (#2715) composes its record owner with the
+    # source-pack runtime, ownership identity and graph, Legal works, competition cases and subscriptions.
+    "Company to cited regulatory enforcement actions":
+        "tests/unit/domains/test_enforcement_acceptance.py::"
+        "test_company_to_cited_enforcement_actions_with_outcome_and_appeal_history",
 }
 
 
