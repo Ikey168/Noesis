@@ -1,0 +1,152 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-insurance-record-v1",
+  "title": "Insurance record: insurer report (SFCR), supervisory indicator observation, catastrophe-loss estimate or publication reference",
+  "description": "What one publisher publishes, kept as published: reported values as decimal text with unit and currency, the reporting period, the publisher, the licence decision (IN01) and a document locator. SFCR figures quote public QRT cells with template, row and column; a cell that could not be read is unknown with a reason, never estimated. A confidential or not-reported supervisory cell keeps its published marker with a null value, never zero. Catastrophe-loss estimates stay in their publisher's own series, and every new publication is a revision. Metadata-only sources yield publication references without figures, and excluded sources yield nothing. No record carries a solvency or rating assessment, a loss model, or a derived ratio or aggregate.",
+  "type": "object",
+  "required": ["contract", "kind", "source", "publication_date", "unknowns"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "decimal": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+    "insurer": {
+      "type": "object",
+      "required": ["name", "reporting_level"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "lei": {"type": ["string", "null"], "pattern": "^[0-9A-Z]{18}[0-9]{2}$"},
+        "naic_company_code": {"type": ["string", "null"], "pattern": "^\\d{5}$"},
+        "naic_group_code": {"type": ["string", "null"], "pattern": "^\\d{1,4}$"},
+        "national_id": {"type": ["string", "null"]},
+        "country": {"type": ["string", "null"]},
+        "reporting_level": {"enum": ["solo", "group", "unknown"]}
+      },
+      "additionalProperties": false
+    },
+    "figure": {
+      "type": "object",
+      "required": ["figure_id", "template", "row", "column", "label", "status", "value"],
+      "properties": {
+        "figure_id": {"type": "string"},
+        "template": {"type": "string", "pattern": "^S\\.\\d{2}\\.\\d{2}\\.\\d{2}$"},
+        "row": {"type": "string", "pattern": "^R\\d{4}$"},
+        "column": {"type": "string", "pattern": "^C\\d{4}$"},
+        "label": {"type": "string"},
+        "status": {"enum": ["reported", "unknown"]},
+        "value": {"$ref": "#/definitions/decimal"},
+        "unit": {"type": ["string", "null"]},
+        "currency": {"type": ["string", "null"]},
+        "quoted": {"type": ["string", "null"]},
+        "page": {"type": ["integer", "null"]},
+        "reason": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-insurance-record-v1"},
+    "kind": {"enum": ["insurer_report", "supervisory_indicator", "catastrophe_loss_estimate", "publication_reference"]},
+    "source": {
+      "type": "object",
+      "required": ["provider", "source_id", "url", "licence"],
+      "properties": {
+        "provider": {"enum": ["eiopa-insurance-statistics", "insurer-sfcr", "naic-public", "florida-oir-claims", "noaa-ncei-billion-dollar", "swiss-re-sigma", "munich-re-natcatservice", "ica-catastrophe-list", "broker-reports"]},
+        "source_id": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "pattern": "^https://"},
+        "locator": {"type": "object"},
+        "document_sha256": {"type": ["string", "null"], "pattern": "^[0-9a-f]{64}$"},
+        "retrieved_at_ms": {"type": ["integer", "null"]},
+        "licence": {
+          "type": "object",
+          "required": ["id", "terms_url", "attribution", "decision"],
+          "properties": {
+            "id": {"type": "string"},
+            "terms_url": {"type": "string"},
+            "attribution": {"type": "string"},
+            "decision": {"enum": ["in-scope", "metadata-only"]}
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "publication_date": {"$ref": "#/definitions/day"},
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "insurer": {"oneOf": [{"$ref": "#/definitions/insurer"}, {"type": "null"}]},
+    "report_type": {"const": "sfcr"},
+    "reporting_year": {"type": "integer"},
+    "language": {"type": ["string", "null"]},
+    "document": {
+      "type": "object",
+      "required": ["url", "sha256"],
+      "properties": {
+        "url": {"type": "string", "pattern": "^https://"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "media_type": {"type": ["string", "null"]},
+        "extractor": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "figures": {"type": "array", "items": {"$ref": "#/definitions/figure"}},
+    "corrects": {"type": ["string", "null"]},
+    "publisher": {"type": "string"},
+    "dataset": {"type": "string"},
+    "indicator": {"type": "string", "pattern": "^[a-z][a-z0-9_]*$"},
+    "indicator_label": {"type": "string"},
+    "definition": {"type": ["string", "null"]},
+    "dimensions": {"type": "object", "additionalProperties": {"type": ["string", "null"]}},
+    "period": {
+      "oneOf": [
+        {"type": "object", "properties": {"reference_date": {"$ref": "#/definitions/day"}, "reference_year": {"type": ["integer", "string", "null"]}, "label": {"type": ["string", "null"]}}, "additionalProperties": false},
+        {"type": ["string", "null"]}
+      ]
+    },
+    "value": {"$ref": "#/definitions/decimal"},
+    "marker": {"type": ["string", "null"]},
+    "unit": {"type": "string"},
+    "currency": {"type": ["string", "null"]},
+    "release": {"type": "string"},
+    "event": {
+      "type": "object",
+      "required": ["name", "identifiers"],
+      "properties": {
+        "name": {"type": "string"},
+        "reference": {"type": ["string", "null"]},
+        "identifiers": {"type": "object", "additionalProperties": {"type": "string"}},
+        "begin_date": {"$ref": "#/definitions/day"},
+        "end_date": {"$ref": "#/definitions/day"},
+        "area": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "estimate_type": {"enum": ["insured", "economic"]},
+    "measure": {"type": "string"},
+    "range": {
+      "type": ["object", "null"],
+      "properties": {"low": {"$ref": "#/definitions/decimal"}, "high": {"$ref": "#/definitions/decimal"}},
+      "additionalProperties": false
+    },
+    "as_published": {"type": ["string", "null"]},
+    "cites": {"type": "array", "items": {"type": "string", "pattern": "^https://"}},
+    "title": {"type": "string"},
+    "access_decision": {"const": "metadata-only"},
+    "reason": {"type": "string"}
+  },
+  "not": {
+    "anyOf": [
+      {"required": ["solvency_assessment"]},
+      {"required": ["rating"]},
+      {"required": ["score"]},
+      {"required": ["risk_score"]},
+      {"required": ["loss_model"]},
+      {"required": ["projection"]},
+      {"required": ["derived_ratio"]},
+      {"required": ["aggregate_across_publishers"]}
+    ]
+  },
+  "allOf": [
+    {"if": {"properties": {"kind": {"const": "insurer_report"}}}, "then": {"required": ["insurer", "report_type", "reporting_year", "document", "figures"]}},
+    {"if": {"properties": {"kind": {"const": "supervisory_indicator"}}}, "then": {"required": ["publisher", "dataset", "indicator", "indicator_label", "dimensions", "period", "value", "marker", "unit", "release"]}},
+    {"if": {"properties": {"kind": {"const": "catastrophe_loss_estimate"}}}, "then": {"required": ["publisher", "event", "estimate_type", "measure", "value", "unit", "publication_date"]}},
+    {"if": {"properties": {"kind": {"const": "publication_reference"}}}, "then": {"required": ["publisher", "title", "access_decision"]}}
+  ]
+}
