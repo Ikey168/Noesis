@@ -235,6 +235,12 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The Science life-sciences provider's offline journey (#2716) composes its record owner (UniProt, NCBI Gene and
+    # Taxonomy, RCSB PDB, ChEMBL) with entity identity, Chemicals, Clinical, Biodiversity and document records,
+    # subscriptions and the source-pack runtime.
+    "Protein to cited reference records and bioactivity":
+        "tests/unit/domains/test_lifesci_acceptance.py::"
+        "test_protein_to_cited_reference_records_structures_and_published_bioactivity",
 }
 
 
