@@ -174,6 +174,13 @@ The taxonomy has two more axes:
 
 `platform` is shared infrastructure and has no domain.
 
+Coverage is measured, not claimed. [ADR-005](docs/architecture/decisions/ADR-005-domain-coverage-program.md)
+splits the nine domains into 89 subdomains, and each provider names the ones
+it covers. Today 56 are covered by fixture-tested providers. The other 33 are
+gaps, scheduled in the
+[domain coverage program](docs/roadmaps/domain-coverage-program.md). Offline
+coverage and live coverage are reported separately.
+
 Packs share one core: stores, identity review, monitoring, and composition. A
 pack adds sources, vocabulary, enrichers, and workflow templates without
 changing core code. A test enforces the admission rule. A new source must name
@@ -529,6 +536,7 @@ In short:
 
 **Open work:**
 
+- Closing the 33 subdomain gaps in the domain coverage program.
 - A two-annotator human gold set, and a stance model trained on it.
 - Live-provider and human acceptance for many pack guides.
 - End-to-end Modulo journeys for several intake modes.
