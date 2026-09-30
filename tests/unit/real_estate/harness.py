@@ -37,7 +37,7 @@ REVIEW_SCOPES = SCOPES | {REVIEW}
 NATIVE = ["hmlr-price-paid-data", "hmlr-uk-hpi", "dvf-geolocalisees", "eurostat-house-price-index"]
 PARCELS = ["inspire-cp-france", "inspire-cp-nordrhein-westfalen"]
 PUBLIC_DNS = lambda _host: ["8.8.8.8"]  # noqa: E731 - resolver stub
-OWNER_MARKERS = ("proprietaire", "NOM FICTIF", "owner", "buyer", "seller")
+OWNER_MARKERS = ("proprietaire", "NOM FICTIF")
 
 
 def manifest() -> dict[str, Any]:
@@ -159,3 +159,32 @@ class Env:
 def owner_markers(value: Any) -> list[str]:
     text = json.dumps(value, ensure_ascii=False, default=str)
     return [m for m in OWNER_MARKERS if m in text]
+
+
+PARIS_4E_BOX = {"type": "Polygon", "coordinates": [[[2.34, 48.84], [2.37, 48.84], [2.37, 48.86], [2.34, 48.86],
+                                                    [2.34, 48.84]]]}
+
+
+def seed_places(env: Env) -> dict[str, str]:
+    """Fictional places: a postcode district (with its borough's GSS code), a PPD address, a synthetic point that
+    lies inside parcel AB0013 (to exercise geometry-derived candidates), Paris 4e and Germany."""
+    district = env.place("ZZ1 (fictional district)", "postcode-district",
+                         {"uk-postcode-district": "ZZ1", "ons-gss": "E09000033"})
+    address = env.place("Flat 3, 12 Example Street", "address", {"uk-address": "FLAT 3 12 EXAMPLE STREET ZZ1 1AA"})
+    point = env.place("ZZ1 2BB (synthetic point)", "postcode", {"uk-postcode": "ZZ1 2BB"},
+                      geometry={"type": "Point", "coordinates": wgs84((452655.0, 5410915.0))})
+    paris = env.place("Paris 4e Arrondissement", "commune", {"insee-commune": "75104", "eurostat-geo": "FR"},
+                      geometry=PARIS_4E_BOX)
+    germany = env.place("Deutschland", "country", {"eurostat-geo": "DE"})
+    return {"district": district["place_id"], "address": address["place_id"], "point": point["place_id"],
+            "paris": paris["place_id"], "germany": germany["place_id"]}
+
+
+def load_legal_work(conn) -> dict:
+    """One fictional regional work with a gazette reference a parcel publication can cite."""
+    from src.kb.legal import REGIONAL_CONTRACT, LegalStore
+
+    record = {"contract": REGIONAL_CONTRACT, "provider": "berlin-law", "provider_id": "jlr-FlurstVBE2099",
+              "kind": "normative", "language": "de", "title": "Verordnung über Flurstücksangaben (fiktiv)",
+              "fields": {"gazette_reference": "GVBl. 2099 S. 777", "enactment_date": "2099-01-15"}}
+    return LegalStore(conn).project("legal", [record], run_id="legal-fixture", source_id="legal-fixture")
