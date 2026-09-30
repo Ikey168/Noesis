@@ -371,8 +371,8 @@ class EnforcementLinks:
     def _reresolve(self, namespace: str, scopes: set[str], **namespaces: Any) -> int:
         """Targets acquired (or providers installed) after a link was made resolve now; exact identity only."""
         changed = 0
-        for link_id, raw, target_pack, target_key, field in self.conn.execute(
-                "SELECT link_id, raw, target_pack, target_key, field FROM enforcement_links WHERE namespace=? AND "
+        for link_id, raw, target_pack, target_key, status in self.conn.execute(
+                "SELECT link_id, raw, target_pack, target_key, status FROM enforcement_links WHERE namespace=? AND "
                 "status IN ('unresolved', 'provider_unavailable')", [namespace]).fetchall():
             if target_pack == "legal.courts":
                 resolved = self._docket(namespaces["courts_namespace"], raw)
@@ -387,12 +387,13 @@ class EnforcementLinks:
                 resolved = (self._competition(namespaces["competition_namespace"], parsed[0])
                             if target_pack == "ownership.competition" else
                             self._legal(namespaces["legal_namespace"], parsed[0], scopes))
-            if resolved["status"] == "resolved":
-                self.conn.execute("UPDATE enforcement_links SET status='resolved', target_record=?, target_revision=?, "
-                                  "detail=? WHERE link_id=?", [resolved.get("target_record"),
+            if resolved["status"] != status:
+                # Resolved now, or the provider is installed and the target is still missing (unresolved).
+                self.conn.execute("UPDATE enforcement_links SET status=?, target_record=?, target_revision=?, "
+                                  "detail=? WHERE link_id=?", [resolved["status"], resolved.get("target_record"),
                                                                resolved.get("target_revision"), resolved["detail"],
                                                                link_id])
-                changed += 1
+                changed += resolved["status"] == "resolved"
         return changed
 
     # ----------------------------------------------------------------- read
