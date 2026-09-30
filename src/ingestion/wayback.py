@@ -277,7 +277,10 @@ def acquire_wayback_mementos(client, url, *, request_id, max_results=5000):
         return stop("excluded_by_archive", {"http_status": cdx_status, "step": "cdx"})
     if cdx_outcome == "blocked_by_archive":
         return stop("blocked_by_archive", {"http_status": cdx_status, "step": "cdx"})
+    from src.kb.web_archive_identity import canonical_key
+
     rows = {}
+    foreign_rows = 0
     cdx_state = "unavailable"
     if cdx_outcome == "ok":
         try:
@@ -285,6 +288,10 @@ def acquire_wayback_mementos(client, url, *, request_id, max_results=5000):
             header = [str(h) for h in table[0]] if table else []
             for values in table[1:]:
                 row = dict(zip(header, values, strict=False))
+                if row.get("original") and canonical_key(str(row["original"])) != canonical_key(url):
+                    # A row for another original URL is never attributed to this URI-R.
+                    foreign_rows += 1
+                    continue
                 if re.fullmatch(r"\d{14}", str(row.get("timestamp", ""))):
                     rows.setdefault(row["timestamp"], row)
             cdx_state = "read"
@@ -333,7 +340,8 @@ def acquire_wayback_mementos(client, url, *, request_id, max_results=5000):
     result_outcome = "captures" if ids else "no_capture_on_record"
     snap = client.snapshot(url, "internet-archive", resolver="internet-archive", outcome=result_outcome,
                            capture_ids=ids, truncated=truncated,
-                           detail={"cdx": cdx_state, "listed_by_timemap": len(listed), "cdx_rows": len(rows)},
+                           detail={"cdx": cdx_state, "listed_by_timemap": len(listed), "cdx_rows": len(rows),
+                                   "cdx_rows_for_other_urls": foreign_rows},
                            receipt=receipt)
     return {"outcome": result_outcome, "capture_ids": sorted(set(ids)), "timemap_id": snap["timemap_id"],
             "truncated": truncated, "cdx": cdx_state, "requests": budget.requests}
