@@ -77,6 +77,7 @@ PROJECTOR_OWNERS = {
     "noesis-media-metadata-record-v1": "src.kb.media_metadata",  # Cultural Collections media metadata (#2225)
     "noesis-campaign-finance-record-v1": "src.kb.campaign_finance_records",
     "noesis-treaty-record-v1": "src.kb.treaties_records",  # Legal treaties (#2581)
+    "noesis-fact-check-record-v1": "src.kb.fact_checks_records",
 }
 
 

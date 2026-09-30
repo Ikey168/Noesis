@@ -1,0 +1,140 @@
+{
+ "@context": "https://schema.org",
+ "@type": "DataFeed",
+ "dateModified": "2099-08-01T00:00:00Z",
+ "dataFeedElement": [
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2099-06-02T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://factdesk.example/checks/widget-exports",
+     "claimReviewed": "Northwind Widgets exported five million widgets in 2098.",
+     "datePublished": "2099-06-02",
+     "name": "Did Northwind export five million widgets?",
+     "inLanguage": "en",
+     "author": [
+      {
+       "@type": "Person",
+       "name": "Pat Reviewer",
+       "url": "https://factdesk.example/staff/pat"
+      }
+     ],
+     "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": 1,
+      "bestRating": 5,
+      "worstRating": 1,
+      "alternateName": "False"
+     },
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Person",
+       "name": "Robin Sample",
+       "jobTitle": "Chief Spokesperson, Northwind Widgets",
+       "image": "https://images.example/robin.jpg",
+       "sameAs": [
+        "https://www.wikidata.org/wiki/Q99999901",
+        "https://x.com/robinsample_fake"
+       ]
+      },
+      "datePublished": "2099-05-30",
+      "appearance": [
+       {
+        "@type": "CreativeWork",
+        "url": "https://www.news.example/2099/05/31/widget-exports/?utm_source=feed"
+       },
+       {
+        "@type": "CreativeWork",
+        "url": "https://x.com/robinsample_fake/status/99001"
+       }
+      ],
+      "firstAppearance": {
+       "@type": "CreativeWork",
+       "url": "https://x.com/robinsample_fake/status/99001"
+      }
+     },
+     "publisher": {
+      "@type": "Organization",
+      "name": "Exampla Fact Desk",
+      "url": "https://factdesk.example"
+     }
+    }
+   ]
+  },
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2099-07-15T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://factdesk.example/checks/bus-fares",
+     "claimReviewed": "Exampla City cut its bus fares by half in 2099.",
+     "datePublished": "2099-07-15",
+     "name": "Bus fares were not halved",
+     "inLanguage": "en",
+     "author": {
+      "@type": "Organization",
+      "name": "Exampla Fact Desk",
+      "url": "https://factdesk.example"
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": 2,
+      "bestRating": 5,
+      "worstRating": 1,
+      "alternateName": "Misleading"
+     },
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Organization",
+       "name": "Exampla City Council"
+      },
+      "datePublished": "2099-06-27",
+      "appearance": [
+       {
+        "@type": "CreativeWork",
+        "url": "https://news.example/2099/06/28/bus-fares"
+       }
+      ]
+     }
+    }
+   ]
+  },
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2099-06-03T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://elsewhere.example/check/1",
+     "claimReviewed": "Northwind Widgets exported five million widgets in 2098.",
+     "datePublished": "2099-06-03",
+     "name": null,
+     "inLanguage": "en",
+     "author": {
+      "@type": "Organization",
+      "name": "Elsewhere Checks",
+      "url": "https://elsewhere.example"
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "alternateName": "False"
+     },
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": "Robin Sample",
+      "datePublished": "2099-05-30",
+      "appearance": []
+     }
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,33 @@
+{
+ "claims": [
+  {
+   "text": "Northwind Widgets exported five million widgets in 2098.",
+   "claimant": "Robin Sample",
+   "claimDate": "2099-05-30T00:00:00Z",
+   "claimReview": [
+    {
+     "publisher": {
+      "name": "Exampla Fact Desk",
+      "site": "factdesk.example"
+     },
+     "url": "https://factdesk.example/checks/widget-exports",
+     "title": "Did Northwind export five million widgets?",
+     "reviewDate": "2099-06-09T00:00:00Z",
+     "textualRating": "False (updated with the company's statement)",
+     "languageCode": "en"
+    },
+    {
+     "publisher": {
+      "name": "Northwind Verify",
+      "site": "northwind-verify.example"
+     },
+     "url": "https://northwind-verify.example/2099/widget-claim",
+     "title": "Widget export claim checked",
+     "reviewDate": "2099-06-04T00:00:00Z",
+     "textualRating": "Mostly accurate",
+     "languageCode": "en"
+    }
+   ]
+  }
+ ]
+}

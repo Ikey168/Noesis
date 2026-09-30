@@ -1,0 +1,21 @@
+{
+ "claims": [
+  {
+   "text": "The Fabrikam Mall opened in 2090.",
+   "claimDate": "2099-02-20T00:00:00Z",
+   "claimReview": [
+    {
+     "publisher": {
+      "name": "Fabrikam Facts",
+      "site": "fabrikam-facts.example"
+     },
+     "url": "https://fabrikam-facts.example/mall-opening",
+     "title": "When did the mall open?",
+     "reviewDate": "2099-03-01T00:00:00Z",
+     "textualRating": "Correct",
+     "languageCode": "en"
+    }
+   ]
+  }
+ ]
+}

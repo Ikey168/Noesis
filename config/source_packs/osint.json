@@ -1,7 +1,7 @@
 {
   "pack_id": "bounded-public-osint",
-  "version": "1.1.0",
-  "description": "Public-web discovery, historical snapshots, registry facts, and broad events under review policy. 1.1.0 adds the optional movements feature (#2221): aircraft registry entries (FAA, UK CAA G-INFO), bounded OpenSky samples, GFW port visits, open AIS samples and UNCTAD port-call aggregates, each for explicitly named identifiers and windows under docs/security/osint-movements-access.md.",
+  "version": "1.2.0",
+  "description": "Public-web discovery, historical snapshots, registry facts, and broad events under review policy. 1.1.0 adds the optional movements feature (#2221): aircraft registry entries (FAA, UK CAA G-INFO), bounded OpenSky samples, GFW port visits, open AIS samples and UNCTAD port-call aggregates, each for explicitly named identifiers and windows under docs/security/osint-movements-access.md. 1.2.0 adds the News pack's fact-checks features (#2659): Google Fact Check Tools ClaimReview searches, a Data Commons ClaimReview release and the IFCN signatory listing, each bounded, minimised under the FC01 decision and unverified-live.",
   "domains": ["osint"],
   "defaults": {
     "connector": "declarative-rest",
@@ -28,6 +28,197 @@
     {"source_id": "movements-opensky", "connector": "osint-movements", "endpoint": "https://opensky-network.org", "publisher": "The OpenSky Network", "scope": "flights and at most five flight tracks for one explicitly named ICAO 24-bit address per selection and a window of at most 48 hours; at most 500 position samples; no area or background query", "temporal_semantics": "each sample's own time; each window records its declared gaps and receiver coverage", "license": {"id": "opensky-research-licence", "terms_url": "https://opensky-network.org/about/terms-of-use", "redistribution": "research and non-commercial use; bounded samples cited with attribution to the OpenSky Network (operator must verify the research licence)"}, "budgets": {"timeout_ms": 30000, "max_results": 600, "max_bytes": 5000000, "max_pages": 10}, "auth": {"kind": "optional-secret", "secret_ref": "NOESIS_OPENSKY_CREDENTIAL"}, "osint_movements": {"provider": "opensky", "namespace": "osint", "live_verification": "unverified-live", "decision": "docs/security/osint-movements-access.md#decisions", "coverage_decision": "three synthetic aircraft for one 24-hour window each and one declared PIA refusal", "selection": [{"icao24": "a0f1b2", "begin": "2099-05-01T06:00:00Z", "end": "2099-05-02T06:00:00Z", "label": "synthetic N901EX flight day"}, {"icao24": "a0f1c3", "begin": "2099-05-01T06:00:00Z", "end": "2099-05-02T06:00:00Z", "label": "synthetic N902EX (natural person)"}, {"icao24": "a0f1e5", "begin": "2099-05-01T06:00:00Z", "end": "2099-05-02T06:00:00Z", "label": "synthetic aircraft without flights"}, {"icao24": "a0f1f6", "begin": "2099-05-01T06:00:00Z", "end": "2099-05-02T06:00:00Z", "label": "synthetic PIA aircraft"}], "privacy_refusals": [{"scheme": "icao24", "identifier": "a0f1f6", "programme": "faa-pia", "reason": "operator-declared Privacy ICAO Address (synthetic)"}]}, "update_cadence": "on explicit selection only; the pack schedule is left disabled for these sources and nothing is polled in the background", "mapping": {"target_schema": "noesis-osint-movement-record-v1", "version": "1.0.0"}, "extractor_versions": ["osint-movements:1.0.0"], "schedule": {"kind": "interval", "interval_s": 604800}, "health": {"required": false, "max_staleness_s": 2592000}, "operations": ["movements"], "fixture": {"path": "tests/fixtures/source_packs/osint-movements-opensky.json", "sha256": "34e7fcf552b8c87fe62d460cbce9df4e1cdf0df4436bf253288b7aed3f8b8b39", "expected_output_hash": "e437695de21621a8282bfe8c04354dfcb5e4a41021db2ace84817c1b41043da0"}},
     {"source_id": "movements-gfw-port-visits", "connector": "osint-movements", "endpoint": "https://gateway.api.globalfishingwatch.org", "publisher": "Global Fishing Watch", "scope": "port-visit events GFW publishes for one explicitly named GFW vessel id and a window of at most 366 days, with GFW's confidence; no tracks; vessel identity read from the Fisheries pack by citation", "temporal_semantics": "each event's published start and end; the dataset version is cited", "license": {"id": "gfw-api-terms-cc-by-nc-4.0", "terms_url": "https://globalfishingwatch.org/our-apis/documentation#terms-of-use", "redistribution": "non-commercial use with attribution to Global Fishing Watch and the dataset version (verify the current API terms)"}, "budgets": {"timeout_ms": 30000, "max_results": 500, "max_bytes": 2000000, "max_pages": 10}, "auth": {"kind": "required-secret", "secret_ref": "NOESIS_GFW_API_TOKEN"}, "osint_movements": {"provider": "gfw-port-visits", "namespace": "osint", "live_verification": "unverified-live", "decision": "docs/security/osint-movements-access.md#decisions", "coverage_decision": "the two synthetic Fisheries GFW vessels, one window each", "selection": [{"vessel_id": "a1b2c3d4-0002-4000-8000-000000000002", "start": "2025-01-01", "end": "2025-12-31", "label": "synthetic re-flagged purse seiner, 2025"}, {"vessel_id": "a1b2c3d4-0001-4000-8000-000000000001", "start": "2025-06-01", "end": "2025-06-30", "label": "synthetic longliner, June 2025 (no events)"}]}, "update_cadence": "on explicit selection only; the pack schedule is left disabled for these sources and nothing is polled in the background", "mapping": {"target_schema": "noesis-osint-movement-record-v1", "version": "1.0.0"}, "extractor_versions": ["osint-movements:1.0.0"], "schedule": {"kind": "interval", "interval_s": 604800}, "health": {"required": false, "max_staleness_s": 2592000}, "operations": ["movements"], "fixture": {"path": "tests/fixtures/source_packs/osint-movements-gfw.json", "sha256": "63d3b4067e543147013bd44d33c3678676f372ce9e682351ae7ef98d64945240", "expected_output_hash": "6a5914d090d0438bad920eb9ee6719b00987bc2c2ee74150809f28cdb5fd7bcc"}},
     {"source_id": "movements-kystdatahuset-ais", "connector": "osint-movements", "endpoint": "https://kystdatahuset.no", "publisher": "Kystverket (Norwegian Coastal Administration), Kystdatahuset", "scope": "AIS positions for one explicitly named MMSI and a window of at most 72 hours; at most 500 samples; rows of other vessels are never stored; no area download", "temporal_semantics": "each position's message time; each window records its declared gaps", "license": {"id": "nlod-2.0", "terms_url": "https://data.norge.no/nlod/en/2.0", "redistribution": "NLOD 2.0 with attribution to Kystverket (verify)"}, "budgets": {"timeout_ms": 30000, "max_results": 600, "max_bytes": 5000000, "max_pages": 10}, "auth": {"kind": "required-secret", "secret_ref": "NOESIS_KYSTDATAHUSET_TOKEN"}, "osint_movements": {"provider": "kystdatahuset-ais", "namespace": "osint", "live_verification": "unverified-live", "decision": "docs/security/osint-movements-access.md#decisions", "coverage_decision": "one synthetic vessel for 48 hours and one without coverage", "selection": [{"mmsi": "671000002", "imo": "9000027", "start": "2025-03-10T00:00:00Z", "end": "2025-03-12T00:00:00Z", "label": "synthetic SAMPLE NOVA"}, {"mmsi": "257000009", "start": "2025-03-10T00:00:00Z", "end": "2025-03-11T00:00:00Z", "label": "synthetic vessel, no coverage"}]}, "update_cadence": "on explicit selection only; the pack schedule is left disabled for these sources and nothing is polled in the background", "mapping": {"target_schema": "noesis-osint-movement-record-v1", "version": "1.0.0"}, "extractor_versions": ["osint-movements:1.0.0"], "schedule": {"kind": "interval", "interval_s": 604800}, "health": {"required": false, "max_staleness_s": 2592000}, "operations": ["movements"], "fixture": {"path": "tests/fixtures/source_packs/osint-movements-ais.json", "sha256": "ceb077f1de4c72612a0b9468a6000c6724901f3cbf4e1a1297441816533703f6", "expected_output_hash": "c16982348b1a6271b0dd4bf87c77b2626685569c770d30343a284fdc5f0c52c7"}},
-    {"source_id": "movements-unctad-port-calls", "connector": "osint-movements", "endpoint": "https://unctadstat-api.unctad.org", "publisher": "UNCTAD, UNCTADstat", "scope": "published port-call aggregates (number of port calls, median time in port) for declared economies and years; aggregates only, never per vessel", "temporal_semantics": "statistical year as published; a new release is a new revision", "license": {"id": "unctadstat-terms", "terms_url": "https://unctadstat.unctad.org/EN/Terms.html", "redistribution": "reuse with attribution to UNCTADstat (verify)"}, "budgets": {"timeout_ms": 30000, "max_results": 100, "max_bytes": 5000000, "max_pages": 1}, "auth": {"kind": "none"}, "osint_movements": {"provider": "unctad-port-calls", "namespace": "osint", "live_verification": "unverified-live", "decision": "docs/security/osint-movements-access.md#decisions", "coverage_decision": "two economies, two years", "selection": [{"economies": ["578", "724"], "years": ["2024", "2025"], "release": "synthetic release", "label": "Norway and Spain 2024-2025"}]}, "update_cadence": "on explicit selection only; the pack schedule is left disabled for these sources and nothing is polled in the background", "mapping": {"target_schema": "noesis-osint-movement-record-v1", "version": "1.0.0"}, "extractor_versions": ["osint-movements:1.0.0"], "schedule": {"kind": "interval", "interval_s": 604800}, "health": {"required": false, "max_staleness_s": 2592000}, "operations": ["movements"], "fixture": {"path": "tests/fixtures/source_packs/osint-movements-unctad.json", "sha256": "e82196241421fc54646397d75464faac39f42d18d56caee2ad4f6195dd745cc2", "expected_output_hash": "07db95c9af213f53f44044c8ba6be940f48d1303c13165ee1bddb5c57f3a4b26"}}
+    {"source_id": "movements-unctad-port-calls", "connector": "osint-movements", "endpoint": "https://unctadstat-api.unctad.org", "publisher": "UNCTAD, UNCTADstat", "scope": "published port-call aggregates (number of port calls, median time in port) for declared economies and years; aggregates only, never per vessel", "temporal_semantics": "statistical year as published; a new release is a new revision", "license": {"id": "unctadstat-terms", "terms_url": "https://unctadstat.unctad.org/EN/Terms.html", "redistribution": "reuse with attribution to UNCTADstat (verify)"}, "budgets": {"timeout_ms": 30000, "max_results": 100, "max_bytes": 5000000, "max_pages": 1}, "auth": {"kind": "none"}, "osint_movements": {"provider": "unctad-port-calls", "namespace": "osint", "live_verification": "unverified-live", "decision": "docs/security/osint-movements-access.md#decisions", "coverage_decision": "two economies, two years", "selection": [{"economies": ["578", "724"], "years": ["2024", "2025"], "release": "synthetic release", "label": "Norway and Spain 2024-2025"}]}, "update_cadence": "on explicit selection only; the pack schedule is left disabled for these sources and nothing is polled in the background", "mapping": {"target_schema": "noesis-osint-movement-record-v1", "version": "1.0.0"}, "extractor_versions": ["osint-movements:1.0.0"], "schedule": {"kind": "interval", "interval_s": 604800}, "health": {"required": false, "max_staleness_s": 2592000}, "operations": ["movements"], "fixture": {"path": "tests/fixtures/source_packs/osint-movements-unctad.json", "sha256": "e82196241421fc54646397d75464faac39f42d18d56caee2ad4f6195dd745cc2", "expected_output_hash": "07db95c9af213f53f44044c8ba6be940f48d1303c13165ee1bddb5c57f3a4b26"}},
+    {
+      "source_id": "news-fact-checks-google",
+      "connector": "fact-checks",
+      "endpoint": "https://factchecktools.googleapis.com",
+      "publisher": "Google Fact Check Tools API (ClaimReview search)",
+      "scope": "ClaimReview records returned by declared claims:search searches (a query and/or a publisher site); claim text, claimant as named, review URL, date and textual rating as published; placeholder selection until the FC13 live run",
+      "license": {
+        "id": "google-apis-terms",
+        "terms_url": "https://developers.google.com/terms",
+        "redistribution": "Google APIs Terms of Service; ClaimReview content belongs to each publisher and is kept as short attributed fields with a link to the review (operator must confirm the terms)"
+      },
+      "update_cadence": "as publishers publish reviews; searched on explicit selection",
+      "temporal_semantics": "review date as the publisher's date; no revision stamp, so a changed review date or rating is a new revision; acquisition time recorded separately",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 4
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_GOOGLE_FACTCHECK_API_KEY"
+      },
+      "fact_checks": {
+        "namespace": "global",
+        "provider": "google-fact-check-tools",
+        "format": "google-factcheck-claims-search-json",
+        "minimisation": "fact-checks-minimisation-v1",
+        "selection": {
+          "searches": [
+            {
+              "query": "Northwind widgets",
+              "language": "en"
+            },
+            {
+              "publisher_site": "fabrikam-facts.example"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "mapping": {
+        "target_schema": "noesis-fact-check-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "fact-checks:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/news-fact-checks-google.json",
+        "sha256": "6dd8cda9120be1b61ba20a3b93eeebd9697704d61249f099e3f3fe5cf6ad8fde",
+        "expected_output_hash": "0fe75f914b727412ca910aa3be20c3ec956e1857e9cf5b97514fa145f4f199c9"
+      }
+    },
+    {
+      "source_id": "news-fact-checks-datacommons",
+      "connector": "fact-checks",
+      "endpoint": "https://storage.googleapis.com",
+      "publisher": "Data Commons ClaimReview data feed",
+      "scope": "a ClaimReview DataFeed release filtered to the declared publisher sites and a review-date window; ratings with their scale and appearance URLs as published; the release path and licence must be verified",
+      "license": {
+        "id": "datacommons-claimreview-terms",
+        "terms_url": "https://datacommons.org/factcheck/download",
+        "redistribution": "Data Commons terms with attribution to each fact-check publisher (operator must confirm the licence; local research use until then)"
+      },
+      "update_cadence": "periodic releases",
+      "temporal_semantics": "each release is a vintage (dateModified); a review a later release no longer carries within the declared scope is an absent-from-release revision, never a deletion",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 2000,
+        "max_bytes": 50000000,
+        "max_pages": 1
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fact_checks": {
+        "namespace": "global",
+        "provider": "datacommons-claimreview",
+        "format": "datacommons-claimreview-feed-jsonld",
+        "minimisation": "fact-checks-minimisation-v1",
+        "selection": {
+          "releases": [
+            {
+              "release": "latest",
+              "publishers": [
+                "factdesk.example",
+                "contoso-check.example"
+              ],
+              "from": "2099-01-01",
+              "to": "2099-12-31"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "mapping": {
+        "target_schema": "noesis-fact-check-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "fact-checks:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/news-fact-checks-datacommons.json",
+        "sha256": "7b3c909ae0e027411a3d72470784b7b40d30dcf825cedbd49ed4e37673df2ddc",
+        "expected_output_hash": "b4a888f9877c6444b1273f011c457c559271aee7becee4c600ab135e2a0530d5"
+      }
+    },
+    {
+      "source_id": "news-fact-checks-ifcn",
+      "connector": "fact-checks",
+      "endpoint": "https://ifcncodeofprinciples.poynter.org",
+      "publisher": "International Fact-Checking Network (Poynter), Code of Principles signatories",
+      "scope": "the one signatory listing page: organisation, website, country and status (verified, expired, under review) with its dates as published; no profile pages; listing markup and terms must be verified",
+      "license": {
+        "id": "poynter-terms-of-use",
+        "terms_url": "https://www.poynter.org/terms-of-use/",
+        "redistribution": "Poynter website terms; status facts cited with a link to the listing (operator must confirm that the terms allow this reuse)"
+      },
+      "update_cadence": "as assessments are completed; read at most daily",
+      "temporal_semantics": "each acquisition is a dated listing state; a changed status is a dated revision and a signatory missing from a later listing is an absent-from-listing revision",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 86400
+      },
+      "budgets": {
+        "timeout_ms": 20000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 1
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fact_checks": {
+        "namespace": "global",
+        "provider": "ifcn-signatories",
+        "format": "ifcn-signatories-html",
+        "minimisation": "fact-checks-minimisation-v1",
+        "selection": {
+          "listings": [
+            {
+              "page": "signatories"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "mapping": {
+        "target_schema": "noesis-fact-check-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "fact-checks:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/news-fact-checks-ifcn.json",
+        "sha256": "576c57cfe01148d8a5b6fd3bb21ae675fe8136b63d56023595cd7604c254f315",
+        "expected_output_hash": "cdb3bb46562c0cc7ef6c89b79e16ddfddf56033fd4cc5fefd9f458ea5208af7b"
+      }
+    }
   ]
 }

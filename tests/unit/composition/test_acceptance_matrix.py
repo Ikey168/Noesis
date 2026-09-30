@@ -241,6 +241,11 @@ MATRIX = {
     "Treaty or state to cited treaty actions":
         "tests/unit/domains/test_treaties_acceptance.py::"
         "test_treaty_and_state_to_cited_actions_with_revision_history_identity_and_links",
+    # The News fact-checks provider's offline journey (#2719) composes its record owner with the source-pack runtime,
+    # entity identity, claim timelines, OSINT corroboration, source identities, web archives and subscriptions.
+    "Claim or news article to cited fact-checks":
+        "tests/unit/domains/test_fact_checks_acceptance.py::"
+        "test_claim_or_article_to_cited_fact_checks_with_ratings_as_published_and_reviewable_matches",
 }
 
 

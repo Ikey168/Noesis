@@ -417,6 +417,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.campaign_finance import CAMPAIGN_FINANCE_WRITES
     if name in CAMPAIGN_FINANCE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.fact_checks import FACT_CHECK_WRITES
+    if name in FACT_CHECK_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.energy import ENERGY_WRITES
     if name in ENERGY_WRITES:
         return "write"
@@ -1127,6 +1130,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.campaign_finance import required_scopes as campaign_finance_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in CAMPAIGN_FINANCE_TOOLS:
         return campaign_finance_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.fact_checks import FACT_CHECK_TOOLS
+    from tools.knowledge_engine_mcp.fact_checks import required_scopes as fact_check_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in FACT_CHECK_TOOLS:
+        return fact_check_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.energy import ENERGY_TOOLS
     from tools.knowledge_engine_mcp.energy import required_scopes as energy_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in ENERGY_TOOLS:

@@ -204,6 +204,10 @@ For the project overview and local setup, start with the
   CELLAR and Council of Europe treaty charts: treaty actions, reservations, declarations and objections as published,
   a participant's status as of a date, reviewable participant identity, citation links and monitors; no legal advice,
   obligation or compliance inference; [source audit and minimisation decision](development/treaties-evidence/source-audit.md)
+- [News fact-checks guide](guides/news-fact-checks.md) — published ClaimReview fact-checks from the Google Fact
+  Check Tools API and Data Commons with ratings as published and IFCN publisher status history: claim, claimant or
+  news article to cited fact-checks as of a date with reviewable identity, links and monitors; no truth verdicts
+  or rating normalisation; [source audit and minimisation decision](development/fact-checks-evidence/source-audit.md)
 - [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
   opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and
