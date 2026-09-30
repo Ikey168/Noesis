@@ -143,6 +143,7 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "legal", "feature": "courts", "reason": "not selected"},  # #2218
         {"pack": "economics", "feature": "demographics", "reason": "not selected"},
         {"pack": "legal", "feature": "federal-statutes", "reason": "not selected"},
+        {"pack": "market", "feature": "insurance", "reason": "not selected"},  # #2230
         {"pack": "legal", "feature": "justice-statistics", "reason": "not selected"},  # #2218
         {"pack": "economics", "feature": "public-finance", "reason": "not selected"},
         {"pack": "economics", "feature": "trade-comext", "reason": "not selected"},
