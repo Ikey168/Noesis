@@ -836,13 +836,191 @@ def readiness(conn: Any) -> dict[str, Any]:
     }
 
 
+
+# ---------------------------------------------------------------------- links to Science and Funding (ED09)
+
+LINK_TARGETS = {
+    # kind: (side, description)
+    "funding_opportunity": ("funding", "a Funding programme, call, directory entry or award record "
+                            "(src.kb.funding_opportunities, noesis-funding-record-v1)"),
+    "scholarly_work": ("science", "a scholarly work in the document store (source_type paper) with its "
+                       "affiliation metadata"),
+    "methodology_study": ("science", "a Science methodology study record (src.kb.methodology_provenance)"),
+}
+_LINK_DDL = """
+CREATE TABLE IF NOT EXISTS edu_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, side TEXT NOT NULL, target_kind TEXT NOT NULL,
+  subject_json TEXT NOT NULL, target_json TEXT NOT NULL, basis_json TEXT NOT NULL, citation_json TEXT NOT NULL,
+  target_status TEXT NOT NULL, state TEXT NOT NULL, history_json TEXT NOT NULL, created_by TEXT NOT NULL,
+  created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
+);
+"""
+LINK_NOTICE = (
+    "Linked by a confirmed ROR match or an identifier cited in the records only; the linked record is shown as held, "
+    "never recomputed, and no per-student or per-staff ratio is derived."
+)
+
+
+class EducationLinks:
+    """Institution statistics joined to Science and Funding records through the shared ROR identity and explicit
+    citations (no name or keyword joins)."""
+
+    def __init__(self, conn: Any, *, now=None, initialize: bool = True) -> None:
+        self.conn = conn
+        self.store = EducationStatisticsStore(conn, initialize=initialize, now=now)
+        self.now = self.store.now
+        if initialize:
+            conn.execute(_LINK_DDL)
+
+    def _record_text(self, kind: str, target: Mapping[str, Any]) -> tuple[str, str | None]:
+        """(status, the held record as text) of a cited target; ``provider_absent`` without its store."""
+        record_id = str(target["record_id"])
+        if kind == "funding_opportunity":
+            if not table_exists(self.conn, "funding_opportunity_revisions"):
+                return "provider_absent", None
+            row = self.conn.execute(
+                "SELECT r.content_json FROM funding_opportunities o JOIN funding_opportunity_revisions r ON "
+                "r.opportunity_id=o.opportunity_id AND r.revision=o.revision WHERE o.opportunity_id=? AND "
+                "o.namespace=?", [record_id, str(target.get("namespace") or DEFAULT_NAMESPACE)]).fetchone()
+        elif kind == "scholarly_work":
+            if not table_exists(self.conn, "documents"):
+                return "provider_absent", None
+            row = self.conn.execute(
+                "SELECT to_json(d) FROM documents d WHERE document_id=?", [record_id]).fetchone()
+        else:
+            if not table_exists(self.conn, "methodology_study_current"):
+                return "provider_absent", None
+            row = self.conn.execute(
+                "SELECT r.payload_json FROM methodology_study_current c JOIN methodology_study_revisions r ON "
+                "r.study_revision_id=c.study_revision_id WHERE c.study_id=? AND r.namespace=?",
+                [record_id, str(target.get("namespace") or DEFAULT_NAMESPACE)]).fetchone()
+        return ("target_missing", None) if row is None else ("resolved", str(row[0]))
+
+    def _subject_basis(self, namespace: str, subject: Mapping[str, Any], identifier: Mapping[str, Any]
+                       ) -> tuple[dict[str, Any], dict[str, Any]]:
+        from src.kb.education_identity import EducationIdentity, ror_url
+
+        identity = EducationIdentity(self.conn, initialize=False) if table_exists(
+            self.conn, "edu_identity_matches") else None
+        scheme, value = str(identifier.get("scheme") or ""), str(identifier.get("value") or "").strip()
+        if subject.get("ror"):
+            ror = ror_url(subject["ror"])
+            if scheme != "ror" or ror_url(value) != ror:
+                raise EducationError("citation_required", "a ROR-keyed link cites the same ROR id")
+            used = identity.institutions_for_ror(namespace, ror) if identity else {"subjects": [], "basis": []}
+            if not used["subjects"]:
+                raise EducationError("no_confirmed_match", "no exact or accepted ROR match ties an institution to "
+                                     "this ROR id; unreviewed candidates are never used")
+            return ({"ror": ror, "institutions": used["subjects"]},
+                    {"method": "confirmed-ror-match", "matches": [b["match_id"] for b in used["basis"]]})
+        key = {"scheme": str(subject.get("scheme") or ""), "code": str(subject.get("code") or "")}
+        if key["scheme"] not in INSTITUTION_SCHEMES or not key["code"]:
+            raise EducationError("invalid_request", "link a ROR id or a source institution (ipeds-unitid, eter-id)")
+        if scheme == key["scheme"] and value == key["code"]:
+            return key, {"method": "cited-source-identifier"}
+        if scheme == "ror" and identity is not None:
+            confirmed = identity.ror_for(namespace, key["scheme"], key["code"])
+            if confirmed["status"] == "confirmed" and confirmed["ror_id"] == ror_url(value):
+                return ({**key, "ror": confirmed["ror_id"]},
+                        {"method": "confirmed-ror-match", "matches": [b["match_id"] for b in confirmed["basis"]]})
+        raise EducationError("citation_required", "the cited identifier is neither the institution's source id nor "
+                             "its confirmed ROR id; names and keywords never link records")
+
+    def link(self, namespace: str, *, subject: Mapping[str, Any], target: Mapping[str, Any],
+             citation: Mapping[str, Any], principal_id: str, scopes: Iterable[str]) -> dict[str, Any]:
+        """Link an institution (by ROR id or source id) to a Science or Funding record whose citation names the
+        identifier; a held record must carry it. Idempotent."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        kind = str(dict(target).get("kind") or "")
+        if kind not in LINK_TARGETS or not dict(target).get("record_id"):
+            raise EducationError("invalid_request", f"a target names its kind ({sorted(LINK_TARGETS)}) and record id")
+        side = LINK_TARGETS[kind][0]
+        require_scope(scopes, "knowledge:funding:read" if side == "funding" else "knowledge:read")
+        citation = dict(citation or {})
+        identifier = dict(citation.get("identifier") or {})
+        if not str(citation.get("source") or "").strip() or not str(citation.get("locator") or "").strip() \
+                or not identifier.get("scheme") or not identifier.get("value"):
+            raise EducationError("citation_required", "a link cites its source, the locator and the identifier the "
+                                 "record states")
+        self.conn.execute(_LINK_DDL)
+        key, basis = self._subject_basis(namespace, dict(subject), identifier)
+        status, text = self._record_text(kind, target)
+        value = str(identifier["value"]).strip()
+        if status == "resolved":
+            needles = {value, value.rsplit("/", 1)[-1]} if identifier["scheme"] == "ror" else {value}
+            if not any(n and n in text for n in needles):
+                raise EducationError("identifier_not_in_record", "the held record does not state the cited identifier;"
+                                     " records are never joined by name or keyword")
+            basis = {**basis, "identifier_in_record": True, "record_sha256": digest(text)}
+        target_view = {"kind": kind, "side": side, "record_id": str(target["record_id"]),
+                       "namespace": str(dict(target).get("namespace") or DEFAULT_NAMESPACE)}
+        link_id = "edu-link:" + digest([namespace, key, target_view, identifier])[:24]
+        if not self.conn.execute("SELECT 1 FROM edu_links WHERE namespace=? AND link_id=?",
+                                 [namespace, link_id]).fetchone():
+            now = self.now()
+            self.conn.execute(
+                "INSERT INTO edu_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                [namespace, link_id, side, kind, canonical(key), canonical(target_view), canonical(basis),
+                 canonical({**citation, "identifier": identifier}), status, "active",
+                 canonical([{"state": "active", "by": principal_id, "at_ms": now}]), principal_id, now])
+        return self.link_view(namespace, link_id)
+
+    def link_view(self, namespace: str, link_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT link_id, side, target_kind, subject_json, target_json, basis_json, citation_json, target_status, "
+            "state, history_json, created_by, created_at_ms FROM edu_links WHERE namespace=? AND link_id=?",
+            [namespace, link_id]).fetchone()
+        if row is None:
+            raise EducationError("not_found", "link is not visible in this namespace")
+        return {"contract": LINK_CONTRACT, "namespace": namespace, "link_id": row[0], "side": row[1],
+                "target_kind": row[2], "subject": json.loads(row[3]), "target": json.loads(row[4]),
+                "basis": json.loads(row[5]), "citation": json.loads(row[6]), "target_status": row[7],
+                "state": row[8], "history": json.loads(row[9]), "created_by": row[10], "created_at_ms": row[11],
+                "notice": LINK_NOTICE}
+
+    def links(self, namespace: str, *, scopes: Iterable[str], ror: str | None = None,
+              subject: Mapping[str, Any] | None = None, side: str | None = None) -> list[dict[str, Any]]:
+        authorize(namespace, set(scopes), READ_SCOPE)
+        if not table_exists(self.conn, "edu_links"):
+            return []
+        rows = self.conn.execute(
+            "SELECT link_id FROM edu_links WHERE namespace=? AND state='active' AND (? IS NULL OR side=?) "
+            "ORDER BY side, target_kind, created_at_ms, link_id", [namespace, side, side]).fetchall()
+        out = []
+        for (link_id,) in rows:
+            view = self.link_view(namespace, link_id)
+            linked = view["subject"]
+            if ror is not None and linked.get("ror") != ror:
+                continue
+            if subject is not None and (linked.get("scheme"), linked.get("code")) != (
+                    subject.get("scheme"), str(subject.get("code"))):
+                continue
+            out.append(view)
+        return out
+
+    def withdraw(self, namespace, link_id, reason, *, principal_id, scopes):
+        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
+        if not str(reason or "").strip():
+            raise EducationError("invalid_decision", "a withdrawal needs a reason")
+        view = self.link_view(namespace, link_id)
+        if view["state"] != "active":
+            raise EducationError("invalid_state", "only an active link can be withdrawn")
+        history = view["history"] + [{"state": "withdrawn", "by": principal_id, "reason": reason, "at_ms": self.now()}]
+        self.conn.execute("UPDATE edu_links SET state='withdrawn', history_json=? WHERE namespace=? AND link_id=?",
+                          [canonical(history), namespace, link_id])
+        return self.link_view(namespace, link_id)
+
+
 __all__ = [
     "ANSWER_CONTRACT",
     "CONTRACT",
     "EducationError",
+    "EducationLinks",
     "EducationProjector",
     "EducationStatisticsStore",
     "FEATURE",
+    "LINK_TARGETS",
     "READ_SCOPE",
     "REVIEW_SCOPE",
     "WRITE_SCOPE",

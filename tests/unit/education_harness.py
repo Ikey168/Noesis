@@ -128,3 +128,27 @@ def day_ms(day: str) -> int:
     from datetime import date, datetime, timezone
 
     return int(datetime.combine(date.fromisoformat(day), datetime.min.time(), tzinfo=timezone.utc).timestamp() * 1000)
+
+
+def seed_science_and_funding(conn) -> dict[str, str]:
+    """A scholarly work whose affiliation states Universitaet Beispielstadt's ROR id and a Funding award naming it
+    (fictional records in the stores' own shapes)."""
+    from src.ingestion.document_store import _SCHEMA
+    from src.kb.funding_opportunities import FundingOpportunityStore
+
+    conn.execute(_SCHEMA)
+    conn.execute(
+        "INSERT INTO documents (document_id, source_type, title, url, metadata) VALUES (?,?,?,?,?)",
+        ["doc:fictional-paper-1", "paper", "A fictional study from Beispielstadt", "https://doi.org/10.9999/edu.1",
+         json.dumps({"doi": "10.9999/edu.1", "affiliations": [
+             {"name": "Universitaet Beispielstadt", "ror": "https://ror.org/0zmc02b34"}]})])
+    FundingOpportunityStore(conn)
+    content = {"contract": "noesis-funding-record-v1", "record_kind": "award", "provider": "eu-ft",
+               "provider_id": "FICT-AWARD-1", "title": "Fictional research award",
+               "recipient": {"name": "Universitaet Beispielstadt", "ror": "https://ror.org/0zmc02b34"},
+               "financial_terms": {"amount": "1000000", "currency": "EUR", "basis": "per-project"}}
+    conn.execute("INSERT INTO funding_opportunities VALUES (?,?,?,?,?,?,?,?,?)",
+                 ["fund:award:1", "global", "eu-ft", "award", "FICT-AWARD-1", None, 1, 1, "listed"])
+    conn.execute("INSERT INTO funding_opportunity_revisions VALUES (?,?,?,?)",
+                 ["fund:award:1", 1, json.dumps(content), 1])
+    return {"paper": "doc:fictional-paper-1", "award": "fund:award:1"}
