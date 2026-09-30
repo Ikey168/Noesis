@@ -1,0 +1,353 @@
+{
+  "pack_id": "insurance-supervisory-and-catastrophe-losses",
+  "version": "1.0.0",
+  "description": "Insurance supervisory statistics and published catastrophe losses for the Market pack's optional insurance feature: EIOPA insurance statistics per release vintage, insurers' SFCR reports with quoted QRT figures, NAIC under its metadata-only access decision, and catastrophe-loss estimates from publishers cleared by the licence audit (Florida OIR, NOAA NCEI), each publication kept as a publisher revision. Bounded to the audited countries, insurer sample, events and periods; figures as published, never assessments, ratios or loss models.",
+  "domains": [
+    "market"
+  ],
+  "defaults": {
+    "connector": "insurance",
+    "update_cadence": "weekly at most",
+    "temporal_semantics": "the stated publication or release date as the public clock (end of day, UTC); a missing one falls back to the first observation time, never to the reference period; every publication is a revision and acquisition time is recorded per revision",
+    "mapping": {
+      "target_schema": "noesis-insurance-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "insurance:1.0.0"
+    ],
+    "operations": [
+      "documents"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "budgets": {
+      "timeout_ms": 60000,
+      "max_results": 5000,
+      "max_bytes": 30000000,
+      "max_pages": 12
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 2678400
+    }
+  },
+  "sources": [
+    {
+      "source_id": "eiopa-insurance-statistics",
+      "publisher": "European Insurance and Occupational Pensions Authority (EIOPA), insurance statistics",
+      "endpoint": "https://www.eiopa.europa.eu/",
+      "scope": "Premiums, claims and solvency aggregates by country and line of business for DE, FR, IT, NL, IE and the EEA total, reference years 2022-2025, one workbook per release (operator must verify the download URL, sheet name and headers of each release; releases are declared with their release date)",
+      "license": {
+        "id": "eiopa-legal-notice",
+        "terms_url": "https://www.eiopa.europa.eu/legal-notice_en",
+        "redistribution": "reproduction authorised provided the source is acknowledged (operator must verify)"
+      },
+      "insurance": {
+        "namespace": "market-insurance",
+        "provider": "eiopa-insurance-statistics",
+        "access_decision": "in-scope",
+        "format": "eiopa-statistics-xlsx",
+        "sheet": "Data",
+        "dataset": "Premiums, claims and expenses by line of business",
+        "countries": [
+          "DE",
+          "FR",
+          "IT",
+          "NL",
+          "IE",
+          "EEA"
+        ],
+        "reference_years": {
+          "from": 2022,
+          "to": 2025
+        },
+        "markers": [
+          "c",
+          "x",
+          "n/a",
+          "-",
+          ".."
+        ],
+        "indicators": {
+          "Gross written premiums": {
+            "indicator": "gross_written_premiums",
+            "definition": "Gross written premiums as published by EIOPA (Solvency II reporting)"
+          },
+          "Gross claims incurred": {
+            "indicator": "gross_claims_incurred",
+            "definition": "Gross claims incurred as published by EIOPA (Solvency II reporting)"
+          },
+          "SCR ratio": {
+            "indicator": "scr_ratio",
+            "definition": "Eligible own funds to SCR as published by EIOPA; never computed by Noesis"
+          }
+        },
+        "columns": {
+          "country": "Country",
+          "line_of_business": "Line of business",
+          "indicator": "Indicator",
+          "reference": "Reference period",
+          "amount": "Value",
+          "unit": "Unit"
+        },
+        "documents": [
+          {
+            "label": "EIOPA insurance statistics release 2025-06",
+            "url": "https://www.eiopa.europa.eu/document/download/insurance-statistics-premiums-claims-expenses_en.xlsx",
+            "release": "2025-06",
+            "release_date": "2025-06-30"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-insurance-eiopa.json",
+        "sha256": "9eb5d809f1dd762299aabf515dc3421fea1aac1b84302ac324f314402c894d90",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "insurer-sfcr-allianz",
+      "publisher": "Allianz SE, Solvency and Financial Condition Report (group)",
+      "endpoint": "https://www.allianz.com/",
+      "scope": "Allianz SE group SFCRs for reporting years 2023 and 2024: SCR, eligible own funds and the solvency ratio as reported, quoted from the public QRTs (operator must verify each report URL, which changes yearly, and the publication date; the LEI is read from the report)",
+      "license": {
+        "id": "sfcr-public-disclosure",
+        "terms_url": "https://www.allianz.com/en/info/legal-statement.html",
+        "redistribution": "quoted figures with attribution and a link; the report itself is not mirrored"
+      },
+      "update_cadence": "yearly after the SFCR publication (April-May)",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "insurance": {
+        "namespace": "market-insurance",
+        "provider": "insurer-sfcr",
+        "access_decision": "in-scope",
+        "format": "sfcr-pdf",
+        "decimal": ".",
+        "insurers": [
+          {
+            "name": "Allianz SE",
+            "country": "DE",
+            "reporting_level": "group"
+          }
+        ],
+        "figures": [
+          {
+            "template": "S.25.01.22",
+            "row": "R0220",
+            "column": "C0100",
+            "label": "Solvency capital requirement",
+            "unit": "EUR thousand",
+            "currency": "EUR",
+            "reporting_level": "group"
+          },
+          {
+            "template": "S.23.01.22",
+            "row": "R0680",
+            "column": "C0010",
+            "label": "Group SCR",
+            "unit": "EUR thousand",
+            "currency": "EUR",
+            "reporting_level": "group"
+          },
+          {
+            "template": "S.23.01.22",
+            "row": "R0690",
+            "column": "C0010",
+            "label": "Ratio of eligible own funds to group SCR",
+            "unit": "%",
+            "reporting_level": "group"
+          },
+          {
+            "template": "S.25.01.21",
+            "row": "R0220",
+            "column": "C0100",
+            "label": "Solvency capital requirement",
+            "unit": "EUR thousand",
+            "currency": "EUR",
+            "reporting_level": "solo"
+          },
+          {
+            "template": "S.23.01.01",
+            "row": "R0620",
+            "column": "C0010",
+            "label": "Ratio of eligible own funds to SCR",
+            "unit": "%",
+            "reporting_level": "solo"
+          }
+        ],
+        "documents": [
+          {
+            "label": "Allianz SE group SFCR 2024",
+            "url": "https://www.allianz.com/content/dam/onemarketing/azcom/Allianz_com/investor-relations/en/results-reports/sfcr/2024-sfcr-allianz-group.pdf",
+            "insurer": {
+              "name": "Allianz SE",
+              "reporting_level": "group"
+            },
+            "reporting_year": 2024,
+            "publication_date": "2025-04-30",
+            "language": "en"
+          },
+          {
+            "label": "Allianz SE group SFCR 2023",
+            "url": "https://www.allianz.com/content/dam/onemarketing/azcom/Allianz_com/investor-relations/en/results-reports/sfcr/2023-sfcr-allianz-group.pdf",
+            "insurer": {
+              "name": "Allianz SE",
+              "reporting_level": "group"
+            },
+            "reporting_year": 2023,
+            "publication_date": "2024-04-30",
+            "language": "en"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-insurance-sfcr-allianz.json",
+        "sha256": "ce797c2600e8c2b7b7f3707cbb963255c9b689d3c909023ae77b32fd137293a1",
+        "expected_output_hash": "f771165ebf4c99869179f051fc0c0684d9b625f765c95ffc0a3c94c792c2304e"
+      }
+    },
+    {
+      "source_id": "naic-market-share-reports",
+      "publisher": "National Association of Insurance Commissioners (NAIC), market share reports",
+      "endpoint": "https://content.naic.org/",
+      "scope": "Publication references only (title, data year, URL, digest) for the 2024 property/casualty market share report; figures are not stored under the IN01 metadata-only decision, and licensed NAIC data products are never acquired (operator must verify the report URL)",
+      "license": {
+        "id": "naic-terms-of-use",
+        "terms_url": "https://content.naic.org/terms-use",
+        "redistribution": "no redistribution of content; metadata and a link only"
+      },
+      "update_cadence": "yearly",
+      "insurance": {
+        "namespace": "market-insurance",
+        "provider": "naic-public",
+        "access_decision": "metadata-only",
+        "format": "publication-reference",
+        "documents": [
+          {
+            "label": "NAIC 2024 P&C market share report",
+            "url": "https://content.naic.org/sites/default/files/research-actuarial-market-share-reports-2024-pc.pdf",
+            "title": "2024 Market Share Reports for Property/Casualty Groups and Companies by State and Countrywide",
+            "period": "2024",
+            "reference_id": "naic-market-share-pc-2024"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-insurance-naic.json",
+        "sha256": "8100b82c7b29f8c704d73935bfade468334a8ff529392c01347ffc74abba78ca",
+        "expected_output_hash": "f7b0ce52250b3f5059ad351b117d196418228311d61bf767820f2f549f5aa0b1"
+      }
+    },
+    {
+      "source_id": "florida-oir-catastrophe-claims",
+      "publisher": "Florida Office of Insurance Regulation, catastrophe claims data",
+      "endpoint": "https://floir.com/",
+      "scope": "Estimated insured losses per report date for the 2022-2024 named hurricanes Ian, Idalia, Helene and Milton; each report is a publisher revision (operator must verify the data file URL and column headers)",
+      "license": {
+        "id": "florida-public-records",
+        "terms_url": "https://floir.com/",
+        "redistribution": "Florida public records (Chapter 119, F.S.); reuse with attribution (operator must verify)"
+      },
+      "insurance": {
+        "namespace": "market-insurance",
+        "provider": "florida-oir-claims",
+        "access_decision": "in-scope",
+        "format": "catastrophe-estimates-csv",
+        "estimate_type": "insured",
+        "measure": "estimated insured losses",
+        "unit": "USD",
+        "currency": "USD",
+        "decimal": ".",
+        "window": {
+          "from": "2022-01-01",
+          "to": "2024-12-31"
+        },
+        "events": [
+          "Hurricane Ian",
+          "Hurricane Idalia",
+          "Hurricane Helene",
+          "Hurricane Milton"
+        ],
+        "columns": {
+          "event_name": "Event",
+          "nhc_storm_id": "Storm ID",
+          "begin_date": "Landfall",
+          "publication_date": "Report Date",
+          "amount": "Estimated Insured Losses",
+          "area": "Area"
+        },
+        "documents": [
+          {
+            "label": "Florida OIR catastrophe claims data",
+            "url": "https://floir.com/docs-sf/default-source/property-and-casualty/catastrophe-claims-data.csv"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-insurance-florida-oir.json",
+        "sha256": "0fbaf64ba5e3b5e41418457b1a9b13892d433ae83930fe4802d39baaa7c5127b",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "noaa-ncei-billion-dollar-disasters",
+      "publisher": "NOAA National Centers for Environmental Information, U.S. Billion-Dollar Weather and Climate Disasters",
+      "endpoint": "https://www.ncei.noaa.gov/",
+      "scope": "CPI-adjusted economic cost estimates for the same four hurricanes, 2022-2024, from the archived event list (updates ended in 2025; operator must verify the CSV URL, headers and the release date declared per document)",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://www.ncei.noaa.gov/access/billions/",
+        "redistribution": "U.S. federal government work in the public domain; attribution requested"
+      },
+      "insurance": {
+        "namespace": "market-insurance",
+        "provider": "noaa-ncei-billion-dollar",
+        "access_decision": "in-scope",
+        "format": "catastrophe-estimates-csv",
+        "estimate_type": "economic",
+        "measure": "CPI-adjusted cost",
+        "unit": "USD",
+        "currency": "USD",
+        "decimal": ".",
+        "window": {
+          "from": "2022-01-01",
+          "to": "2024-12-31"
+        },
+        "events": [
+          "Hurricane Ian (September 2022)",
+          "Hurricane Idalia (August 2023)",
+          "Hurricane Helene (September 2024)",
+          "Hurricane Milton (October 2024)"
+        ],
+        "columns": {
+          "event_name": "Name",
+          "begin_date": "Begin Date",
+          "end_date": "End Date",
+          "amount": "CPI-Adjusted Cost",
+          "publication_date": "Report Date"
+        },
+        "documents": [
+          {
+            "label": "NCEI billion-dollar events archive",
+            "url": "https://www.ncei.noaa.gov/access/billions/events-US-1980-2024.csv",
+            "publication_date": "2025-01-10"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/market-insurance-ncei.json",
+        "sha256": "5dfc1cb2ac9702c0f9c3f3974cb88b22de11e3a36202f17865f27d0ee13aa653",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    }
+  ]
+}

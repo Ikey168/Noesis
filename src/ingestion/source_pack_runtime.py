@@ -224,6 +224,12 @@ def _bafin_notice_projector(conn: Any) -> Any:
     return BafinNoticeProjector(conn)
 
 
+def _insurance_projector(conn: Any) -> Any:
+    from src.domains.market.insurance import InsuranceProjector
+
+    return InsuranceProjector(conn)
+
+
 def _engineering_safety_projector(conn: Any) -> Any:
     from src.kb.engineering_safety_store import EngineeringSafetyProjector
 
@@ -308,6 +314,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-demographic-series-v1": _demographic_projector,
     "noesis-development-finance-record-v1": _development_finance_projector,
     "noesis-bafin-notice-v1": _bafin_notice_projector,
+    "noesis-insurance-record-v1": _insurance_projector,
     "noesis-astronomy-record-v1": _astronomy_projector,
     "noesis-weather-record-v1": _weather_projector,
     "noesis-trade-flow-record-v1": _trade_flow_projector,

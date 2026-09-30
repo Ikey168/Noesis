@@ -103,13 +103,16 @@ The first observation time is used instead, which is conservative.
 * **Access:** each insurer publishes its annual Solvency and Financial Condition Report
   as a PDF, usually on an investor-relations page. Supervisors do not host a central
   copy. **(verify each URL; URLs change every year.)**
-* **Content quoted:** the public QRT annex. The adapter quotes declared cells only:
-  * `S.02.01.02` (balance sheet): R0500 total liabilities, R1000 excess of assets over liabilities (C0010);
-  * `S.05.01.02` (premiums, claims and expenses by line of business): R0110 gross premiums written, R0310 gross claims
-    incurred (the declared LoB column);
-  * `S.23.01.01` / `S.23.01.22` (own funds): R0800 eligible own funds to meet the SCR (C0010);
-  * `S.25.01.21` / `S.25.02.21` / `S.25.03.21` (SCR): R0220 solvency capital requirement (C0100);
-  * the solvency ratio "as reported" (`S.23.01.01` R0620, C0010) when the report states it.
+* **Content quoted:** the public QRT annex. The adapter quotes declared cells only. Group reports use
+  the group variants and solo reports the solo variants, so each declared cell names its reporting level:
+  * group: `S.25.01.22` R0220 solvency capital requirement (C0100); `S.23.01.22` R0680 group SCR and
+    R0690 ratio of eligible own funds to group SCR (C0010) **(verify the row codes against the 2023/895
+    templates)**;
+  * solo: `S.25.01.21` R0220 solvency capital requirement (C0100); `S.23.01.01` R0620 ratio of eligible
+    own funds to SCR (C0010);
+  * candidates for a later declaration: `S.02.01.02` balance sheet (R0500, R1000) and `S.05.01.02`
+    premiums and claims by line of business (R0110, R0310).
+  The solvency ratio is quoted only as the report states it, and Noesis never computes one.
   Each figure keeps its template code, row, column, unit and currency, and the quoted
   line. If a cell cannot be located or read, the figure is recorded as `unknown` with a
   reason. It is never estimated.
@@ -124,12 +127,12 @@ The first observation time is used instead, which is conservative.
   is in scope. Mirroring the documents is not: Noesis keeps the digest, URL and the quoted
   cells, not the PDF.
 * **Rate limits:** none documented. Declared budget: one report per page, 60 s, 30 MB,
-  8 pages per run, monthly at most.
-* **Bounded coverage (named sample):** group SFCRs for reporting years 2023 and 2024 of
-  Allianz SE, Münchener Rückversicherungs-Gesellschaft AG (Munich Re) and AXA SA, and the
-  solo SFCR of Allianz Versicherungs-AG for 2024. The LEIs are taken from the reports
-  themselves **(verify against GLEIF)**; the declaration names the insurers and their
-  reporting level only.
+  12 pages per run, monthly at most.
+* **Bounded coverage (named sample):** the group SFCRs of Allianz SE for reporting years 2023 and 2024
+  (`insurer-sfcr-allianz`). The Munich Re and AXA group SFCRs are candidates for an additive pack version.
+  The LEI is read from each report **(verify against GLEIF)**. The declaration names the insurer and its
+  reporting level only, and a served report that does not name the declared insurer is refused
+  (`out_of_scope`).
 * **Decision:** `in-scope` (unverified-live).
 
 ## NAIC
@@ -181,9 +184,10 @@ The licence and attribution are stored on every estimate.
   It is linked to a Natural Hazards event (`src/kb/hazards_*`) only through a published
   identifier (a GLIDE number, NHC storm ID or USGS event ID the row states) or an explicit
   citation. A name or date-proximity match is only a reviewable candidate (IN08).
-* **Bounded coverage:** Florida OIR reports for 2022 to 2024 named hurricanes; NCEI events
-  from 2020 to 2024 (archive). Budget: one document per page, 60 s, 10 MB, 6 pages per
-  run, weekly at most.
+* **Bounded coverage:** Florida OIR reports for the 2022 to 2024 hurricanes Ian, Idalia, Helene
+  and Milton, and the NCEI archive rows for the same four events (archive). Both are bounded by
+  a declared event list and a date window. Budget: one document per page, 60 s, 30 MB (pack
+  default), 12 pages per run, weekly at most.
 
 ## Licensing gaps that reduce scope
 
@@ -196,7 +200,7 @@ The licence and attribution are stored on every estimate.
 
 ## Bounded coverage for live verification (IN13)
 
-One EIOPA release for DE, and the Allianz SE group SFCR for 2024 (SCR, eligible own
-funds and the solvency ratio as reported). Florida OIR reports for one 2024 hurricane,
+One EIOPA release for DE, and the Allianz SE group SFCR for 2024 (group SCR and the
+solvency ratio as reported). Florida OIR reports for one 2024 hurricane,
 with at least two successive publications, and the NCEI archive row for the same
 event. The NAIC 2024 P&C market share report as a publication reference.
