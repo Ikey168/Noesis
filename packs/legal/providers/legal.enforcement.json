@@ -1,0 +1,310 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "legal.enforcement",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.enforcement",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "legal.enforcement",
+      "contract": {
+        "name": "noesis-enforcement-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "enforcement-source-contracts",
+        "enforcement-readiness",
+        "enforcement-actions-for-entity",
+        "enforcement-actions-by-authority",
+        "enforcement-action-history",
+        "export-enforcement-evidence-bundle",
+        "list-enforcement-links",
+        "link-enforcement-records",
+        "list-enforcement-identity-candidates",
+        "propose-enforcement-identity-matches",
+        "review-enforcement-identity-match",
+        "revert-enforcement-identity-match",
+        "create-enforcement-monitor",
+        "run-enforcement-monitor",
+        "poll-enforcement-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "SEC litigation releases and administrative proceedings, FCA final notices, EPA ECHO cases and EDPB Article 60 final decisions as published: authority, action, organisational respondents, notices as versioned documents, penalties and appeals; every published change, correction or removal is an immutable revision with source, record revision and as-of time",
+        "outcomes": "outcomes, settlement admission wording ('without admitting or denying') and penalties are quoted as published; a settled outcome is never merged into a finding and an initiated action is never treated as proof of wrongdoing",
+        "penalties": "amounts are the published text with their currency; undisclosed amounts stay explicit; nothing is converted or summed across currencies or authorities",
+        "minimisation": "EN01: organisational respondents only; individuals are counted, never named, matched, profiled or monitored; personal attributes are rejected at write time and in every tool output",
+        "identity": "respondents reach ownership entities only through reviewable, reversible identity candidates (published identifiers before names), never auto-accepted; authorities are source identities",
+        "links": "competition cases, court dockets and Legal works by exact citation, market filings by a published CIK, ownership entities by accepted match; missing providers or targets are reported, never dropped; no causal link to market events",
+        "exclusions": "no risk or compliance scoring, no inference of wrongdoing from an initiated action, no merging of settled outcomes into findings, no profiling of named individuals, no legal advice"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "enforcement-source-contracts",
+      "tool": "noesis-knowledge-engine.enforcement_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "enforcement-readiness",
+      "tool": "noesis-knowledge-engine.enforcement_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "enforcement-actions-for-entity",
+      "tool": "noesis-knowledge-engine.enforcement_actions_for_entity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "enforcement-actions-by-authority",
+      "tool": "noesis-knowledge-engine.enforcement_actions_by_authority",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "enforcement-action-history",
+      "tool": "noesis-knowledge-engine.enforcement_action_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-enforcement-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_enforcement_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-enforcement-links",
+      "tool": "noesis-knowledge-engine.list_enforcement_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-enforcement-records",
+      "tool": "noesis-knowledge-engine.link_enforcement_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-enforcement-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_enforcement_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-enforcement-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_enforcement_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-enforcement-identity-match",
+      "tool": "noesis-knowledge-engine.review_enforcement_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-enforcement-identity-match",
+      "tool": "noesis-knowledge-engine.revert_enforcement_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-enforcement-monitor",
+      "tool": "noesis-knowledge-engine.create_enforcement_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-enforcement-monitor",
+      "tool": "noesis-knowledge-engine.run_enforcement_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "poll-enforcement-monitor",
+      "tool": "noesis-knowledge-engine.poll_enforcement_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "actions",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "enforcement-record",
+      "store": "src.kb.enforcement",
+      "tables": [
+        "enforcement_records",
+        "enforcement_record_revisions",
+        "enforcement_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "enforcement-link",
+      "store": "src.kb.enforcement_links",
+      "tables": [
+        "enforcement_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "actions",
+      "kind": "table-exists",
+      "target": "enforcement_records"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "legal-research",
+      "version": "1.5.0",
+      "range": "^1.5.0"
+    }
+  ]
+}

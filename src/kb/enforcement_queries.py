@@ -353,3 +353,56 @@ def action_history(conn: Any, namespace: str, action_key: str, *, scopes: Iterab
         "links": [link for key in keys for link in links.links(namespace, citing_record_key=key)],
         "notice": NOTICE,
     }
+
+
+def evidence_bundle(answer: Mapping[str, Any]) -> dict[str, Any]:
+    """An evidence-bundle export of an entity or authority answer: every assertion cites its record revision.
+
+    Each bibliography entry names the source (provider, URL, source revision), the record revision and the as-of
+    time (the revision's observation time, and the answer's as-of date when one was asked). Individuals are never
+    named because the records hold none; exclusions travel with the bundle.
+    """
+    bibliography: dict[str, dict[str, Any]] = {}
+    assertions: list[dict[str, Any]] = []
+
+    def add(identifier: str, text: str, cite: Mapping[str, Any] | None) -> None:
+        if not cite:
+            return
+        bibliography.setdefault(cite["revision_id"], {
+            "id": cite["revision_id"],
+            "text": f"{cite['provider']} {cite['record_key']} ({cite.get('url') or 'no URL'}; source revision "
+                    f"{cite.get('source_revision') or 'n/a'}; record revision {cite['revision']}; as of "
+                    f"{cite['observed_at_ms']} ms record time; {cite.get('evidence_origin') or 'live'} evidence)",
+            "source": {"provider": cite["provider"], "url": cite.get("url"),
+                       "source_revision": cite.get("source_revision")},
+            "record_revision": {"record_key": cite["record_key"], "revision": cite["revision"],
+                                "revision_id": cite["revision_id"]},
+            "as_of": {"record_time_ms": cite["observed_at_ms"], "valid_date": answer.get("as_of")}})
+        assertions.append({"id": identifier, "text": text, "kind": "sourced",
+                           "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
+                                             "id": cite["record_key"], "revision": cite["revision_id"]}],
+                           "citations": [cite["revision_id"]]})
+
+    for row in answer.get("actions") or []:
+        add(f"action-{row['action_key']}", f"{row['authority']} {row['action_type_as_published']} "
+            f"{row['action_number']}: {row.get('title')}; outcome as published: "
+            f"{row.get('outcome_as_published') or 'not published'}", row["action_revision"])
+        if row.get("respondent"):
+            add(f"respondent-{row['respondent']['cite']['record_key']}",
+                f"respondent as published: {row['respondent']['name_as_published']} "
+                f"({row['respondent']['role_as_published']})", row["respondent"]["cite"])
+        for penalty in row["penalties"]:
+            add(f"penalty-{penalty['cite']['record_key']}", f"{penalty['penalty_type_as_published']}: "
+                f"{penalty.get('amount_as_published') or 'amount not published'}", penalty["cite"])
+        for appeal in row["appeals"]:
+            add(f"appeal-{appeal['cite']['record_key']}", f"{appeal['forum_as_published']} {appeal.get('reference')}"
+                f": {appeal.get('status_as_published')}", appeal["cite"])
+        for notice in row["notices"]:
+            add(f"notice-{notice['cite']['record_key']}", f"{notice['document_type_as_published']} "
+                f"{notice.get('document_date') or ''}".strip(), notice["cite"])
+    title = (answer.get("entity") or {}).get("entity") or answer.get("authority") or answer.get("legal_basis")
+    return {"sections": [{"id": answer.get("contract", "answer"),
+                          "title": f"Enforcement actions for {title} as of {answer.get('as_of') or 'now'}",
+                          "assertions": assertions}],
+            "bibliography": list(bibliography.values()), "exclusions": EXCLUSIONS,
+            "coverage": answer.get("coverage") or "declared, acquired selections only"}

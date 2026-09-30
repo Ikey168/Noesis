@@ -8,13 +8,15 @@
   "panels": [],
   "planner_keywords": {
     "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung", "designation",
-                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence"],
+                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence",
+                 "enforcement action", "final notice", "litigation release", "civil penalty", "respondent"],
     "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet", "consolidated list",
                 "ofac", "uk sanctions list", "un security council", "courtlistener", "recap",
-                "fbi crime data explorer", "data.police.uk", "eurostat crime"],
+                "fbi crime data explorer", "data.police.uk", "eurostat crime", "sec enforcement", "fca final notices",
+                "echo", "edpb article 60 register"],
     "claims": ["article", "artikel", "paragraph", "section"],
     "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal", "delisting",
-               "designation", "listing"]
+               "designation", "listing", "settlement", "penalty", "appeal", "correction"]
   },
   "enrichers": [],
   "provisioning_templates": [],
@@ -41,7 +43,12 @@
     "court-party-identity-review",
     "justice-statistics-as-of",
     "justice-statistics-comparability",
-    "courts-justice-monitoring"
+    "courts-justice-monitoring",
+    "regulatory-enforcement-actions",
+    "enforcement-penalties-as-published",
+    "enforcement-respondent-identity-review",
+    "enforcement-citation-links",
+    "enforcement-monitoring"
   ],
   "schema_versions": {
     "legal-work": "1.0.0",
@@ -58,20 +65,26 @@
     "justice-statistics-answer": "1.0.0",
     "justice-comparability-note": "1.0.0",
     "court-citation-link": "1.0.0",
-    "court-justice-notification": "1.0.0"
+    "court-justice-notification": "1.0.0",
+    "enforcement-record": "1.0.0",
+    "enforcement-link": "1.0.0",
+    "enforcement-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
     "reuses": ["noesis-temporal-v1", "noesis-evidence-bundle-v1", "noesis-legal-work-v1",
                "noesis-legal-version-selection-v1", "noesis-sanctions-record-v1",
-               "noesis-entity-identity-decision-v1", "noesis-knowledge-subscription-v1"],
+               "noesis-entity-identity-decision-v1", "noesis-knowledge-subscription-v1",
+               "noesis-enforcement-record-v1"],
     "object_types": ["legal_work", "legal_expression", "legal_version", "legal_passage", "court_decision",
                      "legal_citation", "legal_temporal_fact", "sanctions_snapshot", "sanctions_designation",
                      "listing_revision", "sanctions_programme", "legal_basis", "identifier_alias", "delisting",
-                     "control_list_entry"],
+                     "control_list_entry", "enforcement_authority", "enforcement_action", "enforcement_respondent",
+                     "enforcement_notice", "enforcement_penalty", "enforcement_appeal"],
     "relation_types": ["expression_of", "version_of", "cites", "amends", "corrects", "cites_norm",
                        "prior_instance", "enacted_from_procedure", "listed_in", "legal_basis_of",
-                       "stated_alias", "delisted_from", "controlled_under", "edition_of"]
+                       "stated_alias", "delisted_from", "controlled_under", "edition_of",
+                       "respondent_in", "penalty_of", "appeal_of", "cites_basis"]
   },
   "source_pack": "config/source_packs/legal.json",
   "query_examples": [
@@ -122,6 +135,18 @@
       "tool": "justice_statistics_for_place",
       "arguments": {"namespace": "global", "place": "eurostat-geo:DE", "indicator": "ICCS0401"},
       "semantics": "each source's series with definition, unit, flags, coverage notes and vintage; no ranking or safety rating"
+    },
+    {
+      "intent": "Enforcement actions against a company and its group as of 1 June 2025",
+      "tool": "enforcement_actions_for_entity",
+      "arguments": {"namespace": "global", "entity": "gleif:lei:<LEI>", "ownership_namespace": "ownership", "group": true, "as_of": "2025-06-01"},
+      "semantics": "SEC, FCA, EPA and EDPB actions reached through accepted identity matches, with outcomes, settlement wording, penalties and appeals as published and cited revisions; no score, no inferred wrongdoing"
+    },
+    {
+      "intent": "GDPR Article 32 decisions over 2025 with fines as published",
+      "tool": "enforcement_actions_by_authority",
+      "arguments": {"namespace": "global", "legal_basis": "Article 32 GDPR", "date_from": "2025-01-01", "date_to": "2025-12-31"},
+      "semantics": "actions citing the basis exactly, penalties listed per authority and currency and never summed; undisclosed amounts explicit"
     }
   ],
   "exclusions": [
@@ -132,6 +157,10 @@
     "scraped sanctions portals (EU Sanctions Map)",
     "personal profiles of private individuals in dockets", "recidivism or risk scoring",
     "neighbourhood safety ratings", "rankings of places or countries", "derived case outcome labels or predictions",
-    "unqualified cross-jurisdiction comparison of crime statistics"
+    "unqualified cross-jurisdiction comparison of crime statistics",
+    "risk or compliance scoring of companies", "inferring wrongdoing from an initiated enforcement action",
+    "treating settled 'neither admit nor deny' outcomes as findings",
+    "profiles of individuals named in enforcement actions",
+    "sums of penalties across currencies or authorities"
   ]
 }
