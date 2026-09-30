@@ -106,6 +106,13 @@ def load_fisheries_gfw(conn: Any) -> None:
     assert result["status"] == "complete", result
 
 
+def load_fisheries_all(conn: Any) -> None:
+    """Load every Fisheries source (GFW identity, registers and IUU lists) for citation links (#2276)."""
+    from tests.unit.fisheries.harness import Env as FisheriesEnv
+
+    FisheriesEnv(conn).loaded()
+
+
 def seed_sanctions(conn: Any, *, delisted: bool = False) -> None:
     """Authored OFAC-shaped snapshots: a vessel stating IMO 9000027, an aircraft stating N901EX, a name-only entry.
 
@@ -121,7 +128,7 @@ def seed_sanctions(conn: Any, *, delisted: bool = False) -> None:
                 "amended_on": None, "cross_references": {}}
 
     vessel = entry("SYN-MV-1", "vessel", "SAMPLE NOVA", [
-        {"kind": "imo", "value": f"IMO {IMO}", "source_type": "Vessel Registration Identification", "country": None,
+        {"kind": "imo", "value": IMO, "source_type": "Vessel Registration Identification", "country": None,
          "note": None}])
     aircraft = entry("SYN-MV-2", "aircraft", "EXAMPLE JET", [
         {"kind": "other", "value": "N901EX", "source_type": "Aircraft Tail Number", "country": None, "note": None}])

@@ -43,7 +43,7 @@ import json
 import re
 import time
 from collections.abc import Iterable, Mapping, Sequence
-from datetime import date, datetime, timedelta, timezone
+from datetime import datetime, timedelta, timezone
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -270,7 +270,7 @@ def classify(identifier: Any, scheme: str | None = None) -> tuple[str, str]:
             if key is None:
                 raise MovementError("invalid_identifier", f"{text!r} is not a well-formed {candidate}")
             return candidate, key
-    if re.search(r"[A-Za-z]{2,}\s+[A-Za-z]{2,}", text):
+    if " " in text and len(re.findall(r"[A-Za-z]+", text)) >= 2:
         raise MovementError("person_identifier_refused", "a name is not a movement key; give an ICAO 24-bit "
                                                          "address, registration, IMO, MMSI or GFW vessel id")
     raise MovementError("invalid_identifier", "give an ICAO 24-bit address, registration mark, IMO number, MMSI "
@@ -805,10 +805,6 @@ def check_window(start: Any, end: Any, *, max_days: int | None = None) -> tuple[
     return begin, finish
 
 
-def _today() -> str:
-    return date.today().isoformat()
-
-
 # ================================================================== MV08: derived calls
 
 
@@ -1227,3 +1223,489 @@ class MovementIdentity:
                 elif state == "proposed" and all(p["candidate_id"] != candidate_id for p in pending):
                     pending.append(entry)
         return {"subjects": sorted(seen), "accepted": used, "proposed": pending}
+
+
+# ================================================================== MV10: citation links to sanctions and other records
+
+
+_LINK_DDL = """
+CREATE TABLE IF NOT EXISTS osint_movement_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, subject_key TEXT NOT NULL, scheme TEXT NOT NULL,
+  identifier TEXT NOT NULL, target TEXT NOT NULL, target_namespace TEXT NOT NULL, target_id TEXT NOT NULL,
+  basis TEXT NOT NULL, evidence_json TEXT NOT NULL, created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, link_id)
+)
+"""
+LINK_SCHEMES = ("imo", "registration", "mmsi")
+# What a list-stated identifier must say (kind, or its source label) to count as this scheme; never a guess.
+_STATED_AS = {
+    "imo": lambda i: i.get("kind") == "imo",
+    "registration": lambda i: i.get("kind") in {"registration_number", "other", "call_sign"} and re.search(
+        r"(?i)aircraft|tail|registration|mark", str(i.get("source_type") or "")),
+    "mmsi": lambda i: re.search(r"(?i)mmsi", str(i.get("source_type") or "")) is not None,
+}
+SANCTIONS_BOUNDARY = ("listing statements as published, cited to the list revision and snapshot; no sanctions-evasion, "
+                      "screening or compliance verdict is derived from registry records or movements")
+
+
+def _norm(value: Any) -> str:
+    return "".join(ch for ch in str(value or "").upper() if ch.isalnum())
+
+
+class MovementLinks:
+    """Links from aircraft and vessels to sanctions listings and other pack records, only on a stated identifier."""
+
+    def __init__(self, conn: Any, *, now=None) -> None:
+        self.conn = conn
+        self.now = now or (lambda: int(time.time() * 1000))
+        self.store = MovementStore(conn, initialize=False)
+
+    def _identifiers(self, namespace: str) -> list[tuple[str, str, str]]:
+        """(subject, scheme, key) every stored record states for the linkable schemes."""
+        found = set()
+        for item in self.store.identifiers(namespace):
+            if item["scheme"] in LINK_SCHEMES:
+                found.add((item["subject_key"], item["scheme"], item["value_key"]))
+        for record in self.store.records(namespace):
+            kind, scheme, value = parse_subject(record["subject_key"])
+            if scheme in LINK_SCHEMES:
+                found.add((record["subject_key"], scheme, value))
+        return sorted(found)
+
+    def _names(self, namespace: str, fisheries_namespace: str | None) -> list[tuple[str, str, str]]:
+        """(subject, name, cited record) of vessel names as published (GFW events, Fisheries GFW segments)."""
+        names = set()
+        for record in self.store.records(namespace, record_type="call", provider="gfw-port-visits"):
+            vessel = self.store.latest(namespace, record["record_id"])["statement"]["as_published"].get(
+                "vessel_as_published") or {}
+            if vessel.get("name"):
+                names.add((record["subject_key"], vessel["name"], record["record_id"]))
+        if fisheries_namespace and table_exists(self.conn, "fisheries_records"):
+            from src.kb.fisheries_store import FisheriesStore
+
+            fisheries = FisheriesStore(self.conn, initialize=False)
+            for record in fisheries.records(fisheries_namespace, record_type="vessel", provider="gfw"):
+                for revision in fisheries.revisions(fisheries_namespace, record["record_id"]):
+                    published = revision["statement"]["as_published"]
+                    gfw = identifier_key("gfw_vessel_id", published.get("gfw_vessel_id"))
+                    if gfw and published.get("shipname") and published["shipname"] != "not stated":
+                        names.add((subject_key("gfw_vessel_id", gfw), published["shipname"], revision["revision_id"]))
+        return sorted(names)
+
+    def link(self, namespace: str, *, principal_id: str, scopes: Iterable[str], sanctions_namespace: str | None = None,
+             fisheries_namespace: str | None = None) -> dict[str, Any]:
+        """Create identifier links (idempotent) and name-only review candidates; never a link on a name."""
+        scopes = set(scopes)
+        require(scopes, READ_SCOPE)
+        self.conn.execute(_LINK_DDL)
+        created, candidates = [], []
+        identifiers = self._identifiers(namespace)
+        if sanctions_namespace:
+            from src.kb.sanctions import SanctionsStore, authorize
+            from src.kb.sanctions_queries import SanctionsQueries
+
+            authorize(sanctions_namespace, scopes, "knowledge:sanctions:read")
+            queries = SanctionsQueries(self.conn)
+            sanctions = SanctionsStore(self.conn, initialize=False)
+            linked_designations: dict[str, set[str]] = {}
+            for subject, scheme, key in identifiers:
+                found = queries.find(sanctions_namespace, identifier=key)
+                if scheme == "imo":  # lists write IMO numbers with or without the prefix
+                    found += [d for d in queries.find(sanctions_namespace, identifier=f"IMO{key}") if d not in found]
+                for designation_id in found:
+                    history = [r for r in sanctions.history(sanctions_namespace, designation_id) if r["statement"]]
+                    stated = next((i for r in reversed(history) for i in r["statement"].get("identifiers") or []
+                                   if _norm(i.get("value")).removeprefix("IMO" if scheme == "imo" else "") == _norm(key)
+                                   and _STATED_AS[scheme](i)), None)
+                    if stated is None:
+                        continue  # the value appears, but not as this kind of identifier: no link
+                    designation = sanctions.designation(sanctions_namespace, designation_id)
+                    revision = history[-1]
+                    evidence = {"designation_id": designation_id, "list_id": designation["list_id"],
+                                "list_entry_id": designation["list_entry_id"], "record_key": designation["record_key"],
+                                "party_kind": designation["party_kind"], "revision_id": revision["revision_id"],
+                                "source_revision": revision["source_revision"], "stated_identifier": stated}
+                    created.append(self._insert(namespace, subject, scheme, key, "sanctions", sanctions_namespace,
+                                                designation_id, "listed-identifier", evidence, principal_id))
+                    linked_designations.setdefault(subject, set()).add(designation_id)
+            candidates = self._name_candidates(namespace, sanctions_namespace, fisheries_namespace, queries,
+                                               sanctions, linked_designations, principal_id, scopes)
+        if fisheries_namespace and table_exists(self.conn, "fisheries_records"):
+            require(scopes, "knowledge:fisheries:read")
+            from src.kb.fisheries_store import FisheriesStore
+
+            fisheries = FisheriesStore(self.conn, initialize=False)
+            for subject, scheme, key in identifiers:
+                if scheme != "imo":
+                    continue
+                for fisheries_subject in fisheries.find_subjects(fisheries_namespace, "imo", key):
+                    for record in fisheries.records(fisheries_namespace, subject_keys=[fisheries_subject]):
+                        if record["record_type"] not in {"authorisation", "listing"}:
+                            continue
+                        revision = fisheries.revisions(fisheries_namespace, record["record_id"])[-1]
+                        evidence = {"record_id": record["record_id"], "revision_id": revision["revision_id"],
+                                    "record_type": record["record_type"], "provider": record["provider"],
+                                    "list_key": record["list_key"], "stated_imo": key}
+                        created.append(self._insert(namespace, subject, scheme, key, "fisheries",
+                                                    fisheries_namespace, record["record_id"], "listed-identifier",
+                                                    evidence, principal_id))
+        return {"links": self.links(namespace), "created": sorted({c for c in created if c}),
+                "name_candidates": candidates, "boundary": SANCTIONS_BOUNDARY}
+
+    def _name_candidates(self, namespace, sanctions_namespace, fisheries_namespace, queries, sanctions, linked,
+                         principal_id, scopes) -> list[dict[str, Any]]:
+        from src.kb.ownership_identity import OwnershipIdentityService
+        from src.kb.ownership_store import canonical_entity_id
+
+        if not {"knowledge:ownership:write", "operator"} & scopes:
+            return []  # name-only candidates enter the reviewable state machine, which needs its write scope
+        service = OwnershipIdentityService(self.conn, now=self.now)
+        out, seen = [], set()
+        for subject, name, cited in self._names(namespace, fisheries_namespace):
+            for designation_id in queries.find(sanctions_namespace, name=name):
+                if any(designation_id in ids for ids in linked.values()) or (subject, designation_id) in seen:
+                    continue  # already linked on a stated identifier, or already offered
+                seen.add((subject, designation_id))
+                designation = sanctions.designation(sanctions_namespace, designation_id)
+                offered = service.offer(
+                    namespace, left_key=movement_key(subject), right_key=designation["record_key"],
+                    left_entity=canonical_entity_id(movement_key(subject)),
+                    right_entity=designation["canonical_entity_id"] or canonical_entity_id(designation["record_key"]),
+                    basis="similar-name",
+                    evidence=[{"method": "name-only", "name_as_published": name, "cited": cited,
+                               "designation_id": designation_id, "list_id": designation["list_id"],
+                               "policy": "a name alone is never a link; a reviewer sees it as a candidate that "
+                                         "cannot be accepted without identifier evidence"}],
+                    principal_id=principal_id, scopes=scopes)
+                out.append({"subject": subject, "designation_id": designation_id, "name": name,
+                            "candidate_id": offered["candidate_id"], "basis": "similar-name"})
+        return out
+
+    def _insert(self, namespace, subject, scheme, key, target, target_namespace, target_id, basis, evidence,
+                principal_id) -> str | None:
+        link_id = "mv-link:" + digest([namespace, subject, scheme, key, target, target_namespace, target_id])[:24]
+        exists = self.conn.execute("SELECT 1 FROM osint_movement_links WHERE namespace=? AND link_id=?",
+                                   [namespace, link_id]).fetchone()
+        if exists:
+            return None
+        self.conn.execute("INSERT INTO osint_movement_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+                          [namespace, link_id, subject, scheme, key, target, target_namespace, target_id, basis,
+                           canonical(evidence), principal_id, self.now()])
+        return link_id
+
+    def links(self, namespace: str, subjects: Iterable[str] | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "osint_movement_links"):
+            return []
+        rows = self.conn.execute(
+            "SELECT link_id, subject_key, scheme, identifier, target, target_namespace, target_id, basis, "
+            "evidence_json, created_at_ms FROM osint_movement_links WHERE namespace=? ORDER BY link_id",
+            [namespace]).fetchall()
+        wanted = None if subjects is None else set(subjects)
+
+        def keyed(scheme: str, value: str) -> str | None:
+            try:
+                return subject_key(scheme, value)
+            except MovementError:
+                return None
+
+        return [{"contract": LINK_CONTRACT, "link_id": r[0], "subject_key": r[1], "scheme": r[2], "identifier": r[3],
+                 "target": r[4], "target_namespace": r[5], "target_id": r[6], "basis": r[7],
+                 "evidence": json.loads(r[8]), "created_at_ms": int(r[9])}
+                for r in rows if wanted is None or r[1] in wanted or keyed(r[2], r[3]) in wanted]
+
+    def statements(self, namespace: str, subjects: Iterable[str], as_of: Any, *, scopes: Iterable[str]
+                   ) -> list[dict[str, Any]]:
+        """What each linked list stated as of a date, as published (listed, not listed in the snapshot, unknown)."""
+        out = []
+        for link in self.links(namespace, subjects):
+            if link["target"] != "sanctions":
+                out.append({"link": link, "status": "cited record", "statement": link["evidence"]})
+                continue
+            from src.kb.sanctions import authorize
+            from src.kb.sanctions_queries import SanctionsQueries
+
+            authorize(link["target_namespace"], set(scopes), "knowledge:sanctions:read")
+            stated = SanctionsQueries(self.conn).statement_as_of(link["target_namespace"], link["target_id"],
+                                                                 day(as_of))
+            out.append({"link": link, "status": stated["status"], "as_of": stated["as_of"],
+                        "coverage": stated.get("coverage"), "delisting": stated.get("delisting"),
+                        "reason": stated.get("reason"),
+                        "statement": {k: (stated.get("statement") or {}).get(k) for k in
+                                      ("revision_id", "source_revision", "listed_on", "programmes")}
+                        if stated.get("statement") else None,
+                        "boundary": SANCTIONS_BOUNDARY})
+        return out
+
+
+# ================================================================== MV11: bounded as-of answers
+
+
+def _cite(record: Mapping[str, Any], revision: Mapping[str, Any]) -> dict[str, Any]:
+    value = revision["statement"]
+    return {"record_id": record["record_id"], "revision_id": revision["revision_id"], "provider": record["provider"],
+            "url": value["source"].get("url"), "locator": value["source"].get("locator"),
+            "licence": value["licence"], "evidence_origin": revision["evidence_origin"] or
+            value["source"].get("evidence_origin"), "retrieved_at_ms": revision["observed_at_ms"]}
+
+
+def _withhold(published: Mapping[str, Any]) -> dict[str, Any]:
+    value = dict(published)
+    registrant = dict(value.get("registrant") or {})
+    if registrant.get("natural_person"):
+        registrant["name"] = "withheld: a natural person"
+    if registrant:
+        value["registrant"] = registrant
+    return value
+
+
+def _in(value: Any, start: datetime, end: datetime) -> bool:
+    return value is not None and start <= parse_time(value) <= end
+
+
+class MovementQueries:
+    """Registry state and sampled movements for one aircraft or vessel as of a bounded window."""
+
+    def __init__(self, conn: Any) -> None:
+        self.conn = conn
+        self.store = MovementStore(conn, initialize=False)
+        self.identity = MovementIdentity(conn)
+
+    # -------------------------------------------------------------- resolution
+
+    def _resolve(self, namespace: str, identifier: Any, scheme: str | None, start: Any, end: Any) -> dict[str, Any]:
+        scheme, key = classify(identifier, scheme)
+        subject = subject_key(scheme, key)
+        refused = self.store.refusal(namespace, scheme, key)
+        if refused:
+            raise MovementError("privacy_opt_out", f"{scheme} {key} is on the privacy refusal list "
+                                                   f"({refused['programme']}); no movement or registry answer is "
+                                                   "given", programme=refused["programme"])
+        connected = self.identity.connected(namespace, subject, start, end)
+        subjects = set(connected["subjects"])  # movement records join only through accepted matches
+        for other in sorted(subjects - {subject}):
+            _, other_scheme, other_key = parse_subject(other)
+            if self.store.refusal(namespace, other_scheme, other_key):
+                raise MovementError("privacy_opt_out", "a connected identifier is on the privacy refusal list")
+        return {"scheme": scheme, "key": key, "subject": subject, "subjects": sorted(subjects),
+                "connected": connected}
+
+    def _registry(self, namespace: str, subjects: Iterable[str], start: datetime, end: datetime
+                  ) -> list[dict[str, Any]]:
+        subjects = set(subjects)
+        out = []
+        for record in self.store.records(namespace, record_type="registry_record"):
+            revisions = self.store.revisions(namespace, record["record_id"])
+            stated = {subject_key(i["scheme"], i["value"]) for r in revisions for i in r["statement"]["identifiers"]
+                      if i["scheme"] in KEY_SCHEMES}
+            if record["subject_key"] not in subjects and not stated & subjects:
+                continue
+            for index, revision in enumerate(revisions):
+                begins = revision["effective_from"] or revision["statement"]["effective"].get("from")
+                following = revisions[index + 1]["effective_from"] if index + 1 < len(revisions) else None
+                valid = (begins is None or parse_time(begins) <= end) and (following is None or
+                                                                            parse_time(following) >= start)
+                if not valid:
+                    continue
+                value = revision["statement"]
+                out.append({"record_key": value["record_key"], "subject": record["subject_key"],
+                            "event": revision["event"], "valid_from": begins, "superseded_on": following,
+                            "as_published": _withhold(value["as_published"]),
+                            "identifiers": value["identifiers"], "citation": _cite(record, revision)})
+        return sorted(out, key=lambda r: (r["record_key"], r["citation"]["revision_id"]))
+
+    def _fisheries_identity(self, namespace: str, fisheries_namespace: str | None, subjects: set[str],
+                            start: datetime, end: datetime, scopes: set[str]) -> list[dict[str, Any]]:
+        out = []
+        for fact in self.identity._fisheries_facts(fisheries_namespace, scopes):
+            if not {fact["left"], fact["right"]} & subjects:
+                continue
+            if not _overlaps(fact["valid_from"], fact["valid_to"], start.date().isoformat(), end.date().isoformat()):
+                continue
+            out.append(fact)
+        return out
+
+    def _windows(self, namespace: str, subjects: set[str], start: datetime, end: datetime) -> list[dict[str, Any]]:
+        out = []
+        for record in self.store.records(namespace, record_type="sample_window"):
+            if record["subject_key"] not in subjects:
+                continue
+            revision = self.store.latest(namespace, record["record_id"])
+            value = revision["statement"]
+            if parse_time(value["window"]["end"]) < start or parse_time(value["window"]["start"]) > end:
+                continue
+            samples = []
+            for sample in self.store.records(namespace, record_type="position_sample", window=record["window_id"]):
+                latest = self.store.latest(namespace, sample["record_id"])
+                published = latest["statement"]["as_published"]
+                if _in(published["timestamp"], start, end):
+                    samples.append({**{k: published.get(k) for k in ("timestamp", "lat", "lon", "altitude_m",
+                                                                     "on_ground", "speed_over_ground_kn")
+                                       if published.get(k) is not None},
+                                    "receiver_category": published.get("receiver_category"),
+                                    "revision_id": latest["revision_id"], "record_id": sample["record_id"]})
+            coverage = dict(value["coverage"])
+            out.append({"window_id": record["window_id"], "provider": record["provider"], "subject": record[
+                "subject_key"], "start": value["window"]["start"], "end": value["window"]["end"],
+                "coverage": {**coverage, "statement": NO_COVERAGE if coverage["status"] == "no_coverage_observed"
+                             else coverage["status"].replace("_", " ")},
+                "bound": value["bound"], "samples": sorted(samples, key=lambda s: s["timestamp"]),
+                "citation": _cite(record, revision)})
+        return sorted(out, key=lambda w: (w["start"], w["provider"]))
+
+    def _calls(self, namespace: str, subjects: set[str], start: datetime, end: datetime,
+               facilities_namespace: str | None) -> dict[str, list[dict[str, Any]]]:
+        published, derived = [], []
+        for record in self.store.records(namespace, record_type="call"):
+            if record["subject_key"] not in subjects:
+                continue
+            revision = self.store.latest(namespace, record["record_id"])
+            value = revision["statement"]
+            call = value["as_published"]
+            first = call.get("arrival") or call.get("time")
+            last = call.get("departure") or call.get("time")
+            if parse_time(last) < start or parse_time(first) > end:
+                continue
+            item = {"subject": record["subject_key"], "window_id": record["window_id"], **call,
+                    "citation": _cite(record, revision)}
+            if record["provider"] == "derived":
+                derived.append(item)
+            else:
+                facility = dict(call.get("facility") or {})
+                if facility.get("resolution") == "unresolved":
+                    facility.update(resolve_facility(self.conn, facilities_namespace, facility.get("kind"),
+                                                     facility.get("code") or facility.get("anchorage_id")))
+                item["facility"] = facility
+                published.append(item)
+        key = lambda c: (c.get("arrival") or c.get("time") or "", c["citation"]["record_id"])  # noqa: E731
+        return {"source_published": sorted(published, key=key), "derived": sorted(derived, key=key)}
+
+    # -------------------------------------------------------------- answers
+
+    def _private(self, namespace: str, subjects: Iterable[str], end: datetime) -> bool:
+        for subject in subjects:
+            if subject.startswith("aircraft:"):
+                revision = self.store.registry_state(namespace, subject)
+                if natural_person_registrant(revision):
+                    return True
+        return False
+
+    def registry(self, namespace: str, identifier: Any, *, scopes: Iterable[str], as_of: Any = None,
+                 scheme: str | None = None) -> dict[str, Any]:
+        """Registry state (revisions valid on the date) for one aircraft or vessel; no positions."""
+        scopes = set(scopes)
+        require(scopes, READ_SCOPE)
+        when = parse_time(as_of or datetime.now(timezone.utc).date().isoformat())
+        resolved = self._resolve(namespace, identifier, scheme, when, when)
+        registry = self._registry(namespace, resolved["subjects"], when, when + timedelta(days=1) - timedelta(
+            seconds=1))
+        answer = {"contract": ANSWER_CONTRACT, "query": "registry", "namespace": namespace,
+                  "identifier": {"scheme": resolved["scheme"], "value": resolved["key"]}, "as_of": day(when),
+                  "registry": registry,
+                  "status": "found" if registry else "none on record in the acquired registries",
+                  "identity_matches": {"accepted": resolved["connected"]["accepted"],
+                                       "proposed": resolved["connected"]["proposed"]},
+                  "notice": "registry entries as published; a natural-person registrant's name is withheld and "
+                            "never a key; absence from the acquired registries is not absence of registration",
+                  "never": list(NEVER)}
+        answer["answer_hash"] = digest(answer)
+        return answer
+
+    def window(self, namespace: str, identifier: Any, start: Any, end: Any, *, scopes: Iterable[str],
+               scheme: str | None = None, facilities_namespace: str | None = None,
+               fisheries_namespace: str | None = None, sanctions_namespace: str | None = None,
+               as_of: Any = None) -> dict[str, Any]:
+        """Registry state, sample windows with gaps, published and derived calls, identity matches and sanctions
+        citations for one identifier and a window of at most 92 days."""
+        scopes = set(scopes)
+        require(scopes, READ_SCOPE, MOVEMENT_SCOPE)
+        begin, finish = check_window(start, end)
+        resolved = self._resolve(namespace, identifier, scheme, begin, finish)
+        subjects = set(resolved["subjects"])
+        if self._private(namespace, subjects, finish):
+            raise MovementError("private_aircraft_refused", "the aircraft's registry record names a natural person; "
+                                                            "its movements are an individual's movements and are "
+                                                            "not answered")
+        windows = self._windows(namespace, subjects, begin, finish)
+        calls = self._calls(namespace, subjects, begin, finish, facilities_namespace)
+        observed = [w for w in windows if w["coverage"]["status"] == "positions_observed"]
+        if not windows:
+            coverage = {"status": "no_coverage_observed", "statement": NO_COVERAGE,
+                        "detail": "no sample window was acquired for this identifier and window"}
+        elif not observed and not any(w["coverage"]["status"] == "events_published" for w in windows):
+            coverage = {"status": "no_coverage_observed", "statement": NO_COVERAGE,
+                        "detail": "the acquired windows hold no positions or events"}
+        else:
+            coverage = {"status": "partial", "statement": "positions and events only where the sources had receiver "
+                                                          "coverage; see each window's gaps",
+                        "windows": len(windows), "windows_with_positions": len(observed),
+                        "gaps": sum(len(w["coverage"]["gaps"]) for w in windows)}
+        coverage["caveat"] = COVERAGE_CAVEAT
+        sanctions = []
+        if sanctions_namespace:
+            links = MovementLinks(self.conn)
+            sanctions = links.statements(namespace, subjects, as_of or finish, scopes=scopes)
+        answer = {
+            "contract": ANSWER_CONTRACT, "query": "window", "namespace": namespace,
+            "identifier": {"scheme": resolved["scheme"], "value": resolved["key"]},
+            "window": {"start": stamp(begin), "end": stamp(finish)}, "as_of": day(as_of or finish),
+            "subjects": sorted(subjects),
+            "registry": self._registry(namespace, subjects, begin, finish),
+            "vessel_identity": self._fisheries_identity(namespace, fisheries_namespace, subjects, begin, finish,
+                                                        scopes),
+            "sample_windows": windows, "calls": calls, "coverage": coverage,
+            "identity_matches": {"accepted": resolved["connected"]["accepted"],
+                                 "proposed": resolved["connected"]["proposed"]},
+            "sanctions": sanctions,
+            "boundary": SANCTIONS_BOUNDARY,
+            "never": list(NEVER),
+        }
+        bad = forbidden_keys(answer)
+        if bad:  # pragma: no cover - a guard: nothing above writes an inference key
+            raise MovementError("invalid_answer", f"answer carries {sorted(bad)}")
+        answer["answer_hash"] = digest(answer)
+        return answer
+
+    # -------------------------------------------------------------- evidence bundles
+
+    def export_bundle(self, answer: Mapping[str, Any]) -> dict[str, Any]:
+        """An evidence bundle with source, revision and as-of time for every registry revision, window, sample,
+        call, identity match and listing statement the answer used."""
+        from src.evidence_bundle.builder import EvidenceBundleBuilder
+
+        if answer.get("contract") != ANSWER_CONTRACT:
+            raise MovementError("invalid_request", "export a movement answer")
+        builder = EvidenceBundleBuilder("receipt", {"operation": f"movement-{answer['query']}",
+                                                    "namespace": answer["namespace"],
+                                                    "answer_hash": answer.get("answer_hash")}, created_at_ms=0)
+        refs = []
+
+        def add(kind: str, payload: Mapping[str, Any], object_id: str) -> None:
+            refs.append(builder.add_object("evidence", {"kind": kind, "as_of": answer["as_of"], **payload},
+                                           object_id=object_id))
+            url = (payload.get("citation") or {}).get("url")
+            if url:
+                builder.add_external_reference(f"source:{object_id}", url, required=False)
+
+        for item in answer.get("registry") or []:
+            add("movement-registry-revision", item, item["citation"]["revision_id"])
+        for window in answer.get("sample_windows") or []:
+            add("movement-sample-window", {k: v for k, v in window.items() if k != "samples"},
+                window["citation"]["revision_id"])
+            for sample in window["samples"]:
+                add("movement-position-sample", {**sample, "window_id": window["window_id"],
+                                                 "provider": window["provider"]}, sample["revision_id"])
+        for status in ("source_published", "derived"):
+            for call in (answer.get("calls") or {}).get(status, []):
+                add(f"movement-call-{status}", call, call["citation"]["revision_id"])
+        for match in (answer.get("identity_matches") or {}).get("accepted", []):
+            add("movement-identity-match", match, match["candidate_id"])
+        for fact in answer.get("vessel_identity") or []:
+            add("fisheries-vessel-identity", fact, f"{fact['stated_by'][0]['revision_id']}:{fact['left']}:{fact['right']}")
+        for statement_ in answer.get("sanctions") or []:
+            add("movement-listing-statement", statement_, statement_["link"]["link_id"])
+        builder.add_object("receipt", {"kind": "movement-answer", **{k: v for k, v in answer.items()
+                                                                     if k not in {"sample_windows"}}},
+                           object_id=f"movement:{answer.get('answer_hash')}", references=refs, root=True)
+        if answer.get("coverage", {}).get("status") == "no_coverage_observed":
+            builder.add_omission(NO_COVERAGE + ": not evidence that the aircraft or vessel did not move")
+        return {"bundle": builder.build(), "boundary": [COVERAGE_CAVEAT, SANCTIONS_BOUNDARY]}
