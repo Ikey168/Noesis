@@ -1,0 +1,68 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-real-estate-record-v1",
+  "title": "Real-estate record statement: one transaction, parcel or price-index observation as a publisher released it",
+  "description": "One statement a Geospatial real-estate adapter emits (HM Land Registry Price Paid Data and UK HPI, DGFiP/Etalab DVF, Eurostat prc_hpi_q, INSPIRE cadastral parcels through the WFS path) and src.kb.real_estate keeps as an immutable revision with its release vintage. Publisher corrections and deletions are revisions (PPD C/D rows, DVF mutations changed or absent in a later release), never overwrites. A parcel references its geometry in the Geospatial stores (feature, geometry, source CRS, transform) and never copies it. No statement carries an owner, buyer, seller or party name, a valuation, a price estimate, an apportioned, converted or interpolated price, or advice.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "record_key", "event", "vintage", "as_published", "place_refs", "parcel_refs", "source"],
+  "additionalProperties": false,
+  "definitions": {
+    "money": {
+      "type": "object",
+      "required": ["value_text", "value", "currency"],
+      "properties": {
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "currency": {"enum": ["GBP", "EUR"]}
+      },
+      "additionalProperties": false
+    },
+    "ref": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {"scheme": {"type": "string"}, "code": {"type": ["string", "null"]}},
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-real-estate-record-v1"},
+    "record_type": {"enum": ["transaction", "parcel", "price_index_observation"]},
+    "provider": {"enum": ["hmlr-ppd", "hmlr-ukhpi", "dvf", "eurostat-hpi", "inspire-cp-fr", "inspire-cp-de-nw"]},
+    "record_key": {"type": "string", "minLength": 1},
+    "event": {"enum": ["added", "changed", "withdrawn", "removed", "observed"]},
+    "vintage": {
+      "type": "object",
+      "properties": {
+        "release": {"type": ["string", "null"]},
+        "published_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "basis": {"type": ["string", "null"]}
+      }
+    },
+    "as_published": {
+      "type": "object",
+      "description": "transaction: source_transaction_id, price (money), transfer_date, property_type/tenure/category (PPD) or nature_mutation, locals, lot_counts, parcel_ids (DVF), address(es), record_status; parcel: local_id, inspire_namespace, inspire_id, national_cadastral_reference, reference_scheme, label, area_m2, valid_from, geometry {feature_id, geometry_id, source_crs, source_geometry_sha256, coordinate_transform}; price_index_observation: index_id, dataset, measure, geography {scheme, code, label}, period, value, unit, base_period, edition, flags",
+      "not": {"anyOf": [
+        {"required": ["owner"]}, {"required": ["owner_name"]}, {"required": ["buyer_name"]}, {"required": ["seller_name"]},
+        {"required": ["market_value"]}, {"required": ["estimated_value"]}, {"required": ["price_per_m2"]},
+        {"required": ["apportioned_value"]}, {"required": ["interpolated_value"]}
+      ]}
+    },
+    "place_refs": {"type": "array", "items": {"$ref": "#/definitions/ref"}},
+    "parcel_refs": {"type": "array", "items": {"$ref": "#/definitions/ref"}},
+    "selection_key": {"type": ["string", "null"]},
+    "source": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {
+        "provider": {"type": "string"},
+        "publisher": {"type": "string"},
+        "url": {"type": "string", "minLength": 1},
+        "licence": {"type": "string"},
+        "attribution": {"type": "string"},
+        "evidence_origin": {"type": ["string", "null"]},
+        "file_sha256": {"type": ["string", "null"]},
+        "feature_revision_id": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

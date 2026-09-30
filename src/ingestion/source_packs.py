@@ -338,6 +338,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
 # Climate and Environment biodiversity: Catalogue of Life, GBIF and IUCN Red List (reference-only) (#2220).
 NATIVE_CONNECTOR_MODULES["biodiversity"] = "src.ingestion.biodiversity_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"biodiversity"})
+# Geospatial real estate: HM Land Registry PPD and UK HPI, French DVF and Eurostat HPI (#2228).
+NATIVE_CONNECTOR_MODULES["real-estate"] = "src.ingestion.real_estate_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"real-estate"})
 
 # Agriculture and Food Systems: FAOSTAT, USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture, EU Agri-food data
 # portal (#2213).

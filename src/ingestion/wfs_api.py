@@ -21,6 +21,7 @@ from typing import Any
 
 from src.ingestion.geojson_features import (
     AXIS_ORDERS,
+    _canonical,
     FeatureBudget,
     decode_feature_collection,
 )
@@ -59,6 +60,17 @@ def validate_wfs_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
         raise SourcePackError("invalid_mapping", "WFS axis order must be declared")
     if not 1 <= int(wfs["page_size"]) <= 10_000:
         raise SourcePackError("unbounded_source", "WFS page size is outside bounds")
+    # Optional pins (#2228, real-estate parcels): a bounding box every run is held to, and the only feature
+    # properties requested (PROPERTYNAME) and kept, so undeclared attributes (e.g. rights holders) never arrive.
+    if wfs.get("bbox") is not None:
+        bbox = wfs["bbox"]
+        if (not isinstance(bbox, list) or len(bbox) != 4
+                or float(bbox[0]) >= float(bbox[2]) or float(bbox[1]) >= float(bbox[3])):
+            raise SourcePackError("invalid_mapping", "a pinned WFS bbox is minx,miny,maxx,maxy in source CRS")
+    if wfs.get("property_names") is not None:
+        names = wfs["property_names"]
+        if not isinstance(names, list) or not names or not all(isinstance(n, str) and n for n in names):
+            raise SourcePackError("invalid_mapping", "WFS property_names is a non-empty list of names")
     return wfs
 
 
@@ -146,7 +158,7 @@ class WfsFeatureAdapter:
     def scope(self, parameters: Mapping[str, Any]) -> dict[str, Any]:
         """The collection scope a run covers; only an unbounded scope is complete."""
 
-        bbox = parameters.get("bbox")
+        bbox = parameters.get("bbox", self.wfs.get("bbox"))
         return {
             "endpoint": self.source["endpoint"],
             "type_names": self.wfs["type_names"],
@@ -175,6 +187,15 @@ class WfsFeatureAdapter:
             "STARTINDEX": start,
         }
         bbox = parameters.get("bbox")
+        pinned = self.wfs.get("bbox")
+        if pinned is not None:
+            if bbox is not None and [float(v) for v in bbox] != [float(v) for v in pinned]:
+                raise SourcePackError(
+                    "parameter_forbidden", "this WFS source is pinned to its declared bbox"
+                )
+            bbox = pinned
+        if self.wfs.get("property_names"):
+            params["PROPERTYNAME"] = ",".join(self.wfs["property_names"])
         if bbox is not None:
             if (
                 not isinstance(bbox, (list, tuple))
@@ -259,6 +280,7 @@ class WfsFeatureAdapter:
             ),
             source_url=self.definition["endpoint"],
         )
+        dropped = _keep_declared_properties(decoded["records"], self.wfs.get("property_names"))
         metadata = decoded["metadata"]
         returned = len(decoded["records"]) + len(decoded["rejections"])
         try:
@@ -299,6 +321,8 @@ class WfsFeatureAdapter:
             "final_page": next_cursor is None,
             "declared_next": any(link["rel"] == "next" for link in metadata["links"]),
         }
+        if dropped:
+            page["properties_dropped"] = dropped
         records = [
             {**record, "feature_page": page} for record in decoded["records"]
         ] + [{**record, "feature_page": page} for record in decoded["rejections"]]
@@ -308,6 +332,21 @@ class WfsFeatureAdapter:
             len(raw),
             receipt={"status": status, **{key: page[key] for key in page if key != "scope"}},
         )
+
+
+def _keep_declared_properties(records: list[dict[str, Any]], names: Any) -> list[str]:
+    """Drop every property a declared PROPERTYNAME list does not name (a server may ignore it); return the names."""
+
+    if not names:
+        return []
+    keep, dropped = set(names), set()
+    for record in records:
+        feature = record["feature"]
+        properties = dict(feature.get("properties") or {})
+        dropped |= set(properties) - keep
+        feature["properties"] = {k: v for k, v in properties.items() if k in keep}
+        record["content"] = _canonical(feature["properties"])
+    return sorted(dropped)
 
 
 def fixture_transport(pages: list[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:

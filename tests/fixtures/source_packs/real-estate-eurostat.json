@@ -1,0 +1,24 @@
+{
+ "description": "Eurostat prc_hpi_q JSON-stat cubes for FR and DE. Authored offline fixture in the publisher's documented shape; identifiers, prices, index values, dates and geometries are FICTIONAL and not live evidence; verify against the live sources before any live run (RE13, #2519).",
+ "scenarios": [
+  "a provisional flag"
+ ],
+ "native_pages": [
+  {
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/prc_hpi_q?format=JSON&freq=Q&geo=FR&lang=EN&purchase=TOTAL&sinceTimePeriod=2098-Q1&unit=I15_Q",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\"class\": \"dataset\", \"dimension\": {\"freq\": {\"category\": {\"index\": {\"Q\": 0}, \"label\": {\"Q\": \"Quarterly\"}}, \"label\": \"Time frequency\"}, \"geo\": {\"category\": {\"index\": {\"FR\": 0}, \"label\": {\"FR\": \"France\"}}, \"label\": \"Geopolitical entity\"}, \"purchase\": {\"category\": {\"index\": {\"TOTAL\": 0}, \"label\": {\"TOTAL\": \"Total\"}}, \"label\": \"Purchases\"}, \"time\": {\"category\": {\"index\": {\"2098-Q1\": 0, \"2098-Q2\": 1}, \"label\": {\"2098-Q1\": \"2098-Q1\", \"2098-Q2\": \"2098-Q2\"}}, \"label\": \"Time\"}, \"unit\": {\"category\": {\"index\": {\"I15_Q\": 0}, \"label\": {\"I15_Q\": \"Index, 2015=100\"}}, \"label\": \"Unit of measure\"}}, \"extension\": {\"status\": {\"label\": {\"b\": \"break in time series\", \"e\": \"estimated\", \"p\": \"provisional\"}}}, \"id\": [\"freq\", \"purchase\", \"unit\", \"geo\", \"time\"], \"label\": \"House price index (2015 = 100) - quarterly data\", \"size\": [1, 1, 1, 1, 2], \"source\": \"ESTAT\", \"status\": {\"1\": \"p\"}, \"updated\": \"2099-01-10T11:00:00+0100\", \"value\": {\"0\": 131.2, \"1\": 132.0}, \"version\": \"2.0\"}"
+  },
+  {
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/prc_hpi_q?format=JSON&freq=Q&geo=DE&lang=EN&purchase=TOTAL&sinceTimePeriod=2098-Q1&unit=I15_Q",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\"class\": \"dataset\", \"dimension\": {\"freq\": {\"category\": {\"index\": {\"Q\": 0}, \"label\": {\"Q\": \"Quarterly\"}}, \"label\": \"Time frequency\"}, \"geo\": {\"category\": {\"index\": {\"DE\": 0}, \"label\": {\"DE\": \"Germany\"}}, \"label\": \"Geopolitical entity\"}, \"purchase\": {\"category\": {\"index\": {\"TOTAL\": 0}, \"label\": {\"TOTAL\": \"Total\"}}, \"label\": \"Purchases\"}, \"time\": {\"category\": {\"index\": {\"2098-Q1\": 0, \"2098-Q2\": 1}, \"label\": {\"2098-Q1\": \"2098-Q1\", \"2098-Q2\": \"2098-Q2\"}}, \"label\": \"Time\"}, \"unit\": {\"category\": {\"index\": {\"I15_Q\": 0}, \"label\": {\"I15_Q\": \"Index, 2015=100\"}}, \"label\": \"Unit of measure\"}}, \"extension\": {\"status\": {\"label\": {\"b\": \"break in time series\", \"e\": \"estimated\", \"p\": \"provisional\"}}}, \"id\": [\"freq\", \"purchase\", \"unit\", \"geo\", \"time\"], \"label\": \"House price index (2015 = 100) - quarterly data\", \"size\": [1, 1, 1, 1, 2], \"source\": \"ESTAT\", \"status\": {\"1\": \"p\"}, \"updated\": \"2099-01-10T11:00:00+0100\", \"value\": {\"0\": 158.4, \"1\": 157.9}, \"version\": \"2.0\"}"
+  }
+ ]
+}
