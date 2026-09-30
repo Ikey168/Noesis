@@ -128,8 +128,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the News fact-checks features' Google claim-search, Data Commons feed and IFCN signatories sources (#2659),
     # plus the Legal treaties provider's CELLAR, Council of Europe and declined UN Treaty Collection sources (#2581),
     # plus the Clinical Evidence medical-devices features' seven openFDA, one AccessGUDID and three EUDAMED sources
-    # (#2654).
-    assert sum(len(pack["sources"]) for pack in packs) == 315
+    # (#2654),
+    # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB sources (#2651).
+    assert sum(len(pack["sources"]) for pack in packs) == 320
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

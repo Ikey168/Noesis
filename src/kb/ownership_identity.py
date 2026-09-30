@@ -56,7 +56,8 @@ NEVER_ACCEPTED = frozenset({"similar-name"})
 FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:",
                         "bafin:", "engineering-safety:", "materials:", "sports:", "legislation:", "courts:",
                         "infrastructure:", "space-registration:", "insurance:",
-                        "competition:", "movements:", "campaign-finance:", "medical-devices:")
+                        "competition:", "movements:", "campaign-finance:", "medical-devices:",
+                        "enforcement:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """

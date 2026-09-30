@@ -67,8 +67,10 @@ def test_descriptors_declare_capabilities_constraints_stores_and_the_source_pack
 def test_the_bundle_resolves_with_both_features_off_by_default():
     composition = json.loads((ROOT / "packs/legal/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
+    # The treaties (#2581) and enforcement (#2651) providers' features sit beside them.
     assert set(features) == {"sanctions", "federal-statutes", "courts", "justice-statistics",
-                             "treaties-untc", "treaties-eu", "treaties-coe"}  # treaties features (#2581)
+                             "treaties-untc", "treaties-eu", "treaties-coe", "enforcement-sec",
+                             "enforcement-fca", "enforcement-epa", "enforcement-edpb"}
     assert features["courts"]["default"] is False and features["justice-statistics"]["default"] is False
     assert validate_composition_manifest(adapt_all()["legal"]) == []
     plan = legal_plan()

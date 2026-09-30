@@ -258,6 +258,11 @@ MATRIX = {
     "Claim or news article to cited fact-checks":
         "tests/unit/domains/test_fact_checks_acceptance.py::"
         "test_claim_and_article_to_cited_fact_checks_with_revisions_reviewable_matches_and_ratings_as_published",
+    # The Legal enforcement provider's offline journey (#2715) composes its record owner with the source-pack
+    # runtime, ownership identity and graph, Legal works by citation, subscriptions and evidence bundles.
+    "Company to cited enforcement actions with outcome and appeal history":
+        "tests/unit/domains/test_enforcement_acceptance.py::"
+        "test_company_to_cited_enforcement_actions_with_outcome_and_appeal_history",
 }
 
 

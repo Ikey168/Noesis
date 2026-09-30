@@ -276,6 +276,7 @@
 
     "legal.core": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
     "legal.courts": {"subdomains": ["courts-case-law"], "shapes": ["versioned-documents", "events-notices"]},
+    "legal.enforcement": {"subdomains": ["regulatory-enforcement"], "shapes": ["events-notices", "versioned-documents"]},
     "legal.federal-statutes": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
     "legal.justice-statistics": {"domain": "society-population", "subdomains": ["crime-justice-statistics"], "shapes": ["statistical-series"]},
     "legal.sanctions": {"subdomains": ["sanctions-export-controls"], "shapes": ["registry-records"], "themes": ["security-defence"]},

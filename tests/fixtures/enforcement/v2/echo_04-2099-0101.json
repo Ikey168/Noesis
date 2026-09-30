@@ -1,0 +1,62 @@
+{
+ "Results": {
+  "Message": "Success",
+  "CaseNumber": "04-2099-0101",
+  "ActivityId": "3600999901",
+  "CaseName": "EXAMPLA INTERMEDIATE B.V.",
+  "CaseType": "Civil Judicial",
+  "CaseStatus": "Closed",
+  "LeadAgency": "EPA",
+  "Region": "04",
+  "DateFiled": "03/15/2099",
+  "EnforcementOutcome": "Consent Decree",
+  "SettlementDate": "08/01/2099",
+  "CourtDocketNumber": "1:99-cv-00501",
+  "Court": "N.D. Ga.",
+  "LastUpdated": "2099-10-01",
+  "Defendants": [
+   {
+    "DefendantName": "EXAMPLA INTERMEDIATE B.V.",
+    "NamedInComplaint": "Y",
+    "NamedInSettlement": "Y"
+   }
+  ],
+  "Facilities": [
+   {
+    "RegistryID": "110099990001",
+    "FacilityName": "EXAMPLA SOLVENTS PLANT (FICTIONAL)",
+    "City": "EXAMPLE CITY",
+    "State": "EX",
+    "Latitude": "33.7490",
+    "Longitude": "-84.3880"
+   }
+  ],
+  "LawsAndSections": [
+   {
+    "Law": "CAA",
+    "Sections": "112(r)(1)"
+   },
+   {
+    "Law": "EPCRA",
+    "Sections": "312"
+   }
+  ],
+  "Penalties": {
+   "FedPenalty": "250000",
+   "StateLocalPenalty": "0",
+   "SEPCost": "75000",
+   "CostRecovery": "15000",
+   "ComplianceActionCost": "1200000"
+  },
+  "Milestones": [
+   {
+    "Milestone": "Complaint Filed",
+    "ActualDate": "03/15/2099"
+   },
+   {
+    "Milestone": "Consent Decree Entered",
+    "ActualDate": "08/01/2099"
+   }
+  ]
+ }
+}
