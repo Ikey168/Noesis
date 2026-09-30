@@ -91,17 +91,21 @@ _CSV_ENDPOINTS = {
     "ESTAT": ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{flow}/{key}", {"format": "SDMX-CSV"}),
     # OECD SDMX REST API (.Stat Suite): ``format=csvfile`` returns SDMX-CSV with a DATAFLOW column (verify).
     "OECD": ("https://sdmx.oecd.org/public/rest/data/{flow}/{key}", {"format": "csvfile"}),
+    # ILOSTAT SDMX REST API (Fusion Registry): ``format=csv`` returns SDMX-CSV 1.0 with a DATAFLOW column (verify).
+    "ILO": ("https://sdmx.ilo.org/rest/data/{flow}/{key}", {"format": "csv"}),
 }
 # Dataflow references: Eurostat uses bare ids; the OECD uses ``AGENCY,DSD@DATAFLOW,VERSION``.
 _CSV_FLOWS = {
     "ESTAT": re.compile(r"[A-Za-z0-9_.-]+"),
     "OECD": re.compile(r"[A-Za-z0-9_.]+,[A-Za-z0-9_.@]+,[0-9]+(\.[0-9]+)*"),
+    "ILO": re.compile(r"ILO,DF_[A-Za-z0-9_]+,[0-9]+(\.[0-9]+)*"),
 }
 _PROVIDER_HOSTS = {
     "ECB": "data-api.ecb.europa.eu",
     "ESTAT": "ec.europa.eu",
     "BBK": "api.statistiken.bundesbank.de",
     "OECD": "sdmx.oecd.org",
+    "ILO": "sdmx.ilo.org",
 }
 _CSV_FIXED_COLUMNS = {"DATAFLOW", "LAST UPDATE", "TIME_PERIOD", "OBS_VALUE"}
 _CSV_MISSING = {"", ":"}
@@ -118,7 +122,7 @@ class SDMXConnector(DatasetConnector):
         max_observations=10000,
     ):
         if provider not in _PROVIDER_HOSTS:
-            raise ValueError("Supported SDMX providers: ECB, ESTAT, BBK, OECD")
+            raise ValueError("Supported SDMX providers: ECB, ESTAT, BBK, OECD, ILO")
         if not 1 <= max_bytes <= 20_000_000 or not 1 <= max_observations <= 100000:
             raise ValueError("invalid SDMX bounds")
         self.provider = provider.lower()

@@ -332,6 +332,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fisheries"})
 # Humanitarian Response and Conflict Events: ReliefWeb, HDX, UCDP and the gated ACLED entry (#2206).
 NATIVE_CONNECTOR_MODULES["humanitarian"] = "src.ingestion.humanitarian_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
+# Economics labour statistics: ILOSTAT, OECD and Eurostat LFS through SDMX, US BLS Public Data API (#2219).
+NATIVE_CONNECTOR_MODULES["labour-statistics"] = "src.ingestion.labour_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"labour-statistics"})
 
 
 def native_connector_module(connector: str) -> Any:
