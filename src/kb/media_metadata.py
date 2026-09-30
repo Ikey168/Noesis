@@ -1274,9 +1274,257 @@ class MediaMetadataLinks:
         return [self.link(namespace, r[0]) for r in rows]
 
 
+# ------------------------------------------------------------------ answers as of a date (MM09)
+
+
+class MediaMetadataQueries:
+    """Identifier lookups are exact; title and creator lookups return ranked candidates with evidence."""
+
+    def __init__(self, conn: Any, *, now: Callable[[], int] | None = None) -> None:
+        self.conn = conn
+        self.store = MediaMetadataStore(conn, initialize=False, now=now)
+        self.identity = MediaMetadataIdentity(conn, initialize=False, now=now)
+
+    def _entry(self, namespace: str, record_id: str, cutoff: date | None) -> dict[str, Any] | None:
+        head = self.store.record(namespace, record_id)
+        revision, known = self.store.revision_as_of(namespace, record_id, cutoff)
+        if revision is None:
+            return None
+        statement = self.store.statement(namespace, revision["revision_id"])
+        return {
+            "record_id": record_id, "source": head["source"], "native_id": head["native_id"],
+            "record_type": head["record_type"], "level": level_of(statement), "status": statement["status"],
+            "redirect_to": statement.get("redirect_to"),
+            "titles": statement["titles"], "names": statement["names"], "creators": statement["creators"],
+            "dates": statement["dates"], "relations": statement["relations"],
+            "identifiers": [{k: i[k] for k in ("scheme", "value", "key", "valid", "role", "property", "rank")}
+                            for i in self.store.identifiers(namespace, revision["revision_id"])],
+            "citation": self.store.citation(namespace, record_id, revision),
+            "revision_history": [{k: r[k] for k in ("revision_id", "marker", "basis", "revision_date", "status",
+                                                    "retrieved_at")} for r in known],
+            "later_revisions": max(0, len(self.store.revisions(namespace, record_id)) - len(known)),
+            "redirects": self.store.redirects(namespace, head["source"], head["native_id"], as_of=cutoff),
+            "conflicts": self.store.conflicts(namespace, record_id),
+        }
+
+    def _holders(self, namespace: str, key: str, cutoff: date | None) -> tuple[list[str], list[str]]:
+        """(records keyed by the identifier, records asserting it), both as of the date."""
+        own, asserting = set(), set()
+        rows = self.conn.execute("SELECT DISTINCT record_id FROM media_identifiers WHERE namespace=? AND key=?",
+                                 [namespace, key]).fetchall()
+        for (record_id,) in rows:
+            revision, _ = self.store.revision_as_of(namespace, record_id, cutoff)
+            if revision is None:
+                continue
+            for item in self.store.identifiers(namespace, revision["revision_id"]):
+                if item["key"] == key and item["rank"] != "deprecated":
+                    (own if item["role"] == "self" else asserting).add(record_id)
+        return sorted(own), sorted(asserting - own)
+
+    def _identity(self, namespace: str, record_ids: Sequence[str], cutoff: date | None) -> dict[str, Any]:
+        members = set()
+        for record_id in record_ids:
+            members.update(self.identity.cluster(namespace, record_id) if self.identity.ready() else [record_id])
+        entries = [e for e in (self._entry(namespace, r, cutoff) for r in sorted(members)) if e]
+        used = [m for m in self.identity.matches(namespace, right_kind="record")
+                if m["state"] == "accepted" and m["left_id"] in members and m["right_id"] in members] \
+            if self.identity.ready() else []
+        pending = [m for m in self.identity.matches(namespace) if m["state"] in {"unreviewed", "deferred", "reverted"}
+                   and (m["left_id"] in members or m["right_id"] in members)] if self.identity.ready() else []
+        primary = [e for e in entries if e["record_id"] in record_ids]
+        levels = sorted({e["level"] for e in primary})
+        return {"records": sorted(members), "levels": levels, "authority_records": entries,
+                "matches_used": [{k: m[k] for k in ("match_id", "left_id", "right_id", "basis", "candidate_state",
+                                                    "evidence", "asserting_revision_id", "history")} for m in used],
+                "open_candidates": [{k: m[k] for k in ("match_id", "left_id", "right_kind", "right_id", "basis",
+                                                       "candidate_state", "score", "state")} for m in pending]}
+
+    def answer(self, namespace: str, *, scopes: Iterable[str], identifier: str | None = None,
+               scheme: str | None = None, title: str | None = None, creator: str | None = None,
+               as_of: Any = None, limit: int = 10) -> dict[str, Any]:
+        authorize(namespace, scopes, READ_SCOPE)
+        self.store.require_ready()
+        cutoff = as_of_date(as_of)
+        query = {"identifier": identifier, "scheme": scheme, "title": title, "creator": creator,
+                 "as_of": cutoff.isoformat() if cutoff else None}
+        base = {"contract": ANSWER_CONTRACT, "namespace": namespace, "query": query, "boundary": BOUNDARY,
+                "as_of_ms": int(datetime.combine(cutoff, datetime.max.time(), tzinfo=timezone.utc).timestamp() * 1000)
+                if cutoff else None}
+        if identifier:
+            result = self._by_identifier(namespace, identifier, scheme, cutoff)
+        elif title or creator:
+            result = self._by_text(namespace, title, creator, cutoff, max(1, min(int(limit), 50)))
+        else:
+            raise MediaMetadataError("invalid_request", "name an identifier, a title or a creator")
+        answer = {**base, **result}
+        answer["receipt"] = {"digest": digest({k: v for k, v in answer.items() if k != "receipt"}),
+                             "sources": sorted({e["source"] for i in answer.get("identities") or []
+                                                for e in i["authority_records"]}
+                                               | {c["source"] for c in answer.get("candidates") or []})}
+        return answer
+
+    def _by_identifier(self, namespace, identifier, scheme, cutoff) -> dict[str, Any]:
+        scheme = scheme or detect_scheme(identifier)
+        if scheme is None or scheme not in SCHEMES:
+            return {"status": "unresolved", "identities": [], "unknowns": [
+                {"kind": "unrecognized_identifier", "value": identifier,
+                 "note": "no audited identifier scheme matches; name the scheme"}]}
+        normalized = normalize_identifier(scheme, identifier)
+        if not normalized["valid"]:
+            return {"status": "invalid", "identities": [], "unknowns": [
+                {"kind": "invalid_identifier", "scheme": scheme, "value": identifier,
+                 "reason": normalized["reason"]}]}
+        key = normalized["key"]
+        own, asserting = self._holders(namespace, key, cutoff)
+        redirects = []
+        resolved_own = []
+        for record_id in own:
+            head = self.store.record(namespace, record_id)
+            chain = self.store.follow(namespace, head["source"], head["native_id"], as_of=cutoff)
+            if len(chain) > 1:
+                redirects.append({"source": head["source"], "chain": chain,
+                                  "history": self.store.redirects(namespace, head["source"], head["native_id"],
+                                                                  as_of=cutoff)})
+                target = self.store.find(namespace, head["source"], chain[-1])
+                resolved_own.append(target or record_id)
+            else:
+                resolved_own.append(record_id)
+        primaries = sorted(set(resolved_own)) or asserting
+        if not primaries:
+            return {"status": "unresolved", "identities": [], "identifier": {**normalized, "scheme": scheme},
+                    "unknowns": [{"kind": "unknown_identifier", "key": key,
+                                  "note": "no acquired record carries this identifier as of the date"}]}
+        groups: list[list[str]] = []
+        for record_id in primaries:
+            cluster = set(self.identity.cluster(namespace, record_id)) if self.identity.ready() else {record_id}
+            for group in groups:
+                if cluster & set(group) or record_id in group:
+                    group.append(record_id)
+                    break
+            else:
+                groups.append([record_id])
+        identities = [self._identity(namespace, group, cutoff) for group in groups]
+        conflicts = [{"key": k, "claimed_by": v} for k, v in self.identity.conflicting_keys(namespace).items()
+                     if k == key] if self.identity.ready() else []
+        status = "resolved" if len(identities) == 1 else "ambiguous"
+        return {"status": status, "identifier": {**normalized, "scheme": scheme}, "identities": identities,
+                "redirects": redirects, "conflicts": conflicts,
+                "unknowns": [] if status == "resolved" else [
+                    {"kind": "ambiguous_identifier", "key": key, "identities": len(identities),
+                     "note": "the identifier reaches records no match or review connects; nothing is chosen"}]}
+
+    def _by_text(self, namespace, title, creator, cutoff, limit) -> dict[str, Any]:
+        wanted_title, wanted_creator = name_tokens(title), name_tokens(creator)
+        profiles = self.identity.profiles(namespace, as_of=cutoff)
+        scored = []
+        for record_id, profile in profiles.items():
+            if profile["status"] != "active":
+                continue
+            evidence, parts = {}, []
+            if wanted_title:
+                best = max(((_jaccard(wanted_title, name_tokens(t)), t) for t in profile["titles"]), default=(0.0, None))
+                evidence["title"] = {"score": round(best[0], 4), "matched": best[1]}
+                parts.append(best[0])
+            if wanted_creator:
+                names = profile["names"] if profile["level"] == "creator" else profile["creator_names"]
+                best = max(((_jaccard(wanted_creator, name_tokens(n)), n) for n in names), default=(0.0, None))
+                evidence["creator"] = {"score": round(best[0], 4), "matched": best[1]}
+                parts.append(best[0])
+            score = round(sum(parts) / len(parts), 4) if parts else 0.0
+            if score >= 0.3:
+                scored.append((score, record_id, profile, evidence))
+        scored.sort(key=lambda item: (-item[0], item[1]))
+        seen, candidates = set(), []
+        for score, record_id, profile, evidence in scored:
+            cluster = tuple(self.identity.cluster(namespace, record_id)) if self.identity.ready() else (record_id,)
+            if cluster in seen:
+                continue
+            seen.add(cluster)
+            candidates.append({"rank": len(candidates) + 1, "score": score, "record_id": record_id,
+                               "source": profile["source"], "native_id": profile["native_id"],
+                               "level": profile["level"], "evidence": {**evidence, "method": "name-tokens-v1"},
+                               "identity": self._identity(namespace, [record_id], cutoff)})
+            if len(candidates) >= limit:
+                break
+        top = [c for c in candidates if c["score"] == candidates[0]["score"]] if candidates else []
+        return {"status": "candidates" if candidates else "unresolved", "candidates": candidates,
+                "ambiguous": len(top) > 1,
+                "unknowns": [] if candidates else [{"kind": "no_candidate", "note": "no acquired title or name is "
+                                                                                    "similar enough"}],
+                "notice": "ranked by title and name similarity with the evidence for each; a candidate is not an "
+                          "asserted identity; no popularity ranking"}
+
+    def authority_history(self, namespace: str, record: str, *, scopes: Iterable[str],
+                          as_of: Any = None) -> dict[str, Any]:
+        """Every revision of one record known at the date, oldest first, with status changes and redirects."""
+        authorize(namespace, scopes, READ_SCOPE)
+        self.store.require_ready()
+        record_id = self.store.resolve_record(namespace, record)
+        cutoff = as_of_date(as_of)
+        head = self.store.record(namespace, record_id)
+        current, known = self.store.revision_as_of(namespace, record_id, cutoff)
+        revisions = []
+        for revision in known:
+            statement = self.store.statement(namespace, revision["revision_id"])
+            revisions.append({**self.store.citation(namespace, record_id, revision),
+                              "current_as_of": current is not None and revision["revision_id"] == current["revision_id"],
+                              "titles": statement["titles"], "names": statement["names"],
+                              "identifiers": statement["identifiers"], "redirect_to": statement.get("redirect_to")})
+        return {"record": head, "as_of": cutoff.isoformat() if cutoff else None, "revisions": revisions,
+                "redirects": self.store.redirects(namespace, head["source"], head["native_id"], as_of=cutoff),
+                "conflicts": self.store.conflicts(namespace, record_id), "boundary": BOUNDARY}
+
+    # ------------------------------------------------------------------ evidence bundles
+
+    def export_bundle(self, answer: Mapping[str, Any], *, created_at_ms: int | None = None) -> dict[str, Any]:
+        """A noesis-evidence-bundle-v1 citing every authority record revision and identity match the answer used;
+        unresolved, ambiguous and conflicting parts are omissions."""
+        from src.evidence_bundle.builder import EvidenceBundleBuilder
+
+        builder = EvidenceBundleBuilder("answer", {"operation": "media-metadata", "query": answer["query"]},
+                                        created_at_ms=created_at_ms, as_of_ms=answer.get("as_of_ms"))
+        refs = []
+        identities = list(answer.get("identities") or []) + [c["identity"] for c in answer.get("candidates") or []]
+        for identity in identities:
+            for entry in identity["authority_records"]:
+                citation = entry["citation"]
+                object_id = f"media-revision:{citation['revision_id']}"
+                builder.add_object("evidence", {
+                    "kind": "media-authority-revision",
+                    "locator": {"cited": True, "document_id": citation["revision_id"],
+                                "record_id": entry["record_id"]},
+                    "source": entry["source"], "native_id": entry["native_id"], "record_type": entry["record_type"],
+                    "status": entry["status"], "revision": {k: citation[k] for k in (
+                        "revision_marker", "revision_basis", "revision_date", "retrieved_at")},
+                    "licence": citation["licence"], "url": citation["url"],
+                    "titles": entry["titles"], "names": entry["names"]}, object_id=object_id)
+                refs.append(object_id)
+                if citation["url"]:
+                    builder.add_external_reference(f"record:{entry['record_id']}", citation["url"], required=False)
+            for match in identity["matches_used"]:
+                object_id = f"media-match:{match['match_id']}"
+                builder.add_object("evidence", {"kind": "media-identity-match", "locator": {"cited": True,
+                                                                                           "match_id": match["match_id"]},
+                                                "match_basis": match["basis"], "candidate_state": match["candidate_state"],
+                                                "left_id": match["left_id"], "right_id": match["right_id"],
+                                                "asserting_revision_id": match["asserting_revision_id"],
+                                                "evidence": match["evidence"]}, object_id=object_id)
+                refs.append(object_id)
+        for unknown in answer.get("unknowns") or []:
+            builder.add_omission(f"{unknown['kind']}: {unknown.get('note') or unknown.get('reason') or ''}".strip())
+        for conflict in answer.get("conflicts") or []:
+            builder.add_omission(f"conflicting identifier {conflict['key']} claimed by several records of one source")
+        if answer.get("ambiguous"):
+            builder.add_omission("several candidates rank equally; none is asserted")
+        root = {k: answer.get(k) for k in ("contract", "query", "status", "receipt", "boundary")}
+        builder.add_object("answer", {"kind": "media-metadata", **root}, object_id=f"media-answer:"
+                           f"{answer['receipt']['digest'][:24]}", references=sorted(set(refs)), root=True)
+        return builder.build()
+
+
 __all__ = [
     "ANSWER_CONTRACT", "BOUNDARY", "CONTRACT", "FEATURE", "LINK_CONTRACT", "MATCH_CONTRACT", "MediaMetadataError",
-    "MediaMetadataIdentity", "MediaMetadataLinks", "MediaMetadataProjector", "MediaMetadataStore",
+    "MediaMetadataIdentity", "MediaMetadataLinks", "MediaMetadataProjector", "MediaMetadataQueries", "MediaMetadataStore",
     "authority_reference", "level_of", "name_tokens", "NEWS_FEATURE", "READ_SCOPE", "RECORD_TYPES", "REVIEW_SCOPE",
     "SCHEMES", "SOURCES", "WRITE_SCOPE", "detect_scheme", "isbn13_from_isbn10", "native_key", "normalize_identifier",
     "normalize_lccn", "record_id_for", "validate_statement",
