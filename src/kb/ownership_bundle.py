@@ -54,6 +54,11 @@ BUNDLE = {
                                    "revert_ownership_identity_match", "list_ownership_identity_candidates"]},
             "graph_and_timeline": {"tools": ["ownership_graph", "ownership_timeline", "ownership_state_as_of"]},
             "dossier": {"reuses": ["AuthoredReportStore"], "tools": ["build_ownership_dossier", "export_ownership_dossier"]},
+            # Optional competition feature (#2217, default off): cases, stages and state aid naming a company.
+            "competition": {"feature": "competition", "tools": ["lookup_competition_cases",
+                                                                "competition_case_history",
+                                                                "state_aid_awards_for_beneficiary",
+                                                                "build_competition_dossier"]},
         },
     },
     "never": ["infer beneficial ownership", "make sanctions or AML determinations",
@@ -240,3 +245,30 @@ def readiness(conn, namespace: str, *, scopes: Iterable[str]) -> dict[str, Any]:
         assessment["operations"] = [o for o in assessment["operations"] if o["capability"] in bound]
         result["composition"] = assessment
     return result
+
+
+def dossier_with_competition(conn, namespace: str, scheme: str, value: str, *, competition_namespace: str,
+                             principal_id: str | None, scopes: Iterable[str], as_of: str | None = None,
+                             group: bool = False, evidence_kind: str = "unspecified") -> dict[str, Any]:
+    """The ownership dossier plus a ``competition`` section (#2217): the cases and aid awards naming the company.
+
+    The section comes from the optional ``competition`` feature's queries over reviewed identity matches only; it
+    never predicts outcomes, assesses market power or aid compatibility, or gives legal advice.
+    """
+    from src.kb.competition_queries import awards_for_beneficiary, cases_for_company
+    from src.kb.ownership_dossier import build_dossier
+
+    dossier = build_dossier(conn, namespace, scheme, value, principal_id=principal_id, scopes=scopes, as_of=as_of,
+                            evidence_kind=evidence_kind)
+    if dossier.get("status") != "assembled":
+        return dossier
+    root = dossier["identity"]["root"]
+    cases = cases_for_company(conn, competition_namespace, root, ownership_namespace=namespace, scopes=scopes,
+                              as_of=as_of, group=group, principal_id=principal_id)
+    awards = awards_for_beneficiary(conn, competition_namespace, root, ownership_namespace=namespace, scopes=scopes,
+                                    principal_id=principal_id)
+    return {**dossier, "competition": {"namespace": competition_namespace, "status": cases["status"],
+                                       "cases": cases["cases"], "by_authority": cases["by_authority"],
+                                       "group_members": cases["group_members"], "awards": awards["awards"],
+                                       "award_totals": awards["computed_totals"], "unknowns": awards["unknowns"],
+                                       "coverage": cases["coverage"], "notice": cases["notice"]}}

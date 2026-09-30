@@ -44,11 +44,23 @@
           "name": "noesis-ownership-dossier",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "ownership.competition",
+        "provider": "ownership.competition",
+        "contract": {
+          "name": "noesis-competition-case",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "ownership.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "ownership.competition",
         "version": "1.0.0"
       }
     ],
@@ -130,7 +142,6 @@
       "scrape registers whose terms or access forbid it"
     ]
   },
-  "content_hash": "sha256:b9e13d185206e77a2000699fb9b3eeb0e33ca20ca57232e6fc2f9b4c71b983f5",
   "optional_features": [
     {
       "id": "bafin-voting-rights",
@@ -162,6 +173,56 @@
           "reason": "the assertions answer ownership-graph queries beside register-sourced ownership"
         }
       ]
+    },
+    {
+      "id": "competition",
+      "default": false,
+      "description": "Competition cases and state aid: European Commission merger, antitrust and state-aid cases, UK CMA cases and US FTC and DOJ Antitrust Division actions with append-only stages, parties and decision documents as published, and EU State Aid Transparency Award Module awards; parties and beneficiaries reach ownership entities only through reviewed identity matches, legal acts and related cases are linked by exact citation, and cases for a company or its group, stage history and aid for a beneficiary are answered as of a date with subscription monitors. No outcome prediction, no market-power or aid-compatibility assessment and no legal advice. (Market cannot consume this feature: Corporate Ownership already depends on market.lei, so a Market feature requiring it would be a bundle cycle; Market reaches it through the Corporate Ownership bundle.)",
+      "requires": [
+        {
+          "capability": "ownership.competition",
+          "contract": "noesis-competition-case",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "ownership.records",
+          "contract": "noesis-ownership-record",
+          "range": "^1.0.0",
+          "reason": "competition records are persisted through the one ownership record store"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "parties and beneficiaries are matched through the reviewable identity state machine"
+        },
+        {
+          "capability": "ownership.graph",
+          "contract": "noesis-ownership-graph",
+          "range": "^1.0.0",
+          "reason": "group expansion reads the ownership graph as of the query date"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "company, case, beneficiary and authority monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "cases and awards are acquired through the corporate-ownership source pack runtime"
+        }
+      ]
     }
-  ]
+  ],
+  "content_hash": "sha256:f15fe7b9f255db747f01325dff014c99103d8333b47018d2fcbf5f34d8524867"
 }
