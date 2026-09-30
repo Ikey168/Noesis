@@ -9,7 +9,10 @@ import duckdb
 import pytest
 
 from src.composition.adapter import adapt_all, bundle_id
-from src.composition.contracts import validate_composition_manifest, validate_provider_set
+from src.composition.contracts import (
+    validate_composition_manifest,
+    validate_provider_set,
+)
 from src.composition.lifecycle import CompositionCoordinator, registry_name
 from src.composition.shadow import SHADOW_REPORT, provider_descriptors
 from src.domains import pack_install
@@ -69,6 +72,7 @@ PROJECTOR_OWNERS = {
     "noesis-fisheries-record-v1": "src.kb.fisheries_store",
     "noesis-agrifood-record-v1": "src.kb.agrifood_store",
     "noesis-court-justice-record-v1": "src.kb.legal_dockets",
+    "noesis-treaty-record-v1": "src.kb.treaties_store",  # #2581
     "noesis-biodiversity-record-v1": "src.kb.biodiversity_store",
     "noesis-food-composition-record-v1": "src.kb.food_composition",
     "noesis-real-estate-record-v1": "src.kb.real_estate",
