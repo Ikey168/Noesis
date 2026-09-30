@@ -1,0 +1,657 @@
+{
+ "pack_id": "society-statistics",
+ "version": "1.0.0",
+ "description": "Society and population statistics for the society bundle: the society.income provider's published income, poverty and inequality figures (World Bank PIP, Eurostat EU-SILC and the OECD Income Distribution Database) as each source released them, with welfare concept, equivalence scale, poverty line, PPP round and release vintage; never blended, re-harmonised, nowcast or filled. Every source is live-unverified until a dated run (docs/development/income-distribution-evidence/source-audit.md).",
+ "domains": [
+  "society"
+ ],
+ "defaults": {
+  "schedule": {
+   "kind": "interval",
+   "interval_s": 86400
+  }
+ },
+ "sources": [
+  {
+   "connector": "income-distribution",
+   "update_cadence": "PIP releases (typically twice a year; verify) and PPP-round changes",
+   "auth": {
+    "kind": "none"
+   },
+   "mapping": {
+    "target_schema": "noesis-income-distribution-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "income-distribution:1.0.0"
+   ],
+   "operations": [
+    "release"
+   ],
+   "health": {
+    "required": false,
+    "max_staleness_s": 31536000
+   },
+   "source_id": "worldbank-pip-poverty-inequality",
+   "endpoint": "https://api.worldbank.org/pip/v1",
+   "publisher": "World Bank (Poverty and Inequality Platform)",
+   "scope": "Bounded PIP API estimates at the 2.15 PPP$ line in 2017 PPPs, pinned to one PIP release: Germany (income, survey years), Indonesia (consumption, reference-year estimates as PIP labels them) and the Sub-Saharan Africa regional aggregate; headcount, poverty gap, Gini, median and top-decile share (operator must verify endpoint, parameters and field names)",
+   "license": {
+    "id": "CC-BY-4.0",
+    "terms_url": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets",
+    "redistribution": "attribution-required (CC BY 4.0; operator must verify)"
+   },
+   "temporal_semantics": "the pinned PIP release version dates the vintage; reporting_year is the reference year and survey_year the survey year",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 50,
+    "max_bytes": 2000000,
+    "max_pages": 3
+   },
+   "income_distribution": {
+    "namespace": "global",
+    "provider": "pip",
+    "format": "pip-json",
+    "live_verification": "unverified-live",
+    "documents": [
+     {
+      "label": "PIP country estimates, Germany, survey years, 2.15 PPP$ (2017 PPP)",
+      "path": "pip",
+      "params": {
+       "country": "DEU",
+       "year": "all",
+       "povline": "2.15",
+       "fill_gaps": "false",
+       "ppp_version": "2017",
+       "version": "20990401_2017_01_02_PROD"
+      },
+      "indicators": [
+       "headcount",
+       "gini",
+       "median",
+       "decile10"
+      ],
+      "welfare_concept": "income",
+      "equivalence_scale": {
+       "code": "per-capita",
+       "label": "per-capita welfare, no equivalence scale (verify)"
+      },
+      "reference_year_basis": "survey-year",
+      "survey": "as stated per value (survey_acronym)",
+      "coverage": "PIP country estimate",
+      "area": {
+       "scheme": "iso3166-1-alpha3"
+      },
+      "definition": {
+       "income_definition": "PIP welfare aggregate: household per-capita income or consumption as the underlying survey measures it, stated per value as welfare_type (verify against the PIP methodology handbook)",
+       "source_text": "Estimates at the stated international poverty line in PPP dollars per person per day of the stated PPP round",
+       "methodology_notes": [
+        "Income and consumption estimates are not comparable and are never converted into each other (PIP methodology handbook)"
+       ]
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "url",
+        "identifier": "https://datanalytics.worldbank.org/PIP-Methodology/",
+        "relation": "documented_in",
+        "locator": "Poverty and Inequality Platform Methodology Handbook (verify)"
+       },
+       {
+        "kind": "api",
+        "scheme": "url",
+        "identifier": "https://pip.worldbank.org/api",
+        "relation": "served_by"
+       }
+      ]
+     },
+     {
+      "label": "PIP country estimates, Indonesia, reference years (lineup), 2.15 PPP$ (2017 PPP)",
+      "path": "pip",
+      "params": {
+       "country": "IDN",
+       "year": "all",
+       "povline": "2.15",
+       "fill_gaps": "true",
+       "ppp_version": "2017",
+       "version": "20990401_2017_01_02_PROD"
+      },
+      "indicators": [
+       "headcount",
+       "poverty_gap"
+      ],
+      "welfare_concept": "consumption",
+      "equivalence_scale": {
+       "code": "per-capita",
+       "label": "per-capita welfare, no equivalence scale (verify)"
+      },
+      "reference_year_basis": "lineup-year",
+      "survey": "as stated per value (survey_acronym)",
+      "coverage": "PIP country estimate, interpolated or extrapolated to reference years as PIP labels them",
+      "area": {
+       "scheme": "iso3166-1-alpha3"
+      },
+      "definition": {
+       "income_definition": "PIP welfare aggregate: household per-capita income or consumption as the underlying survey measures it, stated per value as welfare_type (verify against the PIP methodology handbook)",
+       "source_text": "Estimates at the stated international poverty line in PPP dollars per person per day of the stated PPP round",
+       "methodology_notes": [
+        "Income and consumption estimates are not comparable and are never converted into each other (PIP methodology handbook)"
+       ]
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "url",
+        "identifier": "https://datanalytics.worldbank.org/PIP-Methodology/",
+        "relation": "documented_in",
+        "locator": "Poverty and Inequality Platform Methodology Handbook (verify)"
+       },
+       {
+        "kind": "api",
+        "scheme": "url",
+        "identifier": "https://pip.worldbank.org/api",
+        "relation": "served_by"
+       }
+      ]
+     },
+     {
+      "label": "PIP regional aggregate, Sub-Saharan Africa, reference years, 2.15 PPP$ (2017 PPP)",
+      "path": "pip-grp",
+      "params": {
+       "country": "SSF",
+       "year": "all",
+       "povline": "2.15",
+       "group_by": "wb",
+       "ppp_version": "2017",
+       "version": "20990401_2017_01_02_PROD"
+      },
+      "indicators": [
+       "headcount"
+      ],
+      "welfare_concept": "mixed-aggregate",
+      "equivalence_scale": {
+       "code": "per-capita",
+       "label": "per-capita welfare, no equivalence scale (verify)"
+      },
+      "reference_year_basis": "lineup-year",
+      "survey": "PIP regional aggregate",
+      "coverage": "PIP regional aggregate (World Bank region)",
+      "area": {
+       "scheme": "wb-region"
+      },
+      "definition": {
+       "income_definition": "PIP welfare aggregate: household per-capita income or consumption as the underlying survey measures it, stated per value as welfare_type (verify against the PIP methodology handbook)",
+       "source_text": "Population-weighted regional aggregate of PIP reference-year estimates, as PIP computes it",
+       "methodology_notes": [
+        "Income and consumption estimates are not comparable and are never converted into each other (PIP methodology handbook)"
+       ]
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "url",
+        "identifier": "https://datanalytics.worldbank.org/PIP-Methodology/",
+        "relation": "documented_in",
+        "locator": "Poverty and Inequality Platform Methodology Handbook (verify)"
+       },
+       {
+        "kind": "api",
+        "scheme": "url",
+        "identifier": "https://pip.worldbank.org/api",
+        "relation": "served_by"
+       }
+      ]
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/society-income-pip.json",
+    "sha256": "29e217989114cdc1e84b106a24e900fd1ae5a580bfdd0490111a189a30755df0",
+    "expected_output_hash": "61aad13d5be146f5794eef3d6237d23e785be8691e6808f13d2907ae45ba0729"
+   }
+  },
+  {
+   "connector": "income-distribution",
+   "update_cadence": "annual survey waves with revisions",
+   "auth": {
+    "kind": "none"
+   },
+   "mapping": {
+    "target_schema": "noesis-income-distribution-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "income-distribution:1.0.0"
+   ],
+   "operations": [
+    "release"
+   ],
+   "health": {
+    "required": false,
+    "max_staleness_s": 31536000
+   },
+   "source_id": "eurostat-eu-silc-income",
+   "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+   "publisher": "Eurostat (EU statistics on income and living conditions)",
+   "scope": "Bounded EU-SILC datasets through the SDMX connector's ESTAT SDMX-CSV path: at-risk-of-poverty rates (Germany, Austria, Berlin NUTS 2), the Gini coefficient and the single-person at-risk-of-poverty threshold, OBS_FLAG letters verbatim (operator must verify dataset codes and key order)",
+   "license": {
+    "id": "eurostat-reuse",
+    "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+    "redistribution": "attribution-required"
+   },
+   "temporal_semantics": "the SDMX-CSV LAST UPDATE column dates the release; TIME_PERIOD is the survey year and the income reference year is kept separately",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 50,
+    "max_bytes": 2000000,
+    "max_pages": 4
+   },
+   "income_distribution": {
+    "namespace": "global",
+    "provider": "eu-silc",
+    "format": "eurostat-sdmx-csv",
+    "live_verification": "unverified-live",
+    "documents": [
+     {
+      "label": "EU-SILC at-risk-of-poverty rate, 60 % of median (ilc_li02, DE and AT)",
+      "flow": "ilc_li02",
+      "key": "A.LI_R_MD60.PC.T.TOTAL.DE+AT",
+      "params": {
+       "startPeriod": "2096"
+      },
+      "indicator": {
+       "code": "ilc_li02:LI_R_MD60",
+       "concept": "poverty_headcount_ratio",
+       "measure": "rate",
+       "label": "At-risk-of-poverty rate (cut-off 60 % of median equivalised income after social transfers)"
+      },
+      "unit": {
+       "code": "PC",
+       "label": "percent of population"
+      },
+      "welfare_concept": "income",
+      "equivalence_scale": {
+       "code": "modified-oecd",
+       "label": "modified OECD scale: 1.0 first adult, 0.5 other persons aged 14 and over, 0.3 children under 14 (Eurostat)"
+      },
+      "reference_year_basis": "survey-year",
+      "income_reference_offset_years": -1,
+      "survey": "EU-SILC",
+      "coverage": "private households",
+      "area": {
+       "dimension": "geo",
+       "scheme": "eurostat-geo",
+       "labels": {
+        "DE": "Germany",
+        "AT": "Austria"
+       }
+      },
+      "definition": {
+       "income_definition": "equivalised disposable income after social transfers (EU-SILC total household disposable income divided by the modified OECD equivalised household size)",
+       "income_reference_rule": "the income reference period is the calendar year before the survey year for most countries (verify per country; IE and UK differ)",
+       "methodology_notes": [
+        "EU-SILC from 2021 follows Regulation (EU) 2019/1700; breaks in series are flagged b (ilc_esms)"
+       ],
+       "source_text": "Share of persons with an equivalised disposable income below the at-risk-of-poverty threshold (60 % of the national median equivalised disposable income after social transfers)"
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "eurostat-esms",
+        "identifier": "ilc_esms",
+        "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+        "relation": "documented_in"
+       },
+       {
+        "kind": "standard",
+        "scheme": "celex",
+        "identifier": "32019R1700",
+        "relation": "defined_by",
+        "locator": "Regulation (EU) 2019/1700 (IESS)"
+       }
+      ],
+      "poverty_line": {
+       "kind": "relative",
+       "share": "60",
+       "of": "national median equivalised disposable income after social transfers",
+       "set_by": "Eurostat (at-risk-of-poverty threshold)"
+      },
+      "denominator": {
+       "provider": "eurostat",
+       "series_code": "demo_pjan",
+       "label": "Population on 1 January (Eurostat demography)",
+       "stated_in": "ilc_esms (fixture declaration; verify)"
+      }
+     },
+     {
+      "label": "EU-SILC Gini coefficient of equivalised disposable income (ilc_di12, DE and AT)",
+      "flow": "ilc_di12",
+      "key": "A.GINI_HND.TOTAL.DE+AT",
+      "params": {
+       "startPeriod": "2096"
+      },
+      "indicator": {
+       "code": "ilc_di12:GINI_HND",
+       "concept": "gini_index",
+       "measure": "index",
+       "label": "Gini coefficient of equivalised disposable income"
+      },
+      "unit": {
+       "code": "COEF",
+       "label": "Gini coefficient (0-100)"
+      },
+      "welfare_concept": "income",
+      "equivalence_scale": {
+       "code": "modified-oecd",
+       "label": "modified OECD scale: 1.0 first adult, 0.5 other persons aged 14 and over, 0.3 children under 14 (Eurostat)"
+      },
+      "reference_year_basis": "survey-year",
+      "income_reference_offset_years": -1,
+      "survey": "EU-SILC",
+      "coverage": "private households",
+      "area": {
+       "dimension": "geo",
+       "scheme": "eurostat-geo",
+       "labels": {
+        "DE": "Germany",
+        "AT": "Austria"
+       }
+      },
+      "definition": {
+       "income_definition": "equivalised disposable income after social transfers (EU-SILC total household disposable income divided by the modified OECD equivalised household size)",
+       "income_reference_rule": "the income reference period is the calendar year before the survey year for most countries (verify per country; IE and UK differ)",
+       "methodology_notes": [
+        "EU-SILC from 2021 follows Regulation (EU) 2019/1700; breaks in series are flagged b (ilc_esms)"
+       ],
+       "source_text": "Gini coefficient of equivalised disposable income (EU-SILC)"
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "eurostat-esms",
+        "identifier": "ilc_esms",
+        "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+        "relation": "documented_in"
+       },
+       {
+        "kind": "standard",
+        "scheme": "celex",
+        "identifier": "32019R1700",
+        "relation": "defined_by",
+        "locator": "Regulation (EU) 2019/1700 (IESS)"
+       }
+      ]
+     },
+     {
+      "label": "EU-SILC at-risk-of-poverty threshold, single person (ilc_li01, DE)",
+      "flow": "ilc_li01",
+      "key": "A.LI_C_MD60.A1.EUR.DE",
+      "params": {
+       "startPeriod": "2096"
+      },
+      "indicator": {
+       "code": "ilc_li01:LI_C_MD60:A1",
+       "concept": "poverty_threshold",
+       "measure": "level",
+       "label": "At-risk-of-poverty threshold, single person (60 % of median equivalised income)"
+      },
+      "unit": {
+       "code": "EUR",
+       "label": "euro per year"
+      },
+      "welfare_concept": "income",
+      "equivalence_scale": {
+       "code": "modified-oecd",
+       "label": "modified OECD scale: 1.0 first adult, 0.5 other persons aged 14 and over, 0.3 children under 14 (Eurostat)"
+      },
+      "reference_year_basis": "survey-year",
+      "income_reference_offset_years": -1,
+      "survey": "EU-SILC",
+      "coverage": "private households",
+      "area": {
+       "dimension": "geo",
+       "scheme": "eurostat-geo",
+       "labels": {
+        "DE": "Germany"
+       }
+      },
+      "definition": {
+       "income_definition": "equivalised disposable income after social transfers (EU-SILC total household disposable income divided by the modified OECD equivalised household size)",
+       "income_reference_rule": "the income reference period is the calendar year before the survey year for most countries (verify per country; IE and UK differ)",
+       "methodology_notes": [
+        "EU-SILC from 2021 follows Regulation (EU) 2019/1700; breaks in series are flagged b (ilc_esms)"
+       ],
+       "source_text": "At-risk-of-poverty threshold as published: 60 % of the national median equivalised disposable income, single-person household"
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "eurostat-esms",
+        "identifier": "ilc_esms",
+        "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+        "relation": "documented_in"
+       },
+       {
+        "kind": "standard",
+        "scheme": "celex",
+        "identifier": "32019R1700",
+        "relation": "defined_by",
+        "locator": "Regulation (EU) 2019/1700 (IESS)"
+       }
+      ],
+      "poverty_line": {
+       "kind": "relative",
+       "share": "60",
+       "of": "national median equivalised disposable income after social transfers",
+       "set_by": "Eurostat (at-risk-of-poverty threshold)"
+      }
+     },
+     {
+      "label": "EU-SILC at-risk-of-poverty rate by NUTS 2 region (ilc_li41, DE30)",
+      "flow": "ilc_li41",
+      "key": "A.PC.DE30",
+      "params": {
+       "startPeriod": "2096"
+      },
+      "indicator": {
+       "code": "ilc_li41",
+       "concept": "poverty_headcount_ratio",
+       "measure": "rate",
+       "label": "At-risk-of-poverty rate by NUTS regions"
+      },
+      "unit": {
+       "code": "PC",
+       "label": "percent of population"
+      },
+      "welfare_concept": "income",
+      "equivalence_scale": {
+       "code": "modified-oecd",
+       "label": "modified OECD scale: 1.0 first adult, 0.5 other persons aged 14 and over, 0.3 children under 14 (Eurostat)"
+      },
+      "reference_year_basis": "survey-year",
+      "income_reference_offset_years": -1,
+      "survey": "EU-SILC",
+      "coverage": "private households",
+      "area": {
+       "dimension": "geo",
+       "scheme": "eurostat-geo",
+       "labels": {
+        "DE30": "Berlin"
+       }
+      },
+      "definition": {
+       "income_definition": "equivalised disposable income after social transfers (EU-SILC total household disposable income divided by the modified OECD equivalised household size)",
+       "income_reference_rule": "the income reference period is the calendar year before the survey year for most countries (verify per country; IE and UK differ)",
+       "methodology_notes": [
+        "EU-SILC from 2021 follows Regulation (EU) 2019/1700; breaks in series are flagged b (ilc_esms)"
+       ],
+       "source_text": "At-risk-of-poverty rate by NUTS 2 region (EU-SILC)"
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "eurostat-esms",
+        "identifier": "ilc_esms",
+        "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+        "relation": "documented_in"
+       },
+       {
+        "kind": "standard",
+        "scheme": "celex",
+        "identifier": "32019R1700",
+        "relation": "defined_by",
+        "locator": "Regulation (EU) 2019/1700 (IESS)"
+       }
+      ],
+      "poverty_line": {
+       "kind": "relative",
+       "share": "60",
+       "of": "national median equivalised disposable income after social transfers",
+       "set_by": "Eurostat (at-risk-of-poverty threshold)"
+      }
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/society-income-eusilc.json",
+    "sha256": "8912a16ee3a48f8528aac128c5cc868957e23a1c9c61d8459573f336c3fad8ce",
+    "expected_output_hash": "dd4437606dea2db19ba71fe827ed5deeb8bbfbef1a7918beae264aa74ecfa50b"
+   }
+  },
+  {
+   "connector": "income-distribution",
+   "update_cadence": "rolling, two to three times a year (verify)",
+   "auth": {
+    "kind": "none"
+   },
+   "mapping": {
+    "target_schema": "noesis-income-distribution-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "income-distribution:1.0.0"
+   ],
+   "operations": [
+    "release"
+   ],
+   "health": {
+    "required": false,
+    "max_staleness_s": 31536000
+   },
+   "source_id": "oecd-income-distribution-database",
+   "endpoint": "https://sdmx.oecd.org/public/rest/data",
+   "publisher": "OECD (Income Distribution Database, WISE Centre)",
+   "scope": "Bounded OECD IDD dataflow through the SDMX connector (SDMX-CSV): Gini and the poverty rate at 50 % of the median for Germany and the United States under the 2011 and 2012 terms of reference, with the dataflow version each response states (operator must verify the dataflow reference and codes)",
+   "license": {
+    "id": "oecd-terms",
+    "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+    "redistribution": "reuse with attribution under the OECD terms and conditions (operator must verify)"
+   },
+   "temporal_semantics": "a changed response or dataflow version is a new release dated by the retrieval time (labelled); TIME_PERIOD is the income year",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 50,
+    "max_bytes": 2000000,
+    "max_pages": 1
+   },
+   "income_distribution": {
+    "namespace": "global",
+    "provider": "oecd-idd",
+    "format": "oecd-sdmx-csv",
+    "live_verification": "unverified-live",
+    "documents": [
+     {
+      "label": "OECD Income Distribution Database: Gini and relative poverty rate at 50 % of median (DEU, USA)",
+      "flow": "OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,1.0",
+      "key": "DEU+USA.A.INC_DISP_GINI+PR_INC_DISP._Z._Z._T.METH2012+METH2011.D_CUR._Z+PL_50",
+      "params": {
+       "startPeriod": "2096",
+       "endPeriod": "2099"
+      },
+      "indicator_dimension": {
+       "dimension": "MEASURE",
+       "codes": {
+        "INC_DISP_GINI": {
+         "code": "INC_DISP_GINI",
+         "concept": "gini_index",
+         "measure": "index",
+         "label": "Gini (disposable income)",
+         "unit": {
+          "code": "GINI01",
+          "label": "Gini (0-1)"
+         }
+        },
+        "PR_INC_DISP": {
+         "code": "PR_INC_DISP",
+         "concept": "poverty_headcount_ratio",
+         "measure": "rate",
+         "label": "Poverty rate after taxes and transfers",
+         "unit": {
+          "code": "SHARE01",
+          "label": "share of population (0-1)"
+         }
+        }
+       }
+      },
+      "poverty_line_dimension": {
+       "dimension": "POVERTY_LINE",
+       "codes": {
+        "_Z": null,
+        "PL_50": {
+         "kind": "relative",
+         "share": "50",
+         "of": "median equivalised household disposable income",
+         "set_by": "OECD (IDD terms of reference)"
+        }
+       }
+      },
+      "methodology_dimension": {
+       "dimension": "METHODOLOGY",
+       "codes": {
+        "METH2012": "2012 terms of reference (income definition from 2012 onwards)",
+        "METH2011": "2011 terms of reference (previous income definition)"
+       }
+      },
+      "welfare_concept": "income",
+      "equivalence_scale": {
+       "code": "square-root",
+       "label": "square root of household size (IDD terms of reference)"
+      },
+      "reference_year_basis": "income-year",
+      "survey": "OECD IDD national sources",
+      "coverage": "total population in private households (IDD terms of reference; verify)",
+      "area": {
+       "dimension": "REF_AREA",
+       "scheme": "iso3166-1-alpha3",
+       "labels": {
+        "DEU": "Germany",
+        "USA": "United States"
+       }
+      },
+      "definition": {
+       "income_definition": "household disposable income: cash income from work, capital and transfers minus taxes and social contributions paid, excluding imputed rents (IDD terms of reference 2012 onwards)",
+       "source_text": "OECD Income Distribution Database indicators as published per methodology and definition",
+       "methodology_notes": [
+        "Values under the 2011 and 2012 terms of reference are different series (METHODOLOGY dimension); a change of methodology is a break (IDD metadata, verify)"
+       ]
+      },
+      "references": [
+       {
+        "kind": "methodology",
+        "scheme": "url",
+        "relation": "documented_in",
+        "identifier": "https://www.oecd.org/content/dam/oecd/en/data/datasets/income-and-wealth-distribution-databases/idd-tor-2012-onwards.pdf",
+        "locator": "IDD terms of reference, 2012 onwards"
+       }
+      ]
+     }
+    ]
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/society-income-oecd.json",
+    "sha256": "bb0a19c1a173ff2d1633e8c0eeeeeb7c5523f6c7b4257b26e550d652c8795843",
+    "expected_output_hash": "745c9ed6ac958b8775831c14fbb110029e8ad1c4d3291b1e4a0a68acdae1b596"
+   }
+  }
+ ]
+}
