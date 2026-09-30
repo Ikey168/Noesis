@@ -144,7 +144,7 @@ class Env:
         if projector is not None:
             projector.store.now = self.clock
 
-    def upgrade_rki(self, tag: str, version: str = "0.1.4") -> None:  # 0.1.2 medicines (#2214), 0.1.3 capacity (#2215)
+    def upgrade_rki(self, tag: str, version: str = "0.1.5") -> None:  # 0.1.3 capacity (#2215), 0.1.4 devices (#2654)
         """The operator pins the next RKI release tag (a source-pack upgrade); the new CSV is served."""
         from src.ingestion.source_packs import SourcePackStore, validate_source_pack
 

@@ -15,6 +15,7 @@ from tools.knowledge_engine_mcp.clinical import (
     CLINICAL_TOOLS,
     CLINICAL_WRITES,
     HEALTH_CAPACITY_TOOLS,
+    MEDICAL_DEVICES_TOOLS,
     MEDICINES_TOOLS,
     SURVEILLANCE_TOOLS,
 )
@@ -53,8 +54,10 @@ def test_tools_are_registered_with_scopes_and_mutability_in_the_catalog(mcp_env)
     # 20 clinical tools; the optional surveillance feature's tools have their own tests (test_surveillance_mcp.py).
     # The optional medicines feature's tools (#2214) are tested in test_medicines_mcp.py.
     # The optional health-capacity feature's tools (#2215) are tested in test_health_capacity_mcp.py.
+    # The optional medical-devices features' tools (#2654) are tested in tests/unit/domains/test_medical_devices_mcp.py.
     assert CLINICAL_TOOLS <= set(tools)
-    assert len(CLINICAL_TOOLS - SURVEILLANCE_TOOLS - MEDICINES_TOOLS - HEALTH_CAPACITY_TOOLS) == 20
+    assert len(CLINICAL_TOOLS - SURVEILLANCE_TOOLS - MEDICINES_TOOLS - HEALTH_CAPACITY_TOOLS
+               - MEDICAL_DEVICES_TOOLS) == 20
     for name in CLINICAL_TOOLS:
         assert _mutability(name) == ("write" if name in CLINICAL_WRITES else "read")
     assert _required_scopes("knowledge_engine_mcp", "read", "clinical_provider_contracts") == []

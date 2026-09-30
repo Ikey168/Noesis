@@ -1,0 +1,18 @@
+{
+ "basicUdiDis": [
+  "4099999FIXTUREFLOWA1"
+ ],
+ "certificateNumber": "9999-MDR-0001",
+ "certificateType": "EU technical documentation assessment",
+ "expiryDate": "2103-01-14",
+ "issueDate": "2098-01-15",
+ "manufacturerSrn": "DE-MF-000099901",
+ "notifiedBody": {
+  "name": "Example Notified Body",
+  "number": "9999"
+ },
+ "revision": 1,
+ "startingValidityDate": "2098-01-15",
+ "status": "Suspended",
+ "statusDate": "2099-08-01"
+}

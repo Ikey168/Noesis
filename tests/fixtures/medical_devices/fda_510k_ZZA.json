@@ -1,0 +1,58 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)",
+  "last_updated": "2099-07-01",
+  "license": "https://open.fda.gov/license/",
+  "results": {
+   "limit": 100,
+   "skip": 0,
+   "total": 2
+  },
+  "terms": "https://open.fda.gov/terms/"
+ },
+ "results": [
+  {
+   "address_1": "1 EXAMPLE WAY",
+   "address_2": "SUITE 9",
+   "advisory_committee": "HO",
+   "applicant": "EXAMPLE MEDICAL DEVICES INC",
+   "city": "EXAMPLETON",
+   "clearance_type": "Traditional",
+   "contact": "PAT PLACEHOLDER",
+   "country_code": "US",
+   "date_received": "2097-11-02",
+   "decision_code": "SESE",
+   "decision_date": "2098-03-10",
+   "decision_description": "Substantially Equivalent",
+   "device_name": "EXAMPLEPUMP INFUSION PUMP",
+   "expedited_review_flag": "N",
+   "k_number": "K999901",
+   "product_code": "ZZA",
+   "state": "EX",
+   "statement_or_summary": "Summary",
+   "third_party_flag": "N",
+   "zip_code": "99999"
+  },
+  {
+   "address_1": "MUSTERWEG 1",
+   "advisory_committee": "HO",
+   "applicant": "FIXTURETECH GMBH",
+   "city": "MUSTERSTADT",
+   "clearance_type": "Traditional",
+   "contact": "JORDAN MOCK",
+   "country_code": "DE",
+   "date_received": "2099-01-20",
+   "decision_code": "SESE",
+   "decision_date": "2099-06-15",
+   "decision_description": "Substantially Equivalent",
+   "device_name": "FIXTUREFLOW INFUSION SET",
+   "expedited_review_flag": "N",
+   "k_number": "K999902",
+   "postal_code": "99999",
+   "product_code": "ZZA",
+   "state": "",
+   "statement_or_summary": "Statement",
+   "third_party_flag": "N"
+  }
+ ]
+}

@@ -261,6 +261,11 @@ For the project overview and local setup, start with the
   workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics and Eurostat with definitions,
   definition breaks, comparability notes and vintages, place resolution, surveillance co-display and monitors;
   [source audit](roadmaps/clinical-health-capacity-source-audit.md)
+- [Clinical Evidence medical devices guide](guides/clinical-medical-devices.md) — openFDA 510(k) clearances, PMA
+  approvals with supplements, classifications, recalls and MAUDE report counts with caveats, AccessGUDID device
+  identifiers and EUDAMED public actors, devices and certificates as revisions; a device's regulatory history as
+  of a date, reviewable identity across registries, citation links and monitors; no safety-signal detection or
+  clinical advice; [source audit and minimisation decision](development/medical-devices-evidence/source-audit.md)
 - [Products pack guide: safety notices and recalls](guides/products-pack.md#safety-notices-and-recalls) — EU Safety
   Gate alerts, CPSC and NHTSA recalls and RASFF notifications with every revision, verbatim hazard, affected
   identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,

@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "treaties", "vulnerability-feed", "water", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "treaties", "vulnerability-feed", "water", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -880,6 +880,26 @@
                 "candidates": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[HSP][0-9A-Z]{8}$"}},
                 "committee_cycles": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["committee_id", "cycle"], "properties": {"committee_id": {"type": "string", "pattern": "^C\\d{8}$"}, "cycle": {"type": "integer", "minimum": 1980}}, "additionalProperties": false}},
                 "regulated_entities": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["id", "from", "to"], "properties": {"id": {"type": "string", "pattern": "^\\d{1,8}$"}, "from": {"type": "string", "format": "date"}, "to": {"type": "string", "format": "date"}}, "additionalProperties": false}}
+              }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "medical_devices": {
+            "type": "object",
+            "description": "One bounded openFDA device, AccessGUDID or EUDAMED selection for the medical-devices connector (#2654): provider, documented format, namespace, LIVE_VERIFICATION status, the MD01 data-minimisation policy and the declared units (FDA product codes, recall numbers or product-code date windows of at most 366 days; GUDID primary DIs; EUDAMED documents by key and path under /tools/eudamed/).",
+            "required": ["provider", "format", "selection", "live_verification", "minimisation"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["openfda-device", "accessgudid", "eudamed"]},
+              "format": {"enum": ["openfda-device-510k-json", "openfda-device-pma-json", "openfda-device-classification-json", "openfda-device-recall-json", "openfda-device-enforcement-json", "openfda-device-event-json", "openfda-device-event-count-json", "accessgudid-device-json", "eudamed-actor-json", "eudamed-device-json", "eudamed-certificate-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "minimisation": {"const": "medical-devices-minimisation-v1"},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "product_codes": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[A-Z]{3}$"}},
+                "recall_numbers": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^Z-\\d{4}-\\d{4}$"}},
+                "event_windows": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["product_code", "from", "to"], "properties": {"product_code": {"type": "string", "pattern": "^[A-Z]{3}$"}, "from": {"type": "string", "format": "date"}, "to": {"type": "string", "format": "date"}}, "additionalProperties": false}},
+                "device_identifiers": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9A-Za-z+./-]{6,40}$"}},
+                "documents": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["key", "path"], "properties": {"key": {"type": "string", "minLength": 1}, "path": {"type": "string", "pattern": "^/tools/eudamed/[^?]*$"}}, "additionalProperties": false}}
               }, "additionalProperties": false}
             },
             "additionalProperties": false

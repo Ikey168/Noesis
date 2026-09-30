@@ -68,6 +68,12 @@ MATRIX = {
     "Place to health-system capacity indicators":
         "tests/unit/domains/test_health_capacity_acceptance.py::"
         "test_place_to_cited_capacity_indicators_with_definitions_notes_breaks_and_vintages",
+    # The Clinical Evidence medical-devices features' offline journey (#2718) composes their record owner with the
+    # source-pack runtime, the ownership identity state machine, Product safety, the clinical record store and
+    # subscriptions.
+    "Device or manufacturer to cited regulatory history":
+        "tests/unit/domains/test_medical_devices_acceptance.py::"
+        "test_device_and_manufacturer_to_cited_regulatory_history_with_revisions_identity_links_and_counts",
     # The Products safety feature's offline journey (#2030) composes products, technology (standards), legal
     # (works), news, entity identity, subscriptions and the source-pack runtime.
     "Product to safety-notice dossier":

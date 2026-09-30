@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-medical-device-record-v1.json",
+  "title": "Medical-device regulatory record as published by a regulator",
+  "description": "One acquired record of the Clinical Evidence clinical.devices provider (#2654): an openFDA device classification (product code), 510(k) clearance (K number), PMA approval (P number, listing its published supplements) or supplement (P number and supplement number), a recall (recall number; the recall and enforcement endpoints are separate sources), a MAUDE adverse-event report (report number) or report count (product code and window), an AccessGUDID device identifier (primary DI with package DIs and version), or a EUDAMED public actor (SRN), device (Basic UDI-DI) or certificate (certificate number). Each carries its provider, revision stamp or order, the source's own date, locator and evidence origin; openFDA records carry openFDA's disclaimer and adverse-event reports and counts carry MAUDE's caveats. A changed publication is a new revision of the same record key, never an overwrite. Contact persons, street addresses, telephone numbers, e-mail addresses and MAUDE patient blocks are never stored (MD01 minimisation decision); MAUDE narratives are kept only as published on adverse-event reports. No record carries a rate, an incidence, a safety signal, a causal reading or clinical advice.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "jurisdiction", "record_kind", "record_key", "parent_key", "product_codes", "premarket_numbers", "udi_dis", "manufacturer", "manufacturer_srn", "native_revision", "revision_order", "effective_on", "title", "locator", "disclaimer", "caveats", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-medical-device-record-v1"},
+    "format": {"enum": ["openfda-device-510k-json", "openfda-device-pma-json", "openfda-device-classification-json", "openfda-device-recall-json", "openfda-device-enforcement-json", "openfda-device-event-json", "openfda-device-event-count-json", "accessgudid-device-json", "eudamed-actor-json", "eudamed-device-json", "eudamed-certificate-json"]},
+    "provider": {"enum": ["openfda-device", "accessgudid", "eudamed"]},
+    "jurisdiction": {"enum": ["US", "EU"]},
+    "record_kind": {"enum": ["classification", "clearance", "approval", "supplement", "recall", "adverse-event-report", "adverse-event-count", "device-identifier", "actor", "eudamed-device", "certificate"]},
+    "record_key": {"type": "string", "pattern": "^medical-devices:(fda|gudid|eudamed):[a-z0-9-]+:[A-Za-z0-9:._+/-]+$"},
+    "parent_key": {"type": ["string", "null"], "pattern": "^medical-devices:fda:pma:[A-Z0-9]+$"},
+    "product_codes": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z]{3}$"}},
+    "premarket_numbers": {"type": "array", "items": {"type": "string"}},
+    "udi_dis": {"type": "array", "items": {"type": "string"}},
+    "manufacturer": {"type": ["string", "null"]},
+    "manufacturer_srn": {"type": ["string", "null"]},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "effective_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "disclaimer": {
+      "type": ["object", "null"],
+      "required": ["text"],
+      "properties": {"text": {"type": "string", "minLength": 1}, "terms": {"type": ["string", "null"]}, "license": {"type": ["string", "null"]}}
+    },
+    "caveats": {"type": ["array", "null"], "items": {"type": "string", "minLength": 1}},
+    "minimisation": {
+      "type": "object",
+      "required": ["policy", "withheld"],
+      "properties": {
+        "policy": {"const": "medical-devices-minimisation-v1"},
+        "withheld": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "fields": {
+      "type": "object",
+      "propertyNames": {"not": {"enum": ["contact", "contacts", "additional_info_contact", "patient", "patients", "email", "phone", "telephone", "prrc", "address_1", "address_2", "street", "street_1", "zip_code", "postal_code", "postcode"]}},
+      "properties": {
+        "counts_as_published": {"type": "array", "items": {"type": "object", "required": ["event_type_as_published", "reports"], "properties": {"event_type_as_published": {"type": "string"}, "reports": {"type": "integer", "minimum": 0}}, "additionalProperties": false}},
+        "unit": {"const": "reports"},
+        "supplements_as_published": {"type": "array", "items": {"type": "string"}}
+      }
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"provider": {"const": "openfda-device"}}}, "then": {"properties": {"disclaimer": {"type": "object"}}}},
+    {"if": {"properties": {"record_kind": {"enum": ["adverse-event-report", "adverse-event-count"]}}}, "then": {"properties": {"caveats": {"type": "array", "minItems": 1}}}},
+    {"if": {"properties": {"record_kind": {"const": "supplement"}}}, "then": {"properties": {"parent_key": {"type": "string"}}}}
+  ],
+  "not": {"anyOf": [{"required": ["rate"]}, {"required": ["incidence"]}, {"required": ["safety_signal"]}, {"required": ["causality"]}, {"required": ["risk_score"]}, {"required": ["advice"]}]}
+}

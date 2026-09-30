@@ -1,0 +1,28 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)\",\n  \"last_updated\": \"2099-07-01\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"results\": {\n   \"limit\": 100,\n   \"skip\": 0,\n   \"total\": 1\n  },\n  \"terms\": \"https://open.fda.gov/terms/\"\n },\n \"results\": [\n  {\n   \"definition\": \"\",\n   \"device_class\": \"2\",\n   \"device_name\": \"Pump, Infusion (fictional product code)\",\n   \"gmp_exempt_flag\": \"N\",\n   \"implant_flag\": \"N\",\n   \"life_sustain_support_flag\": \"N\",\n   \"medical_specialty\": \"HO\",\n   \"medical_specialty_description\": \"General Hospital\",\n   \"product_code\": \"ZZA\",\n   \"regulation_number\": \"880.5725\",\n   \"review_panel\": \"HO\",\n   \"submission_type_id\": \"1\",\n   \"third_party_flag\": \"N\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/classification.json?limit=100&search=product_code%3A%22ZZA%22",
+   "status": 200
+  },
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)\",\n  \"last_updated\": \"2099-07-01\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"results\": {\n   \"limit\": 100,\n   \"skip\": 0,\n   \"total\": 1\n  },\n  \"terms\": \"https://open.fda.gov/terms/\"\n },\n \"results\": [\n  {\n   \"definition\": \"\",\n   \"device_class\": \"3\",\n   \"device_name\": \"Heart Valve, Replacement (fictional product code)\",\n   \"gmp_exempt_flag\": \"N\",\n   \"implant_flag\": \"Y\",\n   \"life_sustain_support_flag\": \"Y\",\n   \"medical_specialty\": \"CV\",\n   \"medical_specialty_description\": \"Cardiovascular\",\n   \"product_code\": \"ZZB\",\n   \"regulation_number\": \"870.3925\",\n   \"review_panel\": \"CV\",\n   \"submission_type_id\": \"2\",\n   \"third_party_flag\": \"N\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/classification.json?limit=100&search=product_code%3A%22ZZB%22",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the documented openFDA device and AccessGUDID shapes and an authored mapping of the EUDAMED public fields (tests/unit/medical_devices_fixture_builder.py); every company, device and identifier is fictional and personal placeholders are dropped by the parser (MD01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-devices",
+  "minimised-personal-fields"
+ ]
+}

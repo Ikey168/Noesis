@@ -239,6 +239,7 @@
 
     "clinical.core": {"subdomains": ["clinical-evidence-trials"], "shapes": ["versioned-documents"]},
     "clinical.health-capacity": {"subdomains": ["health-systems"], "shapes": ["statistical-series"]},
+    "clinical.devices": {"subdomains": ["medical-devices"], "shapes": ["registry-records", "events-notices"]},
     "clinical.medicines": {"subdomains": ["medicines-regulation"], "shapes": ["registry-records", "versioned-documents"]},
     "clinical.surveillance": {"subdomains": ["disease-surveillance"], "shapes": ["statistical-series"]},
 

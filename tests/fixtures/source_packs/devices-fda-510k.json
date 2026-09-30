@@ -1,0 +1,28 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)\",\n  \"last_updated\": \"2099-07-01\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"results\": {\n   \"limit\": 100,\n   \"skip\": 0,\n   \"total\": 2\n  },\n  \"terms\": \"https://open.fda.gov/terms/\"\n },\n \"results\": [\n  {\n   \"address_1\": \"1 EXAMPLE WAY\",\n   \"address_2\": \"SUITE 9\",\n   \"advisory_committee\": \"HO\",\n   \"applicant\": \"EXAMPLE MEDICAL DEVICES INC\",\n   \"city\": \"EXAMPLETON\",\n   \"clearance_type\": \"Traditional\",\n   \"contact\": \"PAT PLACEHOLDER\",\n   \"country_code\": \"US\",\n   \"date_received\": \"2097-11-02\",\n   \"decision_code\": \"SESE\",\n   \"decision_date\": \"2098-03-10\",\n   \"decision_description\": \"Substantially Equivalent\",\n   \"device_name\": \"EXAMPLEPUMP INFUSION PUMP\",\n   \"expedited_review_flag\": \"N\",\n   \"k_number\": \"K999901\",\n   \"product_code\": \"ZZA\",\n   \"state\": \"EX\",\n   \"statement_or_summary\": \"Summary\",\n   \"third_party_flag\": \"N\",\n   \"zip_code\": \"99999\"\n  },\n  {\n   \"address_1\": \"MUSTERWEG 1\",\n   \"advisory_committee\": \"HO\",\n   \"applicant\": \"FIXTURETECH GMBH\",\n   \"city\": \"MUSTERSTADT\",\n   \"clearance_type\": \"Traditional\",\n   \"contact\": \"JORDAN MOCK\",\n   \"country_code\": \"DE\",\n   \"date_received\": \"2099-01-20\",\n   \"decision_code\": \"SESE\",\n   \"decision_date\": \"2099-06-15\",\n   \"decision_description\": \"Substantially Equivalent\",\n   \"device_name\": \"FIXTUREFLOW INFUSION SET\",\n   \"expedited_review_flag\": \"N\",\n   \"k_number\": \"K999902\",\n   \"postal_code\": \"99999\",\n   \"product_code\": \"ZZA\",\n   \"state\": \"\",\n   \"statement_or_summary\": \"Statement\",\n   \"third_party_flag\": \"N\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/510k.json?limit=100&search=product_code%3A%22ZZA%22",
+   "status": 200
+  },
+  {
+   "body": "{\n \"error\": {\n  \"code\": \"NOT_FOUND\",\n  \"message\": \"No matches found!\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/510k.json?limit=100&search=product_code%3A%22ZZC%22",
+   "status": 404
+  }
+ ],
+ "note": "Authored responses in the documented openFDA device and AccessGUDID shapes and an authored mapping of the EUDAMED public fields (tests/unit/medical_devices_fixture_builder.py); every company, device and identifier is fictional and personal placeholders are dropped by the parser (MD01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-devices",
+  "minimised-personal-fields"
+ ]
+}

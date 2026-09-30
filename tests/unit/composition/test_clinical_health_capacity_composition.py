@@ -94,7 +94,7 @@ def test_descriptor_declares_capabilities_operations_scopes_stores_probes_and_so
                       "health_capacity_economic_links"}
     assert descriptor["source_packs"] == [PACK]
     config = json.loads((ROOT / "config/source_packs/clinical-evidence.json").read_text())
-    assert config["version"] == "0.1.3"
+    assert config["version"] == "0.1.4"  # 0.1.4 adds the medical-devices sources (#2654); ^0.1.3 still holds
     assert {s["source_id"] for s in config["sources"]} >= {"who-gho-health-capacity", "oecd-health-statistics",
                                                            "eurostat-health-care-resources"}
 
