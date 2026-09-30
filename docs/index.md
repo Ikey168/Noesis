@@ -258,6 +258,11 @@ For the project overview and local setup, start with the
   precision codes and release history, per place or crisis as of a date, with reviewable identity, citation links
   and monitors; no casualty estimation, merged counts, forecasts or personal data, ACLED not acquired (licence);
   [source audit](development/humanitarian-evidence/source-audit.md)
+- [Geospatial critical infrastructure guide](guides/geospatial-infrastructure.md) — power plants, pipelines, LNG terminals,
+  transmission lines and substations from WRI GPPD, Global Energy Monitor, OpenStreetMap (Overpass), EIA and ENTSOG
+  with status and capacity revisions, owner assertions as published, reviewable reconciliation and operator matches,
+  place and operator answers as of a date and monitors; no vulnerability assessment or valuation;
+  [source audit](development/infrastructure-evidence/source-audit.md)
 - [Geospatial housing guide](guides/geospatial-housing.md) — land-value zones with valuation dates, Mietspiegel
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
