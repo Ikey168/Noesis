@@ -65,7 +65,6 @@ providers stay where they are; their ids are preserved.
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
 | `waste-circular-economy` | Earth and environment | `environment.waste` | Eurostat waste statistics; EEA Industrial Reporting (E-PRTR successor); OECD waste statistics | chemicals, products | 2 |
 | `life-sciences-reference` | Science and knowledge | `science.life-sciences` | UniProt; NCBI Gene and Taxonomy; RCSB PDB; ChEMBL | chemicals, clinical, biodiversity | 1 |
-| `research-entities-data` | Science and knowledge | `science.research-entities` | ORCID public API; ROR; DataCite; OpenAIRE Graph; CORDIS | literature, funding | 1 |
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
 | `medical-devices` | Health | `clinical.devices` | openFDA device endpoints (510(k), PMA, MAUDE, recalls); GUDID; EUDAMED public modules | products safety, engineering safety | 1 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
