@@ -1,19 +1,22 @@
-"""Pack taxonomy gate (ADR-004): every bundle and provider sits in the taxonomy.
+"""Pack taxonomy gate (ADR-004, ADR-005): every bundle and provider sits in the taxonomy.
 
 ``packs/taxonomy.json`` classifies each bundle by one domain and each provider
-by record shapes and optional themes. A provider inherits its bundle's domain
-unless it names its own. These tests keep the overlay complete, free of stale
-entries and closed at the top level.
+by subdomains, record shapes and optional themes. A provider inherits its
+bundle's domain unless it names its own. These tests keep the overlay
+complete, free of stale entries, closed at the top level, and in agreement
+with the gap table of the domain coverage program.
 """
 
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
 PACKS = ROOT / "packs"
 TAXONOMY = json.loads((PACKS / "taxonomy.json").read_text())
+PROGRAM = ROOT / "docs/roadmaps/domain-coverage-program.md"
 
 # The top level is closed. Adding a domain needs a decision record superseding
 # ADR-004; update this set in the same change.
@@ -84,18 +87,24 @@ def test_provider_entries_use_declared_shapes_themes_and_domains():
     on_disk = _provider_bundles()
     for provider, entry in TAXONOMY["providers"].items():
         bundle = on_disk[provider]
+        subdomains = entry.get("subdomains") or []
         shapes = entry.get("shapes") or []
         themes = entry.get("themes") or []
         assert shapes, f"{provider} names no record shape"
         assert len(set(shapes)) == len(shapes) and len(set(themes)) == len(themes), provider
         assert set(shapes) <= set(TAXONOMY["record_shapes"]), provider
         assert set(themes) <= set(TAXONOMY["themes"]), provider
-        assert set(entry) <= {"domain", "shapes", "themes"}, provider
+        assert set(entry) <= {"domain", "subdomains", "shapes", "themes"}, provider
         if "domain" in entry:
             assert entry["domain"] in TAXONOMY["domains"], provider
             assert entry["domain"] != (TAXONOMY["packs"].get(bundle) or {}).get("domain"), (
                 f"{provider} repeats its bundle's domain; drop the override")
-        assert _effective_domain(provider, bundle), f"{provider} has no domain"
+        domain = _effective_domain(provider, bundle)
+        assert domain, f"{provider} has no domain"
+        assert subdomains, f"{provider} names no subdomain"
+        assert len(set(subdomains)) == len(subdomains), provider
+        assert set(subdomains) <= set(TAXONOMY["domains"][domain]["subdomains"]), (
+            f"{provider} names a subdomain outside {domain}")
 
 
 def test_every_domain_shape_and_theme_is_in_use():
@@ -108,3 +117,24 @@ def test_every_domain_shape_and_theme_is_in_use():
     assert set(TAXONOMY["domains"]) - used_domains == set(), "empty domains are not a to-do list"
     assert set(TAXONOMY["record_shapes"]) - used_shapes == set()
     assert set(TAXONOMY["themes"]) - used_themes == set()
+
+
+def test_subdomain_ids_are_unique_across_domains():
+    seen: dict[str, str] = {}
+    for domain, entry in TAXONOMY["domains"].items():
+        assert entry["subdomains"], f"{domain} lists no subdomains"
+        for subdomain in entry["subdomains"]:
+            assert subdomain not in seen, f"{subdomain} is listed under {seen[subdomain]} and {domain}"
+            seen[subdomain] = domain
+
+
+def test_coverage_gaps_match_the_program_gap_table():
+    """A gap is a subdomain no provider names; the program's gap table lists exactly those."""
+
+    covered = {s for entry in TAXONOMY["providers"].values() for s in entry["subdomains"]}
+    gaps = {s for entry in TAXONOMY["domains"].values() for s in entry["subdomains"]} - covered
+    listed = re.findall(r"^\| `([a-z0-9-]+)` \|", PROGRAM.read_text(), re.MULTILINE)
+
+    assert len(listed) == len(set(listed)), "a subdomain appears twice in the gap table"
+    assert set(listed) - gaps == set(), "gap table lists subdomains that are covered; remove their rows"
+    assert gaps - set(listed) == set(), "uncovered subdomains missing from the gap table"
