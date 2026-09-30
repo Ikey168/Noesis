@@ -235,6 +235,12 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The Clinical Evidence clinical.devices provider's offline journey (#2718) composes its record owner with the
+    # source-pack runtime, entity-history identity, ownership, Product safety, Medicines and trial links and
+    # subscriptions.
+    "Device or manufacturer to cited clearances, recalls and report counts":
+        "tests/unit/domains/test_medical_devices_acceptance.py::"
+        "test_device_and_manufacturer_to_cited_clearances_recalls_and_report_counts_with_caveats",
 }
 
 
