@@ -338,7 +338,7 @@ def hazard_events(conn) -> dict:
                      identifiers={"storm_id": "AL992024", "name": "Fiktiva"})
     other = hr.event("gdacs", "1000999", "Tropical Cyclone BEISPIEL-24", hazard_type="tropical_cyclone",
                      source_url="https://www.gdacs.org/fixture/1000999", revision_key="1",
-                     published_at="2024-10-09T12:00:00Z", event_time="2024-10-09T06:00:00Z", parameters=[],
+                     published_at="2024-08-01T12:00:00Z", event_time="2024-08-01T06:00:00Z", parameters=[],
                      identifiers={"eventtype": "TC", "eventid": "1000999", "name": "Beispiel"})
     store = HazardStore(conn, now=lambda: ms("2024-10-10"))
     store.apply(HAZ_NS, [storm, other], run_id="hazard-fixture", principal_id=PRINCIPAL, scopes=SCOPES)

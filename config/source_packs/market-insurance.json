@@ -55,6 +55,7 @@
         "format": "eiopa-statistics-xlsx",
         "sheet": "Data",
         "dataset": "Premiums, claims and expenses by line of business",
+        "currency": "EUR",
         "countries": [
           "DE",
           "FR",
