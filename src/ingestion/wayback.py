@@ -337,3 +337,243 @@ def acquire_wayback_mementos(client, url, *, request_id, max_results=5000):
                            receipt=receipt)
     return {"outcome": result_outcome, "capture_ids": sorted(set(ids)), "timemap_id": snap["timemap_id"],
             "truncated": truncated, "cdx": cdx_state, "requests": budget.requests}
+
+
+# ---------------------------------------------------------------------------
+# On-demand captures through Save Page Now behind an explicit write scope (#2226, WA11).
+# A side-effecting operation: it asks the Internet Archive to make a new capture.
+# It needs the dedicated ``knowledge:citation:archive-request`` scope and the
+# optional ``save-page-now`` feature (off by default). There is a per-namespace
+# daily budget and one status poll per call. Refused URLs are recorded as refused
+# and never retried through another archive or proxy. Nothing here runs in tests
+# except against an injected fixture transport.
+
+SAVE_PAGE_NOW_CONTRACT = "noesis-save-page-now-request-v1"
+_SPN_DDL = (
+    "CREATE TABLE IF NOT EXISTS wayback_save_requests (request_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, "
+    "input_hash TEXT NOT NULL, requested_at_ms BIGINT NOT NULL, receipt TEXT NOT NULL)"
+)
+
+
+class SavePageNowError(ValueError):
+    def __init__(self, code, message):
+        super().__init__(message)
+        self.code, self.message = code, message
+
+
+def save_page_now_enabled(conn, bundle="osint"):
+    """Whether the optional ``save-page-now`` feature is selected in the active composition plan (default off)."""
+    try:
+        tables = {r[0] for r in conn.execute(
+            "SELECT table_name FROM information_schema.tables WHERE table_name IN "
+            "('composition_authority','composition_active','composition_generations','composition_plans')"
+        ).fetchall()}
+        if len(tables) < 4:
+            return False
+        managed = conn.execute("SELECT authority FROM composition_authority WHERE bundle=?", [bundle]).fetchone()
+        if not managed or managed[0] != "composition":
+            return False
+        row = conn.execute(
+            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
+            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
+        ).fetchone()
+        plan = json.loads(row[0]) if row else {}
+    except Exception:  # noqa: BLE001 - an unreadable plan never enables a write operation
+        return False
+    return "save-page-now" in ((plan.get("features") or {}).get(bundle) or [])
+
+
+def _spn_request(*, url, params, headers, timeout, max_bytes, method="GET", data=None):
+    """Live SPN2 transport (POST form or GET), no redirects followed. Never used by tests."""
+    import urllib.error
+    import urllib.parse
+    import urllib.request
+
+    body = urllib.parse.urlencode(data).encode() if data is not None else None
+    target = url + ("?" + urllib.parse.urlencode(params) if params else "")
+
+    class NoRedirect(urllib.request.HTTPRedirectHandler):
+        def redirect_request(self, req, fp, code, msg, response_headers, newurl):  # noqa: ARG002
+            return None
+
+    opener = urllib.request.build_opener(NoRedirect())
+    try:
+        with opener.open(urllib.request.Request(target, data=body, headers=dict(headers), method=method),  # noqa: S310
+                         timeout=timeout) as response:
+            return {"status": response.status, "headers": dict(response.headers),
+                    "content": response.read(max_bytes + 1)}
+    except urllib.error.HTTPError as exc:
+        try:
+            return {"status": exc.code, "headers": dict(exc.headers or {}), "content": exc.read(65536)}
+        finally:
+            exc.close()
+
+
+def _spn_credentials(credentials):
+    import os
+
+    access = (credentials or {}).get("access") or os.environ.get("NOESIS_IA_S3_ACCESS_KEY")
+    secret = (credentials or {}).get("secret") or os.environ.get("NOESIS_IA_S3_SECRET_KEY")
+    if not access or not secret:
+        raise SavePageNowError("credentials_missing", "Save Page Now needs NOESIS_IA_S3_ACCESS_KEY and "
+                                                      "NOESIS_IA_S3_SECRET_KEY")
+    return {"Authorization": f"LOW {access}:{secret}"}
+
+
+def _spn_json(response):
+    raw = response.get("content", b"")
+    raw = raw.encode() if isinstance(raw, str) else bytes(raw or b"")
+    try:
+        value = json.loads(raw or b"{}")
+    except ValueError:
+        value = {}
+    return value if isinstance(value, dict) else {}
+
+
+def _spn_apply_status(conn, receipt, payload, *, namespace, now):
+    """Fold one SPN job status into the receipt; a success records the new capture."""
+    from src.ingestion.memento import SAVE_PAGE_NOW
+    from src.kb.citation_preservation import CAPTURE_SCOPE, CitationPreservationStore
+
+    state = str(payload.get("status") or "")
+    ext = payload.get("status_ext")
+    if state == "success" and re.fullmatch(r"\d{14}", str(payload.get("timestamp") or "")):
+        original = str(payload.get("original_url") or receipt["url"])
+        uri_m = f"https://web.archive.org/web/{payload['timestamp']}/{original}"
+        capture = CitationPreservationStore(conn, now=now).record_capture(
+            namespace,
+            {"archive_id": "internet-archive", "archive_kind": "memento-archive", "resolver": "save-page-now",
+             "uri_r": receipt["url"], "uri_m": uri_m, "memento_datetime": payload["timestamp"],
+             "receipt": {"request_id": receipt["request_id"], "adapter": "save-page-now-v1",
+                         "retrieved_at_ms": now(), "evidence_origin": receipt["evidence_origin"]}},
+            principal_id=receipt["requester"], scopes={CAPTURE_SCOPE})
+        receipt.update(status="success", uri_m=uri_m, capture_id=capture["capture_id"],
+                       memento_datetime=capture["memento_datetime"], original_url=original)
+    elif state == "error" or (ext and str(ext).startswith("error:")):
+        refused = ext in SAVE_PAGE_NOW["refusals"]
+        receipt.update(status="refused" if refused else "failed", status_ext=ext,
+                       message=str(payload.get("message") or "")[:500])
+    elif state == "pending":
+        receipt["status"] = "pending"
+    receipt["checked_at_ms"] = now()
+    return receipt
+
+
+def request_save_page_now(conn, url, *, namespace, request_id, principal_id, scopes, feature_enabled,
+                          citation_id=None, transport=None, credentials=None, evidence_origin=None, now=None):
+    """Ask the Internet Archive for a new capture of a cited URL (a write operation).
+
+    Requires the dedicated archive-request scope and the ``save-page-now``
+    feature. It records requester, URL, time, job id, status and resulting
+    URI-M, and the capture can then be pinned. While Save Page Now is
+    ``unverified-live``, the real transport accepts only the WA01 verification
+    URL set.
+    """
+    from src.ingestion.memento import BOUNDED_COVERAGE, LIVE_VERIFICATION, SAVE_PAGE_NOW, validate_url
+    from src.kb.citation_preservation import ARCHIVE_REQUEST_SCOPE, CitationPreservationError, _require
+
+    try:
+        _require(set(scopes), ARCHIVE_REQUEST_SCOPE)
+    except CitationPreservationError as exc:
+        raise SavePageNowError("unauthorized", exc.message) from exc
+    if not feature_enabled:
+        raise SavePageNowError("feature_disabled", "the optional save-page-now feature is off")
+    url = validate_url(url)
+    if not request_id or not namespace:
+        raise SavePageNowError("invalid_request", "namespace and request id are required")
+    if transport is None and LIVE_VERIFICATION["save-page-now"]["status"] != "verified-live" \
+            and url not in BOUNDED_COVERAGE["verification_urls"]:
+        raise SavePageNowError("not_in_verification_set", "until live verification, live Save Page Now requests "
+                                                          "run only against the WA01 verification URL set")
+    now = now or (lambda: int(time.time() * 1000))
+    conn.execute(_SPN_DDL)
+    key = hashlib.sha256(json.dumps([namespace, url, citation_id]).encode()).hexdigest()
+    prior = conn.execute("SELECT input_hash, receipt FROM wayback_save_requests WHERE request_id=?",
+                         [request_id]).fetchone()
+    if prior:
+        if prior[0] != key:
+            raise SavePageNowError("request_id_conflict", "request id already used with different inputs")
+        return {**json.loads(prior[1]), "replayed": True}
+    requested = now()
+    day_start = requested - requested % 86_400_000
+    used = conn.execute("SELECT count(*) FROM wayback_save_requests WHERE namespace=? AND requested_at_ms>=?",
+                        [namespace, day_start]).fetchone()[0]
+    if int(used) >= SAVE_PAGE_NOW["budget_per_namespace_per_day"]:
+        raise SavePageNowError("budget_exhausted", "the namespace's daily Save Page Now budget is used")
+    auth = _spn_credentials(credentials)
+    fetch = transport or _spn_request
+    receipt = {"contract": SAVE_PAGE_NOW_CONTRACT, "request_id": request_id, "namespace": namespace,
+               "requester": principal_id, "url": url, "citation_id": citation_id, "requested_at_ms": requested,
+               "job_id": None, "status": "submitted", "status_ext": None, "uri_m": None, "capture_id": None,
+               "retry_elsewhere": False, "scope": ARCHIVE_REQUEST_SCOPE,
+               "evidence_origin": evidence_origin or ("live" if transport is None else "injected")}
+    try:
+        response = fetch(url=SAVE_PAGE_NOW["endpoint"], params={}, method="POST", data={"url": url},
+                         headers={"Accept": "application/json", "User-Agent": "Noesis/0.1", **auth},
+                         timeout=30, max_bytes=100_000)
+        status = int(response.get("status", 0))
+        payload = _spn_json(response)
+        if status == 429:
+            receipt.update(status="rate_limited", status_ext="http:429")
+        elif status >= 400 and not payload:
+            receipt.update(status="failed", status_ext=f"http:{status}")
+        elif payload.get("job_id"):
+            receipt["job_id"] = str(payload["job_id"])
+            poll = fetch(url=SAVE_PAGE_NOW["status_endpoint"] + receipt["job_id"], params={}, method="GET",
+                         headers={"Accept": "application/json", "User-Agent": "Noesis/0.1", **auth},
+                         timeout=30, max_bytes=100_000)
+            _spn_apply_status(conn, receipt, _spn_json(poll), namespace=namespace, now=now)
+        else:
+            _spn_apply_status(conn, receipt, payload, namespace=namespace, now=now)
+    except SavePageNowError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - a failed request is recorded, never retried elsewhere
+        receipt.update(status="failed", status_ext="transport:" + type(exc).__name__)
+    conn.execute("INSERT INTO wayback_save_requests VALUES (?,?,?,?,?)",
+                 [request_id, namespace, key, requested, json.dumps(receipt, sort_keys=True)])
+    return {**receipt, "replayed": False}
+
+
+def check_save_page_now(conn, request_id, *, namespace, scopes, transport=None, credentials=None, now=None):
+    """One status poll for a pending Save Page Now job; the receipt is updated in place."""
+    from src.ingestion.memento import SAVE_PAGE_NOW
+    from src.kb.citation_preservation import ARCHIVE_REQUEST_SCOPE, CitationPreservationError, _require
+
+    try:
+        _require(set(scopes), ARCHIVE_REQUEST_SCOPE)
+    except CitationPreservationError as exc:
+        raise SavePageNowError("unauthorized", exc.message) from exc
+    conn.execute(_SPN_DDL)
+    row = conn.execute("SELECT receipt FROM wayback_save_requests WHERE request_id=? AND namespace=?",
+                       [request_id, namespace]).fetchone()
+    if not row:
+        raise SavePageNowError("request_not_found", "Save Page Now request was not found")
+    receipt = json.loads(row[0])
+    if receipt["status"] not in {"pending", "submitted"} or not receipt.get("job_id"):
+        return {**receipt, "polled": False}
+    now = now or (lambda: int(time.time() * 1000))
+    fetch = transport or _spn_request
+    try:
+        poll = fetch(url=SAVE_PAGE_NOW["status_endpoint"] + receipt["job_id"], params={}, method="GET",
+                     headers={"Accept": "application/json", "User-Agent": "Noesis/0.1",
+                              **_spn_credentials(credentials)}, timeout=30, max_bytes=100_000)
+        _spn_apply_status(conn, receipt, _spn_json(poll), namespace=namespace, now=now)
+    except SavePageNowError:
+        raise
+    except Exception as exc:  # noqa: BLE001 - recorded, not retried
+        receipt["last_poll_failure"] = type(exc).__name__
+    conn.execute("UPDATE wayback_save_requests SET receipt=? WHERE request_id=?",
+                 [json.dumps(receipt, sort_keys=True), request_id])
+    return {**receipt, "polled": True}
+
+
+def save_page_now_requests(conn, namespace, *, scopes, limit=100):
+    from src.kb.citation_preservation import READ_SCOPE, _require
+
+    _require(set(scopes), READ_SCOPE)
+    if not conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name='wayback_save_requests'"
+                        ).fetchone():
+        return []
+    return [json.loads(r[0]) for r in conn.execute(
+        "SELECT receipt FROM wayback_save_requests WHERE namespace=? ORDER BY requested_at_ms DESC LIMIT ?",
+        [namespace, min(max(int(limit), 1), 500)]).fetchall()]
