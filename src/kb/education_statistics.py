@@ -33,7 +33,7 @@ import hashlib
 import json
 import time
 from collections.abc import Callable, Iterable, Mapping, Sequence
-from datetime import date, datetime, timezone
+from datetime import date, datetime, timedelta, timezone
 from typing import Any
 
 from src.ingestion.education_sources import (
@@ -203,24 +203,27 @@ def iso_from_ms(value: int | None) -> str | None:
 
 
 def as_of_ms(value: Any) -> int | None:
-    """An as-of cutoff from epoch milliseconds, an ISO date (end of that day, UTC) or an ISO instant."""
+    """An as-of cutoff through the shared temporal parser (:func:`src.kb.temporal.parse_source_time`): epoch
+    milliseconds or ISO-8601; a date, month or year means the end of that period (UTC)."""
+    from src.kb.temporal import TemporalError, parse_source_time
+
     if value is None or value == "":
         return None
-    if isinstance(value, (int, float)):
-        return int(value)
-    raw = str(value).strip()
-    if raw.isdigit():
-        return int(raw)
+    raw = int(value) if isinstance(value, str) and value.strip().isdigit() and len(value.strip()) > 4 else value
     try:
-        if len(raw) == 10:
-            day = date.fromisoformat(raw)
-            return int(datetime.combine(day, datetime.max.time(), tzinfo=timezone.utc).timestamp() * 1000)
-        stamp = datetime.fromisoformat(raw.replace("Z", "+00:00"))
-    except ValueError as exc:
-        raise EducationError("invalid_request", "as_of is epoch milliseconds, an ISO date or an ISO instant") from exc
-    if stamp.tzinfo is None:
-        stamp = stamp.replace(tzinfo=timezone.utc)
-    return int(stamp.timestamp() * 1000)
+        millis, meta = parse_source_time(raw, field="as_of")
+    except TemporalError as exc:
+        raise EducationError("invalid_request", "as_of is epoch milliseconds or an ISO-8601 date or instant") from exc
+    if meta["precision"] in {"year", "month", "day"}:
+        start = datetime.fromtimestamp(millis / 1000, tz=timezone.utc)
+        if meta["precision"] == "day":
+            following = start + timedelta(days=1)
+        elif meta["precision"] == "month":
+            following = start.replace(year=start.year + (start.month == 12), month=start.month % 12 + 1)
+        else:
+            following = start.replace(year=start.year + 1)
+        millis = int(following.timestamp() * 1000) - 1
+    return millis
 
 
 def selected_features(conn: Any) -> list[str]:
@@ -1012,11 +1015,233 @@ class EducationLinks:
         return self.link_view(namespace, link_id)
 
 
+
+# ---------------------------------------------------------------------- as-of answers (ED10)
+
+COUNTRY_ALIASES = {"EL": "GR", "UK": "GB"}
+
+
+def country_token(code: Any) -> str | None:
+    """A published country code as ISO 3166-1 alpha-2 through the dataset connectors' normaliser (alpha-3 mapped
+    where known; Eurostat EL and UK read as GR and GB); unknown codes pass through upper-cased."""
+    from src.ingestion.connectors.dataset.normalize import normalize_geography
+
+    token = normalize_geography(None if code is None else str(code))
+    return None if token is None else COUNTRY_ALIASES.get(token, token)
+
+
+class EducationQueries:
+    """Institution and country statistics as published by a date, with definitions, units, vintages, comparability
+    notes and citations; sources side by side, never merged, averaged, ranked or scored."""
+
+    def __init__(self, conn: Any, *, now=None) -> None:
+        self.conn = conn
+        self.store = EducationStatisticsStore(conn, initialize=False, now=now)
+
+    def _figure(self, namespace, series, vintage, observation, cutoff, history) -> dict[str, Any]:
+        revision = self.store.source_revision(namespace, vintage["release_id"])
+        period = observation["period"]
+        return {
+            "provider": series["provider"],
+            "series_id": series["series_id"],
+            "record_kind": series["record_kind"],
+            "subject": series["subject"],
+            "indicator": series["indicator"],
+            "definition": vintage["definition"],
+            "isced": series["isced"],
+            "unit": series["unit"],
+            "dimensions": series["dimensions"],
+            "period": period,
+            "value_text": observation["value_text"],
+            "value": observation["value"],
+            "status": observation["status"],
+            "special_code": observation["special_code"],
+            "flags": observation["flags"],
+            "comparability_notes": self.store.notes(namespace, vintage["vintage_id"], period=period),
+            "release": {
+                "vintage_id": vintage["vintage_id"],
+                "release_id": vintage["release_id"],
+                "release_at": vintage["release_at"],
+                "release_at_basis": vintage["release_at_basis"],
+                "release_stage": vintage["release_stage"],
+                "revision_of": vintage["revision_of"],
+                "retrieved_at": iso_from_ms(vintage["retrieved_at_ms"]),
+                "selected_as_of": iso_from_ms(cutoff) if cutoff is not None else "latest",
+            },
+            "vintages": [v for v in history if v["period"] == period],
+            "citation": {
+                "provider": revision["provider"],
+                "attribution": revision["attribution"],
+                "document": revision["document"],
+                "release_label": revision["release_label"],
+                "published_on": revision["published_on"],
+                "url": revision["url"],
+                "file_sha256": revision["file_sha256"],
+                "evidence_origin": revision["evidence_origin"],
+                "live_verification": revision["live_verification"],
+                "release_id": revision["release_id"],
+            },
+        }
+
+    def _history(self, namespace: str, series_id: str, cutoff: int | None) -> list[dict[str, Any]]:
+        """Every vintage's value per period (released by the cutoff), oldest first: all vintages of a value."""
+        out = []
+        for vintage in self.store.vintage_rows(namespace, series_id):
+            if cutoff is not None and vintage["release_at_ms"] > cutoff:
+                continue
+            for observation in self.store.observations(namespace, vintage["vintage_id"]):
+                out.append({"period": observation["period"], "vintage_id": vintage["vintage_id"],
+                            "release_at": vintage["release_at"], "release_stage": vintage["release_stage"],
+                            "value": observation["value"], "status": observation["status"],
+                            "special_code": observation["special_code"]})
+        return out
+
+    def _answer(self, namespace: str, series_list: list[dict[str, Any]], cutoff: int | None,
+                period_from: str | None, period_to: str | None) -> dict[str, Any]:
+        concepts: dict[str, dict[str, Any]] = {}
+        not_released, withheld, citations = [], [], {}
+        for series in series_list:
+            vintage, reason = self.store.select_vintage(namespace, series["series_id"], as_of=cutoff)
+            if vintage is None:
+                not_released.append({"series_id": series["series_id"], "provider": series["provider"],
+                                     "indicator": series["indicator"], "reason": reason})
+                continue
+            history = self._history(namespace, series["series_id"], cutoff)
+            group = concepts.setdefault(series["indicator"]["concept"], {"periods": {}, "providers": set()})
+            group["providers"].add(series["provider"])
+            for observation in self.store.observations(namespace, vintage["vintage_id"], period_from=period_from,
+                                                       period_to=period_to):
+                figure = self._figure(namespace, series, vintage, observation, cutoff, history)
+                group["periods"].setdefault(observation["period"], []).append(figure)
+                citations[figure["citation"]["release_id"]] = figure["citation"]
+                if figure["status"] != "reported":
+                    withheld.append({k: figure[k] for k in ("provider", "series_id", "period", "status",
+                                                            "special_code")} | {"indicator": series["indicator"]})
+        out = []
+        for concept in sorted(concepts):
+            group = concepts[concept]
+            periods = []
+            for period in sorted(group["periods"]):
+                figures = sorted(group["periods"][period], key=lambda f: (f["provider"], f["indicator"]["code"],
+                                                                          canonical(f["subject"])))
+                periods.append({"period": period, "figures": figures,
+                                "sources": sorted({f["provider"] for f in figures}),
+                                "side_by_side": len({f["provider"] for f in figures}) > 1})
+            out.append({"concept": concept, "providers": sorted(group["providers"]), "periods": periods,
+                        "note": "each source's value with its own definition, unit and vintage; values of different "
+                        "sources are never merged, averaged, harmonised or ranked"})
+        return {"concepts": out, "not_released_by_as_of": not_released, "withheld": withheld,
+                "citations": [citations[k] for k in sorted(citations)]}
+
+    def _envelope(self, query, cutoff, body, **extra) -> dict[str, Any]:
+        answered = any(p["figures"] for c in body["concepts"] for p in c["periods"])
+        return {
+            "contract": ANSWER_CONTRACT,
+            "query": query,
+            "as_of": iso_from_ms(cutoff) if cutoff is not None else "latest",
+            "status": "answered" if answered else "none_on_record",
+            **extra,
+            **body,
+            "never": NEVER_SENTENCE,
+            "exclusions": list(EXCLUSIONS),
+        }
+
+    def institution(self, namespace: str, *, scopes: Iterable[str], ror: str | None = None,
+                    scheme: str | None = None, code: str | None = None, as_of: Any = None,
+                    concept: str | None = None, indicator: str | None = None, period_from: str | None = None,
+                    period_to: str | None = None) -> dict[str, Any]:
+        """An institution's statistics as published by ``as_of`` (a ROR id through confirmed matches only, or a
+        source institution id), with its profiles, identity basis and linked Science and Funding records."""
+        from src.kb.education_identity import EducationIdentity, ror_url
+
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        cutoff = as_of_ms(as_of)
+        identity_ready = table_exists(self.conn, "edu_identity_matches")
+        identity = EducationIdentity(self.conn, initialize=False) if identity_ready else None
+        if ror:
+            ror = ror_url(ror)
+            resolved = identity.institutions_for_ror(namespace, ror) if identity else {
+                "ror_id": ror, "subjects": [], "basis": [], "not_used": [], "ror_changes": []}
+            subjects = [(s["scheme"], s["code"]) for s in resolved["subjects"]]
+            identity_view = {k: resolved[k] for k in ("ror_id", "basis", "not_used", "ror_changes")}
+        elif scheme and code:
+            if scheme not in INSTITUTION_SCHEMES:
+                raise EducationError("invalid_request", f"an institution is named by ROR or one of {INSTITUTION_SCHEMES}")
+            subjects = [(scheme, str(code))]
+            identity_view = identity.ror_for(namespace, scheme, str(code)) if identity else {
+                "ror_id": None, "status": "unmatched"}
+        else:
+            raise EducationError("invalid_request", "give a ROR id or a source institution scheme and code")
+        query = {"ror": ror, "scheme": scheme, "code": code, "concept": concept, "indicator": indicator}
+        series = self.store.find_series(namespace, record_kind="institution_statistic", subjects=subjects,
+                                        concept=concept, indicator=indicator) if subjects else []
+        body = self._answer(namespace, series, cutoff, period_from, period_to)
+        profiles = [p for s, c in subjects for p in self.store.profiles(namespace, s, c, as_of=cutoff)[-1:]]
+        links = []
+        if table_exists(self.conn, "edu_links"):
+            linker = EducationLinks(self.conn, initialize=False)
+            if ror:
+                links = linker.links(namespace, scopes={"operator"}, ror=ror)
+            for s, c in subjects:
+                links += linker.links(namespace, scopes={"operator"}, subject={"scheme": s, "code": c})
+        answer = self._envelope(query, cutoff, body, identity=identity_view,
+                                subjects=[{"scheme": s, "code": c} for s, c in subjects], profiles=profiles,
+                                linked_records=list({v["link_id"]: v for v in links}.values()))
+        if not subjects:
+            answer["reason"] = "no exact or accepted ROR match ties an institution to this ROR id"
+        elif answer["status"] == "none_on_record":
+            answer["reason"] = "no statistics are on record for this institution as of the date"
+        return answer
+
+    def country(self, namespace: str, *, scopes: Iterable[str], country: str, as_of: Any = None,
+                concept: str | None = None, indicator: str | None = None, isced: str | None = None,
+                period_from: str | None = None, period_to: str | None = None) -> dict[str, Any]:
+        """A country's education and R&D indicators as published by ``as_of``; each publisher's code for the country
+        (ISO alpha-3, alpha-2, Eurostat GEO) is matched through the shared normaliser."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        cutoff = as_of_ms(as_of)
+        token = country_token(country)
+        if not token:
+            raise EducationError("invalid_request", "give a country code")
+        series = [
+            s for s in self.store.find_series(namespace, record_kind="education_indicator", concept=concept,
+                                              indicator=indicator)
+            if country_token(s["subject"].get("country") or s["subject"]["code"]) == token
+            and (isced is None or (s["isced"] or {}).get("level") == isced)
+        ]
+        body = self._answer(namespace, series, cutoff, period_from, period_to)
+        answer = self._envelope({"country": country, "concept": concept, "indicator": indicator, "isced": isced},
+                                cutoff, body, country={"requested": country, "iso3166_alpha2": token,
+                                                       "published_codes": sorted({s["subject"]["code"]
+                                                                                  for s in series})})
+        if answer["status"] == "none_on_record":
+            answer["reason"] = "no indicator is on record for this country as of the date"
+        return answer
+
+    def value_vintages(self, namespace: str, series_id: str, period: str, *, scopes: Iterable[str]
+                       ) -> dict[str, Any]:
+        """Every vintage of one value, each cited."""
+        authorize(namespace, set(scopes), READ_SCOPE)
+        series = self.store.series(namespace, series_id)
+        rows = []
+        for vintage in self.store.vintage_rows(namespace, series_id):
+            found = [o for o in self.store.observations(namespace, vintage["vintage_id"]) if o["period"] == period]
+            if found:
+                rows.append({**found[0], "vintage_id": vintage["vintage_id"], "release_at": vintage["release_at"],
+                             "release_stage": vintage["release_stage"], "revision_of": vintage["revision_of"],
+                             "source_revision": self.store.source_revision(namespace, vintage["release_id"])})
+        return {"contract": ANSWER_CONTRACT, "series": series, "period": period, "vintages": rows,
+                "status": "answered" if rows else "none_on_record"}
+
+
 __all__ = [
     "ANSWER_CONTRACT",
     "CONTRACT",
     "EducationError",
     "EducationLinks",
+    "EducationQueries",
     "EducationProjector",
     "EducationStatisticsStore",
     "FEATURE",
