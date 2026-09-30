@@ -1,0 +1,236 @@
+{
+  "pack_id": "climate-environment-biodiversity",
+  "version": "1.0.0",
+  "description": "Climate and Environment biodiversity sources for the optional biodiversity feature: Catalogue of Life releases via ChecklistBank, GBIF species, occurrences, datasets and download DOIs, and IUCN Red List assessments at citation level (reference-only). Every source is unverified-live until a dated run (#2533); no distribution modelling, abundance or de-generalised locations.",
+  "domains": [
+    "environment"
+  ],
+  "defaults": {
+    "connector": "biodiversity",
+    "update_cadence": "weekly re-check of the explicit selection; CoL publishes monthly releases, GBIF re-publishes occurrences continuously and IUCN publishes assessments by year",
+    "temporal_semantics": "checklist usages belong to a named release (version and issue date); occurrences and dataset metadata are revisions by retrieval time with event dates as published; IUCN assessments carry assessment date and year published; every distinct payload is an immutable revision and absence from a later complete page of the same selection is a dated tombstone",
+    "mapping": {
+      "target_schema": "noesis-biodiversity-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "biodiversity-sources:1.0.0"
+    ],
+    "operations": [
+      "biodiversity"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 2592000
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 200,
+      "max_bytes": 2000000,
+      "max_pages": 20
+    },
+    "policy": {
+      "excluded": [
+        "species distribution modelling",
+        "abundance or presence/absence estimation",
+        "locations more precise than the publisher released",
+        "Noesis-derived threat status or trend"
+      ],
+      "coordinates": "as published, never de-generalised"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "col-checklist-releases",
+      "endpoint": "https://api.checklistbank.org",
+      "publisher": "Catalogue of Life (ChecklistBank)",
+      "scope": "Two named Catalogue of Life monthly releases (dataset keys pinned) and the name usages of the bounded taxa in each: accepted names, synonyms with their accepted name, and higher classification",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.catalogueoflife.org/about/citing",
+        "redistribution": "permitted with attribution; cite the release with its version and DOI"
+      },
+      "biodiversity": {
+        "provider": "col",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "bounded taxa (Passer domesticus, Lutra lutra, Corvus corone, Corvus cornix) in two named releases",
+        "selection": [
+          {
+            "kind": "release",
+            "dataset_key": "310001",
+            "label": "CoL monthly release 2026-07-10"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310001",
+            "id": "PDOM1"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310001",
+            "id": "LLUT1"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310001",
+            "id": "CCOR1"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310001",
+            "id": "CCRN1"
+          },
+          {
+            "kind": "release",
+            "dataset_key": "310002",
+            "label": "CoL monthly release 2026-08-12"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310002",
+            "id": "PDOM1"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310002",
+            "id": "LLUT1"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310002",
+            "id": "CCOR1"
+          },
+          {
+            "kind": "usage",
+            "dataset_key": "310002",
+            "id": "CCRN1"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/biodiversity-col.json",
+        "sha256": "3604fcf86af9c18fb5965d56bf758380d02fd5e7306eb68fced5c14c7e559abc",
+        "expected_output_hash": "5ab69bea5572a2fe43f134cc138a2f08c5fac081d13c7943eec5aacf80b83789"
+      }
+    },
+    {
+      "source_id": "gbif-species-occurrences",
+      "endpoint": "https://api.gbif.org",
+      "publisher": "Global Biodiversity Information Facility (GBIF)",
+      "scope": "Backbone species for the bounded taxa, one small occurrence page per taxon and place (Berlin polygon, country DE), the publishing datasets' metadata and one existing download's DOI; coordinates as published with uncertainty and generalisation flags",
+      "license": {
+        "id": "gbif-per-dataset-cc0-cc-by-cc-by-nc",
+        "terms_url": "https://www.gbif.org/terms",
+        "redistribution": "by each record's dataset licence (CC0, CC BY 4.0 or CC BY-NC 4.0) with attribution to the publishing dataset; cite download DOIs"
+      },
+      "biodiversity": {
+        "provider": "gbif",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "four backbone species, two occurrence pages of at most 20 records, three publishing datasets and one download",
+        "selection": [
+          {
+            "kind": "species",
+            "key": "5231190"
+          },
+          {
+            "kind": "species",
+            "key": "2433753"
+          },
+          {
+            "kind": "species",
+            "key": "2482492"
+          },
+          {
+            "kind": "species",
+            "key": "2482468"
+          },
+          {
+            "kind": "dataset",
+            "key": "aaaa0001-0000-4000-8000-000000000001"
+          },
+          {
+            "kind": "dataset",
+            "key": "aaaa0002-0000-4000-8000-000000000002"
+          },
+          {
+            "kind": "dataset",
+            "key": "aaaa0003-0000-4000-8000-000000000003"
+          },
+          {
+            "kind": "download",
+            "key": "0012345-260901000000000",
+            "label": "an existing download, cited by its DOI"
+          },
+          {
+            "kind": "occurrences",
+            "taxon_key": "5231190",
+            "geometry": "POLYGON((13.08 52.33,13.76 52.33,13.76 52.68,13.08 52.68,13.08 52.33))",
+            "limit": 20,
+            "label": "house sparrow within the Berlin bounding polygon"
+          },
+          {
+            "kind": "occurrences",
+            "taxon_key": "2433753",
+            "country": "DE",
+            "limit": 20,
+            "label": "Eurasian otter in DE (generalised and withheld records)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/biodiversity-gbif.json",
+        "sha256": "36ce5d79a42698cc768d56a58b27f3c3b84cee985de8e2ed9b309d0ab90062de",
+        "expected_output_hash": "764decb587e706dc02b42a5c7cb0da8aa93a8d1102603859d34d0c6f92489114"
+      }
+    },
+    {
+      "source_id": "iucn-red-list-reference",
+      "endpoint": "https://api.iucnredlist.org",
+      "publisher": "IUCN Red List of Threatened Species",
+      "scope": "Assessment history of two bounded taxa at citation level (reference-only licence decision): category, criteria, dates, scope, the assessor's latest designation, citation and URL; narrative, threats, habitats, population and spatial data are never stored",
+      "license": {
+        "id": "iucn-red-list-terms-non-commercial",
+        "terms_url": "https://www.iucnredlist.org/terms/terms-of-use",
+        "redistribution": "not permitted beyond citation-level facts; non-commercial use; cite each assessment"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_IUCN_API_TOKEN"
+      },
+      "biodiversity": {
+        "provider": "iucn",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "Lutra lutra and Passer domesticus, at most 10 assessments each",
+        "selection": [
+          {
+            "kind": "taxon",
+            "sis_id": "12419",
+            "max_assessments": 10,
+            "label": "Lutra lutra assessment history"
+          },
+          {
+            "kind": "taxon",
+            "sis_id": "103818789",
+            "max_assessments": 10,
+            "label": "Passer domesticus global and European assessments"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/biodiversity-iucn.json",
+        "sha256": "b0fb0f2cccef3ff548d2a78b5b92641ee299bf0dc628625657e96742536f4b44",
+        "expected_output_hash": "21dab02882bd439300237c25166b744420f6052e6df6efdf6c2af905f784d396"
+      }
+    }
+  ]
+}

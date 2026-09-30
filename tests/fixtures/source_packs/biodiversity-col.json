@@ -1,0 +1,327 @@
+{
+ "description": "Catalogue of Life (ChecklistBank) release metadata and name usages. Authored offline fixture in the provider's documented response shape. Keys, identifiers, DOIs (10.5555 test prefix), coordinates, dates and Red List categories are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (BD13, #2533).",
+ "scenarios": [
+  "two releases",
+  "Corvus cornix accepted then synonym of Corvus corone",
+  "classification per release"
+ ],
+ "native_pages": [
+  {
+   "request": "/dataset/310001",
+   "status": 200,
+   "body": {
+    "key": 310001,
+    "title": "Catalogue of Life Checklist",
+    "version": "2026-07-10",
+    "issued": "2026-07-10",
+    "doi": "10.5555/col.fixture.2026-07",
+    "license": "CC BY 4.0",
+    "origin": "release",
+    "publisher": "Catalogue of Life",
+    "citation": "Catalogue of Life Checklist (Version 2026-07-10). https://doi.org/10.5555/col.fixture.2026-07"
+   }
+  },
+  {
+   "request": "/dataset/310001/nameusage/PDOM1",
+   "status": 200,
+   "body": {
+    "id": "PDOM1",
+    "name": {
+     "scientificName": "Passer domesticus",
+     "authorship": "(Linnaeus, 1758)",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "AVES",
+      "name": "Aves",
+      "rank": "class"
+     },
+     {
+      "id": "PASS",
+      "name": "Passer",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310001/nameusage/LLUT1",
+   "status": 200,
+   "body": {
+    "id": "LLUT1",
+    "name": {
+     "scientificName": "Lutra lutra",
+     "authorship": "(Linnaeus, 1758)",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "MAM",
+      "name": "Mammalia",
+      "rank": "class"
+     },
+     {
+      "id": "LUTR",
+      "name": "Lutra",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310001/nameusage/CCOR1",
+   "status": 200,
+   "body": {
+    "id": "CCOR1",
+    "name": {
+     "scientificName": "Corvus corone",
+     "authorship": "Linnaeus, 1758",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "AVES",
+      "name": "Aves",
+      "rank": "class"
+     },
+     {
+      "id": "CORV",
+      "name": "Corvus",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310001/nameusage/CCRN1",
+   "status": 200,
+   "body": {
+    "id": "CCRN1",
+    "name": {
+     "scientificName": "Corvus cornix",
+     "authorship": "Linnaeus, 1758",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "AVES",
+      "name": "Aves",
+      "rank": "class"
+     },
+     {
+      "id": "CORV",
+      "name": "Corvus",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310002",
+   "status": 200,
+   "body": {
+    "key": 310002,
+    "title": "Catalogue of Life Checklist",
+    "version": "2026-08-12",
+    "issued": "2026-08-12",
+    "doi": "10.5555/col.fixture.2026-08",
+    "license": "CC BY 4.0",
+    "origin": "release",
+    "publisher": "Catalogue of Life",
+    "citation": "Catalogue of Life Checklist (Version 2026-08-12). https://doi.org/10.5555/col.fixture.2026-08"
+   }
+  },
+  {
+   "request": "/dataset/310002/nameusage/PDOM1",
+   "status": 200,
+   "body": {
+    "id": "PDOM1",
+    "name": {
+     "scientificName": "Passer domesticus",
+     "authorship": "(Linnaeus, 1758)",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "AVES",
+      "name": "Aves",
+      "rank": "class"
+     },
+     {
+      "id": "PASS",
+      "name": "Passer",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310002/nameusage/LLUT1",
+   "status": 200,
+   "body": {
+    "id": "LLUT1",
+    "name": {
+     "scientificName": "Lutra lutra",
+     "authorship": "(Linnaeus, 1758)",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "MAM",
+      "name": "Mammalia",
+      "rank": "class"
+     },
+     {
+      "id": "LUTR",
+      "name": "Lutra",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310002/nameusage/CCOR1",
+   "status": 200,
+   "body": {
+    "id": "CCOR1",
+    "name": {
+     "scientificName": "Corvus corone",
+     "authorship": "Linnaeus, 1758",
+     "rank": "species"
+    },
+    "status": "accepted",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "AVES",
+      "name": "Aves",
+      "rank": "class"
+     },
+     {
+      "id": "CORV",
+      "name": "Corvus",
+      "rank": "genus"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/dataset/310002/nameusage/CCRN1",
+   "status": 200,
+   "body": {
+    "id": "CCRN1",
+    "name": {
+     "scientificName": "Corvus cornix",
+     "authorship": "Linnaeus, 1758",
+     "rank": "species"
+    },
+    "status": "synonym",
+    "classification": [
+     {
+      "id": "V",
+      "name": "Animalia",
+      "rank": "kingdom"
+     },
+     {
+      "id": "CH2",
+      "name": "Chordata",
+      "rank": "phylum"
+     },
+     {
+      "id": "AVES",
+      "name": "Aves",
+      "rank": "class"
+     },
+     {
+      "id": "CORV",
+      "name": "Corvus",
+      "rank": "genus"
+     }
+    ],
+    "accepted": {
+     "id": "CCOR1",
+     "name": {
+      "scientificName": "Corvus corone",
+      "authorship": "Linnaeus, 1758"
+     }
+    }
+   }
+  }
+ ]
+}

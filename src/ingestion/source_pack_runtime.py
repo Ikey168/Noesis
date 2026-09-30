@@ -336,6 +336,15 @@ def _fisheries_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-fisheries-record-v1"] = _fisheries_projector
 
+
+def _biodiversity_projector(conn: Any) -> Any:
+    from src.kb.biodiversity_store import BiodiversityProjector
+
+    return BiodiversityProjector(conn)
+
+
+PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

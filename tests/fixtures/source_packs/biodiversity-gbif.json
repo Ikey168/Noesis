@@ -1,0 +1,266 @@
+{
+ "description": "GBIF species, occurrence search pages, dataset metadata and a download. Authored offline fixture in the provider's documented response shape. Keys, identifiers, DOIs (10.5555 test prefix), coordinates, dates and Red List categories are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (BD13, #2533).",
+ "scenarios": [
+  "records from three datasets under CC BY, CC0 and CC BY-NC",
+  "a generalised sensitive-species record",
+  "withheld coordinates",
+  "missing coordinate uncertainty",
+  "a download DOI"
+ ],
+ "native_pages": [
+  {
+   "request": "/v1/species/5231190",
+   "status": 200,
+   "body": {
+    "key": 5231190,
+    "scientificName": "Passer domesticus (Linnaeus, 1758)",
+    "canonicalName": "Passer domesticus",
+    "authorship": "(Linnaeus, 1758)",
+    "rank": "SPECIES",
+    "taxonomicStatus": "ACCEPTED",
+    "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c",
+    "identifiers": [
+     {
+      "type": "COL",
+      "identifier": "PDOM1"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/v1/species/2433753",
+   "status": 200,
+   "body": {
+    "key": 2433753,
+    "scientificName": "Lutra lutra (Linnaeus, 1758)",
+    "canonicalName": "Lutra lutra",
+    "authorship": "(Linnaeus, 1758)",
+    "rank": "SPECIES",
+    "taxonomicStatus": "ACCEPTED",
+    "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+   }
+  },
+  {
+   "request": "/v1/species/2482492",
+   "status": 200,
+   "body": {
+    "key": 2482492,
+    "scientificName": "Corvus corone Linnaeus, 1758",
+    "canonicalName": "Corvus corone",
+    "authorship": "Linnaeus, 1758",
+    "rank": "SPECIES",
+    "taxonomicStatus": "ACCEPTED",
+    "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+   }
+  },
+  {
+   "request": "/v1/species/2482468",
+   "status": 200,
+   "body": {
+    "key": 2482468,
+    "scientificName": "Corvus cornix Linnaeus, 1758",
+    "canonicalName": "Corvus cornix",
+    "authorship": "Linnaeus, 1758",
+    "rank": "SPECIES",
+    "taxonomicStatus": "ACCEPTED",
+    "datasetKey": "d7dddbf4-2cf0-4f39-9b2a-bb099caae36c"
+   }
+  },
+  {
+   "request": "/v1/dataset/aaaa0001-0000-4000-8000-000000000001",
+   "status": 200,
+   "body": {
+    "key": "aaaa0001-0000-4000-8000-000000000001",
+    "type": "OCCURRENCE",
+    "title": "Sample Berlin bird observations (fixture)",
+    "publishingOrganizationTitle": "Sample Ornithological Society (fixture)",
+    "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+    "doi": "10.5555/gbif.fixture.ds1",
+    "citation": {
+     "text": "Sample Ornithological Society (2026). Sample Berlin bird observations (fixture). Occurrence dataset https://doi.org/10.5555/gbif.fixture.ds1"
+    },
+    "pubDate": "2026-06-01",
+    "version": "1.4",
+    "bibliographicCitations": [
+     {
+      "text": "Fictional, A. (2099). Urban sparrows of a fictional city. https://doi.org/10.5555/fict.bio.2099.1",
+      "identifier": "https://doi.org/10.5555/fict.bio.2099.1"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/v1/dataset/aaaa0002-0000-4000-8000-000000000002",
+   "status": 200,
+   "body": {
+    "key": "aaaa0002-0000-4000-8000-000000000002",
+    "type": "OCCURRENCE",
+    "title": "Sample city breeding bird survey (fixture)",
+    "publishingOrganizationTitle": "Sample City Environment Office (fixture)",
+    "license": "http://creativecommons.org/publicdomain/zero/1.0/legalcode",
+    "doi": "10.5555/gbif.fixture.ds2",
+    "citation": {
+     "text": "Sample City Environment Office (2026). Sample city breeding bird survey (fixture). https://doi.org/10.5555/gbif.fixture.ds2"
+    },
+    "pubDate": "2026-03-15",
+    "version": "2.0",
+    "bibliographicCitations": [
+     {
+      "text": "Survey methods handbook, internal report (fixture; no identifier)"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/v1/dataset/aaaa0003-0000-4000-8000-000000000003",
+   "status": 200,
+   "body": {
+    "key": "aaaa0003-0000-4000-8000-000000000003",
+    "type": "OCCURRENCE",
+    "title": "Sample protected mammal records (fixture)",
+    "publishingOrganizationTitle": "Sample Mammal Atlas (fixture)",
+    "license": "http://creativecommons.org/licenses/by-nc/4.0/legalcode",
+    "doi": "10.5555/gbif.fixture.ds3",
+    "citation": {
+     "text": "Sample Mammal Atlas (2026). Sample protected mammal records (fixture). https://doi.org/10.5555/gbif.fixture.ds3"
+    },
+    "pubDate": "2026-05-20",
+    "version": "3.1",
+    "bibliographicCitations": []
+   }
+  },
+  {
+   "request": "/v1/occurrence/download/0012345-260901000000000",
+   "status": 200,
+   "body": {
+    "key": "0012345-260901000000000",
+    "doi": "10.5555/gbif.fixture.dl1",
+    "license": "http://creativecommons.org/licenses/by-nc/4.0/legalcode",
+    "created": "2026-09-01T10:00:00.000+00:00",
+    "totalRecords": 5,
+    "status": "SUCCEEDED"
+   }
+  },
+  {
+   "request": "/v1/occurrence/search?geometry=POLYGON%28%2813.08+52.33%2C13.76+52.33%2C13.76+52.68%2C13.08+52.68%2C13.08+52.33%29%29&limit=20&offset=0&taxonKey=5231190",
+   "status": 200,
+   "body": {
+    "offset": 0,
+    "limit": 20,
+    "endOfRecords": true,
+    "count": 3,
+    "results": [
+     {
+      "key": 4011001,
+      "occurrenceID": "urn:fixture:occ:4011001",
+      "datasetKey": "aaaa0001-0000-4000-8000-000000000001",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2026-05-03",
+      "taxonKey": 5231190,
+      "acceptedTaxonKey": 5231190,
+      "scientificName": "Passer domesticus (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [],
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "decimalLatitude": 52.52,
+      "decimalLongitude": 13.405,
+      "coordinateUncertaintyInMeters": 30.0
+     },
+     {
+      "key": 4011002,
+      "occurrenceID": "urn:fixture:occ:4011002",
+      "datasetKey": "aaaa0002-0000-4000-8000-000000000002",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2026-04-11",
+      "taxonKey": 5231190,
+      "acceptedTaxonKey": 5231190,
+      "scientificName": "Passer domesticus (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [],
+      "license": "http://creativecommons.org/publicdomain/zero/1.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "decimalLatitude": 52.517,
+      "decimalLongitude": 13.3889,
+      "coordinateUncertaintyInMeters": 5000.0
+     },
+     {
+      "key": 4011003,
+      "occurrenceID": "urn:fixture:occ:4011003",
+      "datasetKey": "aaaa0001-0000-4000-8000-000000000001",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2025-06-01",
+      "taxonKey": 5231190,
+      "acceptedTaxonKey": 5231190,
+      "scientificName": "Passer domesticus (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [
+       "COORDINATE_UNCERTAINTY_METERS_INVALID"
+      ],
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "decimalLatitude": 52.515,
+      "decimalLongitude": 13.4
+     }
+    ]
+   }
+  },
+  {
+   "request": "/v1/occurrence/search?country=DE&limit=20&offset=0&taxonKey=2433753",
+   "status": 200,
+   "body": {
+    "offset": 0,
+    "limit": 20,
+    "endOfRecords": true,
+    "count": 2,
+    "results": [
+     {
+      "key": 4022001,
+      "occurrenceID": "urn:fixture:occ:4022001",
+      "datasetKey": "aaaa0003-0000-4000-8000-000000000003",
+      "basisOfRecord": "PRESERVED_SPECIMEN",
+      "eventDate": "2026-02-14",
+      "taxonKey": 2433753,
+      "acceptedTaxonKey": 2433753,
+      "scientificName": "Lutra lutra (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [
+       "COORDINATE_ROUNDED"
+      ],
+      "license": "http://creativecommons.org/licenses/by-nc/4.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "decimalLatitude": 52.55,
+      "decimalLongitude": 13.45,
+      "coordinateUncertaintyInMeters": 7071.0,
+      "dataGeneralizations": "Coordinates generalised to 10 km grid for species protection"
+     },
+     {
+      "key": 4022002,
+      "occurrenceID": "urn:fixture:occ:4022002",
+      "datasetKey": "aaaa0003-0000-4000-8000-000000000003",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2026-03-02",
+      "taxonKey": 2433753,
+      "acceptedTaxonKey": 2433753,
+      "scientificName": "Lutra lutra (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [],
+      "license": "http://creativecommons.org/licenses/by-nc/4.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "informationWithheld": "Coordinates withheld for species protection"
+     }
+    ]
+   }
+  }
+ ]
+}
