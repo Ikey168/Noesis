@@ -235,6 +235,11 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The Legal regulatory enforcement features' offline journey (#2715) composes its record owner with the
+    # source-pack runtime, ownership identity and graph, Legal works, competition cases and subscriptions.
+    "Company to cited regulatory enforcement actions":
+        "tests/unit/domains/test_enforcement_acceptance.py::"
+        "test_company_to_cited_enforcement_actions_with_outcome_and_appeal_history",
 }
 
 
