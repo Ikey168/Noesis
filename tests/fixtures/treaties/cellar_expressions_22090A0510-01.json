@@ -1,0 +1,155 @@
+{
+ "head": {
+  "vars": [
+   "work",
+   "celex",
+   "eli",
+   "ecli",
+   "expression",
+   "language",
+   "title",
+   "manifestation",
+   "format",
+   "item",
+   "document_date",
+   "journal",
+   "published",
+   "effective",
+   "predicate",
+   "related"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "document_date": {
+     "type": "literal",
+     "value": "2090-05-10"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "expression": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0001"
+    },
+    "format": {
+     "type": "literal",
+     "value": "fmx4"
+    },
+    "item": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0001.02/DOC_1"
+    },
+    "language": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/language/DEU"
+    },
+    "manifestation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0001.02"
+    },
+    "title": {
+     "type": "literal",
+     "value": "Übereinkommen des Europarats über die Zusammenarbeit bei Beispieldaten (SEV Nr. 999)"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "document_date": {
+     "type": "literal",
+     "value": "2090-05-10"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "expression": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0002"
+    },
+    "format": {
+     "type": "literal",
+     "value": "fmx4"
+    },
+    "item": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0002.02/DOC_1"
+    },
+    "language": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/language/ENG"
+    },
+    "manifestation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0002.02"
+    },
+    "title": {
+     "type": "literal",
+     "value": "Council of Europe Convention on Example Data Cooperation (CETS No. 999)"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   },
+   {
+    "celex": {
+     "datatype": "http://www.w3.org/2001/XMLSchema#string",
+     "type": "literal",
+     "value": "22090A0510(01)"
+    },
+    "document_date": {
+     "type": "literal",
+     "value": "2090-05-10"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2090/999/oj"
+    },
+    "expression": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0003"
+    },
+    "format": {
+     "type": "literal",
+     "value": "fmx4"
+    },
+    "item": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0003.02/DOC_1"
+    },
+    "language": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/language/FRA"
+    },
+    "manifestation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999.0003.02"
+    },
+    "title": {
+     "type": "literal",
+     "value": "Convention du Conseil de l'Europe sur la coopération en matière de données d'exemple (STCE n° 999)"
+    },
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/99990000-0000-4000-8000-000000000999"
+    }
+   }
+  ]
+ }
+}
