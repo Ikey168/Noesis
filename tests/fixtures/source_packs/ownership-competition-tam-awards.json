@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/competition/transparency/public/api/awards?countryCode=NL&page=0&saNumber=SA.99002&size=100",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"totalElements\": 2,\n \"last\": true,\n \"content\": [\n  {\n   \"awardId\": \"NL-2025-000101\",\n   \"countryCode\": \"NL\",\n   \"saNumber\": \"SA.99002\",\n   \"measureTitle\": \"Green hydrogen investment aid (fixture)\",\n   \"beneficiaryName\": \"Exampla Intermediate B.V.\",\n   \"beneficiaryNationalIdType\": \"KVK\",\n   \"beneficiaryNationalId\": \"99990003\",\n   \"beneficiaryType\": \"Large enterprise\",\n   \"region\": \"NL32\",\n   \"sector\": \"C.20.11\",\n   \"aidInstrument\": \"Direct grant\",\n   \"objective\": \"Environmental protection, including climate protection\",\n   \"nominalAmount\": \"12500000.00\",\n   \"amountRange\": null,\n   \"currency\": \"EUR\",\n   \"grantingDate\": \"2025-05-02\",\n   \"grantingAuthority\": \"Rijksdienst voor Ondernemend Nederland (fixture)\",\n   \"status\": \"Published\",\n   \"lastModified\": \"2025-05-10\"\n  },\n  {\n   \"awardId\": \"NL-2025-000102\",\n   \"countryCode\": \"NL\",\n   \"saNumber\": \"SA.99002\",\n   \"measureTitle\": \"Green hydrogen investment aid (fixture)\",\n   \"beneficiaryName\": \"Northwind Energie B.V.\",\n   \"beneficiaryNationalIdType\": \"KVK\",\n   \"beneficiaryNationalId\": \"55550001\",\n   \"beneficiaryType\": \"SME\",\n   \"region\": \"NL32\",\n   \"sector\": \"C.20.11\",\n   \"aidInstrument\": \"Direct grant\",\n   \"objective\": \"Environmental protection, including climate protection\",\n   \"nominalAmount\": null,\n   \"amountRange\": \"0.5-1 million\",\n   \"currency\": \"EUR\",\n   \"grantingDate\": \"2025-05-20\",\n   \"grantingAuthority\": \"Rijksdienst voor Ondernemend Nederland (fixture)\",\n   \"status\": \"Published\",\n   \"lastModified\": \"2025-05-21\"\n  }\n ]\n}\n"
+  },
+  {
+   "request": "/competition/transparency/public/api/awards?countryCode=NL&page=0&saNumber=SA.99003&size=100",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"totalElements\": 1,\n \"last\": true,\n \"content\": [\n  {\n   \"awardId\": \"NL-2025-000301\",\n   \"countryCode\": \"NL\",\n   \"saNumber\": \"SA.99003\",\n   \"measureTitle\": \"Green hydrogen investment aid (fixture)\",\n   \"beneficiaryName\": \"Exampla Intermediate B.V.\",\n   \"beneficiaryNationalIdType\": null,\n   \"beneficiaryNationalId\": null,\n   \"beneficiaryType\": \"Large enterprise\",\n   \"region\": \"NL32\",\n   \"sector\": \"C.20.11\",\n   \"aidInstrument\": \"Direct grant\",\n   \"objective\": \"Environmental protection, including climate protection\",\n   \"nominalAmount\": \"750000.00\",\n   \"amountRange\": null,\n   \"currency\": \"EUR\",\n   \"grantingDate\": \"2025-08-01\",\n   \"grantingAuthority\": \"Rijksdienst voor Ondernemend Nederland (fixture)\",\n   \"status\": \"Published\",\n   \"lastModified\": \"2025-08-02\"\n  }\n ]\n}\n"
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every case, award, party, identifier and amount is fictional placeholder data.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

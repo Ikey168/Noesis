@@ -214,6 +214,11 @@ MATRIX = {
     "Place or parcel to cited real-estate transactions":
         "tests/unit/domains/test_real_estate_acceptance.py::"
         "test_place_and_parcel_to_cited_transactions_indices_and_parcels_with_vintages",
+    # The Corporate Ownership competition feature's offline journey (#2364) composes the ownership record store,
+    # ownership identity and graph, Legal works by citation, subscriptions and the source-pack runtime.
+    "Company to cited competition cases and state aid":
+        "tests/unit/domains/test_competition_acceptance.py::"
+        "test_company_to_cited_cases_and_aid_awards_with_stage_history",
 }
 
 

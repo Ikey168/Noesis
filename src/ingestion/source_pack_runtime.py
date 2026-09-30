@@ -425,6 +425,14 @@ def _logistics_projector(conn: Any) -> Any:
 
 # Economics shipping and logistics feature (#2229).
 PROJECTORS["noesis-logistics-record-v1"] = _logistics_projector
+def _competition_projector(conn: Any) -> Any:
+    from src.kb.competition import CompetitionProjector
+
+    return CompetitionProjector(conn)
+
+
+# Corporate Ownership competition feature (#2217).
+PROJECTORS["noesis-competition-record-v1"] = _competition_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

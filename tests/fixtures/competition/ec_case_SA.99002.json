@@ -1,0 +1,60 @@
+{
+ "caseNumber": "SA.99002",
+ "caseTitle": "Netherlands - Exampla green hydrogen investment aid",
+ "caseInstrument": "State aid",
+ "policyArea": "STATE AID",
+ "caseStatus": "Closed",
+ "notificationDate": "2025-01-15",
+ "closingDate": "2025-04-02",
+ "lastUpdated": "2025-04-25T09:00:00Z",
+ "memberState": "Netherlands",
+ "caseSectors": [
+  {
+   "code": "C.20.11",
+   "description": "Manufacture of industrial gases"
+  }
+ ],
+ "companies": [
+  {
+   "name": "Exampla Intermediate B.V.",
+   "role": "Beneficiary",
+   "country": "Netherlands"
+  }
+ ],
+ "events": [
+  {
+   "date": "2025-01-15",
+   "type": "Notification",
+   "document": null
+  },
+  {
+   "date": "2025-04-02",
+   "type": "Decision not to raise objections",
+   "document": {
+    "title": "Decision",
+    "url": "https://ec.europa.eu/competition/fixture/SA_99002_decision.pdf",
+    "type": "Decision"
+   }
+  }
+ ],
+ "decisions": [
+  {
+   "date": "2025-04-02",
+   "type": "Decision not to raise objections",
+   "language": "EN",
+   "url": "https://ec.europa.eu/competition/fixture/SA_99002_decision.pdf",
+   "celex": null,
+   "ojReference": "OJ C 150, 25.4.2025, p. 3",
+   "decisionNumber": "C(2025) 1234",
+   "legalBasis": [
+    "Article 107(3)(c) TFEU",
+    "Commission Regulation (EU) No 651/2014"
+   ]
+  }
+ ],
+ "relatedCases": [],
+ "courtCases": [],
+ "legalBasis": [
+  "Article 107(3)(c) TFEU"
+ ]
+}

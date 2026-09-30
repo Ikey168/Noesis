@@ -186,6 +186,11 @@ For the project overview and local setup, start with the
   Hansard references as published, answered as of a date with reviewable member identity, lobbying and enactment
   links by citation and monitors; no passage prediction, member scoring or legal-effect summary;
   [source audit](development/legislation-evidence/source-audit.md)
+- [Corporate Ownership competition guide](guides/corporate-ownership-competition.md) — European Commission, UK CMA,
+  FTC and DOJ competition cases with stages, parties and decision documents as published and EU TAM state-aid awards,
+  matched to ownership entities through reviewed identity: company or group to cited cases as of a date, stage history
+  and aid for a beneficiary; no outcome prediction, market-power or aid-compatibility assessment;
+  [source audit](development/competition-evidence/source-audit.md)
 - [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
   opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and

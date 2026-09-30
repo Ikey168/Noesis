@@ -964,7 +964,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1575,
+      "tool_count": 1590,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1058,6 +1058,7 @@
         "noesis-knowledge-engine.budget_line_place",
         "noesis-knowledge-engine.build_bill_dossier",
         "noesis-knowledge-engine.build_clinical_evidence_map",
+        "noesis-knowledge-engine.build_competition_dossier",
         "noesis-knowledge-engine.build_environment_place_dossier",
         "noesis-knowledge-engine.build_funding_shortlist",
         "noesis-knowledge-engine.build_intake_creation_artifact",
@@ -1133,6 +1134,9 @@
         "noesis-knowledge-engine.compare_surveillance_vintages",
         "noesis-knowledge-engine.compare_technical_impact_reports",
         "noesis-knowledge-engine.compare_trade_mirror",
+        "noesis-knowledge-engine.competition_case_history",
+        "noesis-knowledge-engine.competition_readiness",
+        "noesis-knowledge-engine.competition_source_contracts",
         "noesis-knowledge-engine.configure_jev_task_rollout",
         "noesis-knowledge-engine.consent_problem_action",
         "noesis-knowledge-engine.conservation_status_history",
@@ -1154,6 +1158,7 @@
         "noesis-knowledge-engine.create_biodiversity_monitor",
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_clinical_monitor",
+        "noesis-knowledge-engine.create_competition_monitor",
         "noesis-knowledge-engine.create_courts_justice_monitor",
         "noesis-knowledge-engine.create_decision_condition_watch",
         "noesis-knowledge-engine.create_demographic_monitor",
@@ -1593,6 +1598,7 @@
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_clinical_publications",
         "noesis-knowledge-engine.link_company_identity",
+        "noesis-knowledge-engine.link_competition_citations",
         "noesis-knowledge-engine.link_court_citations",
         "noesis-knowledge-engine.link_cross_modal_evidence",
         "noesis-knowledge-engine.link_cultural_research",
@@ -1640,6 +1646,8 @@
         "noesis-knowledge-engine.list_budget_lines",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_citation_pins",
+        "noesis-knowledge-engine.list_competition_citation_links",
+        "noesis-knowledge-engine.list_competition_identity_candidates",
         "noesis-knowledge-engine.list_court_citation_links",
         "noesis-knowledge-engine.list_court_identity_candidates",
         "noesis-knowledge-engine.list_decision_review_tasks",
@@ -1764,6 +1772,7 @@
         "noesis-knowledge-engine.logistics_source_contracts",
         "noesis-knowledge-engine.logistics_value_history",
         "noesis-knowledge-engine.lookup_clinical_trial",
+        "noesis-knowledge-engine.lookup_competition_cases",
         "noesis-knowledge-engine.lookup_component",
         "noesis-knowledge-engine.lookup_crs_aggregates",
         "noesis-knowledge-engine.lookup_dockets",
@@ -1833,6 +1842,7 @@
         "noesis-knowledge-engine.poll_biodiversity_monitor",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
+        "noesis-knowledge-engine.poll_competition_monitor",
         "noesis-knowledge-engine.poll_courts_justice_monitor",
         "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.poll_demographic_monitor",
@@ -1922,6 +1932,7 @@
         "noesis-knowledge-engine.propose_bafin_identity_link",
         "noesis-knowledge-engine.propose_bafin_identity_matches",
         "noesis-knowledge-engine.propose_certificate_product_links",
+        "noesis-knowledge-engine.propose_competition_identity_matches",
         "noesis-knowledge-engine.propose_court_party_matches",
         "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_demographic_link_candidates",
@@ -2174,6 +2185,7 @@
         "noesis-knowledge-engine.revert_astronomy_identity_match",
         "noesis-knowledge-engine.revert_bafin_identity_match",
         "noesis-knowledge-engine.revert_bill_record_link",
+        "noesis-knowledge-engine.revert_competition_identity_match",
         "noesis-knowledge-engine.revert_component_manufacturer_link",
         "noesis-knowledge-engine.revert_court_party_match",
         "noesis-knowledge-engine.revert_demographic_comparability",
@@ -2221,6 +2233,7 @@
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_clinical_publication_link",
         "noesis-knowledge-engine.review_company_identity_link",
+        "noesis-knowledge-engine.review_competition_identity_match",
         "noesis-knowledge-engine.review_component_manufacturer_link",
         "noesis-knowledge-engine.review_court_party_match",
         "noesis-knowledge-engine.review_cross_language_alignment",
@@ -2319,6 +2332,7 @@
         "noesis-knowledge-engine.run_bafin_notice_monitor",
         "noesis-knowledge-engine.run_biodiversity_monitor",
         "noesis-knowledge-engine.run_clinical_monitor",
+        "noesis-knowledge-engine.run_competition_monitor",
         "noesis-knowledge-engine.run_courts_justice_monitor",
         "noesis-knowledge-engine.run_demographic_monitor",
         "noesis-knowledge-engine.run_development_finance_monitor",
@@ -2456,6 +2470,7 @@
         "noesis-knowledge-engine.start_intake_research_topic",
         "noesis-knowledge-engine.start_practice_review",
         "noesis-knowledge-engine.start_problem_session",
+        "noesis-knowledge-engine.state_aid_awards_for_beneficiary",
         "noesis-knowledge-engine.store_geospatial_geometry",
         "noesis-knowledge-engine.submit_review_inbox_annotation",
         "noesis-knowledge-engine.subscribe_cited_evidence",
@@ -2547,7 +2562,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1575
+      "visible_tool_count": 1590
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2558,11 +2573,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 146,
+      "available": 147,
       "degraded": 173,
-      "unauthorized": 1593
+      "unauthorized": 1607
     },
-    "tools": 1912
+    "tools": 1927
   },
   "tools": [
     {
@@ -27057,6 +27072,66 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "The ownership dossier for an identifier with a competition section: cases and aid awards naming the\ncompany (or its group), as published and cited. No outcome prediction or legal advice.",
+      "id": "noesis-knowledge-engine.build_competition_dossier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "default": "competition",
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "type": "string"
+          },
+          "value": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "ownership_namespace",
+          "scheme",
+          "value"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "build_competition_dossier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Cited dossier for one place: stations within its boundary, grid events for its zone, nearby facilities, layers, climate series.",
       "id": "noesis-knowledge-engine.build_environment_place_dossier",
@@ -31150,6 +31225,102 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "A case's dated stage history (as published, with source and revision; superseded revisions on request),\ndecision documents (linked, not mirrored), parties as published and exact citation links. No legal\ncharacterisation or outcome prediction.",
+      "id": "noesis-knowledge-engine.competition_case_history",
+      "input_schema": {
+        "properties": {
+          "case_key": {
+            "type": "string"
+          },
+          "include_superseded": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "case_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "competition_case_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the optional competition feature is selected and what each provider has acquired.",
+      "id": "noesis-knowledge-engine.competition_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "competition",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "competition_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Access decisions, reuse terms, rate limits, instruments in and out of scope, stable identifiers, bounded\ncoverage and LIVE_VERIFICATION for the EC case search, TAM, GOV.UK CMA, FTC and DOJ sources.",
+      "id": "noesis-knowledge-engine.competition_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "competition_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Set an authorized off, shadow or suggestion mode for one pinned task.",
       "id": "noesis-knowledge-engine.configure_jev_task_rollout",
@@ -32387,6 +32558,78 @@
       ],
       "required_scopes": [
         "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a company (optionally its group), a case, a beneficiary or an authority/instrument for new\ncases, stage changes, decision documents and new or corrected aid awards.",
+      "id": "noesis-knowledge-engine.create_competition_monitor",
+      "input_schema": {
+        "properties": {
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "instrument": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_competition_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -54391,6 +54634,45 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link cases, decision documents and aid awards to the legal acts (CELEX/ELI, TFEU articles, UK Acts, US\nCode) and cases (SA measures, explicit cross-authority references) they cite, by exact citation only.",
+      "id": "noesis-knowledge-engine.link_competition_citations",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_competition_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:write",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Parse acquired docket entries and opinions for exact statute, regulation and reporter citations and\nlink them to Legal works; idempotent.",
       "id": "noesis-knowledge-engine.link_court_citations",
       "input_schema": {
@@ -56779,6 +57061,116 @@
       ],
       "required_scopes": [
         "knowledge:citation:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Exact citation links with unresolved references kept as source text; never characterised.",
+      "id": "noesis-knowledge-engine.list_competition_citation_links",
+      "input_schema": {
+        "properties": {
+          "citing_record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_competition_citation_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Reviewable identity candidates of case parties and aid beneficiaries, the unmatched subjects (kept as\npublished) and, with an ownership namespace, the conflicts (one party, several entities).",
+      "id": "noesis-knowledge-engine.list_competition_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_competition_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -63130,6 +63522,88 @@
     },
     {
       "cost_class": "low",
+      "description": "Competition cases (merger, antitrust, state aid, market investigation) naming a company - or its group\nthrough the ownership graph as of the date - with the party role as published, the stage in force at the\ndate and the reviewed identity match; authorities side by side; 'no_case_on_record' is never a clean bill.\nNo outcome prediction, market-power assessment or legal advice.",
+      "id": "noesis-knowledge-engine.lookup_competition_cases",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "authority": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "entity": {
+            "type": "string"
+          },
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "include_unknowns": {
+            "default": false,
+            "type": "boolean"
+          },
+          "instrument": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_competition_cases",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Electronic components by manufacturer part number (optionally with the manufacturer) or by a\nprovider-scoped distributor SKU: one entry per normalised manufacturer + MPN with each provider's record,\nSKU aliases, lifecycle status only as a named source published it (with its date), match candidates and\nlink-only records (Octopart, DigiKey). No cross-reference, replacement, price, stock or availability.",
       "id": "noesis-knowledge-engine.lookup_component",
       "input_schema": {
@@ -66699,6 +67173,44 @@
       ],
       "required_scopes": [
         "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a competition monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_competition_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_competition_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -70759,6 +71271,44 @@
       ],
       "required_scopes": [
         "knowledge:standards:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose case parties and aid beneficiaries against ownership entities: published identifiers first,\nnames as low evidence; nothing is accepted automatically or merged.",
+      "id": "noesis-knowledge-engine.propose_competition_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_competition_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -84602,6 +85152,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed party or beneficiary identity decision.",
+      "id": "noesis-knowledge-engine.revert_competition_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_competition_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a manufacturer link; the undo is itself an auditable identity decision.",
       "id": "noesis-knowledge-engine.revert_component_manufacturer_link",
       "input_schema": {
@@ -86597,6 +87189,52 @@
       ],
       "required_scopes": [
         "knowledge:companies:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a party or beneficiary identity candidate with a reason (an entity identity decision\nwith reviewer and time; records are never merged).",
+      "id": "noesis-knowledge-engine.review_competition_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_competition_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -91527,6 +92165,51 @@
       ],
       "required_scopes": [
         "knowledge:clinical:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a competition monitor at a committed watermark; each notification cites its before and after\nrevision.",
+      "id": "noesis-knowledge-engine.run_competition_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_competition_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -98821,6 +99504,51 @@
       ],
       "required_scopes": [
         "knowledge:intake:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "State-aid awards received by a company through reviewed matches: granting authority, measure reference,\namount and currency as published and the SA case where cited; totals are a computed view listing their\ninputs; unknowns explicit. No assessment of the compatibility or legality of aid.",
+      "id": "noesis-knowledge-engine.state_aid_awards_for_beneficiary",
+      "input_schema": {
+        "properties": {
+          "entity": {
+            "type": "string"
+          },
+          "include_superseded": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "entity",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "state_aid_awards_for_beneficiary",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

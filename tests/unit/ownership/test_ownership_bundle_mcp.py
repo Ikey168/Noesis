@@ -52,6 +52,9 @@ def test_tools_are_in_the_catalog_with_preserved_ids_scopes_and_mutability(mcp_e
     assert listed["acquire_ownership_sources"]["required_scopes"] == ["knowledge:ownership:write", "knowledge:ingestion:execute"]
     descriptor = json.loads((ROOT / "packs/corporate-ownership/providers/ownership.core.json").read_text())
     bound = {op["tool"].split(".", 1)[1] for op in descriptor["operations"]}
+    # The optional competition feature's tools (#2217) are bound by its own ownership.competition provider.
+    competition = json.loads((ROOT / "packs/corporate-ownership/providers/ownership.competition.json").read_text())
+    bound |= {op["tool"].split(".", 1)[1] for op in competition["operations"]}
     assert bound == OWNERSHIP_TOOLS - {"ownership_bundle_status", "set_ownership_bundle_enabled"}
 
 

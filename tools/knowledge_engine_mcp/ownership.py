@@ -28,6 +28,18 @@ OWNERSHIP_SCOPES = {
     "export_ownership_dossier": ["knowledge:ownership:read", "knowledge:reports:write"],
 }
 
+# Competition cases and state aid (#2217): the optional competition feature's tools, registered here.
+from tools.knowledge_engine_mcp.competition import (  # noqa: E402
+    COMPETITION_SCOPES,
+    COMPETITION_TOOLS,
+    COMPETITION_WRITES,
+)
+from tools.knowledge_engine_mcp.competition import register as register_competition  # noqa: E402
+
+OWNERSHIP_WRITES = OWNERSHIP_WRITES | COMPETITION_WRITES
+OWNERSHIP_TOOLS = OWNERSHIP_TOOLS | COMPETITION_TOOLS
+OWNERSHIP_SCOPES = {**OWNERSHIP_SCOPES, **COMPETITION_SCOPES}
+
 
 def required_scopes(tool_name, mutability):
     return OWNERSHIP_SCOPES.get(
@@ -35,6 +47,8 @@ def required_scopes(tool_name, mutability):
 
 
 def register(mcp, safe, context):
+    register_competition(mcp, safe, context)
+
     def who():
         return context()[0], context()[1]
 

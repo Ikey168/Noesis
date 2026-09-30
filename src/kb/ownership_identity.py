@@ -55,7 +55,8 @@ NEVER_ACCEPTED = frozenset({"similar-name"})
 # Record keys owned by other bundles that share this state machine through ``offer``.
 FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance:", "devfin:", "funding-funder:",
                         "bafin:", "engineering-safety:", "materials:", "sports:", "legislation:", "courts:",
-                        "infrastructure:", "space-registration:", "insurance:")
+                        "infrastructure:", "space-registration:", "insurance:",
+                        "competition:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """

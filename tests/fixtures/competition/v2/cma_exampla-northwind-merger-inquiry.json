@@ -1,0 +1,50 @@
+{
+ "base_path": "/cma-cases/exampla-northwind-merger-inquiry",
+ "content_id": "00000000-fixture-cma-0001",
+ "document_type": "cma_case",
+ "schema_name": "specialist_document",
+ "title": "Exampla Holdings plc / Northwind Widgets GmbH merger inquiry",
+ "first_published_at": "2025-02-20T09:00:00Z",
+ "public_updated_at": "2025-06-30T09:00:00Z",
+ "details": {
+  "metadata": {
+   "case_type": "mergers",
+   "case_state": "closed",
+   "market_sector": [
+    "energy"
+   ],
+   "opened_date": "2025-02-20",
+   "closed_date": "2025-06-30",
+   "outcome_type": "mergers-phase-1-undertakings-in-lieu"
+  },
+  "body": "<p>The CMA is investigating the anticipated acquisition by Exampla Holdings plc of Northwind Widgets GmbH under the Enterprise Act 2002 (case reference ME/9999/25).</p><p>The European Commission is reviewing the same transaction under case M.99001.</p>",
+  "change_history": [
+   {
+    "public_timestamp": "2025-02-20T09:00:00Z",
+    "note": "Invitation to comment"
+   },
+   {
+    "public_timestamp": "2025-04-17T09:00:00Z",
+    "note": "Phase 1 decision: SLC decision, undertakings in lieu offered"
+   },
+   {
+    "public_timestamp": "2025-06-30T09:00:00Z",
+    "note": "Undertakings in lieu of reference accepted"
+   }
+  ],
+  "attachments": [
+   {
+    "title": "Phase 1 decision",
+    "content_type": "application/pdf",
+    "url": "https://assets.publishing.service.gov.uk/media/fixture/exampla-northwind-phase-1.pdf",
+    "public_timestamp": "2025-04-17T09:00:00Z"
+   },
+   {
+    "title": "Acceptance of undertakings in lieu",
+    "content_type": "application/pdf",
+    "url": "https://assets.publishing.service.gov.uk/media/fixture/exampla-northwind-uil.pdf",
+    "public_timestamp": "2025-06-30T09:00:00Z"
+   }
+  ]
+ }
+}

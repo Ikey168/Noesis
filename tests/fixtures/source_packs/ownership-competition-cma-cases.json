@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/api/content/cma-cases/exampla-northwind-merger-inquiry",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"base_path\": \"/cma-cases/exampla-northwind-merger-inquiry\",\n \"content_id\": \"00000000-fixture-cma-0001\",\n \"document_type\": \"cma_case\",\n \"schema_name\": \"specialist_document\",\n \"title\": \"Exampla Holdings plc / Northwind Widgets GmbH merger inquiry\",\n \"first_published_at\": \"2025-02-20T09:00:00Z\",\n \"public_updated_at\": \"2025-04-17T09:00:00Z\",\n \"details\": {\n  \"metadata\": {\n   \"case_type\": \"mergers\",\n   \"case_state\": \"open\",\n   \"market_sector\": [\n    \"energy\"\n   ],\n   \"opened_date\": \"2025-02-20\"\n  },\n  \"body\": \"<p>The CMA is investigating the anticipated acquisition by Exampla Holdings plc of Northwind Widgets GmbH under the Enterprise Act 2002 (case reference ME/9999/25).</p><p>The European Commission is reviewing the same transaction under case M.99001.</p>\",\n  \"change_history\": [\n   {\n    \"public_timestamp\": \"2025-02-20T09:00:00Z\",\n    \"note\": \"Invitation to comment\"\n   },\n   {\n    \"public_timestamp\": \"2025-04-17T09:00:00Z\",\n    \"note\": \"Phase 1 decision: SLC decision, undertakings in lieu offered\"\n   }\n  ],\n  \"attachments\": [\n   {\n    \"title\": \"Phase 1 decision\",\n    \"content_type\": \"application/pdf\",\n    \"url\": \"https://assets.publishing.service.gov.uk/media/fixture/exampla-northwind-phase-1.pdf\",\n    \"public_timestamp\": \"2025-04-17T09:00:00Z\"\n   }\n  ]\n }\n}\n"
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every case, award, party, identifier and amount is fictional placeholder data.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

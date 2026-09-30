@@ -379,6 +379,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"food-composition"})
 NATIVE_CONNECTOR_MODULES["astronomy-registration"] = "src.ingestion.astronomy_registration_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy-registration"})
 
+# Corporate Ownership competition cases and state aid: EC case search, TAM, GOV.UK CMA, FTC and DOJ (#2217).
+NATIVE_CONNECTOR_MODULES["competition"] = "src.ingestion.competition_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"competition"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

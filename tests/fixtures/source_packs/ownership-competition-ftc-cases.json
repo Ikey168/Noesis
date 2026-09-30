@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/legal-library/browse/cases-proceedings/exampla-holdings-northwind-widgets",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/html"
+   },
+   "body": "<!DOCTYPE html><html lang=\"en\"><head><meta charset=\"utf-8\"><meta property=\"article:modified_time\" content=\"2025-05-15T10:00:00-04:00\"><title>Fixture FTC case</title></head><body>\n<h1 class=\"page-title\">Exampla Holdings plc/Northwind Widgets, In the Matter of</h1>\n<div class=\"field field--name-field-matter-number\"><div class=\"field__label\">field-matter-number</div><div class=\"field__items\"><div class=\"field__item\">2510001</div></div></div>\n<div class=\"field field--name-field-docket-number\"><div class=\"field__label\">field-docket-number</div><div class=\"field__items\"><div class=\"field__item\">C-4999</div></div></div>\n<div class=\"field field--name-field-case-status\"><div class=\"field__label\">field-case-status</div><div class=\"field__items\"><div class=\"field__item\">Closed</div></div></div>\n<div class=\"field field--name-field-type-of-action\"><div class=\"field__label\">field-type-of-action</div><div class=\"field__items\"><div class=\"field__item\">Administrative</div></div></div>\n<div class=\"field field--name-field-mission\"><div class=\"field__label\">field-mission</div><div class=\"field__items\"><div class=\"field__item\">Competition</div></div></div>\n<div class=\"field field--name-field-tags\"><div class=\"field__label\">field-tags</div><div class=\"field__items\"><div class=\"field__item\">Mergers</div></div></div>\n<div class=\"field field--name-field-respondents\"><div class=\"field__label\">field-respondents</div><div class=\"field__items\"><div class=\"field__item\">Exampla Holdings plc</div><div class=\"field__item\">Northwind Widgets, Inc.</div><div class=\"field__item\">John Example</div></div></div>\n<div class=\"field field--name-body\"><div class=\"field__label\">body</div><div class=\"field__items\"><div class=\"field__item\"><p>The complaint alleges that the proposed acquisition would violate Section 7 of the Clayton Act, 15 U.S.C. &#167; 18, and Section 5 of the FTC Act.</p></div></div></div>\n<section><h2>Case Timeline</h2><ul>\n<li class=\"case-timeline__item\"><time datetime=\"2025-04-01T12:00:00Z\">2025-04-01</time> <a href=\"/system/files/ftc_gov/pdf/2510001-exampla-complaint.pdf\">Complaint</a></li>\n<li class=\"case-timeline__item\"><time datetime=\"2025-04-01T12:00:00Z\">2025-04-01</time> <a href=\"/system/files/ftc_gov/pdf/2510001-exampla-agreement.pdf\">Agreement Containing Consent Orders</a></li>\n<li class=\"case-timeline__item\"><time datetime=\"2025-05-15T12:00:00Z\">2025-05-15</time> <a href=\"/system/files/ftc_gov/pdf/2510001-exampla-decision-order.pdf\">Decision and Order</a></li>\n</ul></section>\n</body></html>\n"
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every case, award, party, identifier and amount is fictional placeholder data.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

@@ -154,6 +154,7 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
             "feature": "bafin-voting-rights",
             "reason": "not selected",
         },
+        {"pack": "corporate-ownership", "feature": "competition", "reason": "not selected"},  # #2217
         {"pack": "political", "feature": "elections", "reason": "not selected"},
         {"pack": "market", "feature": "insurance", "reason": "not selected"},  # #2230
         {"pack": "political", "feature": "legislation-uk", "reason": "not selected"},

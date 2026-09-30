@@ -1,0 +1,68 @@
+{
+ "caseNumber": "M.99001",
+ "caseTitle": "EXAMPLA HOLDINGS / NORTHWIND WIDGETS",
+ "caseInstrument": "Merger",
+ "policyArea": "MERGERS",
+ "caseStatus": "Open",
+ "notificationDate": "2025-02-03",
+ "lastUpdated": "2025-06-16T10:00:00Z",
+ "memberState": null,
+ "caseSectors": [
+  {
+   "code": "C.27.1",
+   "description": "Manufacture of electric motors, generators and transformers"
+  }
+ ],
+ "companies": [
+  {
+   "name": "Exampla Holdings plc",
+   "role": "Notifying party",
+   "country": "United Kingdom"
+  },
+  {
+   "name": "Northwind Widgets GmbH",
+   "role": "Target",
+   "country": "Germany"
+  }
+ ],
+ "events": [
+  {
+   "date": "2025-02-03",
+   "type": "Notification",
+   "document": null
+  },
+  {
+   "date": "2025-03-10",
+   "type": "Art. 6(1)(c) - opening of in-depth investigation (Phase II)",
+   "document": {
+    "title": "Article 6(1)(c) decision",
+    "url": "https://ec.europa.eu/competition/fixture/M_99001_6_1_c.pdf",
+    "type": "Decision"
+   }
+  },
+  {
+   "date": "2025-06-16",
+   "type": "Statement of Objections",
+   "document": null
+  }
+ ],
+ "decisions": [
+  {
+   "date": "2025-03-10",
+   "type": "Art. 6(1)(c)",
+   "language": "EN",
+   "url": "https://ec.europa.eu/competition/fixture/M_99001_6_1_c.pdf",
+   "celex": null,
+   "ojReference": null,
+   "decisionNumber": "C(2025) 1500",
+   "legalBasis": [
+    "Council Regulation (EC) No 139/2004"
+   ]
+  }
+ ],
+ "relatedCases": [],
+ "courtCases": [],
+ "legalBasis": [
+  "Council Regulation (EC) No 139/2004"
+ ]
+}

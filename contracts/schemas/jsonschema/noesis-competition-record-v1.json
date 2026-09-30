@@ -1,0 +1,67 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-competition-record-v1.json",
+  "title": "Competition case, case stage, party, decision document or state-aid award as published",
+  "description": "One record of the Corporate Ownership pack's competition feature (#2217), stored beside noesis-ownership-record-v1 in the ownership store with the same source object and revision semantics. A case is keyed by authority and native case number with the instrument as published; stages are append-only published events with date and source document; parties keep name and role exactly as published with no identity resolution; decision documents carry type, date, language, URL and citation (CELEX, OJ reference, decision number) as published and are linked, not mirrored; state-aid awards keep beneficiary, granting authority, aid instrument, amount or range and currency as published, the award date and the SA measure reference. No record carries an outcome prediction, a market-power assessment, an aid compatibility or legality assessment, or legal advice.",
+  "type": "object",
+  "required": ["contract", "kind", "record_key", "source"],
+  "properties": {
+    "contract": {"const": "noesis-competition-record-v1"},
+    "kind": {"enum": ["competition_case", "case_stage", "case_party", "decision_document", "state_aid_award"]},
+    "record_key": {"type": "string", "pattern": "^competition:(case|stage|party|document|award):"},
+    "source": {
+      "type": "object",
+      "required": ["provider", "provider_record_id"],
+      "properties": {
+        "provider": {"enum": ["ec-competition", "eu-tam", "uk-cma", "us-ftc", "us-doj"]},
+        "provider_record_id": {"type": "string", "minLength": 1},
+        "url": {"type": "string", "pattern": "^https://"},
+        "publisher": {"type": "string"},
+        "license": {"type": "string"},
+        "revision": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live"]},
+        "locator": {"type": "object"},
+        "note": {"type": "string"},
+        "retrieved_at_ms": {"type": "integer"},
+        "raw_sha256": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "authority": {"enum": ["ec", "uk-cma", "us-ftc", "us-doj"]},
+    "case_number": {"type": "string", "minLength": 1},
+    "case_key": {"type": "string", "pattern": "^competition:case:"},
+    "instrument": {"enum": ["merger", "antitrust", "state_aid", "market_investigation"]},
+    "instrument_as_published": {"type": "string"},
+    "stage_as_published": {"type": "string"},
+    "stage_date": {"type": ["string", "null"], "pattern": "^\\d{4}(-\\d{2}(-\\d{2})?)?$"},
+    "date_status": {"enum": ["stated", "unknown"]},
+    "name_as_published": {"type": "string"},
+    "role": {"enum": ["notifying_party", "target", "addressee", "beneficiary", "complainant", "respondent", "defendant", "named_in_title", "other"]},
+    "role_as_published": {"type": "string"},
+    "identifiers": {"type": "array", "items": {"type": "object", "required": ["scheme", "value"]}},
+    "document_type_as_published": {"type": "string"},
+    "citation": {
+      "type": "object",
+      "properties": {
+        "celex": {"type": ["string", "null"]},
+        "oj_reference": {"type": ["string", "null"]},
+        "decision_number": {"type": ["string", "null"]},
+        "eli": {"type": ["string", "null"]},
+        "docket_number": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "court_dockets": {"type": "array", "items": {"type": "object", "required": ["docket_number"]}},
+    "award_id": {"type": "string", "minLength": 1},
+    "member_state": {"type": "string", "pattern": "^[A-Z]{2}$"},
+    "sa_number": {"type": ["string", "null"], "pattern": "^SA\\.\\d{1,6}$"},
+    "amount_as_published": {"type": ["string", "null"]},
+    "amount_range_as_published": {"type": ["string", "null"]},
+    "currency": {"type": ["string", "null"]},
+    "status": {"enum": ["published", "corrected", "withdrawn"]},
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  },
+  "not": {"anyOf": [{"required": ["outcome_prediction"]}, {"required": ["prediction"]}, {"required": ["market_power"]},
+                    {"required": ["dominance_assessment"]}, {"required": ["compatibility_assessment"]},
+                    {"required": ["legality_assessment"]}, {"required": ["legal_advice"]}]}
+}
