@@ -207,3 +207,133 @@ def acquire_wayback(
         [request_id, key, json.dumps(receipt)],
     )
     return receipt
+
+
+# ---------------------------------------------------------------------------
+# Internet Archive Memento captures with CDX digests (#2226, WA04).
+# Additive: ``acquire_wayback`` above is unchanged for its existing callers.
+
+_WAYBACK_STAMP = re.compile(r"/web/(\d{14})(?:[a-z]{2}_)?/")
+_SHA1_BASE32 = re.compile(r"[A-Z2-7]{32}")
+
+
+def acquire_wayback_mementos(client, url, *, request_id, max_results=5000):
+    """Map Internet Archive TimeMap and CDX responses to capture records with digests.
+
+    ``client`` is a :class:`src.ingestion.memento.MementoClient`, which supplies the
+    shared transport, per-archive budget, receipts and the citation-preservation
+    store. The Memento TimeMap lists the captures and the CDX adds the published
+    payload digest, HTTP status, mimetype and any redirect location. That is two
+    requests in the WA01 budget of three. Excluded or robots-blocked URLs are
+    recorded as ``excluded_by_archive`` and never retried through another path.
+    Content is never downloaded here.
+    """
+    from src.ingestion.memento import (
+        BOUNDED_COVERAGE,
+        Budget,
+        MementoError,
+        access_condition,
+        classify,
+        parse_timemap,
+        validate_url,
+    )
+
+    url = validate_url(url)
+    spec = client.archives["internet-archive"]
+    budget = Budget("internet-archive", client.transport)
+    receipt = client._capture_receipt(request_id, adapter="wayback-memento-v1")
+    limit = min(int(max_results), BOUNDED_COVERAGE["max_mementos_per_timemap"])
+
+    def stop(outcome, detail):
+        detail = {**detail, "retry_elsewhere": False}
+        snap = client.snapshot(url, "internet-archive", resolver="internet-archive", outcome=outcome,
+                               detail=detail, receipt=receipt)
+        return {"outcome": outcome, "timemap_id": snap["timemap_id"], "detail": detail,
+                "requests": budget.requests}
+
+    try:
+        status, headers, raw = budget.get(spec["timemap_link"] + url, hosts=spec["hosts"],
+                                          headers={"Accept": "application/link-format"})
+    except MementoError as exc:
+        return stop("archive_unavailable", {"failure": exc.code})
+    outcome = classify(status, raw) if status else "archive_unavailable"
+    if outcome not in {"ok", "no_capture_on_record"}:
+        return stop(outcome, {"http_status": status or None, "step": "timemap"})
+    try:
+        listed = parse_timemap(raw, headers.get("content-type", ""))["mementos"] if outcome == "ok" else []
+    except (ValueError, KeyError, TypeError) as exc:
+        return stop("archive_unavailable", {"failure": "unparseable_timemap:" + type(exc).__name__})
+    cdx_status = None
+    try:
+        cdx_status, _, cdx_raw = budget.get(
+            spec["cdx"], hosts=spec["hosts"],
+            params={"url": url, "output": "json", "limit": limit,
+                    "fl": "timestamp,original,mimetype,statuscode,digest,redirect"})
+        cdx_outcome = classify(cdx_status, cdx_raw) if cdx_status else "archive_unavailable"
+    except MementoError as exc:
+        cdx_outcome, cdx_raw = "archive_unavailable:" + exc.code, b""
+    if cdx_outcome == "excluded_by_archive":
+        # The archive excludes the URL (robots or administrative exclusion): honoured as published.
+        return stop("excluded_by_archive", {"http_status": cdx_status, "step": "cdx"})
+    if cdx_outcome == "blocked_by_archive":
+        return stop("blocked_by_archive", {"http_status": cdx_status, "step": "cdx"})
+    rows = {}
+    cdx_state = "unavailable"
+    if cdx_outcome == "ok":
+        try:
+            table = json.loads(cdx_raw or b"[]")
+            header = [str(h) for h in table[0]] if table else []
+            for values in table[1:]:
+                row = dict(zip(header, values, strict=False))
+                if re.fullmatch(r"\d{14}", str(row.get("timestamp", ""))):
+                    rows.setdefault(row["timestamp"], row)
+            cdx_state = "read"
+        except (ValueError, IndexError, TypeError):
+            cdx_state = "unparseable"
+    elif cdx_outcome == "no_capture_on_record":
+        cdx_state = "empty"
+    mementos = {}
+    stamps_ms = {}
+    for memento in listed:
+        stamp = _WAYBACK_STAMP.search(urlsplit(memento["uri_m"]).path + "/")
+        key = stamp.group(1) if stamp else memento["uri_m"]
+        mementos.setdefault(key, memento["uri_m"])
+        stamps_ms.setdefault(key, memento["datetime_ms"])
+    for stamp, row in rows.items():
+        # CDX rows the TimeMap did not list (collapsed or paged) are still captures on record.
+        mementos.setdefault(stamp, f"https://web.archive.org/web/{stamp}/{row.get('original') or url}")
+    ids = []
+    for key, uri_m in sorted(mementos.items())[:limit]:
+        row = rows.get(key, {})
+        digest = str(row.get("digest") or "")
+        status_code = str(row.get("statuscode") or "")
+        redirect = row.get("redirect")
+        capture = {
+            "archive_id": "internet-archive",
+            "archive_kind": "memento-archive",
+            "resolver": "internet-archive",
+            "uri_r": url,
+            "uri_m": uri_m,
+            "memento_at_ms": stamps_ms[key] if key in stamps_ms else None,
+            "status": int(status_code) if status_code.isdigit() else None,
+            "mimetype": row.get("mimetype") or None,
+            "digests": [{"algorithm": "sha1-base32", "value": digest, "basis": "published"}]
+            if _SHA1_BASE32.fullmatch(digest) else [],
+            "access_condition": access_condition(spec, uri_m),
+            "receipt": receipt,
+        }
+        if capture["memento_at_ms"] is None:
+            del capture["memento_at_ms"]
+            capture["memento_datetime"] = key
+        if status_code.startswith("3"):
+            capture["archive_redirect"] = {"status": int(status_code),
+                                           "location": redirect if redirect not in (None, "", "-") else None}
+        ids.append(client.record(capture)["capture_id"])
+    truncated = len(mementos) > limit
+    result_outcome = "captures" if ids else "no_capture_on_record"
+    snap = client.snapshot(url, "internet-archive", resolver="internet-archive", outcome=result_outcome,
+                           capture_ids=ids, truncated=truncated,
+                           detail={"cdx": cdx_state, "listed_by_timemap": len(listed), "cdx_rows": len(rows)},
+                           receipt=receipt)
+    return {"outcome": result_outcome, "capture_ids": sorted(set(ids)), "timemap_id": snap["timemap_id"],
+            "truncated": truncated, "cdx": cdx_state, "requests": budget.requests}
