@@ -1,0 +1,241 @@
+{
+  "taxonomy_format": 1,
+  "version": "1.0.0",
+  "description": "Classification overlay for the bundles under packs/ (ADR-004). Each bundle has one domain; a provider inherits its bundle's domain unless it names its own. Each provider names one or more record shapes and any number of themes. Nothing here changes runtime behaviour, bundle ids or provider ids.",
+  "domains": {
+    "governance-law": {
+      "title": "Governance and law",
+      "description": "Institutions, rules and their actors: legislation, elections, lobbying, campaign finance, courts, statutes, sanctions, procurement, public funding and humanitarian response."
+    },
+    "society-population": {
+      "title": "Society and population",
+      "description": "Population-level conditions as official statistics report them: demographics, education, labour, housing and justice statistics."
+    },
+    "economy-markets": {
+      "title": "Economy and markets",
+      "description": "Economic activity, firms and markets: macro and trade series, logistics, public finance, instruments, legal entities, ownership, insurance, real estate, on-chain activity and products."
+    },
+    "earth-environment": {
+      "title": "Earth and environment",
+      "description": "Places and the physical world: geospatial features, climate and environment, biodiversity, weather, natural hazards, energy systems, agriculture and fisheries."
+    },
+    "science-knowledge": {
+      "title": "Science and knowledge",
+      "description": "Scholarly and reference knowledge: literature, methodology, mathematics, astronomy, materials, chemicals and linguistics."
+    },
+    "health": {
+      "title": "Health",
+      "description": "Clinical evidence, medicines regulation, public-health surveillance and health-system capacity."
+    },
+    "technology": {
+      "title": "Technology",
+      "description": "Technical artefacts and their safety: software and vulnerabilities, standards, patents, open-source ecosystems and engineering safety."
+    },
+    "culture-leisure": {
+      "title": "Culture and leisure",
+      "description": "Cultural heritage, media and sport: cultural collections, book and music metadata and sports records."
+    },
+    "information-investigation": {
+      "title": "Information and investigation",
+      "description": "The information environment itself: news, OSINT corroboration and provenance, movements and web archives."
+    }
+  },
+  "record_shapes": {
+    "statistical-series": {
+      "title": "Statistical series with release vintages",
+      "description": "Numeric series keyed by source definition, where each release is an appended vintage and as-of answers select a vintage."
+    },
+    "registry-records": {
+      "title": "Registries and identity records",
+      "description": "Entries in a published register or catalogue (substances, entities, vessels, packages, languoids) with revisions and reviewable identity."
+    },
+    "events-notices": {
+      "title": "Events, notices and incidents",
+      "description": "Dated occurrences and published notices (hazards, recalls, designations, advisories, cases, results) with their revision chains."
+    },
+    "versioned-documents": {
+      "title": "Versioned documents",
+      "description": "Texts with editions, versions or amendments (laws, filings, papers, standards, patents, articles) cited by passage or version."
+    },
+    "observations": {
+      "title": "Observations and measurements",
+      "description": "Measured or observed values at a time and place (weather, ledgers, movements, prices, experimental properties)."
+    },
+    "places-geometry": {
+      "title": "Places and geometry",
+      "description": "Places, geometries, features and spatial relations."
+    }
+  },
+  "themes": {
+    "security-defence": {
+      "title": "Security and defence",
+      "description": "Conflict, sanctions, vulnerabilities, critical infrastructure and tracked movements."
+    },
+    "transport-mobility": {
+      "title": "Transport and mobility",
+      "description": "Transit, logistics, vessel and aircraft activity, and transport safety."
+    },
+    "climate": {
+      "title": "Climate",
+      "description": "Emissions, climate-related hazards and losses, energy transition and climate-sensitive food systems."
+    }
+  },
+  "infrastructure": {
+    "description": "Bundles that provide shared machinery rather than subject records. They have no domain; their providers stay unclassified unless one names a domain because it serves subject records.",
+    "packs": ["platform"]
+  },
+  "packs": {
+    "agrifood": {"domain": "earth-environment"},
+    "astronomy": {"domain": "science-knowledge"},
+    "chemicals": {"domain": "science-knowledge"},
+    "climate-environment": {"domain": "earth-environment"},
+    "clinical-evidence": {"domain": "health"},
+    "corporate-ownership": {"domain": "economy-markets"},
+    "economics": {"domain": "economy-markets"},
+    "energy": {"domain": "earth-environment"},
+    "engineering-safety": {"domain": "technology"},
+    "fisheries": {"domain": "earth-environment"},
+    "funding-grants": {"domain": "governance-law"},
+    "geospatial": {"domain": "earth-environment"},
+    "humanitarian": {"domain": "governance-law"},
+    "legal": {"domain": "governance-law"},
+    "linguistics": {"domain": "science-knowledge"},
+    "market": {"domain": "economy-markets"},
+    "materials": {"domain": "science-knowledge"},
+    "natural-hazards": {"domain": "earth-environment"},
+    "news": {"domain": "information-investigation"},
+    "onchain": {"domain": "economy-markets"},
+    "osint": {"domain": "information-investigation"},
+    "oss-ecosystems": {"domain": "technology"},
+    "political": {"domain": "governance-law"},
+    "procurement": {"domain": "governance-law"},
+    "products": {"domain": "economy-markets"},
+    "science": {"domain": "science-knowledge"},
+    "sports": {"domain": "culture-leisure"},
+    "technology": {"domain": "technology"},
+    "weather": {"domain": "earth-environment"}
+  },
+  "providers": {
+    "agrifood.core": {"shapes": ["statistical-series"], "themes": ["climate"]},
+
+    "astronomy.exoplanets": {"shapes": ["registry-records"]},
+    "astronomy.launches": {"shapes": ["registry-records", "events-notices"]},
+    "astronomy.small-bodies": {"shapes": ["registry-records"]},
+    "astronomy.space-object-registration": {"shapes": ["registry-records", "events-notices"]},
+    "astronomy.space-weather": {"shapes": ["events-notices"]},
+
+    "chemicals.substances": {"shapes": ["registry-records"]},
+
+    "environment.biodiversity": {"shapes": ["observations", "registry-records"]},
+    "environment.core": {"shapes": ["observations", "statistical-series"], "themes": ["climate"]},
+
+    "clinical.core": {"shapes": ["versioned-documents"]},
+    "clinical.health-capacity": {"shapes": ["statistical-series"]},
+    "clinical.medicines": {"shapes": ["registry-records", "versioned-documents"]},
+    "clinical.surveillance": {"shapes": ["statistical-series"]},
+
+    "ownership.competition": {"shapes": ["events-notices"]},
+    "ownership.core": {"shapes": ["registry-records"]},
+
+    "economics.core": {"shapes": ["statistical-series", "versioned-documents"]},
+    "economics.demographics": {"domain": "society-population", "shapes": ["statistical-series"]},
+    "economics.labour": {"domain": "society-population", "shapes": ["statistical-series"]},
+    "economics.logistics": {"shapes": ["statistical-series"], "themes": ["transport-mobility"]},
+    "economics.public-finance": {"shapes": ["statistical-series"]},
+    "economics.trade": {"shapes": ["statistical-series"]},
+
+    "energy.core": {"shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
+
+    "engineering-safety.defects": {"shapes": ["events-notices"], "themes": ["transport-mobility"]},
+    "engineering-safety.directives": {"shapes": ["versioned-documents"], "themes": ["transport-mobility"]},
+    "engineering-safety.identity": {"shapes": ["registry-records"]},
+    "engineering-safety.investigations": {"shapes": ["events-notices", "versioned-documents"], "themes": ["transport-mobility"]},
+    "engineering-safety.recommendations": {"shapes": ["events-notices"]},
+
+    "fisheries.core": {"shapes": ["registry-records", "statistical-series"], "themes": ["transport-mobility"]},
+
+    "funding.core": {"shapes": ["events-notices"]},
+    "funding.development-finance": {"shapes": ["registry-records"]},
+
+    "geospatial.core": {"shapes": ["places-geometry"]},
+    "geospatial.housing": {"domain": "society-population", "shapes": ["statistical-series"]},
+    "geospatial.infrastructure": {"shapes": ["registry-records", "places-geometry"], "themes": ["security-defence"]},
+    "geospatial.real-estate": {"domain": "economy-markets", "shapes": ["statistical-series"]},
+    "geospatial.transit": {"shapes": ["places-geometry"], "themes": ["transport-mobility"]},
+
+    "humanitarian.core": {"shapes": ["events-notices", "statistical-series"], "themes": ["security-defence"]},
+
+    "legal.core": {"shapes": ["versioned-documents"]},
+    "legal.courts": {"shapes": ["versioned-documents", "events-notices"]},
+    "legal.federal-statutes": {"shapes": ["versioned-documents"]},
+    "legal.justice-statistics": {"domain": "society-population", "shapes": ["statistical-series"]},
+    "legal.sanctions": {"shapes": ["registry-records"], "themes": ["security-defence"]},
+
+    "linguistics.languoids": {"shapes": ["registry-records"]},
+    "linguistics.lexicon": {"shapes": ["registry-records"]},
+    "linguistics.typology": {"shapes": ["registry-records"]},
+
+    "market.bafin": {"shapes": ["events-notices"]},
+    "market.core": {"shapes": ["registry-records", "observations"]},
+    "market.insurance": {"shapes": ["statistical-series"], "themes": ["climate"]},
+    "market.lei": {"shapes": ["registry-records"]},
+
+    "materials.computed": {"shapes": ["registry-records"]},
+    "materials.experimental": {"shapes": ["observations"]},
+    "materials.structures": {"shapes": ["registry-records"]},
+
+    "hazards.core": {"shapes": ["events-notices"], "themes": ["climate"]},
+
+    "news.core": {"shapes": ["versioned-documents"]},
+
+    "onchain.core": {"shapes": ["observations"]},
+
+    "osint.core": {"shapes": ["versioned-documents"]},
+    "osint.movements": {"shapes": ["registry-records", "observations"], "themes": ["transport-mobility", "security-defence"]},
+
+    "oss.archive": {"shapes": ["versioned-documents"]},
+    "oss.dependency-graphs": {"shapes": ["registry-records"]},
+    "oss.licences": {"shapes": ["registry-records"]},
+    "oss.registries": {"shapes": ["registry-records"]},
+
+    "platform.web-archives": {"domain": "information-investigation", "shapes": ["versioned-documents"]},
+
+    "political.campaign-finance": {"shapes": ["versioned-documents", "registry-records"]},
+    "political.core": {"shapes": ["versioned-documents"]},
+    "political.elections": {"shapes": ["statistical-series"]},
+    "political.legislation": {"shapes": ["versioned-documents"]},
+    "political.lobbying": {"shapes": ["registry-records"]},
+
+    "procurement.core": {"shapes": ["events-notices"]},
+
+    "products.appliances": {"shapes": ["registry-records"]},
+    "products.components": {"shapes": ["registry-records"]},
+    "products.core": {"shapes": ["registry-records"]},
+    "products.food": {"shapes": ["registry-records"]},
+    "products.safety": {"shapes": ["events-notices"]},
+
+    "science.cultural": {"domain": "culture-leisure", "shapes": ["registry-records"]},
+    "science.education-statistics": {"domain": "society-population", "shapes": ["statistical-series"]},
+    "science.literature": {"shapes": ["versioned-documents"]},
+    "science.mathematics": {"shapes": ["versioned-documents", "registry-records"]},
+    "science.media-metadata": {"domain": "culture-leisure", "shapes": ["registry-records"]},
+    "science.methodology": {"shapes": ["versioned-documents"]},
+    "science.paper-families": {"shapes": ["versioned-documents"]},
+    "science.systematic-reviews": {"shapes": ["versioned-documents"]},
+
+    "sports.football": {"shapes": ["events-notices"]},
+    "sports.forecasts": {"shapes": ["events-notices"]},
+    "sports.olympics": {"shapes": ["events-notices"]},
+    "sports.tennis": {"shapes": ["events-notices"]},
+
+    "technology.core": {"shapes": ["registry-records", "versioned-documents"]},
+    "technology.patents": {"shapes": ["versioned-documents"]},
+    "technology.standards": {"shapes": ["versioned-documents"]},
+    "technology.vulnerabilities": {"shapes": ["events-notices"], "themes": ["security-defence"]},
+
+    "weather.forecasts": {"shapes": ["observations"]},
+    "weather.observations": {"shapes": ["observations"], "themes": ["climate"]},
+    "weather.verification": {"shapes": ["observations"]},
+    "weather.warnings": {"shapes": ["events-notices"]}
+  }
+}
