@@ -77,7 +77,8 @@ def test_the_features_are_off_by_default_and_the_bundle_validates():
     composition = json.loads((ROOT / "packs/science/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
     assert {k: f["default"] for k, f in features.items()} == {
-        "cultural-collections": False, "media-metadata": False, "media-metadata-news": False}
+        "cultural-collections": False, "education-statistics": False, "media-metadata": False,
+        "media-metadata-news": False}
     assert {r["capability"] for r in features["media-metadata"]["requires"]} == {
         "science.media-metadata", "science.cultural-objects", "platform.entity-identity", "platform.subscriptions",
         "platform.source-acquisition"}
@@ -88,11 +89,11 @@ def test_the_features_are_off_by_default_and_the_bundle_validates():
     assert plan["features"]["science"] == []
     assert not {"science.media-metadata", "science.cultural"} & bound(plan)
     omitted = {o["feature"] for o in plan["omissions"] if o["pack"] == "science"}
-    assert omitted == {"cultural-collections", "media-metadata", "media-metadata-news"}
+    assert omitted == {"cultural-collections", "education-statistics", "media-metadata", "media-metadata-news"}
     pack = json.loads((ROOT / "packs/science/pack.json").read_text())
     assert pack["schema_versions"]["media-metadata-record"] == "1.0.0"
     assert {e["tool"] for e in pack["query_examples"]} >= {"resolve_media_identifier", "search_media_titles"}
-    assert {"pack_id": "primary-scientific-evidence", "version": "1.2.0", "range": "^1.1.0"} in plan["source_packs"]
+    assert {"pack_id": "primary-scientific-evidence", "version": "1.2.0", "range": "^1.2.0"} in plan["source_packs"]
 
 
 def test_selecting_the_features_binds_their_providers_one_per_capability():
@@ -101,11 +102,11 @@ def test_selecting_the_features_binds_their_providers_one_per_capability():
     assert "news.core" not in bound(plan)
     bindings = [b for b in plan["bindings"] if "science" in b["consumers"]]
     assert len({b["capability"] for b in bindings}) == len(bindings)
-    assert {o["feature"] for o in plan["omissions"] if o["pack"] == "science"} == {"cultural-collections",
-                                                                                   "media-metadata-news"}
+    assert {o["feature"] for o in plan["omissions"] if o["pack"] == "science"} == {
+        "cultural-collections", "education-statistics", "media-metadata-news"}
     news = science_plan(["media-metadata", "media-metadata-news"])
     assert {"science.media-metadata", "news.core"} <= bound(news)
-    everything = science_plan(["cultural-collections", "media-metadata", "media-metadata-news"])
+    everything = science_plan(["cultural-collections", "education-statistics", "media-metadata", "media-metadata-news"])
     assert not [o for o in everything["omissions"] if o["pack"] == "science"]
 
 
