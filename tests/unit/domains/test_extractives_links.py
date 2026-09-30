@@ -69,6 +69,6 @@ def test_explicit_citation_links_need_a_source_and_locator_and_refuse_inference(
     assert raised.value.code == "inferred_link_refused"
     link = links.link_by_citation(h.NS, source_kind="project", source_id="p", source_revision="a",
                                   relation="operated_by", target=target,
-                                  citation={"source": "Peru EITI report 2098 (fixture)", "locator": "annex 3"},
+                                  citation={"source": "Peru EITI report 2023 (fixture)", "locator": "annex 3"},
                                   principal_id="svc", scopes=h.SCOPES)
     assert link["basis"] == "citation" and link["state"] == "linked"

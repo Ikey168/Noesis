@@ -25,13 +25,13 @@ def _figures(stream, side):
 def test_group_payments_per_report_revision_side_by_side_with_eiti_discrepancies(env):
     _, queries = env
     before = queries.payments_for_company(h.NS, h.HOLD_ENTITY, ownership_namespace=h.OWN_NS, group=True,
-                                          scopes=h.SCOPES, as_of_ms=h.day_ms("2100-01-01"))
+                                          scopes=h.SCOPES, as_of_ms=h.day_ms("2025-01-01"))
     assert before["status"] == "reported"
     members = {m["entity"] for m in before["group_members"]}
     assert len(members) > 1
     reports = {r["citation"]["fiscal_period"]["start"][:4]: r for r in before["reports"]}
-    assert set(reports) == {"2097", "2098"}
-    report = reports["2098"]
+    assert set(reports) == {"2022", "2023"}
+    report = reports["2023"]
     assert report["citation"]["revision"] == 1 and report["citation"]["report"]["version"] == "1"
     streams = {s["company"]["name_as_reported"]: s for s in report["streams"]}
     intermediate = streams["Exampla Intermediate B.V."]
@@ -45,7 +45,7 @@ def test_group_payments_per_report_revision_side_by_side_with_eiti_discrepancies
     assert "Andes Cobre S.A. (fixture)" not in streams and "[natural person - redacted]" not in streams
     after = queries.payments_for_company(h.NS, h.HOLD_ENTITY, ownership_namespace=h.OWN_NS, group=True,
                                          scopes=h.SCOPES, history=True)
-    latest = {r["citation"]["fiscal_period"]["start"][:4]: r for r in after["reports"]}["2098"]
+    latest = {r["citation"]["fiscal_period"]["start"][:4]: r for r in after["reports"]}["2023"]
     assert latest["citation"]["revision"] == 2 and latest["citation"]["revision_of"] == report["citation"][
         "report_id"]
     assert len(latest["revision_history"]) == 2
@@ -84,7 +84,7 @@ def test_a_company_without_matches_or_the_ownership_store_answers_explicitly(env
 
 def test_country_reports_list_government_revenues_and_company_lines_per_revision(env):
     _, queries = env
-    answer = queries.payments_for_country(h.NS, "PER", scopes=h.READ_ONLY, as_of_ms=h.day_ms("2100-01-01"))
+    answer = queries.payments_for_country(h.NS, "PER", scopes=h.READ_ONLY, as_of_ms=h.day_ms("2025-01-01"))
     assert answer["status"] == "reported" and len(answer["reports"]) == 2
     latest = max(answer["reports"], key=lambda r: r["citation"]["fiscal_period"]["start"])
     assert {s["revenue_stream"]["gfs_code"] for s in latest["government_revenues"]} == {"1141E1", "1112E1"}
@@ -101,20 +101,20 @@ def test_production_side_by_side_by_vintage_never_blended_with_marked_values(env
     usgs = next(r for r in answer["results"] if r["provider"] == "usgs-mcs")
     bgs = next(r for r in answer["results"] if r["provider"] == "bgs-wms")
     assert usgs["unit"] != bgs["unit"] and usgs["series_id"] != bgs["series_id"]
-    assert usgs["marked"]["estimated"] == ["2099"] and len(usgs["vintage_history"]) == 2
-    assert usgs["vintage"]["publication"]["label"].startswith("Mineral Commodity Summaries 2100")
+    assert usgs["marked"]["estimated"] == ["2024"] and len(usgs["vintage_history"]) == 2
+    assert usgs["vintage"]["publication"]["label"].startswith("Mineral Commodity Summaries 2025")
     assert all(v["citation"]["vintage_id"] == usgs["vintage"]["vintage_id"] for v in usgs["values"])
     early = queries.production(h.NS, commodity={"hs_code": "2603"}, country="PER", statistic="production",
-                               scopes=h.READ_ONLY, as_of_ms=h.day_ms("2099-12-31"))
+                               scopes=h.READ_ONLY, as_of_ms=h.day_ms("2024-12-31"))
     early_usgs = next(r for r in early["results"] if r["provider"] == "usgs-mcs")
-    assert {v["period"]: v["value"] for v in early_usgs["values"]} == {"2097": "2600", "2098": "2700"}
+    assert {v["period"]: v["value"] for v in early_usgs["values"]} == {"2022": "2600", "2023": "2700"}
     withheld = queries.production(h.NS, commodity="Lithium", country="United States", statistic="production",
                                   scopes=h.READ_ONLY)
-    assert withheld["results"][0]["marked"]["withheld"] == ["2098", "2099"]
+    assert withheld["results"][0]["marked"]["withheld"] == ["2023", "2024"]
     assert all(v["value"] is None for v in withheld["results"][0]["values"])
     exports = queries.production(h.NS, commodity={"hs_code": "2603"}, country="PER", statistic="exports",
                                  scopes=h.READ_ONLY)
-    assert exports["results"][0]["marked"]["not_available"] == ["2098"]
+    assert exports["results"][0]["marked"]["not_available"] == ["2023"]
     none = queries.production(h.NS, commodity={"hs_code": "7108"}, country="PER", scopes=h.READ_ONLY)
     assert none["status"] == "none_published"
 
@@ -122,9 +122,9 @@ def test_production_side_by_side_by_vintage_never_blended_with_marked_values(env
 def test_evidence_bundles_cite_every_item_with_source_revision_and_as_of(env):
     _, queries = env
     payments = queries.payments_for_company(h.NS, h.HOLD_ENTITY, ownership_namespace=h.OWN_NS, group=True,
-                                            scopes=h.SCOPES, as_of_ms=h.day_ms("2100-11-01"))
+                                            scopes=h.SCOPES, as_of_ms=h.day_ms("2025-11-01"))
     production = queries.production(h.NS, commodity={"hs_code": "2603"}, country="PER", scopes=h.READ_ONLY,
-                                    as_of_ms=h.day_ms("2100-11-01"))
+                                    as_of_ms=h.day_ms("2025-11-01"))
     for answer in (payments, production):
         bundle = queries.export_bundle(answer, created_at_ms=1)
         result = verify_bundle(bundle)

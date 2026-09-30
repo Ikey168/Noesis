@@ -24,7 +24,7 @@ def loaded():
 
 def _report_key(store):
     return next(k for k in store.report_keys(h.NS) if store.report_revisions(h.NS, k)[0]["fiscal_period"]["start"]
-                == "2098-01-01")
+                == "2023-01-01")
 
 
 def test_a_revised_eiti_report_is_a_new_revision_and_as_of_selects_by_release(loaded):
@@ -36,9 +36,9 @@ def test_a_revised_eiti_report_is_a_new_revision_and_as_of_selects_by_release(lo
     changed = second["changes"]["lines_changed"]
     assert [(c["before"]["amount_text"], c["after"]["amount_text"]) for c in changed] == [("790000.00", "800000.00")]
     assert second["changes"]["discrepancies_changed"] is True
-    early, _ = store.report_as_of(h.NS, key, as_of_ms=h.day_ms("2100-01-01"))
-    late, _ = store.report_as_of(h.NS, key, as_of_ms=h.day_ms("2100-10-01"))
-    none, reason = store.report_as_of(h.NS, key, as_of_ms=h.day_ms("2099-01-01"))
+    early, _ = store.report_as_of(h.NS, key, as_of_ms=h.day_ms("2025-01-01"))
+    late, _ = store.report_as_of(h.NS, key, as_of_ms=h.day_ms("2025-10-01"))
+    none, reason = store.report_as_of(h.NS, key, as_of_ms=h.day_ms("2024-01-01"))
     assert early["revision"] == 1 and late["revision"] == 2 and none is None and reason == "no_revision_by_as_of"
     # The earlier revision keeps its figures: nothing is overwritten.
     gov = [p for p in store.payments(h.NS, first["report_id"]) if p["reported_by"] == "government"
@@ -53,11 +53,11 @@ def test_each_publication_is_an_appended_vintage_with_new_revised_and_removed_ye
                                                country_names=["Chile"]) if s["commodity"]["name"] == "Copper")
     first, second = store.vintage_rows(h.NS, series["series_id"])
     assert second["revision_of"] == first["vintage_id"]
-    assert second["changes"]["new_periods"] == ["2099"] and second["changes"]["removed_periods"] == ["2097"]
-    assert [r["period"] for r in second["changes"]["revised"]] == ["2098"]
+    assert second["changes"]["new_periods"] == ["2024"] and second["changes"]["removed_periods"] == ["2022"]
+    assert [r["period"] for r in second["changes"]["revised"]] == ["2023"]
     assert {o["period"]: o["value"] for o in store.observations(h.NS, first["vintage_id"])} == {
-        "2097": "5300", "2098": "5200"}
-    as_of, _ = store.select_vintage(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-12-31"))
+        "2022": "5300", "2023": "5200"}
+    as_of, _ = store.select_vintage(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-12-31"))
     assert as_of["vintage_id"] == first["vintage_id"]
     # Numbers live in the Economics series storage; a withheld value keeps no number there.
     assert loaded.execute("SELECT count(*) FROM economic_vintages WHERE series_id=?",

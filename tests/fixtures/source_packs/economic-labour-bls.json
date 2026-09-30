@@ -2,33 +2,33 @@
  "captured": null,
  "native_pages": [
   {
-   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"(Seas) Unemployment Rate\", \"survey_name\": \"Labor Force Statistics from the Current Population Survey\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"4.2\", \"year\": \"2099\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"4.3\", \"year\": \"2099\"}], \"seriesID\": \"LNS14000000\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
-   "request": "/publicAPI/v2/timeseries/data/LNS14000000?catalog=true&endyear=2099&startyear=2098",
+   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"(Seas) Unemployment Rate\", \"survey_name\": \"Labor Force Statistics from the Current Population Survey\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"4.2\", \"year\": \"2024\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"4.3\", \"year\": \"2024\"}], \"seriesID\": \"LNS14000000\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
+   "request": "/publicAPI/v2/timeseries/data/LNS14000000?catalog=true&endyear=2024&startyear=2023",
    "status": 200
   },
   {
-   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Not Seasonally Adjusted\", \"series_title\": \"(Unadj) Unemployment Rate\", \"survey_name\": \"Labor Force Statistics from the Current Population Survey\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"4.6\", \"year\": \"2099\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"4.7\", \"year\": \"2099\"}], \"seriesID\": \"LNU04000000\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
-   "request": "/publicAPI/v2/timeseries/data/LNU04000000?catalog=true&endyear=2099&startyear=2098",
+   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Not Seasonally Adjusted\", \"series_title\": \"(Unadj) Unemployment Rate\", \"survey_name\": \"Labor Force Statistics from the Current Population Survey\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"4.6\", \"year\": \"2024\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"4.7\", \"year\": \"2024\"}], \"seriesID\": \"LNU04000000\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
+   "request": "/publicAPI/v2/timeseries/data/LNU04000000?catalog=true&endyear=2024&startyear=2023",
    "status": 200
   },
   {
-   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"All employees, thousands, manufacturing, seasonally adjusted\", \"survey_name\": \"Employment, Hours, and Earnings from the CES survey (National)\"}, \"data\": [{\"footnotes\": [{\"code\": \"P\", \"text\": \"preliminary\"}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"12950\", \"year\": \"2099\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"12941\", \"year\": \"2099\"}, {\"footnotes\": [{}], \"period\": \"M12\", \"periodName\": \"M12\", \"value\": \"12930\", \"year\": \"2098\"}, {\"footnotes\": [{}], \"period\": \"M11\", \"periodName\": \"M11\", \"value\": \"12925\", \"year\": \"2098\"}, {\"footnotes\": [{}], \"period\": \"M10\", \"periodName\": \"M10\", \"value\": \"12910\", \"year\": \"2098\"}], \"seriesID\": \"CES3000000001\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
-   "request": "/publicAPI/v2/timeseries/data/CES3000000001?catalog=true&endyear=2099&startyear=2098",
+   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"All employees, thousands, manufacturing, seasonally adjusted\", \"survey_name\": \"Employment, Hours, and Earnings from the CES survey (National)\"}, \"data\": [{\"footnotes\": [{\"code\": \"P\", \"text\": \"preliminary\"}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"12950\", \"year\": \"2024\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"12941\", \"year\": \"2024\"}, {\"footnotes\": [{}], \"period\": \"M12\", \"periodName\": \"M12\", \"value\": \"12930\", \"year\": \"2023\"}, {\"footnotes\": [{}], \"period\": \"M11\", \"periodName\": \"M11\", \"value\": \"12925\", \"year\": \"2023\"}, {\"footnotes\": [{}], \"period\": \"M10\", \"periodName\": \"M10\", \"value\": \"12910\", \"year\": \"2023\"}], \"seriesID\": \"CES3000000001\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
+   "request": "/publicAPI/v2/timeseries/data/CES3000000001?catalog=true&endyear=2024&startyear=2023",
    "status": 200
   },
   {
-   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"Unemployment Rate: California (S)\", \"survey_name\": \"Local Area Unemployment Statistics\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"5.3\", \"year\": \"2099\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"5.4\", \"year\": \"2099\"}], \"seriesID\": \"LASST060000000000003\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
-   "request": "/publicAPI/v2/timeseries/data/LASST060000000000003?catalog=true&endyear=2099&startyear=2098",
+   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"Unemployment Rate: California (S)\", \"survey_name\": \"Local Area Unemployment Statistics\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"5.3\", \"year\": \"2024\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"5.4\", \"year\": \"2024\"}], \"seriesID\": \"LASST060000000000003\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
+   "request": "/publicAPI/v2/timeseries/data/LASST060000000000003?catalog=true&endyear=2024&startyear=2023",
    "status": 200
   },
   {
-   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"Job openings, total nonfarm, level, seasonally adjusted\", \"survey_name\": \"Job Openings and Labor Turnover Survey\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"-\", \"year\": \"2099\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"7412\", \"year\": \"2099\"}], \"seriesID\": \"JTS000000000000000JOL\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
-   "request": "/publicAPI/v2/timeseries/data/JTS000000000000000JOL?catalog=true&endyear=2099&startyear=2098",
+   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Seasonally Adjusted\", \"series_title\": \"Job openings, total nonfarm, level, seasonally adjusted\", \"survey_name\": \"Job Openings and Labor Turnover Survey\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"M02\", \"periodName\": \"M02\", \"value\": \"-\", \"year\": \"2024\"}, {\"footnotes\": [{}], \"period\": \"M01\", \"periodName\": \"M01\", \"value\": \"7412\", \"year\": \"2024\"}], \"seriesID\": \"JTS000000000000000JOL\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
+   "request": "/publicAPI/v2/timeseries/data/JTS000000000000000JOL?catalog=true&endyear=2024&startyear=2023",
    "status": 200
   },
   {
-   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Not Seasonally Adjusted\", \"series_title\": \"Annual mean wage for Software Developers in All Industries in National\", \"survey_name\": \"Occupational Employment and Wage Statistics\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"A01\", \"periodName\": \"A01\", \"value\": \"142310\", \"year\": \"2098\"}], \"seriesID\": \"OEUN000000000000015125204\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
-   "request": "/publicAPI/v2/timeseries/data/OEUN000000000000015125204?catalog=true&endyear=2098&startyear=2098",
+   "body": "{\"Results\": {\"series\": [{\"catalog\": {\"seasonality\": \"Not Seasonally Adjusted\", \"series_title\": \"Annual mean wage for Software Developers in All Industries in National\", \"survey_name\": \"Occupational Employment and Wage Statistics\"}, \"data\": [{\"footnotes\": [{}], \"period\": \"A01\", \"periodName\": \"A01\", \"value\": \"142310\", \"year\": \"2023\"}], \"seriesID\": \"OEUN000000000000015125204\"}]}, \"message\": [], \"responseTime\": 12, \"status\": \"REQUEST_SUCCEEDED\"}",
+   "request": "/publicAPI/v2/timeseries/data/OEUN000000000000015125204?catalog=true&endyear=2023&startyear=2023",
    "status": 200
   }
  ],

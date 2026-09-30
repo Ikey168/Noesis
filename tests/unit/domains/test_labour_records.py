@@ -39,15 +39,15 @@ def test_values_live_in_the_existing_economic_series_storage(loaded):
     ).fetchall()
     assert len(vintages) == 2 and vintages[1][1] == vintages[0][0]
     stored = loaded.execute(
-        "SELECT as_of, value FROM dataset_observations WHERE series_id=? AND period='2098' ORDER BY as_of",
+        "SELECT as_of, value FROM dataset_observations WHERE series_id=? AND period='2023' ORDER BY as_of",
         [series["series_id"]],
     ).fetchall()
     assert [v for _, v in stored] == [3.1, 3.0]
     # No labour-specific value table duplicates the numeric store: numbers are read back from it.
     first, second = LabourStore(loaded).vintage_rows(h.NS, series["series_id"])
     old = {o["period"]: o for o in LabourStore(loaded).observations(h.NS, first["vintage_id"])}
-    assert old["2098"]["value"] == "3.1" and old["2098"]["numeric_value"] == 3.1
-    assert second["revision_of"] == first["vintage_id"] and second["changes"]["revised"][0]["period"] == "2098"
+    assert old["2023"]["value"] == "3.1" and old["2023"]["numeric_value"] == 3.1
+    assert second["revision_of"] == first["vintage_id"] and second["changes"]["revised"][0]["period"] == "2023"
 
 
 def test_indicator_records_carry_every_declared_dimension(loaded):
@@ -67,14 +67,14 @@ def test_indicator_records_carry_every_declared_dimension(loaded):
 def test_prior_vintages_stay_queryable_and_as_of_selects_by_release_clock(loaded):
     store = LabourStore(loaded)
     series = h.series_by_key(loaded, "eurostat-lfs", "A.PC.T.Y15-74.TOTAL.DE")
-    march = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-04-01"))
-    april = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-05-01"))
-    assert {o["period"]: o["value"] for o in march["observations"]} == {"2097": "3.2", "2098": "3.0"}
-    assert {o["period"]: o["value"] for o in april["observations"]} == {"2097": "3.2", "2098": "3.1", "2099": "2.9"}
-    assert store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-01-01"))["reason"] == \
+    march = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-04-01"))
+    april = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-05-01"))
+    assert {o["period"]: o["value"] for o in march["observations"]} == {"2022": "3.2", "2023": "3.0"}
+    assert {o["period"]: o["value"] for o in april["observations"]} == {"2022": "3.2", "2023": "3.1", "2024": "2.9"}
+    assert store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-01-01"))["reason"] == \
         "no_release_by_as_of"
     changes = april["vintage"]["changes"]
-    assert changes["new_periods"] == ["2099"] and [r["period"] for r in changes["revised"]] == ["2098"]
+    assert changes["new_periods"] == ["2024"] and [r["period"] for r in changes["revised"]] == ["2023"]
 
 
 def test_re_acquisition_is_idempotent_and_conflicting_values_are_refused(loaded):
@@ -103,7 +103,7 @@ def test_source_notes_become_definition_and_comparability_notes(loaded):
         "source_notes"]
     notes = LabourComparability(loaded).notes(h.NS, scopes=h.READ_ONLY, series_id=series["series_id"])
     breaks = [n for n in notes if n["relation"] == "break_in_series"]
-    assert breaks and breaks[0]["periods"] == ["2098"] and breaks[0]["state"] == "source-stated"
+    assert breaks and breaks[0]["periods"] == ["2023"] and breaks[0]["state"] == "source-stated"
 
 
 def test_comparability_notes_follow_the_reviewable_structure(loaded):

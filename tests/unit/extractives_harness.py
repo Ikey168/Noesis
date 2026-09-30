@@ -45,8 +45,8 @@ SOURCES = {
 # Which declared documents make the first publication round; the rest arrive later.
 FIRST = {"eiti": slice(0, 2), "usgs": slice(0, 1), "bgs": slice(0, 2)}
 LATER = {"usgs": slice(1, 2), "bgs": slice(2, 3)}
-FIRST_RETRIEVAL = 4_115_404_800_000  # 2100-06-01
-SECOND_RETRIEVAL = 4_131_216_000_000  # 2100-12-01
+FIRST_RETRIEVAL = 1_748_736_000_000  # 2025-06-01
+SECOND_RETRIEVAL = 1_764_547_200_000  # 2025-12-01
 HOLD_ENTITY = "gleif:lei:213800EXAMPLAHOLDS95"
 INT_ENTITY = "gleif:lei:724500EXAMPLAINTBV75"
 
@@ -177,8 +177,8 @@ def seed_infrastructure(conn) -> dict[str, str]:
     common = {"source_url": "https://globalenergymonitor.org/projects/global-mining-tracker/",
               "attribution": "Global Energy Monitor (fixture)",
               "licence": {"id": "cc-by-4.0", "terms_url": "https://creativecommons.org/licenses/by/4.0/"},
-              "release": {"key": "fixture-2100-01", "released_at": "2100-01-15", "basis": "declared_release"},
-              "retrieved_at": "2100-02-01T00:00:00Z", "country": "PE",
+              "release": {"key": "fixture-2025-01", "released_at": "2025-01-15", "basis": "declared_release"},
+              "retrieved_at": "2025-02-01T00:00:00Z", "country": "PE",
               "geometry_receipt": {"crs_published": "EPSG:4326", "precision_m": 11.132,
                                    "precision_basis": "coordinates published to 4 decimal places"}}
     records = [

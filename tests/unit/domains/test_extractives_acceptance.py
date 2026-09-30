@@ -116,10 +116,10 @@ def test_company_and_country_to_cited_extractive_payments_and_production_with_re
 
     queries = ExtractivesQueries(conn)
     before = queries.payments_for_company(h.NS, h.HOLD_ENTITY, ownership_namespace=h.OWN_NS, group=True,
-                                          scopes=h.SCOPES, as_of_ms=h.day_ms("2100-06-30"))
+                                          scopes=h.SCOPES, as_of_ms=h.day_ms("2025-06-30"))
     after = queries.payments_for_company(h.NS, h.HOLD_ENTITY, ownership_namespace=h.OWN_NS, group=True,
-                                         scopes=h.SCOPES, as_of_ms=h.day_ms("2100-12-31"), history=True)
-    fy98 = {a: next(r for r in ans["reports"] if r["citation"]["fiscal_period"]["start"] == "2098-01-01")
+                                         scopes=h.SCOPES, as_of_ms=h.day_ms("2025-12-31"), history=True)
+    fy98 = {a: next(r for r in ans["reports"] if r["citation"]["fiscal_period"]["start"] == "2023-01-01")
             for a, ans in (("before", before), ("after", after))}
     assert (fy98["before"]["citation"]["revision"], fy98["after"]["citation"]["revision"]) == (1, 2)
     assert fy98["after"]["citation"]["revision_of"] == fy98["before"]["citation"]["report_id"]
@@ -143,7 +143,7 @@ def test_company_and_country_to_cited_extractive_payments_and_production_with_re
         assert all(v["citation"]["vintage_id"] for v in result["values"])
     lithium = queries.production(h.NS, commodity="Lithium", country="United States", scopes=h.READ_ONLY,
                                  statistic="production")
-    assert lithium["results"][0]["marked"]["withheld"] == ["2098", "2099"]
+    assert lithium["results"][0]["marked"]["withheld"] == ["2023", "2024"]
 
     # A subject with no records answers explicitly, never zero.
     trading = queries.payments_for_company(h.NS, "gleif:lei:213800EXAMPLATRADE88", ownership_namespace=h.OWN_NS,

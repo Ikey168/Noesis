@@ -67,7 +67,7 @@ def test_eiti_keeps_reporters_apart_with_discrepancies_and_drops_personal_fields
     raw = h.pages("eiti")[1]["body"].encode()
     release = parse_eiti(raw, document=document)
     (item,) = release["items"]
-    assert release["release_basis"] == "report_publication" and release["published_on"] == "2099-06-30"
+    assert release["release_basis"] == "report_publication" and release["published_on"] == "2024-06-30"
     by = {(line["company"]["name_as_reported"], line["reported_by"]): line for line in item["company_payments"]}
     assert by[("Exampla Intermediate B.V.", "company")]["amount_text"] == "800000.00"
     assert by[("Exampla Intermediate B.V.", "government")]["amount_text"] == "790000.00"
@@ -88,21 +88,21 @@ def test_usgs_keeps_withheld_values_estimates_and_units_per_series():
     series = {(i["commodity"]["name"], i["statistic"], i["country"]["name"]): i for i in release["items"]}
     assert ("Gold", "production", "Peru") not in series  # outside the bounded commodities
     lithium_us = {o["period"]: o for o in series[("Lithium", "production", "United States")]["observations"]}
-    assert lithium_us["2098"]["status"] == "withheld" and lithium_us["2098"]["value"] is None
-    assert "company proprietary" in lithium_us["2098"]["notes"][0]
+    assert lithium_us["2023"]["status"] == "withheld" and lithium_us["2023"]["value"] is None
+    assert "company proprietary" in lithium_us["2023"]["notes"][0]
     chile = {o["period"]: o for o in series[("Lithium", "production", "Chile")]["observations"]}
-    assert chile["2098"]["value"] == "49000" and chile["2098"]["estimated"] and chile["2097"]["value"] == "44000"
+    assert chile["2023"]["value"] == "49000" and chile["2023"]["estimated"] and chile["2022"]["value"] == "44000"
     copper = series[("Copper", "production", "Peru")]
     assert copper["unit"] == {"label": "thousand metric tons"}
     assert copper["commodity"]["form"] == "Mine production, recoverable copper content"
-    assert {o["period"]: o["estimated"] for o in copper["observations"]} == {"2097": False, "2098": True}
+    assert {o["period"]: o["estimated"] for o in copper["observations"]} == {"2022": False, "2023": True}
 
 
 def test_bgs_page_is_one_publication_with_attribution_and_never_truncated():
     item = h.source("bgs")
     document = item["extractives"]["documents"][0]
     release = parse_bgs(h.pages("bgs")[0]["body"].encode(), document=document)
-    assert release["structure"]["attribution"] == "Contains British Geological Survey materials (c) UKRI 2099"
+    assert release["structure"]["attribution"] == "Contains British Geological Survey materials (c) UKRI 2024"
     stats = {(i["statistic"], i["country"]["name"]) for i in release["items"]}
     assert ("exports", "Peru") in stats and ("production", "Chile") in stats
     assert all(i["country"]["code_scheme"] == "iso3166-1-alpha3" for i in release["items"])

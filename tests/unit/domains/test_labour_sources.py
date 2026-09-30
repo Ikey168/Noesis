@@ -54,7 +54,7 @@ def test_ilostat_keeps_modelled_estimates_and_national_series_apart_with_source_
         "ILO,DF_UNE_DEAP")
     notes = {(n["attribute"], n["value"]) for n in national["source_notes"]}
     assert ("SOURCE", "BA:1234") in notes and ("NOTE_SOURCE", "R1:3513") in notes
-    assert any(n["kind"] == "break" and n["periods"] == ["2098"] for n in national["source_notes"])
+    assert any(n["kind"] == "break" and n["periods"] == ["2023"] for n in national["source_notes"])
     sector = next(i for i in items if i["sector"])
     assert sector["sector"] == {"scheme": "ISIC", "version": "Rev.4", "code": "C", "native": "ECO_ISIC4_C",
                                 "label": "Manufacturing"}
@@ -77,10 +77,10 @@ def test_eurostat_flags_are_verbatim_and_confidential_cells_carry_no_value():
     regional = {r["labour_item"]["area"]["code"]: r["labour_item"] for r in records
                 if r["labour_item"]["indicator"]["code"] == "lfst_r_lfu3rt"}
     berlin = {o["period"]: o for o in regional["DE30"]["observations"]}
-    assert berlin["2097"]["status"] == "confidential" and berlin["2097"]["value"] is None
-    assert berlin["2098"]["flags"] == {"OBS_FLAG": "u"} and berlin["2098"]["value"] == "5.4"
+    assert berlin["2022"]["status"] == "confidential" and berlin["2022"]["value"] is None
+    assert berlin["2023"]["flags"] == {"OBS_FLAG": "u"} and berlin["2023"]["value"] == "5.4"
     release = records[0]["labour_release"]
-    assert release["release_basis"] == "provider_last_update" and release["published_on"] == "2099-03-20"
+    assert release["release_basis"] == "provider_last_update" and release["published_on"] == "2024-03-20"
     esms = records[0]["labour_item"]["references"][0]
     assert esms["identifier"] == "lfsa_esms"
 
@@ -97,9 +97,9 @@ def test_bls_series_ids_decode_and_footnotes_stay_per_observation():
         decode_bls_series_id("XX123")
     items = {r["labour_item"]["native_key"]: r for page in h.fetch("bls") for r in page}
     ces = {o["period"]: o for o in items["CES3000000001"]["labour_item"]["observations"]}
-    assert ces["2099-02"]["footnotes"] == [{"code": "P", "text": "preliminary"}]
+    assert ces["2024-02"]["footnotes"] == [{"code": "P", "text": "preliminary"}]
     jolts_obs = {o["period"]: o for o in items["JTS000000000000000JOL"]["labour_item"]["observations"]}
-    assert jolts_obs["2099-02"]["status"] == "not_published" and jolts_obs["2099-02"]["value"] is None
+    assert jolts_obs["2024-02"]["status"] == "not_published" and jolts_obs["2024-02"]["value"] is None
     # The registration key is sent to the transport but never recorded.
     for record in items.values():
         assert "registrationkey" not in record["url"] and FIXTURE_SECRET not in json.dumps(record)
