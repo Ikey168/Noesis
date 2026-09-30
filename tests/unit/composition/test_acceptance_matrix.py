@@ -235,6 +235,11 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The Science research-entities features' offline journey (#2644) composes the record owner with the source-pack
+    # runtime, ownership identity, Scholarly literature and Funding records and subscriptions.
+    "Organisation or researcher to research-entity records":
+        "tests/unit/domains/test_research_entities_acceptance.py::"
+        "test_organisation_and_researcher_to_cited_registry_records_asserted_works_datasets_and_projects",
 }
 
 
