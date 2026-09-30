@@ -390,6 +390,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.trade import TRADE_WRITES
     if name in TRADE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_WRITES
+    if name in WEB_ARCHIVE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
     if name in LEGISLATION_WRITES:
         return "write"
@@ -1058,6 +1061,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in OSS_TOOLS:
         return oss_ecosystem_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_TOOLS
+    from tools.knowledge_engine_mcp.web_archives import required_scopes as web_archive_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in WEB_ARCHIVE_TOOLS:
+        return web_archive_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.trade import TRADE_TOOLS
     from tools.knowledge_engine_mcp.trade import required_scopes as trade_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in TRADE_TOOLS:

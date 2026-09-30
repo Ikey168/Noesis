@@ -1,0 +1,373 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "platform.web-archives",
+  "version": "1.0.0",
+  "description": "Web archive provenance across archives through Memento (RFC 7089): Time Travel aggregator, Internet Archive (TimeMap and CDX digests), UK Web Archive and Arquivo.pt TimeMaps, and Common Crawl index hits as a crawl corpus. Capture, TimeMap snapshot, match and pin records live in the existing citation preservation store (src.kb.citation_preservation); reviewable canonicalised matching (src.kb.web_archive_identity), as-of answers (src.kb.web_archive_queries) and subscription monitors (src.kb.web_archive_monitoring). Save Page Now (src.ingestion.wayback) is a separate write capability behind an explicit scope and an optional feature, off by default.",
+  "implementation": {
+    "name": "src.ingestion.memento",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "platform.web-archives",
+      "contract": {
+        "name": "noesis-web-archive-capture",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "contracts",
+        "readiness",
+        "resolve",
+        "list-captures",
+        "as-of",
+        "propose-matches",
+        "review-match",
+        "pin",
+        "list-pins",
+        "create-monitor",
+        "check-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "resolver_is_not_archive": "the aggregator is recorded as the resolver; each memento is recorded under the archive that holds it",
+        "per_archive_outcomes": "no capture on record, archive unavailable, excluded or deferred by access decision, excluded or blocked by the archive and not reported by the aggregator stay distinct",
+        "access_decisions": "archive.today excluded, Library of Congress and Vefsafn.is deferred, BnF excluded (docs/roadmaps/platform-web-archives-source-audit.md)",
+        "crawl_corpus": "Common Crawl is a crawl corpus and never a TimeGate answer",
+        "digests": "labelled published or computed; same content means digest equality only",
+        "pins": "a pin binds a citation id to one capture and never rewrites the cited URL; re-pinning adds a revision",
+        "matching": "exact URI-R matches accepted; canonicalised and redirect-derived matches reviewable; rejected matches never pin",
+        "exclusions": "no bypass of robots, exclusion, paywalls, reading-room or anti-automation controls; no bulk mirroring or TimeMap harvesting",
+        "live_verification": "unverified-live until WA15 (#2348)",
+        "no_new_store": true
+      }
+    },
+    {
+      "id": "platform.web-archive-capture",
+      "contract": {
+        "name": "noesis-save-page-now-request",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "save-page-now",
+        "check-save-page-now",
+        "list-save-page-now"
+      ],
+      "semantic_constraints": {
+        "write_scope": "knowledge:citation:archive-request",
+        "optional_feature": "save-page-now",
+        "default_enabled": false,
+        "budget": "5 requests per namespace per UTC day, one status poll per call",
+        "refusals": "robots-excluded or refused URLs are recorded as refused and never retried through another archive or proxy",
+        "campaigns": "no bulk or scheduled capture campaigns"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "contracts",
+      "tool": "noesis-knowledge-engine.web_archive_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": []
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.web_archive_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read"
+      ]
+    },
+    {
+      "id": "resolve",
+      "tool": "noesis-knowledge-engine.resolve_web_archive_captures",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "request_id",
+        "receipt": "memento_acquisitions"
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:citation:capture"
+      ],
+      "required_context": [
+        "namespace",
+        "principal",
+        "network"
+      ],
+      "output_contract": "noesis-web-archive-capture-v1"
+    },
+    {
+      "id": "list-captures",
+      "tool": "noesis-knowledge-engine.list_web_archive_captures",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "web-archive-captures",
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "output_contract": "noesis-web-archive-capture-v1"
+    },
+    {
+      "id": "as-of",
+      "tool": "noesis-knowledge-engine.web_page_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "web-archive-captures",
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-matches",
+      "tool": "noesis-knowledge-engine.propose_web_archive_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "citation_id"
+      },
+      "readiness_probe": "web-archive-captures",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:citation:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "output_contract": "noesis-web-archive-match-v1"
+    },
+    {
+      "id": "review-match",
+      "tool": "noesis-knowledge-engine.review_web_archive_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id"
+      },
+      "readiness_probe": "web-archive-captures",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:citation:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "output_contract": "noesis-web-archive-match-v1"
+    },
+    {
+      "id": "pin",
+      "tool": "noesis-knowledge-engine.pin_citation_capture",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "citation_id"
+      },
+      "readiness_probe": "web-archive-captures",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:citation:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ],
+      "output_contract": "noesis-citation-pin-v1"
+    },
+    {
+      "id": "list-pins",
+      "tool": "noesis-knowledge-engine.list_citation_pins",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "required_context": [
+        "namespace"
+      ],
+      "output_contract": "noesis-citation-pin-v1"
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_web_archive_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "check-monitor",
+      "tool": "noesis-knowledge-engine.check_web_archive_monitor",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "request_id",
+        "receipt": "memento_acquisitions"
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:citation:capture",
+        "knowledge:citation:write",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal",
+        "network"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_web_archive_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "watermark"
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_web_archive_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "principal"
+      ]
+    },
+    {
+      "id": "save-page-now",
+      "tool": "noesis-knowledge-engine.request_save_page_now",
+      "side_effect": "external-publication",
+      "idempotency": {
+        "supported": true,
+        "key": "request_id",
+        "receipt": "wayback_save_requests"
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:archive-request"
+      ],
+      "required_context": [
+        "namespace",
+        "principal",
+        "credentials",
+        "network"
+      ]
+    },
+    {
+      "id": "check-save-page-now",
+      "tool": "noesis-knowledge-engine.check_save_page_now",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "request_id",
+        "receipt": "wayback_save_requests"
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:archive-request"
+      ],
+      "required_context": [
+        "namespace",
+        "principal",
+        "credentials",
+        "network"
+      ]
+    },
+    {
+      "id": "list-save-page-now",
+      "tool": "noesis-knowledge-engine.list_save_page_now_requests",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "citation-snapshots",
+      "required_scopes": [
+        "knowledge:citation:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "citation-preservation",
+      "store": "src.kb.citation_preservation",
+      "tables": [
+        "citation_snapshots",
+        "citation_health_checks",
+        "web_archive_captures",
+        "web_archive_timemaps",
+        "web_archive_matches",
+        "citation_pins"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "citation-snapshots",
+      "kind": "table-exists",
+      "target": "citation_snapshots"
+    },
+    {
+      "id": "web-archive-captures",
+      "kind": "table-exists",
+      "target": "web_archive_captures"
+    }
+  ]
+}
