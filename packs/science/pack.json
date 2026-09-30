@@ -43,7 +43,14 @@
       "gnd",
       "deutsche nationalbibliothek",
       "library of congress",
-      "lcnaf"
+      "lcnaf",
+      "uniprot",
+      "unisave",
+      "ncbi gene",
+      "ncbi taxonomy",
+      "rcsb pdb",
+      "protein data bank",
+      "chembl"
     ],
     "claims": [
       "finding",
@@ -81,7 +88,17 @@
       "isbn",
       "isrc",
       "mbid",
-      "authority record"
+      "authority record",
+      "protein",
+      "gene",
+      "taxon",
+      "protein structure",
+      "drug target",
+      "compound",
+      "bioactivity",
+      "uniprot accession",
+      "pdb id",
+      "chembl id"
     ]
   },
   "enrichers": [],
@@ -113,7 +130,14 @@
     "media-metadata-authority-records",
     "media-revision-history-as-of",
     "reviewable-media-identity",
-    "citation-only-media-links"
+    "citation-only-media-links",
+    "lifesci-reference-records",
+    "lifesci-entry-as-of-release",
+    "lifesci-cross-reference-graph",
+    "lifesci-published-bioactivity",
+    "reviewable-lifesci-identity",
+    "lifesci-citation-links",
+    "lifesci-monitoring"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -130,7 +154,8 @@
     "education-identity": "1.0.0",
     "education-link": "1.0.0",
     "education-notification": "1.0.0",
-    "media-metadata-record": "1.0.0"
+    "media-metadata-record": "1.0.0",
+    "lifesci-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -145,7 +170,8 @@
       "noesis-formal-declaration-v1",
       "noesis-math-link-v1",
       "noesis-education-statistic-record-v1",
-      "noesis-media-metadata-record-v1"
+      "noesis-media-metadata-record-v1",
+      "noesis-lifesci-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -168,7 +194,14 @@
       "recording",
       "release",
       "creator",
-      "authority_link"
+      "authority_link",
+      "protein_entry",
+      "gene_record",
+      "taxon_node",
+      "structure_entry",
+      "chembl_target",
+      "chembl_compound",
+      "bioactivity_measurement"
     ],
     "relation_types": [
       "cites",
@@ -190,7 +223,12 @@
       "edition_of",
       "recording_of",
       "has_track",
-      "redirected_to"
+      "redirected_to",
+      "merged_into",
+      "superseded_by",
+      "maps_to_uniprot",
+      "cross_references",
+      "measured_against"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -297,6 +335,26 @@
         "creator": "Mara Quell"
       },
       "semantics": "ranked candidates with title and name evidence, one per identity; never a single asserted answer and no popularity ranking"
+    },
+    {
+      "intent": "Which version of this UniProt entry was in force at a release, and what does it cross-reference",
+      "tool": "lifesci_entry_as_of",
+      "arguments": {
+        "namespace": "global",
+        "identifier": "P0DZZ1",
+        "release": "2099_01"
+      },
+      "semantics": "the entry and sequence version in force at the release (UniSave history when the full entry was not acquired), merged or obsolete accessions resolved to their successors with history, and cross-references labelled with the source that asserts them; every entry version cited"
+    },
+    {
+      "intent": "Which compounds have published activity against this target in a ChEMBL release",
+      "tool": "lifesci_target_activities",
+      "arguments": {
+        "namespace": "global",
+        "target": "CHEMBL9990201",
+        "release": "ChEMBL_99"
+      },
+      "semantics": "compounds and activities as ChEMBL published them, with data-validity comments and the cited document; values never converted or aggregated across assay types"
     }
   ],
   "exclusions": [
@@ -320,6 +378,12 @@
     "popularity rankings of works or recordings",
     "rights clearance determinations from catalogue notes",
     "MusicBrainz supplementary (non-CC0) data",
-    "bulk provider mirrors"
+    "bulk provider mirrors",
+    "biological or clinical inference from reference records",
+    "activity, binding or toxicity prediction",
+    "sequence analysis beyond storage",
+    "conversion or aggregation of activity values across assays or assay types",
+    "person names from author, depositor or submitter fields",
+    "computed structure models"
   ]
 }

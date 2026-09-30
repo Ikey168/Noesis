@@ -75,6 +75,14 @@
           "name": "noesis-media-metadata-link",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "science.life-sciences",
+        "provider": "science.life-sciences",
+        "contract": {
+          "name": "noesis-lifesci-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -96,6 +104,10 @@
       },
       {
         "id": "science.media-metadata",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.life-sciences",
         "version": "1.0.0"
       }
     ],
@@ -268,6 +280,130 @@
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
           "reason": "reviews are entity-history decisions"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-uniprot",
+      "default": false,
+      "description": "Life-science reference data (uniprot): UniProtKB entries by accession (reviewed and unreviewed as UniProt labels them) with entry and sequence versions per release, the UniSave version history, cross-references and literature; merged, demerged and deleted accessions kept with their successors. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source identity reviews are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-ncbi",
+      "default": false,
+      "description": "Life-science reference data (ncbi): NCBI Gene records by Gene ID and NCBI Taxonomy nodes by Tax ID with lineage as published; replaced, discontinued and merged identifiers kept with their successors; the optional API key stays in a request header. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source identity reviews are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-pdb",
+      "default": false,
+      "description": "Life-science reference data (pdb): Experimental RCSB PDB entries by PDB ID with revision history, methods and resolution as published and entity-to-UniProt mappings as the PDB states them; obsolete and superseding entries kept; computed structure models excluded. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source identity reviews are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+        }
+      ]
+    },
+    {
+      "id": "life-sciences-chembl",
+      "default": false,
+      "description": "Life-science reference data (chembl): ChEMBL targets, compounds, activities and cited documents per release with values, relations, units and data-validity comments as published, never converted or aggregated; compounds may match Chemicals substances by InChIKey (reviewed) and targets link to Clinical medicines that name them when those packs are installed. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "requires": [
+        {
+          "capability": "science.life-sciences",
+          "contract": "noesis-lifesci-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source identity reviews are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the source runs through the source-pack runtime with budgets and receipts"
         }
       ]
     }
