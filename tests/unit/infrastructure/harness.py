@@ -26,3 +26,56 @@ def acquire(conn, name, *, namespace=NS, scopes=SCOPES, selection=None):
 
 def acquire_all(conn, names=None, **kwargs):
     return {name: acquire(conn, name, **kwargs) for name in names or list(fb.SELECTIONS)}
+
+
+OWNERSHIP_NS = "ownership"
+
+
+def load_ownership(conn, namespace=OWNERSHIP_NS):
+    """Synthetic Corporate Ownership legal entities: one with an LEI and a Wikidata QID, two name-only ones."""
+
+    from src.kb.ownership_records import record
+    from src.kb.ownership_store import OwnershipStore
+
+    def entity(key, name, jurisdiction, identifiers):
+        return record("legal_entity", key, {"provider": "gleif", "provider_record_id": key.split(":", 1)[1]},
+                      name=name, jurisdiction=jurisdiction, identifiers=identifiers)
+
+    records = [
+        entity("lei:529900FIXTURE0000001", "Fixture Energie AG", "DE",
+               [{"scheme": "lei", "value": "529900FIXTURE0000001"}, {"scheme": "wikidata", "value": "Q999001"}]),
+        entity("lei:529900FIXTURE0000002", "Fixture Gastransport GmbH", "DE",
+               [{"scheme": "lei", "value": "529900FIXTURE0000002"}]),
+        entity("lei:529900FIXTURE0000003", "Fixture Holding SE", "LU",
+               [{"scheme": "lei", "value": "529900FIXTURE0000003"}]),
+    ]
+    return OwnershipStore(conn).apply(namespace, records, run_id="ownership-fixture", observed_at_ms=0,
+                                      principal_id="ownership-loader")
+
+
+def load_legal(conn, namespace="legal"):
+    """A synthetic legal work whose identifier is the docket the EIA LNG layer cites."""
+
+    from src.kb.legal import REGIONAL_CONTRACT, LegalStore
+
+    return LegalStore(conn).project(namespace, [{
+        "contract": REGIONAL_CONTRACT, "provider": "berlin-law", "provider_id": "CP99-001-000", "kind": "normative",
+        "language": "en", "title": "Fixture order authorising the Fixture LNG Terminal",
+        "fields": {"enactment_date": "2020-01-01"}}], run_id="legal-fixture", source_id="legal-fixture")
+
+
+ENV_SCOPES = {"knowledge:environment:write", "knowledge:environment:read", "namespace:environment:write",
+              "namespace:environment:read"}
+
+
+def load_environment(conn, namespace="environment"):
+    """Two synthetic facilities: one citing the GPPD id of Fixture Lignite Plant Nord, one sharing only a name."""
+
+    from src.kb import environment_records as er
+    from src.kb.environment_store import EnvironmentStore
+
+    return EnvironmentStore(conn).apply(namespace, [
+        er.facility("eea-industry", "F-1", "Fixture Lignite Plant Nord", source_url="https://industry.eea.europa.eu/",
+                    geometry=None, operator={"name": "Fixture Energie AG"}, identifiers={"gppd_idnr": "DEU9990001"}),
+        er.facility("eea-industry", "F-2", "Fixture Kraftwerk Alt", source_url="https://industry.eea.europa.eu/",
+                    geometry=None, operator={"name": None})], run_id="env", principal_id="env", scopes=ENV_SCOPES)
