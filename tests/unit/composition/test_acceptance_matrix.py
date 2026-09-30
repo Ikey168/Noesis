@@ -106,6 +106,12 @@ MATRIX = {
     "Institution and country to education statistics":
         "tests/unit/domains/test_education_statistics_acceptance.py::"
         "test_ror_institution_and_country_to_cited_statistics_with_vintages_and_links",
+    # The Science life-sciences features' offline journey (#2716) composes science (UniProt, NCBI, RCSB PDB,
+    # ChEMBL), Chemicals substances, Biodiversity occurrences, Clinical medicines, literature documents, entity
+    # identity, subscriptions and the source-pack runtime.
+    "Protein to cited reference records and bioactivity":
+        "tests/unit/domains/test_lifesci_acceptance.py::"
+        "test_protein_to_cited_reference_records_structures_and_published_bioactivity",
     # The Economics logistics feature's offline journey (#2551) composes economics (UN/LOCODE, UNCTADstat, Eurostat
     # maritime, the BLS freight index, trade-flow joins), geospatial places, subscriptions and the source-pack runtime.
     "Port to logistics series":
