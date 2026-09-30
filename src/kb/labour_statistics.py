@@ -1247,7 +1247,237 @@ def readiness(conn: Any) -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------------- as-of answers (LB09)
+
+
+def _next_period(period: str, frequency: str) -> str | None:
+    if frequency == "annual" and len(period) == 4:
+        return str(int(period) + 1)
+    if frequency == "monthly" and len(period) == 7:
+        year, month = int(period[:4]), int(period[5:])
+        return f"{year + (month == 12)}-{1 if month == 12 else month + 1:02d}"
+    if frequency == "quarterly" and "-Q" in period:
+        year, quarter = int(period[:4]), int(period[-1])
+        return f"{year + (quarter == 4)}-Q{1 if quarter == 4 else quarter + 1}"
+    return None
+
+
+def missing_periods(periods: Sequence[str], frequency: str) -> list[str]:
+    """Periods between the first and last published period that the vintage does not state (never filled)."""
+    stated = sorted(set(periods))
+    if len(stated) < 2:
+        return []
+    out, current = [], _next_period(stated[0], frequency)
+    while current is not None and current < stated[-1] and len(out) < 1000:
+        if current not in stated:
+            out.append(current)
+        current = _next_period(current, frequency)
+    return out
+
+
+class LabourQueries:
+    """Labour indicators for a place, sector or occupation as of a release vintage, sources side by side."""
+
+    def __init__(self, conn: Any, *, now=None) -> None:
+        self.conn = conn
+        self.store = LabourStore(conn, initialize=False, now=now)
+
+    def _identity(self):
+        from src.kb.labour_identity import LabourIdentity
+
+        return LabourIdentity(self.conn, initialize=True, now=self.store.now)
+
+    def _place_codes(self, namespace: str, place: Any) -> dict[str, Any]:
+        """Area codes of a place: accepted mappings for a place id, else the native code as given."""
+        if isinstance(place, Mapping):
+            return {"place": dict(place), "codes": [{"scheme": place["scheme"], "code": str(place["code"]),
+                                                    "basis": "native code as requested"}]}
+        identity = self._identity()
+        codes = [{**c, "basis": "accepted place mapping"} for c in identity.area_codes_for_place(namespace, place)]
+        pending = [
+            {"scheme": a["subject"]["scheme"], "code": a["subject"]["code"], "state": a["state"],
+             "reason": a["reason"]}
+            for a in identity.assertions(namespace, scopes={"operator"}, kind="area")
+            if a["state"] in {"proposed", "ambiguous"} and (
+                (a["target"] or {}).get("place_id") == place
+                or any(c["place_id"] == place for c in a["evidence"].get("candidates") or []))
+        ]
+        return {"place": {"place_id": place}, "codes": codes, "unmapped_codes": pending}
+
+    def _classified(self, namespace: str, kind: str, wanted: Mapping[str, Any] | None) -> dict[str, Any] | None:
+        if not wanted:
+            return None
+        wanted = dict(wanted)
+        codes = [{"scheme": wanted["scheme"], "version": str(wanted["version"]), "code": str(wanted["code"]),
+                  "relation": "exact", "basis": "requested code"}]
+        identity = self._identity()
+        for mapped in identity.codes_for(namespace, kind, wanted):
+            if (mapped["scheme"], mapped["version"], mapped["code"]) != (codes[0]["scheme"], codes[0]["version"],
+                                                                         codes[0]["code"]):
+                codes.append({**mapped, "basis": "accepted concordance mapping"})
+        if wanted["scheme"] == "ISCO":
+            # ISCO-08 is hierarchical by digits: an accepted mapping to a unit group lies within its major group.
+            for assertion in identity.assertions(namespace, scopes={"operator"}, kind=kind, state="accepted"):
+                if assertion["subject"]["target"] != {"scheme": "ISCO", "version": str(wanted["version"])}:
+                    continue
+                for mapped in assertion["target"]["codes"]:
+                    if mapped["code"] != wanted["code"] and mapped["code"].startswith(str(wanted["code"])):
+                        codes.append({"scheme": assertion["subject"]["scheme"],
+                                      "version": assertion["subject"]["version"], "code": assertion["subject"]["code"],
+                                      "relation": "narrower", "via": mapped["code"],
+                                      "assertion_id": assertion["assertion_id"],
+                                      "basis": "accepted mapping to a code within the requested ISCO group"})
+        unmapped = [
+            {"scheme": a["subject"]["scheme"], "version": a["subject"]["version"], "code": a["subject"]["code"],
+             "state": a["state"], "reason": a["reason"]}
+            for a in identity.assertions(namespace, scopes={"operator"}, kind=kind)
+            if a["subject"]["target"] == {"scheme": wanted["scheme"], "version": str(wanted["version"])}
+            and a["state"] != "accepted"
+        ]
+        return {"requested": wanted, "codes": codes, "unmapped_codes": unmapped}
+
+    @staticmethod
+    def _matches(value: Mapping[str, Any] | None, codes: list[dict[str, Any]]) -> dict[str, Any] | None:
+        if value is None:
+            return None
+        for code in codes:
+            if (value["scheme"], str(value["version"]), value["code"]) == (code["scheme"], code["version"],
+                                                                          code["code"]):
+                return code
+        return None
+
+    def indicators(
+        self,
+        namespace: str,
+        *,
+        scopes: Iterable[str],
+        place: Any = None,
+        sector: Mapping[str, Any] | None = None,
+        occupation: Mapping[str, Any] | None = None,
+        concept: str | None = None,
+        as_of_ms: int | None = None,
+        history: bool = False,
+        period_from: str | None = None,
+        period_to: str | None = None,
+    ) -> dict[str, Any]:
+        """Published values known at ``as_of_ms`` per source, with definitions, seasonal adjustment, vintage and
+        comparability notes; nothing blended, re-harmonised or filled."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        if place is None and sector is None and occupation is None:
+            raise LabourError("invalid_query", "name a place, a sector or an occupation")
+        if concept is not None and concept not in CONCEPTS:
+            raise LabourError("invalid_query", f"concept is one of {CONCEPTS}")
+        places = None if place is None else self._place_codes(namespace, place)
+        sectors = self._classified(namespace, "sector", sector)
+        occupations = self._classified(namespace, "occupation", occupation)
+        area_codes = None if places is None else {(c["scheme"], c["code"]) for c in places["codes"]}
+        comparability = LabourComparability(self.conn, now=self.store.now, initialize=False) if table_exists(
+            self.conn, "labour_comparability") else None
+        results, unavailable = [], []
+        for series in self.store.find_series(namespace, concept=concept):
+            if area_codes is not None and (series["area"]["scheme"], str(series["area"]["code"])) not in area_codes:
+                continue
+            sector_match = self._matches(series["sector"], sectors["codes"]) if sectors else None
+            if sectors and sector_match is None:
+                continue
+            occupation_match = self._matches(series["occupation"], occupations["codes"]) if occupations else None
+            if occupations and occupation_match is None:
+                continue
+            vintage, reason = self.store.select_vintage(namespace, series["series_id"], as_of_ms=as_of_ms)
+            if vintage is None:
+                unavailable.append({"series_id": series["series_id"], "provider": series["provider"],
+                                    "native_key": series["native_key"], "reason": reason})
+                continue
+            revision = self.store.source_revision(namespace, vintage["release_id"])
+            cite = {"provider": series["provider"], "source_id": revision["source_id"],
+                    "series_key": series["native_key"], "vintage_id": vintage["vintage_id"],
+                    "release_at": vintage["release_at"], "release_basis": vintage["release_at_basis"],
+                    "retrieved_at": vintage["retrieved_at"], "file_sha256": revision["file_sha256"]}
+            observations = self.store.observations(namespace, vintage["vintage_id"], period_from=period_from,
+                                                   period_to=period_to)
+            values = [{**o, "seasonal_adjustment": series["seasonal_adjustment"], "citation": cite}
+                      for o in observations]
+            stated = [o["period"] for o in observations]
+            results.append({
+                "series_id": series["series_id"],
+                "provider": series["provider"],
+                "native_key": series["native_key"],
+                "indicator": series["indicator"],
+                "estimate_type": series["estimate_type"],
+                "definition_basis": series["definition_basis"],
+                "seasonal_adjustment": series["seasonal_adjustment"],
+                "frequency": series["frequency"],
+                "unit": series["unit"],
+                "unit_multiplier": series["unit_multiplier"],
+                "area": series["area"],
+                "sector": series["sector"],
+                "occupation": series["occupation"],
+                "matched_by": {"sector": sector_match, "occupation": occupation_match},
+                "definition": self.store.definition(namespace, vintage["definition_id"]),
+                "vintage": {**vintage, "source_revision": revision},
+                "values": values,
+                "gaps": {
+                    "missing_periods": missing_periods(stated, series["frequency"]),
+                    "withheld_periods": [{"period": o["period"], "status": o["status"], "flags": o["flags"]}
+                                         for o in observations if o["status"] != "reported"],
+                    "latest_published_period": max(stated) if stated else None,
+                    "note": "missing and withheld periods are not filled; no nowcast extends the series",
+                },
+                "source_notes": [] if comparability is None else [
+                    {k: n[k] for k in ("relation", "statement", "periods", "state")}
+                    for n in comparability.notes(namespace, scopes={"operator"}, series_id=series["series_id"],
+                                                 active_only=True) if n["right"] is None],
+                **({"revision_history": [
+                    {k: v[k] for k in ("vintage_id", "release_at", "release_at_basis", "retrieved_at",
+                                       "revision_of", "changes")}
+                    for v in self.store.vintage_rows(namespace, series["series_id"])]} if history else {}),
+            })
+        pairs = []
+        for i, left in enumerate(results):
+            for right in results[i + 1:]:
+                if left["indicator"]["concept"] != right["indicator"]["concept"]:
+                    continue
+                pairs.append({
+                    "series": [left["series_id"], right["series_id"]],
+                    "recorded_differences": comparability_basis(left, right),
+                    "notes": [] if comparability is None else comparability.notes_between(
+                        namespace, left["series_id"], right["series_id"]),
+                })
+        for pair in pairs:
+            if not pair["notes"] and not pair["recorded_differences"]:
+                pair["status"] = "comparability_unknown"
+            else:
+                pair["status"] = "noted"
+        return {
+            "contract": ANSWER_CONTRACT,
+            "namespace": namespace,
+            "as_of": iso_from_ms(as_of_ms),
+            "subject": {"place": places, "sector": sectors, "occupation": occupations, "concept": concept},
+            "status": "reported" if results else "none_published",
+            "results": results,
+            "unavailable_by_as_of": unavailable,
+            "comparability": pairs,
+            "side_by_side": True,
+            "exclusions": list(EXCLUSIONS),
+            "note": "each source's published values side by side; series are never blended, averaged or "
+            "re-harmonised and no missing period is filled or nowcast",
+        }
+
+    def history(self, namespace: str, series_id: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        authorize(namespace, set(scopes), READ_SCOPE)
+        series = self.store.series(namespace, series_id)
+        vintages = []
+        for vintage in self.store.vintage_rows(namespace, series_id):
+            vintages.append({**vintage, "source_revision": self.store.source_revision(namespace, vintage["release_id"]),
+                             "observations": self.store.observations(namespace, vintage["vintage_id"])})
+        return {"contract": ANSWER_CONTRACT, "series": series, "vintages": vintages,
+                "note": "every retained vintage; earlier values are never overwritten"}
+
+
 __all__ = [
+    "LabourQueries",
+    "missing_periods",
     "ANSWER_CONTRACT",
     "CHANGE_KINDS",
     "COMPARABILITY_CONTRACT",
