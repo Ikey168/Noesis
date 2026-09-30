@@ -220,6 +220,12 @@ MATRIX = {
     "Taxon or place to cited biodiversity records":
         "tests/unit/domains/test_biodiversity_acceptance.py::"
         "test_taxon_and_place_to_cited_occurrences_and_conservation_status_history",
+    # The Climate and Environment water features' offline journey (#2642) composes the environment.water record
+    # owner with geospatial places, entity identity decisions, hazard and infrastructure records by citation or
+    # shared identifier, and subscriptions.
+    "Place to cited water levels, discharge and water-body status":
+        "tests/unit/domains/test_water_acceptance.py::"
+        "test_place_to_gauging_stations_cited_observations_and_water_body_status_history",
     # The Geospatial real-estate feature's offline journey (#2516) composes its record owner with the WFS path,
     # geospatial places and receipts, entity identity decisions, legal works and subscriptions.
     "Place or parcel to cited real-estate transactions":

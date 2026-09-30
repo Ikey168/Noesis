@@ -309,6 +309,11 @@ For the project overview and local setup, start with the
   Catalogue of Life names and releases, and IUCN conservation status history at citation level; reviewable taxon
   identity, as-of answers and monitors; no distribution modelling, abundance or derived threat status;
   [source audit](development/biodiversity-evidence/source-audit.md)
+- [Climate and Environment water guide](guides/climate-environment-water.md) — from a place, river or station to
+  cited PEGELONLINE and USGS water levels and discharge with quality state (provisional or approved), gauge zero and
+  datum vintages, and EEA WISE water-body status per reporting cycle; reviewable place matches, cross-pack links,
+  as-of answers and monitors; no forecasting, gap filling, own status assessment or flood-risk scoring;
+  [source audit](development/water-evidence/source-audit.md)
 - [Fisheries and Maritime Activity guide](guides/fisheries-maritime.md) — from a vessel, flag state, fishing area or
   species to cited ICCAT, WCPFC and IOTC authorisations with register snapshots, IUU listings and delistings (and the
   Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,

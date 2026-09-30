@@ -8,6 +8,7 @@ output are never returned as observations.
 
 from src.kb.environment_bundle import BUNDLE, readiness, require_enabled, set_enabled
 from tools.knowledge_engine_mcp import biodiversity as _biodiversity
+from tools.knowledge_engine_mcp import water as _water
 
 ENVIRONMENT_WRITES = {
     "set_climate_environment_bundle_enabled", "acquire_environment_source", "register_environment_schemas",
@@ -23,6 +24,9 @@ ENVIRONMENT_TOOLS = ENVIRONMENT_WRITES | {
 # The optional ``biodiversity`` feature's tools (#2220) register with this module (tools/.../biodiversity.py).
 ENVIRONMENT_WRITES = ENVIRONMENT_WRITES | _biodiversity.BIODIVERSITY_WRITES
 ENVIRONMENT_TOOLS = ENVIRONMENT_TOOLS | _biodiversity.BIODIVERSITY_TOOLS
+# The environment.water provider's tools (#2582) register with this module (tools/.../water.py).
+ENVIRONMENT_WRITES = ENVIRONMENT_WRITES | _water.WATER_WRITES
+ENVIRONMENT_TOOLS = ENVIRONMENT_TOOLS | _water.WATER_TOOLS
 ENVIRONMENT_SCOPES = {
     "set_climate_environment_bundle_enabled": ["operator"],
     "acquire_environment_source": ["knowledge:environment:write", "knowledge:ingestion:execute"],
@@ -39,6 +43,8 @@ def required_scopes(tool_name, mutability):
         return []
     if tool_name in _biodiversity.BIODIVERSITY_TOOLS:
         return _biodiversity.required_scopes(tool_name, mutability)
+    if tool_name in _water.WATER_TOOLS:
+        return _water.required_scopes(tool_name, mutability)
     return ENVIRONMENT_SCOPES.get(
         tool_name, ["knowledge:environment:write" if mutability == "write" else "knowledge:environment:read"])
 
@@ -77,7 +83,10 @@ def register(mcp, safe, context):
     @mcp.tool()
     def environment_provider_contracts() -> dict:
         """Per-provider access contracts (terms, auth, limits, kinds, identifiers, units, CRS) and live-verification state."""
-        from src.ingestion.environment_providers import LIVE_VERIFICATION, PROVIDER_CONTRACTS
+        from src.ingestion.environment_providers import (
+            LIVE_VERIFICATION,
+            PROVIDER_CONTRACTS,
+        )
         return {"contracts": PROVIDER_CONTRACTS, "live_verification": LIVE_VERIFICATION}
 
     @mcp.tool()
@@ -86,7 +95,12 @@ def register(mcp, safe, context):
         """Bounded acquisition of one explicit provider selection through DurableHTTP (credentials from NOESIS_* env)."""
         def run(conn):
             from src.config.env import resolve_env
-            from src.ingestion.environment_providers import PROVIDER_HOSTS, SECRETS, EnvironmentClient, acquire
+            from src.ingestion.environment_providers import (
+                PROVIDER_HOSTS,
+                SECRETS,
+                EnvironmentClient,
+                acquire,
+            )
             from src.ingestion.provider_execution import DurableHTTP
 
             if provider not in PROVIDER_HOSTS:
@@ -270,3 +284,4 @@ def register(mcp, safe, context):
             also=("knowledge:subscriptions:read",))
 
     _biodiversity.register(mcp, safe, context)
+    _water.register(mcp, safe, context)

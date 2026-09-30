@@ -394,6 +394,16 @@ def _biodiversity_projector(conn: Any) -> Any:
 PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
 
 
+def _water_projector(conn: Any) -> Any:
+    from src.kb.water_store import WaterProjector
+
+    return WaterProjector(conn)
+
+
+# Climate and Environment water and hydrology (#2582).
+PROJECTORS["noesis-water-record-v1"] = _water_projector
+
+
 def _food_composition_projector(conn: Any) -> Any:
     from src.kb.food_composition import FoodCompositionProjector
 

@@ -1,0 +1,192 @@
+{
+ "description": "USGS Water Data OGC API monitoring location, continuous and daily values. Authored offline fixture in the provider's documented response shape. Station UUIDs and numbers, water-body codes, coordinates, values and status labels are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (WA13, #2647).",
+ "scenarios": [
+  "provisional values with a qualifier",
+  "an approved daily mean",
+  "vertical datum"
+ ],
+ "native_pages": [
+  {
+   "request": "/ogcapi/v0/collections/monitoring-locations/items/USGS-01646500?f=json",
+   "status": 200,
+   "body": {
+    "type": "Feature",
+    "id": "USGS-01646500",
+    "geometry": {
+     "type": "Point",
+     "coordinates": [
+      -77.1276,
+      38.9498
+     ]
+    },
+    "properties": {
+     "id": "USGS-01646500",
+     "agency_code": "USGS",
+     "monitoring_location_number": "01646500",
+     "monitoring_location_name": "POTOMAC RIVER NEAR WASH, DC LITTLE FALLS PUMP STA",
+     "country_code": "US",
+     "state_code": "24",
+     "county_code": "031",
+     "site_type": "Stream",
+     "hydrologic_unit_code": "020700080101",
+     "altitude": 37.2,
+     "altitude_accuracy": 0.1,
+     "vertical_datum": "NAVD88",
+     "drainage_area": 11560
+    }
+   }
+  },
+  {
+   "request": "/ogcapi/v0/collections/continuous/items?f=json&limit=20&monitoring_location_id=USGS-01646500&parameter_code=00060&time=2026-09-20T12%3A00%3A00Z%2F2026-09-20T13%3A00%3A00Z",
+   "status": 200,
+   "body": {
+    "type": "FeatureCollection",
+    "numberReturned": 3,
+    "features": [
+     {
+      "type": "Feature",
+      "id": "ts-fixture-0001-2026-09-20T12:00:00+00:00",
+      "geometry": null,
+      "properties": {
+       "time_series_id": "ts-fixture-0001",
+       "monitoring_location_id": "USGS-01646500",
+       "parameter_code": "00060",
+       "statistic_id": "00011",
+       "time": "2026-09-20T12:00:00+00:00",
+       "value": "4210",
+       "unit_of_measure": "ft^3/s",
+       "approval_status": "Provisional",
+       "qualifier": null,
+       "last_modified": "2026-09-20T14:00:00+00:00"
+      }
+     },
+     {
+      "type": "Feature",
+      "id": "ts-fixture-0001-2026-09-20T12:15:00+00:00",
+      "geometry": null,
+      "properties": {
+       "time_series_id": "ts-fixture-0001",
+       "monitoring_location_id": "USGS-01646500",
+       "parameter_code": "00060",
+       "statistic_id": "00011",
+       "time": "2026-09-20T12:15:00+00:00",
+       "value": "4190",
+       "unit_of_measure": "ft^3/s",
+       "approval_status": "Provisional",
+       "qualifier": null,
+       "last_modified": "2026-09-20T14:00:00+00:00"
+      }
+     },
+     {
+      "type": "Feature",
+      "id": "ts-fixture-0001-2026-09-20T12:30:00+00:00",
+      "geometry": null,
+      "properties": {
+       "time_series_id": "ts-fixture-0001",
+       "monitoring_location_id": "USGS-01646500",
+       "parameter_code": "00060",
+       "statistic_id": "00011",
+       "time": "2026-09-20T12:30:00+00:00",
+       "value": "4180",
+       "unit_of_measure": "ft^3/s",
+       "approval_status": "Provisional",
+       "qualifier": [
+        "Estimated"
+       ],
+       "last_modified": "2026-09-20T14:00:00+00:00"
+      }
+     }
+    ],
+    "links": [
+     {
+      "rel": "self",
+      "href": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/ogcapi/v0/collections/continuous/items?f=json&limit=20&monitoring_location_id=USGS-01646500&parameter_code=00065&time=2026-09-20T12%3A00%3A00Z%2F2026-09-20T13%3A00%3A00Z",
+   "status": 200,
+   "body": {
+    "type": "FeatureCollection",
+    "numberReturned": 2,
+    "features": [
+     {
+      "type": "Feature",
+      "id": "ts-fixture-0002-2026-09-20T12:00:00+00:00",
+      "geometry": null,
+      "properties": {
+       "time_series_id": "ts-fixture-0002",
+       "monitoring_location_id": "USGS-01646500",
+       "parameter_code": "00065",
+       "statistic_id": "00011",
+       "time": "2026-09-20T12:00:00+00:00",
+       "value": "3.61",
+       "unit_of_measure": "ft",
+       "approval_status": "Provisional",
+       "qualifier": null,
+       "last_modified": "2026-09-20T14:00:00+00:00"
+      }
+     },
+     {
+      "type": "Feature",
+      "id": "ts-fixture-0002-2026-09-20T12:15:00+00:00",
+      "geometry": null,
+      "properties": {
+       "time_series_id": "ts-fixture-0002",
+       "monitoring_location_id": "USGS-01646500",
+       "parameter_code": "00065",
+       "statistic_id": "00011",
+       "time": "2026-09-20T12:15:00+00:00",
+       "value": "3.60",
+       "unit_of_measure": "ft",
+       "approval_status": "Provisional",
+       "qualifier": null,
+       "last_modified": "2026-09-20T14:00:00+00:00"
+      }
+     }
+    ],
+    "links": [
+     {
+      "rel": "self",
+      "href": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/ogcapi/v0/collections/daily/items?f=json&limit=5&monitoring_location_id=USGS-01646500&parameter_code=00060&statistic_id=00003&time=2026-09-18T00%3A00%3A00Z%2F2026-09-20T00%3A00%3A00Z",
+   "status": 200,
+   "body": {
+    "type": "FeatureCollection",
+    "numberReturned": 1,
+    "features": [
+     {
+      "type": "Feature",
+      "id": "ts-fixture-0003-2026-09-18",
+      "geometry": null,
+      "properties": {
+       "time_series_id": "ts-fixture-0003",
+       "monitoring_location_id": "USGS-01646500",
+       "parameter_code": "00060",
+       "statistic_id": "00003",
+       "time": "2026-09-18",
+       "value": "4350",
+       "unit_of_measure": "ft^3/s",
+       "approval_status": "Approved",
+       "qualifier": null,
+       "last_modified": "2026-09-20T14:00:00+00:00"
+      }
+     }
+    ],
+    "links": [
+     {
+      "rel": "self",
+      "href": "https://api.waterdata.usgs.gov/ogcapi/v0/collections/continuous/items"
+     }
+    ]
+   }
+  }
+ ]
+}

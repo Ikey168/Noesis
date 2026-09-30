@@ -1,0 +1,408 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "environment.water",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.water_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "environment.water-records",
+      "contract": {
+        "name": "noesis-water-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "register-schemas",
+        "value-at",
+        "series",
+        "station-history",
+        "for-place",
+        "status-history",
+        "link-records",
+        "list-links",
+        "export-bundle"
+      ],
+      "semantic_constraints": {
+        "records": "stations, observations, water bodies and WFD assessments are statements as published with source, record revision and as-of (retrieval) time; removals and corrections are revisions, never deletions",
+        "stations": "keyed by PEGELONLINE station UUID and number or USGS monitoring_location_id; location, gauge zero or vertical datum (with the validity the source states) and published characteristic values change only by new revisions",
+        "observations": "parameter, unit, time and value as published, never resampled; quality state provisional or approved (or unknown) with the source's wording and per-value qualifiers; a provisional value replaced by an approved one is a new revision",
+        "assessments": "WFD ecological and chemical status elements per EU water-body code and reporting cycle as published; cycles are never merged",
+        "answers": "value at a station and time as known at an as-of time with later revisions; missing periods stay missing; place answers state the geometry version used; every item cites its record revision",
+        "minimisation": "no personal data: personal fields are rejected at write time and removed from outputs",
+        "exclusions": "no flood forecasting, no interpolation or gap filling, no own status assessments, no flood-risk scoring, no causal links between observations and events"
+      }
+    },
+    {
+      "id": "environment.water-identity",
+      "contract": {
+        "name": "noesis-water-identity-match",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-identity",
+        "review-identity",
+        "undo-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "identity": "stations match places and rivers through reviewed proposals from published identifiers first, then published coordinates, then river names (lower-evidence); water bodies map to places only through published geometries; every match carries method, evidence and confidence and is proposed, accepted, rejected or reverted; nothing is auto-merged; unmatched records stay visible"
+      }
+    },
+    {
+      "id": "environment.water-monitoring",
+      "contract": {
+        "name": "noesis-water-notification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "monitoring": "station, river and water-body watches on platform.subscriptions evaluated at complete source-pack watermarks; observations above a station's published characteristic values, observation and station revisions and new assessment cycles cite the new and prior revisions and state what changed; unchanged data emits nothing; notices are record changes, not warnings or assessments"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.water_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.water_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_water_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "value-at",
+      "tool": "noesis-knowledge-engine.water_value_at",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series",
+      "tool": "noesis-knowledge-engine.water_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "station-history",
+      "tool": "noesis-knowledge-engine.water_station_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "for-place",
+      "tool": "noesis-knowledge-engine.water_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "status-history",
+      "tool": "noesis-knowledge-engine.water_body_status_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-records",
+      "tool": "noesis-knowledge-engine.link_water_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "source revision + target revision + basis"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_water_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-bundle",
+      "tool": "noesis-knowledge-engine.export_water_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity",
+      "tool": "noesis-knowledge-engine.propose_water_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject + place + relation + method"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:geospatial:calculate"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_water_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match + review sequence"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "undo-identity",
+      "tool": "noesis-knowledge-engine.revert_water_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match + review sequence"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_water_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_water_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request key"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_water_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription + watermark"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_water_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "water-record",
+      "store": "src.kb.water_store",
+      "tables": [
+        "water_records",
+        "water_revisions",
+        "water_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "water-identity-match",
+      "store": "src.kb.water_identity",
+      "tables": [
+        "water_identity_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "water-link",
+      "store": "src.kb.water_links",
+      "tables": [
+        "water_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "water_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "climate-environment-water",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
