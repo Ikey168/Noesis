@@ -1,0 +1,399 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "summary_data": {
+     "companies": [
+      {
+       "beneficial_owners": [
+        {
+         "name": "Fixture Owner"
+        }
+       ],
+       "commodities": [
+        "natural gas"
+       ],
+       "id": "C1",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990003"
+        }
+       ],
+       "name": "Exampla Intermediate B.V.",
+       "sector": "oil and gas",
+       "type": "company"
+      },
+      {
+       "commodities": [
+        "natural gas"
+       ],
+       "id": "C2",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990077"
+        }
+       ],
+       "name": "Northwind Offshore B.V.",
+       "sector": "oil and gas",
+       "type": "company"
+      },
+      {
+       "id": "C3",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990099"
+        }
+       ],
+       "name": "A. Fixture-Person",
+       "sector": "sand and gravel",
+       "type": "individual"
+      }
+     ],
+     "contact": {
+      "email": "msg@example.org",
+      "name": "Fixture MSG Contact"
+     },
+     "country": {
+      "iso2": "NL",
+      "name": "Netherlands"
+     },
+     "fiscal_year": {
+      "end": "2021-12-31",
+      "start": "2021-01-01"
+     },
+     "government_agencies": [
+      {
+       "id": "GA1",
+       "name": "Belastingdienst Fixture"
+      },
+      {
+       "id": "GA2",
+       "name": "Ministry of Economic Affairs Fixture"
+      }
+     ],
+     "payments": [
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "1250000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "explanation": "timing difference, as stated in the report",
+        "value": "-50000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "1200000"
+       },
+       "id": "PAY1",
+       "project": "P1",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "800000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "800000"
+       },
+       "id": "PAY2",
+       "project": "P1",
+       "revenue_stream": "RS2"
+      },
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "government_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "id": "PAY3",
+       "revenue_stream": "RS3"
+      },
+      {
+       "company": "C2",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "300000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "300000"
+       },
+       "id": "PAY4",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C3",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "5000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "5000"
+       },
+       "id": "PAY5",
+       "revenue_stream": "RS2"
+      }
+     ],
+     "projects": [
+      {
+       "commodities": [
+        "natural gas"
+       ],
+       "company": "C1",
+       "id": "P1",
+       "licences": [
+        {
+         "commodity": "natural gas",
+         "holder": "C1",
+         "number": "NL-WIN-0001",
+         "type": "production licence"
+        }
+       ],
+       "name": "Exampla Gas Field A (fixture)"
+      }
+     ],
+     "report": {
+      "currency": "EUR",
+      "published": "2023-05-31",
+      "reconciliation_note": "Discrepancies as reported by the independent administrator (fixture).",
+      "title": "NL-EITI report 2021 (fixture)",
+      "unit": "EUR",
+      "url": "https://eiti.org/documents/fixture-netherlands-2021",
+      "version": "1"
+     },
+     "revenue_streams": [
+      {
+       "agency": "GA1",
+       "gfs_code": "1112E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "1500000"
+       },
+       "id": "RS1",
+       "name": "Corporate income tax"
+      },
+      {
+       "agency": "GA2",
+       "budget_reference": "NL-BUDGET-XIII-ART9 (fixture)",
+       "gfs_code": "1415E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "805000"
+       },
+       "id": "RS2",
+       "name": "Royalties"
+      },
+      {
+       "agency": "GA2",
+       "gfs_code": "1415E4",
+       "government_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "id": "RS3",
+       "name": "Signature bonus"
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v2.0/summary_data/NL-2021",
+   "status": 200
+  },
+  {
+   "body": {
+    "summary_data": {
+     "companies": [
+      {
+       "commodities": [
+        "copper"
+       ],
+       "id": "C1",
+       "identification": [
+        {
+         "scheme": "gb-coh",
+         "value": "09990001"
+        }
+       ],
+       "name": "Exampla Holdings PLC",
+       "sector": "mining",
+       "type": "company"
+      },
+      {
+       "commodities": [
+        "copper"
+       ],
+       "id": "C2",
+       "name": "Exampla UK Limited",
+       "sector": "mining",
+       "type": "company"
+      }
+     ],
+     "contact": {
+      "email": "secretariat@example.org",
+      "name": "Fixture Secretariat Contact",
+      "phone": "+49 30 0000000"
+     },
+     "country": {
+      "iso2": "DE",
+      "name": "Germany"
+     },
+     "fiscal_year": {
+      "end": "2021-12-31",
+      "start": "2021-01-01"
+     },
+     "government_agencies": [
+      {
+       "id": "GA1",
+       "name": "Landesbergbehoerde Fixture"
+      },
+      {
+       "id": "GA2",
+       "name": "Finanzamt Fixture"
+      }
+     ],
+     "payments": [
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "2000000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "2000000"
+       },
+       "id": "PAY1",
+       "project": "P1",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C2",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "410000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "explanation": "unexplained, as stated in the report",
+        "value": "-10000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "400000"
+       },
+       "id": "PAY2",
+       "revenue_stream": "RS2"
+      }
+     ],
+     "projects": [
+      {
+       "commodities": [
+        "copper"
+       ],
+       "company": "C1",
+       "coordinates": {
+        "lat": "51.5000",
+        "lon": "11.5000",
+        "published": "51.5000 N 11.5000 E"
+       },
+       "id": "P1",
+       "identifiers": [
+        {
+         "scheme": "gem-mine-id",
+         "value": "M9001"
+        }
+       ],
+       "licences": [
+        {
+         "commodity": "copper",
+         "holder": "C1",
+         "number": "DE-BW-0001",
+         "type": "mining licence"
+        }
+       ],
+       "name": "Exampla Kupfer Mine (fixture)"
+      }
+     ],
+     "report": {
+      "currency": "EUR",
+      "published": "2023-03-31",
+      "reconciliation_note": "Payments were reconciled for companies above the materiality threshold (fixture).",
+      "title": "D-EITI report 2021 (fixture)",
+      "unit": "EUR",
+      "url": "https://eiti.org/documents/fixture-germany-2021",
+      "version": "1"
+     },
+     "revenue_streams": [
+      {
+       "agency": "GA1",
+       "gfs_code": "1415E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "2100000"
+       },
+       "id": "RS1",
+       "name": "Royalties (Feldes- und Foerderabgabe)"
+      },
+      {
+       "agency": "GA2",
+       "gfs_code": "1112E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "950000"
+       },
+       "id": "RS2",
+       "name": "Corporate income tax"
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v2.0/summary_data/DE-2021",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented shape as known to the author (not re-verified live); every company, project, amount and figure is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "report-version",
+  "government-and-company-reported",
+  "discrepancy-as-published",
+  "project-level-payments",
+  "personal-fields-dropped",
+  "individual-payer-withheld",
+  "currency-as-reported"
+ ]
+}

@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "extractives", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -671,6 +671,40 @@
                   "isced": {"type": "object", "properties": {"level": {"type": "string"}, "label": {"type": "string"}}, "additionalProperties": false}
                 }, "additionalProperties": false}},
                 "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "stage": {"enum": ["provisional", "final", "revised", "release", "edition", "update"]}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "extractives": {
+            "type": "object",
+            "description": "Declared extractives documents for the extractives connector (#2653): provider, runtime format, namespace, live-verification status and the declared documents (an EITI summary-data document with its country, fiscal period and report version, or a USGS MCS / BGS World Mineral Statistics table with its commodity, column meaning and operator-declared country codes), each with its release version and publication date.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["eiti", "usgs-mcs", "bgs-wms"]},
+              "format": {"enum": ["eiti-summary-json", "usgs-mcs-csv", "bgs-wms-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "url", "release"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "encoding": {"type": "string"},
+                "country": {"type": "string", "pattern": "^[A-Z]{2}$"},
+                "fiscal_period": {"type": "object", "required": ["start", "end"], "properties": {"start": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "end": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+                "table": {"type": "string"},
+                "commodity": {"type": "object", "required": ["code", "label", "definition"], "properties": {
+                  "code": {"type": "string", "minLength": 1}, "label": {"type": "string", "minLength": 1}, "sub_commodity": {"type": "string"},
+                  "hydrocarbon": {"type": "boolean"}, "siec": {"type": "string"},
+                  "definition": {"type": "object", "required": ["reference"], "properties": {"reference": {"type": "string", "pattern": "^https://"}, "text": {"type": "string"}}, "additionalProperties": false}
+                }, "additionalProperties": false},
+                "commodity_as_published": {"type": "string"},
+                "columns": {"type": "object", "additionalProperties": {"type": "string"}},
+                "value_columns": {"type": "array", "items": {"type": "object", "required": ["statistic", "column", "year", "unit"], "properties": {
+                  "statistic": {"enum": ["production", "reserves"]}, "column": {"type": "string"}, "year": {"type": "string", "pattern": "^\\d{4}$"},
+                  "unit": {"type": "string"}, "estimated": {"type": "boolean"}, "reference": {"type": "string"}}, "additionalProperties": false}},
+                "statistics": {"type": "object", "additionalProperties": {"enum": ["production", "reserves", "imports", "exports"]}},
+                "countries": {"type": "object", "additionalProperties": {"type": "object", "properties": {"iso2": {"type": "string", "pattern": "^[A-Z]{2}$"}, "m49": {"type": "string"}, "aggregate": {"type": "boolean"}}, "additionalProperties": false}},
+                "row_filter": {"type": "object", "required": ["column", "value"], "properties": {"column": {"type": "string"}, "value": {"type": "string"}}, "additionalProperties": false},
+                "release": {"type": "object", "required": ["label", "published_on", "version"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "version": {"type": "string", "minLength": 1}}, "additionalProperties": false}
               }, "additionalProperties": false}}
             },
             "additionalProperties": false

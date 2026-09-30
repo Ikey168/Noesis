@@ -1,0 +1,226 @@
+{
+ "document": {
+  "country": "NL",
+  "fiscal_period": {
+   "end": "2021-12-31",
+   "start": "2021-01-01"
+  },
+  "label": "EITI summary data: Netherlands, fiscal year 2021, report version 2",
+  "release": {
+   "label": "NL-EITI 2021 report, version 2 (declared by the operator; verify)",
+   "published_on": "2023-11-30",
+   "version": "2"
+  },
+  "url": "https://eiti.org/api/v2.0/summary_data/NL-2021"
+ },
+ "native_pages": [
+  {
+   "body": {
+    "summary_data": {
+     "companies": [
+      {
+       "beneficial_owners": [
+        {
+         "name": "Fixture Owner"
+        }
+       ],
+       "commodities": [
+        "natural gas"
+       ],
+       "id": "C1",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990003"
+        }
+       ],
+       "name": "Exampla Intermediate B.V.",
+       "sector": "oil and gas",
+       "type": "company"
+      },
+      {
+       "commodities": [
+        "natural gas"
+       ],
+       "id": "C2",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990077"
+        }
+       ],
+       "name": "Northwind Offshore B.V.",
+       "sector": "oil and gas",
+       "type": "company"
+      },
+      {
+       "id": "C3",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990099"
+        }
+       ],
+       "name": "A. Fixture-Person",
+       "sector": "sand and gravel",
+       "type": "individual"
+      }
+     ],
+     "contact": {
+      "email": "msg@example.org",
+      "name": "Fixture MSG Contact"
+     },
+     "country": {
+      "iso2": "NL",
+      "name": "Netherlands"
+     },
+     "fiscal_year": {
+      "end": "2021-12-31",
+      "start": "2021-01-01"
+     },
+     "government_agencies": [
+      {
+       "id": "GA1",
+       "name": "Belastingdienst Fixture"
+      },
+      {
+       "id": "GA2",
+       "name": "Ministry of Economic Affairs Fixture"
+      }
+     ],
+     "payments": [
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "1200000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "explanation": "resolved in the revised report",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "1200000"
+       },
+       "id": "PAY1",
+       "project": "P1",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "800000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "800000"
+       },
+       "id": "PAY2",
+       "project": "P1",
+       "revenue_stream": "RS2"
+      },
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "government_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "id": "PAY3",
+       "revenue_stream": "RS3"
+      },
+      {
+       "company": "C3",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "5000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "5000"
+       },
+       "id": "PAY5",
+       "revenue_stream": "RS2"
+      }
+     ],
+     "projects": [
+      {
+       "commodities": [
+        "natural gas"
+       ],
+       "company": "C1",
+       "id": "P1",
+       "licences": [
+        {
+         "commodity": "natural gas",
+         "holder": "C1",
+         "number": "NL-WIN-0001",
+         "type": "production licence"
+        }
+       ],
+       "name": "Exampla Gas Field A (fixture)"
+      }
+     ],
+     "report": {
+      "currency": "EUR",
+      "published": "2023-11-30",
+      "reconciliation_note": "Discrepancies as reported by the independent administrator (fixture).",
+      "title": "NL-EITI report 2021 (fixture)",
+      "unit": "EUR",
+      "url": "https://eiti.org/documents/fixture-netherlands-2021",
+      "version": "2"
+     },
+     "revenue_streams": [
+      {
+       "agency": "GA1",
+       "gfs_code": "1112E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "1200000"
+       },
+       "id": "RS1",
+       "name": "Corporate income tax"
+      },
+      {
+       "agency": "GA2",
+       "budget_reference": "NL-BUDGET-XIII-ART9 (fixture)",
+       "gfs_code": "1415E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "805000"
+       },
+       "id": "RS2",
+       "name": "Royalties"
+      },
+      {
+       "agency": "GA2",
+       "gfs_code": "1415E4",
+       "government_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "id": "RS3",
+       "name": "Signature bonus"
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v2.0/summary_data/NL-2021",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented shape as known to the author (not re-verified live); every company, project, amount and figure is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it."
+}

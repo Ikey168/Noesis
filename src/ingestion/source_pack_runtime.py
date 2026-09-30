@@ -425,6 +425,16 @@ def _logistics_projector(conn: Any) -> Any:
 
 # Economics shipping and logistics feature (#2229).
 PROJECTORS["noesis-logistics-record-v1"] = _logistics_projector
+
+
+def _extractives_projector(conn: Any) -> Any:
+    from src.kb.extractives_store import ExtractivesProjector
+
+    return ExtractivesProjector(conn)
+
+
+# Economics extractives provider (#2653).
+PROJECTORS["noesis-extractives-record-v1"] = _extractives_projector
 def _competition_projector(conn: Any) -> Any:
     from src.kb.competition import CompetitionProjector
 

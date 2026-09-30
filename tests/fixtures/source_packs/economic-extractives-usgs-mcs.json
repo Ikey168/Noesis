@@ -1,0 +1,30 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "Source,Country,Type,Prod_t_2022,Prod_t_est_2023,Reserves_t,Reserves_notes\nMCS2024,United States,Mine production,1230000,1100000,50000000,\nMCS2024,Chile,Mine production,5330000,5000000,190000000,\nMCS2024,Peru,Mine production,2450000,2600000,120000000,Includes fixture note\nMCS2024,World total (rounded),Mine production,22000000,22000000,1000000000,\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/catalog/file/get/fixture-mcs2024?name=MCS2024_Fig_Copper.csv",
+   "status": 200
+  },
+  {
+   "body": "Source,Country,Type,Prod_t_2022,Prod_t_est_2023,Reserves_t,Reserves_notes\nMCS2024,United States,Mine production,W,W,1100000,\nMCS2024,Chile,Mine production,39000,44000,9300000,\nMCS2024,Australia,Mine production,74700,86000,6200000,\nMCS2024,World total (rounded),Mine production,146000,180000,28000000,Excludes U.S. production\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/catalog/file/get/fixture-mcs2024?name=MCS2024_Fig_Lithium.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented shape as known to the author (not re-verified live); every company, project, amount and figure is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "annual-release-vintage",
+  "estimated-column",
+  "withheld-value",
+  "world-total-aggregate"
+ ]
+}
