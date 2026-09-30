@@ -623,7 +623,7 @@ class InfrastructureStore:
         if row is None:
             return {"provider": provider, "last_success_ms": None, "stale": True, "reason": "never acquired"}
         success, failure = row[0], row[1]
-        stale = success is None or (failure is not None and failure > success) or self.now() - success > STALE_AFTER_MS
+        stale = success is None or (failure is not None and failure >= success) or self.now() - success > STALE_AFTER_MS
         return {"provider": provider, "last_success_ms": success, "last_failure_ms": failure,
                 "last_failure_code": row[2], "last_execution": row[3], "last_run_id": row[4], "stale": bool(stale)}
 
