@@ -68,6 +68,18 @@ def fec_person_name(value: Any) -> str | None:
     return text or None
 
 
+def donor_key(record: Mapping[str, Any]) -> str | None:
+    """The subject key of an item's organisational donor; ``None`` for a natural person (never a subject)."""
+    counterparty = (record.get("fields") or {}).get("counterparty") or {}
+    if record.get("record_kind") != "contribution" or counterparty.get("kind") != "organisation":
+        return None
+    if record.get("provider") == "openfec":
+        if counterparty.get("committee_id"):
+            return f"campaign-finance:fec:donor-committee:{counterparty['committee_id']}"
+        return f"campaign-finance:fec:donor:{slug(counterparty.get('name'))}:{slug(counterparty.get('state'))}"
+    return f"campaign-finance:ukec:donor:{counterparty.get('donor_id') or slug(counterparty.get('name'))}"
+
+
 def entity(record_key: str) -> str:
     from src.kb.ownership_store import canonical_entity_id
 
@@ -132,20 +144,16 @@ class CampaignFinanceIdentity:
                 counterparty = fields.get("counterparty") or {}
                 if counterparty.get("kind") != "organisation" or kind != "contribution":
                     continue  # only donors; natural persons are never subjects
+                key = donor_key(record)
                 if record["provider"] == "openfec":
                     if counterparty.get("committee_id"):
-                        key = f"campaign-finance:fec:donor-committee:{counterparty['committee_id']}"
                         add(key, "donor-committee", counterparty.get("name"), "US", row,
                             fec_id=counterparty["committee_id"])
                     else:
-                        key = (f"campaign-finance:fec:donor:{slug(counterparty.get('name'))}:"
-                               f"{slug(counterparty.get('state'))}")
                         add(key, "donor-organisation", counterparty.get("name"), "US", row)
                         out[key]["addresses"].add(", ".join(p for p in (counterparty.get("city"),
                                                                          counterparty.get("state")) if p))
                 else:
-                    ident = counterparty.get("donor_id") or slug(counterparty.get("name"))
-                    key = f"campaign-finance:ukec:donor:{ident}"
                     add(key, "donor-organisation", counterparty.get("name"), "GB", row,
                         status=counterparty.get("status"))
                     if counterparty.get("company_registration_number"):
