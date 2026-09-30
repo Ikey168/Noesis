@@ -23,6 +23,20 @@ from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp import server
 
 
+@pytest.fixture(autouse=True)
+def isolated_registry():
+    """The composition migration hands pack authority to the coordinator; restore the registry afterwards."""
+    from src.domains import registry as domain_registry
+
+    saved = (dict(domain_registry._REGISTRY), set(domain_registry._ENABLED), domain_registry._AUTHORITY)
+    yield
+    domain_registry._REGISTRY.clear()
+    domain_registry._REGISTRY.update(saved[0])
+    domain_registry._ENABLED.clear()
+    domain_registry._ENABLED.update(saved[1])
+    domain_registry.set_authority(saved[2])
+
+
 @pytest.fixture()
 def offline(monkeypatch):
     def refuse(*_args, **_kwargs):
