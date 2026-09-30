@@ -1,0 +1,361 @@
+{
+ "pack_id": "geospatial-infrastructure",
+ "version": "1.0.0",
+ "description": "Critical infrastructure registries for the Geospatial pack's optional infrastructure feature: WRI GPPD power plants, declared Global Energy Monitor tracker releases (non-commercial constraint recorded), bounded OpenStreetMap Overpass extracts (ODbL), EIA energy infrastructure layers and ENTSOG points with firm technical capacity. Assets, status revisions, capacities and owner assertions as published; geometries projected onto the existing geospatial store. Audit: docs/development/infrastructure-evidence/source-audit.md. Every source is unverified-live until a dated run. No vulnerability assessment or valuation.",
+ "domains": [
+  "geospatial"
+ ],
+ "defaults": {
+  "connector": "infrastructure",
+  "mapping": {
+   "target_schema": "noesis-infrastructure-asset-record-v1",
+   "version": "1.0.0"
+  },
+  "extractor_versions": [
+   "infrastructure-sources:1.0.0"
+  ],
+  "operations": [
+   "observe"
+  ],
+  "schedule": {
+   "kind": "interval",
+   "interval_s": 604800
+  },
+  "auth": {
+   "kind": "none"
+  },
+  "budgets": {
+   "timeout_ms": 60000,
+   "max_results": 500,
+   "max_bytes": 20000000,
+   "max_pages": 4
+  },
+  "health": {
+   "required": false,
+   "max_staleness_s": 1209600
+  }
+ },
+ "sources": [
+  {
+   "source_id": "infrastructure-gppd-deu",
+   "endpoint": "https://raw.githubusercontent.com/wri/global-power-plant-database/v1.3.0/output_database/global_power_plant_database.csv",
+   "publisher": "World Resources Institute",
+   "scope": "GPPD v1.3.0 power plants in Germany (DEU); at most 200 rows",
+   "license": {
+    "id": "cc-by-4.0",
+    "terms_url": "https://creativecommons.org/licenses/by/4.0/",
+    "redistribution": "permitted with attribution"
+   },
+   "update_cadence": "static release",
+   "temporal_semantics": "declared release (database version); year_of_capacity_data dates capacities",
+   "infrastructure": {
+    "provider": "gppd",
+    "namespace": "infrastructure",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "countries": [
+      "DEU"
+     ],
+     "max_rows": 200,
+     "release": {
+      "label": "Global Power Plant Database v1.3.0",
+      "released_on": "2021-06-02"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-gppd-deu.json",
+    "sha256": "c04a25c96753b143cae4432a81bf3eef7f94b55f256d57116c1db39ae3dca157",
+    "expected_output_hash": "73f71beca823b36f72808eea314cb09b17c1d14639de90b884f042b30ab9513c"
+   }
+  },
+  {
+   "source_id": "infrastructure-gem-coal-plants-de",
+   "endpoint": "https://globalenergymonitor.org/wp-content/uploads/fixture/gcpt-2026-01.csv",
+   "publisher": "Global Energy Monitor",
+   "scope": "Global Coal Plant Tracker units in Germany from one declared release file",
+   "license": {
+    "id": "gem-terms-non-commercial-until-verified",
+    "terms_url": "https://globalenergymonitor.org/about/terms-of-use/",
+    "redistribution": "non-commercial only until verified; wiki notes cited by URL, not copied"
+   },
+   "update_cadence": "semi-annual tracker releases",
+   "temporal_semantics": "declared tracker release; status changes across releases become dated status revisions",
+   "infrastructure": {
+    "provider": "gem",
+    "namespace": "infrastructure",
+    "access_decision": "acquire an operator-declared tracker release file only (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "tracker": "coal-plants",
+     "file_url": "https://globalenergymonitor.org/wp-content/uploads/fixture/gcpt-2026-01.csv",
+     "release": {
+      "label": "GCPT January 2026",
+      "released_on": "2026-01-20"
+     },
+     "countries": [
+      "Germany"
+     ],
+     "max_rows": 200
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-gem-coal-plants-de.json",
+    "sha256": "87ff75bb13befa5bb1fd0837b29f71cc1c42080b07b8c793cd6f550beb6d175b",
+    "expected_output_hash": "0097cee56178b2455beef1b25b8f4a61d8b9c2ecadf1090ecce2c115e76e6f7d"
+   }
+  },
+  {
+   "source_id": "infrastructure-gem-gas-pipelines-de",
+   "endpoint": "https://globalenergymonitor.org/wp-content/uploads/fixture/ggit-pipelines-2026-06.csv",
+   "publisher": "Global Energy Monitor",
+   "scope": "Global Gas Infrastructure Tracker pipelines in Germany from one declared release file",
+   "license": {
+    "id": "gem-terms-non-commercial-until-verified",
+    "terms_url": "https://globalenergymonitor.org/about/terms-of-use/",
+    "redistribution": "non-commercial only until verified; wiki notes cited by URL, not copied"
+   },
+   "update_cadence": "semi-annual tracker releases",
+   "temporal_semantics": "declared tracker release; status changes across releases become dated status revisions",
+   "infrastructure": {
+    "provider": "gem",
+    "namespace": "infrastructure",
+    "access_decision": "acquire an operator-declared tracker release file only (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "tracker": "gas-pipelines",
+     "file_url": "https://globalenergymonitor.org/wp-content/uploads/fixture/ggit-pipelines-2026-06.csv",
+     "release": {
+      "label": "GGIT June 2026",
+      "released_on": "2026-06-10"
+     },
+     "countries": [
+      "Germany"
+     ],
+     "max_rows": 200
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-gem-gas-pipelines-de.json",
+    "sha256": "460971a7342abb0dbdeb5e156fa0ba4c5d430b3ae4a896ce4985351897c406b7",
+    "expected_output_hash": "c59c6264d8ffa788c423fd7601e12ae36926d4a913c6e7fb4a1567423aec0b23"
+   }
+  },
+  {
+   "source_id": "infrastructure-gem-lng-terminals-us",
+   "endpoint": "https://globalenergymonitor.org/wp-content/uploads/fixture/ggit-lng-2026-06.csv",
+   "publisher": "Global Energy Monitor",
+   "scope": "Global Gas Infrastructure Tracker LNG terminals in the United States from one declared release file",
+   "license": {
+    "id": "gem-terms-non-commercial-until-verified",
+    "terms_url": "https://globalenergymonitor.org/about/terms-of-use/",
+    "redistribution": "non-commercial only until verified; wiki notes cited by URL, not copied"
+   },
+   "update_cadence": "semi-annual tracker releases",
+   "temporal_semantics": "declared tracker release; status changes across releases become dated status revisions",
+   "infrastructure": {
+    "provider": "gem",
+    "namespace": "infrastructure",
+    "access_decision": "acquire an operator-declared tracker release file only (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "tracker": "lng-terminals",
+     "file_url": "https://globalenergymonitor.org/wp-content/uploads/fixture/ggit-lng-2026-06.csv",
+     "release": {
+      "label": "GGIT June 2026",
+      "released_on": "2026-06-10"
+     },
+     "countries": [
+      "United States"
+     ],
+     "max_rows": 200
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-gem-lng-terminals-us.json",
+    "sha256": "1dfb7379175342d500448091699ce3b5bdca8516529726d640c81cb37d61bf6b",
+    "expected_output_hash": "e458c183e00b4bef0c6be02eb03cb1cbce1a7b67075ff6a526346df102b18e01"
+   }
+  },
+  {
+   "source_id": "infrastructure-osm-lusatia",
+   "endpoint": "https://overpass-api.de/api/interpreter",
+   "publisher": "OpenStreetMap contributors",
+   "scope": "Overpass extract of power and pipeline features in the de-lusatia bbox (<= 200 elements)",
+   "license": {
+    "id": "odbl-1.0",
+    "terms_url": "https://www.openstreetmap.org/copyright",
+    "redistribution": "share-alike for a derivative database"
+   },
+   "update_cadence": "continuous edits; bounded extracts",
+   "temporal_semantics": "Overpass timestamp_osm_base dates the extract; element version and changeset kept",
+   "infrastructure": {
+    "provider": "osm",
+    "namespace": "infrastructure",
+    "access_decision": "acquire bounded Overpass extracts (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "area": "de-lusatia",
+     "bbox": [
+      14.2,
+      51.3,
+      14.8,
+      51.8
+     ],
+     "tags": [
+      "power=plant",
+      "power=generator",
+      "power=line",
+      "power=substation",
+      "man_made=pipeline"
+     ],
+     "limit": 200
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-osm-lusatia.json",
+    "sha256": "92f0bbd0b46ccfb1b6ebf0d4f48c980debdaad69abfdf9c6a625c3bde99a5e39",
+    "expected_output_hash": "c86180638be41b01a25e83b83c23055761303b1fbaaa2503ec952405a9efb808"
+   }
+  },
+  {
+   "source_id": "infrastructure-eia-power-plants-socal",
+   "endpoint": "https://services7.arcgis.com/FGr1D95XCGALKXqM/arcgis/rest/services/Power_Plants/FeatureServer/0/query",
+   "publisher": "U.S. Energy Information Administration",
+   "scope": "EIA Power Plants layer in the us-southern-california bbox",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "permitted"
+   },
+   "update_cadence": "monthly layer updates",
+   "temporal_semantics": "declared layer release when stated, else retrieval time (labelled)",
+   "infrastructure": {
+    "provider": "eia",
+    "namespace": "infrastructure",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "layer": "power-plants",
+     "bbox": [
+      -118.5,
+      33.5,
+      -116.0,
+      35.5
+     ],
+     "max_records": 200,
+     "release": {
+      "label": "EIA Power Plants layer July 2026",
+      "released_on": "2026-08-01"
+     }
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-eia-power-plants-socal.json",
+    "sha256": "6b8fc5ad5174967a2ed81072ff6b9e3bb6fa07115aa80673ee318592fbfdbb54",
+    "expected_output_hash": "34dfdfdb1fd1a45f27bb57073b39a8260a9f71e4c291ffeba7be7bdeadc3f73b"
+   }
+  },
+  {
+   "source_id": "infrastructure-eia-lng-terminals-gulf",
+   "endpoint": "https://services7.arcgis.com/FGr1D95XCGALKXqM/arcgis/rest/services/Liquefied_Natural_Gas_Import_Exports_and_Terminals/FeatureServer/0/query",
+   "publisher": "U.S. Energy Information Administration",
+   "scope": "EIA LNG terminals layer in the us-gulf-coast bbox",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "permitted"
+   },
+   "update_cadence": "irregular layer updates",
+   "temporal_semantics": "declared layer release when stated, else retrieval time (labelled)",
+   "infrastructure": {
+    "provider": "eia",
+    "namespace": "infrastructure",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "layer": "lng-terminals",
+     "bbox": [
+      -94.5,
+      29.0,
+      -88.8,
+      31.0
+     ],
+     "max_records": 200
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-eia-lng-terminals-gulf.json",
+    "sha256": "714b36d40605f74ebbc254ba0ef2b609956712df9e5127c0bc9718d8336c7b58",
+    "expected_output_hash": "8d6493246c843f9a70360036f6575e6d4e7c50588054fd4ab42f0b4197892961"
+   }
+  },
+  {
+   "source_id": "infrastructure-eia-gas-pipelines-gulf",
+   "endpoint": "https://services7.arcgis.com/FGr1D95XCGALKXqM/arcgis/rest/services/Natural_Gas_Interstate_and_Intrastate_Pipelines/FeatureServer/0/query",
+   "publisher": "U.S. Energy Information Administration",
+   "scope": "EIA natural-gas pipelines layer in the us-gulf-coast bbox",
+   "license": {
+    "id": "eia-public-domain",
+    "terms_url": "https://www.eia.gov/about/copyrights_reuse.php",
+    "redistribution": "permitted"
+   },
+   "update_cadence": "irregular layer updates",
+   "temporal_semantics": "declared layer release when stated, else retrieval time (labelled)",
+   "infrastructure": {
+    "provider": "eia",
+    "namespace": "infrastructure",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "layer": "gas-pipelines",
+     "bbox": [
+      -94.5,
+      29.0,
+      -88.8,
+      31.0
+     ],
+     "max_records": 200
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-eia-gas-pipelines-gulf.json",
+    "sha256": "e3d6db04f28bc7d8202ff0341f8f2c5877bf59b391b4b1b5041d0494ed83245e",
+    "expected_output_hash": "5ef88c7917967816703871e248c993070a41aa88e77a74bc520b3e385e9b6f0a"
+   }
+  },
+  {
+   "source_id": "infrastructure-entsog-de-points",
+   "endpoint": "https://transparency.entsog.eu/api/v1/connectionpoints",
+   "publisher": "ENTSOG",
+   "scope": "Two ENTSOG connection points in Germany and their firm technical capacity per direction for one day",
+   "license": {
+    "id": "entsog-transparency-terms",
+    "terms_url": "https://transparency.entsog.eu/",
+    "redistribution": "permitted with attribution (verify)"
+   },
+   "update_cadence": "daily",
+   "temporal_semantics": "lastUpdateDateTime per capacity (provider_last_update)",
+   "infrastructure": {
+    "provider": "entsog",
+    "namespace": "infrastructure",
+    "access_decision": "acquire (unverified-live)",
+    "live_verification": "unverified-live",
+    "selection": {
+     "point_keys": [
+      "ITP-09991",
+      "ITP-09992"
+     ],
+     "from": "2026-09-20",
+     "to": "2026-09-21"
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/infrastructure-entsog-de-points.json",
+    "sha256": "4af6d45ca681ecb98583aca22bda96e08dfa6477df8a0e24f6905966db06c0f4",
+    "expected_output_hash": "f92f34a73de5fadbdac9d399141c624559aa4ff2686163c5112be40213a5ae95"
+   }
+  }
+ ]
+}

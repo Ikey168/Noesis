@@ -52,6 +52,7 @@ PROJECTOR_OWNERS = {
     "noesis-energy-record-v1": "src.kb.energy_store",
     "noesis-humanitarian-record-v1": "src.kb.humanitarian_store",
     "noesis-housing-record-v1": "src.kb.housing",
+    "noesis-infrastructure-asset-record-v1": "src.kb.infrastructure_assets",
     "noesis-surveillance-record-v1": "src.kb.surveillance",
     "noesis-clinical-medicines-record-v1": "src.kb.clinical_records",
     "noesis-substance-record-v1": "src.kb.substances_store",

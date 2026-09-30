@@ -351,6 +351,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"courts-justice"})
 NATIVE_CONNECTOR_MODULES["labour-statistics"] = "src.ingestion.labour_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"labour-statistics"})
 
+# Geospatial critical infrastructure: GPPD, GEM tracker releases, Overpass extracts, EIA layers, ENTSOG (#2223).
+NATIVE_CONNECTOR_MODULES["infrastructure"] = "src.ingestion.infrastructure_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"infrastructure"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

@@ -1,0 +1,143 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-infrastructure-asset-record-v1.json",
+  "title": "Noesis infrastructure asset record v1",
+  "description": "One published infrastructure asset (power plant, generating unit, pipeline, LNG terminal, transmission line, substation, gas interconnection point or mine) as one release or extract states it. Asset identity is provider + dataset + native_id; every distinct publication is a separate revision, never an overwrite, from which status revisions, capacity revisions and owner/operator assertions are derived. Status keeps the publisher's own vocabulary beside the normalized one; capacities keep value text, unit, direction and effective date; owner and operator names and shares are kept as published and not resolved. Geometries carry a CRS and precision receipt and are projected onto the existing geospatial store. Only attributes the publisher releases are stored: no vulnerability, criticality or valuation.",
+  "type": "object",
+  "required": ["contract", "schema_version", "provider", "dataset", "native_id", "asset_class", "name", "country", "identifiers", "geometry", "geometry_receipt", "status", "capacities", "owners", "attributes", "estimates", "cited_notes", "cited_references", "element", "release", "retrieved_at", "source_url", "attribution", "licence", "locator", "unknowns"],
+  "properties": {
+    "contract": {"const": "noesis-infrastructure-asset-record-v1"},
+    "schema_version": {"const": "1.0.0"},
+    "provider": {"enum": ["gppd", "gem", "osm", "eia", "entsog"]},
+    "dataset": {"type": "string", "minLength": 1},
+    "native_id": {"type": "string", "minLength": 1},
+    "asset_class": {"enum": ["power_plant", "generating_unit", "pipeline", "lng_terminal", "transmission_line", "substation", "gas_point", "mine"]},
+    "name": {"type": ["string", "null"]},
+    "country": {"type": ["string", "null"], "description": "Country as the publisher states it (code or name), never normalized."},
+    "identifiers": {"type": "array", "items": {"$ref": "#/definitions/identifier"}},
+    "geometry": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/geometry"}]},
+    "geometry_receipt": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/geometry_receipt"}]},
+    "status": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/status"}]},
+    "capacities": {"type": "array", "items": {"$ref": "#/definitions/capacity"}},
+    "owners": {"type": "array", "items": {"$ref": "#/definitions/owner_assertion"}},
+    "attributes": {"type": "object", "description": "Other attributes and tags exactly as published (fuel, commissioning year, OSM tags)."},
+    "estimates": {
+      "type": "array",
+      "items": {
+        "type": "object", "required": ["metric", "value", "unit", "basis"],
+        "properties": {"metric": {"type": "string"}, "year": {"type": ["integer", "null"]}, "value": {"type": ["string", "null"]},
+                       "unit": {"type": "string"}, "basis": {"const": "publisher estimate"}, "note": {"type": ["string", "null"]}}
+      }
+    },
+    "cited_notes": {
+      "type": "array", "description": "Publisher notes cited by URL only (e.g. a GEM wiki page); note text is never copied.",
+      "items": {"type": "object", "required": ["url"], "properties": {"url": {"type": "string", "pattern": "^https://"}, "label": {"type": ["string", "null"]}}, "additionalProperties": false}
+    },
+    "cited_references": {
+      "type": "array", "description": "Permits, dockets or regulations the publisher cites, by scheme and identifier.",
+      "items": {"type": "object", "required": ["scheme", "identifier"]}
+    },
+    "element": {"type": ["object", "null"], "description": "OSM element type, id, version, changeset and timestamp (editor identities are never stored)."},
+    "release": {
+      "type": "object", "required": ["key", "released_at", "basis", "label"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "released_at": {"type": ["string", "null"]},
+        "basis": {"enum": ["declared_release", "extract_timestamp", "provider_last_update", "retrieval_time"]},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "retrieved_at": {"type": "string", "minLength": 4},
+    "source_url": {"type": "string", "pattern": "^https://"},
+    "attribution": {"type": "string", "minLength": 1},
+    "licence": {
+      "type": "object", "required": ["id", "terms_url", "constraints"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "terms_url": {"type": "string", "pattern": "^https://"},
+                     "constraints": {"type": "array", "items": {"type": "string"}}},
+      "additionalProperties": false
+    },
+    "locator": {"type": "object"},
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  },
+  "not": {"anyOf": [{"required": ["vulnerability"]}, {"required": ["criticality"]}, {"required": ["valuation"]}, {"required": ["risk_score"]}]},
+  "definitions": {
+    "identifier": {
+      "type": "object", "required": ["scheme", "value"],
+      "properties": {"scheme": {"type": "string", "minLength": 1}, "value": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    },
+    "geometry": {
+      "type": "object", "required": ["type", "coordinates"],
+      "properties": {"type": {"enum": ["Point", "LineString", "MultiLineString", "Polygon"]}, "coordinates": {"type": "array"}},
+      "additionalProperties": false
+    },
+    "geometry_receipt": {
+      "type": "object", "required": ["crs_published", "crs_stored", "precision_m", "precision_basis", "transformed"],
+      "properties": {
+        "crs_published": {"type": "string", "minLength": 1},
+        "crs_stored": {"const": "EPSG:4326"},
+        "precision_m": {"type": "number", "minimum": 0},
+        "precision_basis": {"type": "string", "minLength": 1},
+        "transformed": {"type": "boolean"}
+      },
+      "additionalProperties": false
+    },
+    "status": {
+      "type": "object", "required": ["published", "normalized", "effective_date", "effective_basis"],
+      "properties": {
+        "published": {"type": ["string", "null"], "description": "The publisher's own status text."},
+        "normalized": {"enum": ["proposed", "construction", "operating", "mothballed", "retired", "cancelled", "unknown"]},
+        "effective_date": {"type": ["string", "null"]},
+        "effective_basis": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "capacity": {
+      "type": "object", "required": ["metric", "value", "unit", "direction", "period", "effective_date", "estimate"],
+      "properties": {
+        "metric": {"type": "string", "minLength": 1},
+        "value": {"type": ["string", "null"], "pattern": "^-?[0-9]+(\\.[0-9]+)?$"},
+        "unit": {"type": "string", "minLength": 1},
+        "direction": {"enum": [null, "entry", "exit", "bidirectional"]},
+        "period": {"type": ["string", "null"]},
+        "effective_date": {"type": ["string", "null"]},
+        "effective_basis": {"type": ["string", "null"]},
+        "estimate": {"type": "boolean"},
+        "published_text": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "owner_assertion": {
+      "type": "object", "required": ["role", "name", "share", "identifiers"],
+      "properties": {
+        "role": {"enum": ["owner", "operator", "parent"]},
+        "name": {"type": "string", "minLength": 1, "description": "The name as published; never rewritten to a matched entity."},
+        "share": {"type": ["string", "null"], "description": "Share in percent as published (decimal text) or null."},
+        "share_text": {"type": ["string", "null"]},
+        "identifiers": {"type": "array", "items": {"$ref": "#/definitions/identifier"}}
+      },
+      "additionalProperties": false
+    },
+    "status_revision": {
+      "type": "object", "required": ["status_revision_id", "sequence", "revision_id", "published", "normalized", "effective_date", "published_at_ms", "retrieved_at_ms"],
+      "description": "A stored status revision: appended whenever a publication changes the status; earlier ones are kept.",
+      "properties": {
+        "status_revision_id": {"type": "string"}, "sequence": {"type": "integer", "minimum": 1}, "revision_id": {"type": "string"},
+        "published": {"type": ["string", "null"]}, "normalized": {"$ref": "#/definitions/status/properties/normalized"},
+        "effective_date": {"type": ["string", "null"]}, "effective_basis": {"type": ["string", "null"]},
+        "published_at_ms": {"type": "integer"}, "retrieved_at_ms": {"type": "integer"}, "supersedes": {"type": ["string", "null"]}
+      }
+    },
+    "capacity_revision": {
+      "type": "object", "required": ["capacity_revision_id", "metric", "sequence", "revision_id", "value", "unit", "estimate", "published_at_ms", "retrieved_at_ms"],
+      "description": "A stored capacity revision per metric and direction: appended whenever a publication changes it.",
+      "properties": {
+        "capacity_revision_id": {"type": "string"}, "metric": {"type": "string"}, "direction": {"type": ["string", "null"]},
+        "period": {"type": ["string", "null"]}, "sequence": {"type": "integer", "minimum": 1}, "revision_id": {"type": "string"},
+        "value": {"type": ["string", "null"]}, "unit": {"type": "string"}, "effective_date": {"type": ["string", "null"]},
+        "estimate": {"type": "boolean"}, "published_at_ms": {"type": "integer"}, "retrieved_at_ms": {"type": "integer"},
+        "supersedes": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

@@ -156,6 +156,12 @@ MATRIX = {
     "Vessel and area to cited fisheries records":
         "tests/unit/domains/test_fisheries_acceptance.py::"
         "test_vessel_and_area_to_cited_authorisations_listings_effort_and_catch",
+    # The Geospatial infrastructure features' offline journey (#2398) compose the infrastructure record owner with
+    # the geospatial store and relations, Corporate Ownership identity, Energy Systems links by citation,
+    # subscriptions and the source-pack declarations.
+    "Place and operator to cited infrastructure assets":
+        "tests/unit/domains/test_infrastructure_acceptance.py::"
+        "test_place_and_operator_to_cited_assets_with_status_history_identity_and_monitoring",
     # The Humanitarian bundle's offline journey (#2288) composes its own record owner, geospatial places and
     # geometries, entity identity, subscriptions and the source-pack runtime; ACLED is the declined source.
     "Place or crisis to humanitarian dossier":
