@@ -155,9 +155,9 @@ def seed_legal(conn, namespace: str = "global") -> dict[str, str]:
 def reviewed(conn, *, legal: bool = True, competition: bool = True) -> dict:
     """Ownership reviewed, enforcement loaded, respondents reviewed against the Exampla group, links made.
 
-    A reviewer accepts candidates whose ownership record sits in an Exampla group cluster (Holdings, UK, Trading,
-    Intermediate) - identifier candidates and, after checking, the low-evidence name candidates - and rejects the
-    others (the same-name decoy). Northwind respondents have no candidates and stay unmatched.
+    A reviewer accepts the CIK candidate against the SEC EDGAR filer and the candidates whose ownership record sits in
+    an Exampla group cluster (Holdings, UK, Trading, Intermediate) - the low-evidence name candidates after checking
+    - and rejects the others (the same-name decoy). Northwind respondents have no candidates and stay unmatched.
     """
     from src.kb.enforcement_identity import EnforcementIdentity
     from src.kb.enforcement_links import EnforcementLinks
@@ -174,7 +174,7 @@ def reviewed(conn, *, legal: bool = True, competition: bool = True) -> dict:
     clusters = OwnershipIdentityService(conn).clusters(OWN_NS)
     good = {clusters.get(k, k) for k in (HOLD_ENTITY, INT_ENTITY, UK_ENTITY, TRADE_ENTITY)}
     for view in proposed["candidates"]:
-        ok = clusters.get(view["ownership_key"], view["ownership_key"]) in good
+        ok = clusters.get(view["ownership_key"], view["ownership_key"]) in good or view["ownership_key"] == SEC_FILER
         identity.review(NS, view["candidate_id"], "accept" if ok else "reject",
                         "identifiers and register name checked" if ok else "a different register entity",
                         principal_id="reviewer", scopes=REVIEW_SCOPES)
