@@ -183,6 +183,11 @@ For the project overview and local setup, start with the
   Hansard references as published, answered as of a date with reviewable member identity, lobbying and enactment
   links by citation and monitors; no passage prediction, member scoring or legal-effect summary;
   [source audit](development/legislation-evidence/source-audit.md)
+- [Political campaign finance guide](guides/political-campaign-finance.md) — FEC committees, filing versions with
+  amendment chains, itemised receipts, disbursements and independent expenditures and UK Electoral Commission
+  donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest
+  filings with reviewable identity and monitors; individual donors minimised; no influence scoring or dark-money
+  inference; [source audit and minimisation decision](development/campaign-finance-evidence/source-audit.md)
 - [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
   opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and
