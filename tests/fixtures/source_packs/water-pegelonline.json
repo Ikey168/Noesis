@@ -1,0 +1,169 @@
+{
+ "description": "PEGELONLINE REST API v2 stations and measurements. Authored offline fixture in the provider's documented response shape. Station UUIDs and numbers, water-body codes, coordinates, values and status labels are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (WA13, #2647).",
+ "scenarios": [
+  "gauge zero with validFrom",
+  "characteristic values",
+  "a missing 15-minute value",
+  "a station without discharge"
+ ],
+ "native_pages": [
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0001-4000-8000-00000000d001.json?includeCharacteristicValues=true&includeTimeseries=true",
+   "status": 200,
+   "body": {
+    "uuid": "aaaaaaaa-0001-4000-8000-00000000d001",
+    "number": "990001",
+    "shortname": "DRESDEN",
+    "longname": "DRESDEN",
+    "km": 55.6,
+    "agency": "DRESDEN",
+    "longitude": 13.738,
+    "latitude": 51.054,
+    "water": {
+     "shortname": "ELBE",
+     "longname": "ELBE"
+    },
+    "timeseries": [
+     {
+      "shortname": "W",
+      "longname": "WASSERSTAND ROHDATEN",
+      "unit": "cm",
+      "equidistance": 15,
+      "gaugeZero": {
+       "unit": "m. ü. NHN",
+       "value": 102.73,
+       "validFrom": "2019-11-01"
+      },
+      "characteristicValues": [
+       {
+        "shortname": "MNW",
+        "longname": "Mittleres Niedrigwasser",
+        "unit": "cm",
+        "value": 90,
+        "validFrom": "2021-01-01",
+        "timespanStart": "2006-11-01",
+        "timespanEnd": "2016-10-31"
+       },
+       {
+        "shortname": "MHW",
+        "longname": "Mittleres Hochwasser",
+        "unit": "cm",
+        "value": 480,
+        "validFrom": "2021-01-01",
+        "timespanStart": "2006-11-01",
+        "timespanEnd": "2016-10-31"
+       }
+      ]
+     },
+     {
+      "shortname": "Q",
+      "longname": "ABFLUSS_ROHDATEN",
+      "unit": "m3/s",
+      "equidistance": 15
+     }
+    ]
+   }
+  },
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0002-4000-8000-00000000d002.json?includeCharacteristicValues=true&includeTimeseries=true",
+   "status": 200,
+   "body": {
+    "uuid": "aaaaaaaa-0002-4000-8000-00000000d002",
+    "number": "990002",
+    "shortname": "MEISSEN",
+    "longname": "MEISSEN",
+    "km": 82.2,
+    "agency": "DRESDEN",
+    "longitude": 13.475,
+    "latitude": 51.164,
+    "water": {
+     "shortname": "ELBE",
+     "longname": "ELBE"
+    },
+    "timeseries": [
+     {
+      "shortname": "W",
+      "longname": "WASSERSTAND ROHDATEN",
+      "unit": "cm",
+      "equidistance": 15,
+      "gaugeZero": {
+       "unit": "m. ü. NHN",
+       "value": 97.52,
+       "validFrom": "2015-11-01"
+      },
+      "characteristicValues": [
+       {
+        "shortname": "MNW",
+        "longname": "Mittleres Niedrigwasser",
+        "unit": "cm",
+        "value": 90,
+        "validFrom": "2021-01-01",
+        "timespanStart": "2006-11-01",
+        "timespanEnd": "2016-10-31"
+       },
+       {
+        "shortname": "MHW",
+        "longname": "Mittleres Hochwasser",
+        "unit": "cm",
+        "value": 480,
+        "validFrom": "2021-01-01",
+        "timespanStart": "2006-11-01",
+        "timespanEnd": "2016-10-31"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0001-4000-8000-00000000d001/W/measurements.json?end=2026-09-21T00%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
+   "status": 200,
+   "body": [
+    {
+     "timestamp": "2026-09-20T00:00:00+02:00",
+     "value": 212.0
+    },
+    {
+     "timestamp": "2026-09-20T00:15:00+02:00",
+     "value": 213.0
+    },
+    {
+     "timestamp": "2026-09-20T00:30:00+02:00",
+     "value": 215.0
+    },
+    {
+     "timestamp": "2026-09-20T01:00:00+02:00",
+     "value": 216.0
+    }
+   ]
+  },
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0001-4000-8000-00000000d001/Q/measurements.json?end=2026-09-21T00%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
+   "status": 200,
+   "body": [
+    {
+     "timestamp": "2026-09-20T00:00:00+02:00",
+     "value": 180.5
+    },
+    {
+     "timestamp": "2026-09-20T00:15:00+02:00",
+     "value": 181.2
+    }
+   ]
+  },
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0002-4000-8000-00000000d002/W/measurements.json?end=2026-09-21T00%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
+   "status": 200,
+   "body": [
+    {
+     "timestamp": "2026-09-20T00:00:00+02:00",
+     "value": 198.0
+    },
+    {
+     "timestamp": "2026-09-20T00:15:00+02:00",
+     "value": 199.0
+    }
+   ]
+  }
+ ]
+}
