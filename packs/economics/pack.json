@@ -8,8 +8,8 @@
   "panels": [],
   "planner_keywords": {
     "trend": ["indicator", "observation", "revision", "vintage"],
-    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry"],
-    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance"]
+    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index"],
+    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "un/locode", "unctadstat", "eurostat maritime transport"]
   },
   "enrichers": [
     {
@@ -50,7 +50,13 @@
     "trade-classification-concordances",
     "trade-reviewable-identity",
     "trade-citation-links",
-    "trade-monitoring"
+    "trade-monitoring",
+    "logistics-port-records",
+    "logistics-series-vintages",
+    "logistics-port-identity",
+    "logistics-trade-links",
+    "logistics-freight-index-licences",
+    "logistics-monitoring"
   ],
   "schema_versions": {
     "dataset-series": "1.0.0",
@@ -69,7 +75,12 @@
     "trade-flow-answer": "1.0.0",
     "trade-identity": "1.0.0",
     "trade-link": "1.0.0",
-    "trade-notification": "1.0.0"
+    "trade-notification": "1.0.0",
+    "logistics-record": "1.0.0",
+    "logistics-answer": "1.0.0",
+    "logistics-port-match": "1.0.0",
+    "logistics-link": "1.0.0",
+    "logistics-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -79,14 +90,15 @@
       "observation", "policy", "release", "sector", "vintage", "budget_line", "budget_plan",
       "budget_figure", "beneficiary_payment", "audit_finding", "demographic_series",
       "definition_revision", "geography_level", "series_break", "comparability_note", "trade_series",
-      "trade_vintage", "classification_concordance", "trade_identity_assertion"
+      "trade_vintage", "classification_concordance", "trade_identity_assertion", "port", "logistics_series",
+      "port_match"
     ],
     "relation_types": [
       "applies_to", "associated_with", "challenges", "issued_by", "measures",
       "observation_of", "released_by", "reported_by", "revision_of", "supports", "figure_of_line",
       "line_in_plan", "paid_to", "cites_line", "enacted_by", "debated_in", "defined_by",
       "reported_under", "referenced_in", "comparable_with", "resolved_to", "mirror_of",
-      "maps_to", "cited_by_measure"
+      "maps_to", "cited_by_measure", "located_at_port", "matched_to_unlocode"
     ]
   },
   "exclusions": [
@@ -101,6 +113,9 @@
     "scraped PDF-only statistics",
     "estimated, imputed or nowcast trade flows",
     "reconciled reporter and mirror figures",
-    "sanctions-evasion inference or compliance determinations"
+    "sanctions-evasion inference or compliance determinations",
+    "freight-rate forecasts",
+    "commercial freight indices without a redistribution licence",
+    "derived, rebased or interpolated indices and routes inferred from port totals"
   ]
 }

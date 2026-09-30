@@ -32,6 +32,14 @@
           "name": "noesis-trade-flow-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "economics.logistics",
+        "provider": "economics.logistics",
+        "contract": {
+          "name": "noesis-logistics-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -50,6 +58,10 @@
       {
         "id": "economics.trade",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.logistics",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
@@ -57,6 +69,11 @@
         "pack_id": "economic-statistics-and-filings",
         "version": "1.5.0",
         "range": "^1.5.0"
+      },
+      {
+        "pack_id": "economic-shipping-and-logistics",
+        "version": "1.0.0",
+        "range": "^1.0.0"
       }
     ],
     "profiles": [
@@ -123,6 +140,27 @@
         },
         "source_packs": [
           "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.shipping-logistics",
+        "description": "Shipping and logistics statistics: a port (UN/LOCODE), country or published route to cited maritime series (port calls, throughput, liner connectivity, fleet, goods handled, openly licensed freight indices) as of a release vintage, sources side by side, joinable to trade flows by shared codes or citation",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per series; all vintages listed on request",
+          "ports": "source port codes only through accepted UN/LOCODE matches; unmatched codes answered under their own code",
+          "routes": "only series published at route level; never inferred from port totals",
+          "sources": "side by side with definitions; never merged",
+          "freight_indices": "only indices cleared by licence decision; excluded ones named with the reason"
+        },
+        "vocabulary": {
+          "UN/LOCODE": "the UNECE code of a location: country code plus a three-character location code",
+          "port call": "an arrival of a ship at a port as the publisher counts it",
+          "TEU": "twenty-foot equivalent unit of container throughput",
+          "liner shipping connectivity": "UNCTAD's index of a port's or country's position in the liner network",
+          "vintage": "one release of a series' values"
+        },
+        "source_packs": [
+          "economic-shipping-and-logistics"
         ]
       }
     ]
@@ -329,6 +367,49 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "flows and concordances are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "logistics",
+      "default": false,
+      "description": "Shipping and logistics statistics: UN/LOCODE port records per release, UNCTADstat and Eurostat maritime series and openly licensed freight indices (per-index licence decisions) in the Economics series storage with release vintages, reviewable port identity to UN/LOCODE and Geospatial places, trade-flow and Economics links by shared code or citation and subscription monitors. No freight-rate forecast, derived or rebased index, inferred route or merged series.",
+      "requires": [
+        {
+          "capability": "economics.logistics",
+          "contract": "noesis-logistics-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "logistics observations live in the economic series and vintage storage"
+        },
+        {
+          "capability": "geospatial.feature-query",
+          "contract": "noesis-geospatial-feature-query",
+          "range": "^1.0.0",
+          "reason": "ports are projected as places with published coordinates"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "port places carry the UN/LOCODE for resolution"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "logistics monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "releases are acquired through the source-pack runtime"
         }
       ]
     }

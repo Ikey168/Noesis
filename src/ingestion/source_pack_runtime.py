@@ -367,6 +367,16 @@ def _biodiversity_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
 
+
+def _logistics_projector(conn: Any) -> Any:
+    from src.kb.logistics_series import LogisticsProjector
+
+    return LogisticsProjector(conn)
+
+
+# Economics shipping and logistics feature (#2229).
+PROJECTORS["noesis-logistics-record-v1"] = _logistics_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

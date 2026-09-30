@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1416,
+      "tool_count": 1439,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1164,6 +1164,7 @@
         "noesis-knowledge-engine.create_legislation_monitor",
         "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
+        "noesis-knowledge-engine.create_logistics_monitor",
         "noesis-knowledge-engine.create_material_watch",
         "noesis-knowledge-engine.create_medicines_monitor",
         "noesis-knowledge-engine.create_package_monitor",
@@ -1400,6 +1401,7 @@
         "noesis-knowledge-engine.import_election_poll_release",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
+        "noesis-knowledge-engine.import_logistics_crosswalk",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_prospero_registration",
         "noesis-knowledge-engine.import_research_package",
@@ -1551,6 +1553,9 @@
         "noesis-knowledge-engine.link_hypothesis_evidence",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
+        "noesis-knowledge-engine.link_logistics_citation",
+        "noesis-knowledge-engine.link_logistics_economic_series",
+        "noesis-knowledge-engine.link_logistics_trade_flows",
         "noesis-knowledge-engine.link_medicine_evidence",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_safety_citations",
@@ -1622,6 +1627,10 @@
         "noesis-knowledge-engine.list_linguistic_identity_candidates",
         "noesis-knowledge-engine.list_lobbying_dossier_links",
         "noesis-knowledge-engine.list_lobbying_identity_candidates",
+        "noesis-knowledge-engine.list_logistics_links",
+        "noesis-knowledge-engine.list_logistics_port_matches",
+        "noesis-knowledge-engine.list_logistics_ports",
+        "noesis-knowledge-engine.list_logistics_series",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_medicine_identity_matches",
@@ -1668,6 +1677,11 @@
         "noesis-knowledge-engine.lobbying_readiness",
         "noesis-knowledge-engine.lobbying_source_contracts",
         "noesis-knowledge-engine.lobbying_source_identity_candidates",
+        "noesis-knowledge-engine.logistics_freight_indices",
+        "noesis-knowledge-engine.logistics_readiness",
+        "noesis-knowledge-engine.logistics_series_values",
+        "noesis-knowledge-engine.logistics_source_contracts",
+        "noesis-knowledge-engine.logistics_value_history",
         "noesis-knowledge-engine.lookup_clinical_trial",
         "noesis-knowledge-engine.lookup_component",
         "noesis-knowledge-engine.lookup_crs_aggregates",
@@ -1749,6 +1763,7 @@
         "noesis-knowledge-engine.poll_legislation_monitor",
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
+        "noesis-knowledge-engine.poll_logistics_monitor",
         "noesis-knowledge-engine.poll_material_watch",
         "noesis-knowledge-engine.poll_medicines_monitor",
         "noesis-knowledge-engine.poll_package_monitor",
@@ -1800,6 +1815,7 @@
         "noesis-knowledge-engine.project_election_boundaries",
         "noesis-knowledge-engine.project_fisheries_areas",
         "noesis-knowledge-engine.project_languoid_locations",
+        "noesis-knowledge-engine.project_logistics_port_places",
         "noesis-knowledge-engine.promote_awareness_item",
         "noesis-knowledge-engine.promote_intake_work_procedure",
         "noesis-knowledge-engine.promote_problem_playbook",
@@ -1837,6 +1853,7 @@
         "noesis-knowledge-engine.propose_lobbying_dossier_link",
         "noesis-knowledge-engine.propose_lobbying_identity_link",
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
+        "noesis-knowledge-engine.propose_logistics_port_matches",
         "noesis-knowledge-engine.propose_material_matches",
         "noesis-knowledge-engine.propose_math_links",
         "noesis-knowledge-engine.propose_medicine_identities",
@@ -1870,11 +1887,14 @@
         "noesis-knowledge-engine.publish_development_finance_codelists",
         "noesis-knowledge-engine.publish_energy_prices_to_market",
         "noesis-knowledge-engine.publish_entity_change_rebuild",
+        "noesis-knowledge-engine.query_country_logistics",
         "noesis-knowledge-engine.query_demographic_boundary",
         "noesis-knowledge-engine.query_geospatial_event_map",
         "noesis-knowledge-engine.query_geospatial_features_within",
         "noesis-knowledge-engine.query_humanitarian_conflict_events",
         "noesis-knowledge-engine.query_knowledge",
+        "noesis-knowledge-engine.query_port_logistics",
+        "noesis-knowledge-engine.query_route_logistics",
         "noesis-knowledge-engine.query_sanctioned_trade_flows",
         "noesis-knowledge-engine.query_trade_flows",
         "noesis-knowledge-engine.queue_jev_entity_merge_review",
@@ -2051,6 +2071,7 @@
         "noesis-knowledge-engine.revert_linguistic_identity_match",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
+        "noesis-knowledge-engine.revert_logistics_port_match",
         "noesis-knowledge-engine.revert_material_match",
         "noesis-knowledge-engine.revert_medicine_identity",
         "noesis-knowledge-engine.revert_oss_identity_match",
@@ -2106,6 +2127,7 @@
         "noesis-knowledge-engine.review_linguistic_identity_match",
         "noesis-knowledge-engine.review_lobbying_dossier_link",
         "noesis-knowledge-engine.review_lobbying_identity_match",
+        "noesis-knowledge-engine.review_logistics_port_match",
         "noesis-knowledge-engine.review_material_match",
         "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_medicine_identity",
@@ -2177,6 +2199,7 @@
         "noesis-knowledge-engine.run_legislation_monitor",
         "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
+        "noesis-knowledge-engine.run_logistics_monitor",
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_material_watch",
@@ -2375,7 +2398,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1416
+      "visible_tool_count": 1439
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2386,11 +2409,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 139,
+      "available": 140,
       "degraded": 173,
-      "unauthorized": 1428
+      "unauthorized": 1450
     },
-    "tools": 1740
+    "tools": 1763
   },
   "tools": [
     {
@@ -33175,6 +33198,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to ports, countries or series: notices for new vintages, revised values, series breaks and\nUN/LOCODE changes (record changes, no forecast or trend verdict).",
+      "id": "noesis-knowledge-engine.create_logistics_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_logistics_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a material, property and/or provider for new releases and corrections via a knowledge subscription.",
       "id": "noesis-knowledge-engine.create_material_watch",
       "input_schema": {
@@ -45328,6 +45406,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a published port code list or crosswalk (source code to UN/LOCODE) with its citation.",
+      "id": "noesis-knowledge-engine.import_logistics_crosswalk",
+      "input_schema": {
+        "properties": {
+          "crosswalk": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "crosswalk"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_logistics_crosswalk",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a native pack while retaining exact plugin IDs, history and unmapped schedule data.",
       "id": "noesis-knowledge-engine.import_modulo_flashcards",
       "input_schema": {
@@ -52032,6 +52148,145 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record an explicit citation (quoted text and locator) joining a logistics series to a trade-flow or\nEconomics series.",
+      "id": "noesis-knowledge-engine.link_logistics_citation",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "target_id": {
+            "type": "string"
+          },
+          "target_kind": {
+            "type": "string"
+          },
+          "target_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "target_kind",
+          "target_id",
+          "citation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_logistics_citation",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link country-level logistics series to other Economics series of the same country code, with the\nEconomics comparability check; never combined.",
+      "id": "noesis-knowledge-engine.link_logistics_economic_series",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_logistics_economic_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link logistics series to trade-flow series through shared published codes only; none_on_record without\ntrade records. Units and frequencies are listed side by side, never combined.\nExclusions: no freight-rate forecasting, no derived or rebased index, no route inferred from port totals,\nno merged series.",
+      "id": "noesis-knowledge-engine.link_logistics_trade_flows",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "trade_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_logistics_trade_flows",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:write",
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link regulatory records to trials and publications they cite, and to FAERS counts by reviewed identity.",
       "id": "noesis-knowledge-engine.link_medicine_evidence",
       "input_schema": {
@@ -55793,6 +56048,241 @@
     },
     {
       "cost_class": "low",
+      "description": "Links from logistics series to trade-flow and Economics series with basis and side-by-side units.",
+      "id": "noesis-knowledge-engine.list_logistics_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_logistics_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Source port code to UN/LOCODE matches with basis, exactness, state, evidence and re-matches.",
+      "id": "noesis-knowledge-engine.list_logistics_port_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "unlocode": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_logistics_port_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "UN/LOCODE port records (current revision, release version and state; removed codes on request).",
+      "id": "noesis-knowledge-engine.list_logistics_ports",
+      "input_schema": {
+        "properties": {
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_removed": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_logistics_ports",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Logistics series (indicator mappings) with source series id, concept, unit, frequency, geography kind\nand published codes, definition reference, licence and freight-index decision.",
+      "id": "noesis-knowledge-engine.list_logistics_series",
+      "input_schema": {
+        "properties": {
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "geo_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_logistics_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "List bounded runnable maintenance work without claiming it.",
       "id": "noesis-knowledge-engine.list_maintenance_due_work",
       "input_schema": {
@@ -58108,6 +58598,189 @@
       "required_scopes": [
         "knowledge:political:lobbying:read",
         "knowledge:source-identity:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Openly licensed freight-index series as of a date with licence and base, and every index excluded by\nlicence decision with the reason.\nExclusions: no freight-rate forecasting, no derived or rebased index, no route inferred from port totals,\nno merged series.",
+      "id": "noesis-knowledge-engine.logistics_freight_indices",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "logistics_freight_indices",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the logistics feature is selected, whether its stores hold releases, per-provider releases and\nthe freight-index licence decisions (excluded indices named).",
+      "id": "noesis-knowledge-engine.logistics_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "logistics_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One series' values in the vintage released by as_of_ms (latest by default), status, flags, footnotes and\nlicence as published, with every vintage and the release citation.",
+      "id": "noesis-knowledge-engine.logistics_series_values",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "logistics_series_values",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (UN/LOCODE, UNCTADstat, Eurostat maritime, BLS PPI), formats, identifiers,\nlicences, rate limits, release and revision models, per-index freight licence decisions and bounded coverage.\nExclusions: no freight-rate forecasting, no derived or rebased index, no route inferred from port totals,\nno merged series.",
+      "id": "noesis-knowledge-engine.logistics_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "logistics_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every vintage of one period's value, each with its release citation.",
+      "id": "noesis-knowledge-engine.logistics_value_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "period"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "logistics_value_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -62095,6 +62768,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a logistics monitor's delivered notices.",
+      "id": "noesis-knowledge-engine.poll_logistics_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_logistics_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll watch events after a cursor.",
       "id": "noesis-knowledge-engine.poll_material_watch",
       "input_schema": {
@@ -64433,6 +65144,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register current UN/LOCODE ports as Geospatial places; a point only where coordinates are published.",
+      "id": "noesis-knowledge-engine.project_logistics_port_places",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "project_logistics_port_places",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:write",
+        "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Promote an escalated item with its source and annotation references.",
       "id": "noesis-knowledge-engine.promote_awareness_item",
       "input_schema": {
@@ -66256,6 +67005,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Match source port codes: embedded UN/LOCODEs and published crosswalks exact, name matches as candidates\nfor review, the rest unmatched.",
+      "id": "noesis-knowledge-engine.propose_logistics_port_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_logistics_port_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Phase-level candidates from stated cross-references or equal space group and volume; never polymorphs.",
       "id": "noesis-knowledge-engine.propose_material_matches",
       "input_schema": {
@@ -67592,6 +68374,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "A country (M49, Eurostat GEO or ISO alpha-2 code, optionally scheme:code) to its country-level logistics\nseries as of a date; ports are listed as context, never summed.\nExclusions: no freight-rate forecasting, no derived or rebased index, no route inferred from port totals,\nno merged series.",
+      "id": "noesis-knowledge-engine.query_country_logistics",
+      "input_schema": {
+        "properties": {
+          "all_vintages": {
+            "default": false,
+            "type": "boolean"
+          },
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "country"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_country_logistics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Series resolved to one boundary with values as of a release date, other levels listed (never aggregated\nor apportioned), comparability pairs and a replayable receipt.",
       "id": "noesis-knowledge-engine.query_demographic_boundary",
       "input_schema": {
@@ -67919,6 +68753,110 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A port (UN/LOCODE, or a source code scheme:code) to its logistics series as of a date: the vintage known\nthen, match basis, definitions, units, licences and citations, sources side by side.\nExclusions: no freight-rate forecasting, no derived or rebased index, no route inferred from port totals,\nno merged series.",
+      "id": "noesis-knowledge-engine.query_port_logistics",
+      "input_schema": {
+        "properties": {
+          "all_vintages": {
+            "default": false,
+            "type": "boolean"
+          },
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "port": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "port"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_port_logistics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A published port-to-partner route as of a date; answered only from route-level series, else\nnone_on_record.\nExclusions: no freight-rate forecasting, no derived or rebased index, no route inferred from port totals,\nno merged series.",
+      "id": "noesis-knowledge-engine.query_route_logistics",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "destination": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "origin": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "origin",
+          "destination"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "query_route_logistics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -78271,6 +79209,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted port match with a reason.",
+      "id": "noesis-knowledge-engine.revert_logistics_port_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_logistics_port_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed materials identity decision; the records stay intact and ungrouped.",
       "id": "noesis-knowledge-engine.revert_material_match",
       "input_schema": {
@@ -80806,6 +81785,51 @@
       ],
       "required_scopes": [
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed port match with a reason.",
+      "id": "noesis-knowledge-engine.review_logistics_port_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_logistics_port_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -84466,6 +85490,51 @@
       "required_scopes": [
         "knowledge:political:lobbying:read",
         "knowledge:ownership:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a logistics monitor at a committed watermark; notices cite the source release.",
+      "id": "noesis-knowledge-engine.run_logistics_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_logistics_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:logistics:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
