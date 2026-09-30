@@ -155,6 +155,39 @@ def seed_legal(conn, namespace: str = "global") -> dict[str, str]:
     return out
 
 
+HOLD_ENTITY = "gleif:lei:213800EXAMPLAHOLDS95"
+INT_ENTITY = "gleif:lei:724500EXAMPLAINTBV75"
+UK_ENTITY = "gleif:lei:213800EXAMPLAUKLTD71"
+TRADE_ENTITY = "gleif:lei:213800EXAMPLATRADE88"
+
+
+def reviewed(conn, *, legal: bool = True) -> dict:
+    """Ownership reviewed, competition loaded, candidates reviewed against the Exampla group, citations linked.
+
+    A reviewer accepts candidates whose ownership record sits in the Holdings or Intermediate clusters (identifier
+    candidates and, after checking, the low-evidence name candidates) and rejects the others (the SEC record and the
+    same-name decoy). Northwind parties have no candidates and stay unmatched.
+    """
+    from src.kb.competition_citations import CompetitionCitations
+    from src.kb.competition_identity import CompetitionIdentity
+    from src.kb.ownership_identity import OwnershipIdentityService
+
+    ownership(conn)
+    load_all(conn)
+    identity = CompetitionIdentity(conn)
+    proposed = identity.propose(NS, ownership_namespace=OWN_NS, principal_id="analyst", scopes=SCOPES)
+    clusters = OwnershipIdentityService(conn).clusters(OWN_NS)
+    good = {clusters.get(HOLD_ENTITY), clusters.get(INT_ENTITY)}
+    for view in proposed["candidates"]:
+        ok = clusters.get(view["ownership_key"], view["ownership_key"]) in good
+        identity.review(NS, view["candidate_id"], "accept" if ok else "reject",
+                        "register identifiers and name checked" if ok else "different register entity",
+                        principal_id="reviewer", scopes=REVIEW_SCOPES)
+    works = seed_legal(conn) if legal else {}
+    CompetitionCitations(conn).link(NS, scopes=SCOPES)
+    return {"identity": identity, "works": works}
+
+
 class Clock:
     def __init__(self, start: int = 1_760_000_000_000) -> None:
         self.value = start
