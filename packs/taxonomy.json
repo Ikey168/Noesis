@@ -1,43 +1,150 @@
 {
   "taxonomy_format": 1,
-  "version": "1.0.0",
-  "description": "Classification overlay for the bundles under packs/ (ADR-004). Each bundle has one domain; a provider inherits its bundle's domain unless it names its own. Each provider names one or more record shapes and any number of themes. Nothing here changes runtime behaviour, bundle ids or provider ids.",
+  "version": "1.1.0",
+  "description": "Classification overlay for the bundles under packs/ (ADR-004, ADR-005). Each bundle has one domain; a provider inherits its bundle's domain unless it names its own. Each provider names one or more record shapes, the subdomains of its domain it covers, and any number of themes. A subdomain no provider covers is a coverage gap. Nothing here changes runtime behaviour, bundle ids or provider ids.",
   "domains": {
     "governance-law": {
       "title": "Governance and law",
-      "description": "Institutions, rules and their actors: legislation, elections, lobbying, campaign finance, courts, statutes, sanctions, procurement, public funding and humanitarian response."
+      "description": "Institutions, rules and their actors: legislation, elections, lobbying, campaign finance, courts, statutes, sanctions, procurement, public funding and humanitarian response.",
+      "subdomains": {
+        "legislation-regulation": {"title": "Legislation and regulation", "description": "Bills, enacted laws, statutes and regulations with their versions and dossiers."},
+        "elections-representation": {"title": "Elections and office-holders", "description": "Election results, polls, boundaries, office terms, proposals and votes."},
+        "political-finance-lobbying": {"title": "Political finance and lobbying", "description": "Campaign-finance filings, lobbying registers, declared spend and meetings."},
+        "courts-case-law": {"title": "Courts and case law", "description": "Court decisions, dockets and cited passages."},
+        "sanctions-export-controls": {"title": "Sanctions and export controls", "description": "Designation lists, delistings and export-control lists."},
+        "public-procurement": {"title": "Public procurement", "description": "Tender notices, awards and buyer histories."},
+        "public-funding": {"title": "Public funding and grants", "description": "Funding calls, grant awards and development-finance activities."},
+        "humanitarian-response": {"title": "Humanitarian response", "description": "Crisis figures, response plans and conflict events."},
+        "treaties-international-law": {"title": "Treaties and international law", "description": "Treaties, signatures, ratifications, reservations and international agreements."},
+        "regulatory-enforcement": {"title": "Regulatory enforcement", "description": "Enforcement actions, fines and decisions by regulators outside competition law."},
+        "government-transparency": {"title": "Government records and transparency", "description": "Parliamentary questions, freedom-of-information requests and official registers of government activity."},
+        "defence-security": {"title": "Defence and military", "description": "Military expenditure, arms transfers and defence reporting."}
+      }
     },
     "society-population": {
       "title": "Society and population",
-      "description": "Population-level conditions as official statistics report them: demographics, education, labour, housing and justice statistics."
+      "description": "Population-level conditions as official statistics report them: demographics, education, labour, housing and justice statistics.",
+      "subdomains": {
+        "population-migration": {"title": "Population and migration", "description": "Population, births, deaths as demographic series, migration and displacement."},
+        "labour-employment": {"title": "Labour and employment", "description": "Employment, unemployment, wages and working conditions."},
+        "education": {"title": "Education", "description": "Enrolment, attainment, expenditure and learning outcomes."},
+        "housing": {"title": "Housing", "description": "Housing stock, rents, affordability and homelessness statistics."},
+        "crime-justice-statistics": {"title": "Crime and justice statistics", "description": "Recorded crime, prosecutions, prisons and court caseload statistics."},
+        "income-poverty-inequality": {"title": "Income, poverty and inequality", "description": "Household income, poverty rates and inequality measures."},
+        "social-protection": {"title": "Social protection", "description": "Pensions, benefits and social-protection expenditure and coverage."},
+        "public-opinion-wellbeing": {"title": "Public opinion and wellbeing", "description": "Attitude surveys, trust and life-satisfaction measures."},
+        "civil-society": {"title": "Civil society and nonprofits", "description": "Charity and nonprofit registers, their filings and grants."}
+      }
     },
     "economy-markets": {
       "title": "Economy and markets",
-      "description": "Economic activity, firms and markets: macro and trade series, logistics, public finance, instruments, legal entities, ownership, insurance, real estate, on-chain activity and products."
+      "description": "Economic activity, firms and markets: macro and trade series, logistics, public finance, instruments, legal entities, ownership, insurance, real estate, on-chain activity and products.",
+      "subdomains": {
+        "macroeconomy-prices": {"title": "Macroeconomy, prices and money", "description": "National accounts, prices, monetary and central-bank series."},
+        "trade": {"title": "Trade", "description": "Goods and services trade flows."},
+        "public-finance": {"title": "Public finance", "description": "Budgets, spending, revenue, debt and audit findings."},
+        "logistics": {"title": "Logistics", "description": "Ports, freight and shipping series."},
+        "financial-markets": {"title": "Financial markets and filings", "description": "Instruments, prices, issuer filings and capital-market notices."},
+        "legal-entities-ownership": {"title": "Legal entities and ownership", "description": "Entity identifiers, registries and ownership relations."},
+        "competition": {"title": "Competition", "description": "Merger, antitrust and state-aid cases."},
+        "insurance": {"title": "Insurance", "description": "Supervisory insurance statistics and insurer disclosures."},
+        "real-estate": {"title": "Real estate", "description": "Property prices, transactions and valuations."},
+        "products-consumer": {"title": "Products and consumer goods", "description": "Product identities, categories, composition and safety notices."},
+        "digital-assets": {"title": "Digital assets", "description": "Public-ledger observations and token activity."},
+        "extractives-natural-resources": {"title": "Extractives and natural resources", "description": "Mineral and hydrocarbon production, licences and extractive-sector payments."},
+        "tourism-hospitality": {"title": "Tourism and hospitality", "description": "Arrivals, nights spent, capacity and tourism expenditure."},
+        "industry-business": {"title": "Industry and business statistics", "description": "Industrial production, business demography and structural business statistics."}
+      }
     },
     "earth-environment": {
       "title": "Earth and environment",
-      "description": "Places and the physical world: geospatial features, climate and environment, biodiversity, weather, natural hazards, energy systems, agriculture and fisheries."
+      "description": "Places and the physical world: geospatial features, climate and environment, biodiversity, weather, natural hazards, energy systems, agriculture and fisheries.",
+      "subdomains": {
+        "places-geometry": {"title": "Places and geometry", "description": "Places, boundaries, features and spatial relations."},
+        "climate-emissions-air": {"title": "Climate, emissions and air", "description": "Climate indicators, greenhouse-gas inventories and air quality."},
+        "biodiversity": {"title": "Biodiversity", "description": "Species occurrences, taxa and conservation status."},
+        "weather": {"title": "Weather", "description": "Observations, forecasts, warnings and verification."},
+        "natural-hazards": {"title": "Natural hazards", "description": "Earthquakes, floods, storms, wildfires and their alerts."},
+        "energy-systems": {"title": "Energy systems", "description": "Generation, load, prices, capacity and energy balances."},
+        "agriculture-food": {"title": "Agriculture and food systems", "description": "Production, prices, balances and agricultural releases."},
+        "fisheries-maritime": {"title": "Fisheries and maritime activity", "description": "Catch, fishing effort and vessel registers."},
+        "infrastructure-networks": {"title": "Infrastructure and networks", "description": "Infrastructure registries and transport networks."},
+        "water-hydrology": {"title": "Water and hydrology", "description": "River levels and discharge, groundwater and water quality."},
+        "oceans-marine": {"title": "Oceans and marine environment", "description": "Ocean observations and marine protected areas."},
+        "land-soils-geology": {"title": "Land, soils and geology", "description": "Land cover and use, forests, soils and geological surveys."},
+        "waste-circular-economy": {"title": "Waste and circular economy", "description": "Waste generation and treatment, industrial releases and material flows."}
+      }
     },
     "science-knowledge": {
       "title": "Science and knowledge",
-      "description": "Scholarly and reference knowledge: literature, methodology, mathematics, astronomy, materials, chemicals and linguistics."
+      "description": "Scholarly and reference knowledge: literature, methodology, mathematics, astronomy, materials, chemicals and linguistics.",
+      "subdomains": {
+        "scholarly-literature": {"title": "Scholarly literature", "description": "Papers, claims, citations and version families."},
+        "research-methods-reviews": {"title": "Research methods and reviews", "description": "Study methodology, replication and systematic reviews."},
+        "mathematics": {"title": "Mathematics", "description": "Mathematical literature, sequences and formal libraries."},
+        "astronomy-space": {"title": "Astronomy and space", "description": "Celestial objects, launches, space objects and space weather."},
+        "materials": {"title": "Materials", "description": "Computed and experimental material properties and structures."},
+        "chemistry": {"title": "Chemistry", "description": "Substances, identifiers and regulatory chemical records."},
+        "linguistics": {"title": "Linguistics", "description": "Languoids, lexicon and typology."},
+        "life-sciences-reference": {"title": "Life-science reference data", "description": "Genes, proteins, structures and biological taxonomy."},
+        "research-entities-data": {"title": "Researchers, institutions and datasets", "description": "Researcher and institution identifiers, research projects and dataset records."},
+        "physical-sciences-reference": {"title": "Physical-science reference data", "description": "Physical constants, atomic, nuclear and particle data."}
+      }
     },
     "health": {
       "title": "Health",
-      "description": "Clinical evidence, medicines regulation, public-health surveillance and health-system capacity."
+      "description": "Clinical evidence, medicines regulation, public-health surveillance and health-system capacity.",
+      "subdomains": {
+        "clinical-evidence-trials": {"title": "Clinical evidence and trials", "description": "Clinical publications, trial registrations and evidence maps."},
+        "medicines-regulation": {"title": "Medicines regulation", "description": "Authorisations, product information and regulatory timelines."},
+        "disease-surveillance": {"title": "Disease surveillance", "description": "Notifiable-disease and public-health indicator series."},
+        "health-systems": {"title": "Health systems", "description": "Beds, workforce and health expenditure."},
+        "medical-devices": {"title": "Medical devices", "description": "Device clearances, registrations, adverse-event reports and recalls."},
+        "mortality-health-outcomes": {"title": "Mortality and health outcomes", "description": "Causes of death, life expectancy and burden of disease."},
+        "animal-health": {"title": "Animal and veterinary health", "description": "Animal disease outbreaks and veterinary surveillance."}
+      }
     },
     "technology": {
       "title": "Technology",
-      "description": "Technical artefacts and their safety: software and vulnerabilities, standards, patents, open-source ecosystems and engineering safety."
+      "description": "Technical artefacts and their safety: software and vulnerabilities, standards, patents, open-source ecosystems and engineering safety.",
+      "subdomains": {
+        "software-vulnerabilities": {"title": "Software and vulnerabilities", "description": "Software packages, components and security advisories."},
+        "open-source-ecosystems": {"title": "Open-source ecosystems", "description": "Package registries, dependency graphs, licences and archives."},
+        "standards-certification": {"title": "Standards and certification", "description": "Standards catalogues, editions and certification."},
+        "patents": {"title": "Patents", "description": "Patent publications, families and legal events."},
+        "engineering-transport-safety": {"title": "Engineering and transport safety", "description": "Defects, airworthiness directives, investigations and recommendations."},
+        "internet-infrastructure": {"title": "Internet infrastructure", "description": "Networks, routing, domain registration and certificates."},
+        "telecommunications-spectrum": {"title": "Telecommunications and spectrum", "description": "Spectrum assignments, licences and connectivity statistics."},
+        "ai-models-datasets": {"title": "AI models and datasets", "description": "Published model and dataset metadata, cards and evaluations."},
+        "cyber-incidents": {"title": "Cyber incidents", "description": "Disclosed breaches and security incidents."}
+      }
     },
     "culture-leisure": {
       "title": "Culture and leisure",
-      "description": "Cultural heritage, media and sport: cultural collections, book and music metadata and sports records."
+      "description": "Cultural heritage, media and sport: cultural collections, book and music metadata and sports records.",
+      "subdomains": {
+        "cultural-heritage": {"title": "Cultural heritage", "description": "Museum, library and archive objects and their rights."},
+        "books-music-metadata": {"title": "Books and music", "description": "Works, editions, recordings and authority records."},
+        "sports": {"title": "Sports", "description": "Competitions, fixtures, results and records."},
+        "film-broadcast": {"title": "Film and broadcast", "description": "Films, series, broadcasters and audiovisual works."},
+        "performing-arts-events": {"title": "Performing arts and events", "description": "Performances, productions, venues and cultural participation."},
+        "games": {"title": "Games", "description": "Video and tabletop game records."},
+        "archives-genealogy": {"title": "Archives and historical records", "description": "Archival descriptions, finding aids and historical records."},
+        "religion-belief": {"title": "Religion and belief", "description": "Religious affiliation statistics and religious organisations."}
+      }
     },
     "information-investigation": {
       "title": "Information and investigation",
-      "description": "The information environment itself: news, OSINT corroboration and provenance, movements and web archives."
+      "description": "The information environment itself: news, OSINT corroboration and provenance, movements and web archives.",
+      "subdomains": {
+        "news-media": {"title": "News", "description": "News articles and their revisions."},
+        "osint-verification": {"title": "OSINT and verification", "description": "Corroboration, origin graphs and media provenance."},
+        "movements-tracking": {"title": "Movements", "description": "Aircraft and vessel registries and movement samples."},
+        "web-archives": {"title": "Web archives", "description": "Archived captures of web resources over time."},
+        "social-platforms": {"title": "Social platforms and transparency", "description": "Public platform content, ad libraries and platform transparency reports."},
+        "fact-checks": {"title": "Fact-checks", "description": "Published fact-checks and their verdicts."},
+        "media-outlets-ownership": {"title": "Media outlets and ownership", "description": "Outlet registries and media-ownership records."}
+      }
     }
   },
   "record_shapes": {
@@ -116,126 +223,126 @@
     "weather": {"domain": "earth-environment"}
   },
   "providers": {
-    "agrifood.core": {"shapes": ["statistical-series"], "themes": ["climate"]},
+    "agrifood.core": {"subdomains": ["agriculture-food"], "shapes": ["statistical-series"], "themes": ["climate"]},
 
-    "astronomy.exoplanets": {"shapes": ["registry-records"]},
-    "astronomy.launches": {"shapes": ["registry-records", "events-notices"]},
-    "astronomy.small-bodies": {"shapes": ["registry-records"]},
-    "astronomy.space-object-registration": {"shapes": ["registry-records", "events-notices"]},
-    "astronomy.space-weather": {"shapes": ["events-notices"]},
+    "astronomy.exoplanets": {"subdomains": ["astronomy-space"], "shapes": ["registry-records"]},
+    "astronomy.launches": {"subdomains": ["astronomy-space"], "shapes": ["registry-records", "events-notices"]},
+    "astronomy.small-bodies": {"subdomains": ["astronomy-space"], "shapes": ["registry-records"]},
+    "astronomy.space-object-registration": {"subdomains": ["astronomy-space"], "shapes": ["registry-records", "events-notices"]},
+    "astronomy.space-weather": {"subdomains": ["astronomy-space"], "shapes": ["events-notices"]},
 
-    "chemicals.substances": {"shapes": ["registry-records"]},
+    "chemicals.substances": {"subdomains": ["chemistry"], "shapes": ["registry-records"]},
 
-    "environment.biodiversity": {"shapes": ["observations", "registry-records"]},
-    "environment.core": {"shapes": ["observations", "statistical-series"], "themes": ["climate"]},
+    "environment.biodiversity": {"subdomains": ["biodiversity"], "shapes": ["observations", "registry-records"]},
+    "environment.core": {"subdomains": ["climate-emissions-air"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
 
-    "clinical.core": {"shapes": ["versioned-documents"]},
-    "clinical.health-capacity": {"shapes": ["statistical-series"]},
-    "clinical.medicines": {"shapes": ["registry-records", "versioned-documents"]},
-    "clinical.surveillance": {"shapes": ["statistical-series"]},
+    "clinical.core": {"subdomains": ["clinical-evidence-trials"], "shapes": ["versioned-documents"]},
+    "clinical.health-capacity": {"subdomains": ["health-systems"], "shapes": ["statistical-series"]},
+    "clinical.medicines": {"subdomains": ["medicines-regulation"], "shapes": ["registry-records", "versioned-documents"]},
+    "clinical.surveillance": {"subdomains": ["disease-surveillance"], "shapes": ["statistical-series"]},
 
-    "ownership.competition": {"shapes": ["events-notices"]},
-    "ownership.core": {"shapes": ["registry-records"]},
+    "ownership.competition": {"subdomains": ["competition"], "shapes": ["events-notices"]},
+    "ownership.core": {"subdomains": ["legal-entities-ownership"], "shapes": ["registry-records"]},
 
-    "economics.core": {"shapes": ["statistical-series", "versioned-documents"]},
-    "economics.demographics": {"domain": "society-population", "shapes": ["statistical-series"]},
-    "economics.labour": {"domain": "society-population", "shapes": ["statistical-series"]},
-    "economics.logistics": {"shapes": ["statistical-series"], "themes": ["transport-mobility"]},
-    "economics.public-finance": {"shapes": ["statistical-series"]},
-    "economics.trade": {"shapes": ["statistical-series"]},
+    "economics.core": {"subdomains": ["macroeconomy-prices"], "shapes": ["statistical-series", "versioned-documents"]},
+    "economics.demographics": {"domain": "society-population", "subdomains": ["population-migration"], "shapes": ["statistical-series"]},
+    "economics.labour": {"domain": "society-population", "subdomains": ["labour-employment"], "shapes": ["statistical-series"]},
+    "economics.logistics": {"subdomains": ["logistics"], "shapes": ["statistical-series"], "themes": ["transport-mobility"]},
+    "economics.public-finance": {"subdomains": ["public-finance"], "shapes": ["statistical-series"]},
+    "economics.trade": {"subdomains": ["trade"], "shapes": ["statistical-series"]},
 
-    "energy.core": {"shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
+    "energy.core": {"subdomains": ["energy-systems"], "shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
 
-    "engineering-safety.defects": {"shapes": ["events-notices"], "themes": ["transport-mobility"]},
-    "engineering-safety.directives": {"shapes": ["versioned-documents"], "themes": ["transport-mobility"]},
-    "engineering-safety.identity": {"shapes": ["registry-records"]},
-    "engineering-safety.investigations": {"shapes": ["events-notices", "versioned-documents"], "themes": ["transport-mobility"]},
-    "engineering-safety.recommendations": {"shapes": ["events-notices"]},
+    "engineering-safety.defects": {"subdomains": ["engineering-transport-safety"], "shapes": ["events-notices"], "themes": ["transport-mobility"]},
+    "engineering-safety.directives": {"subdomains": ["engineering-transport-safety"], "shapes": ["versioned-documents"], "themes": ["transport-mobility"]},
+    "engineering-safety.identity": {"subdomains": ["engineering-transport-safety"], "shapes": ["registry-records"]},
+    "engineering-safety.investigations": {"subdomains": ["engineering-transport-safety"], "shapes": ["events-notices", "versioned-documents"], "themes": ["transport-mobility"]},
+    "engineering-safety.recommendations": {"subdomains": ["engineering-transport-safety"], "shapes": ["events-notices"]},
 
-    "fisheries.core": {"shapes": ["registry-records", "statistical-series"], "themes": ["transport-mobility"]},
+    "fisheries.core": {"subdomains": ["fisheries-maritime"], "shapes": ["registry-records", "statistical-series"], "themes": ["transport-mobility"]},
 
-    "funding.core": {"shapes": ["events-notices"]},
-    "funding.development-finance": {"shapes": ["registry-records"]},
+    "funding.core": {"subdomains": ["public-funding"], "shapes": ["events-notices"]},
+    "funding.development-finance": {"subdomains": ["public-funding"], "shapes": ["registry-records"]},
 
-    "geospatial.core": {"shapes": ["places-geometry"]},
-    "geospatial.housing": {"domain": "society-population", "shapes": ["statistical-series"]},
-    "geospatial.infrastructure": {"shapes": ["registry-records", "places-geometry"], "themes": ["security-defence"]},
-    "geospatial.real-estate": {"domain": "economy-markets", "shapes": ["statistical-series"]},
-    "geospatial.transit": {"shapes": ["places-geometry"], "themes": ["transport-mobility"]},
+    "geospatial.core": {"subdomains": ["places-geometry"], "shapes": ["places-geometry"]},
+    "geospatial.housing": {"domain": "society-population", "subdomains": ["housing"], "shapes": ["statistical-series"]},
+    "geospatial.infrastructure": {"subdomains": ["infrastructure-networks"], "shapes": ["registry-records", "places-geometry"], "themes": ["security-defence"]},
+    "geospatial.real-estate": {"domain": "economy-markets", "subdomains": ["real-estate"], "shapes": ["statistical-series"]},
+    "geospatial.transit": {"subdomains": ["infrastructure-networks"], "shapes": ["places-geometry"], "themes": ["transport-mobility"]},
 
-    "humanitarian.core": {"shapes": ["events-notices", "statistical-series"], "themes": ["security-defence"]},
+    "humanitarian.core": {"subdomains": ["humanitarian-response"], "shapes": ["events-notices", "statistical-series"], "themes": ["security-defence"]},
 
-    "legal.core": {"shapes": ["versioned-documents"]},
-    "legal.courts": {"shapes": ["versioned-documents", "events-notices"]},
-    "legal.federal-statutes": {"shapes": ["versioned-documents"]},
-    "legal.justice-statistics": {"domain": "society-population", "shapes": ["statistical-series"]},
-    "legal.sanctions": {"shapes": ["registry-records"], "themes": ["security-defence"]},
+    "legal.core": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
+    "legal.courts": {"subdomains": ["courts-case-law"], "shapes": ["versioned-documents", "events-notices"]},
+    "legal.federal-statutes": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
+    "legal.justice-statistics": {"domain": "society-population", "subdomains": ["crime-justice-statistics"], "shapes": ["statistical-series"]},
+    "legal.sanctions": {"subdomains": ["sanctions-export-controls"], "shapes": ["registry-records"], "themes": ["security-defence"]},
 
-    "linguistics.languoids": {"shapes": ["registry-records"]},
-    "linguistics.lexicon": {"shapes": ["registry-records"]},
-    "linguistics.typology": {"shapes": ["registry-records"]},
+    "linguistics.languoids": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},
+    "linguistics.lexicon": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},
+    "linguistics.typology": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},
 
-    "market.bafin": {"shapes": ["events-notices"]},
-    "market.core": {"shapes": ["registry-records", "observations"]},
-    "market.insurance": {"shapes": ["statistical-series"], "themes": ["climate"]},
-    "market.lei": {"shapes": ["registry-records"]},
+    "market.bafin": {"subdomains": ["financial-markets"], "shapes": ["events-notices"]},
+    "market.core": {"subdomains": ["financial-markets"], "shapes": ["registry-records", "observations"]},
+    "market.insurance": {"subdomains": ["insurance"], "shapes": ["statistical-series"], "themes": ["climate"]},
+    "market.lei": {"subdomains": ["legal-entities-ownership"], "shapes": ["registry-records"]},
 
-    "materials.computed": {"shapes": ["registry-records"]},
-    "materials.experimental": {"shapes": ["observations"]},
-    "materials.structures": {"shapes": ["registry-records"]},
+    "materials.computed": {"subdomains": ["materials"], "shapes": ["registry-records"]},
+    "materials.experimental": {"subdomains": ["materials"], "shapes": ["observations"]},
+    "materials.structures": {"subdomains": ["materials"], "shapes": ["registry-records"]},
 
-    "hazards.core": {"shapes": ["events-notices"], "themes": ["climate"]},
+    "hazards.core": {"subdomains": ["natural-hazards"], "shapes": ["events-notices"], "themes": ["climate"]},
 
-    "news.core": {"shapes": ["versioned-documents"]},
+    "news.core": {"subdomains": ["news-media"], "shapes": ["versioned-documents"]},
 
-    "onchain.core": {"shapes": ["observations"]},
+    "onchain.core": {"subdomains": ["digital-assets"], "shapes": ["observations"]},
 
-    "osint.core": {"shapes": ["versioned-documents"]},
-    "osint.movements": {"shapes": ["registry-records", "observations"], "themes": ["transport-mobility", "security-defence"]},
+    "osint.core": {"subdomains": ["osint-verification"], "shapes": ["versioned-documents"]},
+    "osint.movements": {"subdomains": ["movements-tracking"], "shapes": ["registry-records", "observations"], "themes": ["transport-mobility", "security-defence"]},
 
-    "oss.archive": {"shapes": ["versioned-documents"]},
-    "oss.dependency-graphs": {"shapes": ["registry-records"]},
-    "oss.licences": {"shapes": ["registry-records"]},
-    "oss.registries": {"shapes": ["registry-records"]},
+    "oss.archive": {"subdomains": ["open-source-ecosystems"], "shapes": ["versioned-documents"]},
+    "oss.dependency-graphs": {"subdomains": ["open-source-ecosystems"], "shapes": ["registry-records"]},
+    "oss.licences": {"subdomains": ["open-source-ecosystems"], "shapes": ["registry-records"]},
+    "oss.registries": {"subdomains": ["open-source-ecosystems"], "shapes": ["registry-records"]},
 
-    "platform.web-archives": {"domain": "information-investigation", "shapes": ["versioned-documents"]},
+    "platform.web-archives": {"domain": "information-investigation", "subdomains": ["web-archives"], "shapes": ["versioned-documents"]},
 
-    "political.campaign-finance": {"shapes": ["versioned-documents", "registry-records"]},
-    "political.core": {"shapes": ["versioned-documents"]},
-    "political.elections": {"shapes": ["statistical-series"]},
-    "political.legislation": {"shapes": ["versioned-documents"]},
-    "political.lobbying": {"shapes": ["registry-records"]},
+    "political.campaign-finance": {"subdomains": ["political-finance-lobbying"], "shapes": ["versioned-documents", "registry-records"]},
+    "political.core": {"subdomains": ["elections-representation", "legislation-regulation"], "shapes": ["versioned-documents"]},
+    "political.elections": {"subdomains": ["elections-representation"], "shapes": ["statistical-series"]},
+    "political.legislation": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
+    "political.lobbying": {"subdomains": ["political-finance-lobbying"], "shapes": ["registry-records"]},
 
-    "procurement.core": {"shapes": ["events-notices"]},
+    "procurement.core": {"subdomains": ["public-procurement"], "shapes": ["events-notices"]},
 
-    "products.appliances": {"shapes": ["registry-records"]},
-    "products.components": {"shapes": ["registry-records"]},
-    "products.core": {"shapes": ["registry-records"]},
-    "products.food": {"shapes": ["registry-records"]},
-    "products.safety": {"shapes": ["events-notices"]},
+    "products.appliances": {"subdomains": ["products-consumer"], "shapes": ["registry-records"]},
+    "products.components": {"subdomains": ["products-consumer"], "shapes": ["registry-records"]},
+    "products.core": {"subdomains": ["products-consumer"], "shapes": ["registry-records"]},
+    "products.food": {"subdomains": ["products-consumer"], "shapes": ["registry-records"]},
+    "products.safety": {"subdomains": ["products-consumer"], "shapes": ["events-notices"]},
 
-    "science.cultural": {"domain": "culture-leisure", "shapes": ["registry-records"]},
-    "science.education-statistics": {"domain": "society-population", "shapes": ["statistical-series"]},
-    "science.literature": {"shapes": ["versioned-documents"]},
-    "science.mathematics": {"shapes": ["versioned-documents", "registry-records"]},
-    "science.media-metadata": {"domain": "culture-leisure", "shapes": ["registry-records"]},
-    "science.methodology": {"shapes": ["versioned-documents"]},
-    "science.paper-families": {"shapes": ["versioned-documents"]},
-    "science.systematic-reviews": {"shapes": ["versioned-documents"]},
+    "science.cultural": {"domain": "culture-leisure", "subdomains": ["cultural-heritage"], "shapes": ["registry-records"]},
+    "science.education-statistics": {"domain": "society-population", "subdomains": ["education"], "shapes": ["statistical-series"]},
+    "science.literature": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
+    "science.mathematics": {"subdomains": ["mathematics"], "shapes": ["versioned-documents", "registry-records"]},
+    "science.media-metadata": {"domain": "culture-leisure", "subdomains": ["books-music-metadata"], "shapes": ["registry-records"]},
+    "science.methodology": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
+    "science.paper-families": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
+    "science.systematic-reviews": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
 
-    "sports.football": {"shapes": ["events-notices"]},
-    "sports.forecasts": {"shapes": ["events-notices"]},
-    "sports.olympics": {"shapes": ["events-notices"]},
-    "sports.tennis": {"shapes": ["events-notices"]},
+    "sports.football": {"subdomains": ["sports"], "shapes": ["events-notices"]},
+    "sports.forecasts": {"subdomains": ["sports"], "shapes": ["events-notices"]},
+    "sports.olympics": {"subdomains": ["sports"], "shapes": ["events-notices"]},
+    "sports.tennis": {"subdomains": ["sports"], "shapes": ["events-notices"]},
 
-    "technology.core": {"shapes": ["registry-records", "versioned-documents"]},
-    "technology.patents": {"shapes": ["versioned-documents"]},
-    "technology.standards": {"shapes": ["versioned-documents"]},
-    "technology.vulnerabilities": {"shapes": ["events-notices"], "themes": ["security-defence"]},
+    "technology.core": {"subdomains": ["software-vulnerabilities"], "shapes": ["registry-records", "versioned-documents"]},
+    "technology.patents": {"subdomains": ["patents"], "shapes": ["versioned-documents"]},
+    "technology.standards": {"subdomains": ["standards-certification"], "shapes": ["versioned-documents"]},
+    "technology.vulnerabilities": {"subdomains": ["software-vulnerabilities"], "shapes": ["events-notices"], "themes": ["security-defence"]},
 
-    "weather.forecasts": {"shapes": ["observations"]},
-    "weather.observations": {"shapes": ["observations"], "themes": ["climate"]},
-    "weather.verification": {"shapes": ["observations"]},
-    "weather.warnings": {"shapes": ["events-notices"]}
+    "weather.forecasts": {"subdomains": ["weather"], "shapes": ["observations"]},
+    "weather.observations": {"subdomains": ["weather"], "shapes": ["observations"], "themes": ["climate"]},
+    "weather.verification": {"subdomains": ["weather"], "shapes": ["observations"]},
+    "weather.warnings": {"subdomains": ["weather"], "shapes": ["events-notices"]}
   }
 }

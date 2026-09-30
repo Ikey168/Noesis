@@ -1,6 +1,8 @@
 # ADR-004: Pack taxonomy and admission rule
 
-Status: accepted, 2026-09-30. Classification only; it changes no runtime
+Status: accepted, 2026-09-30. The "empty cells are not a to-do list" clause of
+the admission rule is superseded by
+[ADR-005](ADR-005-domain-coverage-program.md). Classification only; it changes no runtime
 behaviour, bundle id or provider id. The overlay is
 [`packs/taxonomy.json`](../../../packs/taxonomy.json), enforced by
 `tests/unit/composition/test_pack_taxonomy.py`.
