@@ -13,7 +13,11 @@ from src.kb.extractives_records import forbidden_keys
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit import extractives_harness as h
 from tools.knowledge_engine_mcp import server
-from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_SCOPES, EXTRACTIVES_TOOLS, EXTRACTIVES_WRITES
+from tools.knowledge_engine_mcp.extractives import (
+    EXTRACTIVES_SCOPES,
+    EXTRACTIVES_TOOLS,
+    EXTRACTIVES_WRITES,
+)
 
 
 @pytest.fixture()
