@@ -399,6 +399,16 @@ def _astronomy_registration_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
 
+
+def _campaign_finance_projector(conn: Any) -> Any:
+    from src.kb.campaign_finance_records import CampaignFinanceProjector
+
+    return CampaignFinanceProjector(conn)
+
+
+# Political campaign-finance features (#2209).
+PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

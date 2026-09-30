@@ -128,8 +128,8 @@ def test_enabling_it_binds_the_geospatial_news_identity_subscription_and_runtime
     )
     assert {
         "pack_id": "official-political-records",
-        "version": "1.3.0",  # 1.3.0 adds the legislation sources (#2208); the result sources are unchanged
-        "range": "^1.3.0",
+        "version": "1.4.0",  # 1.3.0 legislation (#2208), 1.4.0 campaign finance (#2209); result sources unchanged
+        "range": "^1.4.0",
     } in plan["source_packs"]
     profiles = {p["id"]: p for p in adapt_all()["political"]["contributes"]["profiles"]}
     defaults = profiles["political.elections-review"]["workflow_defaults"]

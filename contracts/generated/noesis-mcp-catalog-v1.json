@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1516,
+      "tool_count": 1535,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1054,6 +1054,13 @@
         "noesis-knowledge-engine.build_review_annotation_dataset",
         "noesis-knowledge-engine.calculate_decision_sensitivity",
         "noesis-knowledge-engine.calculate_spatial_relation",
+        "noesis-knowledge-engine.campaign_finance_affiliate_donations",
+        "noesis-knowledge-engine.campaign_finance_amendment_chain",
+        "noesis-knowledge-engine.campaign_finance_contest_filings",
+        "noesis-knowledge-engine.campaign_finance_filing_items",
+        "noesis-knowledge-engine.campaign_finance_readiness",
+        "noesis-knowledge-engine.campaign_finance_source_contracts",
+        "noesis-knowledge-engine.campaign_finance_totals_as_of",
         "noesis-knowledge-engine.cancel_knowledge_query",
         "noesis-knowledge-engine.cancel_maintenance_job",
         "noesis-knowledge-engine.cancel_persistent_research_loop",
@@ -1137,6 +1144,7 @@
         "noesis-knowledge-engine.create_bafin_notice_monitor",
         "noesis-knowledge-engine.create_binary_forecast",
         "noesis-knowledge-engine.create_biodiversity_monitor",
+        "noesis-knowledge-engine.create_campaign_finance_monitor",
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_clinical_monitor",
         "noesis-knowledge-engine.create_courts_justice_monitor",
@@ -1300,6 +1308,7 @@
         "noesis-knowledge-engine.export_authored_report",
         "noesis-knowledge-engine.export_bill_evidence_bundle",
         "noesis-knowledge-engine.export_biodiversity_bundle",
+        "noesis-knowledge-engine.export_campaign_finance_evidence_bundle",
         "noesis-knowledge-engine.export_change_briefs",
         "noesis-knowledge-engine.export_clinical_evidence_bundle",
         "noesis-knowledge-engine.export_coverage_comparison",
@@ -1565,6 +1574,9 @@
         "noesis-knowledge-engine.link_budget_acts",
         "noesis-knowledge-engine.link_budget_districts",
         "noesis-knowledge-engine.link_budget_dossier",
+        "noesis-knowledge-engine.link_campaign_finance_contests",
+        "noesis-knowledge-engine.link_campaign_finance_lobbying",
+        "noesis-knowledge-engine.link_campaign_finance_ownership",
         "noesis-knowledge-engine.link_claim_evolution",
         "noesis-knowledge-engine.link_clinical_publications",
         "noesis-knowledge-engine.link_company_identity",
@@ -1608,6 +1620,8 @@
         "noesis-knowledge-engine.list_bill_votes",
         "noesis-knowledge-engine.list_biodiversity_links",
         "noesis-knowledge-engine.list_budget_lines",
+        "noesis-knowledge-engine.list_campaign_finance_identity_candidates",
+        "noesis-knowledge-engine.list_campaign_finance_links",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_citation_pins",
         "noesis-knowledge-engine.list_court_citation_links",
@@ -1785,6 +1799,7 @@
         "noesis-knowledge-engine.poll_astronomy_monitor",
         "noesis-knowledge-engine.poll_bafin_notice_monitor",
         "noesis-knowledge-engine.poll_biodiversity_monitor",
+        "noesis-knowledge-engine.poll_campaign_finance_monitor",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
         "noesis-knowledge-engine.poll_courts_justice_monitor",
@@ -1871,6 +1886,7 @@
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_bafin_identity_link",
         "noesis-knowledge-engine.propose_bafin_identity_matches",
+        "noesis-knowledge-engine.propose_campaign_finance_identity_matches",
         "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_court_party_matches",
         "noesis-knowledge-engine.propose_cultural_matches",
@@ -2111,6 +2127,7 @@
         "noesis-knowledge-engine.revert_astronomy_identity_match",
         "noesis-knowledge-engine.revert_bafin_identity_match",
         "noesis-knowledge-engine.revert_bill_record_link",
+        "noesis-knowledge-engine.revert_campaign_finance_identity_match",
         "noesis-knowledge-engine.revert_component_manufacturer_link",
         "noesis-knowledge-engine.revert_court_party_match",
         "noesis-knowledge-engine.revert_demographic_comparability",
@@ -2151,6 +2168,7 @@
         "noesis-knowledge-engine.review_astronomy_launch_site",
         "noesis-knowledge-engine.review_bafin_identity_match",
         "noesis-knowledge-engine.review_bill_record_link",
+        "noesis-knowledge-engine.review_campaign_finance_identity_match",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
         "noesis-knowledge-engine.review_clinical_publication_link",
@@ -2249,6 +2267,7 @@
         "noesis-knowledge-engine.run_astronomy_monitor",
         "noesis-knowledge-engine.run_bafin_notice_monitor",
         "noesis-knowledge-engine.run_biodiversity_monitor",
+        "noesis-knowledge-engine.run_campaign_finance_monitor",
         "noesis-knowledge-engine.run_clinical_monitor",
         "noesis-knowledge-engine.run_courts_justice_monitor",
         "noesis-knowledge-engine.run_demographic_monitor",
@@ -2475,7 +2494,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1516
+      "visible_tool_count": 1535
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2486,11 +2505,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 143,
+      "available": 144,
       "degraded": 173,
-      "unauthorized": 1524
+      "unauthorized": 1542
     },
-    "tools": 1840
+    "tools": 1859
   },
   "tools": [
     {
@@ -26909,6 +26928,323 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Contributions reported from an organisation and its affiliated entities, reached only through accepted\nidentity matches, cited ownership relations and connected organisations stated on registrations; each\nresult lists its path and the filing version it was reported in. Individual donors are never expanded; no\n'dark money' inference.",
+      "id": "noesis-knowledge-engine.campaign_finance_affiliate_donations",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "organisation": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "organisation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_affiliate_donations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every version of one filing (original, amendments, termination) with receipt dates, the regulator's\nmost-recent flag as published and the version available as of a date. filing: a file number or key.",
+      "id": "noesis-knowledge-engine.campaign_finance_amendment_chain",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "filing": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "filing"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_amendment_chain",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Candidate-committee filings, party spending returns and independent expenditures (support/oppose as\nreported) linked to an elections contest; none_on_record when nothing is linked. No influence reading.",
+      "id": "noesis-knowledge-engine.campaign_finance_contest_filings",
+      "input_schema": {
+        "properties": {
+          "contest_id": {
+            "type": "string"
+          },
+          "elections_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "contest_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_contest_filings",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Line items reported in one filing version, amounts and dates as reported, memo items labelled. Individual\ncontributions are minimised and returned only with the individual-items scope, otherwise counted.",
+      "id": "noesis-knowledge-engine.campaign_finance_filing_items",
+      "input_schema": {
+        "properties": {
+          "filing": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "filing"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_filing_items",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the campaign-finance-us / campaign-finance-uk features are selected, and records per provider.",
+      "id": "noesis-knowledge-engine.campaign_finance_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider endpoints, API-key handling, licences (including the FEC's statutory limit on using\ncontributor names), rate limits, amendment models, bounded coverage, LIVE_VERIFICATION status and the donor\ndata-minimisation decision for the OpenFEC API, FEC bulk data and the Electoral Commission search.",
+      "id": "noesis-knowledge-engine.campaign_finance_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A committee's (FEC id) or regulated entity's (Commission id) reported receipts, disbursements and cash on\nhand per report as of a date, naming the filing version used, its amendment chain and the differences\nbetween versions. Figures are as reported; derive=true adds a cross-period sum labelled derived with the\nversions used. No filing on record is none_on_record. No influence score or ranking.",
+      "id": "noesis-knowledge-engine.campaign_finance_totals_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "committee": {
+            "type": "string"
+          },
+          "derive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_end": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_start": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "committee"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "campaign_finance_totals_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Signal cancellation for an in-process unified query.",
       "id": "noesis-knowledge-engine.cancel_knowledge_query",
@@ -31451,6 +31787,63 @@
       ],
       "required_scopes": [
         "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch a committee (FEC or Commission id), an organisation (with its affiliates) or a contest for new\nfilings, amendments and independent expenditures.",
+      "id": "noesis-knowledge-engine.create_campaign_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_campaign_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -40471,6 +40864,70 @@
       ],
       "required_scopes": [
         "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence bundle for a totals, affiliate or contest answer (query: totals | affiliates | contest):\nassertions each citing the record revision, source, filing revision and observation time behind them.",
+      "id": "noesis-knowledge-engine.export_campaign_finance_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_campaign_finance_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -52821,6 +53278,138 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link filing versions and independent expenditures to election contests through accepted candidate and\nparty matches; degrades when the elections feature is absent and reports missing targets.",
+      "id": "noesis-knowledge-engine.link_campaign_finance_contests",
+      "input_schema": {
+        "properties": {
+          "elections_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_campaign_finance_contests",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:political:campaign-finance:write",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link organisational donors' contributions to the lobbying register revision in force through accepted\nmatches; degrades when the lobbying feature is absent. No influence or quid-pro-quo inference.",
+      "id": "noesis-knowledge-engine.link_campaign_finance_lobbying",
+      "input_schema": {
+        "properties": {
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_campaign_finance_lobbying",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:political:campaign-finance:write",
+        "knowledge:ownership:read",
+        "knowledge:political:lobbying:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link organisational donors and connected organisations to Corporate Ownership records through accepted\nmatches; degrades when the ownership store is absent and reports missing targets.",
+      "id": "noesis-knowledge-engine.link_campaign_finance_ownership",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_campaign_finance_ownership",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:political:campaign-finance:write",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link existing claims with a sourced successor, refinement, reversal, withdrawal, or branch.",
       "id": "noesis-knowledge-engine.link_claim_evolution",
       "input_schema": {
@@ -55106,6 +55695,117 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity candidates and decisions for committees, candidates, parties and organisational donors, with\nmethod, evidence and confidence. Individual donors are never candidates.",
+      "id": "noesis-knowledge-engine.list_campaign_finance_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_campaign_finance_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Contest, lobbying and ownership links with the record and filing revisions they point at and their\nmatching basis. A link is not evidence of influence.",
+      "id": "noesis-knowledge-engine.list_campaign_finance_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_campaign_finance_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -64241,6 +64941,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Delivered campaign-finance monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_campaign_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_campaign_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Read a bounded alert batch with durable cursor, impact links and acknowledgments.",
       "id": "noesis-knowledge-engine.poll_cited_evidence_alerts",
       "input_schema": {
@@ -68185,6 +68923,74 @@
       ],
       "required_scopes": [
         "market:bafin:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose reviewable matches (official FEC ids, company numbers, name+address, name+office+cycle) to\ncommittees, election records, lobbying registrants and Corporate Ownership entities; nothing is merged or\naccepted automatically, individuals are never proposed and absent providers are reported.",
+      "id": "noesis-knowledge-engine.propose_campaign_finance_identity_matches",
+      "input_schema": {
+        "properties": {
+          "elections_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "lobbying_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_campaign_finance_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
         "knowledge:ownership:read",
         "knowledge:ownership:write"
       ],
@@ -81465,6 +82271,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected campaign-finance identity decision; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_campaign_finance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_campaign_finance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a manufacturer link; the undo is itself an auditable identity decision.",
       "id": "noesis-knowledge-engine.revert_component_manufacturer_link",
       "input_schema": {
@@ -83156,6 +84004,52 @@
       "required_scopes": [
         "knowledge:political:legislation:read",
         "knowledge:political:legislation:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a campaign-finance identity candidate as an entity identity decision.",
+      "id": "noesis-knowledge-engine.review_campaign_finance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_campaign_finance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -88088,6 +88982,51 @@
       ],
       "required_scopes": [
         "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a campaign-finance monitor at a committed watermark; notices cite the new and previous revision\nand never name an individual donor.",
+      "id": "noesis-knowledge-engine.run_campaign_finance_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_campaign_finance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:political:campaign-finance:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

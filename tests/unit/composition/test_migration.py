@@ -68,6 +68,7 @@ PROJECTOR_OWNERS = {
     "noesis-court-justice-record-v1": "src.kb.legal_dockets",
     "noesis-biodiversity-record-v1": "src.kb.biodiversity_store",
     "noesis-food-composition-record-v1": "src.kb.food_composition",
+    "noesis-campaign-finance-record-v1": "src.kb.campaign_finance_records",
 }
 
 

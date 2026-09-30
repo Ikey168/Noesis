@@ -32,6 +32,14 @@
           "name": "noesis-legislation-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "political.campaign-finance",
+        "provider": "political.campaign-finance",
+        "contract": {
+          "name": "noesis-campaign-finance-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -50,13 +58,17 @@
       {
         "id": "political.legislation",
         "version": "1.0.0"
+      },
+      {
+        "id": "political.campaign-finance",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "official-political-records",
-        "version": "1.3.0",
-        "range": "^1.3.0"
+        "version": "1.4.0",
+        "range": "^1.4.0"
       }
     ],
     "profiles": [
@@ -306,6 +318,80 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "bills, divisions and debate references are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "campaign-finance-us",
+      "default": false,
+      "description": "US campaign finance: FEC committee and candidate registrations, every filing version with its amendment chain and most-recent flag as published, itemised receipts and disbursements and independent expenditures (24/48-hour notices and periodic reports kept apart), answered as reported totals per filing version as of a date, affiliate donations and contest filings with reviewable identity, contest, lobbying and ownership links (degrading when those providers are absent) and subscription monitors. Individual donors are minimised (CF01). No influence scoring, dark-money inference or donor profiling.",
+      "requires": [
+        {
+          "capability": "political.campaign-finance",
+          "contract": "noesis-campaign-finance-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted committee, candidate and donor matches are entity identity decisions"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "committee, candidate and organisational-donor matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "campaign-finance monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "committees, filings and schedules are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "campaign-finance-uk",
+      "default": false,
+      "description": "UK campaign finance: Electoral Commission donation reports and campaign spending returns as published (corrections and late reports as revisions), answered per return as of a date with reviewable party and organisational-donor identity, contest, lobbying and ownership links (degrading when those providers are absent) and subscription monitors. Individual donors are minimised (CF01). No influence scoring, dark-money inference or donor profiling.",
+      "requires": [
+        {
+          "capability": "political.campaign-finance",
+          "contract": "noesis-campaign-finance-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted committee, candidate and donor matches are entity identity decisions"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "committee, candidate and organisational-donor matches use the reviewable identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "campaign-finance monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "donation and spending exports are acquired through the source-pack runtime"
         }
       ]
     }

@@ -9404,6 +9404,11 @@ from tools.knowledge_engine_mcp.web_archives import (  # noqa: E402 - registrati
 )
 
 register_web_archive_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.campaign_finance import (  # noqa: E402 - registration order
+    register as register_campaign_finance_tools,
+)
+
+register_campaign_finance_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

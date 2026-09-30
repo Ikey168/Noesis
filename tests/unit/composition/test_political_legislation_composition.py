@@ -81,7 +81,8 @@ def test_selecting_a_feature_binds_the_provider_and_consumed_ones(selection):
     plan = political_plan(selection)
     assert sorted(plan["features"]["political"]) == sorted(selection)
     assert bound(plan) == FEATURE_PROVIDERS
-    assert {"pack_id": "official-political-records", "version": "1.3.0", "range": "^1.3.0"} in plan["source_packs"]
+    # the bundle ships 1.4.0 (campaign-finance sources, #2209); the descriptor's ^1.3.0 range still resolves
+    assert {"pack_id": "official-political-records", "version": "1.4.0", "range": "^1.4.0"} in plan["source_packs"]
 
 
 def test_features_coexist_with_lobbying_and_elections():
