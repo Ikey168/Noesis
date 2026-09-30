@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "unoosa-registration-documents",
+  "note": "Authored documents naming fictional objects (2099 designators, ST/SG/SER.E/99xx symbols, Fictland, Republic of Examplia, European Fictional Space Organisation), served for the production document URLs. The production bounds leave the fictional rows out of scope or rejected; parsing is exercised with the fictional bounds in tests/unit/astronomy/registration_harness.py.",
+  "native_pages": [
+    {
+      "request": "/oosa/en/spaceobjectregister/documents/stsgser.e-1100.txt",
+      "status": 200,
+      "body": "ST/SG/SER.E/9901\nCommittee on the Peaceful Uses of Outer Space\nInformation furnished in conformity with the Convention on Registration of Objects Launched into Outer Space (authored fictional document)\nInstrument: Convention on Registration of Objects Launched into Outer Space | UNTS-1023-15\nInstrument: Fictland Space Activities Act | FL-SAA-2090\n\n1. Note verbale dated 20 March 2099 from the Permanent Mission of Fictland to the United Nations (Vienna) addressed to the Secretary-General.\n\n2. International designator: 2099-001A\n   Catalogue number: 99901\n   Name of space object: FICTSAT 1\n   National designator: FL-2099-01\n   State of registry: Fictland\n   Date of launch: 2099-03-03\n   Territory or location of launch: Fictland Space Centre\n   Nodal period: 94.1 minutes\n   Inclination: 51.6 degrees\n   Apogee: 420 kilometres\n   Perigee: 410 kilometres\n   General function: Earth observation\n   Operator: Fictional Satellite Operations LLC\n   Operator LEI: 5299FICT0000000000001\n   Owner: Fictland Space Agency\n\n3. Name of space object: FICTCUBE\n   Date of launch: 2099-03-03\n   General function: Technology demonstration\n   Operator: Fictland University\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

@@ -9284,6 +9284,12 @@ from tools.knowledge_engine_mcp.astronomy import (
 
 register_astronomy_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.astronomy_registration import (
+    register as register_astronomy_registration_tools,
+)
+
+register_astronomy_registration_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.weather import (
     register as register_weather_tools,
 )

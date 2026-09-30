@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "aerospace-reentry",
+  "note": "Authored documents naming fictional objects (2099 designators, ST/SG/SER.E/99xx symbols, Fictland, Republic of Examplia, European Fictional Space Organisation), served for the production document URLs. The production bounds leave the fictional rows out of scope or rejected; parsing is exercised with the fictional bounds in tests/unit/astronomy/registration_harness.py.",
+  "native_pages": [
+    {
+      "request": "/reentries/99999",
+      "status": 200,
+      "body": "<html><body><!-- Authored fictional re-entry page (not captured data). -->\n<h1>FICTSAT 1 (99901, 2099-001A)</h1>\n<table>\n<tr><th>Prediction Date (UTC)</th><th>Predicted Reentry Time (UTC)</th><th>Window</th><th>Report</th><th>Location</th><th>Latitude</th><th>Longitude</th></tr>\n<tr><td>2099-06-18 06:00</td><td>2099-06-21 14:00</td><td>± 24 hours</td><td>Prediction</td><td></td><td></td><td></td></tr>\n<tr><td>2099-06-19 06:00</td><td>2099-06-21 11:30</td><td>± 12 hours</td><td>Prediction</td><td></td><td></td><td></td></tr>\n<tr><td>2099-06-20 18:00</td><td>2099-06-21 10:15</td><td>± 3 hours</td><td>Prediction</td><td></td><td></td><td></td></tr>\n<tr><td>2099-06-22 09:00</td><td>2099-06-21 10:07</td><td>± 1 minute</td><td>Confirmed</td><td>South Pacific Ocean</td><td>-45.2</td><td>-130.5</td></tr>\n</table></body></html>\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

@@ -21,6 +21,7 @@ from src.domains import registry as domain_registry
 from src.kb.astronomy_store import feature_enabled
 from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp.astronomy import ASTRONOMY_TOOLS
+from tools.knowledge_engine_mcp.astronomy_registration import REGISTRATION_TOOLS
 
 ROOT = Path(__file__).resolve().parents[3]
 CORE = {
@@ -104,6 +105,7 @@ def test_manifest_view_providers_and_source_pack_are_consistent():
         "astronomy.exoplanets",
         "astronomy.launches",
         "astronomy.space-weather",
+        "astronomy.space-object-registration",
     }
     assert all(validate_provider_descriptor(d) == [] for d in descriptors)
     assert validate_provider_set(provider_descriptors()) == []
@@ -122,7 +124,7 @@ def test_manifest_view_providers_and_source_pack_are_consistent():
         t.split(".", 1)[1]
         for d in descriptors
         for t in (o["tool"] for o in d["operations"])
-    } == ASTRONOMY_TOOLS
+    } == ASTRONOMY_TOOLS | REGISTRATION_TOOLS
 
 
 def test_features_are_off_by_default_and_their_tools_stay_hidden():
@@ -132,7 +134,12 @@ def test_features_are_off_by_default_and_their_tools_stay_hidden():
             "optional_features"
         ]
     }
-    assert set(features) == {"astronomy-launches", "astronomy-space-weather"}
+    assert set(features) == {
+        "astronomy-launches",
+        "astronomy-space-weather",
+        "astronomy-space-object-registration",
+        "astronomy-discos",
+    }
     assert not any(f["default"] for f in features.values())
     plan = plan_for()
     assert plan["features"]["astronomy"] == [] and bound(plan) == CORE

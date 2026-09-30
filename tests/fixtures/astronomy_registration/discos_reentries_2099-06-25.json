@@ -1,0 +1,10 @@
+{
+  "note": "Authored fictional DISCOSweb JSON:API re-entry response (not captured, not ESA data).",
+  "data": [
+    {"type": "reentry", "id": "9001", "attributes": {"epoch": "2099-06-21T10:07:00Z"},
+     "relationships": {"objects": {"data": [{"type": "object", "id": "70001"}]}}}
+  ],
+  "included": [
+    {"type": "object", "id": "70001", "attributes": {"cosparId": "2099-001A", "satno": 99901, "name": "Fictsat-1"}}
+  ]
+}

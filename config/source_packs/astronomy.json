@@ -1,7 +1,7 @@
 {
   "pack_id": "astronomy-and-space",
-  "version": "1.0.0",
-  "description": "Astronomy and Space sources for the Astronomy pack: MPC designations, identifications and MPCORB orbits, JPL SBDB solutions and Sentry listings (quoted), NASA Exoplanet Archive dispositions per table, GCAT and CelesTrak SATCAT launches and objects, and NOAA SWPC alerts. Bounded to declared objects, hosts, years and codes; published values quoted, never computed.",
+  "version": "1.1.0",
+  "description": "Astronomy and Space sources for the Astronomy pack: MPC designations, identifications and MPCORB orbits, JPL SBDB solutions and Sentry listings (quoted), NASA Exoplanet Archive dispositions per table, GCAT and CelesTrak SATCAT launches and objects, and NOAA SWPC alerts. Bounded to declared objects, hosts, years and codes; published values quoted, never computed. Plus the space-object registration feature (#2224): UNOOSA Online Index entries and UN registration documents (symbol, locator, language, verbatim), ESA DISCOS under its account terms (permitted subset, never redistributed) and Aerospace Corporation re-entry predictions and confirmed reports, each as published.",
   "domains": [
     "astronomy"
   ],
@@ -599,6 +599,251 @@
         "interval_s": 3600
       },
       "update_cadence": "hourly at most"
+    },
+    {
+      "source_id": "unoosa-online-index",
+      "publisher": "UNOOSA Online Index of Objects Launched into Outer Space",
+      "endpoint": "https://www.unoosa.org/oosa/osoindex/",
+      "scope": "Index entries (international designator, national designator, name, State of registry, launch date, status, function, UN registration yes/no and document symbols) of the declared launch year; status stored as published with the index retrieval date (operator must verify the JSON search path and field names)",
+      "license": {
+        "id": "un-terms",
+        "terms_url": "https://www.un.org/en/about-us/terms-of-use",
+        "redistribution": "facts with attribution to UNOOSA; no bulk mirror (operator must verify)"
+      },
+      "temporal_semantics": "the index retrieval date (the document's source_as_of, else the acquisition day) orders revisions; a changed status is a new revision, the earlier one kept",
+      "connector": "astronomy-registration",
+      "mapping": {
+        "target_schema": "noesis-astronomy-registration-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "astronomy-registration:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "astronomy_registration": {
+        "namespace": "astronomy",
+        "provider": "unoosa-index",
+        "format": "unoosa-index-json",
+        "years": [
+          "2025"
+        ],
+        "documents": [
+          {
+            "label": "UNOOSA index search: launches of 2025",
+            "url": "https://www.unoosa.org/oosa/osoindex/search-ng.jspx?lf_id=&criteria=launchYear:2025&format=json",
+            "listing": "partial"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-registration-unoosa-index.json",
+        "sha256": "af51129ae7859a0496513958ed876003db2c94d8dba62e2c003cf9a2ebdf3159",
+        "expected_output_hash": "86e7a5d567355c7db48da52926b16b3a8085de7764b11e8628dfe68f0e0cc6e6"
+      }
+    },
+    {
+      "source_id": "unoosa-registration-documents",
+      "publisher": "United Nations registration documents (ST/SG/SER.E) and notifications",
+      "endpoint": "https://www.unoosa.org/oosa/en/spaceobjectregister/",
+      "scope": "Declared registration documents and notifications (change of status, transfer of supervision, re-entry) by UN symbol, read through their English text rendition with declared labels; each object entry quoted verbatim with its paragraph locator (operator must verify the symbols and renditions)",
+      "license": {
+        "id": "un-terms",
+        "terms_url": "https://www.un.org/en/about-us/terms-of-use",
+        "redistribution": "UN documents are public; quote with the document symbol (operator must verify)"
+      },
+      "temporal_semantics": "the document date the declaration states orders entries; a later notification is its own dated entry and never overwrites the original registration",
+      "connector": "astronomy-registration",
+      "mapping": {
+        "target_schema": "noesis-astronomy-registration-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "astronomy-registration:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "astronomy_registration": {
+        "namespace": "astronomy",
+        "provider": "unoosa-registration-documents",
+        "format": "unoosa-registration-text",
+        "years": [
+          "2025"
+        ],
+        "documents": [
+          {
+            "label": "ST/SG/SER.E/1100 (verify)",
+            "url": "https://www.unoosa.org/oosa/en/spaceobjectregister/documents/stsgser.e-1100.txt",
+            "symbol": "ST/SG/SER.E/1100",
+            "published_on": "2025-06-01",
+            "language": "en",
+            "registrant_kind": "state"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-registration-un-documents.json",
+        "sha256": "2ab54d2779e4a581ff138fc69a9206dbb5629693c84d64c03c84c6333abe44a5",
+        "expected_output_hash": "056c59e02d53774b305c0bab68949a2be3cc40c41a0f2df11812107a47b80b85"
+      }
+    },
+    {
+      "source_id": "esa-discos-objects",
+      "publisher": "ESA DISCOSweb (objects and operators)",
+      "endpoint": "https://discosweb.esoc.esa.int/api/objects",
+      "scope": "Account-gated: the permitted subset (DISCOS ID, COSPAR, NORAD, name, class, operator attribution) of declared objects, never redistributed; disabled when no token is configured (operator must verify the DISCOS terms)",
+      "license": {
+        "id": "esa-discos-terms",
+        "terms_url": "https://discosweb.esoc.esa.int/terms",
+        "redistribution": "not redistributed; stored for the namespace only (operator must verify)"
+      },
+      "temporal_semantics": "the acquisition day; a changed operator attribution is a new revision of that DISCOS assertion",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_ESA_DISCOS_TOKEN"
+      },
+      "connector": "astronomy-registration",
+      "mapping": {
+        "target_schema": "noesis-astronomy-registration-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "astronomy-registration:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "astronomy_registration": {
+        "namespace": "astronomy",
+        "provider": "esa-discos",
+        "format": "discos-json",
+        "mode": "permitted-subset",
+        "objects": [
+          "2025-001A"
+        ],
+        "documents": [
+          {
+            "label": "DISCOS objects: declared designators",
+            "url": "https://discosweb.esoc.esa.int/api/objects?filter=eq(cosparId,%272025-001A%27)&include=operators",
+            "resource": "objects"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-registration-discos-objects.json",
+        "sha256": "2dfd868938a9c46149d7606e14fdd4d1c7e3814cd273cc9362127a55f8603028",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "esa-discos-reentries",
+      "publisher": "ESA DISCOSweb (re-entries)",
+      "endpoint": "https://discosweb.esoc.esa.int/api/reentries",
+      "scope": "Account-gated: re-entry epochs of declared objects as DISCOS assertions, never redistributed; disabled when no token is configured (operator must verify the DISCOS terms)",
+      "license": {
+        "id": "esa-discos-terms",
+        "terms_url": "https://discosweb.esoc.esa.int/terms",
+        "redistribution": "not redistributed; stored for the namespace only (operator must verify)"
+      },
+      "temporal_semantics": "the acquisition day as the assertion's issue date; the epoch is quoted as the reported time",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_ESA_DISCOS_TOKEN"
+      },
+      "connector": "astronomy-registration",
+      "mapping": {
+        "target_schema": "noesis-astronomy-registration-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "astronomy-registration:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "astronomy_registration": {
+        "namespace": "astronomy",
+        "provider": "esa-discos",
+        "format": "discos-json",
+        "mode": "permitted-subset",
+        "objects": [
+          "2025-001A"
+        ],
+        "documents": [
+          {
+            "label": "DISCOS re-entries of declared objects",
+            "url": "https://discosweb.esoc.esa.int/api/reentries?include=objects",
+            "resource": "reentries"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-registration-discos-reentries.json",
+        "sha256": "9d1200a718fb1730e2e1342037696859760eb343d6c42b1be4232f26c7305bd8",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "aerospace-reentries",
+      "publisher": "The Aerospace Corporation, reentry predictions (CORDS)",
+      "endpoint": "https://aerospace.org/reentries",
+      "scope": "Per-object re-entry pages of declared objects: every published prediction row and the confirmed report through declared columns (operator must verify the page layout)",
+      "license": {
+        "id": "aerospace-terms",
+        "terms_url": "https://aerospace.org/terms-use",
+        "redistribution": "cite with attribution; no page mirroring (operator must verify)"
+      },
+      "temporal_semantics": "each row's prediction (issue) time orders the object's re-entry revisions; the confirmed report supersedes predictions without deleting them",
+      "connector": "astronomy-registration",
+      "mapping": {
+        "target_schema": "noesis-astronomy-registration-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "astronomy-registration:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "astronomy_registration": {
+        "namespace": "astronomy",
+        "provider": "aerospace-reentry",
+        "format": "aerospace-reentry-html",
+        "objects": [
+          "99999"
+        ],
+        "documents": [
+          {
+            "label": "Aerospace reentry page, NORAD 99999 (verify)",
+            "url": "https://aerospace.org/reentries/99999",
+            "object": {
+              "norad": "99999"
+            }
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/astronomy-registration-aerospace.json",
+        "sha256": "56649bc18518e43a1fedb9ae2a89053c03eeee57d5196c21a7a12ef73cee6585",
+        "expected_output_hash": "451d7fba93297f1d0701562b9772f5c609677562f168a2f53cf31992f5c21fc5"
+      }
     }
   ]
 }

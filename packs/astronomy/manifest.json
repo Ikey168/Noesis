@@ -60,6 +60,22 @@
           "name": "noesis-astronomy-space-weather",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "astronomy.space-object-registration",
+        "provider": "astronomy.space-object-registration",
+        "contract": {
+          "name": "noesis-astronomy-space-object-registration",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "astronomy.discos",
+        "provider": "astronomy.space-object-registration",
+        "contract": {
+          "name": "noesis-astronomy-discos-access",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -77,6 +93,10 @@
       },
       {
         "id": "astronomy.space-weather",
+        "version": "1.0.0"
+      },
+      {
+        "id": "astronomy.space-object-registration",
         "version": "1.0.0"
       }
     ],
@@ -193,6 +213,50 @@
           "reason": "the bundle's own entry points use these operations"
         }
       ]
+    },
+    {
+      "id": "astronomy-space-object-registration",
+      "default": false,
+      "description": "UNOOSA index entries and UN registration documents, operator assertions and Aerospace re-entry reports linked to SATCAT/GCAT objects, with parties matched through ownership identity",
+      "requires": [
+        {
+          "capability": "astronomy.space-object-registration",
+          "contract": "noesis-astronomy-space-object-registration",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        },
+        {
+          "capability": "astronomy.launches",
+          "contract": "noesis-astronomy-launch",
+          "range": "^1.0.0",
+          "reason": "registrations link to the GCAT and CelesTrak SATCAT orbital objects"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "registering States and operators are matched to entities through ownership identity review"
+        }
+      ]
+    },
+    {
+      "id": "astronomy-discos",
+      "default": false,
+      "description": "ESA DISCOS objects, operators and re-entry epochs under the account terms (permitted subset or citation only, never redistributed); off without a configured account",
+      "requires": [
+        {
+          "capability": "astronomy.space-object-registration",
+          "contract": "noesis-astronomy-space-object-registration",
+          "range": "^1.0.0",
+          "reason": "DISCOS assertions are registration records"
+        },
+        {
+          "capability": "astronomy.discos",
+          "contract": "noesis-astronomy-discos-access",
+          "range": "^1.0.0",
+          "reason": "the bundle's own entry points use these operations"
+        }
+      ]
     }
   ],
   "compatibility_aliases": {
@@ -204,7 +268,8 @@
       "impact-risk, hazard or collision verdicts (only published Sentry listings are quoted with their date)",
       "exoplanet validation or disposition by Noesis (the archive's disposition is quoted)",
       "classified, export-controlled or account-restricted catalogue data (Space-Track is not implemented)",
-      "operational space-weather advice (alerts are quoted as issued)"
+      "operational space-weather advice (alerts are quoted as issued)",
+      "re-entry or collision prediction, and attribution of space objects to operators, owners or States beyond published registrations and operator assertions"
     ],
     "never": [
       "determine or propagate an orbit",
@@ -215,7 +280,8 @@
       "average or merge values from different solutions"
     ],
     "schema_versions": {
-      "noesis-astronomy-record": "1.0.0"
+      "noesis-astronomy-record": "1.0.0",
+      "noesis-astronomy-registration-record": "1.0.0"
     },
     "query_examples": [
       {
@@ -242,8 +308,13 @@
         "intent": "Which space-weather alerts were issued in this window",
         "tool": "noesis-knowledge-engine.space_weather_alerts",
         "semantics": "SWPC messages verbatim, cancellations and extensions threaded; no advice"
+      },
+      {
+        "intent": "Which State registered this object, who operates it and when did it re-enter, as of a date",
+        "tool": "noesis-knowledge-engine.object_registration_as_of",
+        "semantics": "registration chain with locators, operators as published and re-entry predictions and the confirmed report distinctly; 'none on record' with the sources consulted"
       }
     ]
   },
-  "content_hash": "sha256:30a5100e16d34acbe262c6b5da91a61d0830dd27509cab78fcb2f28111194546"
+  "content_hash": "sha256:e58ad371cfef040dcde63cefe01cf46984d4c6137768cc4f7d14d6cca3374edd"
 }

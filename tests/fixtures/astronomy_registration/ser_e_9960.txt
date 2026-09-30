@@ -1,0 +1,7 @@
+ST/SG/SER.E/9960
+Notification of change of status of a space object (authored fictional document)
+
+1. International designator: 2099-003B
+   Name of space object: FICTSAT 3
+   Status: non-functional
+   Date of change of status: 2099-05-30

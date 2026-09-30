@@ -358,6 +358,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"infrastructure"})
 # Products food composition and labelling: Open Food Facts, FoodData Central and Ciqual (#2216).
 NATIVE_CONNECTOR_MODULES["food-composition"] = "src.ingestion.food_composition_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"food-composition"})
+# Astronomy space-object registration, operators and re-entries (UNOOSA, ESA DISCOS, Aerospace; #2224).
+NATIVE_CONNECTOR_MODULES["astronomy-registration"] = "src.ingestion.astronomy_registration_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy-registration"})
 
 
 def native_connector_module(connector: str) -> Any:

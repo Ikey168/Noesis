@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "esa-discos",
+  "note": "Authored documents naming fictional objects (2099 designators, ST/SG/SER.E/99xx symbols, Fictland, Republic of Examplia, European Fictional Space Organisation), served for the production document URLs. The production bounds leave the fictional rows out of scope or rejected; parsing is exercised with the fictional bounds in tests/unit/astronomy/registration_harness.py.",
+  "native_pages": [
+    {
+      "request": "/api/reentries?include=objects",
+      "status": 200,
+      "body": "{\n  \"note\": \"Authored fictional DISCOSweb JSON:API re-entry response (not captured, not ESA data).\",\n  \"data\": [\n    {\"type\": \"reentry\", \"id\": \"9001\", \"attributes\": {\"epoch\": \"2099-06-21T10:07:00Z\"},\n     \"relationships\": {\"objects\": {\"data\": [{\"type\": \"object\", \"id\": \"70001\"}]}}}\n  ],\n  \"included\": [\n    {\"type\": \"object\", \"id\": \"70001\", \"attributes\": {\"cosparId\": \"2099-001A\", \"satno\": 99901, \"name\": \"Fictsat-1\"}}\n  ]\n}\n",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-selection",
+    "out-of-scope-rows-counted",
+    "authored-fictional"
+  ]
+}

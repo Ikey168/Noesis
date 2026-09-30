@@ -390,6 +390,15 @@ def _food_composition_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-food-composition-record-v1"] = _food_composition_projector
 
+
+def _astronomy_registration_projector(conn: Any) -> Any:
+    from src.kb.astronomy_registration import RegistrationProjector
+
+    return RegistrationProjector(conn)
+
+
+PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,
