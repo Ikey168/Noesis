@@ -1,0 +1,218 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.education-statistics",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.education_statistics",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.education-statistics",
+      "contract": {
+        "name": "noesis-education-statistic-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-series",
+        "series-values",
+        "institution-as-of",
+        "country-as-of",
+        "value-vintages",
+        "identity-matches",
+        "links",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "institution statistics keyed by the source institution id (IPEDS UNITID, ETER ID) and education indicators keyed by the published country or area code, each with indicator definition, unit and currency as published, ISCED level, reference period, release vintage and stage, and an acquisition receipt",
+        "vintages": "each release is an appended vintage (an IPEDS final release supersedes the provisional one without deleting it); as-of answers select the vintage published by the date, list every vintage of a value and cite each figure",
+        "identity": "ROR (src/ingestion/ror.py) is the identity backbone: identifiers published by ROR or by the source are exact matches, name and location matches are candidates that answer ROR-keyed queries only once accepted; ROR status changes, mergers and splits are reported, never re-pointed",
+        "comparability": "values of different sources for one concept are shown side by side with their definitions and the publisher's qualifiers, footnotes and break flags; nothing is merged, averaged, harmonised or converted",
+        "missing": "missing, not applicable, confidential and suppressed values keep the publisher's code and no number; a subject without data is none_on_record",
+        "links": "Science and Funding records are linked only through confirmed ROR matches or identifiers cited in the records, never by name or keyword; linked records are not recomputed",
+        "exclusions": "no university rankings, league tables, quality or composite scores and no derived per-student or per-staff ratios"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_education_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-values",
+      "tool": "noesis-knowledge-engine.education_series_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "institution-as-of",
+      "tool": "noesis-knowledge-engine.institution_statistics_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "country-as-of",
+      "tool": "noesis-knowledge-engine.country_education_statistics_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "value-vintages",
+      "tool": "noesis-knowledge-engine.education_value_vintages",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-matches",
+      "tool": "noesis-knowledge-engine.list_education_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_education_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_education_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:education:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "education-statistic",
+      "store": "src.kb.education_statistics",
+      "tables": [
+        "edu_releases",
+        "edu_profiles",
+        "edu_series",
+        "edu_vintages",
+        "edu_observations",
+        "edu_notes",
+        "edu_release_members"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "education-link",
+      "store": "src.kb.education_statistics",
+      "tables": [
+        "edu_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "education-identity-match",
+      "store": "src.kb.education_identity",
+      "tables": [
+        "edu_identity_matches",
+        "edu_ror_snapshots"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "education-refresh-receipt",
+      "store": "src.kb.education_monitoring",
+      "tables": [
+        "edu_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "edu_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "primary-scientific-evidence",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

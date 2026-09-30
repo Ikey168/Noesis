@@ -9362,6 +9362,12 @@ from tools.knowledge_engine_mcp.trade import (  # noqa: E402 - registration orde
 )
 
 register_trade_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.education_statistics import (  # noqa: E402 - registration order
+    register as register_education_statistics_tools,
+)
+
+register_education_statistics_tools(mcp, _intake_safe, _intake_context)
 from tools.knowledge_engine_mcp.legislation import (
     register as register_legislation_tools,
 )
