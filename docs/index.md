@@ -201,6 +201,10 @@ For the project overview and local setup, start with the
   classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership
   links by citation and monitors; no estimation, nowcast, reconciliation or evasion inference;
   [source audit](development/trade-evidence/source-audit.md)
+- [Economics shipping and logistics guide](guides/economics-shipping-logistics.md) — UN/LOCODE port records per
+  release, UNCTADstat and Eurostat maritime series and openly licensed freight indices as of a vintage, reviewable
+  port identity, trade-flow joins by shared code or citation and monitors; no freight-rate forecast or derived index;
+  [source audit](roadmaps/economics-logistics-source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
