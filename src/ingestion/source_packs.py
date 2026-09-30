@@ -415,6 +415,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
 # Science life-science reference data: UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL (#2652).
 NATIVE_CONNECTOR_MODULES["life-sciences"] = "src.ingestion.lifesci_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
+# OSINT platform transparency: DSA statements of reasons, Meta Ad Library, Google political ads (#2580).
+NATIVE_CONNECTOR_MODULES["platform-transparency"] = "src.ingestion.platform_transparency_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"})
 
 
 def native_connector_module(connector: str) -> Any:

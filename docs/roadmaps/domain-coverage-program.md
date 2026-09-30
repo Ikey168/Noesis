@@ -72,7 +72,6 @@ providers stay where they are; their ids are preserved.
 | `games` | Culture and leisure | `culture.games` (new bundle) | Wikidata; MobyGames API; IGDB (platform terms) | media metadata | 3 |
 | `archives-genealogy` | Culture and leisure | `culture.archives` (new bundle) | Archives Portal Europe; Archivportal-D; US National Archives catalog API | cultural heritage, legal | 3 |
 | `religion-belief` | Culture and leisure | `culture.religion` (new bundle) | Census religion tables; Pew Research religious composition data; ARDA | demographics | 3 |
-| `social-platforms` | Information and investigation | `osint.platform-transparency` | EU DSA Transparency Database; Meta Ad Library API; Google Ads Transparency Center; Lumen (research access) | OSINT, news, elections | 1 |
 | `media-outlets-ownership` | Information and investigation | `news.outlets` | Media Ownership Monitor; MAVISE; KEK media database | news, ownership | 2 |
 
 Wave 1 has 10 tracks, wave 2 has 14 and wave 3 has 9.

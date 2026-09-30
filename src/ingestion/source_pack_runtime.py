@@ -542,6 +542,16 @@ def _lifesci_projector(conn: Any) -> Any:
 # Science life-science reference records (#2652).
 PROJECTORS["noesis-lifesci-record-v1"] = _lifesci_projector
 
+
+def _platform_transparency_projector(conn: Any) -> Any:
+    from src.kb.platform_transparency_records import PlatformTransparencyProjector
+
+    return PlatformTransparencyProjector(conn)
+
+
+# OSINT platform-transparency features (#2580).
+PROJECTORS["noesis-platform-transparency-record-v1"] = _platform_transparency_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

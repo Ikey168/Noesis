@@ -305,6 +305,7 @@
 
     "osint.core": {"subdomains": ["osint-verification"], "shapes": ["versioned-documents"]},
     "osint.movements": {"subdomains": ["movements-tracking"], "shapes": ["registry-records", "observations"], "themes": ["transport-mobility", "security-defence"]},
+    "osint.platform-transparency": {"subdomains": ["social-platforms"], "shapes": ["events-notices", "registry-records"], "themes": ["security-defence"]},
 
     "oss.archive": {"subdomains": ["open-source-ecosystems"], "shapes": ["versioned-documents"]},
     "oss.dependency-graphs": {"subdomains": ["open-source-ecosystems"], "shapes": ["registry-records"]},

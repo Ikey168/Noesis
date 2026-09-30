@@ -149,6 +149,106 @@
           "reason": "movement sources run through the source-pack runtime with receipts"
         }
       ]
+    },
+    {
+      "id": "platform-transparency-dsa",
+      "default": false,
+      "description": "EU DSA Transparency Database statements of reasons from light daily dumps of declared platforms and days, keyed by platform and statement uuid, with dump versions and published SHA-1; counts by platform, ground and period over stored records only. No platform user or content identifier, notifier identity or free text is stored (SP01)",
+      "requires": [
+        {
+          "capability": "osint.platform-transparency",
+          "contract": "noesis-platform-transparency-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own records, answers and tools"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "advertiser, election and platform monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "platform-transparency sources run through the source-pack runtime with receipts"
+        }
+      ]
+    },
+    {
+      "id": "platform-transparency-meta",
+      "default": false,
+      "description": "Meta Ad Library political and issue ads of declared pages, countries and windows: advertiser and funding entity as declared, delivery dates and spend and impression ranges exactly as published, removals as revisions, reviewable advertiser identity; election, campaign-finance and lobbying links degrade gracefully when those features are absent. No point estimates, targeting or demographic data",
+      "requires": [
+        {
+          "capability": "osint.platform-transparency",
+          "contract": "noesis-platform-transparency-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own records, answers and tools"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "advertiser and funding-entity matches are reviewed in the shared ownership identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "advertiser, election and platform monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "platform-transparency sources run through the source-pack runtime with receipts"
+        }
+      ]
+    },
+    {
+      "id": "platform-transparency-google",
+      "default": false,
+      "description": "Google political ads (BigQuery public dataset) of declared advertisers and regions: published advertiser identifiers, spend range and impression bucket exactly as published, data refresh date per record, reviewable advertiser identity; links degrade gracefully when the Political features are absent. No point estimates or targeting data",
+      "requires": [
+        {
+          "capability": "osint.platform-transparency",
+          "contract": "noesis-platform-transparency-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own records, answers and tools"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "advertiser and funding-entity matches are reviewed in the shared ownership identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "advertiser, election and platform monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "platform-transparency sources run through the source-pack runtime with receipts"
+        }
+      ]
+    },
+    {
+      "id": "platform-transparency-lumen",
+      "default": false,
+      "description": "Lumen takedown notices under research access: recorded as not implemented (no research token is held and the API terms could not be verified); enabling the feature adds the takedown-notice record kind and its minimisation rule but no source",
+      "requires": [
+        {
+          "capability": "osint.platform-transparency",
+          "contract": "noesis-platform-transparency-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own records, answers and tools"
+        }
+      ]
     }
   ],
   "contributes": {
@@ -184,6 +284,14 @@
           "name": "noesis-osint-movement-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "osint.platform-transparency",
+        "provider": "osint.platform-transparency",
+        "contract": {
+          "name": "noesis-platform-transparency-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -193,6 +301,10 @@
       },
       {
         "id": "osint.movements",
+        "version": "1.0.0"
+      },
+      {
+        "id": "osint.platform-transparency",
         "version": "1.0.0"
       }
     ],

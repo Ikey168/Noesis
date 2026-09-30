@@ -429,6 +429,11 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.research_entities import RESEARCH_ENTITY_WRITES
     if name in RESEARCH_ENTITY_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.platform_transparency import (
+        PLATFORM_TRANSPARENCY_WRITES,
+    )
+    if name in PLATFORM_TRANSPARENCY_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.energy import ENERGY_WRITES
     if name in ENERGY_WRITES:
         return "write"
@@ -1163,6 +1168,14 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in RESEARCH_ENTITY_TOOLS:
         return research_entity_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.platform_transparency import (
+        PLATFORM_TRANSPARENCY_TOOLS,
+    )
+    from tools.knowledge_engine_mcp.platform_transparency import (
+        required_scopes as platform_transparency_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in PLATFORM_TRANSPARENCY_TOOLS:
+        return platform_transparency_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.energy import ENERGY_TOOLS
     from tools.knowledge_engine_mcp.energy import required_scopes as energy_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in ENERGY_TOOLS:

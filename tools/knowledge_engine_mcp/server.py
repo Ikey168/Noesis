@@ -9427,6 +9427,12 @@ from tools.knowledge_engine_mcp.fact_checks import (
 
 register_fact_check_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.platform_transparency import (
+    register as register_platform_transparency_tools,
+)
+
+register_platform_transparency_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.logistics import (  # noqa: E402 - registration order
     register as register_logistics_tools,
 )

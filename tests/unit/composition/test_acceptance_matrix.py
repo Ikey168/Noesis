@@ -281,6 +281,12 @@ MATRIX = {
     "Company to cited enforcement actions with outcome and appeal history":
         "tests/unit/domains/test_enforcement_acceptance.py::"
         "test_company_to_cited_enforcement_actions_with_outcome_and_appeal_history",
+    # The OSINT platform-transparency features' offline journey (#2646) composes the record owner with the
+    # source-pack runtime, ownership identity, source identity, the campaign-finance, elections and lobbying
+    # features and subscriptions.
+    "Advertiser or election to cited political ads; platform to cited moderation statements":
+        "tests/unit/domains/test_platform_transparency_acceptance.py::"
+        "test_advertiser_and_election_to_cited_political_ads_and_platform_to_cited_moderation_statements",
 }
 
 

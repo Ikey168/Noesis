@@ -112,6 +112,20 @@ queries fail conformance and must not be wired, whatever the provider offers.
 No face recognition, no person identification (see "Imagery" in
 `osint-abuse-analysis.md`).
 
+## Platform transparency (#2580)
+
+The platform-transparency tools (`platform_transparency_*` on
+`noesis-knowledge-engine`) add **no gated capability**: they return what the
+DSA Transparency Database, Meta and Google published, keyed by platform,
+statement, ad or advertiser, never by a person, handle, e-mail or IP. They never
+run `narrative_coordination` or any other coordination reading over ad or
+moderation records, never profile users (no platform user or content
+identifier is stored) and never turn spend or impression ranges into point
+estimates; outputs carrying a withheld field or a point-estimate key are
+refused. Advertisers are matched only to organisational records through
+reviewed decisions. Decisions:
+[`source-audit.md`](../development/platform-transparency-evidence/source-audit.md).
+
 ## Passive DNS
 
 Passive DNS history has a recorded access decision in
