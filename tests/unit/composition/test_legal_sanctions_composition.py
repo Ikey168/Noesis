@@ -147,6 +147,9 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "legal", "feature": "enforcement-epa", "reason": "not selected"},  # #2651
         {"pack": "legal", "feature": "enforcement-fca", "reason": "not selected"},  # #2651
         {"pack": "legal", "feature": "enforcement-sec", "reason": "not selected"},  # #2651
+        {"pack": "economics", "feature": "extractives-bgs", "reason": "not selected"},  # #2653
+        {"pack": "economics", "feature": "extractives-eiti", "reason": "not selected"},  # #2653
+        {"pack": "economics", "feature": "extractives-usgs", "reason": "not selected"},  # #2653
         {"pack": "legal", "feature": "federal-statutes", "reason": "not selected"},
         {"pack": "market", "feature": "insurance", "reason": "not selected"},  # #2230
         {"pack": "legal", "feature": "justice-statistics", "reason": "not selected"},  # #2218

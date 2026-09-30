@@ -135,8 +135,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Society income provider's World Bank PIP, Eurostat EU-SILC and OECD IDD sources (#2583),
     # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579),
     # plus the Science life-sciences features' UniProt, NCBI, RCSB PDB and ChEMBL sources (#2652),
-    # plus the OSINT platform-transparency DSA dump, Meta Ad Library and Google political-ads sources (#2580).
-    assert sum(len(pack["sources"]) for pack in packs) == 334
+    # plus the OSINT platform-transparency DSA dump, Meta Ad Library and Google political-ads sources (#2580),
+    # plus the Economics extractives features' EITI, USGS MCS and BGS WMS sources (#2653).
+    assert sum(len(pack["sources"]) for pack in packs) == 337
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

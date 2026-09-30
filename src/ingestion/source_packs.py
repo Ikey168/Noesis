@@ -418,6 +418,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
 # OSINT platform transparency: DSA statements of reasons, Meta Ad Library, Google political ads (#2580).
 NATIVE_CONNECTOR_MODULES["platform-transparency"] = "src.ingestion.platform_transparency_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"})
+# Economics extractives: EITI summary data, USGS Mineral Commodity Summaries, BGS World Mineral Statistics (#2653).
+NATIVE_CONNECTOR_MODULES["extractives"] = "src.ingestion.extractives_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"extractives"})
 
 
 def native_connector_module(connector: str) -> Any:

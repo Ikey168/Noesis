@@ -112,6 +112,12 @@ MATRIX = {
     "Country to poverty and inequality figures":
         "tests/unit/domains/test_income_distribution_acceptance.py::"
         "test_country_to_cited_poverty_and_inequality_figures_from_each_source_side_by_side",
+    # The Economics extractives features' offline journey (#2713) composes economics (EITI, USGS MCS and BGS WMS in the
+    # Economics series storage), Corporate Ownership identity and group expansion, trade, public-finance and
+    # infrastructure links, subscriptions and the source-pack runtime.
+    "Company to extractive payments":
+        "tests/unit/domains/test_extractives_acceptance.py::"
+        "test_company_and_country_to_cited_extractive_payments_and_production_with_revisions",
     # The Science education-statistics feature's offline journey (#2441) composes science (IPEDS, ETER, UIS),
     # economics SDMX handling (OECD EAG, Eurostat R&D), ROR entity identity, Funding and document records,
     # subscriptions and the source-pack runtime.

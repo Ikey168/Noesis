@@ -56,6 +56,7 @@ PROJECTOR_OWNERS = {
     "noesis-trade-flow-record-v1": "src.kb.trade_flows",
     "noesis-labour-statistics-record-v1": "src.kb.labour_statistics",
     "noesis-income-distribution-record-v1": "src.kb.income_distribution_store",
+    "noesis-extractives-record-v1": "src.kb.extractives_store",
     "noesis-education-statistic-record-v1": "src.kb.education_statistics",
     "noesis-energy-record-v1": "src.kb.energy_store",
     "noesis-humanitarian-record-v1": "src.kb.humanitarian_store",

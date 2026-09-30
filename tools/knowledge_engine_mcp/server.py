@@ -9456,6 +9456,12 @@ from tools.knowledge_engine_mcp.lifesci import (
 
 register_lifesci_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.extractives import (
+    register as register_extractives_tools,
+)
+
+register_extractives_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

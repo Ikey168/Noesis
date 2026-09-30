@@ -1,0 +1,76 @@
+{
+ "note": "operator-imported tables; rows and digests are fictional",
+ "tables": [
+  {
+   "kind": "commodity",
+   "label": "USGS MCS tariff items and BGS commodities to HS 2022 (fixture)",
+   "target": {
+    "scheme": "HS",
+    "version": "HS2022"
+   },
+   "citation": {
+    "url": "https://pubs.usgs.gov/periodicals/mcs2099/mcs2099-copper.pdf",
+    "publisher": "USGS (fixture)",
+    "published_on": "2099-01-31",
+    "file_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+    "locator": "Tariff section of the commodity chapter"
+   },
+   "rows": [
+    {
+     "provider": "usgs-mcs",
+     "name": "Copper",
+     "form": "Mine production, recoverable copper content",
+     "code": "2603",
+     "relation": "partial"
+    },
+    {
+     "provider": "usgs-mcs",
+     "name": "Lithium",
+     "form": "Mine production",
+     "code": "283691",
+     "relation": "partial"
+    },
+    {
+     "provider": "bgs-wms",
+     "name": "copper, mine",
+     "code": "2603",
+     "relation": "partial"
+    },
+    {
+     "provider": "bgs-wms",
+     "name": "petroleum, crude",
+     "code": "2709",
+     "relation": "exact"
+    }
+   ]
+  },
+  {
+   "kind": "country",
+   "label": "UN M49 country names to ISO 3166-1 alpha-3 (fixture extract)",
+   "target": {
+    "scheme": "iso3166-1-alpha3",
+    "version": "M49 (fixture)"
+   },
+   "citation": {
+    "url": "https://unstats.un.org/unsd/methodology/m49/",
+    "publisher": "UN Statistics Division",
+    "published_on": "2099-01-01",
+    "file_sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+   },
+   "rows": [
+    {
+     "name": "Chile",
+     "code": "CHL"
+    },
+    {
+     "name": "Peru",
+     "code": "PER"
+    },
+    {
+     "name": "United States",
+     "code": "USA"
+    }
+   ]
+  }
+ ]
+}

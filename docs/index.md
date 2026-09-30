@@ -241,6 +241,12 @@ For the project overview and local setup, start with the
   classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership
   links by citation and monitors; no estimation, nowcast, reconciliation or evasion inference;
   [source audit](development/trade-evidence/source-audit.md)
+- [Economics extractives guide](guides/economics-extractives.md) — EITI summary data, USGS Mineral Commodity
+  Summaries and BGS World Mineral Statistics: a company group or a country to cited extractive payments per
+  report version (government- and company-reported figures with EITI's discrepancies) and commodity
+  production and reserves per source and vintage, reviewable identity, cross-pack links and monitors; no
+  reconciliation, reserve estimates, risk scoring or forecasts;
+  [source audit](development/extractives-evidence/source-audit.md)
 - [Economics labour-statistics guide](guides/economics-labour-statistics.md) — ILOSTAT, OECD, Eurostat LFS and BLS
   labour indicators for a place, sector or occupation as of a release vintage, with definitions, seasonal
   adjustment, flags, comparability notes, reviewable place and classification mappings and monitors; no nowcast,
