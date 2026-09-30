@@ -168,6 +168,9 @@ For the project overview and local setup, start with the
   chains and corrections, managers' transactions, net short positions, the BaFin company database, warnings and
   measures as of a date under the Market publication cutoffs, issuer dossiers, ownership projection and monitors;
   [source audit](development/bafin-notices-evidence/source-audit.md)
+- [Market insurance guide](guides/market-insurance.md) — EIOPA statistics by release vintage, SFCR figures
+  quoted from the QRTs, NAIC under its metadata-only decision and catastrophe-loss estimates as publisher
+  revisions, per insurer, market or event as of a date; [source audit](development/insurance-evidence/source-audit.md)
 - [Technology vulnerabilities guide](guides/technology-vulnerabilities.md) — CVEs across NVD, OSV, GitHub,
   CVE Services, KEV and EPSS side by side, component identity review, affected-as-of impact answers and
   monitors; [source audit](roadmaps/technology-vulnerabilities-source-audit.md)
