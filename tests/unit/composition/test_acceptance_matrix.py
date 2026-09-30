@@ -87,6 +87,11 @@ MATRIX = {
     "GTIN to cited food composition":
         "tests/unit/domains/test_food_composition_acceptance.py::"
         "test_gtin_to_cited_composition_label_history_identity_and_linked_notices",
+    # The Science media-metadata feature's offline journey (#2510) composes the media record owner with the cultural
+    # objects, entity identity decisions, subscriptions and the source-pack runtime.
+    "Title, creator or recording to cited authority records":
+        "tests/unit/domains/test_media_metadata_acceptance.py::"
+        "test_title_creator_and_recording_to_cited_authority_records_with_revisions",
     "Country pair to trade flows":
         "tests/unit/domains/test_trade_flows_acceptance.py::"
         "test_country_pair_and_product_to_cited_flows_with_release_vintages_and_mirror_asymmetries",
