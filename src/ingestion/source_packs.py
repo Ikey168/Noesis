@@ -406,6 +406,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fact-checks"})
 # Legal regulatory enforcement: SEC releases, FCA final notices, EPA ECHO cases, EDPB Article 60 register (#2651).
 NATIVE_CONNECTOR_MODULES["enforcement"] = "src.ingestion.enforcement_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"enforcement"})
+# Society income, poverty and inequality: World Bank PIP, Eurostat EU-SILC and OECD IDD through SDMX (#2583).
+NATIVE_CONNECTOR_MODULES["income-distribution"] = "src.ingestion.income_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -51,8 +51,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Agriculture and Food Systems pack (#2213),
     # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223),
     # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229),
-    # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230).
-    assert len(packs) == 32
+    # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230),
+    # plus the Society bundle's society-statistics pack (#2583).
+    assert len(packs) == 33
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -78,6 +79,7 @@ def test_all_production_packs_validate_against_contract() -> None:
         "products",
         "research",
         "scientific",
+        "society",
         "sports",
         "technical",
         "weather",
@@ -129,8 +131,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Legal treaties provider's CELLAR, Council of Europe and declined UN Treaty Collection sources (#2581),
     # plus the Clinical Evidence medical-devices features' seven openFDA, one AccessGUDID and three EUDAMED sources
     # (#2654),
-    # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB sources (#2651).
-    assert sum(len(pack["sources"]) for pack in packs) == 320
+    # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB sources (#2651),
+    # plus the Society income provider's World Bank PIP, Eurostat EU-SILC and OECD IDD sources (#2583).
+    assert sum(len(pack["sources"]) for pack in packs) == 323
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -415,6 +418,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "products",
         "research",
         "scientific",
+        "society",
         "sports",
         "technical",
         "weather",

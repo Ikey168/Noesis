@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1710,
+      "tool_count": 1729,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1196,6 +1196,7 @@
         "noesis-knowledge-engine.create_humanitarian_monitor",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
         "noesis-knowledge-engine.create_hypothesis_workspace",
+        "noesis-knowledge-engine.create_income_monitor",
         "noesis-knowledge-engine.create_infrastructure_monitor",
         "noesis-knowledge-engine.create_intake_skill",
         "noesis-knowledge-engine.create_investigation_comparison",
@@ -1365,6 +1366,7 @@
         "noesis-knowledge-engine.export_hazard_bundle",
         "noesis-knowledge-engine.export_humanitarian_dossier",
         "noesis-knowledge-engine.export_hypothesis_workspace",
+        "noesis-knowledge-engine.export_income_evidence_bundle",
         "noesis-knowledge-engine.export_intake_creation",
         "noesis-knowledge-engine.export_intake_mode",
         "noesis-knowledge-engine.export_intake_research_bundle",
@@ -1492,6 +1494,11 @@
         "noesis-knowledge-engine.import_surveillance_export",
         "noesis-knowledge-engine.import_technical_inventory",
         "noesis-knowledge-engine.import_trade_concordance",
+        "noesis-knowledge-engine.income_comparability_notes",
+        "noesis-knowledge-engine.income_indicator_for_place",
+        "noesis-knowledge-engine.income_readiness",
+        "noesis-knowledge-engine.income_series_history",
+        "noesis-knowledge-engine.income_source_contracts",
         "noesis-knowledge-engine.index_linguistic_texts",
         "noesis-knowledge-engine.infrastructure_asset_history",
         "noesis-knowledge-engine.infrastructure_assets_in_place",
@@ -1655,6 +1662,7 @@
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
+        "noesis-knowledge-engine.link_income_records",
         "noesis-knowledge-engine.link_infrastructure_records",
         "noesis-knowledge-engine.link_labour_citations",
         "noesis-knowledge-engine.link_legal_dossier",
@@ -1744,6 +1752,9 @@
         "noesis-knowledge-engine.list_housing_records",
         "noesis-knowledge-engine.list_humanitarian_identity",
         "noesis-knowledge-engine.list_humanitarian_links",
+        "noesis-knowledge-engine.list_income_identity_assertions",
+        "noesis-knowledge-engine.list_income_links",
+        "noesis-knowledge-engine.list_income_series",
         "noesis-knowledge-engine.list_infrastructure_asset_matches",
         "noesis-knowledge-engine.list_infrastructure_assets",
         "noesis-knowledge-engine.list_infrastructure_links",
@@ -1932,6 +1943,7 @@
         "noesis-knowledge-engine.poll_health_capacity_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_humanitarian_monitor",
+        "noesis-knowledge-engine.poll_income_monitor",
         "noesis-knowledge-engine.poll_infrastructure_monitor",
         "noesis-knowledge-engine.poll_labour_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
@@ -2029,6 +2041,8 @@
         "noesis-knowledge-engine.propose_health_capacity_mapping",
         "noesis-knowledge-engine.propose_housing_link_candidates",
         "noesis-knowledge-engine.propose_humanitarian_identity",
+        "noesis-knowledge-engine.propose_income_place_matches",
+        "noesis-knowledge-engine.propose_income_related_indicators",
         "noesis-knowledge-engine.propose_infrastructure_asset_matches",
         "noesis-knowledge-engine.propose_infrastructure_operator_matches",
         "noesis-knowledge-engine.propose_intake_concept_revision",
@@ -2117,6 +2131,7 @@
         "noesis-knowledge-engine.record_funding_workspace_outcome",
         "noesis-knowledge-engine.record_geospatial_resolution",
         "noesis-knowledge-engine.record_health_capacity_note",
+        "noesis-knowledge-engine.record_income_comparability",
         "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_iso_code_events",
         "noesis-knowledge-engine.record_justice_comparability",
@@ -2287,6 +2302,7 @@
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_humanitarian_identity",
+        "noesis-knowledge-engine.revert_income_identity_match",
         "noesis-knowledge-engine.revert_labour_identity_match",
         "noesis-knowledge-engine.revert_legislation_identity_match",
         "noesis-knowledge-engine.revert_linguistic_identity_match",
@@ -2356,6 +2372,8 @@
         "noesis-knowledge-engine.review_health_capacity_place",
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_humanitarian_identity",
+        "noesis-knowledge-engine.review_income_comparability",
+        "noesis-knowledge-engine.review_income_identity_match",
         "noesis-knowledge-engine.review_infrastructure_asset_match",
         "noesis-knowledge-engine.review_infrastructure_link",
         "noesis-knowledge-engine.review_infrastructure_operator_match",
@@ -2453,6 +2471,7 @@
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
         "noesis-knowledge-engine.run_humanitarian_monitor",
+        "noesis-knowledge-engine.run_income_monitor",
         "noesis-knowledge-engine.run_infrastructure_monitor",
         "noesis-knowledge-engine.run_labour_monitor",
         "noesis-knowledge-engine.run_legislation_monitor",
@@ -2683,7 +2702,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1710
+      "visible_tool_count": 1729
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2694,11 +2713,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 154,
+      "available": 155,
       "degraded": 174,
-      "unauthorized": 1720
+      "unauthorized": 1738
     },
-    "tools": 2048
+    "tools": 2067
   },
   "tools": [
     {
@@ -35057,6 +35076,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to an income series, a place or an indicator concept (optionally one provider): notices for new\nreleases, new reference years, revisions, PPP revisions, definition changes and withdrawals (record\nchanges, no assessments).",
+      "id": "noesis-knowledge-engine.create_income_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_income_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a place, operator or asset for status, capacity and ownership changes (a knowledge subscription).",
       "id": "noesis-knowledge-engine.create_infrastructure_monitor",
       "input_schema": {
@@ -44117,6 +44191,84 @@
     },
     {
       "cost_class": "low",
+      "description": "Export an indicator-for-place answer as a noesis-evidence-bundle-v1: every value cited with source, record\nrevision (vintage and definition) and as-of time; withheld cells and unavailable series are omissions.\nExclusions: no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD\nfigures, no re-harmonisation of welfare concepts; aggregate statistics only (no person-level data).",
+      "id": "noesis-knowledge-engine.export_income_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_income_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Export a finished project and its authored-report artifact without publishing.",
       "id": "noesis-knowledge-engine.export_intake_creation",
       "input_schema": {
@@ -50395,6 +50547,252 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Comparability notes (welfare concept, equivalence scale, poverty line, PPP round, survey, methodology,\nbreaks and source notes) attached to series, definitions and periods; notes never merge series.\nExclusions: no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD\nfigures, no re-harmonisation of welfare concepts; aggregate statistics only (no person-level data).",
+      "id": "noesis-knowledge-engine.income_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "definition_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "income_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Published income, poverty and inequality figures for a place (place id or {scheme, code}) as of a release\ndate: each source side by side with welfare concept, equivalence scale, poverty line, PPP round, definition\nand vintage; different lines, PPP rounds and welfare concepts are separate groups; every value cites source,\nvintage, definition and as-of time.\nExclusions: no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD\nfigures, no re-harmonisation of welfare concepts; aggregate statistics only (no person-level data).",
+      "id": "noesis-knowledge-engine.income_indicator_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "income_indicator_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Stores, per-provider releases, optional-feature selection (pip, eu-silc, oecd-idd, demographics-links,\nlabour-links) and live verification, offline and live evidence kept apart.",
+      "id": "noesis-knowledge-engine.income_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "income_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained vintage of an income series with release dates, new, revised and removed reference years,\nPPP revisions, breaks and pairwise comparability (comparability_unknown where nothing is noted).\nExclusions: no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD\nfigures, no re-harmonisation of welfare concepts; aggregate statistics only (no person-level data).",
+      "id": "noesis-knowledge-engine.income_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "income_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (World Bank PIP, Eurostat EU-SILC, OECD IDD), endpoints, limits, terms,\nwelfare concepts, equivalence scales, poverty lines, revision models, the bounded coverage and the\ndata-minimisation decision.\nExclusions: no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD\nfigures, no re-harmonisation of welfare concepts; aggregate statistics only (no person-level data).",
+      "id": "noesis-knowledge-engine.income_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "income_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -57745,6 +58143,49 @@
     },
     {
       "cost_class": "medium",
+      "description": "Resolve stated methodology references (exact URL), named Demographics denominators and Labour series of\nthe same place and period; missing providers and targets are reported, never dropped.\nExclusions: no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD\nfigures, no re-harmonisation of welfare concepts; aggregate statistics only (no person-level data).",
+      "id": "noesis-knowledge-engine.link_income_records",
+      "input_schema": {
+        "properties": {
+          "demographic_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "labour_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_income_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:write",
+        "knowledge:demographics:read",
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Citation links to Energy Systems series, legal works and environment facilities; absent packs skipped.",
       "id": "noesis-knowledge-engine.link_infrastructure_records",
       "input_schema": {
@@ -62523,6 +62964,193 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Place mappings (by ISO, NUTS and World Bank region codes) and related-indicator assertions in force\n(proposed, ambiguous, unmatched, accepted, rejected, reverted), each citing its basis and reviewer.",
+      "id": "noesis-knowledge-engine.list_income_identity_assertions",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_income_identity_assertions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links of income series to methodology documents, Demographics denominators and Labour indicators, each\nwith its basis (citation, shared identifier or accepted match) and the record revisions it points at.",
+      "id": "noesis-knowledge-engine.list_income_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_income_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Income series with source, native key, welfare concept, equivalence scale, poverty line, PPP base year,\nreference-year basis, survey, coverage and area. Different sources, lines and PPP rounds are separate series.",
+      "id": "noesis-knowledge-engine.list_income_series",
+      "input_schema": {
+        "properties": {
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "welfare_concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_income_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -71815,6 +72443,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll an income monitor's events (new releases, new reference years, revisions, PPP revisions, definition\nchanges, withdrawals).",
+      "id": "noesis-knowledge-engine.poll_income_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_income_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a monitor's delivered events.",
       "id": "noesis-knowledge-engine.poll_infrastructure_monitor",
       "input_schema": {
@@ -76207,6 +76873,77 @@
     },
     {
       "cost_class": "medium",
+      "description": "Offer every stated area code (ISO, NUTS, World Bank region) to Geospatial places by the published code;\nambiguous codes stay review candidates, unmatched codes stay visible; nothing is used until reviewed.",
+      "id": "noesis-knowledge-engine.propose_income_place_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_income_place_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose the same indicator from different sources for the same place as related, citing the recorded\ndifferences; related series are shown beside each other and never merged.",
+      "id": "noesis-knowledge-engine.propose_income_related_indicators",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_income_related_indicators",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Identifier matches from published cross-references and proximity+name+class review candidates.",
       "id": "noesis-knowledge-engine.propose_infrastructure_asset_matches",
       "input_schema": {
@@ -80445,6 +81182,78 @@
       "required_scopes": [
         "knowledge:clinical:read",
         "knowledge:clinical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a typed comparability note between series or definitions (a break, PPP revision or source note\nmay name one series), optionally for periods; notes never merge series.",
+      "id": "noesis-knowledge-engine.record_income_comparability",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "right": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left",
+          "relation",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_income_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -90329,6 +91138,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed mapping or relation; the code is unmapped again.",
+      "id": "noesis-knowledge-engine.revert_income_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_income_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed mapping; the code is unmapped again.",
       "id": "noesis-knowledge-engine.revert_labour_identity_match",
       "input_schema": {
@@ -93417,6 +94267,107 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed comparability note with a reason (not one's own).",
+      "id": "noesis-knowledge-engine.review_income_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_income_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed mapping or relation with a reason (not one's own; an ambiguous place by\nchoosing a cited candidate).",
+      "id": "noesis-knowledge-engine.review_income_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_income_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -98305,6 +99256,51 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate an income monitor at a committed watermark; notices cite the new and the revised vintage.",
+      "id": "noesis-knowledge-engine.run_income_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_income_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:income:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

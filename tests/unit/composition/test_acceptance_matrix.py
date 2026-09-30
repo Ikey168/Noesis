@@ -106,6 +106,12 @@ MATRIX = {
     "Place to labour indicators":
         "tests/unit/domains/test_labour_acceptance.py::"
         "test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions_and_vintages",
+    # The Society bundle's society.income offline journey (#2643) composes society (PIP, EU-SILC and OECD IDD in the
+    # Economics series storage), geospatial place resolution, Demographics and Labour links, subscriptions and the
+    # source-pack runtime.
+    "Country to poverty and inequality figures":
+        "tests/unit/domains/test_income_distribution_acceptance.py::"
+        "test_country_to_cited_poverty_and_inequality_figures_from_each_source_side_by_side",
     # The Science education-statistics feature's offline journey (#2441) composes science (IPEDS, ETER, UIS),
     # economics SDMX handling (OECD EAG, Eurostat R&D), ROR entity identity, Funding and document records,
     # subscriptions and the source-pack runtime.

@@ -108,6 +108,7 @@
     "science.methodology",
     "science.paper-families",
     "science.systematic-reviews",
+    "society.income",
     "sports.olympic-results",
     "sports.records",
     "technology.knowledge",
@@ -145,6 +146,7 @@
     "procurement",
     "products",
     "science",
+    "society",
     "sports",
     "technology",
     "weather"
@@ -242,6 +244,7 @@
     "noesis-knowledge-engine.export_environment_dossier",
     "noesis-knowledge-engine.export_hazard_bundle",
     "noesis-knowledge-engine.export_humanitarian_dossier",
+    "noesis-knowledge-engine.export_income_evidence_bundle",
     "noesis-knowledge-engine.export_lexeme_dossier",
     "noesis-knowledge-engine.export_ownership_dossier",
     "noesis-knowledge-engine.export_sports_records",
@@ -269,6 +272,9 @@
     "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
     "noesis-knowledge-engine.import_prospero_registration",
     "noesis-knowledge-engine.import_sports_olympic_results",
+    "noesis-knowledge-engine.income_comparability_notes",
+    "noesis-knowledge-engine.income_indicator_for_place",
+    "noesis-knowledge-engine.income_series_history",
     "noesis-knowledge-engine.inspect_authored_report",
     "noesis-knowledge-engine.inspect_certificate",
     "noesis-knowledge-engine.inspect_clinical_evidence_map",
@@ -330,6 +336,9 @@
     "noesis-knowledge-engine.list_hazard_links",
     "noesis-knowledge-engine.list_humanitarian_identity",
     "noesis-knowledge-engine.list_humanitarian_links",
+    "noesis-knowledge-engine.list_income_identity_assertions",
+    "noesis-knowledge-engine.list_income_links",
+    "noesis-knowledge-engine.list_income_series",
     "noesis-knowledge-engine.list_linguistic_identity_candidates",
     "noesis-knowledge-engine.list_oss_identity_candidates",
     "noesis-knowledge-engine.list_ownership_identity_candidates",
@@ -377,6 +386,7 @@
     "noesis-knowledge-engine.poll_fisheries_monitor",
     "noesis-knowledge-engine.poll_hazard_monitor",
     "noesis-knowledge-engine.poll_humanitarian_monitor",
+    "noesis-knowledge-engine.poll_income_monitor",
     "noesis-knowledge-engine.poll_linguistics_monitor",
     "noesis-knowledge-engine.poll_material_watch",
     "noesis-knowledge-engine.poll_package_monitor",
@@ -7940,6 +7950,184 @@
         ],
         "reason": null,
         "tool": "noesis-research.literature_claims"
+      }
+    ],
+    "society": [
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_income_evidence_bundle"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.export_income_evidence_bundle"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.income_comparability_notes"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.income_comparability_notes"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.income_indicator_for_place"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.income_indicator_for_place"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.income_series_history"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.income_series_history"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_income_identity_assertions"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_income_identity_assertions"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_income_links"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_income_links"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_income_series"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.list_income_series"
+      },
+      {
+        "annotation": "resolved: attribution now comes from the plan (the bundle contributes the bound capability); legacy had no pack for this server",
+        "bundle": "society",
+        "composition": "society",
+        "field": "pack",
+        "legacy": null,
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_income_monitor"
+      },
+      {
+        "annotation": "resolved: vocabulary only - the descriptor names its readiness probe where the legacy table names a logical store; both describe the same prerequisite",
+        "bundle": "society",
+        "composition": [
+          "vintages"
+        ],
+        "field": "required_data",
+        "legacy": [
+          "knowledge-engine-runtime"
+        ],
+        "reason": null,
+        "tool": "noesis-knowledge-engine.poll_income_monitor"
       }
     ],
     "sports": [
