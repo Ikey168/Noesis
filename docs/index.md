@@ -201,6 +201,10 @@ For the project overview and local setup, start with the
   classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership
   links by citation and monitors; no estimation, nowcast, reconciliation or evasion inference;
   [source audit](development/trade-evidence/source-audit.md)
+- [Economics labour-statistics guide](guides/economics-labour-statistics.md) — ILOSTAT, OECD, Eurostat LFS and BLS
+  labour indicators for a place, sector or occupation as of a release vintage, with definitions, seasonal
+  adjustment, flags, comparability notes, reviewable place and classification mappings and monitors; no nowcast,
+  forecast, blending or re-harmonisation; [source audit](development/labour-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

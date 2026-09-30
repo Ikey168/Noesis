@@ -9385,6 +9385,11 @@ from tools.knowledge_engine_mcp.agrifood import (
 )
 
 register_agrifood_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.labour import (  # noqa: E402 - registration order
+    register as register_labour_tools,
+)
+
+register_labour_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

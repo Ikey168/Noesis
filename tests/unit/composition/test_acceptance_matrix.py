@@ -80,6 +80,11 @@ MATRIX = {
     "Country pair to trade flows":
         "tests/unit/domains/test_trade_flows_acceptance.py::"
         "test_country_pair_and_product_to_cited_flows_with_release_vintages_and_mirror_asymmetries",
+    # The Economics labour-statistics feature's offline journey (#2490) composes economics (SDMX and BLS sources in the
+    # Economics series storage), geospatial place resolution, subscriptions and the source-pack runtime.
+    "Place to labour indicators":
+        "tests/unit/domains/test_labour_acceptance.py::"
+        "test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions_and_vintages",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

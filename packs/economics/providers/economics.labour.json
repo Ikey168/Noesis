@@ -1,0 +1,202 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.labour",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.labour_statistics",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.labour",
+      "contract": {
+        "name": "noesis-labour-statistics-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-series",
+        "indicators-for-place",
+        "series-history",
+        "comparability-notes",
+        "identity-assertions",
+        "links",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "series": "a labour series is keyed by source, native series or dataflow key, concept, measure, estimate type, definition basis, seasonal adjustment (NSA, SA, trend), frequency and unit; an ILO modelled estimate and a nationally reported series are always different series; values live in the Economics series storage (economic_vintages, dataset_observations)",
+        "definitions": "each series cites its definition revision (basis ILO harmonised, OECD harmonised, EU-LFS or national, age bounds, coverage, source notes and the references the source states); a changed definition is a new revision",
+        "vintages": "each release that changes a series is an appended vintage with release and retrieval clocks, revision_of and the recorded changes (new periods, revised values, benchmark revision, definition or dataflow-version change); as-of answers select the vintage released by the date; earlier vintages stay queryable",
+        "comparability": "sources and definition bases are returned side by side with recorded differences and reviewable comparability notes (breaks attached to periods); a pair without notes or differences is comparability_unknown",
+        "identity": "places, sectors and occupations match only through reviewed mappings (published codes, published concordances with classification versions); unmapped codes stay queryable by native code",
+        "links": "references resolve only by exact identifier; denominators link only when the source names them; unresolvable references stay citations",
+        "exclusions": "no nowcasting, no labour-market forecasts, no filled periods, no blending or re-harmonisation across sources or definition bases, no derived indicators"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_labour_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicators-for-place",
+      "tool": "noesis-knowledge-engine.labour_indicators_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.labour_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.labour_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-assertions",
+      "tool": "noesis-knowledge-engine.list_labour_identity_assertions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_labour_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_labour_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:labour:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "labour-statistics-record",
+      "store": "src.kb.labour_statistics",
+      "tables": [
+        "labour_releases",
+        "labour_series",
+        "labour_definitions",
+        "labour_vintages",
+        "labour_observations",
+        "labour_release_members",
+        "labour_comparability"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "labour-identity-assertion",
+      "store": "src.kb.labour_identity",
+      "tables": [
+        "labour_identity_assertions",
+        "labour_concordances"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "labour-link",
+      "store": "src.kb.labour_links",
+      "tables": [
+        "labour_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "labour-refresh-receipt",
+      "store": "src.kb.labour_monitoring",
+      "tables": [
+        "labour_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "labour_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.6.0",
+      "range": "^1.6.0"
+    }
+  ]
+}

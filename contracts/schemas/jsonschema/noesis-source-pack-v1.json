@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -546,6 +546,35 @@
                 "areas": {"type": "array", "minItems": 1, "maxItems": 20},
                 "datasets": {"type": "array", "minItems": 1, "maxItems": 20}
               }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "labour_statistics": {
+            "type": "object",
+            "description": "Declared labour-statistics documents for the labour-statistics connector (#2219): provider, runtime format, namespace, the provider's live-verification status and the declared documents (an SDMX dataflow, series key and period window, or one BLS series ID and year range), each stating its indicator concept and measure, definition basis, estimate type, seasonal adjustment, unit, place dimension and classified sector or occupation dimension, and the references it cites as published.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ilostat", "oecd", "eurostat-lfs", "bls"]},
+              "format": {"enum": ["ilostat-sdmx-csv", "oecd-sdmx-csv", "eurostat-sdmx-csv", "bls-timeseries-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "indicator", "estimate_type", "definition", "unit"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "flow": {"type": "string"}, "key": {"type": "string"},
+                "params": {"type": "object", "additionalProperties": {"type": "string"}},
+                "series_id": {"type": "string", "pattern": "^[A-Z0-9]{4,30}$"},
+                "startyear": {"type": "string", "pattern": "^\\d{4}$"}, "endyear": {"type": "string", "pattern": "^\\d{4}$"},
+                "indicator": {"type": "object", "required": ["concept", "measure"]},
+                "estimate_type": {"enum": ["national-reported", "ilo-modelled", "harmonised", "survey", "administrative"]},
+                "definition": {"type": "object", "required": ["basis"], "properties": {"basis": {"enum": ["ilo-harmonised", "oecd-harmonised", "eu-lfs", "national"]}}},
+                "seasonal_adjustment": {"anyOf": [{"enum": ["NSA", "SA", "trend"]}, {"type": "object", "required": ["dimension", "codes"]}]},
+                "area": {"type": "object"}, "sector": {"type": "object"}, "occupation": {"type": "object"},
+                "unit": {"type": "object", "required": ["label"]}, "unit_multiplier": {"type": "string"},
+                "references": {"type": "array", "items": {"type": "object", "required": ["kind", "identifier"]}},
+                "denominator": {"type": "object"},
+                "revision_window_periods": {"type": "integer", "minimum": 1},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "kind": {"enum": ["regular", "benchmark"]}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
             },
             "additionalProperties": false
           },

@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1416,
+      "tool_count": 1435,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1161,6 +1161,7 @@
         "noesis-knowledge-engine.create_intake_skill",
         "noesis-knowledge-engine.create_investigation_comparison",
         "noesis-knowledge-engine.create_investigation_template",
+        "noesis-knowledge-engine.create_labour_monitor",
         "noesis-knowledge-engine.create_legislation_monitor",
         "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
@@ -1400,6 +1401,7 @@
         "noesis-knowledge-engine.import_election_poll_release",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
+        "noesis-knowledge-engine.import_labour_concordance",
         "noesis-knowledge-engine.import_modulo_flashcards",
         "noesis-knowledge-engine.import_prospero_registration",
         "noesis-knowledge-engine.import_research_package",
@@ -1511,6 +1513,11 @@
         "noesis-knowledge-engine.instantiate_investigation_template",
         "noesis-knowledge-engine.justice_statistics_for_place",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
+        "noesis-knowledge-engine.labour_comparability_notes",
+        "noesis-knowledge-engine.labour_indicators_for_place",
+        "noesis-knowledge-engine.labour_readiness",
+        "noesis-knowledge-engine.labour_series_history",
+        "noesis-knowledge-engine.labour_source_contracts",
         "noesis-knowledge-engine.languoid_profile",
         "noesis-knowledge-engine.legal_readiness",
         "noesis-knowledge-engine.legal_retrieval_modes",
@@ -1549,6 +1556,7 @@
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
+        "noesis-knowledge-engine.link_labour_citations",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_medicine_evidence",
@@ -1618,6 +1626,9 @@
         "noesis-knowledge-engine.list_intake_modes",
         "noesis-knowledge-engine.list_investigation_templates",
         "noesis-knowledge-engine.list_justice_place_resolutions",
+        "noesis-knowledge-engine.list_labour_identity_assertions",
+        "noesis-knowledge-engine.list_labour_links",
+        "noesis-knowledge-engine.list_labour_series",
         "noesis-knowledge-engine.list_legislation_identity_candidates",
         "noesis-knowledge-engine.list_linguistic_identity_candidates",
         "noesis-knowledge-engine.list_lobbying_dossier_links",
@@ -1746,6 +1757,7 @@
         "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_humanitarian_monitor",
+        "noesis-knowledge-engine.poll_labour_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
@@ -1829,6 +1841,8 @@
         "noesis-knowledge-engine.propose_intake_modulo_note_revision",
         "noesis-knowledge-engine.propose_intake_playbook_revision",
         "noesis-knowledge-engine.propose_intake_report_revision",
+        "noesis-knowledge-engine.propose_labour_classification_matches",
+        "noesis-knowledge-engine.propose_labour_place_matches",
         "noesis-knowledge-engine.propose_languoid_matches",
         "noesis-knowledge-engine.propose_legislation_identity_matches",
         "noesis-knowledge-engine.propose_lei_registry_links",
@@ -1894,6 +1908,7 @@
         "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_iso_code_events",
         "noesis-knowledge-engine.record_justice_comparability",
+        "noesis-knowledge-engine.record_labour_comparability",
         "noesis-knowledge-engine.record_language_text",
         "noesis-knowledge-engine.record_maintenance_finding",
         "noesis-knowledge-engine.record_math_object",
@@ -2047,6 +2062,7 @@
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
         "noesis-knowledge-engine.revert_humanitarian_identity",
+        "noesis-knowledge-engine.revert_labour_identity_match",
         "noesis-knowledge-engine.revert_legislation_identity_match",
         "noesis-knowledge-engine.revert_linguistic_identity_match",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
@@ -2101,6 +2117,8 @@
         "noesis-knowledge-engine.review_intake_iteration_stability",
         "noesis-knowledge-engine.review_justice_comparability",
         "noesis-knowledge-engine.review_justice_place",
+        "noesis-knowledge-engine.review_labour_comparability",
+        "noesis-knowledge-engine.review_labour_identity_match",
         "noesis-knowledge-engine.review_languoid_location",
         "noesis-knowledge-engine.review_legislation_identity_match",
         "noesis-knowledge-engine.review_linguistic_identity_match",
@@ -2174,6 +2192,7 @@
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
         "noesis-knowledge-engine.run_humanitarian_monitor",
+        "noesis-knowledge-engine.run_labour_monitor",
         "noesis-knowledge-engine.run_legislation_monitor",
         "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
@@ -2375,7 +2394,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1416
+      "visible_tool_count": 1435
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2386,11 +2405,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 139,
+      "available": 140,
       "degraded": 173,
-      "unauthorized": 1428
+      "unauthorized": 1446
     },
-    "tools": 1740
+    "tools": 1759
   },
   "tools": [
     {
@@ -33002,6 +33021,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a labour series, or a place, sector or occupation with an indicator filter: notices for\nnew periods, revised values, benchmark revisions and definition changes (record changes, no forecasts).",
+      "id": "noesis-knowledge-engine.create_labour_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_labour_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a bill (bill key) or a sponsor (member key) for new actions, stages, text versions and votes.",
       "id": "noesis-knowledge-engine.create_legislation_monitor",
       "input_schema": {
@@ -45328,6 +45402,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a published classification concordance (NACE-ISIC, NAICS-ISIC, SOC-ISCO, ...) with its URL,\npublisher, publication date and file digest; each row exact, partial or one-to-many as published.",
+      "id": "noesis-knowledge-engine.import_labour_concordance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "table": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "table"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_labour_concordance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a native pack while retaining exact plugin IDs, history and unmapped schedule data.",
       "id": "noesis-knowledge-engine.import_modulo_flashcards",
       "input_schema": {
@@ -50150,6 +50262,268 @@
     },
     {
       "cost_class": "low",
+      "description": "Comparability notes (definition basis, age bounds, survey coverage, seasonal adjustment, breaks and\nsource notes) attached to series, definitions and periods; notes never merge series.\nExclusions: no nowcasting and no labour-market forecasts, no filled periods, no blending or\nre-harmonisation across sources or definition bases.",
+      "id": "noesis-knowledge-engine.labour_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "definition_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "labour_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Published labour indicators for a place (place id or {scheme, code}), sector or occupation ({scheme,\nversion, code}) as of a release date: each source side by side with definition, seasonal adjustment,\nvintage, flags, gaps and comparability notes; every value cites source, series key, vintage and retrieval.\nExclusions: no nowcasting and no labour-market forecasts, no filled periods, no blending or\nre-harmonisation across sources or definition bases.",
+      "id": "noesis-knowledge-engine.labour_indicators_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "occupation": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "sector": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "labour_indicators_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the labour-statistics feature is selected, the stores and per-provider releases.",
+      "id": "noesis-knowledge-engine.labour_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "labour_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained vintage of a labour series with its changes (new periods, revisions, benchmark\nrevisions, definition changes), release and retrieval clocks and values as published.\nExclusions: no nowcasting and no labour-market forecasts, no filled periods, no blending or\nre-harmonisation across sources or definition bases.",
+      "id": "noesis-knowledge-engine.labour_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "labour_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (ILOSTAT, OECD, Eurostat LFS, BLS), keys, limits, terms, indicators in\nscope, definition basis, seasonal adjustment, release signals and the bounded coverage.\nExclusions: no nowcasting and no labour-market forecasts, no filled periods, no blending or\nre-harmonisation across sources or definition bases.",
+      "id": "noesis-knowledge-engine.labour_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "labour_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A languoid (Glottocode, ISO 639-3 or Wiktionary code) with identifiers, classification path and its\nhistory across releases, location, ISO macrolanguage and retirement context and WALS values with their\nreferences. A feature without a value is 'no value on record'; ambiguous codes are never guessed.",
       "id": "noesis-knowledge-engine.languoid_profile",
       "input_schema": {
@@ -51933,6 +52307,48 @@
       ],
       "required_scopes": [
         "knowledge:hypothesis:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Resolve stated references (exact URL or CELEX) and named demographic denominators; unresolvable ones\nstay as citations; never linked by name similarity.\nExclusions: no nowcasting and no labour-market forecasts, no filled periods, no blending or\nre-harmonisation across sources or definition bases.",
+      "id": "noesis-knowledge-engine.link_labour_citations",
+      "input_schema": {
+        "properties": {
+          "demographic_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "legal_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_labour_citations",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:write",
+        "knowledge:demographics:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -55589,6 +56005,215 @@
       ],
       "required_scopes": [
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Place, sector and occupation mappings in force (proposed, ambiguous, unmatched, accepted, rejected,\nreverted), each citing its basis, classification versions and reviewer.",
+      "id": "noesis-knowledge-engine.list_labour_identity_assertions",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_labour_identity_assertions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Citation links of labour series to definitions, methodology documents and demographic denominators,\nlinked by exact identifier or kept as unresolved citations.",
+      "id": "noesis-knowledge-engine.list_labour_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_labour_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Labour series with source, native key, concept, seasonal adjustment, definition basis, estimate type,\nplace and sector/occupation codes. ILO modelled estimates and national series are separate series.",
+      "id": "noesis-knowledge-engine.list_labour_series",
+      "input_schema": {
+        "properties": {
+          "area_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "definition_basis": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "seasonal_adjustment": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_labour_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -61981,6 +62606,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a labour monitor's events (new periods, revisions, benchmark revisions, definition changes).",
+      "id": "noesis-knowledge-engine.poll_labour_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_labour_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Delivered legislation monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_legislation_monitor",
       "input_schema": {
@@ -65896,6 +66559,86 @@
     },
     {
       "cost_class": "medium",
+      "description": "Map every stated sector or occupation code to a target classification and version through published\nconcordances only; unmapped codes stay queryable by native code.",
+      "id": "noesis-knowledge-engine.propose_labour_classification_matches",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "kind",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_labour_classification_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer every stated area code to Geospatial places by the published code; ambiguous codes stay review\ncandidates; nothing is used until reviewed.",
+      "id": "noesis-knowledge-engine.propose_labour_place_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_labour_place_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose candidates for language references that do not resolve deterministically (macrolanguages,\nretired or split ISO codes, shared ISO codes); stated Glottocodes and ISO codes resolve without a\ncandidate. Candidates stay proposed until reviewed.",
       "id": "noesis-knowledge-engine.propose_languoid_matches",
       "input_schema": {
@@ -69072,6 +69815,78 @@
       "required_scopes": [
         "knowledge:legal:read",
         "knowledge:legal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a typed comparability note between series or definitions (a break or source note may name one\nseries), optionally for periods; notes never merge series.",
+      "id": "noesis-knowledge-engine.record_labour_comparability",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "right": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left",
+          "relation",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_labour_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -78105,6 +78920,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed mapping; the code is unmapped again.",
+      "id": "noesis-knowledge-engine.revert_labour_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_labour_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert an accepted or rejected member identity decision.",
       "id": "noesis-knowledge-engine.revert_legislation_identity_match",
       "input_schema": {
@@ -80566,6 +81422,107 @@
       "required_scopes": [
         "knowledge:legal:read",
         "knowledge:legal:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed comparability note with a reason.",
+      "id": "noesis-knowledge-engine.review_labour_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_labour_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed mapping with a reason (an ambiguous place by choosing a cited candidate).",
+      "id": "noesis-knowledge-engine.review_labour_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_labour_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -84329,6 +85286,51 @@
       ],
       "required_scopes": [
         "knowledge:humanitarian:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a labour monitor at a committed watermark; notices cite the vintages before and after.",
+      "id": "noesis-knowledge-engine.run_labour_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_labour_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:labour:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

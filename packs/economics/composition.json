@@ -32,6 +32,14 @@
           "name": "noesis-trade-flow-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "economics.labour",
+        "provider": "economics.labour",
+        "contract": {
+          "name": "noesis-labour-statistics-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -50,13 +58,17 @@
       {
         "id": "economics.trade",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.labour",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.5.0",
-        "range": "^1.5.0"
+        "version": "1.6.0",
+        "range": "^1.6.0"
       }
     ],
     "profiles": [
@@ -120,6 +132,27 @@
           "CIF": "import value including cost, insurance and freight to the border",
           "FOB": "export value free on board at the border",
           "classification vintage": "the HS edition, CN year or SITC revision a product code belongs to"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.labour",
+        "description": "Labour and employment statistics: a place's, sector's or occupation's published labour-force indicators (employment, unemployment, wages, hours, vacancies) per source as of a release vintage, with definitions, seasonal adjustment, flags, vintages and comparability notes, side by side",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per value; revision history on request",
+          "sources": "ILOSTAT, OECD, Eurostat LFS and BLS side by side; ILO modelled estimates and national series never merged",
+          "comparability": "recorded differences and reviewable notes; unnoted pairs are comparability_unknown; nothing blended or re-harmonised",
+          "gaps": "missing, confidential and unpublished periods shown as such; nothing filled or nowcast",
+          "identity": "places, sectors and occupations through accepted mappings only; unmapped codes queryable natively"
+        },
+        "vocabulary": {
+          "definition basis": "ILO harmonised, OECD harmonised, EU-LFS or national, as the source states",
+          "seasonal adjustment": "NSA (not adjusted), SA (seasonally adjusted) or trend(-cycle), as published",
+          "vintage": "one release of a series; a revised value is a new vintage",
+          "benchmark revision": "a revision beyond the regular revision window (e.g. the annual CES benchmark)",
+          "modelled estimate": "an ILO estimate for a country, distinct from the nationally reported series"
         },
         "source_packs": [
           "economic-statistics-and-filings"
@@ -329,6 +362,43 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "flows and concordances are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "labour-statistics",
+      "default": false,
+      "description": "Labour and employment statistics: ILOSTAT (SDMX), OECD (SDMX), Eurostat LFS (SDMX) and US BLS (Public Data API) indicators in the Economics series storage with definitions, seasonal adjustment, flags and release vintages, reviewable place/sector/occupation mappings through published concordances, citation links to methodology and demographic denominators, comparability notes, as-of answers and subscription monitors. No nowcasting, labour-market forecasts, filled periods, blending or re-harmonisation.",
+      "requires": [
+        {
+          "capability": "economics.labour",
+          "contract": "noesis-labour-statistics-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "labour values and vintages live in the Economics series storage"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "area codes resolve to places through reviewable mappings"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "labour monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "labour series are acquired through the source-pack runtime"
         }
       ]
     }
