@@ -412,6 +412,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
 # Science research entities: ROR data-dump releases, minimised public ORCID records, DataCite and CORDIS (#2579).
 NATIVE_CONNECTOR_MODULES["research-entities"] = "src.ingestion.research_entities_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
+# Science life-science reference data: UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL (#2652).
+NATIVE_CONNECTOR_MODULES["life-sciences"] = "src.ingestion.lifesci_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
 
 
 def native_connector_module(connector: str) -> Any:

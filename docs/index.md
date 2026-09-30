@@ -261,6 +261,11 @@ For the project overview and local setup, start with the
   cited with source, record revision and as-of time; reviewable organisation identity, links to Scholarly, Funding
   and Ownership records and monitors; no researcher rankings or metrics and no author matching by name;
   [source audit](development/research-entities-evidence/source-audit.md)
+- [Science life-sciences guide](guides/science-life-sciences.md) — UniProt entries with entry and sequence
+  versions per release, NCBI Gene and Taxonomy, RCSB PDB structures with revision history and ChEMBL targets,
+  compounds and activities per release, with reviewable cross-source identity, citation links to Chemicals,
+  Biodiversity, Clinical medicines and literature and monitors; no biological inference, activity prediction,
+  converted values or person names; [source audit](development/life-sciences-evidence/source-audit.md)
 - [Economics shipping and logistics guide](guides/economics-shipping-logistics.md) — UN/LOCODE port records per
   release, UNCTADstat and Eurostat maritime series and openly licensed freight indices as of a vintage, reviewable
   port identity, trade-flow joins by shared code or citation and monitors; no freight-rate forecast or derived index;

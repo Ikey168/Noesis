@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1745,
+      "tool_count": 1760,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1204,6 +1204,7 @@
         "noesis-knowledge-engine.create_investigation_template",
         "noesis-knowledge-engine.create_labour_monitor",
         "noesis-knowledge-engine.create_legislation_monitor",
+        "noesis-knowledge-engine.create_lifesci_monitor",
         "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
         "noesis-knowledge-engine.create_logistics_monitor",
@@ -1375,6 +1376,7 @@
         "noesis-knowledge-engine.export_investigation_comparison",
         "noesis-knowledge-engine.export_legislative_dossier_changes",
         "noesis-knowledge-engine.export_lexeme_dossier",
+        "noesis-knowledge-engine.export_lifesci_evidence_bundle",
         "noesis-knowledge-engine.export_media_evidence_bundle",
         "noesis-knowledge-engine.export_medical_devices_evidence_bundle",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
@@ -1631,6 +1633,10 @@
         "noesis-knowledge-engine.lexeme_cross_language_links",
         "noesis-knowledge-engine.lexeme_etymology",
         "noesis-knowledge-engine.licence_history",
+        "noesis-knowledge-engine.lifesci_entry_as_of",
+        "noesis-knowledge-engine.lifesci_readiness",
+        "noesis-knowledge-engine.lifesci_source_contracts",
+        "noesis-knowledge-engine.lifesci_target_activities",
         "noesis-knowledge-engine.linguistics_readiness",
         "noesis-knowledge-engine.link_agrifood_citations",
         "noesis-knowledge-engine.link_amendment_dossiers",
@@ -1669,6 +1675,7 @@
         "noesis-knowledge-engine.link_infrastructure_records",
         "noesis-knowledge-engine.link_labour_citations",
         "noesis-knowledge-engine.link_legal_dossier",
+        "noesis-knowledge-engine.link_lifesci_records",
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_logistics_citation",
         "noesis-knowledge-engine.link_logistics_economic_series",
@@ -1772,6 +1779,8 @@
         "noesis-knowledge-engine.list_labour_links",
         "noesis-knowledge-engine.list_labour_series",
         "noesis-knowledge-engine.list_legislation_identity_candidates",
+        "noesis-knowledge-engine.list_lifesci_identity_matches",
+        "noesis-knowledge-engine.list_lifesci_links",
         "noesis-knowledge-engine.list_linguistic_identity_candidates",
         "noesis-knowledge-engine.list_lobbying_dossier_links",
         "noesis-knowledge-engine.list_lobbying_identity_candidates",
@@ -1952,6 +1961,7 @@
         "noesis-knowledge-engine.poll_infrastructure_monitor",
         "noesis-knowledge-engine.poll_labour_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
+        "noesis-knowledge-engine.poll_lifesci_monitor",
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_logistics_monitor",
@@ -2063,6 +2073,7 @@
         "noesis-knowledge-engine.propose_lei_registry_links",
         "noesis-knowledge-engine.propose_lexeme_alias",
         "noesis-knowledge-engine.propose_lexeme_matches",
+        "noesis-knowledge-engine.propose_lifesci_identity_matches",
         "noesis-knowledge-engine.propose_lobbying_dossier_link",
         "noesis-knowledge-engine.propose_lobbying_identity_link",
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
@@ -2196,6 +2207,7 @@
         "noesis-knowledge-engine.register_humanitarian_schemas",
         "noesis-knowledge-engine.register_infrastructure_schemas",
         "noesis-knowledge-engine.register_jev_intake_intent",
+        "noesis-knowledge-engine.register_lifesci_schemas",
         "noesis-knowledge-engine.register_material_schemas",
         "noesis-knowledge-engine.register_methodology_study",
         "noesis-knowledge-engine.register_multimodal_asset",
@@ -2318,6 +2330,7 @@
         "noesis-knowledge-engine.revert_income_identity_match",
         "noesis-knowledge-engine.revert_labour_identity_match",
         "noesis-knowledge-engine.revert_legislation_identity_match",
+        "noesis-knowledge-engine.revert_lifesci_identity_match",
         "noesis-knowledge-engine.revert_linguistic_identity_match",
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
@@ -2398,6 +2411,7 @@
         "noesis-knowledge-engine.review_labour_identity_match",
         "noesis-knowledge-engine.review_languoid_location",
         "noesis-knowledge-engine.review_legislation_identity_match",
+        "noesis-knowledge-engine.review_lifesci_identity_match",
         "noesis-knowledge-engine.review_linguistic_identity_match",
         "noesis-knowledge-engine.review_lobbying_dossier_link",
         "noesis-knowledge-engine.review_lobbying_identity_match",
@@ -2490,6 +2504,7 @@
         "noesis-knowledge-engine.run_infrastructure_monitor",
         "noesis-knowledge-engine.run_labour_monitor",
         "noesis-knowledge-engine.run_legislation_monitor",
+        "noesis-knowledge-engine.run_lifesci_monitor",
         "noesis-knowledge-engine.run_linguistics_monitor",
         "noesis-knowledge-engine.run_lobbying_monitor",
         "noesis-knowledge-engine.run_logistics_monitor",
@@ -2718,7 +2733,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1745
+      "visible_tool_count": 1760
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2729,11 +2744,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 156,
+      "available": 157,
       "degraded": 174,
-      "unauthorized": 1753
+      "unauthorized": 1767
     },
-    "tools": 2083
+    "tools": 2098
   },
   "tools": [
     {
@@ -35524,6 +35539,98 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to accessions, targets or taxa: notices of new releases that change an entry, obsolete it or\nadd, revise or remove activities (record changes, never assessments).",
+      "id": "noesis-knowledge-engine.create_lifesci_monitor",
+      "input_schema": {
+        "properties": {
+          "accessions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "targets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "taxa": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_lifesci_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription on a lexeme, sense, languoid (Glottocode) or WALS parameter; events definition_revised,\nsense_added, sense_removed, etymology_changed, classification_changed, iso_code_changed and\nfeature_value_changed cite the old and new revision or release. No new scheduler.",
       "id": "noesis-knowledge-engine.create_linguistics_monitor",
       "input_schema": {
@@ -44631,6 +44738,83 @@
       ],
       "required_scopes": [
         "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An entry-as-of (identifier) or target-activities (target) answer as a noesis-evidence-bundle-v1 citing\nevery item with source, record revision, release and as-of time; unknowns are omissions.\nExclusions: no biological or clinical inference, no activity prediction, no sequence analysis, values never\nconverted or aggregated, no person names.",
+      "id": "noesis-knowledge-engine.export_lifesci_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "release": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_lifesci_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56677,6 +56861,179 @@
     },
     {
       "cost_class": "low",
+      "description": "An accession (or Gene ID, Tax ID, PDB ID, ChEMBL ID) as of a release (UniProt YYYY_MM, ChEMBL_nn) or an\nISO date: the entry and sequence version in force (UniSave history when the full entry was not acquired),\nobsolete/merged/replaced identifiers resolved to their successors with the history shown, and the\ncross-reference graph labelled by asserting source with identity states and cross-pack links; every entry\nversion cited.\nExclusions: no biological or clinical inference, no activity prediction, no sequence analysis, values never\nconverted or aggregated, no person names.",
+      "id": "noesis-knowledge-engine.lifesci_entry_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "release": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lifesci_entry_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which life-sciences features (UniProt, NCBI, PDB, ChEMBL; each optional, default off) are selected, the\nstores, per-provider runs and live state, and whether Chemicals, Biodiversity and Clinical medicines are\ninstalled for links (absent packs are reported, never required).",
+      "id": "noesis-knowledge-engine.lifesci_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lifesci_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions for UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL: endpoints,\nauthentication and key handling, licence and redistribution, rate limits, revision and removal model, the\ndata-minimisation decision, bounded coverage and LIVE_VERIFICATION per source.\nExclusions: no biological or clinical inference, no activity prediction, no sequence analysis, values never\nconverted or aggregated, no person names.",
+      "id": "noesis-knowledge-engine.lifesci_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lifesci_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Compounds and activities ChEMBL published against a target (ChEMBL target ID, or a UniProt accession a\ntarget component names) for one release: published and ChEMBL-standardised type, relation, value and unit\nas strings, data-validity and activity comments, each row citing its activity and document; removed\nactivities listed apart.\nExclusions: no biological or clinical inference, no activity prediction, no sequence analysis, values never\nconverted or aggregated, no person names.",
+      "id": "noesis-knowledge-engine.lifesci_target_activities",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "release": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lifesci_target_activities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Per-provider acquisition state, the selected optional features (linguistics-wiktionary,\nlinguistics-typology), live-verification status (unverified-live until a dated live run) and exclusions.",
       "id": "noesis-knowledge-engine.linguistics_readiness",
       "input_schema": {
@@ -58503,6 +58860,39 @@
       ],
       "required_scopes": [
         "knowledge:legal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link record revisions to Chemicals substances and Biodiversity occurrences (accepted matches only),\nClinical medicines that name the ChEMBL ID and papers citing the same DOI or PubMed ID; missing packs are\nreported. No inferred drug-target or disease claim.",
+      "id": "noesis-knowledge-engine.link_lifesci_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_lifesci_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -64003,6 +64393,116 @@
       "required_scopes": [
         "knowledge:political:legislation:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Identity proposals and decisions across UniProt, NCBI, PDB, ChEMBL, Chemicals (InChIKey) and Biodiversity\n(taxa) with method, evidence, confidence and review history; nothing is merged.",
+      "id": "noesis-knowledge-engine.list_lifesci_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_lifesci_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links from life-science record revisions to Chemicals substances, Biodiversity occurrences, Clinical\nmedicines and literature, each with its basis (citation, shared identifier or accepted match).",
+      "id": "noesis-knowledge-engine.list_lifesci_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_lifesci_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -72872,6 +73372,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a life-sciences monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_lifesci_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_lifesci_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a linguistics monitor's events through the subscription delivery path.",
       "id": "noesis-knowledge-engine.poll_linguistics_monitor",
       "input_schema": {
@@ -77895,6 +78433,39 @@
       "required_scopes": [
         "knowledge:linguistics:write",
         "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer identity candidates from published cross-references (UniProt to PDB, Gene and ChEMBL targets),\nChEMBL compound to Chemicals substance by InChIKey and NCBI taxon to Biodiversity taxon; names only for taxa\nwithout an identifier. None is accepted; unmatched records are listed.",
+      "id": "noesis-knowledge-engine.propose_lifesci_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_lifesci_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -85611,6 +86182,38 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register noesis-lifesci-record-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_lifesci_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_lifesci_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register noesis-material-record-v1 and noesis-material-comparison-v1 in the schema registry.",
       "id": "noesis-knowledge-engine.register_material_schemas",
       "input_schema": {
@@ -91868,6 +92471,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed life-sciences identity decision (the entity identity decision is undone).",
+      "id": "noesis-knowledge-engine.revert_lifesci_identity_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_lifesci_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:review",
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert an accepted or rejected candidate; the earlier decision is never reactivated.",
       "id": "noesis-knowledge-engine.revert_linguistic_identity_match",
       "input_schema": {
@@ -95500,6 +96145,52 @@
       "required_scopes": [
         "knowledge:ownership:read",
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a life-sciences identity proposal with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_lifesci_identity_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_lifesci_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:review",
+        "knowledge:entity-history:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -100128,6 +100819,51 @@
       ],
       "required_scopes": [
         "knowledge:political:legislation:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a life-sciences monitor at a complete source-pack watermark; notices cite the prior and new\nrevision and state what changed. Replays deliver nothing.",
+      "id": "noesis-knowledge-engine.run_lifesci_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_lifesci_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:lifesci:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

@@ -133,8 +133,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # (#2654),
     # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB sources (#2651),
     # plus the Society income provider's World Bank PIP, Eurostat EU-SILC and OECD IDD sources (#2583),
-    # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579).
-    assert sum(len(pack["sources"]) for pack in packs) == 327
+    # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579),
+    # plus the Science life-sciences features' UniProt, NCBI, RCSB PDB and ChEMBL sources (#2652).
+    assert sum(len(pack["sources"]) for pack in packs) == 331
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

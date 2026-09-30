@@ -329,6 +329,7 @@
 
     "science.cultural": {"domain": "culture-leisure", "subdomains": ["cultural-heritage"], "shapes": ["registry-records"]},
     "science.education-statistics": {"domain": "society-population", "subdomains": ["education"], "shapes": ["statistical-series"]},
+    "science.life-sciences": {"subdomains": ["life-sciences-reference"], "shapes": ["registry-records", "observations"]},
     "science.literature": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
     "science.mathematics": {"subdomains": ["mathematics"], "shapes": ["versioned-documents", "registry-records"]},
     "science.media-metadata": {"domain": "culture-leisure", "subdomains": ["books-music-metadata"], "shapes": ["registry-records"]},

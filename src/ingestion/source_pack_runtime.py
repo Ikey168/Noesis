@@ -532,6 +532,16 @@ def _research_entities_projector(conn: Any) -> Any:
 # Science research-entities features: ROR, ORCID, DataCite and CORDIS registry records (#2579).
 PROJECTORS["noesis-research-entity-record-v1"] = _research_entities_projector
 
+
+def _lifesci_projector(conn: Any) -> Any:
+    from src.kb.lifesci_store import LifeSciProjector
+
+    return LifeSciProjector(conn)
+
+
+# Science life-science reference records (#2652).
+PROJECTORS["noesis-lifesci-record-v1"] = _lifesci_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

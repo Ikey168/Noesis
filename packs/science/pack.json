@@ -45,7 +45,14 @@
       "library of congress",
       "lcnaf",
       "orcid",
-      "cordis"
+      "cordis",
+      "uniprot",
+      "unisave",
+      "ncbi gene",
+      "ncbi taxonomy",
+      "rcsb pdb",
+      "protein data bank",
+      "chembl"
     ],
     "claims": [
       "finding",
@@ -90,7 +97,17 @@
       "isbn",
       "isrc",
       "mbid",
-      "authority record"
+      "authority record",
+      "protein",
+      "gene",
+      "taxon",
+      "protein structure",
+      "drug target",
+      "compound",
+      "bioactivity",
+      "uniprot accession",
+      "pdb id",
+      "chembl id"
     ]
   },
   "enrichers": [],
@@ -127,7 +144,14 @@
     "research-entity-revisions-as-of",
     "research-organisation-identity-review",
     "research-entity-citation-links",
-    "research-entity-monitoring"
+    "research-entity-monitoring",
+    "lifesci-reference-records",
+    "lifesci-entry-as-of-release",
+    "lifesci-cross-reference-graph",
+    "lifesci-published-bioactivity",
+    "reviewable-lifesci-identity",
+    "lifesci-citation-links",
+    "lifesci-monitoring"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -149,7 +173,8 @@
     "research-entity-answer": "1.0.0",
     "research-entity-match": "1.0.0",
     "research-entity-link": "1.0.0",
-    "research-entity-notification": "1.0.0"
+    "research-entity-notification": "1.0.0",
+    "lifesci-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -165,7 +190,8 @@
       "noesis-math-link-v1",
       "noesis-education-statistic-record-v1",
       "noesis-media-metadata-record-v1",
-      "noesis-research-entity-record-v1"
+      "noesis-research-entity-record-v1",
+      "noesis-lifesci-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -193,7 +219,14 @@
       "researcher",
       "research_dataset",
       "research_project",
-      "project_participant"
+      "project_participant",
+      "protein_entry",
+      "gene_record",
+      "taxon_node",
+      "structure_entry",
+      "chembl_target",
+      "chembl_compound",
+      "bioactivity_measurement"
     ],
     "relation_types": [
       "cites",
@@ -221,7 +254,12 @@
       "related_identifier",
       "participates_in",
       "successor_of",
-      "predecessor_of"
+      "predecessor_of",
+      "merged_into",
+      "superseded_by",
+      "maps_to_uniprot",
+      "cross_references",
+      "measured_against"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -348,6 +386,26 @@
         "as_of": "2026-03-01"
       },
       "semantics": "the ROR record of the release in force, lineage along predecessor and successor relationships, CORDIS projects of accepted participants with contributions per currency and DataCite datasets stating the ROR ID; each record version cited"
+    },
+    {
+      "intent": "Which version of this UniProt entry was in force at a release, and what does it cross-reference",
+      "tool": "lifesci_entry_as_of",
+      "arguments": {
+        "namespace": "global",
+        "identifier": "P0DZZ1",
+        "release": "2099_01"
+      },
+      "semantics": "the entry and sequence version in force at the release (UniSave history when the full entry was not acquired), merged or obsolete accessions resolved to their successors with history, and cross-references labelled with the source that asserts them; every entry version cited"
+    },
+    {
+      "intent": "Which compounds have published activity against this target in a ChEMBL release",
+      "tool": "lifesci_target_activities",
+      "arguments": {
+        "namespace": "global",
+        "target": "CHEMBL9990201",
+        "release": "ChEMBL_99"
+      },
+      "semantics": "compounds and activities as ChEMBL published them, with data-validity comments and the cited document; values never converted or aggregated across assay types"
     }
   ],
   "exclusions": [
@@ -376,6 +434,12 @@
     "inference of affiliation from co-authorship",
     "author disambiguation by name",
     "personal data beyond the public ORCID fields of the minimisation decision",
-    "contributions summed across currencies"
+    "contributions summed across currencies",
+    "biological or clinical inference from reference records",
+    "activity, binding or toxicity prediction",
+    "sequence analysis beyond storage",
+    "conversion or aggregation of activity values across assays or assay types",
+    "person names from author, depositor or submitter fields",
+    "computed structure models"
   ]
 }
