@@ -391,6 +391,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 # Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
 NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
+# Climate and Environment water and hydrology: PEGELONLINE, USGS Water Data and EEA WISE (#2582).
+NATIVE_CONNECTOR_MODULES["water"] = "src.ingestion.water_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"water"})
 
 
 def native_connector_module(connector: str) -> Any:
