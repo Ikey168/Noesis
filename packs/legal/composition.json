@@ -40,6 +40,14 @@
           "name": "noesis-justice-statistic",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "legal.enforcement",
+        "provider": "legal.enforcement",
+        "contract": {
+          "name": "noesis-enforcement-action",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -62,12 +70,16 @@
       {
         "id": "legal.justice-statistics",
         "version": "1.0.0"
+      },
+      {
+        "id": "legal.enforcement",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "legal-research",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "range": "^1.1.0"
       }
     ]
@@ -238,6 +250,106 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "statistics are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-sec",
+      "default": false,
+      "description": "SEC enforcement: litigation releases and administrative proceedings keyed by release and file number, respondents as named (CIK where stated), charges, outcomes and sanctions as stated with the admission wording verbatim, related court cases as citations. Ownership, Market, court and Legal links are optional: without those packs respondents stay unmatched as published and links are reported as provider_unavailable. No risk or compliance scoring, no inference of wrongdoing from an initiated action, settled 'neither admit nor deny' outcomes keep their wording, penalties are never summed across currencies or authorities, natural persons are pseudonymised and never profiled, and no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-action",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, identifier, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-fca",
+      "default": false,
+      "description": "FCA final notices keyed by notice and Firm Reference Number: rule breaches cited, penalties before and after the settlement discount as published and Upper Tribunal references for appeals. Ownership, Market, court and Legal links are optional: without those packs respondents stay unmatched as published and links are reported as provider_unavailable. No risk or compliance scoring, no inference of wrongdoing from an initiated action, settled 'neither admit nor deny' outcomes keep their wording, penalties are never summed across currencies or authorities, natural persons are pseudonymised and never profiled, and no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-action",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, identifier, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-epa",
+      "default": false,
+      "description": "EPA ECHO civil and criminal enforcement cases keyed by case number: statutes and sections, defendants as named, facilities with FRS registry ids and published coordinates, and penalties, SEP cost, cost recovery and compliance action cost as separate published fields. Ownership, Market, court and Legal links are optional: without those packs respondents stay unmatched as published and links are reported as provider_unavailable. No risk or compliance scoring, no inference of wrongdoing from an initiated action, settled 'neither admit nor deny' outcomes keep their wording, penalties are never summed across currencies or authorities, natural persons are pseudonymised and never profiled, and no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-action",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, identifier, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "enforcement-edpb",
+      "default": false,
+      "description": "EDPB register of Article 60 final decisions keyed by register entry: lead and concerned supervisory authorities, GDPR provisions, corrective measures and fines as published and the controller only where the register publishes one. Ownership, Market, court and Legal links are optional: without those packs respondents stay unmatched as published and links are reported as provider_unavailable. No risk or compliance scoring, no inference of wrongdoing from an initiated action, settled 'neither admit nor deny' outcomes keep their wording, penalties are never summed across currencies or authorities, natural persons are pseudonymised and never profiled, and no legal advice.",
+      "requires": [
+        {
+          "capability": "legal.enforcement",
+          "contract": "noesis-enforcement-action",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "entity, identifier, authority, legal-basis and action monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "actions are acquired through the legal-research source pack runtime"
         }
       ]
     }

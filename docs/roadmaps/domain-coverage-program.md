@@ -50,7 +50,6 @@ providers stay where they are; their ids are preserved.
 | Subdomain | Domain | Proposed home | Candidate sources (unaudited) | Links to | Wave |
 | --- | --- | --- | --- | --- | --- |
 | `treaties-international-law` | Governance and law | `legal.treaties` | UN Treaty Collection; EU international agreements via CELLAR; Council of Europe Treaty Office | sanctions, legislation, trade | 1 |
-| `regulatory-enforcement` | Governance and law | `legal.enforcement` | SEC enforcement actions; FCA final notices; EPA ECHO; data-protection authority decisions | ownership, competition, market | 1 |
 | `government-transparency` | Governance and law | `political.transparency` | Bundestag DIP (questions, printed papers); UK Parliament written questions API; FragDenStaat | legislation, public finance | 2 |
 | `defence-security` | Governance and law | `political.defence` | SIPRI military expenditure and arms transfers (terms restrict redistribution); UN Register of Conventional Arms; NATO defence expenditure reports | sanctions, humanitarian | 3 |
 | `income-poverty-inequality` | Society and population | `society.income` (new bundle) | World Bank Poverty and Inequality Platform; Eurostat EU-SILC; OECD Income Distribution Database | demographics, labour | 1 |

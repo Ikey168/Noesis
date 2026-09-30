@@ -25,6 +25,20 @@ LEGAL_WRITES = LEGAL_WRITES | COURTS_JUSTICE_WRITES
 LEGAL_TOOLS = LEGAL_TOOLS | COURTS_JUSTICE_TOOLS
 LEGAL_SCOPES = {**LEGAL_SCOPES, **COURTS_JUSTICE_SCOPES}
 
+# Regulatory enforcement (#2651): the enforcement-sec/-fca/-epa/-edpb features' tools, registered here.
+from tools.knowledge_engine_mcp.enforcement import (
+    ENFORCEMENT_SCOPES,
+    ENFORCEMENT_TOOLS,
+    ENFORCEMENT_WRITES,
+)
+from tools.knowledge_engine_mcp.enforcement import (
+    register as register_enforcement,
+)
+
+LEGAL_WRITES = LEGAL_WRITES | ENFORCEMENT_WRITES
+LEGAL_TOOLS = LEGAL_TOOLS | ENFORCEMENT_TOOLS
+LEGAL_SCOPES = {**LEGAL_SCOPES, **ENFORCEMENT_SCOPES}
+
 
 def required_scopes(tool_name, mutability):
     return LEGAL_SCOPES.get(tool_name, ["knowledge:legal:write" if mutability == "write" else "knowledge:legal:read"])
@@ -32,6 +46,7 @@ def required_scopes(tool_name, mutability):
 
 def register(mcp, safe, context):
     register_courts_justice(mcp, safe, context)
+    register_enforcement(mcp, safe, context)
 
     def who():
         return context()[0], context()[1]

@@ -8,13 +8,16 @@
   "panels": [],
   "planner_keywords": {
     "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung", "designation",
-                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence"],
+                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence",
+                 "enforcement action", "final notice", "litigation release", "administrative proceeding",
+                 "civil penalty", "respondent"],
     "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet", "consolidated list",
                 "ofac", "uk sanctions list", "un security council", "courtlistener", "recap",
-                "fbi crime data explorer", "data.police.uk", "eurostat crime"],
+                "fbi crime data explorer", "data.police.uk", "eurostat crime",
+                "sec litigation releases", "fca final notices", "epa echo", "edpb article 60 register"],
     "claims": ["article", "artikel", "paragraph", "section"],
     "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal", "delisting",
-               "designation", "listing"]
+               "designation", "listing", "settlement", "penalty", "appeal", "upper tribunal"]
   },
   "enrichers": [],
   "provisioning_templates": [],
@@ -41,7 +44,13 @@
     "court-party-identity-review",
     "justice-statistics-as-of",
     "justice-statistics-comparability",
-    "courts-justice-monitoring"
+    "courts-justice-monitoring",
+    "enforcement-actions-as-published",
+    "enforcement-actions-as-of",
+    "enforcement-by-authority-and-legal-basis",
+    "enforcement-respondent-identity-review",
+    "enforcement-citation-links",
+    "enforcement-monitoring"
   ],
   "schema_versions": {
     "legal-work": "1.0.0",
@@ -58,7 +67,13 @@
     "justice-statistics-answer": "1.0.0",
     "justice-comparability-note": "1.0.0",
     "court-citation-link": "1.0.0",
-    "court-justice-notification": "1.0.0"
+    "court-justice-notification": "1.0.0",
+    "enforcement-record": "1.0.0",
+    "enforcement-actions-answer": "1.0.0",
+    "enforcement-authority-answer": "1.0.0",
+    "enforcement-action-history": "1.0.0",
+    "enforcement-link": "1.0.0",
+    "enforcement-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -122,6 +137,18 @@
       "tool": "justice_statistics_for_place",
       "arguments": {"namespace": "global", "place": "eurostat-geo:DE", "indicator": "ICCS0401"},
       "semantics": "each source's series with definition, unit, flags, coverage notes and vintage; no ranking or safety rating"
+    },
+    {
+      "intent": "Which enforcement actions named Exampla Holdings or its group, as of 31 December 2099",
+      "tool": "enforcement_actions_for_entity",
+      "arguments": {"namespace": "enforcement", "entity": "gleif:lei:213800EXAMPLAHOLDS95", "ownership_namespace": "ownership", "as_of": "2099-12-31", "group": true},
+      "semantics": "actions reached through accepted respondent matches, outcomes and admission wording as published, decisions, penalties and appeals by the date, each action revision cited; no score or finding"
+    },
+    {
+      "intent": "FCA final notices over 2099 with their penalties as published",
+      "tool": "enforcement_actions_by_authority",
+      "arguments": {"namespace": "enforcement", "authority": "uk-fca", "date_from": "2099-01-01", "date_to": "2099-12-31"},
+      "semantics": "per-action outcomes and penalties before and after the settlement discount; penalties listed per authority and currency, never summed"
     }
   ],
   "exclusions": [
@@ -132,6 +159,9 @@
     "scraped sanctions portals (EU Sanctions Map)",
     "personal profiles of private individuals in dockets", "recidivism or risk scoring",
     "neighbourhood safety ratings", "rankings of places or countries", "derived case outcome labels or predictions",
-    "unqualified cross-jurisdiction comparison of crime statistics"
+    "unqualified cross-jurisdiction comparison of crime statistics",
+    "risk or compliance scoring of respondents", "inferring wrongdoing from an initiated enforcement action",
+    "merging settled 'neither admit nor deny' outcomes into findings",
+    "summing penalties across currencies or authorities", "profiles of named individuals in enforcement actions"
   ]
 }
