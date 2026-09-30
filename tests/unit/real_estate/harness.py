@@ -56,10 +56,12 @@ def wgs84(point: tuple[float, float], srs: str = fb.FR_SRS) -> list[float]:
 
 
 class Env:
-    def __init__(self, conn=None, start_ms: int = 4_080_000_000_000) -> None:
+    def __init__(self, conn=None, start_ms: int = 4_080_000_000_000, *, install: bool = True) -> None:
         self.conn = conn or duckdb.connect(":memory:")
         self.clock = start_ms  # 2099-04-14
         self.value = manifest()
+        if not install:  # reopening a deployment that already has the pack
+            return
         SourcePackStore(self.conn).install(self.value, principal_id="operator", enable=True, now_ms=1)
         runtime = self.runtime()
         for item in self.value["sources"]:
