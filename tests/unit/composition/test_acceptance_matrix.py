@@ -171,6 +171,11 @@ MATRIX = {
     "Taxon or place to cited biodiversity records":
         "tests/unit/domains/test_biodiversity_acceptance.py::"
         "test_taxon_and_place_to_cited_occurrences_and_conservation_status_history",
+    # The Corporate Ownership competition feature's offline journey (#2364) composes the ownership record store,
+    # ownership identity and graph, Legal works by citation, subscriptions and the source-pack runtime.
+    "Company to cited competition cases and state aid":
+        "tests/unit/domains/test_competition_acceptance.py::"
+        "test_company_to_cited_cases_and_aid_awards_with_stage_history",
 }
 
 
