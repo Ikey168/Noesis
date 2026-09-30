@@ -133,3 +133,34 @@ class Env:
                                     source_ids={"pegelonline-water": "NORDFLUSS"})["place_id"],
             "moor": self.place("Empty Moor (fixture)", EMPTY_MOOR)["place_id"],
         }
+
+    def seed_other_packs(self) -> dict[str, str]:
+        """Fictional records of other packs: a flood event citing the EXAMPLA gauge number, a hydro asset stating the
+        WB1 EU code, and a weather source stating the NORTHWIND gauge number beside its station."""
+        from src.kb.hazards_records import event
+        from src.kb.hazards_store import HazardStore
+        from src.kb.infrastructure_assets import InfrastructureStore, record
+        from src.kb.weather_store import WeatherStore
+
+        flood = event("gdacs", "FL-99990001", "Flooding on the NORDFLUSS at gauge 59990001 (fixture)",
+                      hazard_type="flood", source_url="https://www.gdacs.org/fixture/FL-99990001", revision_key="1",
+                      published_at="2026-09-20T06:00:00Z", event_time="2026-09-20T00:00:00Z", parameters=[],
+                      identifiers={"glide": "FL-2026-000999-DEU"})
+        unrelated = event("gdacs", "FL-99990002", "Flooding elsewhere (fixture)", hazard_type="flood",
+                          source_url="https://www.gdacs.org/fixture/FL-99990002", revision_key="1",
+                          published_at="2026-09-20T06:00:00Z", event_time="2026-09-20T00:00:00Z", parameters=[])
+        HazardStore(self.conn, now=self.tick).apply(NS, [flood, unrelated], run_id="fixture", principal_id="alice",
+                                                    scopes=ALL)
+        asset = record("gppd", "gppd-fixture", "FX-HYDRO-1", "power_plant", name="Exampla weir hydro (fixture)",
+                       source_url="https://example.org/fixture/FX-HYDRO-1", attribution="Fixture registry",
+                       licence={"id": "cc-by-4.0", "terms_url": "https://example.org/terms"},
+                       release={"key": "fixture-1", "released_at": "2026-06-01", "basis": "declared_release"},
+                       retrieved_at="2026-09-20T00:00:00Z",
+                       identifiers=[{"scheme": "eu-water-body-code", "value": "DEFX_EXAMPLA_01"}])
+        InfrastructureStore(self.conn, now=self.tick).apply(NS, [asset], run_id="fixture", principal_id="alice",
+                                                            scopes=ALL)
+        WeatherStore(self.conn, now=self.tick)
+        self.conn.execute("INSERT INTO weather_station_identifiers VALUES (?,?,?,?,?,?,?,?)",
+                          [NS, "dwd:99999", "pegelonline-number", "59990002", "dwd-station-list (fixture)", "{}",
+                           self.clock, "fixture"])
+        return {"flood": "FL-99990001", "asset": "FX-HYDRO-1", "weather": "dwd:99999"}
