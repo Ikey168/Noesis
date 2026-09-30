@@ -205,6 +205,11 @@ For the project overview and local setup, start with the
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and
   comparability notes; no personal profiles, risk scores, safety ratings or rankings;
   [source audit](development/courts-justice-evidence/source-audit.md)
+- [Legal treaties guide](guides/legal-treaties.md) — treaties and treaty actions from EU international agreements
+  in CELLAR and Council of Europe Treaty Office charts (the UN Treaty Collection is declined pending written
+  permission): a treaty and participant to the cited action chain as of a date with depositary revisions,
+  reservations and objections verbatim, reviewable participant identity and monitors; no legal advice or inferred
+  obligations; [source audit](development/treaties-evidence/source-audit.md)
 - [Economics public finance guide](guides/economics-public-finance.md) — budget plans, supplementary budgets and
   outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
   without verdicts, acts and dossiers linked by citation and basis-aware comparisons;
