@@ -348,6 +348,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"agrifood"})
 NATIVE_CONNECTOR_MODULES["courts-justice"] = "src.ingestion.courts_justice_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"courts-justice"})
 
+# Corporate Ownership competition cases and state aid: EC case search, TAM, GOV.UK CMA, FTC and DOJ (#2217).
+NATIVE_CONNECTOR_MODULES["competition"] = "src.ingestion.competition_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"competition"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

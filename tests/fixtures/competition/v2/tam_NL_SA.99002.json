@@ -1,0 +1,48 @@
+{
+ "totalElements": 2,
+ "last": true,
+ "content": [
+  {
+   "awardId": "NL-2025-000101",
+   "countryCode": "NL",
+   "saNumber": "SA.99002",
+   "measureTitle": "Green hydrogen investment aid (fixture)",
+   "beneficiaryName": "Exampla Intermediate B.V.",
+   "beneficiaryNationalIdType": "KVK",
+   "beneficiaryNationalId": "99990003",
+   "beneficiaryType": "Large enterprise",
+   "region": "NL32",
+   "sector": "C.20.11",
+   "aidInstrument": "Direct grant",
+   "objective": "Environmental protection, including climate protection",
+   "nominalAmount": "12000000.00",
+   "amountRange": null,
+   "currency": "EUR",
+   "grantingDate": "2025-05-02",
+   "grantingAuthority": "Rijksdienst voor Ondernemend Nederland (fixture)",
+   "status": "Corrected",
+   "lastModified": "2025-07-01"
+  },
+  {
+   "awardId": "NL-2025-000102",
+   "countryCode": "NL",
+   "saNumber": "SA.99002",
+   "measureTitle": "Green hydrogen investment aid (fixture)",
+   "beneficiaryName": "Northwind Energie B.V.",
+   "beneficiaryNationalIdType": "KVK",
+   "beneficiaryNationalId": "55550001",
+   "beneficiaryType": "SME",
+   "region": "NL32",
+   "sector": "C.20.11",
+   "aidInstrument": "Direct grant",
+   "objective": "Environmental protection, including climate protection",
+   "nominalAmount": null,
+   "amountRange": "0.5-1 million",
+   "currency": "EUR",
+   "grantingDate": "2025-05-20",
+   "grantingAuthority": "Rijksdienst voor Ondernemend Nederland (fixture)",
+   "status": "Withdrawn",
+   "lastModified": "2025-07-02"
+  }
+ ]
+}

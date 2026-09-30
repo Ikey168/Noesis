@@ -85,14 +85,19 @@ def test_live_verification_is_honest_and_the_pack_declares_it_per_source():
     for provider in ("gleif", "companies-house", "sec-edgar", "open-ownership"):
         assert LIVE_VERIFICATION[provider]["status"] == "unverified-live"
     pack = load_source_pack()
-    assert {s["source_id"]: s["ownership"]["live_verification"] for s in pack["sources"]} == {
+    # The optional competition feature's five sources (#2217) state theirs under "competition".
+    assert {s["source_id"]: (s.get("ownership") or s["competition"])["live_verification"]
+            for s in pack["sources"]} == {
         "gleif-level2": "unverified-live", "companies-house": "unverified-live",
-        "sec-edgar-ownership": "unverified-live", "open-ownership-bods": "unverified-live"}
+        "sec-edgar-ownership": "unverified-live", "open-ownership-bods": "unverified-live",
+        "ec-competition-cases": "unverified-live", "eu-state-aid-tam": "unverified-live",
+        "uk-cma-cases": "unverified-live", "us-ftc-cases": "unverified-live", "us-doj-atr-cases": "unverified-live"}
 
 
 def test_offline_conformance_of_every_pinned_fixture():
     result = SourcePackConformance(ROOT).offline(load_source_pack())
-    assert result["valid"] and result["coverage"] == {"configured": 4, "verified": 4}
+    # Four registry sources plus the competition feature's five (#2217).
+    assert result["valid"] and result["coverage"] == {"configured": 9, "verified": 9}
     for name in ("gleif-level2.json", "companies-house.json", "sec-edgar.json", "open-ownership-bods.json"):
         assert harness.load(name)["authored"] is True
 

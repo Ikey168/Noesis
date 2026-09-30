@@ -1,7 +1,7 @@
 {
   "pack_id": "corporate-ownership",
-  "version": "1.0.0",
-  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred.",
+  "version": "1.1.0",
+  "description": "Corporate ownership and registries: GLEIF Level 2 relationships and reporting exceptions, UK Companies House profiles, officers, PSC and filing history, SEC EDGAR submissions and beneficial-ownership filing references, and Open Ownership BODS statements, each for explicitly selected identifiers. Handelsregister, Unternehmensregister and BRIS have no supported machine access and are not sources here (see src/ingestion/ownership_providers.py PROVIDER_CONTRACTS). Ownership assertions are what each source states; no beneficial-ownership, sanctions or AML determination is inferred. From 1.1.0 the optional competition feature adds declared European Commission competition cases, EU State Aid Transparency Award Module awards, UK CMA case pages and US FTC and DOJ Antitrust Division actions, recorded as published (no outcome prediction, market-power or aid-compatibility assessment).",
   "domains": [
     "corporate-ownership"
   ],
@@ -196,6 +196,289 @@
         "path": "tests/fixtures/ownership/open-ownership-bods.json",
         "sha256": "a155a62afc7e2ee61a07e4a63b15ec12d71e51b7d7285b1e05548c69b4cbf86e",
         "expected_output_hash": "6fca1478d29ca91745044d27cf7a2682d3193a3f608213aadb05f2e64fb6aff1"
+      }
+    },
+    {
+      "source_id": "ec-competition-cases",
+      "connector": "competition",
+      "publisher": "European Commission, DG Competition",
+      "endpoint": "https://competition-cases.ec.europa.eu",
+      "scope": "Declared European Commission merger (M.), antitrust (AT.) and state-aid (SA.) cases: case, published events as dated stages, parties or member state as named, and decision documents (linked, not mirrored) with OJ/CELEX references",
+      "update_cadence": "as the authority publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-competition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "competition-sources:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "competition"
+      ],
+      "temporal_semantics": "case lastUpdated as the page revision; event, decision and notification dates as published; acquisition time recorded separately",
+      "license": {
+        "id": "ec-reuse-2011-833",
+        "terms_url": "https://commission.europa.eu/legal-notice_en",
+        "redistribution": "Commission reuse policy (Decision 2011/833/EU): reuse with acknowledgement; decision documents linked, not mirrored"
+      },
+      "competition": {
+        "namespace": "competition",
+        "provider": "ec-competition",
+        "format": "ec-case-json",
+        "selection": {
+          "cases": [
+            {
+              "case_number": "M.99001"
+            },
+            {
+              "case_number": "SA.99002"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/ownership-competition-ec-cases.json",
+        "sha256": "1d54b1bfb326f38456f99e0105d3a9a038984aa0e70f5e41751b3c43a1834c5f",
+        "expected_output_hash": "6c173a091a8be74cb477d28db3e07d406cd482224392044a093070341db73f48"
+      }
+    },
+    {
+      "source_id": "eu-state-aid-tam",
+      "connector": "competition",
+      "publisher": "European Commission, State Aid Transparency Award Module",
+      "endpoint": "https://webgate.ec.europa.eu/competition/transparency/public",
+      "scope": "Declared member state and SA measure selections of individual state-aid awards: beneficiary name, national identifier and type, granting authority, instrument, objective, amount or range and currency verbatim, granting date and status",
+      "update_cadence": "as the authority publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-competition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "competition-sources:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "competition"
+      ],
+      "temporal_semantics": "award lastModified as the revision stamp; granting date as published; corrections and withdrawals are new revisions; acquisition time recorded separately",
+      "license": {
+        "id": "ec-reuse-2011-833",
+        "terms_url": "https://commission.europa.eu/legal-notice_en",
+        "redistribution": "Commission reuse policy (Decision 2011/833/EU): reuse with acknowledgement"
+      },
+      "competition": {
+        "namespace": "competition",
+        "provider": "eu-tam",
+        "format": "tam-awards-json",
+        "selection": {
+          "measures": [
+            {
+              "member_state": "NL",
+              "sa_number": "SA.99002"
+            },
+            {
+              "member_state": "NL",
+              "sa_number": "SA.99003"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/ownership-competition-tam-awards.json",
+        "sha256": "d629363c436d88b78f384d19357d56733e69a956ed5898b7e04e710aa8d2e946",
+        "expected_output_hash": "a34220d62f6f8c2e9a1dc2c8f119e7749502f84c2728829c33d035778dd53fd3"
+      }
+    },
+    {
+      "source_id": "uk-cma-cases",
+      "connector": "competition",
+      "publisher": "Competition and Markets Authority (GOV.UK Content API)",
+      "endpoint": "https://www.gov.uk",
+      "scope": "Declared CMA case pages (mergers, markets, Competition Act and cartels): case type, state, sector and dates, change-history entries as stages citing the page revision, attachments linked",
+      "update_cadence": "as the authority publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-competition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "competition-sources:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "competition"
+      ],
+      "temporal_semantics": "public_updated_at as the page revision; change-history timestamps as stage dates; acquisition time recorded separately",
+      "license": {
+        "id": "ogl-3.0",
+        "terms_url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "redistribution": "Open Government Licence v3.0 with attribution"
+      },
+      "competition": {
+        "namespace": "competition",
+        "provider": "uk-cma",
+        "format": "govuk-cma-case-json",
+        "selection": {
+          "cases": [
+            {
+              "slug": "exampla-northwind-merger-inquiry"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/ownership-competition-cma-cases.json",
+        "sha256": "5649bb63f2af930875596519541f919113099de85b5ac5c30b99d0123d6e35ff",
+        "expected_output_hash": "2f04603381d46432cdad4833f7e5ce25639c1ade24fad96126120eb7959650fc"
+      }
+    },
+    {
+      "source_id": "us-ftc-cases",
+      "connector": "competition",
+      "publisher": "U.S. Federal Trade Commission (legal library)",
+      "endpoint": "https://www.ftc.gov",
+      "scope": "Declared FTC competition case pages: matter and docket numbers, status and type as published, respondents as named (organisations only), dated case-timeline documents as stages, documents linked",
+      "update_cadence": "as the authority publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-competition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "competition-sources:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "competition"
+      ],
+      "temporal_semantics": "article:modified_time as the page revision; timeline dates as published; acquisition time recorded separately",
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://www.ftc.gov/site-information/privacy-policy",
+        "redistribution": "US government work, public domain; credit the FTC"
+      },
+      "competition": {
+        "namespace": "competition",
+        "provider": "us-ftc",
+        "format": "ftc-case-html",
+        "selection": {
+          "cases": [
+            {
+              "slug": "exampla-holdings-northwind-widgets"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/ownership-competition-ftc-cases.json",
+        "sha256": "d7f9363e5acdbba7438ee510e600f06e2d05ecfb53edc0f5e0f78be98343d386",
+        "expected_output_hash": "f6e61e939d54ba2bfa4ad813a5f993153f52dd0cc48299e01835443a6baac300"
+      }
+    },
+    {
+      "source_id": "us-doj-atr-cases",
+      "connector": "competition",
+      "publisher": "U.S. Department of Justice, Antitrust Division",
+      "endpoint": "https://www.justice.gov",
+      "scope": "Declared Antitrust Division civil merger and civil non-merger case pages: case type, open date, defendants as named (organisations only), court docket number as a citation only, dated case documents as stages, documents linked; criminal cases declined",
+      "update_cadence": "as the authority publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-competition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "competition-sources:1.0.0"
+      ],
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "operations": [
+        "competition"
+      ],
+      "temporal_semantics": "article:modified_time as the page revision; document dates as published; acquisition time recorded separately",
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://www.justice.gov/legalpolicies",
+        "redistribution": "US government work, public domain; credit the Antitrust Division"
+      },
+      "competition": {
+        "namespace": "competition",
+        "provider": "us-doj",
+        "format": "doj-case-html",
+        "selection": {
+          "cases": [
+            {
+              "slug": "us-v-northwind-widgets"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/ownership-competition-doj-cases.json",
+        "sha256": "f4f5f4d499bd38b75182779ba81e2f615acf4bcd74e8d20fc776dce3ee34525f",
+        "expected_output_hash": "a165fe4cfa78f9646db75dd45d661090de2f2a97eec67178790454a8279fe7bc"
       }
     }
   ]

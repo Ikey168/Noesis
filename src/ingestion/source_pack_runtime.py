@@ -367,6 +367,16 @@ def _biodiversity_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
 
+
+def _competition_projector(conn: Any) -> Any:
+    from src.kb.competition import CompetitionProjector
+
+    return CompetitionProjector(conn)
+
+
+# Corporate Ownership competition feature (#2217).
+PROJECTORS["noesis-competition-record-v1"] = _competition_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

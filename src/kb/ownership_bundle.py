@@ -127,6 +127,13 @@ def set_enabled(conn, namespace: str, enabled: bool, *, principal_id: str, scope
             "shared_capabilities_affected": []}
 
 
+def _competition_on(conn) -> bool:
+    """The optional ``competition`` feature (#2217, default off) gates its sources in a default acquisition."""
+    from src.kb.competition import feature_enabled
+
+    return feature_enabled(conn)
+
+
 def load_source_pack() -> dict[str, Any]:
     from src.ingestion.source_packs import validate_source_pack
 
@@ -175,7 +182,8 @@ def acquire(conn, namespace: str, *, run_key: str, principal_id: str, scopes: It
     require_enabled(conn, namespace)
     runtime = SourcePackRuntime(conn, **({"now": now} if now else {}), sleep=lambda _s: None)
     manifest, _ = runtime._manifest(SOURCE_PACK_ID)
-    selected = [s for s in manifest["sources"] if not source_ids or s["source_id"] in source_ids]
+    selected = [s for s in manifest["sources"] if (s["source_id"] in source_ids if source_ids else
+                                                   s["connector"] != "competition" or _competition_on(conn))]
     if any(dict(s.get("ownership") or {}).get("namespace", namespace) != namespace for s in selected):
         raise OwnershipError("invalid_request", "the installed source pack projects into a different namespace")
     receipts = {}
