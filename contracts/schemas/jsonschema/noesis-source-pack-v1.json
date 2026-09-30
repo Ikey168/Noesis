@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -809,6 +809,30 @@
                 "identifier": {"type": "string", "minLength": 1},
                 "programme": {"enum": ["faa-ladd", "faa-pia", "faa-privacy", "operator-declared", "caa-withheld"]},
                 "reason": {"type": "string", "minLength": 1}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "research_entities": {
+            "type": "object",
+            "description": "Declared registry documents for the research-entities connector (#2579): provider (ror, orcid, datacite, cordis), runtime format, namespace, the provider's live-verification status and the declared documents (a ROR data-dump release with its declared ROR IDs, one ORCID iD with the reason it is in the bounded set, one DataCite DOI or bounded query, a CORDIS bulk file with its declared project IDs and currency).",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ror", "orcid", "datacite", "cordis"]},
+              "format": {"enum": ["ror-dump-zip", "orcid-record-json", "datacite-doi-json", "cordis-csv-zip"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "record": {"type": "string", "pattern": "^\\d{1,12}$"}, "file": {"type": "string"}, "member": {"type": "string"}, "version": {"type": "string"},
+                "ror_ids": {"type": "array", "minItems": 1, "maxItems": 200, "items": {"type": "string"}},
+                "orcid": {"type": "string"}, "reason": {"type": "string", "minLength": 1},
+                "doi": {"type": "string"},
+                "query": {"type": "object", "properties": {"query": {"type": "string"}, "resource_type_id": {"type": "string"}, "client_id": {"type": "string"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}}, "additionalProperties": false},
+                "programme": {"type": "string"}, "project_member": {"type": "string"}, "organization_member": {"type": "string"},
+                "delimiter": {"type": "string"}, "decimal_separator": {"enum": [".", ","]}, "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+                "project_ids": {"type": "array", "minItems": 1, "maxItems": 200, "items": {"type": "string", "pattern": "^\\d{1,12}$"}},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false}
               }, "additionalProperties": false}}
             },
             "additionalProperties": false
