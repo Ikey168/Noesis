@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "iso-open-data", "legislation", "linguistics", "lobbying-register", "manifest", "materials", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -45,12 +45,12 @@
           },
           "surveillance": {
             "type": "object",
-            "description": "Bounded public-health surveillance publications for the surveillance connector (#1917): provider, documented format, namespace and the declared documents (one release each: an RKI release tag and CSV path with its column layout, a WHO GHO indicator and filter, a Eurostat hlth_* dataset and series key, or a GENESIS table), each with the kind of its values, unit, condition, geography code system, case-definition editions, reporting-delay note and citable identifiers.",
+            "description": "Bounded public-health surveillance publications for the surveillance connector (#1917): provider, documented format, namespace and the declared documents (one release each: an RKI release tag and CSV path with its column layout, a WHO GHO indicator and filter, a Eurostat hlth_* dataset and series key, a GENESIS table, or an OECD Health Statistics dataflow and key), each with the kind of its values, unit, condition, geography code system, case-definition editions, reporting-delay note and citable identifiers. The health-capacity connector (#2215) uses the same declaration with a capacity_domain per document.",
             "required": ["namespace", "provider", "format", "documents"],
             "properties": {
               "namespace": {"type": "string", "minLength": 1},
-              "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health"]},
-              "format": {"enum": ["rki-github-csv", "who-gho-odata", "eurostat-sdmx-csv", "destatis-genesis-ffcsv"]},
+              "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health", "oecd-health"]},
+              "format": {"enum": ["rki-github-csv", "who-gho-odata", "eurostat-sdmx-csv", "destatis-genesis-ffcsv", "oecd-sdmx-csv"]},
               "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "kind"], "properties": {"label": {"type": "string", "minLength": 1}, "kind": {"enum": ["observation", "estimate", "model-output"]}}}}
             },
             "additionalProperties": false

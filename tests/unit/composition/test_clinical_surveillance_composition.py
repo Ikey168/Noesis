@@ -136,7 +136,7 @@ def test_descriptor_declares_capabilities_operations_scopes_stores_probes_and_so
     manifest = json.loads(
         (ROOT / "config/source_packs/clinical-evidence.json").read_text()
     )
-    assert manifest["version"] == "0.1.2"  # 0.1.2 adds the medicines sources (#2214); ^0.1.1 still holds
+    assert manifest["version"] == "0.1.3"  # 0.1.2 medicines (#2214), 0.1.3 health capacity (#2215); ^0.1.1 holds
 
 
 def test_the_feature_and_the_dossier_profile_are_declared_off_by_default():

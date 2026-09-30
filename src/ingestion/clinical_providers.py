@@ -1457,6 +1457,19 @@ PROVIDER_CONTRACTS.update({provider: {**contract, "record_owner": "src.kb.clinic
 PROVIDER_HOSTS.update(_MEDICINES_HOSTS)
 LIVE_VERIFICATION.update(_MEDICINES_LIVE)
 
+# Health-system capacity (#2215, HS01): WHO GHO and Eurostat reuse the surveillance providers above; the one new
+# provider is OECD Health Statistics. Capacity series are stored by src/kb/surveillance.py and composed by
+# src/kb/health_capacity.py.
+from src.ingestion.health_capacity_sources import LIVE_VERIFICATION as _CAPACITY_LIVE  # noqa: E402
+from src.ingestion.health_capacity_sources import PROVIDER_CONTRACTS as _CAPACITY_CONTRACTS  # noqa: E402
+from src.ingestion.health_capacity_sources import PROVIDER_HOSTS as _CAPACITY_HOSTS  # noqa: E402
+
+HEALTH_CAPACITY_PROVIDERS = tuple(_CAPACITY_CONTRACTS)
+PROVIDER_CONTRACTS.update({provider: {**contract, "record_owner": "src.kb.health_capacity"}
+                           for provider, contract in _CAPACITY_CONTRACTS.items()})
+PROVIDER_HOSTS.update(_CAPACITY_HOSTS)
+LIVE_VERIFICATION.update(_CAPACITY_LIVE)
+
 __all__ = [
     "ADAPTERS", "CONTRACT", "LIVE_VERIFICATION", "PROVIDER_CONTRACTS", "PROVIDER_HOSTS", "classify_identifier",
     "find_identifiers", "fixture_transport", "parse_ctgov_history", "parse_ctgov_search", "parse_ctgov_study",

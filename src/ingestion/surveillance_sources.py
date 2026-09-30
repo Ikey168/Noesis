@@ -82,6 +82,8 @@ GEOGRAPHY_SYSTEMS = (
     "who-global",
     "ecdc-aggregate",
     "eurostat-aggregate",
+    # OECD area aggregates (OECD, OECDE, EU27_2020 ...) published beside countries by OECD Health Statistics (#2215).
+    "oecd-aggregate",
 )
 # Country groupings Eurostat and ECDC publish beside countries (EU27_2020, EU28, EA20, EEA, EFTA, EU_EEA31...).
 # None is a country or a NUTS region: they have no single boundary and are never read as NUTS codes.
@@ -94,6 +96,9 @@ CONDITION_SCHEMES = (
     "gho-indicator",
     "eurostat-icd10",
     "destatis-icd10",
+    # Health-system capacity indicators (#2215): the condition is the capacity domain (beds, workforce, expenditure);
+    # the source's own indicator or measure code is the series' indicator code.
+    "health-capacity",
 )
 CITATION_KINDS = (
     "doi",
@@ -103,6 +108,7 @@ CITATION_KINDS = (
     "genesis-table",
     "ecdc-indicator",
     "dataset-accession",
+    "oecd-dataflow",
 )
 # Published unit labels: (pint unit, exact factor to that unit, kind). A count is never turned into a rate and a
 # rate is never turned into a count; no denominator is inferred.
@@ -115,6 +121,12 @@ UNITS: dict[str, tuple[str, Decimal, str]] = {
     "per 1 000 000 population": ("ppm", Decimal(1), "rate"),
     "per 1000 population": ("permille", Decimal(1), "rate"),
     "percent": ("percent", Decimal(1), "rate"),
+    # Health-system capacity units (#2215): densities and shares as published; a density is never turned into a
+    # headcount (no population denominator is inferred) and a share never into an amount.
+    "beds": ("count", Decimal(1), "count"),
+    "per 10 000 population": ("ppm", Decimal(100), "rate"),
+    "percent of GDP": ("percent", Decimal(1), "rate"),
+    "percent of current health expenditure": ("percent", Decimal(1), "rate"),
 }
 # Markers every source uses for a suppressed, confidential or missing value; they are never numbers.
 MISSING_MARKERS = frozenset(
@@ -139,12 +151,15 @@ FORMATS: dict[str, dict[str, Any]] = {
     "eurostat-sdmx-csv": {"provider": "eurostat-health", "jurisdiction": "EU"},
     "destatis-genesis-ffcsv": {"provider": "destatis-health", "jurisdiction": "DE"},
     "ecdc-atlas-csv": {"provider": "ecdc-atlas", "jurisdiction": "EU"},
+    # OECD Health Statistics through the existing SDMX connector (health-system capacity, #2215).
+    "oecd-sdmx-csv": {"provider": "oecd-health", "jurisdiction": "INT"},
 }
 FETCHED_FORMATS = (
     "rki-github-csv",
     "who-gho-odata",
     "eurostat-sdmx-csv",
     "destatis-genesis-ffcsv",
+    "oecd-sdmx-csv",
 )
 MAX_ROWS = 200_000
 MAX_GHO_PAGES = 10
@@ -352,6 +367,7 @@ PROVIDER_HOSTS = {
     "who-gho": {"ghoapi.azureedge.net"},
     "eurostat-health": {"ec.europa.eu"},
     "destatis-health": {"www-genesis.destatis.de"},
+    "oecd-health": {"sdmx.oecd.org"},
 }
 
 
@@ -673,6 +689,7 @@ def _item(
     citations,
     locator,
     denominator=None,
+    definition_code=None,
 ) -> dict[str, Any]:
     item = {
         "condition": condition,
@@ -690,7 +707,9 @@ def _item(
             ),
             key=lambda c: (c["kind"], c["identifier"]),
         ),
-        "case_definition": _case_definition(document, condition["code"]),
+        # Definitions are declared per condition code, or per the source's own indicator/measure code for
+        # health-capacity series (#2215), whose condition is the capacity domain.
+        "case_definition": _case_definition(document, definition_code or condition["code"]),
         "delay_note": dict(document["delay_note"])
         if document.get("delay_note")
         else None,
@@ -885,6 +904,47 @@ def parse_rki(raw: bytes, *, document: Mapping[str, Any]) -> dict[str, Any]:
     }
 
 
+# ---------------------------------------------------------------------- health-system capacity (#2215)
+
+CAPACITY_DOMAINS = ("beds", "workforce", "expenditure")
+
+
+def capacity_condition(document: Mapping[str, Any]) -> dict[str, Any] | None:
+    """The condition of a health-system capacity document: its declared capacity domain (else ``None``).
+
+    A capacity series names the domain (beds, workforce, expenditure) under the ``health-capacity`` scheme; the
+    source's own indicator or measure code stays the series' indicator code and keys its declared definitions.
+    """
+    domain = document.get("capacity_domain")
+    if domain is None:
+        return None
+    if domain not in CAPACITY_DOMAINS:
+        raise SurveillanceFormatError(
+            "invalid_declaration", f"capacity_domain is one of {CAPACITY_DOMAINS}"
+        )
+    return {
+        "scheme": "health-capacity",
+        "code": str(domain),
+        "label": _clean(document.get("condition_label")) or str(domain),
+    }
+
+
+def capacity_indicator(
+    document: Mapping[str, Any], code: str, dimension: str, measure: str
+) -> dict[str, Any]:
+    """A capacity series' indicator: the source's code, its published label and notes, all verbatim."""
+    indicator = {
+        "code": code,
+        "label": _clean(dict(document.get("measure_labels") or {}).get(measure)),
+        "measure_dimension": dimension,
+        "measure": measure,
+    }
+    for key in ("dataset", "dataflow", "source_note", "definition_locator"):
+        if document.get(key):
+            indicator[key] = document[key]
+    return indicator
+
+
 # ---------------------------------------------------------------------- WHO GHO OData
 
 _GHO_SPATIAL = {
@@ -948,7 +1008,7 @@ def parse_gho(
         "definition_locator": document.get("definition_locator"),
     }
     declared_kind = str(document.get("kind") or "")
-    condition = {
+    condition = capacity_condition(document) or {
         "scheme": "gho-indicator",
         "code": code,
         "label": _clean(document.get("condition_label")),
@@ -995,6 +1055,9 @@ def parse_gho(
                     raise SurveillanceFormatError(
                         "schema_drift", f"Dim{n} names a type without a value or back"
                     )
+            if row.get("PublishState"):
+                # A row's publish state (where the answer states one) is part of the series key, kept verbatim.
+                dims["PublishState"] = str(row["PublishState"])
             numeric = row.get("NumericValue")
             text = str(row.get("Value") if row.get("Value") is not None else "")
             low, high = row.get("Low"), row.get("High")
@@ -1058,6 +1121,7 @@ def parse_gho(
                 ],
                 locator={"indicator": code},
                 denominator=document.get("denominator"),
+                definition_code=code,
             )
         )
     latest = max(reporting_dates) if reporting_dates else None
@@ -1122,7 +1186,17 @@ def parse_eurostat(
         raise SurveillanceFormatError(
             "schema_drift", "the dataset answer has no series"
         )
-    condition_dimension = str(document.get("condition_dimension") or "icd10")
+    capacity = capacity_condition(document)
+    if capacity is not None and not document.get("measure_dimension"):
+        raise SurveillanceFormatError(
+            "invalid_declaration",
+            "capacity documents name the dimension that carries the measure",
+        )
+    condition_dimension = str(
+        document.get("measure_dimension")
+        if capacity is not None
+        else document.get("condition_dimension") or "icd10"
+    )
     frequencies = {"A": "year", "Q": "quarter", "M": "month", "W": "week", "D": "day"}
     series = []
     updates = set()
@@ -1173,17 +1247,25 @@ def parse_eurostat(
                     "locator": {"line": meta["row_lines"][obs.period]},
                 }
             )
+        if capacity is not None:
+            condition = capacity
+            indicator = capacity_indicator(
+                document, f"{dataset}:{condition_code}", condition_dimension, condition_code
+            )
+        else:
+            condition = {
+                "scheme": "eurostat-icd10",
+                "code": condition_code,
+                "label": dict(document.get("condition_labels") or {}).get(
+                    condition_code
+                ),
+            }
+            indicator = dict(document["indicator"])
         series.append(
             _item(
                 document,
-                condition={
-                    "scheme": "eurostat-icd10",
-                    "code": condition_code,
-                    "label": dict(document.get("condition_labels") or {}).get(
-                        condition_code
-                    ),
-                },
-                indicator=dict(document["indicator"]),
+                condition=condition,
+                indicator=indicator,
                 geography=_geography(
                     document,
                     geo,
@@ -1199,6 +1281,8 @@ def parse_eurostat(
                     *list(document.get("citations") or []),
                 ],
                 locator={"dataflow": meta.get("dataflow"), "dataset": dataset},
+                denominator=document.get("denominator"),
+                definition_code=condition_code,
             )
         )
     if len(updates) != 1:
@@ -1220,6 +1304,230 @@ def parse_eurostat(
             "dataflow": records[0].metadata.get("dataflow"),
             "dataset": dataset,
             "sdmx_format": "SDMX-CSV 1.0",
+        },
+    }
+
+
+# ---------------------------------------------------------------------- OECD Health Statistics through the SDMX connector
+
+# SDMX CL_OBS_STATUS codes as the OECD publishes them (verify the code list against the live dataflow). ``A`` is a
+# normal value; every other status is kept on the value as a flag, ``B`` (break) marks a series break.
+OECD_OBS_STATUS = {
+    "A": "normal value",
+    "B": "break in time series",
+    "D": "definition differs",
+    "E": "estimated value",
+    "F": "forecast value (as published by the provider)",
+    "G": "experimental value",
+    "I": "imputed value (as published by the provider)",
+    "L": "missing value; data exist but were not collected",
+    "M": "missing value; data cannot exist",
+    "N": "not significant",
+    "O": "missing value",
+    "P": "provisional value",
+    "Q": "missing value; suppressed",
+    "S": "strike or other special circumstance",
+    "U": "low reliability",
+    "V": "unvalidated value",
+}
+# OECD area aggregates published beside countries; none is a country and none has a single boundary.
+OECD_AGGREGATES = frozenset(
+    {"OECD", "OECDE", "OECDAM", "OECDAO", "OECDSO", "EU27_2020", "EA20", "G7", "G20", "WLD"}
+)
+_OECD_FLOW = re.compile(r"^([A-Za-z0-9_.]+),([A-Za-z0-9_.@]+),([0-9]+(?:\.[0-9]+)*)$")
+_OECD_SERVED_FLOW = re.compile(r"^([A-Za-z0-9_.]+):([A-Za-z0-9_.@]+)\(([0-9]+(?:\.[0-9]+)*)\)$")
+
+
+def oecd_flow(document: Mapping[str, Any]) -> tuple[str, str, str]:
+    """(agency, dataflow id, version) of a declared ``AGENCY,DSD@DATAFLOW,VERSION`` reference."""
+    match = _OECD_FLOW.fullmatch(str(document.get("dataflow") or ""))
+    if match is None:
+        raise SurveillanceFormatError(
+            "invalid_declaration",
+            "OECD documents name a dataflow as AGENCY,DSD@DATAFLOW,VERSION",
+        )
+    return match.group(1), match.group(2), match.group(3)
+
+
+def oecd_url(document: Mapping[str, Any]) -> tuple[str, dict[str, str]]:
+    from src.ingestion.connectors.dataset.sdmx import SDMXConnector
+
+    oecd_flow(document)
+    try:
+        return SDMXConnector("OECD").csv_url(
+            str(document["dataflow"]),
+            str(document.get("key") or ""),
+            dict(document.get("params") or {}),
+        )
+    except ValueError as exc:
+        raise SurveillanceFormatError("invalid_declaration", str(exc)) from exc
+
+
+def oecd_region_system(code: str, document: Mapping[str, Any]) -> str:
+    """An OECD ``REF_AREA``: a declared or known OECD aggregate, or an ISO 3166-1 alpha-3 country; else refused."""
+    code = str(code).strip().upper()
+    declared = {str(k).upper() for k in dict(document.get("aggregate_codes") or {})}
+    if code in declared or code in OECD_AGGREGATES or AGGREGATE_CODE.fullmatch(code):
+        return "oecd-aggregate"
+    if re.fullmatch(r"[A-Z]{3}", code):
+        return "iso3166-1-alpha3"
+    raise SurveillanceFormatError(
+        "schema_drift",
+        f"REF_AREA {code!r} is neither an ISO 3166-1 alpha-3 country nor a declared or recognised aggregate",
+    )
+
+
+def parse_oecd(
+    raw: bytes,
+    *,
+    document: Mapping[str, Any],
+    url: str = "",
+    max_bytes: int = 20_000_000,
+) -> dict[str, Any]:
+    """OECD Health Statistics SDMX-CSV through the existing SDMX connector (health-system capacity, #2215).
+
+    Keyed by dataflow, version, dimension key and period. ``OBS_STATUS`` and every other observation attribute are
+    kept verbatim; the declared source note and per-country notes (the OECD's country-specific deviations) are kept
+    verbatim on the indicator. A missing value stays missing: nothing is re-estimated. The dataflow version is part
+    of the declared document, so a version change is a new release and a new vintage.
+    """
+    from src.ingestion.connectors.dataset.base import RawSeries, SeriesRef
+    from src.ingestion.connectors.dataset.sdmx import SDMXConnector
+    from src.integrations.common import IntegrationError
+
+    capacity = capacity_condition(document)
+    if capacity is None:
+        raise SurveillanceFormatError(
+            "invalid_declaration",
+            "OECD Health Statistics documents declare their capacity domain",
+        )
+    agency, flow_id, version = oecd_flow(document)
+    flow = str(document["dataflow"])
+    try:
+        records = SDMXConnector(
+            "OECD", max_bytes=max_bytes, max_observations=100000
+        ).parse_csv(
+            RawSeries(
+                SeriesRef(flow, metadata={"flow": flow}), raw, source_url=url or None
+            )
+        )
+    except IntegrationError as exc:
+        raise SurveillanceFormatError("schema_drift", f"{exc.code}: {exc}") from exc
+    if not records:
+        raise SurveillanceFormatError(
+            "schema_drift", "the dataflow answer has no series"
+        )
+    served = _OECD_SERVED_FLOW.fullmatch(str(records[0].metadata.get("dataflow") or ""))
+    if served is None or served.groups() != (agency, flow_id, version):
+        # A different dataflow or version would pose as the declared one.
+        raise SurveillanceFormatError(
+            "schema_drift", "the answer names another dataflow or version than declared"
+        )
+    names = {
+        "measure": str(document.get("measure_dimension") or "MEASURE"),
+        "geo": str(document.get("geo_dimension") or "REF_AREA"),
+        "unit": str(document.get("unit_dimension") or "UNIT_MEASURE"),
+        "freq": str(document.get("freq_dimension") or "FREQ"),
+    }
+    frequencies = {"A": "year", "Q": "quarter", "M": "month"}
+    country_notes = {
+        str(k).upper(): v for k, v in dict(document.get("country_notes") or {}).items()
+    }
+    series = []
+    for record in records:
+        meta = record.metadata
+        dims = dict(meta["dimensions"])
+        for required in names.values():
+            if required not in dims:
+                raise SurveillanceFormatError(
+                    "schema_drift", f"the dataflow has no {required} dimension"
+                )
+        measure = dims.pop(names["measure"])
+        geo, unit_code, freq = (
+            dims.pop(names["geo"]),
+            dims.pop(names["unit"]),
+            dims.pop(names["freq"]),
+        )
+        if freq not in frequencies:
+            raise SurveillanceFormatError(
+                "schema_drift", f"frequency {freq!r} is not supported"
+            )
+        values = []
+        for obs in record.observations:
+            text = meta["original_values"][obs.period]
+            attributes = dict(meta["observation_attributes"].get(obs.period) or {})
+            status = str(attributes.get("OBS_STATUS", "") or "").strip()
+            if status and status not in OECD_OBS_STATUS:
+                raise SurveillanceFormatError(
+                    "schema_drift", f"OBS_STATUS {status!r} is not a documented status"
+                )
+            flags = (
+                [f"{status.lower()}: {OECD_OBS_STATUS[status]} (OBS_STATUS {status})"]
+                if status and status != "A"
+                else []
+            )
+            value = parse_decimal(text)
+            if value is None:
+                flags.append("missing-as-published")
+            period = normalise_period(obs.period)
+            if period is None:
+                raise SurveillanceFormatError(
+                    "schema_drift", f"period {obs.period!r} is not ISO"
+                )
+            values.append(
+                {
+                    "reference_period": period,
+                    "reporting_date": None,
+                    "value_text": text,
+                    "value": value,
+                    "lower": None,
+                    "upper": None,
+                    "flags": flags,
+                    "attributes": attributes,
+                    "locator": {"line": meta["row_lines"][obs.period]},
+                }
+            )
+        indicator = capacity_indicator(
+            document, f"{flow_id}:{measure}", names["measure"], measure
+        )
+        indicator["version"] = version
+        if geo.upper() in country_notes:
+            indicator["country_note"] = country_notes[geo.upper()]
+        series.append(
+            _item(
+                document,
+                condition=capacity,
+                indicator=indicator,
+                geography=_geography(
+                    document, geo, system=oecd_region_system(geo, document)
+                ),
+                unit=_unit(document, unit_code),
+                interval=frequencies[freq],
+                kind=str(document.get("kind") or ""),
+                dimensions=dims,
+                values=values,
+                citations=[
+                    {"kind": "oecd-dataflow", "identifier": flow},
+                    *list(document.get("citations") or []),
+                ],
+                locator={"dataflow": flow},
+                denominator=document.get("denominator"),
+                definition_code=measure,
+            )
+        )
+    published = normalise_period(document.get("published_on"))
+    return {
+        "series": series,
+        "native_revision": flow,
+        "published_on": published,
+        "published_at": None,
+        "release_basis": "declared_publication" if published else None,
+        "structure": {
+            "dataflow": flow,
+            "agency": agency,
+            "dataflow_id": flow_id,
+            "version": version,
+            "sdmx_format": "SDMX-CSV 1.0 (OECD csvfile)",
         },
     }
 
@@ -1527,6 +1835,9 @@ def document_url(
     if fmt == "eurostat-sdmx-csv":
         url, query = eurostat_url(document)
         return url + "?" + urlencode(sorted(query.items()))
+    if fmt == "oecd-sdmx-csv":
+        url, query = oecd_url(document)
+        return url + "?" + urlencode(sorted(query.items()))
     if fmt == "destatis-genesis-ffcsv":
         from src.ingestion.connectors.dataset.genesis import TABLE_PATTERN, table_urls
 
@@ -1805,6 +2116,13 @@ class SurveillanceAdapter:
                 origins.append(origin)
                 if fmt == "rki-github-csv":
                     release = parse_rki(raw, document=document)
+                elif fmt == "oecd-sdmx-csv":
+                    release = parse_oecd(
+                        raw,
+                        document=document,
+                        url=url,
+                        max_bytes=int(self.definition["limits"]["max_bytes"]),
+                    )
                 else:
                     release = parse_eurostat(
                         raw,

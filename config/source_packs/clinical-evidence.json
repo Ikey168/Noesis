@@ -1,7 +1,7 @@
 {
   "pack_id": "clinical-evidence",
-  "version": "0.1.2",
-  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart. Version 0.1.2 adds medicines regulation (EMA EPARs and product information, Drugs@FDA submission history through the openFDA connector, DailyMed SPL versions, FDA Drug Safety Communications); existing sources are unchanged. No medical advice.",
+  "version": "0.1.3",
+  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart. Version 0.1.2 adds medicines regulation (EMA EPARs and product information, Drugs@FDA submission history through the openFDA connector, DailyMed SPL versions, FDA Drug Safety Communications). Version 0.1.3 adds health-system capacity indicators (hospital beds, health workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics through the SDMX connector and Eurostat health care resources and expenditure) with definitions and vintages; existing sources are unchanged. No medical advice, no rankings.",
   "domains": [
     "clinical"
   ],
@@ -903,6 +903,378 @@
         "path": "tests/fixtures/source_packs/medicines-fda-dsc.json",
         "sha256": "94a424a341787435d49de8328d32190cc6c0c99e95b4e322c0278c9301bfd5e7",
         "expected_output_hash": "360883905d8cd2ca0ac631b18a05a7138aaf9976993405bb1d9d5db1233852fa"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "who-gho-health-capacity",
+      "connector": "health-capacity",
+      "publisher": "World Health Organization (Global Health Observatory)",
+      "endpoint": "https://ghoapi.azureedge.net/api",
+      "scope": "Pinned GHO capacity indicators through the existing GHO OData path: hospital beds (WHS6_102), medical doctors (HWF_0001) and current health expenditure as percent of GDP (GHED_CHEGDP_SHA2011)",
+      "update_cadence": "irregular per indicator",
+      "temporal_semantics": "TimeDim (reference year); Last-Modified or the latest value date as the release clock, labelled; retrieval time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "who-gho",
+        "format": "who-gho-odata",
+        "documents": [
+          {
+            "label": "GHO WHS6_102 (beds, fictional values)",
+            "indicator": "WHS6_102",
+            "capacity_domain": "beds",
+            "condition_label": "Hospital beds",
+            "unit": "per 10 000 population",
+            "kind": "observation",
+            "definition_locator": "https://www.who.int/data/gho/indicator-metadata-registry (indicator WHS6_102; verify)",
+            "case_definitions": [
+              {
+                "key": "WHS6_102",
+                "condition": "WHS6_102",
+                "version": "GHO IMR 2090",
+                "valid_from": "2090",
+                "text": "Hospital beds include inpatient beds available in public, private, general and specialized hospitals and rehabilitation centres (fictional wording of the indicator metadata). Method of estimation: as reported by the country (fictional).",
+                "locator": "https://www.who.int/data/gho/indicator-metadata-registry/imr-details/WHS6_102"
+              }
+            ]
+          },
+          {
+            "label": "GHO HWF_0001 (workforce, fictional values)",
+            "indicator": "HWF_0001",
+            "capacity_domain": "workforce",
+            "condition_label": "Health workforce",
+            "unit": "per 10 000 population",
+            "kind": "observation",
+            "definition_locator": "https://www.who.int/data/gho/indicator-metadata-registry (indicator HWF_0001; verify)",
+            "case_definitions": [
+              {
+                "key": "HWF_0001",
+                "condition": "HWF_0001",
+                "version": "GHO IMR 2090",
+                "valid_from": "2090",
+                "text": "Medical doctors include generalist and specialist medical practitioners (ISCO-08 221) (fictional wording of the indicator metadata). Method of estimation: national workforce accounts (fictional).",
+                "locator": "https://www.who.int/data/gho/indicator-metadata-registry/imr-details/HWF_0001"
+              }
+            ],
+            "filter": "SpatialDim eq 'DEU'",
+            "denominator": {
+              "text": "total population as cited by the indicator metadata (fictional)"
+            }
+          },
+          {
+            "label": "GHO GHED_CHEGDP_SHA2011 (expenditure, fictional values)",
+            "indicator": "GHED_CHEGDP_SHA2011",
+            "capacity_domain": "expenditure",
+            "condition_label": "Health expenditure",
+            "unit": "percent of GDP",
+            "kind": "observation",
+            "definition_locator": "https://www.who.int/data/gho/indicator-metadata-registry (indicator GHED_CHEGDP_SHA2011; verify)",
+            "case_definitions": [
+              {
+                "key": "GHED_CHEGDP_SHA2011",
+                "condition": "GHED_CHEGDP_SHA2011",
+                "version": "GHO IMR 2090",
+                "valid_from": "2090",
+                "text": "Level of current health expenditure expressed as a percentage of GDP, following the System of Health Accounts 2011 (fictional wording of the indicator metadata). Method of estimation: Global Health Expenditure Database (fictional).",
+                "locator": "https://www.who.int/data/gho/indicator-metadata-registry/imr-details/GHED_CHEGDP_SHA2011"
+              }
+            ],
+            "filter": "SpatialDim eq 'DEU'"
+          }
+        ]
+      },
+      "license": {
+        "id": "who-data-terms",
+        "terms_url": "https://www.who.int/about/policies/publishing/data-policy/terms-and-conditions",
+        "redistribution": "WHO data terms; attribution, non-commercial for CC BY-NC-SA IGO data (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/health-capacity-who-gho-health-capacity.json",
+        "sha256": "f5a1e3d9375e7117f4cb1bbc6e1b86bf752629d8948ac960f509ee9ea7c8a1a1",
+        "expected_output_hash": "ed821a3c2ebc586c413eeadc7012747dd2349465a8c64cca7a0003b90db6420c"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "oecd-health-statistics",
+      "connector": "health-capacity",
+      "publisher": "OECD (OECD Health Statistics)",
+      "endpoint": "https://sdmx.oecd.org/public/rest/data",
+      "scope": "Pinned OECD Health Statistics dataflows through the existing SDMX connector: hospital beds and practising physicians for Germany, France and the OECD aggregate",
+      "update_cadence": "annual release with in-place updates; a new dataflow version is a new vintage",
+      "temporal_semantics": "TIME_PERIOD (reference year); Last-Modified or the declared publication date as the release clock; dataflow version in every native revision",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "oecd-health",
+        "format": "oecd-sdmx-csv",
+        "documents": [
+          {
+            "label": "OECD Health Statistics DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC 1.0 (beds, fictional values)",
+            "dataflow": "OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC,1.0",
+            "key": "DEU+FRA+OECD.A.HOSP_BEDS.10P3HB",
+            "params": {
+              "startPeriod": "2096"
+            },
+            "capacity_domain": "beds",
+            "condition_label": "Hospital beds",
+            "measure_dimension": "MEASURE",
+            "measure_labels": {
+              "HOSP_BEDS": "Total hospital beds"
+            },
+            "units": {
+              "10P3HB": "per 1000 population"
+            },
+            "source_note": "Sources and methods: national administrative data compiled by OECD Health Statistics (fictional note).",
+            "country_notes": {
+              "FRA": "Break in series in 2097: day-care beds are excluded from 2097 onwards (fictional note).",
+              "DEU": "Beds in prevention and rehabilitation facilities are excluded (fictional note)."
+            },
+            "aggregate_codes": {
+              "OECD": "OECD member countries"
+            },
+            "kind": "observation",
+            "case_definitions": [
+              {
+                "key": "oecd:HOSP_BEDS",
+                "condition": "HOSP_BEDS",
+                "version": "OECD Health Statistics 2090",
+                "valid_from": "2090",
+                "text": "All hospital beds which are regularly maintained and staffed and immediately available for the care of admitted patients (fictional wording of the OECD definition).",
+                "locator": "https://data-explorer.oecd.org/ (definitions, sources and methods; verify)"
+              }
+            ]
+          },
+          {
+            "label": "OECD Health Statistics DSD_HEALTH_EMP_REAC@DF_PHYS 1.0 (workforce, fictional values)",
+            "dataflow": "OECD.ELS.HD,DSD_HEALTH_EMP_REAC@DF_PHYS,1.0",
+            "key": "DEU.A.PRACT_PHYS.10P3HB",
+            "params": {
+              "startPeriod": "2096"
+            },
+            "capacity_domain": "workforce",
+            "condition_label": "Health workforce",
+            "measure_dimension": "MEASURE",
+            "measure_labels": {
+              "PRACT_PHYS": "Practising physicians"
+            },
+            "units": {
+              "10P3HB": "per 1000 population"
+            },
+            "source_note": "Sources and methods: national registers (fictional note).",
+            "country_notes": {},
+            "aggregate_codes": {
+              "OECD": "OECD member countries"
+            },
+            "kind": "observation",
+            "case_definitions": [
+              {
+                "key": "oecd:PRACT_PHYS",
+                "condition": "PRACT_PHYS",
+                "version": "OECD Health Statistics 2090",
+                "valid_from": "2090",
+                "text": "Physicians providing services directly to patients (fictional wording of the OECD definition).",
+                "locator": "https://data-explorer.oecd.org/ (definitions, sources and methods; verify)"
+              }
+            ]
+          }
+        ]
+      },
+      "license": {
+        "id": "oecd-terms",
+        "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+        "redistribution": "attribution-required; CC BY 4.0 for OECD data (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/health-capacity-oecd-health-statistics.json",
+        "sha256": "40a6d2cebb528f80b4613e23e331d18a43c270a168c8e905db6773bd952c427c",
+        "expected_output_hash": "b499414884b420914a61105655e5120a9dd4f1b8562a413b5c33b74aefdaaf5e"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-surveillance-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "surveillance-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "eurostat-health-care-resources",
+      "connector": "health-capacity",
+      "publisher": "Eurostat",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "scope": "Eurostat health care resources (hlth_rs_bds1 hospital beds) and expenditure by financing scheme (hlth_sha11_hf) through the existing Eurostat SDMX path",
+      "update_cadence": "annual",
+      "temporal_semantics": "TIME_PERIOD (reference year); LAST UPDATE as the release clock; no reporting date per value",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 20000000,
+        "max_pages": 10
+      },
+      "surveillance": {
+        "namespace": "clinical",
+        "provider": "eurostat-health",
+        "format": "eurostat-sdmx-csv",
+        "documents": [
+          {
+            "label": "Eurostat hlth_rs_bds1 (beds, fictional values)",
+            "dataset": "hlth_rs_bds1",
+            "key": "A.HBEDT.P_HTHAB.DE+FR+EU27_2020",
+            "params": {
+              "startPeriod": "2096"
+            },
+            "capacity_domain": "beds",
+            "condition_label": "Hospital beds",
+            "measure_dimension": "facility",
+            "measure_labels": {
+              "HBEDT": "Available beds in hospitals (HP.1)"
+            },
+            "units": {
+              "P_HTHAB": "per 100 000 population"
+            },
+            "kind": "observation",
+            "case_definitions": [
+              {
+                "key": "hlth_rs_bds1:HBEDT",
+                "condition": "HBEDT",
+                "version": "hlth_res_esms 2090",
+                "valid_from": "2090",
+                "text": "Hospital beds are beds which are regularly maintained and staffed and immediately available for the care of admitted patients (fictional wording of the Eurostat metadata).",
+                "locator": "https://ec.europa.eu/eurostat/cache/metadata/en/hlth_res_esms.htm"
+              }
+            ],
+            "denominator": {
+              "text": "average population of the reference year (fictional wording)",
+              "cites": {
+                "provider": "eurostat",
+                "provider_code": "demo_pjan",
+                "locator": "https://ec.europa.eu/eurostat/cache/metadata/en/hlth_res_esms.htm (3.4 statistical unit; verify)"
+              }
+            }
+          },
+          {
+            "label": "Eurostat hlth_sha11_hf (expenditure, fictional values)",
+            "dataset": "hlth_sha11_hf",
+            "key": "A.PC_CHE.TOT_HF+HF1.DE",
+            "params": {
+              "startPeriod": "2096"
+            },
+            "capacity_domain": "expenditure",
+            "condition_label": "Health expenditure",
+            "measure_dimension": "icha11_hf",
+            "measure_labels": {
+              "TOT_HF": "All financing schemes",
+              "HF1": "Government schemes and compulsory contributory health care financing schemes"
+            },
+            "units": {
+              "PC_CHE": "percent of current health expenditure"
+            },
+            "kind": "observation",
+            "case_definitions": [
+              {
+                "key": "hlth_sha11_hf:TOT_HF",
+                "condition": "TOT_HF",
+                "version": "SHA 2011",
+                "valid_from": "2090",
+                "text": "Current health expenditure across all financing schemes, System of Health Accounts 2011 (fictional wording of the Eurostat metadata).",
+                "locator": "https://ec.europa.eu/eurostat/cache/metadata/en/hlth_sha11_esms.htm"
+              },
+              {
+                "key": "hlth_sha11_hf:HF1",
+                "condition": "HF1",
+                "version": "SHA 1.0 HF.1",
+                "valid_from": "2090",
+                "valid_to": "2096-12-31",
+                "text": "General government expenditure on health (SHA 1.0 classification HF.1) (fictional wording).",
+                "locator": "https://ec.europa.eu/eurostat/cache/metadata/en/hlth_sha11_esms.htm"
+              },
+              {
+                "key": "hlth_sha11_hf:HF1",
+                "condition": "HF1",
+                "version": "SHA 2011 HF.1",
+                "valid_from": "2097-01-01",
+                "text": "Government schemes and compulsory contributory health care financing schemes (SHA 2011 HF.1) (fictional wording).",
+                "locator": "https://ec.europa.eu/eurostat/cache/metadata/en/hlth_sha11_esms.htm"
+              }
+            ]
+          }
+        ]
+      },
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/health-capacity-eurostat-health-care-resources.json",
+        "sha256": "e35a012f1f8b2ef01f2a23ad18d21085fe4dcf3767bb9ec02bde9351cc47e49b",
+        "expected_output_hash": "2841ec3109d264f66a000aeb02ccd54dbebe0c4a3ba94ccd6d60bf5a15d579d8"
       }
     }
   ]

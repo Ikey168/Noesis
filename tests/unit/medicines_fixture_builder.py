@@ -376,9 +376,15 @@ def build(*, write: bool = True) -> dict[str, Any]:
 
     current = json.loads(MANIFEST.read_text())
     manifest = copy.deepcopy(current)
-    base = [s for s in manifest["sources"] if s["mapping"]["target_schema"] != MAPPING["target_schema"]]
-    manifest["version"] = VERSION
-    manifest["description"] = DESCRIPTION
+    # Sources added after the medicines block by later additive releases (0.1.3 health capacity, #2215) keep their
+    # place, and a later pack version keeps its own version and description.
+    mine = [i for i, s in enumerate(manifest["sources"]) if s["mapping"]["target_schema"] == MAPPING["target_schema"]]
+    last = mine[-1] + 1 if mine else len(manifest["sources"])
+    base = [s for s in manifest["sources"][:last] if s["mapping"]["target_schema"] != MAPPING["target_schema"]]
+    later = manifest["sources"][last:]
+    if tuple(int(p) for p in current["version"].split(".")) <= tuple(int(p) for p in VERSION.split(".")):
+        manifest["version"] = VERSION
+        manifest["description"] = DESCRIPTION
     added = sources()
     authored = fixtures()
     for source in added:
@@ -387,7 +393,7 @@ def build(*, write: bool = True) -> dict[str, Any]:
             (ROOT / fixture_path(source["source_id"])).write_text(text)
         source["fixture"] = {"path": fixture_path(source["source_id"]),
                              "sha256": hashlib.sha256(text.encode()).hexdigest(), "expected_output_hash": "0" * 64}
-    manifest["sources"] = base + added
+    manifest["sources"] = base + added + later
     validated = validate_source_pack(manifest)
     for source in added:
         compiled = next(s for s in validated["sources"] if s["source_id"] == source["source_id"])

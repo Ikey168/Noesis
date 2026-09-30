@@ -1,0 +1,63 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-health-capacity-record-v1",
+  "title": "Health-system capacity record: capacity indicator, indicator definition, definition revision or capacity observation",
+  "description": "Health-system capacity views (clinical.health-capacity, src/kb/health_capacity.py) composed over the surveillance series and vintage storage (noesis-surveillance-record-v1): a capacity series is a surveillance series with condition scheme health-capacity and the capacity domain (beds, workforce, expenditure) as its condition code. Indicators carry the source's own code, unit, the definition text as published and the definition-revision history; a change of definition edition is a marked break. Observations carry place, reference period, source flags verbatim, the release vintage and the as-of time; a missing value is unknown. No ranking, performance or quality score, harmonised, adjusted or re-estimated value is carried.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "period": {"type": ["string", "null"], "pattern": "^\\d{4}(-(Q[1-4]|W\\d{2}|\\d{2}(-\\d{2})?))?$"},
+    "place": {
+      "type": "object",
+      "required": ["system", "code"],
+      "properties": {
+        "system": {"enum": ["nuts", "eu-country", "iso3166-1-alpha2", "iso3166-1-alpha3", "who-region", "who-global", "eurostat-aggregate", "oecd-aggregate"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "unit_label": {"enum": ["beds", "persons", "per 10 000 population", "per 100 000 population", "per 1000 population", "percent", "percent of GDP", "percent of current health expenditure"]},
+    "definition_revision": {
+      "type": "object",
+      "required": ["revision_id", "version", "valid_from", "declared_on", "retrieved_at_ms"],
+      "properties": {
+        "record_type": {"const": "definition-revision"},
+        "revision_id": {"type": "string"},
+        "version": {"type": "string"},
+        "valid_from": {"$ref": "#/definitions/day"},
+        "valid_to": {"$ref": "#/definitions/day"},
+        "text": {"type": ["string", "null"]},
+        "locator": {"type": ["string", "null"]},
+        "declared_on": {"$ref": "#/definitions/day"},
+        "retrieved_at_ms": {"type": "integer"}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-health-capacity-record-v1"},
+    "record_type": {"enum": ["capacity-indicator", "indicator-definition", "definition-revision", "capacity-observation"]},
+    "namespace": {"type": "string"},
+    "series_id": {"type": "string"},
+    "domain": {"enum": ["beds", "workforce", "expenditure"]},
+    "provider": {"enum": ["who-gho", "oecd-health", "eurostat-health"]},
+    "source_code": {"type": "string", "minLength": 1},
+    "place": {"$ref": "#/definitions/place"},
+    "unit": {"anyOf": [{"$ref": "#/definitions/unit_label"}, {"type": "object", "required": ["label"], "properties": {"label": {"$ref": "#/definitions/unit_label"}}}]},
+    "definition": {"type": ["object", "null"], "required": ["revision_id", "version", "valid_from"], "properties": {"revision_id": {"type": "string"}, "version": {"type": "string"}, "valid_from": {"$ref": "#/definitions/day"}, "valid_to": {"$ref": "#/definitions/day"}}},
+    "definition_history": {"type": "array", "items": {"$ref": "#/definitions/definition_revision"}},
+    "revisions": {"type": "array", "items": {"$ref": "#/definitions/definition_revision"}},
+    "reference_period": {"$ref": "#/definitions/period"},
+    "value_text": {"type": ["string", "null"]},
+    "value": {"type": ["string", "null"]},
+    "status": {"type": "string"},
+    "flags": {"type": "array", "items": {"type": "string"}},
+    "vintage_id": {"type": "string"},
+    "as_of_time": {
+      "type": "object",
+      "required": ["release_at_ms", "release_basis", "retrieved_at_ms"],
+      "properties": {"release_at_ms": {"type": "integer"}, "release_basis": {"type": "string"}, "retrieved_at_ms": {"type": "integer"}}
+    }
+  },
+  "not": {"anyOf": [{"required": ["rank"]}, {"required": ["score"]}, {"required": ["quality_score"]}, {"required": ["harmonised_value"]}, {"required": ["adjusted_value"]}, {"required": ["combined_value"]}]}
+}

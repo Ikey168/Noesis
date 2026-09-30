@@ -84,7 +84,7 @@ def test_descriptor_declares_capabilities_operations_scopes_stores_probes_and_so
                                                                       "clinical_medicine_match_decisions"}
     assert descriptor["source_packs"] == [PACK]
     config = json.loads((ROOT / "config/source_packs/clinical-evidence.json").read_text())
-    assert config["version"] == "0.1.2"
+    assert config["version"] == "0.1.3"  # 0.1.3 adds the health-capacity sources (#2215); ^0.1.2 still holds
     assert {s["source_id"] for s in config["sources"]} >= {"medicines-ema-epar", "medicines-drugsfda-submissions",
                                                            "medicines-dailymed-spl", "medicines-fda-dsc"}
 

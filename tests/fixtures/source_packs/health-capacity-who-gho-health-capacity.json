@@ -1,0 +1,63 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#Indicator\",\n \"value\": [\n  {\n   \"IndicatorCode\": \"WHS6_102\",\n   \"IndicatorName\": \"Hospital beds (per 10 000 population)\",\n   \"Language\": \"EN\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/Indicator?%24filter=IndicatorCode+eq+%27WHS6_102%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#WHS6_102\",\n \"value\": [\n  {\n   \"Id\": 97000000,\n   \"IndicatorCode\": \"WHS6_102\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2096,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"80.1\",\n   \"NumericValue\": 80.1,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2096\",\n   \"TimeDimensionBegin\": \"2096-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2096-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 97000001,\n   \"IndicatorCode\": \"WHS6_102\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"79.4\",\n   \"NumericValue\": 79.4,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 97000002,\n   \"IndicatorCode\": \"WHS6_102\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"FRA\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2096,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"59.0\",\n   \"NumericValue\": 59.0,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2096\",\n   \"TimeDimensionBegin\": \"2096-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2096-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 97000003,\n   \"IndicatorCode\": \"WHS6_102\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"FRA\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"58.3\",\n   \"NumericValue\": 58.3,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 97000004,\n   \"IndicatorCode\": \"WHS6_102\",\n   \"SpatialDimType\": \"REGION\",\n   \"SpatialDim\": \"EUR\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"51.2\",\n   \"NumericValue\": 51.2,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json",
+    "Last-Modified": "Mon, 10 Mar 2098 08:00:00 GMT"
+   },
+   "request": "/api/WHS6_102",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#Indicator\",\n \"value\": [\n  {\n   \"IndicatorCode\": \"HWF_0001\",\n   \"IndicatorName\": \"Medical doctors (per 10 000 population)\",\n   \"Language\": \"EN\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/Indicator?%24filter=IndicatorCode+eq+%27HWF_0001%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#HWF_0001\",\n \"value\": [\n  {\n   \"Id\": 97000000,\n   \"IndicatorCode\": \"HWF_0001\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2096,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"44.2\",\n   \"NumericValue\": 44.2,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2096\",\n   \"TimeDimensionBegin\": \"2096-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2096-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 97000001,\n   \"IndicatorCode\": \"HWF_0001\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"45.3\",\n   \"NumericValue\": 45.3,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json",
+    "Last-Modified": "Mon, 10 Mar 2098 08:00:00 GMT"
+   },
+   "request": "/api/HWF_0001?%24filter=SpatialDim+eq+%27DEU%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#Indicator\",\n \"value\": [\n  {\n   \"IndicatorCode\": \"GHED_CHEGDP_SHA2011\",\n   \"IndicatorName\": \"Current health expenditure (CHE) as percentage of gross domestic product (GDP) (%)\",\n   \"Language\": \"EN\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/Indicator?%24filter=IndicatorCode+eq+%27GHED_CHEGDP_SHA2011%27",
+   "status": 200
+  },
+  {
+   "body": "{\n \"@odata.context\": \"https://ghoapi.azureedge.net/api/$metadata#GHED_CHEGDP_SHA2011\",\n \"value\": [\n  {\n   \"Id\": 97000000,\n   \"IndicatorCode\": \"GHED_CHEGDP_SHA2011\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2096,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"12.7\",\n   \"NumericValue\": 12.7,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2096\",\n   \"TimeDimensionBegin\": \"2096-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2096-12-31T00:00:00+01:00\"\n  },\n  {\n   \"Id\": 97000001,\n   \"IndicatorCode\": \"GHED_CHEGDP_SHA2011\",\n   \"SpatialDimType\": \"COUNTRY\",\n   \"SpatialDim\": \"DEU\",\n   \"ParentLocationCode\": \"EUR\",\n   \"TimeDimType\": \"YEAR\",\n   \"TimeDim\": 2097,\n   \"Dim1Type\": null,\n   \"Dim1\": null,\n   \"Dim2Type\": null,\n   \"Dim2\": null,\n   \"Dim3Type\": null,\n   \"Dim3\": null,\n   \"DataSourceDimType\": null,\n   \"DataSourceDim\": null,\n   \"Value\": \"\",\n   \"NumericValue\": null,\n   \"Low\": null,\n   \"High\": null,\n   \"Comments\": null,\n   \"Date\": \"2098-03-01T09:00:00+01:00\",\n   \"PublishState\": \"PUBLISHED\",\n   \"TimeDimensionValue\": \"2097\",\n   \"TimeDimensionBegin\": \"2097-01-01T00:00:00+01:00\",\n   \"TimeDimensionEnd\": \"2097-12-31T00:00:00+01:00\"\n  }\n ]\n}",
+   "headers": {
+    "Content-Type": "application/json",
+    "Last-Modified": "Mon, 10 Mar 2098 08:00:00 GMT"
+   },
+   "request": "/api/GHED_CHEGDP_SHA2011?%24filter=SpatialDim+eq+%27DEU%27",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are the publishers' codes, every value, year, definition wording and note is fictional. Not live evidence.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}
