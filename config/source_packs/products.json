@@ -1,7 +1,7 @@
 {
   "pack_id": "products-displays",
-  "version": "1.2.0",
-  "description": "EU-market electronic displays, household washing machines and refrigerating appliances from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), and multilayer ceramic capacitors from manufacturer and supplier BMEcat catalogues, each bounded to an explicit model or part selection, plus product safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF) bounded to explicit notice numbers. No provider is independent testing, and a notice is what its authority published, never a verdict.",
+  "version": "1.3.0",
+  "description": "EU-market electronic displays, household washing machines and refrigerating appliances from Open Icecat (brand-authorised content) and the EPREL public API (supplier registrations), and multilayer ceramic capacitors from manufacturer and supplier BMEcat catalogues, each bounded to an explicit model or part selection, plus product safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF) bounded to explicit notice numbers. No provider is independent testing, and a notice is what its authority published, never a verdict. Food composition and labelling comes from Open Food Facts crowd-sourced records under the ODbL, USDA FoodData Central and the Ciqual table as reference records, bounded to explicit GTINs, FDC IDs and food codes. No nutrition score, ranking or diet advice.",
   "domains": [
     "products"
   ],
@@ -827,6 +827,210 @@
         "path": "tests/fixtures/source_packs/products-bmecat-voltaria.json",
         "sha256": "d5984ed8055a7bb886a43f3853a0052f9fd5f7dee4b8182c22c7aa4c0ad4b59a",
         "expected_output_hash": "17a3a288bc4d309e1b090396a7d2cf27df0c74f9c6d127ebf1e6e8814e9b7d84"
+      }
+    },
+    {
+      "source_id": "off-food-products",
+      "connector": "food-composition",
+      "mapping": {
+        "target_schema": "noesis-food-composition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "food-composition-sources:1.0.0"
+      ],
+      "operations": [
+        "food"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "publisher": "Open Food Facts",
+      "endpoint": "https://world.openfoodfacts.org",
+      "scope": "Explicitly selected food products by GTIN (optionally a pinned OFF revision) from the Open Food Facts product API; ingredients, allergen and trace tags, nutriments and label tags as published with OFF data-quality flags; OFF-computed scores and images are excluded",
+      "update_cadence": "continuous crowd-sourced edits; weekly re-check of the pinned GTIN list",
+      "temporal_semantics": "OFF product rev (integer) orders revisions, last_modified_t is the as-of date; retrieval time recorded separately; each distinct OFF revision is a label revision",
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 5,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "license": {
+        "id": "odbl-1.0",
+        "terms_url": "https://world.openfoodfacts.org/terms-of-use",
+        "redistribution": "ODbL 1.0 (database) and DbCL 1.0 (contents): attribution on every record and export; a publicly used derived database is shared alike under the ODbL; OFF-derived records stay separable; images (CC BY-SA) are never mirrored"
+      },
+      "food_composition": {
+        "provider": "open-food-facts",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "three GTINs of the bounded list plus one unknown barcode; one pinned earlier revision to show label history",
+        "selection": [
+          {
+            "gtin": "4000000000105",
+            "rev": 4,
+            "label": "frozen chicken kebab, earlier label revision"
+          },
+          {
+            "gtin": "4000000000105",
+            "label": "frozen chicken kebab, current revision"
+          },
+          {
+            "gtin": "4000000000150",
+            "label": "yoghurt (no notice on record)"
+          },
+          {
+            "gtin": "0071000000208",
+            "label": "cereal bar (also FDC Branded as UPC-A)"
+          },
+          {
+            "gtin": "4000000000204",
+            "label": "barcode unknown to OFF"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-food-off.json",
+        "sha256": "5dbf811beea96286acec20ae954d34e2d5624391d72524162644e3bcd7820942",
+        "expected_output_hash": "3804aead50c1aa487999bdd4e602fce7130ef8663db73ea83250cfb67b3584e7"
+      }
+    },
+    {
+      "source_id": "fdc-foods",
+      "connector": "food-composition",
+      "mapping": {
+        "target_schema": "noesis-food-composition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "food-composition-sources:1.0.0"
+      ],
+      "operations": [
+        "food"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "publisher": "USDA Agricultural Research Service (FoodData Central)",
+      "endpoint": "https://api.nal.usda.gov",
+      "scope": "Explicitly selected FoodData Central foods by FDC ID (Branded, Foundation, SR Legacy, Survey); nutrient numbers, units, derivation codes and label nutrients as published",
+      "update_cadence": "FDC releases (Branded monthly, Foundation twice a year); weekly re-check",
+      "temporal_semantics": "publicationDate orders revisions and is the as-of date; a newer publication of the same FDC ID is a new revision; retrieval time recorded separately",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_FDC_API_KEY"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 5,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "license": {
+        "id": "cc0-1.0-usda-fdc",
+        "terms_url": "https://fdc.nal.usda.gov/api-guide",
+        "redistribution": "public domain (CC0 1.0); citation of FoodData Central requested"
+      },
+      "food_composition": {
+        "provider": "fooddata-central",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "two Branded foods (one sharing a GTIN with another brand), one Foundation and one SR Legacy generic food, one unknown FDC ID",
+        "selection": [
+          {
+            "fdc_id": 9990101,
+            "label": "Branded cereal bar"
+          },
+          {
+            "fdc_id": 9990102,
+            "label": "Branded, same GTIN, another brand (identity conflict)"
+          },
+          {
+            "fdc_id": 9990201,
+            "label": "Foundation apple"
+          },
+          {
+            "fdc_id": 9990301,
+            "label": "SR Legacy oats"
+          },
+          {
+            "fdc_id": 9990999,
+            "label": "unknown FDC ID"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-food-fdc.json",
+        "sha256": "04d49f57529f32bb58abf8e08e94707d4da3499d1c6692fc7a06f304e3d34b06",
+        "expected_output_hash": "3cdb42256b256ea0db1248eaa17d601d8759dc0d1206dcac9b386fab68ba0805"
+      }
+    },
+    {
+      "source_id": "ciqual-composition",
+      "connector": "food-composition",
+      "mapping": {
+        "target_schema": "noesis-food-composition-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "food-composition-sources:1.0.0"
+      ],
+      "operations": [
+        "food"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "publisher": "Anses (Ciqual French food composition table)",
+      "endpoint": "https://ciqual.anses.fr",
+      "scope": "The Ciqual edition archive, read only for explicitly selected native food codes; constituent codes, INFOODS tagnames where published, values and confidence codes verbatim",
+      "update_cadence": "per table edition (irregular, about every 3 years)",
+      "temporal_semantics": "the edition and its publication date are the revision and as-of date; a new edition is a new revision and never deletes the prior one",
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 50,
+        "max_bytes": 20000000,
+        "max_pages": 5
+      },
+      "license": {
+        "id": "etalab-2.0",
+        "terms_url": "https://ciqual.anses.fr/#/cms/download/node/20",
+        "redistribution": "Licence Ouverte / Etalab 2.0: reuse with attribution to Anses and the edition (verify the edition's own notice)"
+      },
+      "food_composition": {
+        "provider": "composition-table",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "coverage_decision": "Ciqual only (the one table with an acquire decision); two generic foods; EFSA, BLS and CoFID are reference-only and Frida excluded",
+        "selection": [
+          {
+            "table": "ciqual",
+            "edition": "2020",
+            "edition_date": "2020-07-07",
+            "archive": "/cms/sites/default/files/inline-files/XML_2020_07_07.zip",
+            "food_codes": [
+              "13039",
+              "9310",
+              "99999"
+            ],
+            "label": "apple, oat flakes, one absent code"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/products-food-ciqual.json",
+        "sha256": "ad5e7f44f8987441d7a240245fd2f4ce620238b68992a77fca10c63acf5f7615",
+        "expected_output_hash": "a25b823580075b3ffd1e39047ad6d9b6e9138b5c3ef60f253dc0b83e563a2274"
       }
     }
   ]

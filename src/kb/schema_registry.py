@@ -318,6 +318,13 @@ def _builtin_definitions() -> list[dict[str, Any]]:
          "content": json.loads(path.read_text())}
         for name, version, path in products
     ]
+    # Food composition record schema (#2216, FC02): the Products food feature's seven record types.
+    product_modules.append(
+        {**common, "owner": "products-pack", "name": "food-composition-record", "kind": "schema",
+         "semantic_version": "1.0.0",
+         "content": json.loads((REPO_ROOT / "contracts/schemas/jsonschema/noesis-food-composition-record-v1.json"
+                                ).read_text())}
+    )
     return [
         *composition_modules,
         *legal_modules,

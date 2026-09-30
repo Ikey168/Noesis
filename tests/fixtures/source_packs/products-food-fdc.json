@@ -1,0 +1,306 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC FDC IDs, products and values in the FoodData Central /v1/food/{fdcId} shape (docs/development/food-composition-evidence/source-audit.md). Field names are unverified-live (#2302).",
+ "provider": "fooddata-central",
+ "scenarios": [
+  "Branded food with gtinUpc, label nutrients (per serving, no unit) distinct from food nutrients",
+  "Branded food sharing a GTIN with another brand (identity conflict)",
+  "Foundation food with derivation codes and data points",
+  "SR Legacy food with an unknown unit kept unknown",
+  "unknown FDC ID is not_found"
+ ],
+ "native_pages": [
+  {
+   "request": "/fdc/v1/food/9990101?format=full",
+   "requires_secret": true,
+   "body": {
+    "fdcId": 9990101,
+    "dataType": "Branded",
+    "publicationDate": "11/20/2025",
+    "description": "OAT & HONEY CEREAL BAR",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "208",
+       "name": "Energy",
+       "unitName": "KCAL"
+      },
+      "amount": 450,
+      "foodNutrientDerivation": {
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "203",
+       "name": "Protein",
+       "unitName": "G"
+      },
+      "amount": 7.5,
+      "foodNutrientDerivation": {
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "unitName": "G"
+      },
+      "amount": 15.0,
+      "foodNutrientDerivation": {
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "269",
+       "name": "Total Sugars",
+       "unitName": "G"
+      },
+      "amount": 27.5,
+      "foodNutrientDerivation": {
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "307",
+       "name": "Sodium, Na",
+       "unitName": "MG"
+      },
+      "amount": 250,
+      "foodNutrientDerivation": {
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure"
+      }
+     }
+    ],
+    "gtinUpc": "071000000208",
+    "brandOwner": "Crunchy Fields Inc.",
+    "brandName": "CRUNCHY FIELDS",
+    "ingredients": "WHOLE GRAIN OATS, HONEY, SUGAR, SUNFLOWER OIL, ALMONDS.",
+    "servingSize": 40,
+    "servingSizeUnit": "g",
+    "householdServingFullText": "1 bar",
+    "brandedFoodCategory": "Cereal Bars",
+    "marketCountry": "United States",
+    "labelNutrients": {
+     "calories": {
+      "value": 180
+     },
+     "protein": {
+      "value": 3.0
+     },
+     "fat": {
+      "value": 6.0
+     },
+     "sugars": {
+      "value": 11.0
+     },
+     "sodium": {
+      "value": 100
+     }
+    }
+   }
+  },
+  {
+   "request": "/fdc/v1/food/9990102?format=full",
+   "requires_secret": true,
+   "body": {
+    "fdcId": 9990102,
+    "dataType": "Branded",
+    "publicationDate": "12/01/2025",
+    "description": "CHOCOLATE WAFER",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "208",
+       "name": "Energy",
+       "unitName": "KCAL"
+      },
+      "amount": 520,
+      "foodNutrientDerivation": {
+       "code": "LCCS",
+       "description": "Calculated from value per serving size measure"
+      }
+     }
+    ],
+    "gtinUpc": "00071000000208",
+    "brandOwner": "Otherbar Foods LLC",
+    "brandName": "OTHERBAR",
+    "ingredients": "SUGAR, WHEAT FLOUR, COCOA.",
+    "servingSize": 30,
+    "servingSizeUnit": "g",
+    "brandedFoodCategory": "Cookies & Biscuits",
+    "marketCountry": "United States"
+   }
+  },
+  {
+   "request": "/fdc/v1/food/9990201?format=full",
+   "requires_secret": true,
+   "body": {
+    "fdcId": 9990201,
+    "dataType": "Foundation",
+    "publicationDate": "4/1/2025",
+    "description": "Apples, raw, with skin",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "208",
+       "name": "Energy",
+       "unitName": "KCAL"
+      },
+      "amount": 61,
+      "foodNutrientDerivation": {
+       "code": "NC",
+       "description": "Calculated"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "203",
+       "name": "Protein",
+       "unitName": "G"
+      },
+      "amount": 0.19,
+      "dataPoints": 8,
+      "min": 0.12,
+      "max": 0.26,
+      "foodNutrientDerivation": {
+       "code": "A",
+       "description": "Analytical"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "unitName": "G"
+      },
+      "amount": 0.21,
+      "dataPoints": 8,
+      "foodNutrientDerivation": {
+       "code": "A",
+       "description": "Analytical"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "269",
+       "name": "Total Sugars",
+       "unitName": "G"
+      },
+      "amount": 11.2,
+      "dataPoints": 8,
+      "foodNutrientDerivation": {
+       "code": "A",
+       "description": "Analytical"
+      }
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "307",
+       "name": "Sodium, Na",
+       "unitName": "MG"
+      },
+      "amount": 1,
+      "dataPoints": 8,
+      "foodNutrientDerivation": {
+       "code": "A",
+       "description": "Analytical"
+      }
+     }
+    ],
+    "foodCategory": {
+     "description": "Fruits and Fruit Juices"
+    }
+   }
+  },
+  {
+   "request": "/fdc/v1/food/9990301?format=full",
+   "requires_secret": true,
+   "body": {
+    "fdcId": 9990301,
+    "dataType": "SR Legacy",
+    "publicationDate": "4/1/2019",
+    "description": "Oats",
+    "foodNutrients": [
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "208",
+       "name": "Energy",
+       "unitName": "KCAL"
+      },
+      "amount": 389
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "203",
+       "name": "Protein",
+       "unitName": "G"
+      },
+      "amount": 16.89
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "204",
+       "name": "Total lipid (fat)",
+       "unitName": "G"
+      },
+      "amount": 6.9
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "307",
+       "name": "Sodium, Na",
+       "unitName": "MG"
+      },
+      "amount": 2
+     },
+     {
+      "type": "FoodNutrient",
+      "nutrient": {
+       "number": "999",
+       "name": "Example constituent",
+       "unitName": "XYZ"
+      },
+      "amount": 1.5
+     }
+    ],
+    "ndbNumber": "8120",
+    "foodCategory": {
+     "description": "Cereal Grains and Pasta"
+    }
+   }
+  },
+  {
+   "request": "/fdc/v1/food/9990999?format=full",
+   "requires_secret": true,
+   "status": 404,
+   "body": {
+    "error": "not found"
+   }
+  }
+ ]
+}
