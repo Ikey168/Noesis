@@ -1,0 +1,20 @@
+{
+  "original_uri": "https://example.org/report",
+  "timegate_uri": "https://timetravel.mementoweb.org/timegate/https://example.org/report",
+  "timemap_uri": {
+    "link_format": "https://timetravel.mementoweb.org/timemap/link/https://example.org/report",
+    "json_format": "https://timetravel.mementoweb.org/timemap/json/https://example.org/report"
+  },
+  "mementos": {
+    "list": [
+      {"datetime": "2023-12-15T12:00:00Z", "uri": "http://web.archive.org/web/20231215120000/https://example.org/report"},
+      {"datetime": "2024-01-20T10:00:00Z", "uri": "https://www.webarchive.org.uk/wayback/archive/20240120100000/https://example.org/report"},
+      {"datetime": "2024-02-15T09:30:00Z", "uri": "http://web.archive.org/web/20240215093000/https://example.org/report"},
+      {"datetime": "2024-02-18T08:00:00Z", "uri": "https://archive.ph/20240218080000/https://example.org/report"},
+      {"datetime": "2024-02-25T11:00:00Z", "uri": "https://wayback.archive-it.org/999/20240225110000/https://example.org/report"},
+      {"datetime": "2024-04-10T08:00:00Z", "uri": "http://web.archive.org/web/20240410080000/https://example.org/report"}
+    ],
+    "first": {"datetime": "2023-12-15T12:00:00Z", "uri": ["http://web.archive.org/web/20231215120000/https://example.org/report"]},
+    "last": {"datetime": "2024-04-10T08:00:00Z", "uri": ["http://web.archive.org/web/20240410080000/https://example.org/report"]}
+  }
+}

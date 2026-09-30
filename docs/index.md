@@ -290,6 +290,11 @@ For the project overview and local setup, start with the
   editions and cells, development-plan stages, Wohnlagen, permit and completion statistics and Destatis vintages
   projected onto an address, parcel or district as of a date, with citation links and monitors; no valuation or
   advice and no interpolated value; [source audit](roadmaps/geospatial-housing-source-audit.md)
+- [Web archive provenance guide](guides/platform-web-archives.md) — what a cited URL said on a date and according
+  to which archive, across the Time Travel aggregator, Internet Archive, UK Web Archive, Arquivo.pt and Common Crawl
+  (Memento, RFC 7089), with digests, reviewable URL matches, citation pins exported with evidence, link-rot monitors
+  and Save Page Now behind a write scope (off by default); archive.today excluded by access decision;
+  [archive audit](roadmaps/platform-web-archives-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier

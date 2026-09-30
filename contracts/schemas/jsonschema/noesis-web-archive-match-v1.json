@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-web-archive-match-v1.json",
+  "title": "Noesis capture-to-cited-URL match",
+  "description": "How a capture's URI-R relates to a cited URL under a versioned canonicalisation. Exact matches are accepted as recorded. Canonicalised and redirect-derived matches are reviewable identity decisions, and a rejected match is never used for pinning (#2226, WA08).",
+  "type": "object",
+  "required": ["contract", "match_id", "namespace", "citation_id", "cited_url", "capture_id", "uri_r", "archive_id", "match_kind", "rules", "rule_version", "state", "proposed_by", "proposed_at_ms", "review"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "noesis-web-archive-match-v1"},
+    "match_id": {"type": "string", "pattern": "^web-archive-match:[0-9a-f]{24}$"},
+    "namespace": {"type": "string", "minLength": 1},
+    "citation_id": {"type": "string", "minLength": 1},
+    "cited_url": {"type": "string", "minLength": 1},
+    "capture_id": {"type": "string"},
+    "uri_r": {"type": "string"},
+    "archive_id": {"type": "string"},
+    "match_kind": {"enum": ["exact", "canonicalised", "redirect-derived"]},
+    "rules": {"type": "array", "items": {"type": "string"}},
+    "rule_version": {"type": "string"},
+    "archive_redirect": {"type": ["object", "null"]},
+    "state": {"enum": ["accepted", "pending_review", "rejected"]},
+    "proposed_by": {"type": "string"},
+    "proposed_at_ms": {"type": "integer"},
+    "review": {
+      "type": ["object", "null"],
+      "properties": {"decision": {"enum": ["accept", "reject"]}, "reason": {"type": "string"}, "reviewer_id": {"type": "string"}, "reviewed_at_ms": {"type": "integer"}}
+    },
+    "idempotent": {"type": "boolean"}
+  }
+}

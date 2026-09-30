@@ -13,7 +13,8 @@ class ReviewTargetError(ValueError):
 class ReviewTargets:
     SCOPES = {'entity': 'knowledge:entity-history:read', 'translation': 'knowledge:cross-language:read',
               'quality': 'knowledge:quality:read', 'extraction': 'knowledge:read',
-              'openreview_concern': 'knowledge:openreview:read'}
+              'openreview_concern': 'knowledge:openreview:read',
+              'archive_match': 'knowledge:citation:read'}
 
     def __init__(self, conn):
         self.conn = conn
@@ -55,6 +56,10 @@ class ReviewTargets:
             if len(overrides) > 1000:
                 raise ReviewTargetError('target_budget_exceeded', 'quality override history exceeds inbox bound')
             context = {'overrides': [json.loads(v[0]) for v in overrides]}
+        elif kind == 'archive_match':
+            # Capture-to-cited-URL matches (#2226, WA08); matches are not revisioned.
+            row = current = self._one('SELECT payload_json FROM web_archive_matches WHERE namespace=? AND match_id=?', [ns, identity])
+            context = {'capture': self._one('SELECT payload_json FROM web_archive_captures WHERE namespace=? AND capture_id=?', [ns, row['capture_id']])}
         elif kind == 'openreview_concern':
             row = self._one('SELECT payload_json FROM openreview_concern_revisions WHERE namespace=? AND concern_revision_id=?', [ns, identity])
             current = self._one('SELECT payload_json FROM openreview_concern_revisions WHERE namespace=? AND concern_id=? ORDER BY revision DESC LIMIT 1', [ns, row['concern_id']])
@@ -74,6 +79,10 @@ class ReviewTargets:
     def validate_label(kind, label):
         if not isinstance(label, dict):
             raise ReviewTargetError('invalid_label', 'review label must be a structured object')
+        if kind == 'archive_match':
+            if set(label) != {'decision'} or label['decision'] not in {'accept', 'reject'}:
+                raise ReviewTargetError('invalid_label', 'archive match review decides accept or reject')
+            return label
         if kind in {'entity', 'translation', 'extraction', 'openreview_concern'}:
             values = {'entity': {'match', 'non-match', 'uncertain'}, 'translation': {'accepted', 'rejected', 'disputed'}, 'extraction': {'correct', 'incorrect', 'uncertain'},
                       'openreview_concern': {'resolved', 'partial', 'unresolved', 'disputed', 'unassessable'}}[kind]
@@ -103,6 +112,10 @@ class ReviewTargets:
             from src.kb.knowledge_quality import QualityStore
             return QualityStore(self.conn, initialize=False).override(ns, state['record']['object_id'], label['dimension'], label['value'], rationale,
                 reviewer_id=principal_id, principal_id=principal_id, scopes=scopes)
+        if kind == 'archive_match':
+            from src.kb.web_archive_identity import CaptureMatcher
+            return CaptureMatcher(self.conn, initialize=False).review(ns, target['id'], label['decision'], rationale,
+                principal_id=principal_id, scopes=scopes)
         # Extraction annotations feed explicit dataset releases; they never
         # replace a mined claim by writing an alternate claim truth table.
         return {'status': 'annotation_recorded', 'target': target, 'label': label, 'automatic_retraining': False}

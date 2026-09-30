@@ -1,0 +1,56 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-web-archive-capture-v1.json",
+  "title": "Noesis archived capture (memento) record",
+  "description": "One archived capture of an original resource (URI-R) held by one archive, idempotent on (archive, URI-M). The resolver that reported it (an aggregator or the archive itself) is recorded separately from the archive. Digests are labelled published (as the archive or crawl index publishes them) or computed. Kept in the citation preservation store (#2226, WA02).",
+  "type": "object",
+  "required": ["contract", "capture_id", "namespace", "archive_id", "archive_kind", "resolver", "uri_r", "uri_m", "memento_datetime", "memento_at_ms", "status", "mimetype", "digests", "access_condition", "receipt"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "noesis-web-archive-capture-v1"},
+    "capture_id": {"type": "string", "pattern": "^web-archive-capture:[0-9a-f]{24}$"},
+    "namespace": {"type": "string", "minLength": 1},
+    "archive_id": {"type": "string", "minLength": 1},
+    "archive_kind": {"enum": ["memento-archive", "crawl-corpus"]},
+    "resolver": {"type": "string", "minLength": 1},
+    "uri_r": {"type": "string", "pattern": "^https?://"},
+    "uri_m": {"type": "string", "minLength": 1},
+    "memento_datetime": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}Z$"},
+    "memento_at_ms": {"type": "integer"},
+    "status": {"type": ["integer", "null"]},
+    "mimetype": {"type": ["string", "null"]},
+    "digests": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["algorithm", "value", "basis"],
+        "additionalProperties": false,
+        "properties": {
+          "algorithm": {"type": "string", "minLength": 1},
+          "value": {"type": "string", "minLength": 1},
+          "basis": {"enum": ["published", "computed"]}
+        }
+      }
+    },
+    "access_condition": {"enum": ["open", "reading-room-only", "not-replayable"]},
+    "archive_redirect": {
+      "type": ["object", "null"],
+      "description": "A redirect the archive reports for this capture, recorded as published and never followed.",
+      "properties": {"status": {"type": ["integer", "null"]}, "location": {"type": ["string", "null"]}}
+    },
+    "warc_locator": {
+      "type": ["object", "null"],
+      "description": "Crawl-corpus WARC record location (crawl id, filename, offset, length).",
+      "properties": {"crawl": {"type": "string"}, "filename": {"type": "string"}, "offset": {"type": "integer"}, "length": {"type": "integer"}}
+    },
+    "receipt": {
+      "type": "object",
+      "required": ["request_id"],
+      "properties": {"request_id": {"type": "string", "minLength": 1}, "adapter": {"type": "string"}, "retrieved_at_ms": {"type": "integer"}, "evidence_origin": {"type": "string"}}
+    },
+    "recorded_at_ms": {"type": "integer"},
+    "enrichments": {"type": "array"},
+    "idempotent": {"type": "boolean"},
+    "enriched": {"type": "boolean"}
+  }
+}

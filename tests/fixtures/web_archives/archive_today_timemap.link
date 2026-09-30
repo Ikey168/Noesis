@@ -1,0 +1,3 @@
+<https://example.org/report>; rel="original",
+<https://archive.ph/timegate/https://example.org/report>; rel="timegate",
+<https://archive.ph/20240218080000/https://example.org/report>; rel="first last memento"; datetime="Sun, 18 Feb 2024 08:00:00 GMT"
