@@ -56,6 +56,22 @@
           "name": "noesis-housing-dossier",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "geospatial.real-estate-records",
+        "provider": "geospatial.real-estate",
+        "contract": {
+          "name": "noesis-real-estate-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "geospatial.real-estate-answers",
+        "provider": "geospatial.real-estate",
+        "contract": {
+          "name": "noesis-real-estate-answer",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -69,6 +85,10 @@
       },
       {
         "id": "geospatial.housing",
+        "version": "1.0.0"
+      },
+      {
+        "id": "geospatial.real-estate",
         "version": "1.0.0"
       }
     ],
@@ -191,6 +211,61 @@
           "contract": "noesis-transit-feed",
           "range": "^1.0.0",
           "reason": "stops come from the acquired GTFS feed as accessibility context only"
+        }
+      ]
+    },
+    {
+      "id": "real-estate",
+      "default": false,
+      "description": "Real-estate transactions, land parcels and house price indices: HM Land Registry Price Paid Data (additions, changes, deletions) and UK HPI releases, French DVF mutations with parcel ids, Eurostat prc_hpi_q vintages and INSPIRE cadastral parcels through the WFS path, with reviewable transaction-parcel-place identity, citation links, as-of place and parcel answers and subscription monitors. No valuation, price estimate, owner profiling, re-identification or investment advice.",
+      "requires": [
+        {
+          "capability": "geospatial.real-estate-records",
+          "contract": "noesis-real-estate-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own record entry points use these operations"
+        },
+        {
+          "capability": "geospatial.real-estate-answers",
+          "contract": "noesis-real-estate-answer",
+          "range": "^1.0.0",
+          "reason": "the feature's own as-of entry points use these operations"
+        },
+        {
+          "capability": "geospatial.feature-query",
+          "contract": "noesis-geospatial-feature-query",
+          "range": "^1.0.0",
+          "reason": "parcels are Geospatial features acquired through the WFS path"
+        },
+        {
+          "capability": "geospatial.spatial-relation",
+          "contract": "noesis-spatial-relation",
+          "range": "^1.0.0",
+          "reason": "containment of places and parcels has replayable receipts"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "transactions project onto places by their published codes"
+        },
+        {
+          "capability": "legal.works",
+          "contract": "noesis-legal-record",
+          "range": "^1.0.0",
+          "reason": "explicit citations resolve to legal works"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "real-estate monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "sources are acquired through the source-pack runtime"
         }
       ]
     }

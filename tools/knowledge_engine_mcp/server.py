@@ -9320,6 +9320,12 @@ from tools.knowledge_engine_mcp.housing import (
 
 register_housing_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.real_estate import (  # noqa: E402 - registration order
+    register as register_real_estate_tools,
+)
+
+register_real_estate_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (
     register as register_vulnerability_tools,
 )

@@ -1,0 +1,247 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "geospatial.real-estate",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.real_estate",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "source_packs": [
+    {
+      "pack_id": "geospatial-real-estate",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "geospatial.real-estate-records",
+      "contract": {
+        "name": "noesis-real-estate-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-records",
+        "inspect-record",
+        "list-vintages",
+        "parcel-revisions",
+        "list-matches",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "values": "prices keep their published text, decimal and currency; indices keep unit, base period, edition and flags; nothing is apportioned, converted, averaged, rebased or interpolated",
+        "revisions": "publisher corrections and deletions are revisions (PPD C/D rows, DVF changes and removals), never overwrites; every release read is a vintage",
+        "parcels": "parcel revisions reference Geospatial feature revisions and geometries in source CRS with the recorded transform; a changed geometry or reference is a new revision",
+        "identity": "exact matches share a published identifier; address- and geometry-derived matches are reviewable candidates; parcel revisions change matches only through a recorded re-match",
+        "links": "shared published identifiers or explicit citations only; spatial containment is context, never a link",
+        "personal_data": "no owner, buyer, seller or rights-holder data is acquired or stored; DVF re-identification is forbidden",
+        "exclusions": "no valuation, price estimate, owner profiling or investment advice"
+      }
+    },
+    {
+      "id": "geospatial.real-estate-answers",
+      "contract": {
+        "name": "noesis-real-estate-answer",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "place-as-of",
+        "parcel-as-of"
+      ],
+      "semantic_constraints": {
+        "as_of": "revisions known by the as-of date (release publication date); withdrawn and removed transactions are shown as such",
+        "side_by_side": "transactions and indices from different sources side by side with currency, unit and period as published",
+        "none_on_record": "a place or parcel with no records is reported as none on record",
+        "citations": "every item cites its source record, release and licence"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-records",
+      "tool": "noesis-knowledge-engine.list_real_estate_records",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "inspect-record",
+      "tool": "noesis-knowledge-engine.inspect_real_estate_record",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-vintages",
+      "tool": "noesis-knowledge-engine.list_real_estate_vintages",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "parcel-revisions",
+      "tool": "noesis-knowledge-engine.real_estate_parcel_revisions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-matches",
+      "tool": "noesis-knowledge-engine.list_real_estate_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_real_estate_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "place-as-of",
+      "tool": "noesis-knowledge-engine.real_estate_place_as_of",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived spatial receipts"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "parcel-as-of",
+      "tool": "noesis-knowledge-engine.real_estate_parcel_as_of",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "content-derived spatial receipts"
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "real-estate-record",
+      "store": "src.kb.real_estate",
+      "tables": [
+        "real_estate_records",
+        "real_estate_revisions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "real-estate-vintage",
+      "store": "src.kb.real_estate",
+      "tables": [
+        "real_estate_vintages",
+        "real_estate_snapshots"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "real-estate-source-run",
+      "store": "src.kb.real_estate",
+      "tables": [
+        "real_estate_source_runs",
+        "real_estate_projection_outcomes"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "real-estate-match",
+      "store": "src.kb.real_estate_identity",
+      "tables": [
+        "real_estate_matches"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "real-estate-link",
+      "store": "src.kb.real_estate_links",
+      "tables": [
+        "real_estate_links"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "real_estate_revisions"
+    }
+  ]
+}

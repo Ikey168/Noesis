@@ -124,6 +124,7 @@ def test_the_features_and_the_dossier_profile_are_declared_off_by_default():
     assert {f: spec["default"] for f, spec in features.items()} == {
         "housing": False,
         "housing-transit-context": False,
+        "real-estate": False,
     }
     assert {r["capability"] for r in features["housing"]["requires"]} == {
         "geospatial.housing-records",

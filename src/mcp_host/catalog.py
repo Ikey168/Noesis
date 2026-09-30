@@ -373,6 +373,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.housing import HOUSING_WRITES
     if name in HOUSING_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.real_estate import REAL_ESTATE_WRITES
+    if name in REAL_ESTATE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.development_finance import (
         DEVELOPMENT_FINANCE_WRITES,
     )
@@ -1036,6 +1039,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.housing import required_scopes as housing_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in HOUSING_TOOLS:
         return housing_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.real_estate import REAL_ESTATE_TOOLS
+    from tools.knowledge_engine_mcp.real_estate import required_scopes as real_estate_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in REAL_ESTATE_TOOLS:
+        return real_estate_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_TOOLS
     from tools.knowledge_engine_mcp.development_finance import (
         required_scopes as development_finance_scopes,
