@@ -75,6 +75,14 @@
           "name": "noesis-media-metadata-link",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "science.research-entities",
+        "provider": "science.research-entities",
+        "contract": {
+          "name": "noesis-research-entity-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -96,6 +104,10 @@
       },
       {
         "id": "science.media-metadata",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.research-entities",
         "version": "1.0.0"
       }
     ],
@@ -132,12 +144,26 @@
           "sources": "side by side with their definitions, never merged or averaged",
           "identity": "exact or accepted ROR matches only"
         }
+      },
+      {
+        "id": "science.research-entities",
+        "description": "Researchers, institutions, projects and datasets: an organisation (ROR ID), researcher (ORCID iD), project (CORDIS) or dataset (DOI) to the registry records as published, with source, record revision and as-of time",
+        "vocabulary": {
+          "record revision": "one immutable version of a registry record (a ROR release, an ORCID last-modified time, a DataCite metadata version, a CORDIS content update)",
+          "asserted work": "a work identifier a researcher lists in the public ORCID record; an assertion, not verified authorship",
+          "accepted match": "a reviewed identity decision between a ROR organisation and a CORDIS participant or an ownership entity"
+        },
+        "workflow_defaults": {
+          "as_of": "the revision in force at the requested date; every revision is listed and cited",
+          "identity": "accepted matches only; researchers are never matched",
+          "personal_data": "public ORCID fields of the minimisation decision only, with the researchers scope"
+        }
       }
     ],
     "source_packs": [
       {
         "pack_id": "research-discovery",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "range": "^1.4.0"
       },
       {
@@ -268,6 +294,130 @@
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
           "reason": "reviews are entity-history decisions"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-ror",
+      "default": false,
+      "description": "ROR organisations per data-dump release: names, types, status (active, inactive, withdrawn), relationships, successors and external identifiers as published, with immutable revisions and as-of answers; lineage, projects and datasets of an organisation.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-orcid",
+      "default": false,
+      "description": "Public ORCID records of a bounded set of researchers, reduced to the fields of the data-minimisation decision: employments and works as ORCID-asserted identifiers as of a date. No rankings or metrics, no affiliation inferred from co-authorship and no author matching by name.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-datacite",
+      "default": false,
+      "description": "DataCite dataset metadata versions with related identifiers as published and creators minimised; datasets related to a paper by DOI.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-cordis",
+      "default": false,
+      "description": "CORDIS projects keyed by project ID and programme with participants (PIC, VAT number, role) and contributions with currency as published, matched to ROR organisations through reviewable identity; contributions are never summed across currencies.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
         }
       ]
     }

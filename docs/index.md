@@ -256,6 +256,11 @@ For the project overview and local setup, start with the
   vintages and comparability notes, ROR-keyed reviewable identity, citation links to Science and Funding records
   and monitors; no rankings, scores, merged values or derived ratios;
   [source audit](development/education-evidence/source-audit.md)
+- [Science research-entities guide](guides/science-research-entities.md) — ROR organisations per data-dump
+  release, minimised public ORCID records, DataCite dataset metadata and CORDIS projects with participants, each
+  cited with source, record revision and as-of time; reviewable organisation identity, links to Scholarly, Funding
+  and Ownership records and monitors; no researcher rankings or metrics and no author matching by name;
+  [source audit](development/research-entities-evidence/source-audit.md)
 - [Economics shipping and logistics guide](guides/economics-shipping-logistics.md) — UN/LOCODE port records per
   release, UNCTADstat and Eurostat maritime series and openly licensed freight indices as of a vintage, reviewable
   port identity, trade-flow joins by shared code or citation and monitors; no freight-rate forecast or derived index;

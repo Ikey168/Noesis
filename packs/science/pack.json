@@ -2,7 +2,7 @@
   "pack_format": "noesis-pack-v1",
   "name": "science",
   "version": "1.2.0",
-  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places, with book, music and authority metadata (Open Library, MusicBrainz CC0 core data, Wikidata, DNB, Library of Congress) as their identity backbone; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places, with book, music and authority metadata (Open Library, MusicBrainz CC0 core data, Wikidata, DNB, Library of Congress) as their identity backbone; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links; and researchers, institutions, projects and datasets: ROR organisations per data-dump release, minimised public ORCID records, DataCite dataset metadata and CORDIS projects with participants, with immutable revisions and reviewable organisation identity (acquired through config/source_packs/research.json).",
   "source_types": [
     "paper"
   ],
@@ -43,7 +43,9 @@
       "gnd",
       "deutsche nationalbibliothek",
       "library of congress",
-      "lcnaf"
+      "lcnaf",
+      "orcid",
+      "cordis"
     ],
     "claims": [
       "finding",
@@ -56,7 +58,14 @@
       "lemma",
       "definition",
       "conjecture",
-      "proof"
+      "proof",
+      "researcher",
+      "orcid id",
+      "ror id",
+      "research project",
+      "dataset doi",
+      "participant",
+      "affiliation"
     ],
     "entities": [
       "author",
@@ -113,7 +122,12 @@
     "media-metadata-authority-records",
     "media-revision-history-as-of",
     "reviewable-media-identity",
-    "citation-only-media-links"
+    "citation-only-media-links",
+    "research-entity-registry-records",
+    "research-entity-revisions-as-of",
+    "research-organisation-identity-review",
+    "research-entity-citation-links",
+    "research-entity-monitoring"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -130,7 +144,12 @@
     "education-identity": "1.0.0",
     "education-link": "1.0.0",
     "education-notification": "1.0.0",
-    "media-metadata-record": "1.0.0"
+    "media-metadata-record": "1.0.0",
+    "research-entity-record": "1.0.0",
+    "research-entity-answer": "1.0.0",
+    "research-entity-match": "1.0.0",
+    "research-entity-link": "1.0.0",
+    "research-entity-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -145,7 +164,8 @@
       "noesis-formal-declaration-v1",
       "noesis-math-link-v1",
       "noesis-education-statistic-record-v1",
-      "noesis-media-metadata-record-v1"
+      "noesis-media-metadata-record-v1",
+      "noesis-research-entity-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -168,7 +188,12 @@
       "recording",
       "release",
       "creator",
-      "authority_link"
+      "authority_link",
+      "research_organisation",
+      "researcher",
+      "research_dataset",
+      "research_project",
+      "project_participant"
     ],
     "relation_types": [
       "cites",
@@ -190,7 +215,13 @@
       "edition_of",
       "recording_of",
       "has_track",
-      "redirected_to"
+      "redirected_to",
+      "asserts_work",
+      "employment_asserted",
+      "related_identifier",
+      "participates_in",
+      "successor_of",
+      "predecessor_of"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -297,6 +328,26 @@
         "creator": "Mara Quell"
       },
       "semantics": "ranked candidates with title and name evidence, one per identity; never a single asserted answer and no popularity ranking"
+    },
+    {
+      "intent": "Which works and employments did this researcher assert in ORCID on a date",
+      "tool": "researcher_assertions_as_of",
+      "arguments": {
+        "namespace": "global",
+        "orcid": "<orcid id>",
+        "as_of": "2026-03-01"
+      },
+      "semantics": "the public ORCID record version in force at the date, minimised; works and employments labelled ORCID-asserted, never verified authorship; needs the researchers scope"
+    },
+    {
+      "intent": "What does ROR say about this organisation, its successors, projects and datasets",
+      "tool": "research_organisation_as_of",
+      "arguments": {
+        "namespace": "global",
+        "ror": "https://ror.org/<ror id>",
+        "as_of": "2026-03-01"
+      },
+      "semantics": "the ROR record of the release in force, lineage along predecessor and successor relationships, CORDIS projects of accepted participants with contributions per currency and DataCite datasets stating the ROR ID; each record version cited"
     }
   ],
   "exclusions": [
@@ -320,6 +371,11 @@
     "popularity rankings of works or recordings",
     "rights clearance determinations from catalogue notes",
     "MusicBrainz supplementary (non-CC0) data",
-    "bulk provider mirrors"
+    "bulk provider mirrors",
+    "researcher rankings or metrics",
+    "inference of affiliation from co-authorship",
+    "author disambiguation by name",
+    "personal data beyond the public ORCID fields of the minimisation decision",
+    "contributions summed across currencies"
   ]
 }

@@ -9438,6 +9438,12 @@ from tools.knowledge_engine_mcp.income_distribution import (
 
 register_income_distribution_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.research_entities import (
+    register as register_research_entity_tools,
+)
+
+register_research_entity_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

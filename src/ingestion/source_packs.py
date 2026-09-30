@@ -409,6 +409,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"enforcement"})
 # Society income, poverty and inequality: World Bank PIP, Eurostat EU-SILC and OECD IDD through SDMX (#2583).
 NATIVE_CONNECTOR_MODULES["income-distribution"] = "src.ingestion.income_distribution_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
+# Science research entities: ROR data-dump releases, minimised public ORCID records, DataCite and CORDIS (#2579).
+NATIVE_CONNECTOR_MODULES["research-entities"] = "src.ingestion.research_entities_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
 
 
 def native_connector_module(connector: str) -> Any:

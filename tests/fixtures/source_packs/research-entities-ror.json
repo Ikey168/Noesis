@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe7OO8ta/gIAAAkRAAAnAAAAdjkuMS0yMDk5LTAxLTE1LXJvci1kYXRhX3NjaGVtYV92Mi5qc29u7VdNb+MgEL3nVyDOjYudzW7SY9V2taf9PlVVRMwkRsVgYdw0qva/L2A7zYfteNuuulI3SqSAZ94bhpkHvh6ghwFCmDN8hnBiTJafnZ5qpQOll6dEQ0jnIQnxiTOSNIXc2l3bgXezc3dUFOB8f0p+BzrnhoJB58DzjIPIDWXGO1tTs84e3e3YssyYtRN0XZkgLOgcBPaDm8pNULl0BAz8/K+TTvY1Uot+9B1UILuozr//aMOksVZynTaiykIIjzqoHmEbnimcu/UzNv4yyzuYGFgRU8OVLCnxopAMNN5ggAWZC54n4HYwnJKwnL43oCUVM872d8zhO06eS16vgwqxtQpiP8j+3qHynyuAnRVlGhagtadstd7JXk264recUUObib9Op1OL0c23Z9RIs9S2oBsp3JPAI4RBF8uhXSOR2w7r1szVYzWHRSG4vG3bshXMbYlDzbYpybpvV6tVUEg+nG/XfwD3NM1E1T0bHqZSyuVjoXX6VaGpshT3w1uC8tIw8ypSrfpk7xkDQ7lwrg9Vety8i76pWxGOVSGNXs9ixbzVxeXBoxrgI+iUym0RMXZ6TAKymfEdOAmIH//azYQGUS4r4Vlb5uOEi01FlcphZy99hjhFn2RuuCkMoIXS6GKrwLuENSLR3qZQlnJZpwjHGqjxZVJFYzvHRxORKRmScFgJs5OSOIGUzrwGKoeAw4Bsla2NOTezVDG+4C2Ik2EYDiPSjhjVjTDwPwd89OxwSzx+dvTI4zMPj1rR/0h7FzTmwh4pbWobkQnpq7a9hK8uiE7hO6ya50iGi+kpmvHmFSGjGqQ5kITj16BjV61/SRHI+07EpyjCiIx6KMIVj90GUIG+KLE2ECeSx3/lWvkkZXi8lbVIQzgd95aGPpeVUTDqdVmp7V7uPpHZ/P8Xhy5xeP1G/TAkY/t92UYdV4DHXvsYxMJqIUOf9ZJKnm+9rXQ358u1ozJJ+ztRZMursRWf3x/FZvGv3BOXIoeVzQG09sPVtzfUD5NjiPv9MLj5DVBLAwQUAAAACAAAACHuQHM28BUAAAATAAAAJgAAAHY5LjEtMjA5OS0wMS0xNS1yb3ItZGF0YV9zY2hlbWFfdjIuY3N2y0zRyUvMTeXSyMsvUShKTUzR5AIAUEsBAhQDFAAAAAgAAAAh7s47y1r+AgAACREAACcAAAAAAAAAAAAAAIABAAAAAHY5LjEtMjA5OS0wMS0xNS1yb3ItZGF0YV9zY2hlbWFfdjIuanNvblBLAQIUAxQAAAAIAAAAIe5AczbwFQAAABMAAAAmAAAAAAAAAAAAAACAAUMDAAB2OS4xLTIwOTktMDEtMTUtcm9yLWRhdGFfc2NoZW1hX3YyLmNzdlBLBQYAAAAAAgACAKkAAACcAwAAAAA=",
+   "headers": {},
+   "request": "/records/99900091/files/v9.1-2099-01-15-ror-data.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every organisation, person, identifier and value is fictional.",
+ "provider": "ror",
+ "scenarios": [
+  "declared ROR IDs only",
+  "parent and child relationships",
+  "external identifiers",
+  "declared ID not in the release",
+  "undeclared record ignored"
+ ]
+}

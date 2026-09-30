@@ -85,6 +85,7 @@ PROJECTOR_OWNERS = {
     "noesis-fact-check-record-v1": "src.kb.fact_checks_records",  # News fact-checks (#2659)
     "noesis-medical-device-record-v1": "src.kb.medical_devices_records",  # #2654
     "noesis-enforcement-record-v1": "src.kb.enforcement",  # Legal regulatory enforcement (#2651)
+    "noesis-research-entity-record-v1": "src.kb.research_entities_records",  # Science research entities (#2579)
 }
 
 

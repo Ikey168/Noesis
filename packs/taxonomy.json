@@ -334,6 +334,7 @@
     "science.media-metadata": {"domain": "culture-leisure", "subdomains": ["books-music-metadata"], "shapes": ["registry-records"]},
     "science.methodology": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
     "science.paper-families": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
+    "science.research-entities": {"subdomains": ["research-entities-data"], "shapes": ["registry-records"]},
     "science.systematic-reviews": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
 
     "society.income": {"subdomains": ["income-poverty-inequality"], "shapes": ["statistical-series"]},

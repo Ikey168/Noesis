@@ -1,0 +1,31 @@
+{
+ "documents": [
+  {
+   "file": "v9.2-2099-03-15-ror-data.zip",
+   "label": "ROR data dump v9.2-2099-03-15 (declared organisations)",
+   "member": "v9.2-2099-03-15-ror-data_schema_v2.json",
+   "record": "99900092",
+   "release": {
+    "label": "ROR data release v9.2-2099-03-15 (declared; verify)",
+    "published_on": "2099-03-15"
+   },
+   "ror_ids": [
+    "https://ror.org/0re1ab101",
+    "https://ror.org/0re1ab202",
+    "https://ror.org/0re1ab303",
+    "https://ror.org/0re1ab404"
+   ],
+   "version": "v9.2-2099-03-15"
+  }
+ ],
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe5v/KzSEwMAAAISAAAnAAAAdjkuMi0yMDk5LTAzLTE1LXJvci1kYXRhX3NjaGVtYV92Mi5qc29u7VfJbtswEL37KwidY4Wy68LKMUhS9NT9FAQGLY4tIhQpUFQcI8i/l6SWeJFkpXGaoq0BASY1M29IvnkcXQ/QwwAhj1HvDHmx1ml2dnqqpPKlWp5iBQGZBzjwTqyRIAlkxu7aDJybmbsjPAfr+0OwO1AZ0wQ0OgeWpQx4pgnVztmY6nX65G7GBmVGjR0n69IEeZzMgXtucFO6cSKWFoCCm3886URfI7noB98BBaIL6vzb97aYJFJSrJPGqCLn3EUdlK88k57Orbvx0yb/Ype3YnpA84hoJkUB6S1yQUF5dQwwQeacZTHYEwxCHBTT9xqUIHzG6O6J2fgWk2WCVesgnG+sApsfMs87VPyzBNhaUapgAUo5yFbrrd2rQFfsllGiSTPwlzAMTYxuvB2jRpilMoRuhLBvfBch8LtQ9u0agexxGLdmrB6r2ScFZ+K27chWMDcUhwqtpmRVt6vVys8FG843+e/DPUlSXlZPjUNlQph4IlqnX5maLKi4m94SpJOGmVORctUnO+8oaMK4dX0ot8fO2+ybqhV5kcyFVutZJKmzurjce1UF+AAqIWJTRLSZnmAf1zOuAqc+duPH7Z1QwItlxSxt2/koZrxmVKEcZvbS7RAj6KPINNO5BrSQCl1sELxLWEd41M4swxIKEWSZVHu4VyyyCROOPku+1hDFgkXNqteFP8bjHVIQmjBRHZEXKSDa0bTMzVSuy22EQzzEwbC8GKyURTEkZOY0WNoIXuDjjcWZ3DM9SyRlC9YSMRzicWfEUVWIA/fYwAfvLrvFh++uHuf4wsurulGepf0LEjFurrQ2tR/hKe6r9r2EtyJkp/DWrD2KZNmcfkWz/nlFSokCofek4XAbdqjV+3MUYTrE74+uCFb0DivCMxT29ZSBiT59YYs4BOGktzj0aZfG/rhXu1TZHa+jSc0J/JeHZ8pDlkctzcPfpBCv0jNM8KTX965pz7gRYYo+qSURLNv4TOtWheN1CFLH7R+DI8PqRgV4eVnm9eLfuBQveQYrswfQWoZXX39bGb59PUwPRdyth8HNT1BLAwQUAAAACAAAACHuQHM28BUAAAATAAAAJgAAAHY5LjItMjA5OS0wMy0xNS1yb3ItZGF0YV9zY2hlbWFfdjIuY3N2y0zRyUvMTeXSyMsvUShKTUzR5AIAUEsBAhQDFAAAAAgAAAAh7m/8rNITAwAAAhIAACcAAAAAAAAAAAAAAIABAAAAAHY5LjItMjA5OS0wMy0xNS1yb3ItZGF0YV9zY2hlbWFfdjIuanNvblBLAQIUAxQAAAAIAAAAIe5AczbwFQAAABMAAAAmAAAAAAAAAAAAAACAAVgDAAB2OS4yLTIwOTktMDMtMTUtcm9yLWRhdGFfc2NoZW1hX3YyLmNzdlBLBQYAAAAAAgACAKkAAACxAwAAAAA=",
+   "headers": {},
+   "request": "/records/99900092/files/v9.2-2099-03-15-ror-data.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every organisation, person, identifier and value is fictional.",
+ "provider": "ror"
+}
