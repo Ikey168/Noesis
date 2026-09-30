@@ -137,3 +137,153 @@ def parse_references(text: Any) -> list[dict[str, Any]]:
     for item in found:
         unique.setdefault((item["start"], item["key"]), item)
     return sorted(unique.values(), key=lambda c: (c["start"], c["kind"]))
+
+
+LINK_CONTRACT = "noesis-competition-citation-link-v1"
+_DDL = """
+CREATE TABLE IF NOT EXISTS competition_citation_links (
+  link_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, citing_record_key TEXT NOT NULL, citing_kind TEXT NOT NULL,
+  citing_revision_id TEXT NOT NULL, field TEXT NOT NULL, raw TEXT NOT NULL, citation_kind TEXT NOT NULL,
+  target_key TEXT NOT NULL, status TEXT NOT NULL, target_case_key TEXT, target_work_id TEXT, legal_namespace TEXT,
+  basis TEXT NOT NULL, evidence_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL
+);
+"""
+_COLUMNS = ("link_id", "citing_record_key", "citing_kind", "citing_revision_id", "field", "raw", "citation_kind",
+            "target_key", "status", "target_case_key", "target_work_id", "legal_namespace", "basis", "evidence_json")
+
+
+def record_citations(body: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """(field, citation) pairs a competition record states, parsed exactly."""
+    out: list[tuple[str, dict[str, Any]]] = []
+    for field in ("legal_references", "related_case_numbers"):
+        for text in body.get(field) or []:
+            out += [(field, c) for c in parse_references(text)]
+    citation = body.get("citation") or {}
+    for field in ("celex", "oj_reference", "eli"):
+        if citation.get(field):
+            out += [(f"citation.{field}", c) for c in parse_references(citation[field])]
+    if body["kind"] == "state_aid_award" and body.get("sa_number"):
+        out += [("sa_number", c) for c in parse_references(body["sa_number"]) if c["kind"] == "case"]
+    unique: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+    for field, item in out:
+        unique.setdefault((field, item["key"]), (field, item))
+    return list(unique.values())
+
+
+class CompetitionCitations:
+    """Link cases, decision documents and awards to cited Legal works and competition cases by exact citation."""
+
+    def __init__(self, conn: Any, *, initialize: bool = True, now: Any = None) -> None:
+        import time
+
+        self.conn = conn
+        self.now = now or (lambda: int(time.time() * 1000))
+        if initialize:
+            conn.execute(_DDL)
+
+    def _resolve(self, namespace: str, legal_namespace: str, citation: dict[str, Any], scopes) -> dict[str, Any]:
+        from src.kb.competition import table_exists
+        from src.kb.competition_records import case_key
+
+        if citation["kind"] == "case":
+            if citation.get("authority") != "ec":
+                return {"status": "unresolved", "basis": "exact case reference; no acquired case carries this "
+                                                         "authority reference"}
+            key = case_key("ec", citation["case_number"])
+            row = self.conn.execute("SELECT 1 FROM ownership_records WHERE namespace=? AND record_key=?",
+                                    [namespace, key]).fetchone()
+            if row:
+                return {"status": "resolved", "target_case_key": key, "basis": "exact case number"}
+            return {"status": "unresolved", "basis": "the cited case is not acquired in this namespace"}
+        if not table_exists(self.conn, "legal_works"):
+            return {"status": "legal_unavailable", "basis": "no Legal store in this deployment"}
+        from src.kb.legal import LegalError, LegalStore
+
+        legal = LegalStore(self.conn, initialize=False)
+        legal_scopes = set(scopes) | {"knowledge:legal:read", f"namespace:{legal_namespace}:read"}
+        tried = []
+        for form in citation["forms"]:
+            try:
+                answer = legal.lookup(legal_namespace, scopes=legal_scopes, identifier=form)
+            except LegalError:
+                continue
+            tried.append({"form": form, "status": answer["status"]})
+            works = sorted({w["work_id"] for w in answer["works"]})
+            if len(works) == 1:
+                return {"status": "resolved", "target_work_id": works[0], "basis": f"exact identifier {form}",
+                        "tried": tried}
+            if works:
+                return {"status": "ambiguous", "basis": f"several Legal works carry {form}", "works": works,
+                        "tried": tried}
+        return {"status": "unresolved", "basis": "no acquired Legal work carries this reference", "tried": tried}
+
+    def link(self, namespace: str, *, legal_namespace: str = "global", scopes) -> dict[str, Any]:
+        """Parse every current competition record; idempotent per citing revision, and re-resolves open links."""
+        from src.kb.competition import WRITE_SCOPE, CompetitionStore, authorize
+        from src.kb.ownership_records import canonical, digest
+
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        store = CompetitionStore(self.conn, initialize=False)
+        created = 0
+        for view in store.views(namespace, ("competition_case", "decision_document", "state_aid_award")):
+            body = view["record"]
+            for field, citation in record_citations(body):
+                link_id = "competition-citation:" + digest([namespace, view["revision_id"], field,
+                                                            citation["key"]])[:24]
+                if self.conn.execute("SELECT 1 FROM competition_citation_links WHERE link_id=?", [link_id]).fetchone():
+                    continue
+                resolved = self._resolve(namespace, legal_namespace, citation, scopes)
+                evidence = {k: v for k, v in resolved.items() if k not in {"status", "basis"}}
+                evidence["provision"] = citation.get("provision")
+                self.conn.execute(
+                    "INSERT INTO competition_citation_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                    [link_id, namespace, body["record_key"], body["kind"], view["revision_id"], field,
+                     citation["raw"], citation["kind"], citation["key"], resolved["status"],
+                     resolved.get("target_case_key"), resolved.get("target_work_id"),
+                     legal_namespace if citation["kind"] != "case" else None, resolved["basis"], canonical(evidence),
+                     self.now()])
+                created += 1
+        # Targets acquired after a link was made resolve now (exact identity only).
+        for link_id, raw, key in self.conn.execute(
+                "SELECT link_id, raw, target_key FROM competition_citation_links WHERE namespace=? AND "
+                "status IN ('unresolved', 'legal_unavailable')", [namespace]).fetchall():
+            parsed = [c for c in parse_references(raw) if c["key"] == key]
+            if parsed:
+                resolved = self._resolve(namespace, legal_namespace, parsed[0], scopes)
+                if resolved["status"] == "resolved":
+                    self.conn.execute("UPDATE competition_citation_links SET status='resolved', target_case_key=?, "
+                                      "target_work_id=?, basis=? WHERE link_id=?",
+                                      [resolved.get("target_case_key"), resolved.get("target_work_id"),
+                                       resolved["basis"], link_id])
+        return {"created": created, "links": self.links(namespace)}
+
+    def links(self, namespace: str, *, status: str | None = None, citing_record_key: str | None = None,
+              target_case_key: str | None = None) -> list[dict[str, Any]]:
+        import json
+
+        from src.kb.competition import table_exists
+
+        if not table_exists(self.conn, "competition_citation_links"):
+            return []
+        rows = self.conn.execute(
+            f"SELECT {', '.join(_COLUMNS)} FROM competition_citation_links WHERE namespace=? AND (? IS NULL OR "
+            "status=?) AND (? IS NULL OR citing_record_key=?) AND (? IS NULL OR target_case_key=?) "
+            "ORDER BY citing_record_key, citing_revision_id, link_id",
+            [namespace, status, status, citing_record_key, citing_record_key, target_case_key,
+             target_case_key]).fetchall()
+        out = []
+        for row in rows:
+            item = dict(zip(_COLUMNS, row))
+            item["evidence"] = json.loads(item.pop("evidence_json"))
+            out.append({"contract": LINK_CONTRACT, **item})
+        return out
+
+    def list_links(self, namespace: str, *, scopes, status: str | None = None,
+                   citing_record_key: str | None = None) -> dict[str, Any]:
+        from src.kb.competition import READ_SCOPE, authorize
+
+        authorize(namespace, scopes, READ_SCOPE)
+        links = self.links(namespace, status=status, citing_record_key=citing_record_key)
+        return {"links": links, "unresolved": [link for link in links if link["status"] != "resolved"],
+                "notice": "exact citation links only; nothing is linked by topic or name similarity and the citing "
+                          "relationship is not characterised"}
