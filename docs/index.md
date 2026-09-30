@@ -230,6 +230,12 @@ For the project overview and local setup, start with the
   labour indicators for a place, sector or occupation as of a release vintage, with definitions, seasonal
   adjustment, flags, comparability notes, reviewable place and classification mappings and monitors; no nowcast,
   forecast, blending or re-harmonisation; [source audit](development/labour-evidence/source-audit.md)
+- [Society income, poverty and inequality guide](guides/society-income-poverty-inequality.md) — the new `society`
+  bundle's World Bank PIP, Eurostat EU-SILC and OECD IDD figures for a place as of a release vintage, side by side
+  with welfare concept, equivalence scale, poverty line and PPP round, PPP revisions as vintages, reviewable place
+  and related-indicator identity, Demographics and Labour links, cited evidence bundles and monitors; no nowcast,
+  filled year, own poverty line, blending or person-level data;
+  [source audit](development/income-distribution-evidence/source-audit.md)
 - [Science education-statistics guide](guides/science-education-statistics.md) — US IPEDS and ETER institution
   statistics and UNESCO UIS, OECD Education at a Glance and Eurostat R&D indicators with definitions, release
   vintages and comparability notes, ROR-keyed reviewable identity, citation links to Science and Funding records
