@@ -1,0 +1,19 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": "country,country_long,name,gppd_idnr,capacity_mw,latitude,longitude,primary_fuel,other_fuel1,other_fuel2,other_fuel3,commissioning_year,owner,source,url,geolocation_source,wepp_id,year_of_capacity_data,generation_gwh_2018,generation_gwh_2019,generation_data_source,estimated_generation_gwh_2017,estimated_generation_note_2017\nDEU,Germany,Fixture Lignite Plant Nord,DEU9990001,1500.0,51.6620,14.4560,Coal,,,,1985.0,Fixture Energie AG,Fixture registry,https://example.org/fixture-registry,Fixture registry,99001,2019.0,9100.5,8700.2,Fixture statistics,9050.0,CAPACITY-FACTOR-V1\nDEU,Germany,Fixture Gaskraftwerk Sued,DEU9990002,400.0,51.4200,14.3300,Gas,,,,2010.0,Fixture Kraftwerke Sued GmbH,Fixture registry,https://example.org/fixture-registry,Fixture registry,,2019.0,,,,,\nFRA,France,Fixture Centrale,FRA9990003,900.0,48.1,2.2,Nuclear,,,,,,,,,,,,,,,\n",
+   "params": {},
+   "status": 200,
+   "url": "https://raw.githubusercontent.com/wri/global-power-plant-database/v1.3.0/output_database/global_power_plant_database.csv"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "gppd",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "declared-release",
+  "estimates",
+  "country-filter"
+ ]
+}

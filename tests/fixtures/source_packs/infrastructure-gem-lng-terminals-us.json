@@ -1,0 +1,18 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": "TerminalID,TerminalName,UnitName,Country,FacilityType,Status,Owner,Parent,Capacity,CapacityUnits,Start year,Latitude,Longitude,Location accuracy,WikiURL\nT0001,Fixture LNG Terminal,Train 1,United States,Export,construction,Fixture LNG LLC [100%],Fixture Energy Corp [100%],4.5,mtpa,,29.7400,-93.8700,approximate,https://www.gem.wiki/Fixture_LNG_Terminal\n",
+   "params": {},
+   "status": 200,
+   "url": "https://globalenergymonitor.org/wp-content/uploads/fixture/ggit-lng-2026-06.csv"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "gem",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "status",
+  "owners"
+ ]
+}

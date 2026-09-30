@@ -1,0 +1,19 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": "ProjectID,PipelineName,SegmentName,Countries,Status,Owner,Parent,Capacity,CapacityUnits,LengthKnownKm,Start year,Route,WikiURL\nP0001,Fixture Ostsee-Anbindung,,Germany,operating,Fixture Gastransport GmbH [100%],,22,bcm/y,58,2012,\"LINESTRING (14.251 51.351, 14.480 51.550, 14.699 51.749)\",https://www.gem.wiki/Fixture_Ostsee-Anbindung\n",
+   "params": {},
+   "status": 200,
+   "url": "https://globalenergymonitor.org/wp-content/uploads/fixture/ggit-pipelines-2026-06.csv"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "gem",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "route-wkt",
+  "status",
+  "owners"
+ ]
+}

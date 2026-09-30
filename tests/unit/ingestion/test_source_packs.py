@@ -47,8 +47,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Natural Hazards pack (#2207),
     # plus the Energy Systems pack (#2211),
     # plus the Fisheries and Maritime Activity pack (#2222),
-    # plus the Humanitarian Response and Conflict Events pack (#2206).
-    assert len(packs) == 28
+    # plus the Humanitarian Response and Conflict Events pack (#2206),
+    # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223).
+    assert len(packs) == 29
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "astronomy",
         "chemicals",
@@ -104,8 +105,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208),
     # plus the Energy Systems pack's ten ENTSO-E, EIA, Ember, Eurostat and Energy-Charts selections (#2211),
     # plus the Fisheries pack's GFW, FishStat, ICCAT, WCPFC, IOTC and Combined IUU Vessel List sources (#2222),
-    # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206).
-    assert sum(len(pack["sources"]) for pack in packs) == 220
+    # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206),
+    # plus the Geospatial infrastructure feature's GPPD, GEM, Overpass, EIA and ENTSOG selections (#2223).
+    assert sum(len(pack["sources"]) for pack in packs) == 229
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

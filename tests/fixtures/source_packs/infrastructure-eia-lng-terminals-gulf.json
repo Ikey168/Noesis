@@ -1,0 +1,53 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "features": [
+     {
+      "geometry": {
+       "coordinates": [
+        -93.8702,
+        29.7398
+       ],
+       "type": "Point"
+      },
+      "properties": {
+       "Capacity_Bcfd": 4.5,
+       "Company": "Fixture LNG LLC",
+       "Docket": "CP99-001-000",
+       "Name": "Fixture LNG Terminal",
+       "OBJECTID": 7,
+       "State": "LA",
+       "Status": "Operating",
+       "Type": "Export"
+      },
+      "type": "Feature"
+     }
+    ],
+    "type": "FeatureCollection"
+   },
+   "params": {
+    "f": "geojson",
+    "geometry": "-94.5,29.0,-88.8,31.0",
+    "geometryType": "esriGeometryEnvelope",
+    "inSR": "4326",
+    "outFields": "*",
+    "outSR": "4326",
+    "resultRecordCount": "200",
+    "spatialRel": "esriSpatialRelIntersects",
+    "where": "1=1"
+   },
+   "status": 200,
+   "url": "https://services7.arcgis.com/FGr1D95XCGALKXqM/arcgis/rest/services/Liquefied_Natural_Gas_Import_Exports_and_Terminals/FeatureServer/0/query"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "eia",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "status",
+  "docket",
+  "retrieval-time-release"
+ ]
+}

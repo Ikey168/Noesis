@@ -1,0 +1,55 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "features": [
+     {
+      "geometry": {
+       "coordinates": [
+        -117.3012,
+        34.8021
+       ],
+       "type": "Point"
+      },
+      "properties": {
+       "County": "San Bernardino",
+       "OBJECTID": 1,
+       "Period": "202607",
+       "Plant_Code": 99901,
+       "Plant_Name": "Fixture Solar Park",
+       "PrimSource": "solar",
+       "Source": "EIA-860M",
+       "State": "California",
+       "Total_MW": 300.0,
+       "Utility_ID": 88801,
+       "Utility_Name": "Fixture Solar LLC"
+      },
+      "type": "Feature"
+     }
+    ],
+    "type": "FeatureCollection"
+   },
+   "params": {
+    "f": "geojson",
+    "geometry": "-118.5,33.5,-116.0,35.5",
+    "geometryType": "esriGeometryEnvelope",
+    "inSR": "4326",
+    "outFields": "*",
+    "outSR": "4326",
+    "resultRecordCount": "200",
+    "spatialRel": "esriSpatialRelIntersects",
+    "where": "1=1"
+   },
+   "status": 200,
+   "url": "https://services7.arcgis.com/FGr1D95XCGALKXqM/arcgis/rest/services/Power_Plants/FeatureServer/0/query"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "eia",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "plant-code",
+  "capacity"
+ ]
+}

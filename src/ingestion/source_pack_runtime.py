@@ -264,6 +264,12 @@ def _humanitarian_projector(conn: Any) -> Any:
     return HumanitarianProjector(conn)
 
 
+def _infrastructure_projector(conn: Any) -> Any:
+    from src.kb.infrastructure_assets import InfrastructureProjector
+
+    return InfrastructureProjector(conn)
+
+
 def _vulnerability_projector(conn: Any) -> Any:
     from src.kb.vulnerabilities import VulnerabilityProjector
 
@@ -308,6 +314,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-energy-record-v1": _energy_projector,
     "noesis-humanitarian-record-v1": _humanitarian_projector,
     "noesis-housing-record-v1": _housing_projector,
+    "noesis-infrastructure-asset-record-v1": _infrastructure_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
     "noesis-hazard-record-v1": _hazard_projector,
     "noesis-engineering-safety-record-v1": _engineering_safety_projector,

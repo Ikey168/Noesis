@@ -1,0 +1,110 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "connectionpoints": [
+     {
+      "lastUpdateDateTime": "2026-09-19T08:00:00Z",
+      "pointKey": "ITP-09991",
+      "pointLabel": "Fixture Grenzuebergang Nord",
+      "pointType": "Cross-Border Transmission IP within EU",
+      "tSOCountry": "DE"
+     },
+     {
+      "lastUpdateDateTime": "2026-09-19T08:00:00Z",
+      "pointKey": "ITP-09992",
+      "pointLabel": "Fixture Speicher Sued",
+      "pointType": "Storage point",
+      "tSOCountry": "DE"
+     }
+    ],
+    "meta": {
+     "count": 2,
+     "total": 2
+    }
+   },
+   "params": {
+    "limit": "2",
+    "pointKey": "ITP-09991,ITP-09992"
+   },
+   "status": 200,
+   "url": "https://transparency.entsog.eu/api/v1/connectionpoints"
+  },
+  {
+   "body": {
+    "operationaldatas": [
+     {
+      "directionKey": "entry",
+      "indicator": "Firm Technical",
+      "lastUpdateDateTime": "2026-09-20T10:15:00Z",
+      "operatorKey": "DE-TSO-9991",
+      "operatorLabel": "Fixture Gastransport GmbH",
+      "periodFrom": "2026-09-20T06:00:00Z",
+      "periodTo": "2026-09-21T06:00:00Z",
+      "periodType": "day",
+      "pointKey": "ITP-09991",
+      "unit": "kWh/d",
+      "value": 1000000000
+     },
+     {
+      "directionKey": "exit",
+      "indicator": "Firm Technical",
+      "lastUpdateDateTime": "2026-09-20T10:15:00Z",
+      "operatorKey": "DE-TSO-9991",
+      "operatorLabel": "Fixture Gastransport GmbH",
+      "periodFrom": "2026-09-20T06:00:00Z",
+      "periodTo": "2026-09-21T06:00:00Z",
+      "periodType": "day",
+      "pointKey": "ITP-09991",
+      "unit": "kWh/d",
+      "value": 800000000
+     },
+     {
+      "directionKey": "entry",
+      "indicator": "Physical Flow",
+      "lastUpdateDateTime": "2026-09-20T10:15:00Z",
+      "operatorKey": "DE-TSO-9991",
+      "operatorLabel": "Fixture Gastransport GmbH",
+      "periodFrom": "2026-09-20T06:00:00Z",
+      "periodTo": "2026-09-21T06:00:00Z",
+      "periodType": "day",
+      "pointKey": "ITP-09991",
+      "unit": "kWh/d",
+      "value": 612000000
+     },
+     {
+      "directionKey": "entry",
+      "indicator": "Firm Technical",
+      "lastUpdateDateTime": "2026-09-20T10:15:00Z",
+      "operatorKey": "DE-SSO-9992",
+      "operatorLabel": "Fixture Speicher GmbH",
+      "periodFrom": "2026-09-20T06:00:00Z",
+      "periodTo": "2026-09-21T06:00:00Z",
+      "periodType": "day",
+      "pointKey": "ITP-09992",
+      "unit": "kWh/d",
+      "value": 90000000
+     }
+    ]
+   },
+   "params": {
+    "from": "2026-09-20",
+    "indicator": "Firm Technical",
+    "limit": "8",
+    "periodType": "day",
+    "pointKey": "ITP-09991,ITP-09992",
+    "to": "2026-09-21"
+   },
+   "status": 200,
+   "url": "https://transparency.entsog.eu/api/v1/operationaldatas"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "entsog",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "entry-exit",
+  "no-geometry"
+ ]
+}
