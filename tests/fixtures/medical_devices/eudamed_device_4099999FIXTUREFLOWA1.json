@@ -1,0 +1,18 @@
+{
+ "basicUdiDi": "4099999FIXTUREFLOWA1",
+ "deviceName": "FIXTUREFLOW infusion set",
+ "lastUpdateDate": "2098-12-01",
+ "legislation": "MDR",
+ "manufacturerSrn": "DE-MF-000099901",
+ "riskClass": "Class IIb",
+ "status": "On the EU market",
+ "udiDis": [
+  {
+   "issuingEntity": "GS1",
+   "status": "On the EU market",
+   "tradeName": "FIXTUREFLOW",
+   "udiDi": "04099999000025"
+  }
+ ],
+ "versionNumber": 1
+}

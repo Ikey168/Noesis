@@ -1,0 +1,19 @@
+{
+ "history": [
+  {
+   "publicVersionDate": "2097-01-10",
+   "publicVersionNumber": "1",
+   "publicVersionStatus": "New"
+  },
+  {
+   "publicVersionDate": "2097-08-01",
+   "publicVersionNumber": "2",
+   "publicVersionStatus": "Update"
+  },
+  {
+   "publicVersionDate": "2098-06-01",
+   "publicVersionNumber": "3",
+   "publicVersionStatus": "Update"
+  }
+ ]
+}

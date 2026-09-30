@@ -270,6 +270,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medicines"})
 # connector restricted to capacity documents.
 NATIVE_CONNECTOR_MODULES["health-capacity"] = "src.ingestion.health_capacity_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"health-capacity"})
+# Clinical Evidence medical devices (openFDA device endpoints, AccessGUDID, EUDAMED public modules; #2654).
+NATIVE_CONNECTOR_MODULES["medical-devices"] = "src.ingestion.medical_devices_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medical-devices"})
 
 # Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
 NATIVE_CONNECTOR_MODULES.update({

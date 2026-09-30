@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)\",\n  \"last_updated\": \"2099-07-01\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"results\": {\n   \"limit\": 100,\n   \"skip\": 0,\n   \"total\": 1\n  },\n  \"terms\": \"https://open.fda.gov/terms/\"\n },\n \"results\": [\n  {\n   \"action\": \"Firm sent an urgent notice to customers.\",\n   \"additional_info_contact\": \"Pat Placeholder 555-0100\",\n   \"address_1\": \"1 EXAMPLE WAY\",\n   \"cfres_id\": \"999901\",\n   \"city\": \"EXAMPLETON\",\n   \"code_info\": \"Serial numbers EP100-0001 to EP100-0500\",\n   \"country\": \"United States\",\n   \"distribution_pattern\": \"US nationwide\",\n   \"event_date_initiated\": \"2099-02-01\",\n   \"event_date_posted\": \"2099-03-01\",\n   \"firm_fei_number\": \"9999901\",\n   \"k_numbers\": [\n    \"K999901\"\n   ],\n   \"pma_numbers\": [],\n   \"postal_code\": \"99999\",\n   \"product_code\": \"ZZA\",\n   \"product_description\": \"EXAMPLEPUMP infusion pump, model EP-100\",\n   \"product_quantity\": \"500\",\n   \"product_res_number\": \"Z-9901-2099\",\n   \"reason_for_recall\": \"Software may stop an infusion without an alarm (fictional).\",\n   \"recall_status\": \"Open, Classified\",\n   \"recalling_firm\": \"EXAMPLE MEDICAL DEVICES INC\",\n   \"res_event_number\": \"99901\",\n   \"root_cause_description\": \"Software design\",\n   \"state\": \"EX\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/recall.json?limit=100&search=product_code%3A%22ZZA%22",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the documented openFDA device and AccessGUDID shapes and an authored mapping of the EUDAMED public fields (tests/unit/medical_devices_fixture_builder.py); every company, device and identifier is fictional and personal placeholders are dropped by the parser (MD01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-devices",
+  "minimised-personal-fields"
+ ]
+}
