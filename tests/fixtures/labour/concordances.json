@@ -1,0 +1,26 @@
+{
+ "note": "authored excerpts in the published tables' shape (rows as the tables state them); verify every row against the cited file before a live run",
+ "tables": [
+  {
+   "label": "NACE Rev.2 to ISIC Rev.4 correspondence (section level excerpt)",
+   "source": {"scheme": "NACE", "version": "Rev.2"},
+   "target": {"scheme": "ISIC", "version": "Rev.4"},
+   "citation": {"url": "https://showvoc.op.europa.eu/#/datasets/ESTAT_NACE_Rev._2_-_ISIC_Rev._4", "publisher": "Eurostat", "published_on": "2099-01-15", "file_sha256": "1111111111111111111111111111111111111111111111111111111111111111"},
+   "rows": [{"source_code": "C", "target_code": "C", "relation": "exact"}]
+  },
+  {
+   "label": "2022 NAICS to ISIC Rev.4 concordance (sector excerpt)",
+   "source": {"scheme": "NAICS", "version": "2022"},
+   "target": {"scheme": "ISIC", "version": "Rev.4"},
+   "citation": {"url": "https://www.census.gov/naics/concordances/2022_NAICS_to_ISIC_4.xlsx", "publisher": "US Census Bureau", "published_on": "2099-02-01", "file_sha256": "2222222222222222222222222222222222222222222222222222222222222222"},
+   "rows": [{"source_code": "31-33", "target_code": "C", "relation": "partial", "note": "some NAICS 31-33 industries fall in other ISIC sections"}]
+  },
+  {
+   "label": "SOC 2018 to ISCO-08 crosswalk (excerpt)",
+   "source": {"scheme": "SOC", "version": "2018"},
+   "target": {"scheme": "ISCO", "version": "08"},
+   "citation": {"url": "https://www.bls.gov/soc/ISCO_SOC_Crosswalk.xls", "publisher": "US Bureau of Labor Statistics", "published_on": "2099-03-01", "file_sha256": "3333333333333333333333333333333333333333333333333333333333333333"},
+   "rows": [{"source_code": "15-1252", "target_code": "2512", "relation": "partial"}]
+  }
+ ]
+}

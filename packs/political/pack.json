@@ -44,7 +44,20 @@
     "election-boundaries-as-of",
     "election-forecast-resolution",
     "election-news-evidence",
-    "election-monitoring"
+    "election-monitoring",
+    "legislation-bill-dossiers",
+    "legislation-as-of",
+    "legislation-identity-review",
+    "legislation-links",
+    "legislation-monitoring",
+    "campaign-finance-filings",
+    "campaign-finance-amendment-history",
+    "campaign-finance-totals-as-of",
+    "campaign-finance-affiliate-donations",
+    "campaign-finance-contest-filings",
+    "campaign-finance-identity-review",
+    "campaign-finance-links",
+    "campaign-finance-monitoring"
   ],
   "schema_versions": {
     "source": "1.0.0",
@@ -57,7 +70,15 @@
     "lobbying-notification": "1.0.0",
     "election-record": "1.0.0",
     "election-answer": "1.0.0",
-    "election-notification": "1.0.0"
+    "election-notification": "1.0.0",
+    "legislation-record": "1.0.0",
+    "legislation-answer": "1.0.0",
+    "legislation-link": "1.0.0",
+    "legislation-notification": "1.0.0",
+    "campaign-finance-record": "1.0.0",
+    "campaign-finance-answer": "1.0.0",
+    "campaign-finance-link": "1.0.0",
+    "campaign-finance-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -87,6 +108,12 @@
     "seat or outcome predictions",
     "poll aggregation into a single true number",
     "causal claims from news framing or sentiment",
-    "overwriting preliminary results with certified ones"
+    "overwriting preliminary results with certified ones",
+    "bill passage prediction",
+    "member scoring or ideology ratings",
+    "summaries presented as a bill's legal effect",
+    "influence scoring of donors or recipients",
+    "dark-money or undisclosed-funding inference",
+    "profiling of individual donors beyond the published minimised record"
   ]
 }

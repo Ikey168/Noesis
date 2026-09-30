@@ -8,9 +8,10 @@
   "panels": [],
   "planner_keywords": {
     "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung", "designation",
-                 "dual-use", "sanctions list"],
+                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence"],
     "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet", "consolidated list",
-                "ofac", "uk sanctions list", "un security council"],
+                "ofac", "uk sanctions list", "un security council", "courtlistener", "recap",
+                "fbi crime data explorer", "data.police.uk", "eurostat crime"],
     "claims": ["article", "artikel", "paragraph", "section"],
     "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal", "delisting",
                "designation", "listing"]
@@ -33,7 +34,14 @@
     "dual-use-control-list-editions",
     "controlled-goods-trade-context",
     "sanctions-identity-review",
-    "sanctions-monitoring"
+    "sanctions-monitoring",
+    "court-dockets-and-opinions",
+    "court-docket-as-of",
+    "court-citation-links",
+    "court-party-identity-review",
+    "justice-statistics-as-of",
+    "justice-statistics-comparability",
+    "courts-justice-monitoring"
   ],
   "schema_versions": {
     "legal-work": "1.0.0",
@@ -44,7 +52,13 @@
     "source-pack": "1.1.0",
     "sanctions-record": "1.0.0",
     "sanctions-statement": "1.0.0",
-    "sanctions-notification": "1.0.0"
+    "sanctions-notification": "1.0.0",
+    "court-justice-record": "1.0.0",
+    "court-docket-answer": "1.0.0",
+    "justice-statistics-answer": "1.0.0",
+    "justice-comparability-note": "1.0.0",
+    "court-citation-link": "1.0.0",
+    "court-justice-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -96,6 +110,18 @@
       "tool": "control_list_entry_as_of",
       "arguments": {"namespace": "global", "control_code": "1C350", "as_of": "2026-01-01"},
       "semantics": "the consolidated edition applying on the date and the code's passage, with every acquired edition side by side"
+    },
+    {
+      "intent": "Which dockets and decisions cite 42 U.S.C. § 1983, as of 1 August 2099",
+      "tool": "lookup_dockets",
+      "arguments": {"namespace": "global", "provision": "42 U.S.C. § 1983", "as_of": "2099-08-01"},
+      "semantics": "docket revisions current at the date with citing entries and decisions with quoted dispositions, linked by exact citation only"
+    },
+    {
+      "intent": "Official robbery statistics for Germany with definitions and vintages",
+      "tool": "justice_statistics_for_place",
+      "arguments": {"namespace": "global", "place": "eurostat-geo:DE", "indicator": "ICCS0401"},
+      "semantics": "each source's series with definition, unit, flags, coverage notes and vintage; no ranking or safety rating"
     }
   ],
   "exclusions": [
@@ -103,6 +129,9 @@
     "relevance-ranked legal retrieval without accepted human-judged evaluation", "other jurisdictions",
     "undocumented provider APIs", "screening verdicts", "sanctions or AML compliance determinations",
     "inferring that a similar name is the same party", "merged cross-list party records",
-    "scraped sanctions portals (EU Sanctions Map)"
+    "scraped sanctions portals (EU Sanctions Map)",
+    "personal profiles of private individuals in dockets", "recidivism or risk scoring",
+    "neighbourhood safety ratings", "rankings of places or countries", "derived case outcome labels or predictions",
+    "unqualified cross-jurisdiction comparison of crime statistics"
   ]
 }

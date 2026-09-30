@@ -1,0 +1,47 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "data": [
+     {
+      "date": "2026-06-01",
+      "demand_mwh_per_capita": "0.45",
+      "demand_twh": "38.10",
+      "entity": "Germany",
+      "entity_code": "DEU",
+      "is_aggregate_entity": false
+     },
+     {
+      "date": "2026-07-01",
+      "demand_mwh_per_capita": "0.46",
+      "demand_twh": "39.02",
+      "entity": "Germany",
+      "entity_code": "DEU",
+      "is_aggregate_entity": false
+     }
+    ],
+    "stats": {
+     "number_of_records": 2
+    }
+   },
+   "body_sha256": "5e992e72139d108e7c143a37b186f378e2c2921743112865ad2f04338708a899",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "end_date": "2026-07",
+    "entity_code": "DEU",
+    "start_date": "2026-06"
+   },
+   "status": 200,
+   "url": "https://api.ember-energy.org/v1/electricity-demand/monthly"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "ember",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "demand"
+ ]
+}

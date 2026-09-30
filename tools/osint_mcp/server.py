@@ -17,6 +17,11 @@ Tools (all annotated for R2 discovery under the `osint` ui_flag):
   infrastructure_pivot(identifier)   -> organization-keyed pivot over cited
                                         RDAP/CT source-identity relations;
                                         person-keyed identifiers refused
+  movement_source_contracts()        -> movement licence and volume decisions;
+                                        movement_registry / movement_window /
+                                        movement_calls only with
+                                        NOESIS_OSINT_MOVEMENTS (the latter two
+                                        also behind the review gate)
 
 Design constraints (as for every tool server): stdlib + fastmcp (plus the
 stdlib-only honesty helper) at import time, lazy imports inside tools, the
@@ -795,6 +800,208 @@ def image_reuse(sha256: str) -> dict:
         return {"error": str(exc)}
     finally:
         con.close()
+
+
+# --------------------------------------------------------------------------- #
+# Aircraft and vessel movements (#2221, optional `movements` feature). The
+# licence and volume decisions are always readable; the registry lookup is
+# served only with NOESIS_OSINT_MOVEMENTS on, and the position-bearing tools
+# additionally need the review gate (NOESIS_OSINT_GATED_TOOLS), the
+# knowledge:osint:movements scope and a stated purpose, which is logged to a
+# separate request-log store (the warehouse stays read-only).
+# --------------------------------------------------------------------------- #
+
+_MOVEMENT_ANSWER = {"type": "object", "additionalProperties": True}
+
+
+@mcp.tool(
+    output_schema={
+        "type": "object",
+        "properties": {
+            "contract": {"type": "string"},
+            "providers": {"type": "object"},
+            "excluded": {"type": "object"},
+            "answer_bounds": {"type": "object"},
+            "feature": {"type": "object"},
+        },
+        "additionalProperties": True,
+    },
+)
+def movement_source_contracts() -> dict:
+    """Licence, access and volume decisions for the aircraft and vessel movement sources
+    (docs/security/osint-movements-access.md): adopted providers with their bounds
+    and live-verification status, excluded sources with reasons, and whether the
+    optional movements feature and its gated tools are served. Reads no records.
+    """
+    from src.ingestion.osint_movement_sources import source_contracts
+    from src.osint.investigations import MOVEMENT_GATED_TOOLS, MOVEMENT_TOOLS
+    from src.osint.movements import movements_enabled
+
+    enabled = movements_enabled()
+    return {**source_contracts(),
+            "feature": {"id": "movements", "flag": "NOESIS_OSINT_MOVEMENTS", "enabled": enabled,
+                        "review_gate": "NOESIS_OSINT_GATED_TOOLS", "review_gate_open": _gated_enabled(),
+                        "tools": list(MOVEMENT_TOOLS), "gated_tools": list(MOVEMENT_GATED_TOOLS),
+                        "required_scopes": {"movement_registry": ["knowledge:read"],
+                                            "movement_window": ["knowledge:read", "knowledge:osint:movements"],
+                                            "movement_calls": ["knowledge:read", "knowledge:osint:movements"]}}}
+
+
+def _movements_enabled() -> bool:
+    from src.osint.movements import movements_enabled
+
+    return movements_enabled()
+
+
+def _movement_log_rw():
+    import duckdb
+
+    from src.config.env import resolve_env
+
+    path = resolve_env("OSINT_MOVEMENT_LOG_PATH", str(REPO_ROOT / "data" / "osint_movement_requests.duckdb"))
+    return duckdb.connect(path)
+
+
+def _movement_request(tool: str, identifier: str, start: str, end: str, purpose: str, namespace: str,
+                      answer):
+    """Run one position-bearing movement request: purpose required, logged with its outcome."""
+    from src.osint.movements import MovementError, log_request
+
+    principal, scopes = _context()
+    window = {"start": start, "end": end}
+    if not str(purpose or "").strip():
+        return {"status": "refused", "code": "purpose_required",
+                "reason": "state the purpose of the movement request; it is logged with the request"}
+    try:
+        con = _warehouse_ro()
+    except Exception as exc:
+        return {"error": str(exc)}
+    try:
+        result = answer(con, scopes)
+        outcome = "answered"
+    except MovementError as exc:
+        result, outcome = exc.as_refusal(), f"refused:{exc.code}"
+    except Exception as exc:
+        result, outcome = {"error": str(exc)}, "error"
+    finally:
+        con.close()
+    log = _movement_log_rw()
+    try:
+        result["request_id"] = log_request(log, namespace=namespace, principal_id=principal, tool=tool,
+                                           identifier=str(identifier), window=window, purpose=str(purpose).strip(),
+                                           scopes=scopes, outcome=outcome)
+    finally:
+        log.close()
+    return result
+
+
+if _movements_enabled():
+
+    @mcp.tool(output_schema=_MOVEMENT_ANSWER)
+    def movement_registry(
+        identifier: str, as_of: Optional[str] = None, namespace: str = "osint", scheme: Optional[str] = None
+    ) -> dict:
+        """Registry state of one aircraft or vessel on a date (optional movements feature): the
+        registry revisions valid then, as published and cited, with the identity matches used.
+        Natural-person registrants are withheld and never a key; opted-out (LADD/PIA) and
+        person-keyed identifiers are refused with a stated reason. No positions.
+
+        Args:
+            identifier: ICAO 24-bit address, registration mark, IMO number, MMSI or GFW vessel id.
+            as_of: date (YYYY-MM-DD); today by default.
+            namespace: the movement records namespace.
+            scheme: optional explicit scheme (icao24, registration, imo, mmsi, gfw_vessel_id).
+        """
+        from src.osint.movements import MovementError, MovementQueries
+
+        _, scopes = _context()
+        try:
+            con = _warehouse_ro()
+        except Exception as exc:
+            return {"error": str(exc)}
+        try:
+            return MovementQueries(con).registry(namespace, identifier, scopes=scopes, as_of=as_of, scheme=scheme)
+        except MovementError as exc:
+            return exc.as_refusal()
+        except Exception as exc:
+            return {"error": str(exc)}
+        finally:
+            con.close()
+
+    if _gated_enabled():
+
+        @mcp.tool(output_schema=_MOVEMENT_ANSWER)
+        def movement_window(
+            identifier: str, start: str, end: str, purpose: str, namespace: str = "osint",
+            scheme: Optional[str] = None, facilities_namespace: Optional[str] = None,
+            fisheries_namespace: Optional[str] = None, sanctions_namespace: Optional[str] = None,
+            as_of: Optional[str] = None, export_bundle: bool = False,
+        ) -> dict:
+            """Registry state and sampled movements of one aircraft or vessel for a bounded window
+            (review-gated, optional movements feature; scope knowledge:osint:movements): registry
+            revisions, sample windows with gaps and receiver-coverage caveats, source-published and
+            derived calls, identity matches and sanctions listing statements, each cited. No coverage
+            is reported as "no coverage observed", never as absence of movement. Windows over 92
+            days, person-keyed and opted-out identifiers, and aircraft registered to a natural
+            person are refused. The purpose is required and logged.
+
+            Args:
+                identifier: ICAO 24-bit address, registration, IMO, MMSI or GFW vessel id.
+                start: window start (ISO date or UTC timestamp).
+                end: window end (at most 92 days after start).
+                purpose: why the movement record is needed (logged with the request).
+                namespace: the movement records namespace.
+                scheme: optional explicit identifier scheme.
+                facilities_namespace: geospatial namespace of airport and port facilities.
+                fisheries_namespace: Fisheries namespace whose GFW vessel identity to cite.
+                sanctions_namespace: Legal sanctions namespace whose listings to cite.
+                as_of: listing as-of date; the window end by default.
+                export_bundle: also return the answer as an evidence bundle.
+            """
+            from src.osint.movements import MovementQueries
+
+            def answer(con, scopes):
+                queries = MovementQueries(con)
+                result = queries.window(namespace, identifier, start, end, scopes=scopes, scheme=scheme,
+                                        facilities_namespace=facilities_namespace,
+                                        fisheries_namespace=fisheries_namespace,
+                                        sanctions_namespace=sanctions_namespace, as_of=as_of)
+                if export_bundle:
+                    result = {**result, "evidence_bundle": queries.export_bundle(result)}
+                return result
+
+            return _movement_request("movement_window", identifier, start, end, purpose, namespace, answer)
+
+        @mcp.tool(output_schema=_MOVEMENT_ANSWER)
+        def movement_calls(
+            identifier: str, start: str, end: str, purpose: str, namespace: str = "osint",
+            scheme: Optional[str] = None, facilities_namespace: Optional[str] = None,
+        ) -> dict:
+            """Airport and port calls of one aircraft or vessel in a bounded window (review-gated,
+            optional movements feature; scope knowledge:osint:movements): source-published calls
+            with the source's confidence and derived calls with method, samples and the coverage
+            gaps that make them uncertain. The absence of a call is never asserted. Purpose
+            required and logged; over-bound, person-keyed and opted-out requests refused.
+
+            Args:
+                identifier: ICAO 24-bit address, registration, IMO, MMSI or GFW vessel id.
+                start: window start.
+                end: window end (at most 92 days after start).
+                purpose: why the calls are needed (logged with the request).
+                namespace: the movement records namespace.
+                scheme: optional explicit identifier scheme.
+                facilities_namespace: geospatial namespace of airport and port facilities.
+            """
+            from src.osint.movements import MovementQueries
+
+            def answer(con, scopes):
+                full = MovementQueries(con).window(namespace, identifier, start, end, scopes=scopes, scheme=scheme,
+                                                   facilities_namespace=facilities_namespace)
+                return {k: full[k] for k in ("contract", "query", "namespace", "identifier", "window", "as_of",
+                                             "subjects", "calls", "coverage", "identity_matches", "never",
+                                             "answer_hash")}
+
+            return _movement_request("movement_calls", identifier, start, end, purpose, namespace, answer)
 
 
 if __name__ == "__main__":

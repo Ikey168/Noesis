@@ -1,0 +1,71 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "data": [
+     {
+      "active_substance": "noetiglutide",
+      "category": "Human",
+      "ema_product_number": "EMEA/H/C/009001",
+      "inn_common_name": "noetiglutide",
+      "last_updated_date": "2026-06-01",
+      "latest_procedure_affecting_product_information": "EMEA/H/C/009001/II/0012",
+      "marketing_authorisation_date": "2020-02-10",
+      "marketing_authorisation_developer_applicant_holder": "Fixture Therapeutics GmbH",
+      "medicine_status": "Authorised",
+      "medicine_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/noetiglu-fixture",
+      "name_of_medicine": "Noetiglu (fixture)",
+      "revision_number": "4",
+      "therapeutic_area_mesh": "Diabetes Mellitus, Type 2"
+     },
+     {
+      "active_substance": "fixturamab",
+      "category": "Human",
+      "ema_product_number": "EMEA/H/C/009002",
+      "inn_common_name": "fixturamab",
+      "last_updated_date": "2024-11-20",
+      "marketing_authorisation_date": "2018-05-02",
+      "marketing_authorisation_developer_applicant_holder": "Fixture Biologics B.V.",
+      "medicine_status": "Withdrawn",
+      "medicine_url": "https://www.ema.europa.eu/en/medicines/human/EPAR/fixturamab-fixture",
+      "name_of_medicine": "Fixturamab (fixture)",
+      "revision_number": "2",
+      "therapeutic_area_mesh": "Arthritis, Rheumatoid",
+      "withdrawal_of_marketing_authorisation_date": "2024-11-15"
+     },
+     {
+      "active_substance": "otherumab",
+      "category": "Human",
+      "date_of_refusal_of_marketing_authorisation": "2023-01-12",
+      "ema_product_number": "EMEA/H/C/009003",
+      "inn_common_name": "otherumab",
+      "last_updated_date": "2023-01-20",
+      "medicine_status": "Refused",
+      "name_of_medicine": "Unrelated medicine (fixture)",
+      "revision_number": "1"
+     }
+    ]
+   },
+   "request": "/en/documents/report/medicines-output-medicines_json-report_en.json",
+   "status": 200
+  },
+  {
+   "body": "ANNEX I\nSUMMARY OF PRODUCT CHARACTERISTICS\n\n1. NAME OF THE MEDICINAL PRODUCT\nNoetiglu (fixture) solution for injection in pre-filled pen\n\n2. QUALITATIVE AND QUANTITATIVE COMPOSITION\nEach pre-filled pen contains noetiglutide (fixture composition).\n\n4. CLINICAL PARTICULARS\n4.1 Therapeutic indications\nNoetiglu is indicated for the treatment of adults with insufficiently controlled type 2 diabetes mellitus as an adjunct to diet and exercise (fixture text).\n4.2 Posology and method of administration\nFixture dosing text that is never retained.\n4.3 Contraindications\nHypersensitivity to the active substance or to any of the excipients.\n4.4 Special warnings and precautions for use\nAcute pancreatitis has been observed with noetiglutide (fixture text). Patients should be informed of the characteristic symptoms of acute pancreatitis.\n4.8 Undesirable effects\nNausea, vomiting and diarrhoea were the most frequently reported adverse reactions (fixture text).\n4.9 Overdose\nFixture overdose text that is never retained.\n\n5. PHARMACOLOGICAL PROPERTIES\n5.1 Pharmacodynamic properties\nClinical efficacy and safety: the pivotal study NOETIC-1 (NCT09000001; EudraCT 2015-900001-10) is described in PMID: 99000001 (fixture text).\n\nANNEX II\nA. MANUFACTURER(S) OF THE BIOLOGICAL ACTIVE SUBSTANCE\n",
+   "request": "/en/documents/product-information/noetiglu-fixture-epar-product-information_en.pdf",
+   "status": 200
+  },
+  {
+   "body": "Public statement (fixture)\n\nFixturamab (fixture): Withdrawal of the marketing authorisation in the European Union\n\nOn 15 November 2024, the European Commission withdrew the marketing authorisation for Fixturamab at the request of the marketing authorisation holder, Fixture Biologics B.V., which notified the European Commission of its decision to permanently discontinue the marketing of the product for commercial reasons (fixture text).\n",
+   "request": "/en/documents/public-statement/public-statement-fixturamab-withdrawal-marketing-authorisation-european-union_en.pdf",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; medicines, identifiers and texts are fictional placeholders. Not live evidence.",
+ "provider": "EMA medicines export, EPAR product information and public statement",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

@@ -1,0 +1,483 @@
+{
+ "contract": "noesis-provider-descriptor-v1",
+ "id": "energy.core",
+ "version": "1.0.0",
+ "description": "Energy Systems: generation by fuel, load, day-ahead prices, installed capacity (zone and plant/unit), cross-border flows and energy balances as published with release vintages (src.kb.energy_store), bounded receipted acquisition reusing the environment entsoe adapter and the SDMX connector (src.ingestion.energy_sources), reviewable identity (src.kb.energy_identity), citation-only links (src.kb.energy_links), as-of queries (src.kb.energy_queries) and subscription monitors (src.kb.energy_monitoring).",
+ "implementation": {
+  "name": "src.kb.energy_*",
+  "version": "1.0.0",
+  "server": "noesis-knowledge-engine"
+ },
+ "capabilities": [
+  {
+   "id": "energy.records",
+   "contract": {
+    "name": "noesis-energy-record",
+    "version": "1.0.0"
+   },
+   "operations": [
+    "source-contracts",
+    "bundle-status",
+    "acquire-source",
+    "register-schemas",
+    "list-series",
+    "publish-prices-to-market"
+   ],
+   "semantic_constraints": {
+    "vintages": "every release is a vintage; provisional and revised figures are distinct and never overwritten",
+    "kinds": "observations only; forecasts refused",
+    "units": "published unit kept; no conversion, gap-filling or cross-source blending",
+    "prices": "written through market storage (noesis-market-bar-v1); negative prices listed as refused",
+    "coverage": "explicit bounded selections per provider (docs/roadmaps/energy-systems-source-audit.md)"
+   }
+  },
+  {
+   "id": "energy.queries",
+   "contract": {
+    "name": "noesis-energy-answer",
+    "version": "1.0.0"
+   },
+   "operations": [
+    "generation-mix",
+    "observations",
+    "revision-history",
+    "capacity-as-of"
+   ],
+   "semantic_constraints": {
+    "as_of": "the vintage published at or before the as-of time (release date, else retrieval time, labelled)",
+    "sources": "side by side per provider and dataset; never blended",
+    "unknowns": "capacity without a covering published value is unknown; subjects without records say so"
+   }
+  },
+  {
+   "id": "energy.identity",
+   "contract": {
+    "name": "noesis-energy-identity-match",
+    "version": "1.0.0"
+   },
+   "operations": [
+    "propose-identity",
+    "review-identity",
+    "list-identity"
+   ],
+   "semantic_constraints": {
+    "review": "candidates only; accepted by a principal other than the proposer; reject and revert recorded",
+    "owners": "places through geospatial.place-resolution, plants through canonical_entities and entity history"
+   }
+  },
+  {
+   "id": "energy.links",
+   "contract": {
+    "name": "noesis-energy-link",
+    "version": "1.0.0"
+   },
+   "operations": [
+    "link-records",
+    "link-facility",
+    "list-links"
+   ],
+   "semantic_constraints": {
+    "basis": "shared identifier or explicit citation with source and locator; never name similarity, co-location or correlation",
+    "facilities": "only through an accepted identity match"
+   }
+  },
+  {
+   "id": "energy.monitoring",
+   "contract": {
+    "name": "noesis-energy-monitor",
+    "version": "1.0.0"
+   },
+   "operations": [
+    "create-monitor",
+    "run-monitor",
+    "poll-monitor"
+   ],
+   "semantic_constraints": {
+    "schedule": "committed watermarks from source-pack runs / maintenance orchestrator; no scheduler",
+    "thresholds": "user-configured only; the pack derives none"
+   }
+  }
+ ],
+ "operations": [
+  {
+   "id": "source-contracts",
+   "tool": "noesis-knowledge-engine.energy_source_contracts",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "bundle-status",
+   "tool": "noesis-knowledge-engine.energy_bundle_status",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "acquire-source",
+   "tool": "noesis-knowledge-engine.acquire_energy_source",
+   "side_effect": "acquisition",
+   "idempotency": {
+    "supported": false,
+    "receipt": "energy_receipts"
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:write",
+    "knowledge:ingestion:execute"
+   ],
+   "required_context": [
+    "namespace",
+    "source_terms"
+   ]
+  },
+  {
+   "id": "register-schemas",
+   "tool": "noesis-knowledge-engine.register_energy_schemas",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "schema name + version"
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:write",
+    "knowledge:schema:register"
+   ],
+   "required_context": [
+    "principal"
+   ]
+  },
+  {
+   "id": "list-series",
+   "tool": "noesis-knowledge-engine.list_energy_series",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "publish-prices-to-market",
+   "tool": "noesis-knowledge-engine.publish_energy_prices_to_market",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "vintage + listing"
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:write",
+    "market:prices:write"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "generation-mix",
+   "tool": "noesis-knowledge-engine.energy_generation_mix",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "observations",
+   "tool": "noesis-knowledge-engine.energy_observations",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "revision-history",
+   "tool": "noesis-knowledge-engine.energy_revision_history",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "capacity-as-of",
+   "tool": "noesis-knowledge-engine.energy_capacity_as_of",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "records",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "propose-identity",
+   "tool": "noesis-knowledge-engine.propose_energy_identity_matches",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "subject + target"
+   },
+   "readiness_probe": "identity",
+   "required_scopes": [
+    "knowledge:energy:write"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "review-identity",
+   "tool": "noesis-knowledge-engine.review_energy_identity_match",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "match + revision"
+   },
+   "readiness_probe": "identity",
+   "required_scopes": [
+    "knowledge:energy:review"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "list-identity",
+   "tool": "noesis-knowledge-engine.list_energy_identity_matches",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "identity",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "link-records",
+   "tool": "noesis-knowledge-engine.link_energy_records",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "series + vintage + target"
+   },
+   "readiness_probe": "links",
+   "required_scopes": [
+    "knowledge:energy:write"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "link-facility",
+   "tool": "noesis-knowledge-engine.link_energy_facility",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "series + facility"
+   },
+   "readiness_probe": "links",
+   "required_scopes": [
+    "knowledge:energy:write"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "list-links",
+   "tool": "noesis-knowledge-engine.list_energy_links",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "links",
+   "required_scopes": [
+    "knowledge:energy:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "create-monitor",
+   "tool": "noesis-knowledge-engine.create_energy_monitor",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "request_key"
+   },
+   "readiness_probe": "monitors",
+   "required_scopes": [
+    "knowledge:energy:write",
+    "knowledge:subscriptions:write"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "run-monitor",
+   "tool": "noesis-knowledge-engine.run_energy_monitor",
+   "side_effect": "local-mutation",
+   "idempotency": {
+    "supported": true,
+    "key": "subscription + watermark"
+   },
+   "readiness_probe": "monitors",
+   "required_scopes": [
+    "knowledge:energy:write",
+    "knowledge:subscriptions:write"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  },
+  {
+   "id": "poll-monitor",
+   "tool": "noesis-knowledge-engine.poll_energy_monitor",
+   "side_effect": "read-only",
+   "idempotency": {
+    "supported": true
+   },
+   "readiness_probe": "monitors",
+   "required_scopes": [
+    "knowledge:energy:read",
+    "knowledge:subscriptions:read"
+   ],
+   "required_context": [
+    "namespace"
+   ]
+  }
+ ],
+ "stores": [
+  {
+   "record_type": "energy-series",
+   "store": "src.kb.energy_store",
+   "tables": [
+    "energy_series",
+    "energy_vintages",
+    "energy_values",
+    "energy_receipts",
+    "energy_provider_state"
+   ],
+   "revision_addressable": true,
+   "namespace_scoped": true
+  },
+  {
+   "record_type": "energy-market-reference",
+   "store": "src.kb.energy_market",
+   "tables": [
+    "energy_market_refs"
+   ],
+   "revision_addressable": true,
+   "namespace_scoped": true
+  },
+  {
+   "record_type": "energy-identity-match",
+   "store": "src.kb.energy_identity",
+   "tables": [
+    "energy_identity_matches",
+    "energy_identity_reviews"
+   ],
+   "revision_addressable": true,
+   "namespace_scoped": true
+  },
+  {
+   "record_type": "energy-link",
+   "store": "src.kb.energy_links",
+   "tables": [
+    "energy_links"
+   ],
+   "revision_addressable": true,
+   "namespace_scoped": true
+  },
+  {
+   "record_type": "energy-monitor",
+   "store": "src.kb.energy_monitoring",
+   "tables": [
+    "energy_monitors"
+   ],
+   "revision_addressable": true,
+   "namespace_scoped": true
+  }
+ ],
+ "readiness_probes": [
+  {
+   "id": "records",
+   "kind": "table-exists",
+   "target": "energy_vintages"
+  },
+  {
+   "id": "identity",
+   "kind": "table-exists",
+   "target": "energy_identity_matches"
+  },
+  {
+   "id": "links",
+   "kind": "table-exists",
+   "target": "energy_links"
+  },
+  {
+   "id": "monitors",
+   "kind": "table-exists",
+   "target": "energy_monitors"
+  }
+ ],
+ "source_packs": [
+  {
+   "pack_id": "energy-systems",
+   "version": "1.0.0",
+   "range": "^1.0.0"
+  }
+ ]
+}

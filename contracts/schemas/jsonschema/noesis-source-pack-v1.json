@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["astronomy", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "cellar", "companies-house", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "election-results", "ema-medicines", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "housing", "icecat", "iso-open-data", "linguistics", "lobbying-register", "manifest", "materials", "nhtsa", "ocds", "oeis", "openfda", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "surveillance", "ted", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -41,16 +41,16 @@
             "type": "object",
             "description": "Clinical Evidence selection: the namespace records belong to plus pinned NCT/EU CT/EudraCT numbers, openFDA products or EMA product numbers (1-50), or one bounded ClinicalTrials.gov query.",
             "required": ["namespace"],
-            "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
+            "properties": {"namespace": {"type": "string", "minLength": 1}, "nct_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^NCT[0-9]{8}$"}}, "history": {"type": "boolean"}, "max_versions": {"type": "integer", "minimum": 1, "maximum": 40}, "query": {"type": "object"}, "page_size": {"type": "integer", "minimum": 1, "maximum": 100}, "ct_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}-[0-9]{2}$"}}, "eudract_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{6}-[0-9]{2}$"}}, "products": {"type": "array", "maxItems": 50, "items": {"type": "object"}}, "endpoints": {"type": "array", "items": {"enum": ["label", "drugsfda", "event-counts", "drugsfda-submissions"]}}, "event_count_field": {"type": "string"}, "max_labels": {"type": "integer", "minimum": 1, "maximum": 10}, "export_path": {"type": "string"}, "product_numbers": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}}}
           },
           "surveillance": {
             "type": "object",
-            "description": "Bounded public-health surveillance publications for the surveillance connector (#1917): provider, documented format, namespace and the declared documents (one release each: an RKI release tag and CSV path with its column layout, a WHO GHO indicator and filter, a Eurostat hlth_* dataset and series key, or a GENESIS table), each with the kind of its values, unit, condition, geography code system, case-definition editions, reporting-delay note and citable identifiers.",
+            "description": "Bounded public-health surveillance publications for the surveillance connector (#1917): provider, documented format, namespace and the declared documents (one release each: an RKI release tag and CSV path with its column layout, a WHO GHO indicator and filter, a Eurostat hlth_* dataset and series key, a GENESIS table, or an OECD Health Statistics dataflow and key), each with the kind of its values, unit, condition, geography code system, case-definition editions, reporting-delay note and citable identifiers. The health-capacity connector (#2215) uses the same declaration with a capacity_domain per document.",
             "required": ["namespace", "provider", "format", "documents"],
             "properties": {
               "namespace": {"type": "string", "minLength": 1},
-              "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health"]},
-              "format": {"enum": ["rki-github-csv", "who-gho-odata", "eurostat-sdmx-csv", "destatis-genesis-ffcsv"]},
+              "provider": {"enum": ["rki-open-data", "who-gho", "eurostat-health", "destatis-health", "oecd-health"]},
+              "format": {"enum": ["rki-github-csv", "who-gho-odata", "eurostat-sdmx-csv", "destatis-genesis-ffcsv", "oecd-sdmx-csv"]},
               "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "kind"], "properties": {"label": {"type": "string", "minLength": 1}, "kind": {"enum": ["observation", "estimate", "model-output"]}}}}
             },
             "additionalProperties": false
@@ -168,8 +168,8 @@
             "required": ["register", "format"],
             "properties": {
               "namespace": {"type": "string", "minLength": 1},
-              "register": {"enum": ["eu-tr", "de-lobbyregister", "uk-orcl", "ep-meetings", "ec-meetings"]},
-              "format": {"enum": ["eu-tr-xml", "de-lobbyregister-json", "ep-meetings-csv", "ec-meetings-json", "uk-orcl-csv"]},
+              "register": {"enum": ["eu-tr", "de-lobbyregister", "uk-orcl", "ep-meetings", "ec-meetings", "us-lda"]},
+              "format": {"enum": ["eu-tr-xml", "de-lobbyregister-json", "ep-meetings-csv", "ec-meetings-json", "uk-orcl-csv", "us-lda-json"]},
               "selection": {"type": "object", "properties": {"native_ids": {"type": "array", "items": {"type": "string", "minLength": 1}, "minItems": 1, "maxItems": 500}}, "additionalProperties": false},
               "documents": {"enum": ["link-only", "text"]}
             },
@@ -378,6 +378,470 @@
                 "category": {"type": "string"},
                 "source_as_of": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
               }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "natural_hazards": {
+            "type": "object",
+            "description": "Declared hazard documents for the natural-hazards connector (#2207, NH01): provider, namespace, live-verification state and the declared documents (format and URL on the endpoint host; USGS details name the requested event ID, NHC advisories may reference the forecast cone by locator).",
+            "required": ["provider", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["usgs", "emsc", "gdacs", "nhc", "effis", "glofas"]},
+              "live_verification": {"enum": ["unverified-live", "key-gated", "verified-live"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 60, "items": {"type": "object", "required": ["label", "format", "url"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "format": {"enum": ["usgs-fdsn-geojson", "usgs-detail-geojson", "emsc-fdsn-json", "gdacs-geojson", "nhc-tcm", "nhc-tcp", "effis-burnt-area-geojson", "glofas-notification-json"]},
+                "url": {"type": "string", "pattern": "^https://"},
+                "requested_id": {"type": "string", "minLength": 1},
+                "cone_url": {"type": "string", "pattern": "^https://"}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "substances": {
+            "type": "object",
+            "description": "Bounded substance selection for the substances connector (#2212): provider (pubchem, echa-clp, echa-reach, comptox), namespace, live-verification state, an optional published data version and 1-50 explicit substances (a PubChem CID, an ECHA substance id or CLP index number, or a DTXSID, with the CAS/EC/InChIKey that selected it).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["pubchem", "echa-clp", "echa-reach", "comptox"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "data_version": {"type": "string", "minLength": 1},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "trade_flows": {
+            "type": "object",
+            "description": "Declared trade-flow and concordance documents for the trade-flows connector (#2210): provider, runtime format, namespace, the provider's live-verification status and the declared documents (a Comtrade reporter selection, a Comext dataset selection or a WITS concordance file), each flow document stating its role (the pair reporter's own report or the partner's mirror report) and the pair it serves.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["un-comtrade", "eurostat-comext", "wits"]},
+              "format": {"enum": ["comtrade-json", "comext-jsonstat", "concordance-zip-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "role": {"enum": ["reporter", "mirror"]},
+                "pair": {"type": "object", "required": ["reporter", "partner"], "properties": {"reporter": {"type": "string"}, "partner": {"type": "string"}}, "additionalProperties": false},
+                "type": {"enum": ["C"]}, "freq": {"enum": ["A", "M"]}, "classification": {"enum": ["HS"]},
+                "reporter": {"type": "string"}, "partners": {"type": "array", "items": {"type": "string"}},
+                "flows": {"type": "array", "items": {"enum": ["M", "X", "RM", "RX"]}},
+                "commodities": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^\\d{2,6}$"}},
+                "periods": {"type": "array", "maxItems": 12, "items": {"type": "string"}},
+                "dataset": {"type": "string"},
+                "filters": {"type": "object", "additionalProperties": {"anyOf": [{"type": "string"}, {"type": "array", "items": {"type": "string"}}]}},
+                "url": {"type": "string", "pattern": "^https://"}, "member": {"type": "string"}, "encoding": {"type": "string"},
+                "source": {"type": "object", "required": ["scheme", "vintage"], "properties": {"scheme": {"enum": ["HS", "CN", "SITC"]}, "vintage": {"type": "string"}}, "additionalProperties": false},
+                "target": {"type": "object", "required": ["scheme", "vintage"], "properties": {"scheme": {"enum": ["HS", "CN", "SITC"]}, "vintage": {"type": "string"}}, "additionalProperties": false},
+                "columns": {"type": "object", "additionalProperties": {"type": "string"}},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "legislation": {
+            "type": "object",
+            "description": "One bounded US Congress or UK Parliament selection for the legislation connector (#2208): provider, documented format, namespace, LIVE_VERIFICATION status and the declared units (bills, votes, GovInfo packages, divisions or Hansard sections; a division or debate may name the bill it is declared for, which stays an unlinked candidate until reviewed).",
+            "required": ["provider", "format", "selection", "live_verification"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["congress-gov", "senate-lis", "govinfo", "uk-bills", "uk-commons-votes", "uk-lords-votes", "uk-hansard"]},
+              "format": {"enum": ["congress-gov-bill-json", "congress-gov-house-vote-json", "senate-lis-vote-xml", "govinfo-bills-package-json", "govinfo-billstatus-xml", "uk-bills-json", "uk-commons-division-json", "uk-lords-division-json", "uk-hansard-debate-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "bills": {"type": "array", "minItems": 1, "maxItems": 50},
+                "votes": {"type": "array", "minItems": 1, "maxItems": 50},
+                "packages": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^BILLS-\\d{1,3}[a-z]+\\d{1,5}[a-z]{2,4}$"}},
+                "divisions": {"type": "array", "minItems": 1, "maxItems": 50},
+                "debates": {"type": "array", "minItems": 1, "maxItems": 50}
+              }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "energy": {
+            "type": "object",
+            "description": "Energy Systems selection for the energy connector (#2211): the provider (ENTSO-E through the environment adapter, EIA, Ember, Eurostat balances through the SDMX connector, Energy-Charts public power), the namespace records belong to, the access decision and one explicit bounded selection compiled by src/ingestion/energy_sources.py plan().",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["entsoe", "eia", "ember", "eurostat", "energy-charts"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "access_decision": {"type": "string", "minLength": 1},
+              "live_verification": {"type": "string", "minLength": 1},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "fisheries": {
+            "type": "object",
+            "description": "Bounded selection for the fisheries connector (#2222): provider (gfw, fao-fishstat, iccat, wcpfc, iotc, combined-iuu), namespace, live-verification state and 1-50 explicit pages (a GFW vessel id or effort report, a FishStat release with its areas, species, countries and years, or an RFMO list with its flag states).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["gfw", "fao-fishstat", "iccat", "wcpfc", "iotc", "combined-iuu"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "coverage_decision": {"type": "string", "minLength": 1},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "humanitarian": {
+            "type": "object",
+            "description": "Bounded humanitarian selection for the humanitarian connector (#2206): provider (ReliefWeb, HDX, UCDP GED/Candidate or the licence-gated ACLED entry), namespace, live-verification state, the declared selection and, for ACLED, the recorded licence decision (docs/development/humanitarian-evidence/source-audit.md).",
+            "required": ["provider", "selection", "live_verification"],
+            "properties": {
+              "provider": {"enum": ["reliefweb", "hdx", "ucdp-ged", "ucdp-candidate", "acled"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "appname": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live", "blocked", "declined"]},
+              "licence_decision": {"type": "object", "required": ["status", "reference"], "properties": {
+                "status": {"enum": ["accepted", "declined"]},
+                "recorded": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "reference": {"type": "string", "minLength": 1}
+              }, "additionalProperties": false},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "medicines": {
+            "type": "object",
+            "description": "Bounded medicines-regulation selection for the medicines connector (#2214): namespace, provider and the pinned items (EMA product numbers with product-information and public-statement paths, DailyMed SPL set ids, or FDA Drug Safety Communication page paths).",
+            "required": ["namespace", "provider"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ema-epar", "dailymed", "fda-dsc"]},
+              "export_path": {"type": "string"},
+              "products": {"type": "array", "maxItems": 50, "items": {"type": "object", "required": ["product_number"], "properties": {"product_number": {"type": "string", "pattern": "^EMEA/H/C/[0-9]{6}$"}, "product_information_path": {"type": "string"}, "public_statement_path": {"type": "string"}}, "additionalProperties": false}},
+              "set_ids": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"}},
+              "communications": {"type": "array", "maxItems": 50, "items": {"type": "string", "pattern": "^/drugs/drug-safety-and-availability/"}}
+            },
+            "additionalProperties": false
+          },
+          "agrifood": {
+            "type": "object",
+            "description": "Bounded series selection for the agrifood connector (#2213): provider (faostat, nass-quickstats, fas-psd, eurostat-agri, agri-food-portal), namespace, live-verification state and 1-50 explicit selections (a FAOSTAT domain, area, item, elements and years; a NASS short_desc, geography and years; a PSD commodity, country, attributes and market years; a Eurostat dataset and series key; a portal sector, product and member state).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["faostat", "nass-quickstats", "fas-psd", "eurostat-agri", "agri-food-portal"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "courts_justice": {
+            "type": "object",
+            "description": "One bounded court-docket or justice-statistics selection for the courts-justice connector (#2218): provider, documented format, namespace, LIVE_VERIFICATION status and the declared units (CourtListener dockets or opinion clusters by id, FBI CDE state/agency series, data.police.uk force areas and months, or Eurostat crime datasets with countries, declared definitions and ESMS sections).",
+            "required": ["provider", "format", "selection", "live_verification"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["courtlistener", "fbi-cde", "police-uk", "eurostat"]},
+              "format": {"enum": ["courtlistener-docket-json", "courtlistener-cluster-json", "fbi-cde-summarized-json", "police-uk-crimes-json", "eurostat-crime-jsonstat"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "dockets": {"type": "array", "minItems": 1, "maxItems": 20},
+                "clusters": {"type": "array", "minItems": 1, "maxItems": 20},
+                "series": {"type": "array", "minItems": 1, "maxItems": 20},
+                "areas": {"type": "array", "minItems": 1, "maxItems": 20},
+                "datasets": {"type": "array", "minItems": 1, "maxItems": 20}
+              }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "labour_statistics": {
+            "type": "object",
+            "description": "Declared labour-statistics documents for the labour-statistics connector (#2219): provider, runtime format, namespace, the provider's live-verification status and the declared documents (an SDMX dataflow, series key and period window, or one BLS series ID and year range), each stating its indicator concept and measure, definition basis, estimate type, seasonal adjustment, unit, place dimension and classified sector or occupation dimension, and the references it cites as published.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ilostat", "oecd", "eurostat-lfs", "bls"]},
+              "format": {"enum": ["ilostat-sdmx-csv", "oecd-sdmx-csv", "eurostat-sdmx-csv", "bls-timeseries-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "indicator", "estimate_type", "definition", "unit"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "flow": {"type": "string"}, "key": {"type": "string"},
+                "params": {"type": "object", "additionalProperties": {"type": "string"}},
+                "series_id": {"type": "string", "pattern": "^[A-Z0-9]{4,30}$"},
+                "startyear": {"type": "string", "pattern": "^\\d{4}$"}, "endyear": {"type": "string", "pattern": "^\\d{4}$"},
+                "indicator": {"type": "object", "required": ["concept", "measure"]},
+                "estimate_type": {"enum": ["national-reported", "ilo-modelled", "harmonised", "survey", "administrative"]},
+                "definition": {"type": "object", "required": ["basis"], "properties": {"basis": {"enum": ["ilo-harmonised", "oecd-harmonised", "eu-lfs", "national"]}}},
+                "seasonal_adjustment": {"anyOf": [{"enum": ["NSA", "SA", "trend"]}, {"type": "object", "required": ["dimension", "codes"]}]},
+                "area": {"type": "object"}, "sector": {"type": "object"}, "occupation": {"type": "object"},
+                "unit": {"type": "object", "required": ["label"]}, "unit_multiplier": {"type": "string"},
+                "references": {"type": "array", "items": {"type": "object", "required": ["kind", "identifier"]}},
+                "denominator": {"type": "object"},
+                "revision_window_periods": {"type": "integer", "minimum": 1},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "kind": {"enum": ["regular", "benchmark"]}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "infrastructure": {
+            "type": "object",
+            "description": "Critical infrastructure selection for the infrastructure connector (#2223): the publisher (WRI GPPD, a declared Global Energy Monitor tracker release, a bounded Overpass extract, an EIA layer, ENTSOG points), the namespace records belong to, the access decision and one explicit bounded selection compiled by src/ingestion/infrastructure_sources.py plan().",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["gppd", "gem", "osm", "eia", "entsog"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "access_decision": {"type": "string", "minLength": 1},
+              "live_verification": {"type": "string", "minLength": 1},
+              "selection": {"type": "object"}
+            },
+            "additionalProperties": false
+          },
+          "food_composition": {
+            "type": "object",
+            "description": "Bounded selection for the food-composition connector (#2216): provider (open-food-facts, fooddata-central, composition-table), namespace, live-verification state and 1-50 explicit selectors (a GTIN with an optional Open Food Facts rev, an FDC ID, or a composition-table edition with its native food codes; only tables with an acquire decision).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["open-food-facts", "fooddata-central", "composition-table"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "coverage_decision": {"type": "string", "minLength": 1},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "astronomy_registration": {
+            "type": "object",
+            "description": "Declared documents for the astronomy-registration connector (#2224): provider (unoosa-index, unoosa-registration-documents, esa-discos, aerospace-reentry), documented format, namespace, bounded designators, years or objects, DISCOS mode (permitted-subset or citation-only), per-language labels for registration documents, declared columns for re-entry pages, and 1-60 documents (HTTPS URLs on the endpoint host; registration documents declare symbol, date, language and registrant; re-entry pages declare their object).",
+            "required": ["provider", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["unoosa-index", "unoosa-registration-documents", "esa-discos", "aerospace-reentry"]},
+              "format": {"enum": ["unoosa-index-json", "unoosa-registration-text", "discos-json", "aerospace-reentry-html"]},
+              "designators": {"type": "array", "maxItems": 50, "items": {"type": "string", "minLength": 1}},
+              "years": {"type": "array", "maxItems": 10, "items": {"type": "string", "pattern": "^\\d{4}$"}},
+              "objects": {"type": "array", "maxItems": 50, "items": {"type": "string", "minLength": 1}},
+              "mode": {"enum": ["permitted-subset", "citation-only"]},
+              "labels": {"type": "object", "additionalProperties": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}}},
+              "columns": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+              "report_kinds": {"type": "object", "additionalProperties": {"enum": ["prediction", "post_event"]}},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 60, "items": {"type": "object", "required": ["label", "url"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "listing": {"enum": ["complete", "partial"]},
+                "source_as_of": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "symbol": {"type": "string", "minLength": 1},
+                "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "language": {"enum": ["en", "fr", "es", "ru", "zh", "ar"]},
+                "registrant": {"type": "string", "minLength": 1},
+                "registrant_kind": {"enum": ["state", "intergovernmental_organisation"]},
+                "resource": {"enum": ["objects", "reentries"]},
+                "object": {"type": "object", "properties": {"norad": {"type": "string"}, "cospar": {"type": "string"}, "name": {"type": "string"}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "education_statistics": {
+            "type": "object",
+            "description": "Declared education and research-institution statistics documents for the education-statistics connector (#2227): provider, runtime format, namespace, the provider's live-verification status and the declared documents (an IPEDS data file, an ETER export, a UIS indicator call or an OECD/Eurostat SDMX-CSV series key), each with its variables (code, label, concept, unit, definition) and the release it belongs to.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ipeds", "eter", "unesco-uis", "oecd-eag", "eurostat-rd"]},
+              "format": {"enum": ["ipeds-csv-zip", "eter-csv", "uis-json", "oecd-sdmx-csv", "eurostat-sdmx-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "file": {"type": "string"}, "member": {"type": "string"}, "survey": {"type": "string"},
+                "survey_year": {"type": "string", "pattern": "^\\d{4}$"}, "period": {"type": "string"},
+                "reference_year": {"type": "string", "pattern": "^\\d{4}$"},
+                "unitids": {"type": "array", "maxItems": 200, "items": {"type": "string", "pattern": "^\\d{6}$"}},
+                "eter_ids": {"type": "array", "maxItems": 200, "items": {"type": "string"}},
+                "filters": {"type": "object", "additionalProperties": {"type": "string"}},
+                "suppression_codes": {"type": "object", "additionalProperties": {"type": "string"}},
+                "profile": {"type": "object", "additionalProperties": {"type": "string"}},
+                "columns": {"type": "object"},
+                "url": {"type": "string", "pattern": "^https://"}, "delimiter": {"type": "string"}, "encoding": {"type": "string"},
+                "indicators": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+                "geo_units": {"type": "array", "maxItems": 50, "items": {"type": "string"}},
+                "start": {"type": "string"}, "end": {"type": "string"}, "version": {"type": "string"},
+                "flow": {"type": "string"}, "key": {"type": "string"}, "indicator": {"type": "string"},
+                "params": {"type": "object", "additionalProperties": {"type": "string"}},
+                "isced_dimension": {"type": "string"},
+                "note_attributes": {"type": "array", "items": {"type": "string"}},
+                "variables": {"type": "object", "additionalProperties": {"type": "object", "required": ["label", "concept", "unit"], "properties": {
+                  "label": {"type": "string", "minLength": 1},
+                  "concept": {"enum": ["enrolment", "graduates", "staff", "teachers", "finance", "education_expenditure", "rd_expenditure", "rd_personnel", "enrolment_ratio"]},
+                  "unit": {"type": "object", "additionalProperties": {"type": "string"}},
+                  "definition": {"type": "string"}, "definition_ref": {"type": "string"},
+                  "isced": {"type": "object", "properties": {"level": {"type": "string"}, "label": {"type": "string"}}, "additionalProperties": false}
+                }, "additionalProperties": false}},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "stage": {"enum": ["provisional", "final", "revised", "release", "edition", "update"]}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "logistics": {
+            "type": "object",
+            "description": "Declared shipping and logistics documents for the logistics connector (#2229): provider, runtime format, namespace, live-verification status and the declared documents (a UN/LOCODE release file with its version and countries, a UNCTADstat report CSV with its columns, a Eurostat maritime dataset selection, or one openly licensed freight-index series with its licence decision and base), each series document declaring concept, unit, frequency, geography kind and scheme and a definition reference.",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["unece-unlocode", "unctadstat", "eurostat-maritime", "bls-ppi"]},
+              "format": {"enum": ["unlocode-csv", "unctadstat-csv", "eurostat-maritime-jsonstat", "bls-timeseries-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "member": {"type": "string"}, "members": {"type": "array", "items": {"type": "string"}},
+                "encoding": {"type": "string"},
+                "countries": {"type": "array", "items": {"type": "string", "pattern": "^[A-Z]{2}$"}},
+                "column_order": {"type": "array", "items": {"type": "string"}},
+                "dataset": {"type": "string"},
+                "filters": {"type": "object", "additionalProperties": {"anyOf": [{"type": "string"}, {"type": "array", "items": {"type": "string"}}]}},
+                "columns": {"type": "object", "additionalProperties": {"type": "string"}},
+                "dimension_columns": {"type": "object", "additionalProperties": {"type": "string"}},
+                "row_filter": {"type": "object", "additionalProperties": {"type": "string"}},
+                "index_id": {"type": "string"}, "series_id": {"type": "string"},
+                "params": {"type": "object", "additionalProperties": {"type": "string"}},
+                "series": {"type": "object", "required": ["concept", "measure_label", "frequency", "geography", "definition"], "properties": {
+                  "dataset": {"type": "string"}, "concept": {"type": "string", "minLength": 1}, "measure_label": {"type": "string", "minLength": 1},
+                  "unit": {"anyOf": [{"type": "string"}, {"type": "object"}, {"type": "null"}]},
+                  "frequency": {"enum": ["annual", "semiannual", "quarterly", "monthly"]},
+                  "base": {"type": "string"},
+                  "geography": {"type": "object", "required": ["kind", "scheme"], "properties": {
+                    "kind": {"enum": ["port", "country", "route"]},
+                    "scheme": {"enum": ["unlocode", "unctad-port", "m49", "eurostat-port", "eurostat-geo", "iso2", "us"]},
+                    "partner_scheme": {"enum": ["unlocode", "unctad-port", "m49", "eurostat-port", "eurostat-geo", "iso2"]},
+                    "dimension": {"type": "string"}, "partner_dimension": {"type": "string"},
+                    "code": {"type": "string"}, "label": {"type": "string"}}, "additionalProperties": false},
+                  "definition": {"type": "object", "required": ["reference"], "properties": {"reference": {"type": "string", "pattern": "^https://"}, "text": {"type": "string"}}, "additionalProperties": false}
+                }, "additionalProperties": false},
+                "breaks": {"type": "array", "items": {"type": "object", "required": ["period", "note"], "properties": {"period": {"type": "string"}, "note": {"type": "string"}, "geography": {"type": "string"}, "source_text": {"type": "string"}}, "additionalProperties": false}},
+                "release": {"type": "object", "required": ["label", "published_on"], "properties": {"label": {"type": "string", "minLength": 1}, "published_on": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "version": {"type": "string"}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "insurance": {
+            "type": "object",
+            "description": "Declared insurance documents for the insurance connector (#2230): provider, the IN01 access decision the source runs under (must equal the recorded decision; excluded providers are refused), format, namespace, the declared column mapping (CSV/XLSX), the bounded scope (countries, reference years, events, estimate window, the named SFCR insurer sample), declared markers, indicator labels, the QRT cells to quote (template, row, column and the template's column order) and the documents (HTTPS URLs on the endpoint host, each with its release, publication date, reporting year or insurer as declared).",
+            "required": ["provider", "access_decision", "format", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["eiopa-insurance-statistics", "insurer-sfcr", "naic-public", "florida-oir-claims", "noaa-ncei-billion-dollar", "swiss-re-sigma", "munich-re-natcatservice", "ica-catastrophe-list", "broker-reports"]},
+              "access_decision": {"enum": ["in-scope", "metadata-only"]},
+              "format": {"enum": ["eiopa-statistics-csv", "eiopa-statistics-xlsx", "sfcr-pdf", "naic-market-share-csv", "catastrophe-estimates-csv", "publication-reference"]},
+              "encoding": {"type": "string", "minLength": 1},
+              "delimiter": {"type": "string", "minLength": 1, "maxLength": 1},
+              "decimal": {"enum": [",", "."]},
+              "sheet": {"type": "string"},
+              "header_row": {"type": "integer", "minimum": 1},
+              "dataset": {"type": "string"},
+              "unit": {"type": "string"},
+              "currency": {"type": "string"},
+              "indicator": {"type": "string"},
+              "indicator_label": {"type": "string"},
+              "definition": {"type": "string"},
+              "estimate_type": {"enum": ["insured", "economic"]},
+              "measure": {"type": "string"},
+              "countries": {"type": "array", "maxItems": 60, "items": {"type": "string"}},
+              "reference_years": {"type": "object", "properties": {"from": {"type": "integer"}, "to": {"type": "integer"}}, "additionalProperties": false},
+              "window": {"type": "object", "properties": {"from": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}, "to": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}}, "additionalProperties": false},
+              "events": {"type": "array", "maxItems": 200, "items": {"type": "string"}},
+              "markers": {"type": "array", "maxItems": 20, "items": {"type": "string"}},
+              "indicators": {"type": "object", "additionalProperties": {"type": "object"}},
+              "columns": {"type": "object", "additionalProperties": {"type": "string", "minLength": 1}},
+              "insurers": {"type": "array", "maxItems": 50, "items": {"type": "object", "required": ["name", "reporting_level"], "properties": {"name": {"type": "string"}, "lei": {"type": "string", "pattern": "^[0-9A-Z]{18}[0-9]{2}$"}, "country": {"type": "string"}, "reporting_level": {"enum": ["solo", "group"]}}, "additionalProperties": false}},
+              "figures": {"type": "array", "maxItems": 50, "items": {"type": "object", "required": ["template", "row", "column", "label"], "properties": {"template": {"type": "string", "pattern": "^S\\.\\d{2}\\.\\d{2}\\.\\d{2}$"}, "row": {"type": "string", "pattern": "^R\\d{4}$"}, "column": {"type": "string", "pattern": "^C\\d{4}$"}, "columns": {"type": "array", "items": {"type": "string", "pattern": "^C\\d{4}$"}}, "label": {"type": "string"}, "unit": {"type": "string"}, "currency": {"type": "string"}, "reporting_level": {"enum": ["solo", "group"]}}, "additionalProperties": false}},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "required": ["label", "url"], "properties": {
+                "label": {"type": "string", "minLength": 1},
+                "url": {"type": "string", "pattern": "^https://"},
+                "title": {"type": "string"},
+                "period": {"type": "string"},
+                "reference_id": {"type": "string"},
+                "release": {"type": "string"},
+                "release_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "publication_date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "reporting_year": {"type": "integer"},
+                "language": {"type": "string"},
+                "corrects": {"type": "string"},
+                "insurer": {"type": "object", "required": ["name"], "properties": {"name": {"type": "string"}, "lei": {"type": "string"}, "reporting_level": {"enum": ["solo", "group"]}}, "additionalProperties": false}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "competition": {
+            "type": "object",
+            "description": "One bounded competition-case or state-aid selection for the competition connector (#2217): provider, documented format, namespace, LIVE_VERIFICATION status and the declared units (EC case numbers, TAM member state and SA measure, or CMA, FTC or DOJ page slugs).",
+            "required": ["provider", "format", "selection", "live_verification"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ec-competition", "eu-tam", "uk-cma", "us-ftc", "us-doj"]},
+              "format": {"enum": ["ec-case-json", "tam-awards-json", "govuk-cma-case-json", "ftc-case-html", "doj-case-html"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "cases": {"type": "array", "minItems": 1, "maxItems": 20},
+                "measures": {"type": "array", "minItems": 1, "maxItems": 20}
+              }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "osint_movements": {
+            "type": "object",
+            "description": "Declared selection for the osint-movements connector (#2221): provider (faa-registry, uk-caa-ginfo, opensky, gfw-port-visits, kystdatahuset-ais, unctad-port-calls), namespace, live-verification status, the MV01 decision anchor, and 1-50 explicit selections (one N-number, G- mark, ICAO 24-bit address with a window, GFW vessel id with a window, MMSI with a window, or economies and years for aggregates), plus operator-declared privacy refusals (LADD, PIA, withheld). Windows and counts are bounded in src/osint/movements.py.",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["faa-registry", "uk-caa-ginfo", "opensky", "gfw-port-visits", "kystdatahuset-ais", "unctad-port-calls"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "decision": {"type": "string", "pattern": "^docs/security/osint-movements-access\\.md#"},
+              "coverage_decision": {"type": "string"},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "properties": {
+                "label": {"type": "string"},
+                "n_number": {"type": "string", "pattern": "^N[0-9][0-9A-Z]{0,4}$"},
+                "registration": {"type": "string", "minLength": 2},
+                "icao24": {"type": "string", "pattern": "^[0-9a-fA-F]{6}$"},
+                "vessel_id": {"type": "string", "minLength": 8},
+                "mmsi": {"type": "string", "pattern": "^\\d{9}$"},
+                "imo": {"type": "string", "pattern": "^\\d{7}$"},
+                "begin": {"type": "string"}, "end": {"type": "string"}, "start": {"type": "string"},
+                "dataset": {"type": "string"}, "release": {"type": "string"},
+                "economies": {"type": "array", "maxItems": 10, "items": {"type": "string"}},
+                "years": {"type": "array", "maxItems": 5, "items": {"type": "string", "pattern": "^\\d{4}$"}}
+              }, "additionalProperties": false}},
+              "privacy_refusals": {"type": "array", "items": {"type": "object", "required": ["scheme", "identifier", "programme", "reason"], "properties": {
+                "scheme": {"enum": ["icao24", "registration", "imo", "mmsi", "gfw_vessel_id"]},
+                "identifier": {"type": "string", "minLength": 1},
+                "programme": {"enum": ["faa-ladd", "faa-pia", "faa-privacy", "operator-declared", "caa-withheld"]},
+                "reason": {"type": "string", "minLength": 1}
+              }, "additionalProperties": false}}
+            },
+            "additionalProperties": false
+          },
+          "media_metadata": {
+            "type": "object",
+            "description": "Bounded selection for the media-metadata connector (#2225): provider (open-library, musicbrainz, wikidata, dnb, loc), namespace, live-verification state and 1-50 explicit selectors (an OLID or ISBN, an entity type with an MBID, a QID with an optional revision ID, a GND ID, IDN or ISBN, or an LCCN).",
+            "required": ["provider", "selection"],
+            "properties": {
+              "provider": {"enum": ["open-library", "musicbrainz", "wikidata", "dnb", "loc"]},
+              "namespace": {"type": "string", "minLength": 1},
+              "live_verification": {"enum": ["unverified-live", "live-verified", "not-implemented"]},
+              "coverage_decision": {"type": "string", "minLength": 1},
+              "selection": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "minProperties": 1}}
+            },
+            "additionalProperties": false
+          },
+          "campaign_finance": {
+            "type": "object",
+            "description": "One bounded OpenFEC or UK Electoral Commission selection for the campaign-finance connector (#2209): provider, documented format, namespace, LIVE_VERIFICATION status, the CF01 donor data-minimisation policy and the declared units (FEC committees, candidates or committee two-year periods; Commission regulated entities with a date window of at most one year).",
+            "required": ["provider", "format", "selection", "live_verification", "minimisation"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["openfec", "uk-electoral-commission"]},
+              "format": {"enum": ["openfec-committee-history-json", "openfec-candidate-history-json", "openfec-filings-json", "openfec-schedule-a-json", "openfec-schedule-b-json", "openfec-schedule-e-json", "ukec-donations-csv", "ukec-spending-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live"]},
+              "minimisation": {"const": "campaign-finance-minimisation-v1"},
+              "selection": {"type": "object", "minProperties": 1, "maxProperties": 1, "properties": {
+                "committees": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^C\\d{8}$"}},
+                "candidates": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^[HSP][0-9A-Z]{8}$"}},
+                "committee_cycles": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["committee_id", "cycle"], "properties": {"committee_id": {"type": "string", "pattern": "^C\\d{8}$"}, "cycle": {"type": "integer", "minimum": 1980}}, "additionalProperties": false}},
+                "regulated_entities": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "object", "required": ["id", "from", "to"], "properties": {"id": {"type": "string", "pattern": "^\\d{1,8}$"}, "from": {"type": "string", "format": "date"}, "to": {"type": "string", "format": "date"}}, "additionalProperties": false}}
+              }, "additionalProperties": false}
             },
             "additionalProperties": false
           },

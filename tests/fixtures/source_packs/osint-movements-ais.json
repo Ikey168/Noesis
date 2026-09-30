@@ -1,0 +1,311 @@
+{
+  "description": "Authored synthetic payloads in the provider's documented or observed shape (verify against a live run, #2291). Every registration, ICAO address, IMO number, MMSI, owner, airport and port is fictional; positions are illustrative, not live evidence.",
+  "scenarios": [
+    "named-vessel-only",
+    "other-vessel-row-dropped",
+    "coverage-gap",
+    "stay-adjacent-to-gap",
+    "no-coverage-window",
+    "imo-from-static-data"
+  ],
+  "native_pages": [
+    {
+      "request": "/ws/api/ais/positions/for-mmsis-time?end=2025-03-12T00%3A00%3A00Z&mmsiIds=671000002&start=2025-03-10T00%3A00%3A00Z",
+      "status": 200,
+      "body": {
+        "success": true,
+        "data": [
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T08:00:00Z",
+            "latitude": 60.2,
+            "longitude": 5.0,
+            "speedOverGround": 11.0,
+            "courseOverGround": 40.0,
+            "imo": 9000027
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T08:20:00Z",
+            "latitude": 60.230000000000004,
+            "longitude": 5.05,
+            "speedOverGround": 11.0,
+            "courseOverGround": 40.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T08:40:00Z",
+            "latitude": 60.260000000000005,
+            "longitude": 5.1,
+            "speedOverGround": 11.0,
+            "courseOverGround": 40.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T09:00:00Z",
+            "latitude": 60.290000000000006,
+            "longitude": 5.15,
+            "speedOverGround": 11.0,
+            "courseOverGround": 40.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T09:20:00Z",
+            "latitude": 60.32,
+            "longitude": 5.2,
+            "speedOverGround": 11.0,
+            "courseOverGround": 40.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T09:40:00Z",
+            "latitude": 60.35,
+            "longitude": 5.25,
+            "speedOverGround": 11.0,
+            "courseOverGround": 40.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T10:00:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T10:20:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T10:40:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T11:00:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T11:20:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T11:40:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T12:00:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T12:20:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T12:40:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T13:00:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T13:20:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T13:40:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T14:00:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T14:20:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T14:40:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T15:00:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T15:20:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T15:40:00Z",
+            "latitude": 60.391999999999996,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T16:00:00Z",
+            "latitude": 60.391,
+            "longitude": 5.301,
+            "speedOverGround": 0.1,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-10T16:20:00Z",
+            "latitude": 60.3,
+            "longitude": 5.1,
+            "speedOverGround": 10.5,
+            "courseOverGround": 200.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T01:00:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T01:20:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T01:40:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T02:00:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T02:20:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T02:40:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T03:00:00Z",
+            "latitude": 59.401,
+            "longitude": 5.101,
+            "speedOverGround": 0.2,
+            "courseOverGround": 0.0
+          },
+          {
+            "mmsi": 671000002,
+            "msgtime": "2025-03-11T03:20:00Z",
+            "latitude": 59.3,
+            "longitude": 5.0,
+            "speedOverGround": 9.0,
+            "courseOverGround": 180.0
+          },
+          {
+            "mmsi": 257000001,
+            "msgtime": "2025-03-10T12:00:00Z",
+            "latitude": 60.39,
+            "longitude": 5.3,
+            "speedOverGround": 0.0,
+            "courseOverGround": 0.0
+          }
+        ]
+      }
+    },
+    {
+      "request": "/ws/api/ais/positions/for-mmsis-time?end=2025-03-11T00%3A00%3A00Z&mmsiIds=257000009&start=2025-03-10T00%3A00%3A00Z",
+      "status": 200,
+      "body": {
+        "success": true,
+        "data": []
+      }
+    }
+  ]
+}

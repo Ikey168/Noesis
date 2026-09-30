@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-humanitarian-record-v1",
+  "title": "Humanitarian record: situation report, appeal, crisis, dataset revision, conflict event revision or event release",
+  "description": "Every record carries its source, source identifier, the provider's revision or release label, retrieval time and as-of (publication) time; revisions are appended by src/kb/humanitarian_store.py, never overwritten. Places are stored as published; geospatial and entity links are separate reviewable assertions. Conflict events keep the coder's precision codes, actor labels and counts exactly as published, with their coding source; nothing is merged across coders, summed or estimated. No record carries personal data about affected people.",
+  "type": "object",
+  "required": ["contract", "record_type", "source", "source_id", "revision", "as_of", "title", "places", "unknowns"],
+  "definitions": {
+    "instant": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}(:\\d{2})?(\\.\\d+)?(Z|[+-]\\d{2}:\\d{2}))?$"},
+    "place": {
+      "type": "object",
+      "required": ["name", "code", "scheme"],
+      "properties": {
+        "name": {"type": ["string", "null"]},
+        "code": {"type": ["string", "null"]},
+        "scheme": {"enum": ["iso3", "cod-ab-pcode", "gw", "name-only", "ucdp-adm", "acled-admin", "hdx-group"]},
+        "level": {"type": ["string", "null"]},
+        "role": {"type": ["string", "null"]}
+      },
+      "not": {"anyOf": [{"required": ["place_id"]}, {"required": ["geospatial_place_id"]}]}
+    },
+    "precision": {
+      "type": "object",
+      "required": ["code", "scheme"],
+      "properties": {"code": {}, "scheme": {"type": "string"}, "label": {"type": ["string", "null"]}}
+    },
+    "hxl_column": {
+      "type": "object",
+      "required": ["header", "status"],
+      "properties": {
+        "header": {"type": ["string", "null"]},
+        "hashtag": {"type": ["string", "null"]},
+        "attributes": {"type": "array", "items": {"type": "string"}},
+        "status": {"enum": ["tagged", "untagged"]},
+        "personal_data_tag": {"type": "boolean"}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-humanitarian-record-v1"},
+    "record_type": {"enum": ["situation_report", "appeal", "crisis", "dataset", "conflict_event", "event_release"]},
+    "source": {"enum": ["reliefweb", "hdx", "ucdp-ged", "ucdp-candidate", "acled"]},
+    "source_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "string", "minLength": 1},
+    "retrieved_at": {"$ref": "#/definitions/instant"},
+    "as_of": {"$ref": "#/definitions/instant"},
+    "title": {"type": "string", "minLength": 1},
+    "source_url": {"type": ["string", "null"], "pattern": "^https://"},
+    "attribution": {"type": ["string", "null"]},
+    "places": {"type": "array", "items": {"$ref": "#/definitions/place"}},
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "publishers": {"type": "array", "items": {"type": "object", "required": ["name"]}},
+    "report_date": {"$ref": "#/definitions/instant"},
+    "formats": {"type": "array", "items": {"type": "string"}},
+    "disasters": {"type": "array", "items": {"type": "object", "required": ["id"]}},
+    "body": {"type": "object", "properties": {"locator": {"type": ["string", "null"]}, "mirrored": {"const": false}}},
+    "name": {"type": "string"},
+    "glide": {"type": ["string", "null"]},
+    "status": {"type": ["string", "null"]},
+    "licence": {"type": "object", "required": ["id", "reuse"], "properties": {"id": {"type": ["string", "null"]}, "title": {"type": ["string", "null"]}, "reuse": {"enum": ["open", "restricted", "unknown"]}}},
+    "access": {"enum": ["public", "hdx-connect", "private"]},
+    "metadata_only": {"type": "boolean"},
+    "resources": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["resource_id", "hxl"],
+        "properties": {
+          "resource_id": {"type": "string"},
+          "hash": {"type": ["string", "null"]},
+          "last_modified": {"type": ["string", "null"]},
+          "hxl": {"type": "object", "required": ["status"], "properties": {"status": {"enum": ["tagged", "untagged", "not-read"]}, "columns": {"type": "array", "items": {"$ref": "#/definitions/hxl_column"}}}}
+        }
+      }
+    },
+    "coding_source": {"enum": ["ucdp-ged", "ucdp-candidate", "acled"]},
+    "dataset_version": {"type": "string"},
+    "coding_status": {"enum": ["final", "candidate", "dropped-in-release"]},
+    "precision": {"type": "object", "required": ["where"], "properties": {"where": {"$ref": "#/definitions/precision"}, "when": {"$ref": "#/definitions/precision"}, "type": {"$ref": "#/definitions/precision"}}, "additionalProperties": false},
+    "actors": {"type": "array", "items": {"type": "object", "required": ["label"], "not": {"required": ["entity_id"]}}},
+    "counts": {"type": "object", "not": {"anyOf": [{"required": ["total"]}, {"required": ["merged"]}, {"required": ["true_count"]}, {"required": ["estimate"]}, {"required": ["sum"]}]}},
+    "location": {"type": "object"},
+    "event_ids": {"type": "array", "items": {"type": "string"}},
+    "window": {"type": "object"}
+  }
+}

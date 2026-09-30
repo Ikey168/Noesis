@@ -1,0 +1,305 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "ownership.competition",
+  "version": "1.0.0",
+  "description": "Competition-authority cases (European Commission merger, antitrust and state-aid cases, UK CMA cases, US FTC and DOJ Antitrust Division actions) with append-only stages, parties and decision documents as published, and EU State Aid Transparency Award Module awards; parties and beneficiaries reach ownership entities only through reviewable identity; exact citation links to Legal works and related cases; as-of answers and subscription monitors.",
+  "implementation": {
+    "name": "src.kb.competition",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "ownership.competition",
+      "contract": {
+        "name": "noesis-competition-case",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "competition-source-contracts",
+        "competition-readiness",
+        "lookup-competition-cases",
+        "competition-case-history",
+        "state-aid-awards-for-beneficiary",
+        "build-competition-dossier",
+        "list-competition-identity-candidates",
+        "propose-competition-identity-matches",
+        "review-competition-identity-match",
+        "revert-competition-identity-match",
+        "link-competition-citations",
+        "list-competition-citation-links",
+        "create-competition-monitor",
+        "run-competition-monitor",
+        "poll-competition-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "noesis-competition-record-v1 cases, append-only stages, parties, decision documents and state-aid awards as published, persisted through the ownership record store with one revision per published change; documents linked, not mirrored",
+        "identity": "case parties and aid beneficiaries reach ownership entities only through reviewable, reversible candidates in ownership.identity: published identifiers first, names as low evidence, never auto-accepted; unmatched parties stay as published; conflicts surfaced",
+        "citations": "legal acts (CELEX/ELI, TFEU articles, UK Acts, US Code) and related cases linked by exact citation only; unresolved references stay as source text; each link records the citing revision",
+        "authorities": "cases and awards of different authorities are kept side by side and never merged; totals are computed views listing their inputs, never stored",
+        "exclusions": "no prediction of case outcomes, no market-power or market-definition assessment, no assessment of the compatibility or legality of aid, no legal advice"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "competition-source-contracts",
+      "tool": "noesis-knowledge-engine.competition_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "competition-readiness",
+      "tool": "noesis-knowledge-engine.competition_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "lookup-competition-cases",
+      "tool": "noesis-knowledge-engine.lookup_competition_cases",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "competition-case-history",
+      "tool": "noesis-knowledge-engine.competition_case_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "state-aid-awards-for-beneficiary",
+      "tool": "noesis-knowledge-engine.state_aid_awards_for_beneficiary",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "build-competition-dossier",
+      "tool": "noesis-knowledge-engine.build_competition_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-competition-identity-candidates",
+      "tool": "noesis-knowledge-engine.list_competition_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-competition-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_competition_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-competition-identity-match",
+      "tool": "noesis-knowledge-engine.review_competition_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "revert-competition-identity-match",
+      "tool": "noesis-knowledge-engine.revert_competition_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "link-competition-citations",
+      "tool": "noesis-knowledge-engine.link_competition_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:write",
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-competition-citation-links",
+      "tool": "noesis-knowledge-engine.list_competition_citation_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-competition-monitor",
+      "tool": "noesis-knowledge-engine.create_competition_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-competition-monitor",
+      "tool": "noesis-knowledge-engine.run_competition_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "poll-competition-monitor",
+      "tool": "noesis-knowledge-engine.poll_competition_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "competition",
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "competition-acquisition-receipt",
+      "store": "src.kb.competition",
+      "tables": [
+        "competition_receipts"
+      ],
+      "revision_addressable": false,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "competition-citation-link",
+      "store": "src.kb.competition_citations",
+      "tables": [
+        "competition_citation_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "competition",
+      "kind": "table-exists",
+      "target": "competition_receipts"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "corporate-ownership",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

@@ -1,0 +1,16 @@
+{
+  "description": "FAO FishStat global capture production release file (CSV). Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "scenarios": [
+    "catch observations keyed by FAO major area, ASFIS species, country and year, tied to the release",
+    "FAO estimate and status flags as published",
+    "rows outside the bounded selection are not read",
+    "an unpublished cell (GHA SKJ 34 2022) is absent"
+  ],
+  "native_pages": [
+    {
+      "request": "/fishery/static/Data/Capture_Global.csv",
+      "status": 200,
+      "body": "COUNTRY.ISO3_CODE,SPECIES.ALPHA_3_CODE,AREA.CODE,MEASURE,PERIOD,VALUE,STATUS,RELEASE,RELEASE_DATE\nESP,SKJ,34,Q_tlw,2021,12000,,2025.1,2025-03-28\nESP,SKJ,34,Q_tlw,2022,13050,,2025.1,2025-03-28\nGHA,SKJ,34,Q_tlw,2021,50000,E,2025.1,2025-03-28\nESP,YFT,51,Q_tlw,2022,45000,,2025.1,2025-03-28\nNOR,COD,27,Q_tlw,2022,300000,,2025.1,2025-03-28\nNOR,COD,27,Q_tlw,2021,0,N,2025.1,2025-03-28\nJPN,SKJ,61,Q_tlw,2022,999999,,2025.1,2025-03-28\n"
+    }
+  ]
+}

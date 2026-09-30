@@ -1,0 +1,17 @@
+{
+ "count": 1,
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "id": 90002,
+   "cluster_id": 80002,
+   "type": "020lead",
+   "author_str": "",
+   "per_curiam": true,
+   "date_modified": "2098-05-02T08:00:00Z",
+   "opinions_cited": [],
+   "plain_text": "PER CURIAM.\n\nThe agency's action is reviewed under 42 U.S.C. § 1983 as pleaded.\n\nThe judgment of the district court is AFFIRMED."
+  }
+ ]
+}

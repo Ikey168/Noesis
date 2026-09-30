@@ -1,0 +1,30 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-substance-dossier-v1",
+  "title": "Substance dossier: identity, regulatory status as of a date, history and cited links",
+  "description": "Assembled by src.kb.substances_queries.SubstanceQueries.dossier from immutable noesis-substance-record-v1 revisions and reviewable identity decisions. Every classification, list entry, registration status and data point cites its record revision, provider URL, locator and (where published) legal act. A substance without entries states that none is on record; no dossier carries a hazard verdict, safety advice or exposure assessment.",
+  "type": "object",
+  "required": ["contract", "namespace", "as_of", "status"],
+  "properties": {
+    "contract": {"const": "noesis-substance-dossier-v1"},
+    "namespace": {"type": "string"},
+    "as_of": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "query": {"type": ["string", "null"]},
+    "status": {"enum": ["assembled", "not_found"]},
+    "statement": {"type": "string"},
+    "identity": {"type": "object", "required": ["substance_id", "members", "matches"]},
+    "status_as_of": {"type": "object", "required": ["harmonised_classification", "candidate_list", "authorisation",
+                                                     "restriction", "registration", "scheduled"]},
+    "history": {"type": "array"},
+    "regulations": {"type": "array"},
+    "linked_notices": {"type": "array"},
+    "linked_materials": {"type": "array"},
+    "linked_literature": {"type": "array"},
+    "data_points": {"type": "array", "items": {"type": "object", "required": ["as_published", "label", "citation"]}},
+    "sources_consulted": {"type": "array"},
+    "boundary": {"type": "array", "items": {"type": "string"}},
+    "dossier_hash": {"type": "string"}
+  },
+  "not": {"anyOf": [{"required": ["verdict"]}, {"required": ["hazard_score"]}, {"required": ["safety_advice"]},
+                    {"required": ["risk"]}, {"required": ["exposure_assessment"]}]}
+}

@@ -57,6 +57,10 @@ BASES = {
     "catalogue-conflict": 0.5,
     "exact-name": 0.6,
     "similar-name": 0.1,
+    # Space-object registration (#2224, SO07): identifiers two sources state differently, and objects a
+    # registration names without a designator (src.kb.astronomy_registration_identity).
+    "registration-identifier-conflict": 0.5,
+    "registration-name-only": 0.3,
 }
 NEVER_ACCEPTED = frozenset({"similar-name"})
 PREFIX = "astronomy:"

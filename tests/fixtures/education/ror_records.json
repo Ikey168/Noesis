@@ -1,0 +1,237 @@
+{
+ "later": [
+  {
+   "admin": {
+    "created": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    },
+    "last_modified": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    }
+   },
+   "domains": [],
+   "established": null,
+   "external_ids": [],
+   "id": "https://ror.org/0zth03c45",
+   "links": [],
+   "locations": [
+    {
+     "geonames_details": {
+      "country_code": "DE",
+      "country_name": "DE",
+      "name": "Musterstadt"
+     },
+     "geonames_id": 0
+    }
+   ],
+   "names": [
+    {
+     "lang": null,
+     "types": [
+      "ror_display",
+      "label"
+     ],
+     "value": "Musterhochschule"
+    }
+   ],
+   "relationships": [
+    {
+     "id": "https://ror.org/0zmc02b34",
+     "label": "Universitaet Beispielstadt",
+     "type": "successor"
+    }
+   ],
+   "status": "inactive",
+   "types": [
+    "education"
+   ]
+  }
+ ],
+ "note": "Synthetic ROR v2 records (fictional organisations and identifiers) in the registry's documented shape.",
+ "records": [
+  {
+   "admin": {
+    "created": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    },
+    "last_modified": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    }
+   },
+   "domains": [],
+   "established": null,
+   "external_ids": [],
+   "id": "https://ror.org/0zfs01a23",
+   "links": [],
+   "locations": [
+    {
+     "geonames_details": {
+      "country_code": "US",
+      "country_name": "US",
+      "name": "Springfield"
+     },
+     "geonames_id": 0
+    }
+   ],
+   "names": [
+    {
+     "lang": null,
+     "types": [
+      "ror_display",
+      "label"
+     ],
+     "value": "Fictional State University"
+    }
+   ],
+   "relationships": [],
+   "status": "active",
+   "types": [
+    "education"
+   ]
+  },
+  {
+   "admin": {
+    "created": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    },
+    "last_modified": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    }
+   },
+   "domains": [],
+   "established": null,
+   "external_ids": [],
+   "id": "https://ror.org/0zfs04d56",
+   "links": [],
+   "locations": [
+    {
+     "geonames_details": {
+      "country_code": "US",
+      "country_name": "US",
+      "name": "Shelbyville"
+     },
+     "geonames_id": 0
+    }
+   ],
+   "names": [
+    {
+     "lang": null,
+     "types": [
+      "ror_display",
+      "label"
+     ],
+     "value": "Fictional State University"
+    }
+   ],
+   "relationships": [],
+   "status": "active",
+   "types": [
+    "education"
+   ]
+  },
+  {
+   "admin": {
+    "created": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    },
+    "last_modified": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    }
+   },
+   "domains": [],
+   "established": null,
+   "external_ids": [
+    {
+     "all": [
+      "Q999000001"
+     ],
+     "preferred": "Q999000001",
+     "type": "wikidata"
+    }
+   ],
+   "id": "https://ror.org/0zmc02b34",
+   "links": [],
+   "locations": [
+    {
+     "geonames_details": {
+      "country_code": "DE",
+      "country_name": "DE",
+      "name": "Beispielstadt"
+     },
+     "geonames_id": 0
+    }
+   ],
+   "names": [
+    {
+     "lang": null,
+     "types": [
+      "ror_display",
+      "label"
+     ],
+     "value": "Universitaet Beispielstadt"
+    }
+   ],
+   "relationships": [],
+   "status": "active",
+   "types": [
+    "education"
+   ]
+  },
+  {
+   "admin": {
+    "created": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    },
+    "last_modified": {
+     "date": "2099-01-01",
+     "schema_version": "2.1"
+    }
+   },
+   "domains": [],
+   "established": null,
+   "external_ids": [],
+   "id": "https://ror.org/0zth03c45",
+   "links": [],
+   "locations": [
+    {
+     "geonames_details": {
+      "country_code": "DE",
+      "country_name": "DE",
+      "name": "Musterstadt"
+     },
+     "geonames_id": 0
+    }
+   ],
+   "names": [
+    {
+     "lang": null,
+     "types": [
+      "ror_display",
+      "label"
+     ],
+     "value": "Musterhochschule"
+    }
+   ],
+   "relationships": [
+    {
+     "id": "https://ror.org/0zmc02b34",
+     "label": "Universitaet Beispielstadt",
+     "type": "successor"
+    }
+   ],
+   "status": "active",
+   "types": [
+    "education"
+   ]
+  }
+ ]
+}

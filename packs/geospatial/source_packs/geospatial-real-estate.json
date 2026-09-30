@@ -1,0 +1,497 @@
+{
+  "pack_id": "geospatial-real-estate",
+  "version": "1.0.0",
+  "description": "Geospatial real-estate sources for the optional real-estate feature: HM Land Registry Price Paid Data and UK House Price Index, French DVF mutations with parcel ids, Eurostat house price indices and INSPIRE cadastral parcels (France, Nordrhein-Westfalen) through the existing WFS path. Every source is unverified-live until a dated run (#2519); no valuation, owner profiling or investment advice.",
+  "domains": [
+    "geospatial"
+  ],
+  "defaults": {
+    "connector": "real-estate",
+    "update_cadence": "per source; monthly (PPD, UK HPI), semi-annual (DVF), quarterly (Eurostat, parcels)",
+    "temporal_semantics": "published dates as released; every release read is a vintage; corrections, deletions and removals are revisions, never overwrites",
+    "mapping": {
+      "target_schema": "noesis-real-estate-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "real-estate-sources:1.0.0"
+    ],
+    "operations": [
+      "publications"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 2592000
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 10368000
+    },
+    "budgets": {
+      "timeout_ms": 60000,
+      "max_results": 1000,
+      "max_bytes": 10000000,
+      "max_pages": 4
+    },
+    "policy": {
+      "excluded": [
+        "property valuation or price estimates",
+        "owner or party profiling",
+        "re-identification of individuals",
+        "investment advice",
+        "prices apportioned, converted, averaged or interpolated"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "source_id": "hmlr-price-paid-data",
+      "endpoint": "https://price-paid-data.publicdata.landregistry.gov.uk",
+      "publisher": "HM Land Registry (Price Paid Data)",
+      "scope": "The monthly Price Paid Data change file, kept for the declared postcode districts only: additions, changes and deletions of residential sales as published",
+      "connector": "real-estate",
+      "mapping": {
+        "target_schema": "noesis-real-estate-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "real-estate-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "update_cadence": "monthly (20th working day, verify)",
+      "temporal_semantics": "transfer date as published; the file's Last-Modified month is the release; C rows are revisions and D rows withdraw a transaction, never erasing it",
+      "license": {
+        "id": "ogl-uk-3.0",
+        "terms_url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "redistribution": "permitted with the HM Land Registry attribution"
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 5000,
+        "max_bytes": 40000000,
+        "max_pages": 1
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 5184000
+      },
+      "real_estate": {
+        "provider": "hmlr-ppd",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "PPD monthly change file (fictional rows)",
+            "path": "/pp-monthly-update-new-version.csv",
+            "release_from": "last-modified",
+            "postcode_districts": [
+              "ZZ1",
+              "ZZ2"
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/real-estate-ppd.json",
+        "sha256": "ffe6ec76004b1f92054a0d95e2393c361b159b3eb4921d0971a224ca32e65f04",
+        "expected_output_hash": "8cc2625cc59839ed3a354b349ee29b6a962c536f5c6b7e6365b5efa31d8d4981"
+      }
+    },
+    {
+      "source_id": "hmlr-uk-hpi",
+      "endpoint": "https://publicdata.landregistry.gov.uk",
+      "publisher": "HM Land Registry / ONS (UK House Price Index)",
+      "scope": "The UK HPI full file of each declared monthly release, kept for the declared GSS geography codes and months: index, average price and sales volume as published",
+      "connector": "real-estate",
+      "mapping": {
+        "target_schema": "noesis-real-estate-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "real-estate-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "update_cadence": "monthly",
+      "temporal_semantics": "monthly periods; each release is a vintage and revised months are revisions",
+      "license": {
+        "id": "ogl-uk-3.0",
+        "terms_url": "https://www.nationalarchives.gov.uk/doc/open-government-licence/version/3/",
+        "redistribution": "permitted with attribution"
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 2000,
+        "max_bytes": 60000000,
+        "max_pages": 4
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 5184000
+      },
+      "real_estate": {
+        "provider": "hmlr-ukhpi",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "UK HPI full file 2099-03 (fictional values)",
+            "path": "/market-trend-data/house-price-index-data/UK-HPI-full-file-2099-03.csv",
+            "release": "2099-03",
+            "published_on": "2099-03-18",
+            "geographies": [
+              "E09000033",
+              "E92000001"
+            ],
+            "since": "2098-12",
+            "base_period": "January 2015 = 100 (as published)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/real-estate-ukhpi.json",
+        "sha256": "08811377ed214f8e03f345804b6c82acac32c219552f4ee8c918ec6ee45c131f",
+        "expected_output_hash": "c5af07dd861840db651ebf53651fd63ea86e543721fa0d97255c3fe4871d8c84"
+      }
+    },
+    {
+      "source_id": "dvf-geolocalisees",
+      "endpoint": "https://files.data.gouv.fr",
+      "publisher": "DGFiP / Etalab (Demandes de valeurs foncières géolocalisées)",
+      "scope": "The DVF file of each declared commune, year and semi-annual release: mutations with their date, nature, published value and cadastral parcel ids",
+      "connector": "real-estate",
+      "mapping": {
+        "target_schema": "noesis-real-estate-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "real-estate-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "update_cadence": "semi-annual (April, October)",
+      "temporal_semantics": "mutation date as published; each release is a vintage; a changed mutation is a revision and one absent from a later release is a dated removal",
+      "license": {
+        "id": "etalab-2.0",
+        "terms_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+        "redistribution": "permitted with attribution; no re-identification of persons and no indexing by external search engines (DVF conditions)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 2000,
+        "max_bytes": 10000000,
+        "max_pages": 4
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 7776000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 20736000
+      },
+      "real_estate": {
+        "provider": "dvf",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "DVF géolocalisées 2099-04, Paris 4e, 2098 (fictional mutations)",
+            "path": "/geo-dvf/2099-04/csv/2098/communes/75/75104.csv",
+            "release": "2099-04",
+            "published_on": "2099-04-15",
+            "commune": "75104",
+            "year": "2098"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/real-estate-dvf.json",
+        "sha256": "8499a648b56968c1b2848cb100d29f73cfdab5f9b03e7d455804e02c8e0a16bf",
+        "expected_output_hash": "0d67dd118f8a54f6ff6e60e424871d97484dcbf149821cd6758dfc8ac4fa909c"
+      }
+    },
+    {
+      "source_id": "eurostat-house-price-index",
+      "endpoint": "https://ec.europa.eu",
+      "publisher": "Eurostat (prc_hpi_q)",
+      "scope": "House price index prc_hpi_q for the declared GEO codes, purchase TOTAL and unit I15_Q since the declared quarter, with flags as published",
+      "connector": "real-estate",
+      "mapping": {
+        "target_schema": "noesis-real-estate-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "real-estate-sources:1.0.0"
+      ],
+      "operations": [
+        "publications"
+      ],
+      "auth": {
+        "kind": "none"
+      },
+      "update_cadence": "quarterly",
+      "temporal_semantics": "quarterly periods; the cube's updated stamp is the vintage; revised quarters are revisions; a rebased index is a new series edition",
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "permitted with attribution (Commission Decision 2011/833/EU)"
+      },
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 1000,
+        "max_bytes": 2000000,
+        "max_pages": 2
+      },
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 10368000
+      },
+      "real_estate": {
+        "provider": "eurostat-hpi",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "Eurostat prc_hpi_q, TOTAL, I15_Q, FR and DE",
+            "path": "/eurostat/api/dissemination/statistics/1.0/data/prc_hpi_q",
+            "dataset": "prc_hpi_q",
+            "geo": [
+              "FR",
+              "DE"
+            ],
+            "since": "2098-Q1",
+            "filters": {
+              "freq": "Q",
+              "purchase": "TOTAL",
+              "unit": "I15_Q"
+            }
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/real-estate-eurostat.json",
+        "sha256": "52629e007b1097958e26607d26124f11387df5529cfc8b6c42b39b52d96c8f4f",
+        "expected_output_hash": "d1971cd57fb5aa5f905f06dccf645c15da4ecf1e598fa611999192ed77b10354"
+      }
+    },
+    {
+      "source_id": "inspire-cp-france",
+      "connector": "wfs",
+      "endpoint": "https://data.geopf.fr/wfs/ows",
+      "publisher": "IGN / DGFiP (INSPIRE Cadastral Parcels, France)",
+      "scope": "INSPIRE cadastral parcels inside the pinned Paris 4e bounding box: localId, namespace, nationalCadastralReference, label, area and lifespan start; no rights-holder attribute",
+      "update_cadence": "re-read quarterly within the pinned bbox",
+      "temporal_semantics": "provider-snapshot geometry with beginLifespanVersion as published; a changed geometry or reference is a new parcel revision",
+      "license": {
+        "id": "etalab-2.0",
+        "terms_url": "https://www.etalab.gouv.fr/licence-ouverte-open-licence/",
+        "redistribution": "permitted with attribution (operator must confirm for the CP layer)"
+      },
+      "mapping": {
+        "target_schema": "noesis-real-estate-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "wfs-2.0.0-geojson:1.0.0",
+        "geospatial-feature-projection:1.0.0",
+        "real-estate-parcel-projection:1.0.0"
+      ],
+      "operations": [
+        "features"
+      ],
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 15552000
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "CP.CadastralParcel",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25831",
+        "axis_order": "east_north",
+        "sort_by": "localId",
+        "page_size": 50,
+        "id_property": "localId",
+        "bbox": [
+          452000.0,
+          5410500.0,
+          453500.0,
+          5412000.0
+        ],
+        "property_names": [
+          "localId",
+          "namespace",
+          "nationalCadastralReference",
+          "label",
+          "areaValue",
+          "beginLifespanVersion"
+        ]
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "label",
+        "precision": {
+          "status": "unknown",
+          "basis": "the WFS response declares no positional accuracy"
+        },
+        "geometry_types": [
+          "Polygon",
+          "MultiPolygon"
+        ],
+        "attribution": "IGN - DGFiP, Parcellaire (INSPIRE CP) (Licence Ouverte 2.0; verify)",
+        "live_verification": "unverified-live"
+      },
+      "real_estate": {
+        "kind": "parcels",
+        "provider": "inspire-cp-fr",
+        "country": "FR",
+        "namespace": "global",
+        "reference_scheme": "fr-id-parcelle",
+        "attributes": {
+          "local_id": "localId",
+          "namespace": "namespace",
+          "national_reference": "nationalCadastralReference",
+          "label": "label",
+          "area_m2": "areaValue",
+          "valid_from": "beginLifespanVersion"
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/real-estate-inspire-fr.json",
+        "sha256": "9a30a2554dca51b56066a6f84aad3cb0d88901c62555cac0868223988f6ca5b3",
+        "expected_output_hash": "6de0b92f347bdf7ee8be658a6869e95564f0a45af606a951f5753dbd0d1bed40"
+      }
+    },
+    {
+      "source_id": "inspire-cp-nordrhein-westfalen",
+      "connector": "wfs",
+      "endpoint": "https://www.wfs.nrw.de/geobasis/wfs_nw_inspire-flurstuecke_alkis",
+      "publisher": "Geobasis NRW (INSPIRE Cadastral Parcels, Nordrhein-Westfalen)",
+      "scope": "INSPIRE cadastral parcels inside the pinned Köln-Altstadt bounding box: localId, namespace, nationalCadastralReference, label, area and lifespan start",
+      "update_cadence": "re-read quarterly within the pinned bbox",
+      "temporal_semantics": "provider-snapshot geometry with beginLifespanVersion as published; a changed geometry or reference is a new parcel revision",
+      "license": {
+        "id": "dl-de-zero-2.0",
+        "terms_url": "https://www.govdata.de/dl-de/zero-2-0",
+        "redistribution": "permitted-without-conditions"
+      },
+      "mapping": {
+        "target_schema": "noesis-real-estate-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "wfs-2.0.0-geojson:1.0.0",
+        "geospatial-feature-projection:1.0.0",
+        "real-estate-parcel-projection:1.0.0"
+      ],
+      "operations": [
+        "features"
+      ],
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 500,
+        "max_bytes": 5000000,
+        "max_pages": 10
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 15552000
+      },
+      "wfs": {
+        "version": "2.0.0",
+        "type_names": "cp:CadastralParcel",
+        "output_format": "application/json",
+        "srs_name": "urn:ogc:def:crs:EPSG::25832",
+        "axis_order": "east_north",
+        "sort_by": "localId",
+        "page_size": 50,
+        "id_property": "localId",
+        "bbox": [
+          356000.0,
+          5644500.0,
+          357500.0,
+          5646000.0
+        ],
+        "property_names": [
+          "localId",
+          "namespace",
+          "nationalCadastralReference",
+          "label",
+          "areaValue",
+          "beginLifespanVersion"
+        ]
+      },
+      "geospatial": {
+        "namespace": "global",
+        "title_property": "label",
+        "precision": {
+          "status": "unknown",
+          "basis": "the WFS response declares no positional accuracy"
+        },
+        "geometry_types": [
+          "Polygon",
+          "MultiPolygon"
+        ],
+        "attribution": "Geobasis NRW (dl-de/zero-2-0)",
+        "live_verification": "unverified-live"
+      },
+      "real_estate": {
+        "kind": "parcels",
+        "provider": "inspire-cp-de-nw",
+        "country": "DE",
+        "namespace": "global",
+        "reference_scheme": "de-flurstueckskennzeichen",
+        "attributes": {
+          "local_id": "localId",
+          "namespace": "namespace",
+          "national_reference": "nationalCadastralReference",
+          "label": "label",
+          "area_m2": "areaValue",
+          "valid_from": "beginLifespanVersion"
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/real-estate-inspire-de-nw.json",
+        "sha256": "90dcd0f718f6a97b94753e06a45319ead21eb74fb6748e0a6971dc678313f214",
+        "expected_output_hash": "a64fd8f5fa2ad9bdf2bee1a7d7737d4cef7307f4741191f6d9c693ea5eb76c77"
+      }
+    }
+  ]
+}

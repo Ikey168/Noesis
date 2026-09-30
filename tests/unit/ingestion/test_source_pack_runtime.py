@@ -636,16 +636,22 @@ def test_six_domain_offline_execution(setup):
         assert result["watermark"] == 1
         completed.update(manifest["domains"])
     assert completed == {
+        "agrifood",
         "astronomy",
+        "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "energy",
         "engineering-safety",
+        "fisheries",
         "geospatial",
+        "humanitarian",
         "legal",
         "linguistics",
         "market",
         "materials",
+        "natural-hazards",
         "onchain",
         "osint",
         "oss-ecosystems",

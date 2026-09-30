@@ -76,6 +76,54 @@
           "name": "noesis-surveillance-monitor",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "clinical.medicines-regulation",
+        "provider": "clinical.medicines",
+        "contract": {
+          "name": "noesis-clinical-medicines-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.medicines-identity",
+        "provider": "clinical.medicines",
+        "contract": {
+          "name": "noesis-clinical-medicines-identity",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.medicines-monitoring",
+        "provider": "clinical.medicines",
+        "contract": {
+          "name": "noesis-clinical-medicines-monitor",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.health-capacity-indicators",
+        "provider": "clinical.health-capacity",
+        "contract": {
+          "name": "noesis-health-capacity-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.health-capacity-alignment",
+        "provider": "clinical.health-capacity",
+        "contract": {
+          "name": "noesis-health-capacity-comparability",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.health-capacity-monitoring",
+        "provider": "clinical.health-capacity",
+        "contract": {
+          "name": "noesis-health-capacity-monitor",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -85,6 +133,14 @@
       },
       {
         "id": "clinical.surveillance",
+        "version": "1.0.0"
+      },
+      {
+        "id": "clinical.medicines",
+        "version": "1.0.0"
+      },
+      {
+        "id": "clinical.health-capacity",
         "version": "1.0.0"
       }
     ],
@@ -120,6 +176,38 @@
           "sources": "side by side; nothing merged, averaged or preferred",
           "thresholds": "user-configured only; never derived or suggested",
           "never": "Published surveillance values as each source released them: no outbreak prediction, nowcast, completeness estimate, threshold suggestion or health advice; case-definition changes are marked breaks, never corrections."
+        }
+      },
+      {
+        "id": "clinical.medicines-timeline",
+        "description": "Medicines regulatory timeline: a medicine or active substance to its authorisations, label revisions with section diffs and safety communications per jurisdiction, with the identity match used and explicitly cited trials, sources side by side",
+        "vocabulary": {
+          "authorisation event": "a dated grant, variation, supplement, suspension, withdrawal, refusal or status change as the regulator published it; a change is a new record",
+          "label revision": "one version of an SPL (set id and version) or of EMA product information (EPAR revision), sections keyed by the regulator's section codes",
+          "section change": "added, removed or changed section text quoted from both revisions",
+          "identity match": "an RxNorm crosswalk (equivalent, broader, narrower) with evidence, release and review state",
+          "reporting counts": "FAERS figures: reports mentioning a term, not incidence, rate or causation"
+        },
+        "workflow_defaults": {
+          "as_of": "the authorisation event and label revision in force on the requested date per jurisdiction",
+          "sources": "side by side; nothing merged or preferred",
+          "never": "Regulatory records quoted as each regulator published them: no prescribing, dosing or treatment advice and no efficacy or safety verdict beyond quoting the regulator."
+        }
+      },
+      {
+        "id": "clinical.health-capacity-profile",
+        "description": "Health-system capacity profile: a country or region to its hospital beds, health workforce and expenditure by financing scheme per source (WHO GHO, OECD Health Statistics, Eurostat), with definitions, definition breaks, comparability notes and release vintages, beside the pack's surveillance series for the same place",
+        "vocabulary": {
+          "capacity indicator": "one source's published series for a capacity domain (beds, workforce, expenditure) and place, keyed by the source's own code",
+          "definition": "the publisher's definition in force on a value's reference period; a new edition is a marked break",
+          "comparability note": "a reviewed statement citing both definitions where two sources' indicators differ",
+          "vintage": "one release of a series; the as-of time selects the vintage then published",
+          "aggregate": "a WHO region or an OECD or EU aggregate; shown as itself, never as a country"
+        },
+        "workflow_defaults": {
+          "as_of": "the vintage released at or before the requested date per series",
+          "sources": "side by side; nothing blended, averaged or preferred; places never ranked",
+          "never": "Published health-system capacity indicators (beds, workforce, expenditure by financing scheme) as each source released them, with definitions, flags and vintages, sources side by side: no ranking, performance or quality score, no harmonised, adjusted or re-estimated value and no combined metric."
         }
       }
     ]
@@ -253,7 +341,87 @@
           "reason": "claims about cited documents are shown beside the series as a separate view"
         }
       ]
+    },
+    {
+      "id": "medicines",
+      "default": false,
+      "description": "Medicines regulation: EMA EPARs and product information, Drugs@FDA submission history through the openFDA provider, DailyMed SPL versions and FDA Drug Safety Communications as authorisation, label-revision, section-change and safety-communication records; RxNorm identity review, citation-only links to trials, publications and FAERS counts, as-of answers, timelines and monitors. No prescribing, dosing or treatment advice.",
+      "requires": [
+        {
+          "capability": "clinical.medicines-regulation",
+          "contract": "noesis-clinical-medicines-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.medicines-identity",
+          "contract": "noesis-clinical-medicines-identity",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.medicines-monitoring",
+          "contract": "noesis-clinical-medicines-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.terms",
+          "contract": "noesis-clinical-term-alignment",
+          "range": "^1.0.0",
+          "reason": "substances map through the clinical term crosswalks"
+        },
+        {
+          "capability": "clinical.trials",
+          "contract": "noesis-clinical-record",
+          "range": "^1.0.0",
+          "reason": "records live in the clinical record store and link to its trials"
+        }
+      ]
+    },
+    {
+      "id": "health-capacity",
+      "default": false,
+      "description": "Health-system capacity: hospital beds, health workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics (SDMX) and Eurostat health care resources and expenditure as indicators with definitions, definition breaks and release vintages on the surveillance series storage; Geospatial place resolution, reviewable indicator mappings and comparability notes, co-display with surveillance series, cited Economics denominators, as-of answers and monitors. No rankings or quality scores.",
+      "requires": [
+        {
+          "capability": "clinical.health-capacity-indicators",
+          "contract": "noesis-health-capacity-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.health-capacity-alignment",
+          "contract": "noesis-health-capacity-comparability",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.health-capacity-monitoring",
+          "contract": "noesis-health-capacity-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.surveillance-series",
+          "contract": "noesis-surveillance-series",
+          "range": "^1.0.0",
+          "reason": "capacity series, definitions and vintages are stored by the surveillance series storage"
+        },
+        {
+          "capability": "clinical.surveillance-vintages",
+          "contract": "noesis-surveillance-vintages",
+          "range": "^1.0.0",
+          "reason": "vintage comparisons reuse the surveillance vintage comparison"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "country and region codes resolve to Geospatial places by the published code"
+        }
+      ]
     }
   ],
-  "content_hash": "sha256:cbafd728385ea2683363396247340de8f72252880bc83ecb50b6620a3d96cb20"
+  "content_hash": "sha256:092a541763439eaa92e9d654d85ba6d934f12e79f2bdf2ff6de13b1d9b3255d6"
 }

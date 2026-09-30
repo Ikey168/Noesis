@@ -1,0 +1,229 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "humanitarian",
+  "version": "0.1.0",
+  "description": "Humanitarian Response and Conflict Events: from a place or crisis to a cited dossier of ReliefWeb situation reports and appeals, HDX dataset revisions with HXL tags, and UCDP conflict events with each coder's precision codes and release history, as of a date, over shared Geospatial, OSINT, News, Demographics, entity-identity, subscription and source-acquisition providers. Counts and codings are quoted as published; a place with no record has none on record; ACLED is not acquired (licence).",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "humanitarian.records",
+        "provider": "humanitarian.core",
+        "contract": {
+          "name": "noesis-humanitarian-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "humanitarian.dossiers",
+        "provider": "humanitarian.core",
+        "contract": {
+          "name": "noesis-humanitarian-dossier",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "humanitarian.conflict-events",
+        "provider": "humanitarian.core",
+        "contract": {
+          "name": "noesis-humanitarian-conflict-events",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "humanitarian.identity",
+        "provider": "humanitarian.core",
+        "contract": {
+          "name": "noesis-humanitarian-identity-assertion",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "humanitarian.links",
+        "provider": "humanitarian.core",
+        "contract": {
+          "name": "noesis-humanitarian-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "humanitarian.monitoring",
+        "provider": "humanitarian.core",
+        "contract": {
+          "name": "noesis-humanitarian-monitor",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "humanitarian.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "humanitarian-response",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "humanitarian.dossier",
+        "description": "Place- or crisis-centred humanitarian evidence: what was published, by whom, as of when",
+        "vocabulary": {
+          "situation report": "a publisher's report as ReliefWeb lists it, cited by locator",
+          "dataset revision": "one HDX metadata/resource state with licence, hashes and HXL tags",
+          "conflict event": "one coder's coded event; precision codes and counts as published",
+          "event revision": "the event as one coder release published it"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "humanitarian.records",
+      "contract": "noesis-humanitarian-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.dossiers",
+      "contract": "noesis-humanitarian-dossier",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.conflict-events",
+      "contract": "noesis-humanitarian-conflict-events",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.identity",
+      "contract": "noesis-humanitarian-identity-assertion",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.links",
+      "contract": "noesis-humanitarian-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.monitoring",
+      "contract": "noesis-humanitarian-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "admin places and p-codes with boundary vintages; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0",
+      "reason": "bounded area queries over published coordinates; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "geospatial.geometry-store",
+      "contract": "noesis-geospatial-geometry",
+      "range": "^2.0.0",
+      "reason": "admin boundary geometries; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "osint.corroboration",
+      "contract": "noesis-osint-corroboration",
+      "range": "^1.1.0",
+      "reason": "location investigations cited from humanitarian records; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "news.articles",
+      "contract": "noesis-news-articles",
+      "range": "^1.0.0",
+      "reason": "cited news coverage; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "economics.demographics",
+      "contract": "noesis-demographic-series",
+      "range": "^1.0.0",
+      "reason": "population denominators by citation with their vintage; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "place, crisis, organisation and actor matches are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "monitors are knowledge subscriptions; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the humanitarian-response source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "acled",
+      "default": false,
+      "description": "ACLED event acquisition, gated on the HR06 licence decision recorded in docs/development/humanitarian-evidence/source-audit.md (currently declined: not acquired); enabling it requires an accepted decision, a source-pack version bump and NOESIS_ACLED_ACCESS_TOKEN",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the gated acled-events entry of the humanitarian-response source pack"
+        }
+      ]
+    }
+  ],
+  "compatibility_aliases": {
+    "humanitarian-response": "humanitarian"
+  },
+  "advisory": {
+    "exclusions": [
+      "casualty estimation or derived casualty figures",
+      "event deduplication across coders into a single true count",
+      "early-warning scores or conflict forecasts",
+      "severity ranking or summarised situation assessment",
+      "operational humanitarian advice or targeting information",
+      "personal data about affected people"
+    ],
+    "never": [
+      "sum, merge or reconcile counts across coders",
+      "estimate casualties",
+      "forecast or score conflict risk",
+      "rank severity or give operational advice",
+      "store data about affected individuals",
+      "acquire ACLED without an accepted licence decision"
+    ],
+    "query_examples": [
+      {
+        "intent": "What was published about this place as of a date",
+        "tool": "noesis-knowledge-engine.humanitarian_dossier",
+        "semantics": "cited revisions in force at the date; none on record and declined sources listed"
+      },
+      {
+        "intent": "Conflict events in this area and window",
+        "tool": "noesis-knowledge-engine.query_humanitarian_conflict_events",
+        "semantics": "each coder side by side with precision codes; imprecise events policy stated"
+      },
+      {
+        "intent": "How did this event's coding change",
+        "tool": "noesis-knowledge-engine.humanitarian_event_history",
+        "semantics": "every release revision with changed fields"
+      }
+    ]
+  },
+  "content_hash": "sha256:50ad8b604c9ef4e0111a6657470c48bd6a9dc964d01201c757470ce54de73a22"
+}

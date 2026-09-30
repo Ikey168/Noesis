@@ -263,6 +263,13 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"housing"})
 # Clinical Evidence public-health surveillance series (RKI, WHO GHO, Eurostat health, Destatis; #1917).
 NATIVE_CONNECTOR_MODULES["surveillance"] = "src.ingestion.surveillance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"surveillance"})
+# Clinical Evidence medicines regulation (EMA EPARs, DailyMed SPL, FDA Drug Safety Communications; #2214).
+NATIVE_CONNECTOR_MODULES["medicines"] = "src.ingestion.medicines_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medicines"})
+# Clinical Evidence health-system capacity (WHO GHO, OECD Health Statistics, Eurostat; #2215): the surveillance
+# connector restricted to capacity documents.
+NATIVE_CONNECTOR_MODULES["health-capacity"] = "src.ingestion.health_capacity_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"health-capacity"})
 
 # Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
 NATIVE_CONNECTOR_MODULES.update({
@@ -274,9 +281,20 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"safety-gate", "cpsc", 
 NATIVE_CONNECTOR_MODULES["development-finance"] = "src.ingestion.development_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"development-finance"})
 
+# Natural Hazards: USGS, EMSC, GDACS, NHC, EFFIS and GloFAS records as published (#2207).
+NATIVE_CONNECTOR_MODULES["natural-hazards"] = "src.ingestion.hazard_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"natural-hazards"})
+
+
+# Chemicals and Substances: PubChem, ECHA CHEM (CLP, REACH lists) and US EPA CompTox (#2212).
+NATIVE_CONNECTOR_MODULES["substances"] = "src.ingestion.substance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"substances"})
 # Market BaFin capital-market notices (voting rights, dealings, net short positions, company DB, warnings; #2106).
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
+# Market insurance: EIOPA statistics, SFCR reports, NAIC (metadata-only) and catastrophe-loss estimates (#2230).
+NATIVE_CONNECTOR_MODULES["insurance"] = "src.ingestion.insurance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"insurance"})
 
 # Linguistics: Wikidata lexemes, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 tables (#2178).
 NATIVE_CONNECTOR_MODULES["linguistics"] = "src.ingestion.linguistics_sources"
@@ -305,6 +323,74 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"weather"})
 # Open-source Software Ecosystems: registry history, deps.dev, SPDX list releases, Software Heritage (#2192).
 NATIVE_CONNECTOR_MODULES["oss-ecosystem"] = "src.ingestion.oss_ecosystem_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
+# Economics trade flows: UN Comtrade, Eurostat Comext and WITS concordances (#2210).
+NATIVE_CONNECTOR_MODULES["trade-flows"] = "src.ingestion.trade_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
+# Economics shipping and logistics: UN/LOCODE, UNCTADstat, Eurostat maritime and the BLS freight PPI (#2229).
+NATIVE_CONNECTOR_MODULES["logistics"] = "src.ingestion.logistics_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"logistics"})
+
+# Science education statistics: IPEDS, ETER, UNESCO UIS, OECD EAG and Eurostat R&D (#2227).
+NATIVE_CONNECTOR_MODULES["education-statistics"] = "src.ingestion.education_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"education-statistics"})
+
+
+# Political legislation: congress.gov, senate.gov, GovInfo and UK Parliament Bills/Votes/Hansard (#2208).
+NATIVE_CONNECTOR_MODULES["legislation"] = "src.ingestion.legislation_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"legislation"})
+# Energy Systems: ENTSO-E (via the environment adapter), EIA, Ember, Eurostat balances, Energy-Charts (#2211).
+NATIVE_CONNECTOR_MODULES["energy"] = "src.ingestion.energy_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"energy"})
+
+
+# Fisheries and Maritime Activity: GFW, FAO FishStat, RFMO registers and IUU lists (#2222).
+NATIVE_CONNECTOR_MODULES["fisheries"] = "src.ingestion.fisheries_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fisheries"})
+# Humanitarian Response and Conflict Events: ReliefWeb, HDX, UCDP and the gated ACLED entry (#2206).
+NATIVE_CONNECTOR_MODULES["humanitarian"] = "src.ingestion.humanitarian_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
+# Climate and Environment biodiversity: Catalogue of Life, GBIF and IUCN Red List (reference-only) (#2220).
+NATIVE_CONNECTOR_MODULES["biodiversity"] = "src.ingestion.biodiversity_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"biodiversity"})
+# Geospatial real estate: HM Land Registry PPD and UK HPI, French DVF and Eurostat HPI (#2228).
+NATIVE_CONNECTOR_MODULES["real-estate"] = "src.ingestion.real_estate_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"real-estate"})
+
+# Agriculture and Food Systems: FAOSTAT, USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture, EU Agri-food data
+# portal (#2213).
+NATIVE_CONNECTOR_MODULES["agrifood"] = "src.ingestion.agrifood_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"agrifood"})
+
+# Legal court dockets and justice statistics: CourtListener, FBI CDE, data.police.uk and Eurostat crime (#2218).
+NATIVE_CONNECTOR_MODULES["courts-justice"] = "src.ingestion.courts_justice_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"courts-justice"})
+# Economics labour statistics: ILOSTAT, OECD and Eurostat LFS through SDMX, US BLS Public Data API (#2219).
+NATIVE_CONNECTOR_MODULES["labour-statistics"] = "src.ingestion.labour_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"labour-statistics"})
+
+# Geospatial critical infrastructure: GPPD, GEM tracker releases, Overpass extracts, EIA layers, ENTSOG (#2223).
+NATIVE_CONNECTOR_MODULES["infrastructure"] = "src.ingestion.infrastructure_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"infrastructure"})
+
+# Products food composition and labelling: Open Food Facts, FoodData Central and Ciqual (#2216).
+NATIVE_CONNECTOR_MODULES["food-composition"] = "src.ingestion.food_composition_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"food-composition"})
+# Astronomy space-object registration, operators and re-entries (UNOOSA, ESA DISCOS, Aerospace; #2224).
+NATIVE_CONNECTOR_MODULES["astronomy-registration"] = "src.ingestion.astronomy_registration_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy-registration"})
+# OSINT aircraft and vessel movements: registries, OpenSky, GFW port visits, open AIS, UNCTAD (#2221).
+NATIVE_CONNECTOR_MODULES["osint-movements"] = "src.ingestion.osint_movement_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"osint-movements"})
+
+# Corporate Ownership competition cases and state aid: EC case search, TAM, GOV.UK CMA, FTC and DOJ (#2217).
+NATIVE_CONNECTOR_MODULES["competition"] = "src.ingestion.competition_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"competition"})
+# Cultural Collections books, music and authority metadata (Open Library, MusicBrainz, Wikidata, DNB, LoC; #2225).
+NATIVE_CONNECTOR_MODULES["media-metadata"] = "src.ingestion.media_metadata_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
+# Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
+NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
 
 
 def native_connector_module(connector: str) -> Any:

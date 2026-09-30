@@ -1,0 +1,34 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sex,age,citizen,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:LFSA_URGAN(1.0),20/03/99 23:00:00,A,PC,T,Y15-74,TOTAL,DE,2097,3.2,\nESTAT:LFSA_URGAN(1.0),20/03/99 23:00:00,A,PC,T,Y15-74,TOTAL,DE,2098,3.0,b\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/lfsa_urgan/A.PC.T.Y15-74.TOTAL.DE?format=SDMX-CSV&startPeriod=2097",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,age,unit,sex,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:LFST_R_LFU3RT(1.0),20/03/99 23:00:00,A,Y15-74,PC_ACT,T,DE,2097,3.2,\nESTAT:LFST_R_LFU3RT(1.0),20/03/99 23:00:00,A,Y15-74,PC_ACT,T,DE,2098,3.0,b\nESTAT:LFST_R_LFU3RT(1.0),20/03/99 23:00:00,A,Y15-74,PC_ACT,T,DE30,2097,:,c\nESTAT:LFST_R_LFU3RT(1.0),20/03/99 23:00:00,A,Y15-74,PC_ACT,T,DE30,2098,5.4,u\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/lfst_r_lfu3rt/A.Y15-74.PC_ACT.T.DE+DE30?format=SDMX-CSV&startPeriod=2097",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sex,age,nace_r2,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:LFSA_EGAN2(1.0),20/03/99 23:00:00,A,THS_PER,T,Y15-64,C,DE,2097,7702.1,\nESTAT:LFSA_EGAN2(1.0),20/03/99 23:00:00,A,THS_PER,T,Y15-64,C,DE,2098,7688.9,b\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/lfsa_egan2/A.THS_PER.T.Y15-64.C.DE?format=SDMX-CSV&startPeriod=2097",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sex,age,isco08,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:LFSA_EGAIS(1.0),20/03/99 23:00:00,A,THS_PER,T,Y15-64,OC2,DE,2097,8990.0,\nESTAT:LFSA_EGAIS(1.0),20/03/99 23:00:00,A,THS_PER,T,Y15-64,OC2,DE,2098,9150.3,b\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/lfsa_egais/A.THS_PER.T.Y15-64.OC2.DE?format=SDMX-CSV&startPeriod=2097",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape; every value is fictional (not live coverage)",
+ "scenarios": [
+  "authored-fixture",
+  "last-update-release",
+  "obs-flags",
+  "confidential-cell",
+  "nuts-region",
+  "nace-and-isco"
+ ]
+}

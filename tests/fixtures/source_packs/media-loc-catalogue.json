@@ -1,0 +1,16 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "loc",
+ "scenarios": [
+  "a Library of Congress catalogue record keyed by LCCN with its ISBN and LCNAF reference",
+  "the 540 rights note is dropped, never interpreted"
+ ],
+ "native_pages": [
+  {
+   "request": "lccn.loc.gov/2019001234/marcxml",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><record xmlns=\"http://www.loc.gov/MARC21/slim\"><leader>00000cam a2200000 i 4500</leader><controlfield tag=\"001\">25990001</controlfield><controlfield tag=\"003\">DLC</controlfield><controlfield tag=\"005\">20240802090000.0</controlfield><datafield tag=\"010\" ind1=\" \" ind2=\" \"><subfield code=\"a\">  2019001234</subfield></datafield><datafield tag=\"020\" ind1=\" \" ind2=\" \"><subfield code=\"a\">9783000000010</subfield><subfield code=\"q\">paperback</subfield></datafield><datafield tag=\"100\" ind1=\"1\" ind2=\" \"><subfield code=\"a\">Quell, Mara,</subfield><subfield code=\"e\">author.</subfield><subfield code=\"0\">http://id.loc.gov/authorities/names/n2099000001</subfield></datafield><datafield tag=\"245\" ind1=\"1\" ind2=\"4\"><subfield code=\"a\">The glass orchard /</subfield><subfield code=\"c\">Mara Quell.</subfield></datafield><datafield tag=\"264\" ind1=\" \" ind2=\"1\"><subfield code=\"a\">Berlin :</subfield><subfield code=\"b\">Fixture Verlag,</subfield><subfield code=\"c\">2019.</subfield></datafield><datafield tag=\"540\" ind1=\" \" ind2=\" \"><subfield code=\"a\">Rights note (never interpreted)</subfield></datafield></record>"
+  }
+ ]
+}

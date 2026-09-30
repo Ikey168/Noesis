@@ -1,0 +1,42 @@
+{
+ "documents": {
+  "IPEDS EF2098A fall enrollment, all students total": {
+   "file": "EF2098A",
+   "filters": {
+    "EFALEVEL": "1"
+   },
+   "label": "IPEDS EF2098A fall enrollment, all students total",
+   "member": "ef2098a_rv.csv",
+   "release": {
+    "label": "IPEDS 2098-99 final release (declared; verify)",
+    "published_on": "2099-10-01",
+    "stage": "final"
+   },
+   "survey": "fall-enrollment",
+   "survey_year": "2098",
+   "unitids": [
+    "100001",
+    "100002"
+   ],
+   "variables": {
+    "EFTOTLT": {
+     "concept": "enrolment",
+     "definition": "Total fall enrollment, all students (IPEDS data dictionary; verify)",
+     "label": "Grand total",
+     "unit": {
+      "unit": "persons"
+     }
+    }
+   }
+  }
+ },
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe5R8aDyPwAAAGIAAAALAAAAZWYyMDk4YS5jc3YL9fMM8XTRcXVz9HENc/UBMkL8Q3xCdCKgDC5DAyAw1DHUMTIFMnSCYAJGOoYWSAJAro6hEZDvA+Mb6ViAuQBQSwMEFAAAAAgAAAAh7qKfFtNCAAAAYgAAAA4AAABlZjIwOThhX3J2LmNzdgv18wzxdNFxdXP0cQ1z9QEyQvxDfEJ0IqAMLkMDIDDUMdQxMjU0MdAJggkY6RhaABkwASBXx9AIyPeB8Y10LMBcAFBLAQIUAxQAAAAIAAAAIe5R8aDyPwAAAGIAAAALAAAAAAAAAAAAAACAAQAAAABlZjIwOThhLmNzdlBLAQIUAxQAAAAIAAAAIe6inxbTQgAAAGIAAAAOAAAAAAAAAAAAAACAAWgAAABlZjIwOThhX3J2LmNzdlBLBQYAAAAAAgACAHUAAADWAAAAAAA=",
+   "headers": {},
+   "request": "/ipeds/datacenter/data/EF2098A.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional. The final release of EF2098A ships the revised _rv member; UNITID 100001 is revised."
+}

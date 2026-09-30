@@ -1,0 +1,239 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "musicbrainz",
+ "scenarios": [
+  "an artist, recording (ISRC, work relation), work (ISWC) and release (tracks) keyed by MBID",
+  "a merged recording MBID answers with the surviving MBID and is recorded as a redirect",
+  "annotation, rating, tags, genres and cover-art-archive are dropped (non-CC0 or media)",
+  "URL relations to Wikidata become identifier assertions",
+  "an unknown MBID answers 404 and yields no record"
+ ],
+ "native_pages": [
+  {
+   "request": "musicbrainz.org/ws/2/artist/a1000000-0000-4000-8000-000000000001?fmt=json&inc=url-rels",
+   "body": {
+    "id": "a1000000-0000-4000-8000-000000000001",
+    "name": "The Quell Ensemble",
+    "sort-name": "Quell Ensemble, The",
+    "type": "Group",
+    "country": "ZZ",
+    "life-span": {
+     "begin": "2015",
+     "ended": false
+    },
+    "isnis": [],
+    "relations": [
+     {
+      "type": "wikidata",
+      "target-type": "url",
+      "url": {
+       "resource": "https://www.wikidata.org/wiki/Q999900010"
+      }
+     },
+     {
+      "type": "other databases",
+      "target-type": "url",
+      "url": {
+       "resource": "https://example.org/fixture-band"
+      }
+     }
+    ],
+    "genres": [
+     {
+      "name": "indie folk",
+      "count": 1
+     }
+    ],
+    "rating": {
+     "votes-count": 1,
+     "value": 5
+    }
+   }
+  },
+  {
+   "request": "musicbrainz.org/ws/2/recording/b1000000-0000-4000-8000-000000000001?fmt=json&inc=isrcs%2Bartist-credits%2Bwork-rels%2Burl-rels",
+   "body": {
+    "id": "b1000000-0000-4000-8000-000000000002",
+    "title": "Harbour Lights",
+    "length": 214000,
+    "disambiguation": "",
+    "video": false,
+    "isrcs": [
+     "ZZFIX2600001"
+    ],
+    "artist-credit": [
+     {
+      "name": "The Quell Ensemble",
+      "joinphrase": "",
+      "artist": {
+       "id": "a1000000-0000-4000-8000-000000000001",
+       "name": "The Quell Ensemble",
+       "sort-name": "Quell Ensemble, The"
+      }
+     }
+    ],
+    "first-release-date": "2026-03-01",
+    "relations": [
+     {
+      "type": "performance",
+      "target-type": "work",
+      "direction": "forward",
+      "work": {
+       "id": "c1000000-0000-4000-8000-000000000001",
+       "title": "Harbour Lights"
+      }
+     }
+    ],
+    "rating": {
+     "votes-count": 3,
+     "value": 4.5
+    },
+    "tags": [
+     {
+      "name": "indie",
+      "count": 2
+     }
+    ],
+    "annotation": "Supplementary annotation text (CC BY-NC-SA, excluded)."
+   }
+  },
+  {
+   "request": "musicbrainz.org/ws/2/recording/b1000000-0000-4000-8000-000000000002?fmt=json&inc=isrcs%2Bartist-credits%2Bwork-rels%2Burl-rels",
+   "body": {
+    "id": "b1000000-0000-4000-8000-000000000002",
+    "title": "Harbour Lights",
+    "length": 214000,
+    "disambiguation": "",
+    "video": false,
+    "isrcs": [
+     "ZZFIX2600001"
+    ],
+    "artist-credit": [
+     {
+      "name": "The Quell Ensemble",
+      "joinphrase": "",
+      "artist": {
+       "id": "a1000000-0000-4000-8000-000000000001",
+       "name": "The Quell Ensemble",
+       "sort-name": "Quell Ensemble, The"
+      }
+     }
+    ],
+    "first-release-date": "2026-03-01",
+    "relations": [
+     {
+      "type": "performance",
+      "target-type": "work",
+      "direction": "forward",
+      "work": {
+       "id": "c1000000-0000-4000-8000-000000000001",
+       "title": "Harbour Lights"
+      }
+     }
+    ],
+    "rating": {
+     "votes-count": 3,
+     "value": 4.5
+    },
+    "tags": [
+     {
+      "name": "indie",
+      "count": 2
+     }
+    ],
+    "annotation": "Supplementary annotation text (CC BY-NC-SA, excluded)."
+   }
+  },
+  {
+   "request": "musicbrainz.org/ws/2/work/c1000000-0000-4000-8000-000000000001?fmt=json&inc=url-rels%2Bartist-rels",
+   "body": {
+    "id": "c1000000-0000-4000-8000-000000000001",
+    "title": "Harbour Lights",
+    "type": "Song",
+    "iswcs": [
+     "T-000.000.001-0"
+    ],
+    "language": "eng",
+    "relations": [
+     {
+      "type": "wikidata",
+      "target-type": "url",
+      "url": {
+       "resource": "https://www.wikidata.org/wiki/Q999900011"
+      }
+     },
+     {
+      "type": "composer",
+      "target-type": "artist",
+      "direction": "backward",
+      "artist": {
+       "id": "a1000000-0000-4000-8000-000000000001",
+       "name": "The Quell Ensemble"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "musicbrainz.org/ws/2/release/d1000000-0000-4000-8000-000000000001?fmt=json&inc=recordings%2Bartist-credits",
+   "body": {
+    "id": "d1000000-0000-4000-8000-000000000001",
+    "title": "Harbour Lights",
+    "status": "Official",
+    "date": "2026-03-01",
+    "country": "ZZ",
+    "barcode": "4000000009990",
+    "artist-credit": [
+     {
+      "name": "The Quell Ensemble",
+      "joinphrase": "",
+      "artist": {
+       "id": "a1000000-0000-4000-8000-000000000001",
+       "name": "The Quell Ensemble",
+       "sort-name": "Quell Ensemble, The"
+      }
+     }
+    ],
+    "release-group": {
+     "id": "d2000000-0000-4000-8000-000000000001",
+     "title": "Harbour Lights",
+     "primary-type": "Single"
+    },
+    "media": [
+     {
+      "position": 1,
+      "format": "Digital Media",
+      "track-count": 1,
+      "tracks": [
+       {
+        "position": 1,
+        "number": "1",
+        "title": "Harbour Lights",
+        "length": 214000,
+        "recording": {
+         "id": "b1000000-0000-4000-8000-000000000002",
+         "title": "Harbour Lights"
+        }
+       }
+      ]
+     }
+    ],
+    "cover-art-archive": {
+     "artwork": true,
+     "count": 1,
+     "front": true
+    }
+   }
+  },
+  {
+   "request": "musicbrainz.org/ws/2/recording/e1000000-0000-4000-8000-000000000001?fmt=json&inc=isrcs%2Bartist-credits%2Bwork-rels%2Burl-rels",
+   "status": 404,
+   "body": {
+    "error": "Not Found",
+    "help": "fixture"
+   }
+  }
+ ]
+}

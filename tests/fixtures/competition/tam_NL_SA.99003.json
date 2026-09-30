@@ -1,0 +1,27 @@
+{
+ "totalElements": 1,
+ "last": true,
+ "content": [
+  {
+   "awardId": "NL-2025-000301",
+   "countryCode": "NL",
+   "saNumber": "SA.99003",
+   "measureTitle": "Green hydrogen investment aid (fixture)",
+   "beneficiaryName": "Exampla Intermediate B.V.",
+   "beneficiaryNationalIdType": null,
+   "beneficiaryNationalId": null,
+   "beneficiaryType": "Large enterprise",
+   "region": "NL32",
+   "sector": "C.20.11",
+   "aidInstrument": "Direct grant",
+   "objective": "Environmental protection, including climate protection",
+   "nominalAmount": "750000.00",
+   "amountRange": null,
+   "currency": "EUR",
+   "grantingDate": "2025-08-01",
+   "grantingAuthority": "Rijksdienst voor Ondernemend Nederland (fixture)",
+   "status": "Published",
+   "lastModified": "2025-08-02"
+  }
+ ]
+}

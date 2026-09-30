@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-legislation-record-v1.json",
+  "title": "US Congress or UK Parliament legislation record as published",
+  "description": "One acquired record (#2208): a bill, BILLSTATUS record, text version, roll call, UK bill, stage, publication, division or Hansard debate reference, keyed by official identifiers, with its provider, revision stamp, locator and evidence origin. A record is committed as an official-record document revision and cited by legislative dossiers. Text versions carry a content hash and locator, never the text; Hansard references carry locators, never transcripts; CRS summaries are labelled as CRS summaries. No record carries a passage prediction, member score, ideology rating or legal-effect reading.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "jurisdiction", "record_kind", "record_key", "bill_key", "bill_link", "native_revision", "title", "locator", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-legislation-record-v1"},
+    "format": {"enum": ["congress-gov-bill-json", "congress-gov-house-vote-json", "senate-lis-vote-xml", "govinfo-bills-package-json", "govinfo-billstatus-xml", "uk-bills-json", "uk-commons-division-json", "uk-lords-division-json", "uk-hansard-debate-json"]},
+    "provider": {"enum": ["congress-gov", "senate-lis", "govinfo", "uk-bills", "uk-commons-votes", "uk-lords-votes", "uk-hansard"]},
+    "jurisdiction": {"enum": ["US", "GB"]},
+    "record_kind": {"enum": ["us-bill", "us-bill-status", "us-text-version", "us-roll-call", "uk-bill", "uk-stage", "uk-publication", "uk-division", "uk-debate-reference"]},
+    "record_key": {"type": "string", "pattern": "^(us-bill|us-bill-status|us-text-version|us-roll-call|uk-bill|uk-stage|uk-publication|uk-division|uk-debate):[A-Za-z0-9-]+$"},
+    "bill_key": {"type": ["string", "null"], "pattern": "^(us-bill:\\d{1,3}-(hr|s|hjres|sjres|hconres|sconres|hres|sres)-\\d{1,5}|uk-bill:\\d+)$"},
+    "bill_link": {
+      "type": "object",
+      "required": ["basis"],
+      "properties": {
+        "basis": {"enum": ["record-identity", "source-reference", "none"]},
+        "field": {"type": "string"},
+        "candidate_bill_key": {"type": "string"},
+        "candidate_basis": {"const": "operator-selection"},
+        "note": {"type": "string"}
+      }
+    },
+    "native_revision": {"type": ["string", "null"]},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "published_at": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "fields": {"type": "object"}
+  },
+  "not": {"anyOf": [{"required": ["passage_probability"]}, {"required": ["prediction"]}, {"required": ["member_score"]},
+                    {"required": ["ideology"]}, {"required": ["legal_effect"]}]}
+}

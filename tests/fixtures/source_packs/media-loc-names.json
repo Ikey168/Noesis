@@ -1,0 +1,15 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "loc",
+ "scenarios": [
+  "an LCNAF name authority keyed by LCCN with MARC 005"
+ ],
+ "native_pages": [
+  {
+   "request": "id.loc.gov/authorities/names/n2099000001.marcxml.xml",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><record xmlns=\"http://www.loc.gov/MARC21/slim\"><leader>00000cz  a2200000n  4500</leader><controlfield tag=\"001\">15990001</controlfield><controlfield tag=\"003\">DLC</controlfield><controlfield tag=\"005\">20260110120000.0</controlfield><datafield tag=\"010\" ind1=\" \" ind2=\" \"><subfield code=\"a\">n  2099000001</subfield></datafield><datafield tag=\"024\" ind1=\"7\" ind2=\" \"><subfield code=\"a\">Q999900001</subfield><subfield code=\"2\">wikidata</subfield></datafield><datafield tag=\"100\" ind1=\"1\" ind2=\" \"><subfield code=\"a\">Quell, Mara,</subfield><subfield code=\"d\">1971-</subfield></datafield><datafield tag=\"670\" ind1=\" \" ind2=\" \"><subfield code=\"a\">The glass orchard, 2019</subfield></datafield></record>"
+  }
+ ]
+}

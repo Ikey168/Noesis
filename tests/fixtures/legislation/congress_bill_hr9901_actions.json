@@ -1,0 +1,67 @@
+{
+ "actions": [
+  {
+   "actionCode": "B00100",
+   "actionDate": "2099-03-11",
+   "sourceSystem": {
+    "code": 0,
+    "name": "Senate"
+   },
+   "text": "Received in the Senate.",
+   "type": "Floor"
+  },
+  {
+   "actionCode": "H38310",
+   "actionDate": "2099-03-10",
+   "sourceSystem": {
+    "code": 2,
+    "name": "House floor actions"
+   },
+   "text": "On passage Passed by the Yeas and Nays: 2 - 1 (Roll no. 101).",
+   "type": "Floor",
+   "recordedVotes": [
+    {
+     "chamber": "House",
+     "congress": 156,
+     "date": "2099-03-10T19:02:11Z",
+     "rollNumber": 101,
+     "sessionNumber": 1,
+     "url": "https://clerk.house.gov/evs/2099/roll101.xml"
+    }
+   ]
+  },
+  {
+   "actionCode": "H12200",
+   "actionDate": "2099-03-05",
+   "sourceSystem": {
+    "code": 2,
+    "name": "House floor actions"
+   },
+   "text": "Reported (Amended) by the Committee on Energy and Commerce. H. Rept. 156-10.",
+   "type": "Committee"
+  },
+  {
+   "actionCode": "H11100",
+   "actionDate": "2099-02-03",
+   "sourceSystem": {
+    "code": 2,
+    "name": "House floor actions"
+   },
+   "text": "Referred to the House Committee on Energy and Commerce.",
+   "type": "IntroReferral"
+  },
+  {
+   "actionCode": "Intr-H",
+   "actionDate": "2099-02-03",
+   "sourceSystem": {
+    "code": 9,
+    "name": "Library of Congress"
+   },
+   "text": "Introduced in House",
+   "type": "IntroReferral"
+  }
+ ],
+ "pagination": {
+  "count": 5
+ }
+}

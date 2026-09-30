@@ -1,0 +1,58 @@
+{
+ "type": "FeatureCollection",
+ "note": "Authored in the documented GDACS geteventlist GeoJSON shape; events, identifiers and values are fictional.",
+ "features": [
+  {
+   "type": "Feature",
+   "bbox": null,
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     26.8,
+     37.9
+    ]
+   },
+   "properties": {
+    "eventtype": "EQ",
+    "eventid": 1400001,
+    "episodeid": 1500001,
+    "eventname": "",
+    "glide": "EQ-2099-000101-GRC",
+    "name": "Earthquake in Greece (fictional)",
+    "description": "Earthquake in Greece (fictional)",
+    "alertlevel": "Orange",
+    "alertscore": 2,
+    "episodealertlevel": "Orange",
+    "episodealertscore": 2,
+    "istemporary": "false",
+    "iscurrent": "true",
+    "country": "Greece",
+    "fromdate": "2099-08-10T03:12:45",
+    "todate": "2099-08-10T03:12:45",
+    "datemodified": "2099-08-10T04:00:00",
+    "iso3": "GRC",
+    "source": "NEIC",
+    "sourceid": "us7000zz01",
+    "polygonlabel": "Centroid",
+    "url": {
+     "report": "https://www.gdacs.org/report.aspx?eventid=1400001&episodeid=1500001&eventtype=EQ"
+    },
+    "severitydata": {
+     "severity": 5.8,
+     "severitytext": "Magnitude 5.8M, Depth:10km",
+     "severityunit": "M"
+    },
+    "affectedcountries": [
+     {
+      "iso3": "GRC",
+      "countryname": "Greece"
+     },
+     {
+      "iso3": "TUR",
+      "countryname": "Turkey"
+     }
+    ]
+   }
+  }
+ ]
+}

@@ -1,0 +1,395 @@
+{
+ "description": "IUCN Red List API v4 taxon assessment lists and assessment documents. Authored offline fixture in the provider's documented response shape. Keys, identifiers, DOIs (10.5555 test prefix), coordinates, dates and Red List categories are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (BD13, #2533).",
+ "scenarios": [
+  "global history with a category change",
+  "a regional (Europe) assessment",
+  "an assessment without its document (criteria unknown)",
+  "narrative fields dropped under the reference-only decision"
+ ],
+ "native_pages": [
+  {
+   "request": "/api/v4/taxa/sis/12419",
+   "status": 200,
+   "body": {
+    "taxon": {
+     "sis_id": 12419,
+     "scientific_name": "Lutra lutra",
+     "authority": "(Linnaeus, 1758)"
+    },
+    "assessments": [
+     {
+      "assessment_id": 900003,
+      "sis_taxon_id": 12419,
+      "year_published": "2021",
+      "latest": true,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "NT",
+      "url": "https://www.iucnredlist.org/species/12419/900003",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     },
+     {
+      "assessment_id": 900002,
+      "sis_taxon_id": 12419,
+      "year_published": "2015",
+      "latest": false,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "NT",
+      "url": "https://www.iucnredlist.org/species/12419/900002",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     },
+     {
+      "assessment_id": 900001,
+      "sis_taxon_id": 12419,
+      "year_published": "1996",
+      "latest": false,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "VU",
+      "url": "https://www.iucnredlist.org/species/12419/900001",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/v4/taxa/sis/103818789",
+   "status": 200,
+   "body": {
+    "taxon": {
+     "sis_id": 103818789,
+     "scientific_name": "Passer domesticus",
+     "authority": "(Linnaeus, 1758)"
+    },
+    "assessments": [
+     {
+      "assessment_id": 800002,
+      "sis_taxon_id": 103818789,
+      "year_published": "2018",
+      "latest": true,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "LC",
+      "url": "https://www.iucnredlist.org/species/103818789/800002",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     },
+     {
+      "assessment_id": 800001,
+      "sis_taxon_id": 103818789,
+      "year_published": "2021",
+      "latest": true,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "LC",
+      "url": "https://www.iucnredlist.org/species/103818789/800001",
+      "scopes": [
+       {
+        "description": {
+         "en": "Europe"
+        },
+        "code": "2"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/v4/assessment/900003",
+   "status": 200,
+   "body": {
+    "assessment_id": 900003,
+    "sis_taxon_id": 12419,
+    "year_published": "2021",
+    "latest": true,
+    "possibly_extinct": false,
+    "possibly_extinct_in_the_wild": false,
+    "red_list_category_code": "NT",
+    "url": "https://www.iucnredlist.org/species/12419/900003",
+    "scopes": [
+     {
+      "description": {
+       "en": "Global"
+      },
+      "code": "1"
+     }
+    ],
+    "assessment_date": "2020-10-15",
+    "criteria": null,
+    "red_list_category": {
+     "code": "NT",
+     "description": {
+      "en": "Near Threatened"
+     }
+    },
+    "citation": "Fixture Assessors. 2021. Lutra lutra. The IUCN Red List of Threatened Species 2021: e.T12419A900003. https://dx.doi.org/10.5555/iucn.fixture.900003",
+    "taxon": {
+     "sis_id": 12419,
+     "scientific_name": "Lutra lutra"
+    },
+    "documentation": {
+     "rationale": "Narrative rationale (withheld under the reference-only decision)."
+    },
+    "threats": [
+     {
+      "code": "1.1",
+      "description": {
+       "en": "Housing & urban areas"
+      }
+     }
+    ],
+    "habitats": [
+     {
+      "code": "5.1",
+      "description": {
+       "en": "Wetlands"
+      }
+     }
+    ],
+    "population_trend": {
+     "description": {
+      "en": "Decreasing"
+     }
+    },
+    "locations": [
+     {
+      "code": "DE",
+      "description": {
+       "en": "Germany"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/v4/assessment/900001",
+   "status": 200,
+   "body": {
+    "assessment_id": 900001,
+    "sis_taxon_id": 12419,
+    "year_published": "1996",
+    "latest": false,
+    "possibly_extinct": false,
+    "possibly_extinct_in_the_wild": false,
+    "red_list_category_code": "VU",
+    "url": "https://www.iucnredlist.org/species/12419/900001",
+    "scopes": [
+     {
+      "description": {
+       "en": "Global"
+      },
+      "code": "1"
+     }
+    ],
+    "assessment_date": "1996-06-30",
+    "criteria": "A2ace",
+    "red_list_category": {
+     "code": "VU",
+     "description": {
+      "en": "Vulnerable"
+     }
+    },
+    "citation": "Fixture Assessors. 1996. Lutra lutra. The IUCN Red List of Threatened Species 1996: e.T12419A900001. https://dx.doi.org/10.5555/iucn.fixture.900001",
+    "taxon": {
+     "sis_id": 12419,
+     "scientific_name": "Lutra lutra"
+    },
+    "documentation": {
+     "rationale": "Narrative rationale (withheld under the reference-only decision)."
+    },
+    "threats": [
+     {
+      "code": "1.1",
+      "description": {
+       "en": "Housing & urban areas"
+      }
+     }
+    ],
+    "habitats": [
+     {
+      "code": "5.1",
+      "description": {
+       "en": "Wetlands"
+      }
+     }
+    ],
+    "population_trend": {
+     "description": {
+      "en": "Decreasing"
+     }
+    },
+    "locations": [
+     {
+      "code": "DE",
+      "description": {
+       "en": "Germany"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/v4/assessment/800002",
+   "status": 200,
+   "body": {
+    "assessment_id": 800002,
+    "sis_taxon_id": 103818789,
+    "year_published": "2018",
+    "latest": true,
+    "possibly_extinct": false,
+    "possibly_extinct_in_the_wild": false,
+    "red_list_category_code": "LC",
+    "url": "https://www.iucnredlist.org/species/103818789/800002",
+    "scopes": [
+     {
+      "description": {
+       "en": "Global"
+      },
+      "code": "1"
+     }
+    ],
+    "assessment_date": "2018-08-07",
+    "criteria": null,
+    "red_list_category": {
+     "code": "LC",
+     "description": {
+      "en": "Least Concern"
+     }
+    },
+    "citation": "Fixture Assessors. 2018. Passer domesticus. The IUCN Red List of Threatened Species 2018: e.T103818789A800002. https://dx.doi.org/10.5555/iucn.fixture.800002",
+    "taxon": {
+     "sis_id": 103818789,
+     "scientific_name": "Passer domesticus"
+    },
+    "documentation": {
+     "rationale": "Narrative rationale (withheld under the reference-only decision)."
+    },
+    "threats": [
+     {
+      "code": "1.1",
+      "description": {
+       "en": "Housing & urban areas"
+      }
+     }
+    ],
+    "habitats": [
+     {
+      "code": "5.1",
+      "description": {
+       "en": "Wetlands"
+      }
+     }
+    ],
+    "population_trend": {
+     "description": {
+      "en": "Decreasing"
+     }
+    },
+    "locations": [
+     {
+      "code": "DE",
+      "description": {
+       "en": "Germany"
+      }
+     }
+    ]
+   }
+  },
+  {
+   "request": "/api/v4/assessment/800001",
+   "status": 200,
+   "body": {
+    "assessment_id": 800001,
+    "sis_taxon_id": 103818789,
+    "year_published": "2021",
+    "latest": true,
+    "possibly_extinct": false,
+    "possibly_extinct_in_the_wild": false,
+    "red_list_category_code": "LC",
+    "url": "https://www.iucnredlist.org/species/103818789/800001",
+    "scopes": [
+     {
+      "description": {
+       "en": "Europe"
+      },
+      "code": "2"
+     }
+    ],
+    "assessment_date": "2021-02-01",
+    "criteria": null,
+    "red_list_category": {
+     "code": "LC",
+     "description": {
+      "en": "Least Concern"
+     }
+    },
+    "citation": "Fixture Assessors. 2021. Passer domesticus. The IUCN Red List of Threatened Species 2021: e.T103818789A800001. https://dx.doi.org/10.5555/iucn.fixture.800001",
+    "taxon": {
+     "sis_id": 103818789,
+     "scientific_name": "Passer domesticus"
+    },
+    "documentation": {
+     "rationale": "Narrative rationale (withheld under the reference-only decision)."
+    },
+    "threats": [
+     {
+      "code": "1.1",
+      "description": {
+       "en": "Housing & urban areas"
+      }
+     }
+    ],
+    "habitats": [
+     {
+      "code": "5.1",
+      "description": {
+       "en": "Wetlands"
+      }
+     }
+    ],
+    "population_trend": {
+     "description": {
+      "en": "Decreasing"
+     }
+    },
+    "locations": [
+     {
+      "code": "DE",
+      "description": {
+       "en": "Germany"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

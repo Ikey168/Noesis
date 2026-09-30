@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-biodiversity-record-v1",
+  "title": "Biodiversity record statement: what one provider published about a taxon, occurrence, dataset or assessment",
+  "description": "One statement a Climate and Environment biodiversity adapter emits (Catalogue of Life via ChecklistBank, GBIF species/occurrence/dataset/download APIs, IUCN Red List at the reference-only licence tier) and src.kb.biodiversity_store keeps as an immutable revision with source, revision and retrieval time. Record types: taxon (name usage in one checklist release), taxon_identity (a provider's native taxon key), occurrence (as published, with coordinate uncertainty and the publisher's generalisation flags), dataset (publisher, licence, DOI/citation, version) and conservation_assessment (category, criteria, dates, scope, the assessor's latest designation). No statement carries a modelled range, abundance, presence/absence, a location more precise than the publisher released, or a Noesis-derived threat status.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "record_key", "subject", "as_published", "effective", "source", "unknowns"],
+  "additionalProperties": false,
+  "definitions": {
+    "date": {"type": ["string", "null"], "pattern": "^\\d{4}(-\\d{2}(-\\d{2}(T.*)?)?)?(/\\d{4}(-\\d{2}(-\\d{2})?)?)?$"},
+    "licence": {
+      "type": ["object", "null"],
+      "required": ["id", "published", "commercial_use", "attribution_required"],
+      "properties": {
+        "id": {"type": ["string", "null"]},
+        "published": {"type": ["string", "null"]},
+        "commercial_use": {"type": ["boolean", "null"]},
+        "attribution_required": {"type": ["boolean", "null"]}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-biodiversity-record-v1"},
+    "record_type": {"enum": ["taxon", "taxon_identity", "occurrence", "dataset", "conservation_assessment"]},
+    "provider": {"enum": ["col", "gbif", "iucn"]},
+    "record_key": {"type": "string", "minLength": 1},
+    "subject": {
+      "type": "object",
+      "required": ["key", "kind"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["taxon", "occurrence", "dataset", "assessment"]},
+        "name": {"type": ["string", "null"]}
+      }
+    },
+    "as_published": {"type": "object"},
+    "effective": {
+      "type": "object",
+      "required": ["event"],
+      "properties": {
+        "event": {"enum": ["published", "removed"]},
+        "date": {"$ref": "#/definitions/date"},
+        "date_basis": {"type": ["string", "null"]}
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["url"],
+      "properties": {"url": {"type": "string", "pattern": "^https://"}}
+    },
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "taxon"}}},
+      "then": {"properties": {"as_published": {
+        "required": ["native_id", "scientific_name", "rank", "status", "status_class", "checklist"],
+        "properties": {
+          "status_class": {"enum": ["accepted", "synonym", "other"]},
+          "checklist": {"type": "object", "required": ["dataset_key", "version"]}
+        }
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "taxon_identity"}}},
+      "then": {"properties": {"as_published": {
+        "required": ["key_scheme", "native_key", "scientific_name", "status", "status_class"],
+        "properties": {
+          "key_scheme": {"enum": ["gbif-taxon-key", "col-id", "iucn-sis-id"]},
+          "status_class": {"enum": ["accepted", "synonym", "other"]},
+          "cross_references": {"type": ["array", "null"], "items": {"type": "object", "required": ["scheme", "value"]}}
+        }
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "occurrence"}}},
+      "then": {"properties": {"as_published": {
+        "required": ["gbif_id", "dataset_key", "generalisation"],
+        "properties": {
+          "coordinates": {"type": ["object", "null"], "required": ["latitude", "longitude"],
+                          "properties": {"latitude": {"type": "number", "minimum": -90, "maximum": 90},
+                                         "longitude": {"type": "number", "minimum": -180, "maximum": 180}}},
+          "coordinate_uncertainty_m": {"type": ["number", "null"], "minimum": 0},
+          "generalisation": {"type": "object", "required": ["generalised", "coordinates_withheld"],
+                             "properties": {"generalised": {"type": "boolean"},
+                                            "coordinates_withheld": {"type": "boolean"},
+                                            "precision_m": {"type": ["number", "null"]}}},
+          "licence": {"$ref": "#/definitions/licence"},
+          "issues": {"type": ["array", "null"], "items": {"type": "string"}}
+        }
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "dataset"}}},
+      "then": {"properties": {"as_published": {
+        "required": ["dataset_key", "kind", "title"],
+        "properties": {
+          "kind": {"enum": ["occurrence", "checklist", "checklist-release", "download"]},
+          "licence": {"$ref": "#/definitions/licence"}
+        }
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "conservation_assessment"}}},
+      "then": {"properties": {"as_published": {
+        "required": ["assessment_id", "taxon_id", "category", "scope", "year_published", "latest", "licence_tier"],
+        "properties": {
+          "category": {"enum": ["EX", "EW", "RE", "CR", "EN", "VU", "NT", "LC", "DD", "NE", "NA", "LR/cd", "LR/nt", "LR/lc"]},
+          "scope": {"type": "object", "required": ["kind", "label"], "properties": {"kind": {"enum": ["global", "regional"]}}},
+          "latest": {"type": "boolean"},
+          "licence_tier": {"const": "reference-only"}
+        }
+      }}}
+    }
+  ]
+}

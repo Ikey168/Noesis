@@ -1,0 +1,170 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-labour-statistics-record-v1",
+  "title": "Labour statistics record: release, indicator (series), definition, vintage, observation or comparability note",
+  "description": "Labour-force indicators as published, held in the Economics series storage (economic_indicators, economic_series_map, economic_vintages and dataset_observations) with labour-specific metadata. Every record carries its namespace and cites the release it came from, with the release clock and the retrieval clock kept apart, each with its basis label. An indicator (series) states its source, native series or dataflow key, concept and measure, unit and unit multiplier, frequency, seasonal adjustment (NSA, SA or trend), definition basis (ILO harmonised, OECD harmonised, EU-LFS or national, with references), estimate type (an ILO modelled estimate and a nationally reported series are always different series), place and any sector or occupation code with its classification version. Each release that changes a series is an appended vintage recording what changed (new periods, revised values, benchmark revision, definition or metadata change); prior vintages stay queryable. Observations keep the published value text, status, unit multiplier, flags and footnotes verbatim. Comparability notes follow the demographics comparability structure. No record carries a nowcast, forecast, filled, blended, re-harmonised or derived value.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provider": {"enum": ["ilostat", "oecd", "eurostat-lfs", "bls"]},
+    "code": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"type": "string", "minLength": 1},
+        "code": {"type": "string", "minLength": 1},
+        "version": {"type": "string"},
+        "native": {"type": "string"},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "classified": {
+      "anyOf": [
+        {"type": "null"},
+        {"allOf": [{"$ref": "#/definitions/code"}, {"required": ["version"]}]}
+      ]
+    },
+    "source_revision": {
+      "type": "object",
+      "required": ["release_id", "provider", "file_sha256", "release_basis", "release_at_ms", "evidence_origin", "retrieved_at_ms"],
+      "properties": {
+        "release_id": {"type": "string"},
+        "provider": {"$ref": "#/definitions/provider"},
+        "source_id": {"type": ["string", "null"]},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "published_at": {"type": ["string", "null"]},
+        "release_basis": {"enum": ["provider_last_update", "declared_release", "retrieval_time"]},
+        "release_at_ms": {"type": "integer"},
+        "url": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "operator", "live"]},
+        "retrieved_at_ms": {"type": "integer"},
+        "dataflow_version": {"type": ["string", "null"]},
+        "live_verification": {"type": ["string", "null"]}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "flags", "footnotes"],
+      "properties": {
+        "period": {"type": "string", "pattern": "^\\d{4}(-(Q[1-4]|\\d{2}))?$"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+        "numeric_value": {"type": ["number", "null"]},
+        "status": {"enum": ["reported", "confidential", "not_published"]},
+        "unit_multiplier": {"type": ["string", "null"]},
+        "flags": {"type": "object"},
+        "attributes": {"type": "object"},
+        "footnotes": {"type": "array", "items": {"type": "object"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"enum": ["confidential", "not_published"]}}},
+         "then": {"properties": {"value": {"type": "null"}}}}
+      ]
+    }
+  },
+  "properties": {
+    "contract": {"enum": ["noesis-labour-statistics-record-v1", "noesis-labour-comparability-v1"]},
+    "record_type": {"enum": ["release", "indicator", "definition", "vintage", "observation", "comparability_note"]},
+    "namespace": {"type": "string", "minLength": 1}
+  },
+  "propertyNames": {
+    "not": {"enum": ["nowcast", "forecast", "forecast_value", "projection", "imputed_value", "gap_filled", "blended_value", "combined_value", "harmonised_value", "derived_value"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "release"}}},
+      "then": {
+        "required": ["release_id", "provider", "format", "document", "release_basis", "release_at_ms", "file_sha256", "item_count", "structure", "evidence_origin", "retrieved_at_ms"],
+        "properties": {
+          "provider": {"$ref": "#/definitions/provider"},
+          "format": {"enum": ["ilostat-sdmx-csv", "oecd-sdmx-csv", "eurostat-sdmx-csv", "bls-timeseries-json"]},
+          "document": {"type": "object", "required": ["label"]},
+          "published_on": {"$ref": "#/definitions/day"},
+          "release_basis": {"enum": ["provider_last_update", "declared_release", "retrieval_time"]},
+          "file_sha256": {"$ref": "#/definitions/sha256"},
+          "evidence_origin": {"enum": ["fixture", "operator", "live"]}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "indicator"}}},
+      "then": {
+        "required": ["series_id", "provider", "native_key", "dataflow", "indicator", "estimate_type", "definition_basis", "seasonal_adjustment", "frequency", "unit", "area", "sector", "occupation", "references", "economic_series"],
+        "properties": {
+          "provider": {"$ref": "#/definitions/provider"},
+          "native_key": {"type": "string", "minLength": 1},
+          "dataflow": {"type": "object", "required": ["reference"]},
+          "indicator": {
+            "type": "object",
+            "required": ["concept", "measure"],
+            "properties": {
+              "concept": {"enum": ["employment", "employment_rate", "unemployment", "unemployment_rate", "labour_force", "labour_force_participation_rate", "earnings", "hours_worked", "job_vacancies", "job_vacancy_rate"]},
+              "measure": {"enum": ["level", "rate", "mean", "median"]}
+            }
+          },
+          "estimate_type": {"enum": ["national-reported", "ilo-modelled", "harmonised", "survey", "administrative"]},
+          "definition_basis": {"enum": ["ilo-harmonised", "oecd-harmonised", "eu-lfs", "national"]},
+          "seasonal_adjustment": {"enum": ["NSA", "SA", "trend"]},
+          "frequency": {"enum": ["annual", "quarterly", "monthly", "weekly", "daily", "irregular"]},
+          "unit": {"type": "object", "required": ["label"]},
+          "unit_multiplier": {"type": ["string", "null"]},
+          "area": {"$ref": "#/definitions/code"},
+          "sector": {"$ref": "#/definitions/classified"},
+          "occupation": {"$ref": "#/definitions/classified"},
+          "references": {"type": "array", "items": {"type": "object", "required": ["kind", "identifier"]}},
+          "economic_series": {"type": "object", "required": ["domain", "series_id", "indicator_id"]}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "definition"}}},
+      "then": {
+        "required": ["definition_id", "definition_key", "revision", "provider", "content", "source_revision"],
+        "properties": {
+          "revision": {"type": "integer", "minimum": 1},
+          "content": {
+            "type": "object",
+            "required": ["concept", "measure", "basis", "estimate_type", "references", "source_notes"],
+            "properties": {"basis": {"enum": ["ilo-harmonised", "oecd-harmonised", "eu-lfs", "national"]}}
+          },
+          "source_revision": {"$ref": "#/definitions/source_revision"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "vintage"}}},
+      "then": {
+        "required": ["vintage_id", "series_id", "release_id", "economic_vintage_id", "release_at_ms", "release_at_basis", "retrieved_at_ms", "content_hash", "definition_id", "changes", "revision_of", "source_revision"],
+        "properties": {
+          "content_hash": {"$ref": "#/definitions/sha256"},
+          "revision_of": {"type": ["string", "null"]},
+          "changes": {
+            "type": "object",
+            "required": ["new_periods", "revised", "benchmark_revision", "definition_change"],
+            "properties": {"benchmark_revision": {"type": "boolean"}, "definition_change": {"type": "boolean"}}
+          },
+          "source_revision": {"$ref": "#/definitions/source_revision"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "observation"}}},
+      "then": {"$ref": "#/definitions/observation"}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "comparability_note"}}},
+      "then": {
+        "required": ["note_id", "left", "relation", "statement", "periods", "cited", "origin", "state", "history"],
+        "properties": {
+          "relation": {"enum": ["different_definition_basis", "different_age_bounds", "different_survey_coverage", "different_seasonal_adjustment", "different_estimate_type", "break_in_series", "source_note", "not_comparable"]},
+          "state": {"enum": ["source-stated", "proposed", "accepted", "rejected", "reverted"]},
+          "origin": {"enum": ["source", "reviewer"]},
+          "periods": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  ]
+}

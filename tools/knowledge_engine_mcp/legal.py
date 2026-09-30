@@ -13,12 +13,26 @@ LEGAL_TOOLS = LEGAL_WRITES | {
 }
 LEGAL_SCOPES = {"legal_source_contracts": [], "legal_retrieval_modes": []}
 
+# Court dockets and justice statistics (#2218): the courts and justice-statistics features' tools, registered here.
+from tools.knowledge_engine_mcp.courts_justice import (  # noqa: E402
+    COURTS_JUSTICE_SCOPES,
+    COURTS_JUSTICE_TOOLS,
+    COURTS_JUSTICE_WRITES,
+)
+from tools.knowledge_engine_mcp.courts_justice import register as register_courts_justice  # noqa: E402
+
+LEGAL_WRITES = LEGAL_WRITES | COURTS_JUSTICE_WRITES
+LEGAL_TOOLS = LEGAL_TOOLS | COURTS_JUSTICE_TOOLS
+LEGAL_SCOPES = {**LEGAL_SCOPES, **COURTS_JUSTICE_SCOPES}
+
 
 def required_scopes(tool_name, mutability):
     return LEGAL_SCOPES.get(tool_name, ["knowledge:legal:write" if mutability == "write" else "knowledge:legal:read"])
 
 
 def register(mcp, safe, context):
+    register_courts_justice(mcp, safe, context)
+
     def who():
         return context()[0], context()[1]
 

@@ -1,0 +1,54 @@
+{
+ "count": 3,
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "id": 7300001,
+   "name": "Example Data Co.",
+   "extra_info": "100 Example Street, Example City",
+   "party_types": [
+    {
+     "name": "Plaintiff",
+     "docket": 70001,
+     "date_terminated": null,
+     "extra_info": "a Delaware corporation"
+    }
+   ],
+   "attorneys": [
+    {
+     "attorney_id": 1,
+     "name": "Counsel Fixture",
+     "contact_raw": "1 Law Plaza"
+    }
+   ]
+  },
+  {
+   "id": 7300002,
+   "name": "Jane Roe",
+   "extra_info": "12 Private Lane, Example City; born 01/01/2060",
+   "party_types": [
+    {
+     "name": "Defendant",
+     "docket": 70001,
+     "date_terminated": null,
+     "extra_info": ""
+    }
+   ],
+   "attorneys": []
+  },
+  {
+   "id": 7300003,
+   "name": "United States Department of Examples",
+   "extra_info": "",
+   "party_types": [
+    {
+     "name": "Interested Party",
+     "docket": 70001,
+     "date_terminated": null
+    }
+   ],
+   "attorneys": []
+  }
+ ]
+}

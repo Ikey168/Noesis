@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"DivisionId\": 1701,\n \"Date\": \"2099-02-01T19:00:00\",\n \"PublicationUpdated\": \"2099-02-01T21:00:00\",\n \"Number\": 55,\n \"IsDeferred\": false,\n \"EVELType\": null,\n \"EVELCountry\": null,\n \"Title\": \"Example Heat Networks Bill: Second Reading\",\n \"AyeCount\": 2,\n \"NoCount\": 1,\n \"DoubleMajorityAyeCount\": null,\n \"DoubleMajorityNoCount\": null,\n \"AyeTellers\": [\n  {\n   \"MemberId\": 4004,\n   \"Name\": \"Pat Teller\",\n   \"Party\": \"Example Party\",\n   \"SubParty\": null,\n   \"PartyColour\": \"000000\",\n   \"PartyAbbreviation\": null,\n   \"MemberFrom\": \"Sampleford\",\n   \"ListAs\": \"Pat Teller\",\n   \"ProxyName\": null\n  }\n ],\n \"NoTellers\": [\n  {\n   \"MemberId\": 4005,\n   \"Name\": \"Chris Counter\",\n   \"Party\": \"Other Party\",\n   \"SubParty\": null,\n   \"PartyColour\": \"000000\",\n   \"PartyAbbreviation\": null,\n   \"MemberFrom\": \"Fixtureham\",\n   \"ListAs\": \"Chris Counter\",\n   \"ProxyName\": null\n  }\n ],\n \"Ayes\": [\n  {\n   \"MemberId\": 4001,\n   \"Name\": \"Sam Minister\",\n   \"Party\": \"Example Party\",\n   \"SubParty\": null,\n   \"PartyColour\": \"000000\",\n   \"PartyAbbreviation\": null,\n   \"MemberFrom\": \"Exampleton North\",\n   \"ListAs\": \"Sam Minister\",\n   \"ProxyName\": null\n  },\n  {\n   \"MemberId\": 4002,\n   \"Name\": \"Alex Sample\",\n   \"Party\": \"Example Party\",\n   \"SubParty\": null,\n   \"PartyColour\": \"000000\",\n   \"PartyAbbreviation\": null,\n   \"MemberFrom\": \"Exampleton\",\n   \"ListAs\": \"Alex Sample\",\n   \"ProxyName\": null\n  }\n ],\n \"Noes\": [\n  {\n   \"MemberId\": 4003,\n   \"Name\": \"Robin Opposition\",\n   \"Party\": \"Other Party\",\n   \"SubParty\": null,\n   \"PartyColour\": \"000000\",\n   \"PartyAbbreviation\": null,\n   \"MemberFrom\": \"Testbury\",\n   \"ListAs\": \"Robin Opposition\",\n   \"ProxyName\": null\n  }\n ],\n \"FriendlyDescription\": null,\n \"FriendlyTitle\": null,\n \"RemoteVotingStart\": null,\n \"RemoteVotingEnd\": null\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/data/division/1701.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-agrifood-record-v1",
+  "title": "Agri-food record statement: one figure or declaration as one publisher released it",
+  "description": "One statement an Agriculture and Food Systems adapter emits (FAOSTAT, USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture through the SDMX connector, EU Agri-food data portal) and src.kb.agrifood_store keeps. Record types: commodity (a publisher's commodity code and label), release (a dataset or domain release with its date), observation (production, yield, area, producer or market price) and food_balance (supply and distribution or food balance elements). Every observation and food-balance figure carries commodity, place, element/measure, unit, reference period (calendar and marketing years are explicit and never converted), the value text and the source flag verbatim, the release vintage and the source. A revised figure is a new vintage; nothing is overwritten. No statement carries a forecast, projection or score made by the pack: publisher forecasts and projections are labelled as the publisher's.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "dataset", "source"],
+  "additionalProperties": false,
+  "definitions": {
+    "code": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"type": "string", "minLength": 1},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]},
+        "level": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "release": {
+      "type": "object",
+      "required": ["key", "released_at", "basis"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "released_at": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}(-\\d{2}([T ]\\d{2}:\\d{2}(:\\d{2}(\\.\\d+)?)?)?)?$"},
+        "basis": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-agrifood-record-v1"},
+    "record_type": {"enum": ["commodity", "release", "observation", "food_balance"]},
+    "provider": {"enum": ["faostat", "nass-quickstats", "fas-psd", "eurostat-agri", "agri-food-portal"]},
+    "dataset": {"type": "string", "minLength": 1},
+    "commodity": {"$ref": "#/definitions/code"},
+    "place": {"$ref": "#/definitions/code"},
+    "market": {"type": ["string", "null"]},
+    "program": {"type": ["string", "null"]},
+    "measure": {
+      "type": "object",
+      "required": ["kind", "element", "label"],
+      "properties": {
+        "kind": {"enum": ["production", "yield", "area_harvested", "area_planted", "producer_price", "market_price",
+                          "supply_distribution", "food_balance", "other"]},
+        "element": {"type": "string", "minLength": 1},
+        "element_code": {"type": ["string", "null"]},
+        "label": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "unit": {"type": ["string", "null"]},
+    "period": {
+      "type": "object",
+      "required": ["type", "value", "key"],
+      "properties": {
+        "type": {"enum": ["calendar-year", "marketing-year", "month", "week", "date-range", "other"]},
+        "value": {"type": "string", "minLength": 1},
+        "key": {"type": "string", "minLength": 1},
+        "reference": {"type": ["string", "null"]},
+        "start": {"type": ["string", "null"]},
+        "end": {"type": ["string", "null"]},
+        "definition": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "value": {
+      "type": "object",
+      "required": ["text", "number", "status"],
+      "properties": {
+        "text": {"type": ["string", "null"]},
+        "number": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+        "status": {"enum": ["reported", "withheld", "missing", "not-applicable", "below-rounding"]}
+      },
+      "additionalProperties": false
+    },
+    "flag": {
+      "type": "object",
+      "required": ["vocabulary", "code", "label", "classes"],
+      "properties": {
+        "vocabulary": {"type": "string", "minLength": 1},
+        "code": {"type": ["string", "null"]},
+        "label": {"type": ["string", "null"]},
+        "classes": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+        "note": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "estimate_type": {"enum": ["observation", "publisher-estimate", "publisher-forecast", "publisher-projection"]},
+    "release": {"$ref": "#/definitions/release"},
+    "series_key": {"type": "string", "pattern": "^agrifood-series:[0-9a-f]{24}$"},
+    "as_published": {"type": "object"},
+    "source": {
+      "type": "object",
+      "required": ["url", "locator", "attribution", "evidence_origin"],
+      "properties": {
+        "url": {"type": "string", "minLength": 1},
+        "locator": {"type": "string"},
+        "attribution": {"type": "string", "minLength": 1},
+        "evidence_origin": {"enum": ["fixture", "live"]}
+      },
+      "additionalProperties": false
+    }
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"enum": ["observation", "food_balance"]}}},
+      "then": {"required": ["commodity", "place", "measure", "unit", "period", "value", "flag", "estimate_type",
+                            "release", "series_key", "as_published"]}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "commodity"}}},
+      "then": {"required": ["commodity"]}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "release"}}},
+      "then": {"required": ["release"]}
+    }
+  ]
+}

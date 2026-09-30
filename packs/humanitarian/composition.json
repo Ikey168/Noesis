@@ -1,0 +1,118 @@
+{
+  "description": "Composition view of the Humanitarian Response and Conflict Events bundle: what it requires from shared providers, its optional licence-gated ACLED feature and its exclusions. packs/humanitarian/manifest.json is the authoritative native manifest; tests/unit/humanitarian/test_humanitarian_bundle.py asserts this file stays equal to it.",
+  "requires": [
+    {
+      "capability": "humanitarian.records",
+      "contract": "noesis-humanitarian-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.dossiers",
+      "contract": "noesis-humanitarian-dossier",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.conflict-events",
+      "contract": "noesis-humanitarian-conflict-events",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.identity",
+      "contract": "noesis-humanitarian-identity-assertion",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.links",
+      "contract": "noesis-humanitarian-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "humanitarian.monitoring",
+      "contract": "noesis-humanitarian-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "admin places and p-codes with boundary vintages; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0",
+      "reason": "bounded area queries over published coordinates; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "geospatial.geometry-store",
+      "contract": "noesis-geospatial-geometry",
+      "range": "^2.0.0",
+      "reason": "admin boundary geometries; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "osint.corroboration",
+      "contract": "noesis-osint-corroboration",
+      "range": "^1.1.0",
+      "reason": "location investigations cited from humanitarian records; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "news.articles",
+      "contract": "noesis-news-articles",
+      "range": "^1.0.0",
+      "reason": "cited news coverage; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "economics.demographics",
+      "contract": "noesis-demographic-series",
+      "range": "^1.0.0",
+      "reason": "population denominators by citation with their vintage; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "place, crisis, organisation and actor matches are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "monitors are knowledge subscriptions; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the humanitarian-response source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "acled",
+      "default": false,
+      "description": "ACLED event acquisition, gated on the HR06 licence decision recorded in docs/development/humanitarian-evidence/source-audit.md (currently declined: not acquired); enabling it requires an accepted decision, a source-pack version bump and NOESIS_ACLED_ACCESS_TOKEN",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the gated acled-events entry of the humanitarian-response source pack"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "casualty estimation or derived casualty figures",
+    "event deduplication across coders into a single true count",
+    "early-warning scores or conflict forecasts",
+    "severity ranking or summarised situation assessment",
+    "operational humanitarian advice or targeting information",
+    "personal data about affected people"
+  ]
+}

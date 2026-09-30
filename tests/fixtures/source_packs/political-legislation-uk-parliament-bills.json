@@ -1,0 +1,35 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"billId\": 3901,\n \"shortTitle\": \"Example Heat Networks Bill\",\n \"longTitle\": \"A Bill to make provision about example heat networks. (Synthetic fixture.)\",\n \"currentHouse\": \"Lords\",\n \"originatingHouse\": \"Commons\",\n \"lastUpdate\": \"2099-03-02T10:00:00\",\n \"billWithdrawn\": null,\n \"isDefeated\": false,\n \"billTypeId\": 1,\n \"introducedSessionId\": 39,\n \"includedSessionIds\": [\n  39\n ],\n \"isAct\": false,\n \"sponsors\": [\n  {\n   \"member\": {\n    \"memberId\": 4001,\n    \"name\": \"Sam Minister\",\n    \"party\": \"Example Party\",\n    \"partyColour\": \"000000\",\n    \"house\": \"Commons\",\n    \"memberFrom\": \"Exampleton North\",\n    \"memberPhoto\": null\n   },\n   \"organisation\": {\n    \"name\": \"Department for Example\",\n    \"url\": null\n   },\n   \"sortOrder\": 1\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v1/Bills/3901",
+   "status": 200
+  },
+  {
+   "body": "{\n \"items\": [\n  {\n   \"id\": 20001,\n   \"stageId\": 6,\n   \"sessionId\": 39,\n   \"description\": \"1st reading\",\n   \"abbreviation\": \"1R\",\n   \"house\": \"Commons\",\n   \"stageSittings\": [\n    {\n     \"id\": 200010,\n     \"stageId\": 6,\n     \"billStageId\": 20001,\n     \"billId\": 3901,\n     \"date\": \"2099-01-10T00:00:00\"\n    }\n   ],\n   \"sortOrder\": 1\n  },\n  {\n   \"id\": 20002,\n   \"stageId\": 7,\n   \"sessionId\": 39,\n   \"description\": \"2nd reading\",\n   \"abbreviation\": \"2R\",\n   \"house\": \"Commons\",\n   \"stageSittings\": [\n    {\n     \"id\": 200020,\n     \"stageId\": 7,\n     \"billStageId\": 20002,\n     \"billId\": 3901,\n     \"date\": \"2099-02-01T00:00:00\"\n    }\n   ],\n   \"sortOrder\": 2\n  },\n  {\n   \"id\": 20003,\n   \"stageId\": 8,\n   \"sessionId\": 39,\n   \"description\": \"Committee stage\",\n   \"abbreviation\": \"CS\",\n   \"house\": \"Commons\",\n   \"stageSittings\": [\n    {\n     \"id\": 200030,\n     \"stageId\": 8,\n     \"billStageId\": 20003,\n     \"billId\": 3901,\n     \"date\": \"2099-02-15T00:00:00\"\n    },\n    {\n     \"id\": 200031,\n     \"stageId\": 8,\n     \"billStageId\": 20003,\n     \"billId\": 3901,\n     \"date\": \"2099-02-17T00:00:00\"\n    }\n   ],\n   \"sortOrder\": 3\n  },\n  {\n   \"id\": 20004,\n   \"stageId\": 10,\n   \"sessionId\": 39,\n   \"description\": \"3rd reading\",\n   \"abbreviation\": \"3R\",\n   \"house\": \"Commons\",\n   \"stageSittings\": [\n    {\n     \"id\": 200040,\n     \"stageId\": 10,\n     \"billStageId\": 20004,\n     \"billId\": 3901,\n     \"date\": \"2099-03-01T00:00:00\"\n    }\n   ],\n   \"sortOrder\": 4\n  },\n  {\n   \"id\": 20005,\n   \"stageId\": 1,\n   \"sessionId\": 39,\n   \"description\": \"1st reading\",\n   \"abbreviation\": \"1R\",\n   \"house\": \"Lords\",\n   \"stageSittings\": [\n    {\n     \"id\": 200050,\n     \"stageId\": 1,\n     \"billStageId\": 20005,\n     \"billId\": 3901,\n     \"date\": \"2099-03-02T00:00:00\"\n    }\n   ],\n   \"sortOrder\": 5\n  }\n ],\n \"totalResults\": 5,\n \"itemsPerPage\": 250\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v1/Bills/3901/Stages?Take=250",
+   "status": 200
+  },
+  {
+   "body": "{\n \"billId\": 3901,\n \"publications\": [\n  {\n   \"id\": 40001,\n   \"house\": \"Commons\",\n   \"title\": \"Bill 101 2098-99 (as introduced)\",\n   \"displayDate\": \"2099-01-10T00:00:00\",\n   \"publicationType\": {\n    \"id\": 5,\n    \"name\": \"Bill\"\n   },\n   \"links\": [\n    {\n     \"id\": 400010,\n     \"title\": \"Bill 101 2098-99 (as introduced)\",\n     \"url\": \"https://publications.parliament.uk/pa/bills/cbill/example/0101/fixture.pdf\",\n     \"contentType\": \"application/pdf\"\n    }\n   ],\n   \"files\": []\n  },\n  {\n   \"id\": 40002,\n   \"house\": \"Commons\",\n   \"title\": \"Bill 120 2098-99 (as amended in Public Bill Committee)\",\n   \"displayDate\": \"2099-02-18T00:00:00\",\n   \"publicationType\": {\n    \"id\": 5,\n    \"name\": \"Bill\"\n   },\n   \"links\": [\n    {\n     \"id\": 400020,\n     \"title\": \"Bill 120 2098-99 (as amended in Public Bill Committee)\",\n     \"url\": \"https://publications.parliament.uk/pa/bills/cbill/example/0120/fixture.pdf\",\n     \"contentType\": \"application/pdf\"\n    }\n   ],\n   \"files\": []\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v1/Bills/3901/Publications",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

@@ -1,0 +1,107 @@
+{
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "chemicals.substances",
+        "provider": "chemicals.substances",
+        "contract": {
+          "name": "noesis-substance-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "chemicals.identity",
+        "provider": "chemicals.substances",
+        "contract": {
+          "name": "noesis-substance-identity-candidate",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "chemicals.citations",
+        "provider": "chemicals.substances",
+        "contract": {
+          "name": "noesis-substance-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "chemicals.monitoring",
+        "provider": "chemicals.substances",
+        "contract": {
+          "name": "noesis-substance-notification",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "chemicals.substances",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "chemicals-substances",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "chemicals.substances",
+      "contract": "noesis-substance-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "chemicals.identity",
+      "contract": "noesis-substance-identity-candidate",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "chemicals.citations",
+      "contract": "noesis-substance-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "chemicals.monitoring",
+      "contract": "noesis-substance-notification",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "legal.works",
+      "contract": "noesis-legal-record",
+      "range": "^1.0.0",
+      "reason": "restrictions and classifications cite legal acts, resolved to Legal works by exact CELEX/ELI"
+    },
+    {
+      "capability": "products.safety-notices",
+      "contract": "noesis-product-safety-notice",
+      "range": "^1.0.0",
+      "reason": "product safety notices that cite a substance are linked by citation"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "substance identity matches are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "substance monitors are knowledge subscriptions"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "PubChem, ECHA and CompTox sources run through the source-pack runtime"
+    }
+  ]
+}

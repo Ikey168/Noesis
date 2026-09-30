@@ -24,6 +24,30 @@
           "name": "noesis-demographic-series",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "economics.trade",
+        "provider": "economics.trade",
+        "contract": {
+          "name": "noesis-trade-flow-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "economics.labour",
+        "provider": "economics.labour",
+        "contract": {
+          "name": "noesis-labour-statistics-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "economics.logistics",
+        "provider": "economics.logistics",
+        "contract": {
+          "name": "noesis-logistics-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -38,13 +62,30 @@
       {
         "id": "economics.demographics",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.trade",
+        "version": "1.0.0"
+      },
+      {
+        "id": "economics.labour",
+        "version": "1.0.0"
+      },
+      {
+        "id": "economics.logistics",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.3.0",
-        "range": "^1.3.0"
+        "version": "1.6.0",
+        "range": "^1.6.0"
+      },
+      {
+        "pack_id": "economic-shipping-and-logistics",
+        "version": "1.0.0",
+        "range": "^1.0.0"
       }
     ],
     "profiles": [
@@ -89,6 +130,70 @@
         },
         "source_packs": [
           "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.trade-flows",
+        "description": "International trade flows: a country pair's reported flows by product and period as of a release, the reporter's figure and the partner's mirror figure side by side with valuation basis, classification vintage, release vintage and a displayed asymmetry; flows in products a cited sanctions measure covers",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per figure; a figure not yet released is none_reported",
+          "mirror": "reporter and mirror figures side by side; the difference is displayed, never reconciled",
+          "classifications": "other classification vintages only through a cited concordance, non-exact mappings flagged",
+          "missing": "none_reported, never zero; confidential cells stay confidential",
+          "areas": "codes joined only through accepted identity matches; special areas stay distinct"
+        },
+        "vocabulary": {
+          "reporter figure": "the flow as the pair's reporter published it",
+          "mirror figure": "the partner's own report of the opposite flow (the reporter's exports are the partner's imports)",
+          "asymmetry": "the displayed difference between a reporter and a mirror figure, not an error to correct",
+          "CIF": "import value including cost, insurance and freight to the border",
+          "FOB": "export value free on board at the border",
+          "classification vintage": "the HS edition, CN year or SITC revision a product code belongs to"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.labour",
+        "description": "Labour and employment statistics: a place's, sector's or occupation's published labour-force indicators (employment, unemployment, wages, hours, vacancies) per source as of a release vintage, with definitions, seasonal adjustment, flags, vintages and comparability notes, side by side",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per value; revision history on request",
+          "sources": "ILOSTAT, OECD, Eurostat LFS and BLS side by side; ILO modelled estimates and national series never merged",
+          "comparability": "recorded differences and reviewable notes; unnoted pairs are comparability_unknown; nothing blended or re-harmonised",
+          "gaps": "missing, confidential and unpublished periods shown as such; nothing filled or nowcast",
+          "identity": "places, sectors and occupations through accepted mappings only; unmapped codes queryable natively"
+        },
+        "vocabulary": {
+          "definition basis": "ILO harmonised, OECD harmonised, EU-LFS or national, as the source states",
+          "seasonal adjustment": "NSA (not adjusted), SA (seasonally adjusted) or trend(-cycle), as published",
+          "vintage": "one release of a series; a revised value is a new vintage",
+          "benchmark revision": "a revision beyond the regular revision window (e.g. the annual CES benchmark)",
+          "modelled estimate": "an ILO estimate for a country, distinct from the nationally reported series"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
+        ]
+      },
+      {
+        "id": "economics.shipping-logistics",
+        "description": "Shipping and logistics statistics: a port (UN/LOCODE), country or published route to cited maritime series (port calls, throughput, liner connectivity, fleet, goods handled, openly licensed freight indices) as of a release vintage, sources side by side, joinable to trade flows by shared codes or citation",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per series; all vintages listed on request",
+          "ports": "source port codes only through accepted UN/LOCODE matches; unmatched codes answered under their own code",
+          "routes": "only series published at route level; never inferred from port totals",
+          "sources": "side by side with definitions; never merged",
+          "freight_indices": "only indices cleared by licence decision; excluded ones named with the reason"
+        },
+        "vocabulary": {
+          "UN/LOCODE": "the UNECE code of a location: country code plus a three-character location code",
+          "port call": "an arrival of a ship at a port as the publisher counts it",
+          "TEU": "twenty-foot equivalent unit of container throughput",
+          "liner shipping connectivity": "UNCTAD's index of a port's or country's position in the liner network",
+          "vintage": "one release of a series' values"
+        },
+        "source_packs": [
+          "economic-shipping-and-logistics"
         ]
       }
     ]
@@ -221,6 +326,160 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "statistics are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "trade-comtrade",
+      "default": false,
+      "description": "UN Comtrade reported goods flows (HS) by reporter, partner, flow and product with release vintages: reporter and mirror reports side by side with displayed asymmetries, WITS/UNSD concordances across HS editions and SITC revisions, reviewable area and product identity, sanctions and ownership links by citation (degrading to provider_absent when those stores are not held) and subscription monitors. No estimation, nowcast, reconciliation or sanctions-evasion inference.",
+      "requires": [
+        {
+          "capability": "economics.trade",
+          "contract": "noesis-trade-flow-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "trade series follow the economic release and vintage pattern"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "reporter and partner codes resolve to places through reviewable matches"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "trade monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "flows and concordances are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "trade-comext",
+      "default": false,
+      "description": "Eurostat Comext EU trade in goods (CN8) through the Eurostat connector with the cube's release vintages: confidential cells kept without values, reporter and mirror reports of member states side by side, CN years resolved to HS through the CN structure and concordances, reviewable identity, sanctions and ownership links by citation (degrading when absent) and subscription monitors. No estimation, nowcast, reconciliation or sanctions-evasion inference.",
+      "requires": [
+        {
+          "capability": "economics.trade",
+          "contract": "noesis-trade-flow-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "trade series follow the economic release and vintage pattern"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "reporter and partner codes resolve to places through reviewable matches"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "trade monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "flows and concordances are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "labour-statistics",
+      "default": false,
+      "description": "Labour and employment statistics: ILOSTAT (SDMX), OECD (SDMX), Eurostat LFS (SDMX) and US BLS (Public Data API) indicators in the Economics series storage with definitions, seasonal adjustment, flags and release vintages, reviewable place/sector/occupation mappings through published concordances, citation links to methodology and demographic denominators, comparability notes, as-of answers and subscription monitors. No nowcasting, labour-market forecasts, filled periods, blending or re-harmonisation.",
+      "requires": [
+        {
+          "capability": "economics.labour",
+          "contract": "noesis-labour-statistics-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "labour values and vintages live in the Economics series storage"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "area codes resolve to places through reviewable mappings"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "labour monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "labour series are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "logistics",
+      "default": false,
+      "description": "Shipping and logistics statistics: UN/LOCODE port records per release, UNCTADstat and Eurostat maritime series and openly licensed freight indices (per-index licence decisions) in the Economics series storage with release vintages, reviewable port identity to UN/LOCODE and Geospatial places, trade-flow and Economics links by shared code or citation and subscription monitors. No freight-rate forecast, derived or rebased index, inferred route or merged series.",
+      "requires": [
+        {
+          "capability": "economics.logistics",
+          "contract": "noesis-logistics-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "logistics observations live in the economic series and vintage storage"
+        },
+        {
+          "capability": "geospatial.feature-query",
+          "contract": "noesis-geospatial-feature-query",
+          "range": "^1.0.0",
+          "reason": "ports are projected as places with published coordinates"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "port places carry the UN/LOCODE for resolution"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "logistics monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "releases are acquired through the source-pack runtime"
         }
       ]
     }

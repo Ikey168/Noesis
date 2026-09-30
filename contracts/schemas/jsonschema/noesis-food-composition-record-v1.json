@@ -1,0 +1,155 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-food-composition-record-v1",
+  "title": "Food composition record: what one provider published about one food at one revision",
+  "description": "Records of the Products food feature (#2216, FC02), owned by src.kb.food_composition beside the Products identities of src.kb.products. Record types: food-product (GTIN-keyed), generic-food, ingredient-statement, allergen-declaration (contains / may_contain as published), nutrient-value (nutrient, amount, unit as published with an explicit normalized form, basis, derivation and value flags as published), labelling-claim and label-revision (the immutable adapter statement). Every record carries provider, provider key, revision, retrieval time, as-of time and a mandatory provenance class (crowd-sourced for Open Food Facts, reference for FoodData Central and composition tables); the classes are never merged. Open Food Facts records carry the ODbL attribution and share-alike obligation. No record carries a nutrition score, health rating, ranking or diet advice. The adapter statement is #/definitions/statement.",
+  "type": "object",
+  "required": ["contract", "record_type", "provider", "provider_key", "provenance_class", "revision", "retrieved_at", "as_of", "attribution", "body"],
+  "additionalProperties": false,
+  "definitions": {
+    "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "provider": {"enum": ["open-food-facts", "fooddata-central", "composition-table"]},
+    "provenance_class": {"enum": ["crowd-sourced", "reference"]},
+    "locator": {"type": "object", "properties": {"json_pointer": {"type": "string"}}},
+    "attribution": {
+      "type": "object",
+      "required": ["licence", "text", "share_alike"],
+      "properties": {
+        "licence": {"type": "string", "minLength": 1},
+        "text": {"type": ["string", "null"]},
+        "share_alike": {"type": "boolean"}
+      }
+    },
+    "unit": {
+      "type": "object",
+      "required": ["published", "normalized", "state"],
+      "properties": {
+        "published": {"type": ["string", "null"]},
+        "normalized": {"type": ["string", "null"]},
+        "state": {"enum": ["known", "unknown", "absent"]}
+      },
+      "additionalProperties": false
+    },
+    "ingredient_statement": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1},
+        "language": {"type": ["string", "null"]},
+        "locator": {"$ref": "#/definitions/locator"}
+      },
+      "additionalProperties": false
+    },
+    "allergen_declaration": {
+      "type": "object",
+      "required": ["relation", "value", "declared_as"],
+      "properties": {
+        "relation": {"enum": ["contains", "may_contain"]},
+        "value": {"type": "string", "minLength": 1},
+        "declared_as": {"enum": ["tag", "text"]},
+        "locator": {"$ref": "#/definitions/locator"}
+      },
+      "additionalProperties": false
+    },
+    "nutrient_value": {
+      "type": "object",
+      "required": ["nutrient", "amount", "amount_decimal", "unit", "basis", "derivation", "value_kind", "value_flags"],
+      "properties": {
+        "nutrient": {
+          "type": "object",
+          "required": ["scheme", "id"],
+          "properties": {
+            "scheme": {"enum": ["off-nutriment", "fdc-nutrient-number", "fdc-label-nutrient", "ciqual-const-code"]},
+            "id": {"type": "string", "minLength": 1},
+            "name": {"type": ["string", "null"]},
+            "tagname": {"type": ["string", "null"], "description": "INFOODS tagname where the source publishes one"}
+          },
+          "additionalProperties": false
+        },
+        "amount": {"type": ["string", "null"], "description": "the amount text exactly as published"},
+        "amount_decimal": {"type": ["string", "null"]},
+        "unit": {"$ref": "#/definitions/unit"},
+        "basis": {"type": ["string", "null"]},
+        "derivation": {"type": ["object", "null"]},
+        "value_kind": {"enum": ["off-nutriment", "food-nutrient", "label-nutrient", "table-value"]},
+        "value_flags": {"type": "object"},
+        "locator": {"$ref": "#/definitions/locator"}
+      },
+      "additionalProperties": false
+    },
+    "labelling_claim": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {
+        "text": {"type": "string", "minLength": 1},
+        "tag": {"type": ["string", "null"]},
+        "locator": {"$ref": "#/definitions/locator"}
+      },
+      "additionalProperties": false
+    },
+    "statement": {
+      "type": "object",
+      "required": ["contract", "provider", "provider_key", "food_kind", "provenance_class", "revision", "identifiers", "names", "ingredient_statements", "allergen_declarations", "nutrient_values", "labelling_claims", "source_fields", "attribution", "url"],
+      "additionalProperties": false,
+      "properties": {
+        "contract": {"const": "noesis-food-composition-record-v1"},
+        "provider": {"$ref": "#/definitions/provider"},
+        "provider_key": {"type": "string", "pattern": "^(off|fdc|ciqual):.+$"},
+        "food_kind": {"enum": ["food-product", "generic-food"]},
+        "provenance_class": {"$ref": "#/definitions/provenance_class"},
+        "revision": {
+          "type": "object",
+          "required": ["value", "basis", "date"],
+          "properties": {
+            "value": {"type": "string", "minLength": 1},
+            "basis": {"enum": ["off-revision", "fdc-publication-date", "table-edition"]},
+            "date": {"$ref": "#/definitions/date"},
+            "declared": {"type": ["string", "null"]}
+          },
+          "additionalProperties": false
+        },
+        "identifiers": {"type": "object"},
+        "names": {"type": "object"},
+        "ingredient_statements": {"type": "array", "items": {"$ref": "#/definitions/ingredient_statement"}},
+        "allergen_declarations": {"type": "array", "items": {"$ref": "#/definitions/allergen_declaration"}},
+        "nutrient_values": {"type": "array", "items": {"$ref": "#/definitions/nutrient_value"}},
+        "labelling_claims": {"type": "array", "items": {"$ref": "#/definitions/labelling_claim"}},
+        "source_fields": {"type": "object", "description": "provider flags kept verbatim (Open Food Facts data-quality, completeness and state tags; FDC data type and category; table flags)"},
+        "attribution": {"$ref": "#/definitions/attribution"},
+        "url": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-food-composition-record-v1"},
+    "record_type": {"enum": ["food-product", "generic-food", "ingredient-statement", "allergen-declaration", "nutrient-value", "labelling-claim", "label-revision"]},
+    "provider": {"$ref": "#/definitions/provider"},
+    "provider_key": {"type": "string", "minLength": 1},
+    "provenance_class": {"$ref": "#/definitions/provenance_class"},
+    "revision": {
+      "type": "object",
+      "required": ["revision_id", "value", "basis", "revision_no"],
+      "properties": {
+        "revision_id": {"type": "string", "minLength": 1},
+        "value": {"type": "string", "minLength": 1},
+        "basis": {"enum": ["off-revision", "fdc-publication-date", "table-edition"]},
+        "revision_no": {"type": "integer", "minimum": 1}
+      },
+      "additionalProperties": false
+    },
+    "retrieved_at": {"type": "string", "minLength": 1},
+    "as_of": {"$ref": "#/definitions/date"},
+    "attribution": {"$ref": "#/definitions/attribution"},
+    "body": {"type": "object"}
+  },
+  "allOf": [
+    {"if": {"properties": {"record_type": {"const": "ingredient-statement"}}}, "then": {"properties": {"body": {"$ref": "#/definitions/ingredient_statement"}}}},
+    {"if": {"properties": {"record_type": {"const": "allergen-declaration"}}}, "then": {"properties": {"body": {"$ref": "#/definitions/allergen_declaration"}}}},
+    {"if": {"properties": {"record_type": {"const": "nutrient-value"}}}, "then": {"properties": {"body": {"$ref": "#/definitions/nutrient_value"}}}},
+    {"if": {"properties": {"record_type": {"const": "labelling-claim"}}}, "then": {"properties": {"body": {"$ref": "#/definitions/labelling_claim"}}}},
+    {"if": {"properties": {"record_type": {"const": "label-revision"}}}, "then": {"properties": {"body": {"required": ["statement"], "properties": {"statement": {"$ref": "#/definitions/statement"}}}}}},
+    {"if": {"properties": {"record_type": {"enum": ["food-product", "generic-food"]}}}, "then": {"properties": {"body": {"required": ["identifiers", "names"]}}}},
+    {"if": {"properties": {"provider": {"const": "open-food-facts"}}}, "then": {"properties": {"provenance_class": {"const": "crowd-sourced"}, "attribution": {"properties": {"licence": {"const": "ODbL-1.0"}, "share_alike": {"const": true}}}}}},
+    {"if": {"properties": {"provider": {"enum": ["fooddata-central", "composition-table"]}}}, "then": {"properties": {"provenance_class": {"const": "reference"}}}}
+  ]
+}

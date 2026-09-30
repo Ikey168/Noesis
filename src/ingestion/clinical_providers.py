@@ -20,6 +20,11 @@ schedules and the maintenance orchestrator. Nothing here schedules anything.
   every record and FAERS figures kept as reporting counts.
 * ``ema-medicines`` – EMA's published medicines data export (JSON).
 
+Medicines regulation (#2214): the ``medicines`` connector (EMA EPARs and product information, DailyMed SPL history,
+FDA Drug Safety Communications) is implemented in :mod:`src.ingestion.medicines_sources`; Drugs@FDA submission
+history reuses the ``openfda`` connector below (``drugsfda-submissions`` endpoint). Their access decisions are merged
+into :data:`PROVIDER_CONTRACTS` at the end of this module.
+
 The ``surveillance`` connector of the same pack (public-health surveillance series: RKI open data, WHO GHO,
 Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) is implemented in
 :mod:`src.ingestion.surveillance_sources`; its access decisions are merged into :data:`PROVIDER_CONTRACTS` here.
@@ -1316,8 +1321,12 @@ class OpenfdaAdapter(_ClinicalAdapter):
                for p in products):
             raise SourcePackError("invalid_mapping", "openfda sources pin products by generic_name")
         endpoints = set(self.config.get("endpoints") or [])
-        if not endpoints or endpoints - {"label", "drugsfda", "event-counts"}:
-            raise SourcePackError("invalid_mapping", "openfda endpoints are label, drugsfda and event-counts")
+        if not endpoints or endpoints - {"label", "drugsfda", "event-counts", "drugsfda-submissions"}:
+            raise SourcePackError("invalid_mapping", "openfda endpoints are label, drugsfda, event-counts and "
+                                                     "drugsfda-submissions")
+        if "drugsfda-submissions" in endpoints and len(endpoints) > 1:
+            # Submission history is a medicines record family (noesis-clinical-medicines-record-v1; #2214).
+            raise SourcePackError("invalid_mapping", "drugsfda-submissions is a source of its own")
         return [p["generic_name"].lower() for p in products]
 
     def _url(self, path, params):
@@ -1344,6 +1353,16 @@ class OpenfdaAdapter(_ClinicalAdapter):
                 raise SourcePackError("schema_drift", f"Drugs@FDA returned HTTP {status}")
             else:
                 records += parse_openfda_approvals(_json(raw, "openFDA"))
+        if "drugsfda-submissions" in endpoints:
+            from src.ingestion.medicines_sources import parse_drugsfda_submissions
+
+            status, raw = self._get(self._url("/drug/drugsfda.json", [("search", search_label), ("limit", "5")]))
+            if status == 404:
+                outcome = "partial"
+            elif status >= 400:
+                raise SourcePackError("schema_drift", f"Drugs@FDA returned HTTP {status}")
+            else:
+                records += parse_drugsfda_submissions(_json(raw, "openFDA"))
         if "event-counts" in endpoints:
             field = str(self.config.get("event_count_field") or "patient.reaction.reactionmeddrapt.exact")
             if field not in {"patient.reaction.reactionmeddrapt.exact", "patient.reaction.reactionoutcome"}:
@@ -1425,6 +1444,31 @@ def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any])
             break
     return records
 
+
+# Medicines regulation sources (#2214, MR01): EMA EPARs, Drugs@FDA (this module's openfda connector), DailyMed SPL,
+# FDA Drug Safety Communications and RxNav. Records are owned by src/kb/clinical_medicines.py.
+from src.ingestion.medicines_sources import LIVE_VERIFICATION as _MEDICINES_LIVE  # noqa: E402
+from src.ingestion.medicines_sources import PROVIDER_CONTRACTS as _MEDICINES_CONTRACTS  # noqa: E402
+from src.ingestion.medicines_sources import PROVIDER_HOSTS as _MEDICINES_HOSTS  # noqa: E402
+
+MEDICINES_PROVIDERS = tuple(_MEDICINES_CONTRACTS)
+PROVIDER_CONTRACTS.update({provider: {**contract, "record_owner": "src.kb.clinical_medicines"}
+                           for provider, contract in _MEDICINES_CONTRACTS.items()})
+PROVIDER_HOSTS.update(_MEDICINES_HOSTS)
+LIVE_VERIFICATION.update(_MEDICINES_LIVE)
+
+# Health-system capacity (#2215, HS01): WHO GHO and Eurostat reuse the surveillance providers above; the one new
+# provider is OECD Health Statistics. Capacity series are stored by src/kb/surveillance.py and composed by
+# src/kb/health_capacity.py.
+from src.ingestion.health_capacity_sources import LIVE_VERIFICATION as _CAPACITY_LIVE  # noqa: E402
+from src.ingestion.health_capacity_sources import PROVIDER_CONTRACTS as _CAPACITY_CONTRACTS  # noqa: E402
+from src.ingestion.health_capacity_sources import PROVIDER_HOSTS as _CAPACITY_HOSTS  # noqa: E402
+
+HEALTH_CAPACITY_PROVIDERS = tuple(_CAPACITY_CONTRACTS)
+PROVIDER_CONTRACTS.update({provider: {**contract, "record_owner": "src.kb.health_capacity"}
+                           for provider, contract in _CAPACITY_CONTRACTS.items()})
+PROVIDER_HOSTS.update(_CAPACITY_HOSTS)
+LIVE_VERIFICATION.update(_CAPACITY_LIVE)
 
 __all__ = [
     "ADAPTERS", "CONTRACT", "LIVE_VERIFICATION", "PROVIDER_CONTRACTS", "PROVIDER_HOSTS", "classify_identifier",

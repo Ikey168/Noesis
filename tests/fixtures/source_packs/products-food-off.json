@@ -1,0 +1,246 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC products, brands and barcodes (valid check digits) in the Open Food Facts product API v2 shape (docs/development/food-composition-evidence/source-audit.md). Field names are unverified-live (#2302). These fixtures contain no Open Food Facts data.",
+ "provider": "open-food-facts",
+ "scenarios": [
+  "two label revisions of one GTIN (rev 4 pinned, rev 7 current)",
+  "allergen and trace tags",
+  "OFF scores, nutrition-score nutriment and images excluded and reported as dropped",
+  "data-quality flags verbatim",
+  "unknown barcode is not_found"
+ ],
+ "native_pages": [
+  {
+   "request": "/api/v2/product/4000000000105.json?fields=code%2Crev%2Clast_modified_t%2Cproduct_name%2Cproduct_name_en%2Cgeneric_name%2Cbrands%2Cquantity%2Clc%2Ccategories_tags%2Cingredients_text%2Cingredients_text_en%2Cingredients_text_fr%2Cingredients_text_de%2Callergens_tags%2Ctraces_tags%2Cnutriments%2Cnutrition_data_per%2Cserving_size%2Clabels%2Clabels_tags%2Cdata_quality_tags%2Cdata_quality_warnings_tags%2Cdata_quality_errors_tags%2Ccompleteness%2Cstates_tags&rev=4",
+   "status": 200,
+   "body": {
+    "code": "4000000000105",
+    "status": 1,
+    "status_verbose": "product found",
+    "product": {
+     "code": "4000000000105",
+     "rev": 4,
+     "last_modified_t": 1767225600,
+     "product_name": "Frozen chicken kebab",
+     "brands": "Kebabio",
+     "quantity": "1 kg",
+     "lc": "en",
+     "categories_tags": [
+      "en:meats",
+      "en:frozen-foods"
+     ],
+     "ingredients_text": "Chicken meat (85%), water, wheat flour, salt, spices",
+     "allergens_tags": [
+      "en:gluten"
+     ],
+     "traces_tags": [],
+     "nutriments": {
+      "energy-kcal_100g": 210,
+      "energy-kcal_unit": "kcal",
+      "energy-kcal_value": 210,
+      "proteins_100g": 18,
+      "proteins_unit": "g",
+      "proteins_value": 18,
+      "fat_100g": 14,
+      "salt_100g": 1.6,
+      "sodium_100g": 0.64,
+      "nutrition-score-fr_100g": 11
+     },
+     "nutrition_data_per": "100g",
+     "labels": "",
+     "labels_tags": [],
+     "data_quality_tags": [
+      "en:nutrition-data-incomplete"
+     ],
+     "data_quality_warnings_tags": [
+      "en:nutrition-data-incomplete"
+     ],
+     "data_quality_errors_tags": [],
+     "completeness": 0.6,
+     "states_tags": [
+      "en:to-be-completed",
+      "en:nutrition-facts-completed"
+     ],
+     "nutriscore_grade": "d",
+     "nova_group": 4,
+     "image_url": "https://images.openfoodfacts.org/x.jpg"
+    }
+   }
+  },
+  {
+   "request": "/api/v2/product/4000000000105.json?fields=code%2Crev%2Clast_modified_t%2Cproduct_name%2Cproduct_name_en%2Cgeneric_name%2Cbrands%2Cquantity%2Clc%2Ccategories_tags%2Cingredients_text%2Cingredients_text_en%2Cingredients_text_fr%2Cingredients_text_de%2Callergens_tags%2Ctraces_tags%2Cnutriments%2Cnutrition_data_per%2Cserving_size%2Clabels%2Clabels_tags%2Cdata_quality_tags%2Cdata_quality_warnings_tags%2Cdata_quality_errors_tags%2Ccompleteness%2Cstates_tags",
+   "status": 200,
+   "body": {
+    "code": "4000000000105",
+    "status": 1,
+    "status_verbose": "product found",
+    "product": {
+     "code": "4000000000105",
+     "rev": 7,
+     "last_modified_t": 1772409600,
+     "product_name": "Frozen chicken kebab",
+     "brands": "Kebabio",
+     "quantity": "1 kg",
+     "lc": "en",
+     "categories_tags": [
+      "en:meats",
+      "en:frozen-foods"
+     ],
+     "ingredients_text": "Chicken meat (85%), water, wheat flour, soy protein, salt, spices",
+     "allergens_tags": [
+      "en:gluten",
+      "en:soybeans"
+     ],
+     "traces_tags": [
+      "en:milk"
+     ],
+     "nutriments": {
+      "energy-kcal_100g": 210,
+      "energy-kcal_unit": "kcal",
+      "energy-kcal_value": 210,
+      "proteins_100g": 19,
+      "proteins_unit": "g",
+      "proteins_value": 19,
+      "fat_100g": 14,
+      "salt_100g": 1.55,
+      "sodium_100g": 0.62,
+      "nutrition-score-fr_100g": 11,
+      "sugars_100g": 0.8,
+      "fruits-vegetables-nuts-estimate-from-ingredients_100g": 0
+     },
+     "nutrition_data_per": "100g",
+     "labels": "Halal",
+     "labels_tags": [
+      "en:halal"
+     ],
+     "data_quality_tags": [
+      "en:nutrition-data-incomplete"
+     ],
+     "data_quality_warnings_tags": [
+      "en:nutrition-data-incomplete"
+     ],
+     "data_quality_errors_tags": [],
+     "completeness": 0.7,
+     "states_tags": [
+      "en:to-be-completed",
+      "en:nutrition-facts-completed"
+     ],
+     "nutriscore_grade": "d",
+     "nova_group": 4,
+     "image_url": "https://images.openfoodfacts.org/x.jpg",
+     "ingredients_text_de": "Hähnchenfleisch (85%), Wasser, Weizenmehl, Sojaeiweiß, Salz, Gewürze"
+    }
+   }
+  },
+  {
+   "request": "/api/v2/product/4000000000150.json?fields=code%2Crev%2Clast_modified_t%2Cproduct_name%2Cproduct_name_en%2Cgeneric_name%2Cbrands%2Cquantity%2Clc%2Ccategories_tags%2Cingredients_text%2Cingredients_text_en%2Cingredients_text_fr%2Cingredients_text_de%2Callergens_tags%2Ctraces_tags%2Cnutriments%2Cnutrition_data_per%2Cserving_size%2Clabels%2Clabels_tags%2Cdata_quality_tags%2Cdata_quality_warnings_tags%2Cdata_quality_errors_tags%2Ccompleteness%2Cstates_tags",
+   "status": 200,
+   "body": {
+    "code": "4000000000150",
+    "status": 1,
+    "status_verbose": "product found",
+    "product": {
+     "code": "4000000000150",
+     "rev": 12,
+     "last_modified_t": 1769904000,
+     "product_name": "Greek style yoghurt",
+     "brands": "Dairyvale",
+     "quantity": "500 g",
+     "lc": "en",
+     "categories_tags": [
+      "en:yogurts"
+     ],
+     "ingredients_text": "Pasteurised cow's milk, cream, live cultures",
+     "allergens_tags": [
+      "en:milk"
+     ],
+     "traces_tags": [],
+     "nutriments": {
+      "energy-kcal_100g": 133,
+      "energy-kj_100g": 556,
+      "proteins_100g": 5.7,
+      "fat_100g": 10,
+      "sugars_100g": 4.1,
+      "calcium_100g": 0.15,
+      "calcium_unit": "mg",
+      "calcium_value": 150,
+      "proteins_serving": 8.55
+     },
+     "nutrition_data_per": "100g",
+     "serving_size": "150 g",
+     "labels": "Vegetarian",
+     "labels_tags": [
+      "en:vegetarian"
+     ],
+     "data_quality_tags": [],
+     "data_quality_warnings_tags": [],
+     "data_quality_errors_tags": [],
+     "completeness": 0.9,
+     "states_tags": [
+      "en:complete"
+     ],
+     "ecoscore_grade": "c"
+    }
+   }
+  },
+  {
+   "request": "/api/v2/product/0071000000208.json?fields=code%2Crev%2Clast_modified_t%2Cproduct_name%2Cproduct_name_en%2Cgeneric_name%2Cbrands%2Cquantity%2Clc%2Ccategories_tags%2Cingredients_text%2Cingredients_text_en%2Cingredients_text_fr%2Cingredients_text_de%2Callergens_tags%2Ctraces_tags%2Cnutriments%2Cnutrition_data_per%2Cserving_size%2Clabels%2Clabels_tags%2Cdata_quality_tags%2Cdata_quality_warnings_tags%2Cdata_quality_errors_tags%2Ccompleteness%2Cstates_tags",
+   "status": 200,
+   "body": {
+    "code": "0071000000208",
+    "status": 1,
+    "status_verbose": "product found",
+    "product": {
+     "code": "0071000000208",
+     "rev": 3,
+     "last_modified_t": 1764547200,
+     "product_name": "Oat & honey cereal bar",
+     "brands": "Crunchy Fields",
+     "quantity": "6 x 40 g",
+     "lc": "en",
+     "categories_tags": [
+      "en:cereal-bars"
+     ],
+     "ingredients_text": "Whole grain oats, honey, sugar, sunflower oil, almonds",
+     "allergens_tags": [
+      "en:nuts"
+     ],
+     "traces_tags": [
+      "en:peanuts",
+      "en:milk"
+     ],
+     "nutriments": {
+      "energy-kcal_100g": 450,
+      "proteins_100g": 8.0,
+      "fat_100g": 15,
+      "sugars_100g": 28,
+      "sodium_100g": 0.25
+     },
+     "nutrition_data_per": "100g",
+     "serving_size": "40 g",
+     "labels": "No artificial flavors",
+     "labels_tags": [
+      "en:no-artificial-flavors"
+     ],
+     "data_quality_tags": [],
+     "data_quality_warnings_tags": [],
+     "data_quality_errors_tags": [],
+     "completeness": 0.8,
+     "states_tags": [
+      "en:complete"
+     ]
+    }
+   }
+  },
+  {
+   "request": "/api/v2/product/4000000000204.json?fields=code%2Crev%2Clast_modified_t%2Cproduct_name%2Cproduct_name_en%2Cgeneric_name%2Cbrands%2Cquantity%2Clc%2Ccategories_tags%2Cingredients_text%2Cingredients_text_en%2Cingredients_text_fr%2Cingredients_text_de%2Callergens_tags%2Ctraces_tags%2Cnutriments%2Cnutrition_data_per%2Cserving_size%2Clabels%2Clabels_tags%2Cdata_quality_tags%2Cdata_quality_warnings_tags%2Cdata_quality_errors_tags%2Ccompleteness%2Cstates_tags",
+   "status": 200,
+   "body": {
+    "code": "4000000000204",
+    "status": 0,
+    "status_verbose": "product not found"
+   }
+  }
+ ]
+}

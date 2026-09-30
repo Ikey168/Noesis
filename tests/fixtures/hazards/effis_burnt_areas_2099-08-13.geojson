@@ -1,0 +1,46 @@
+{
+ "type": "FeatureCollection",
+ "note": "Authored in the EFFIS burnt-area GeoJSON shape (property names to verify); the fire, place and area are fictional.",
+ "features": [
+  {
+   "type": "Feature",
+   "id": "modis.ba.poly.99001",
+   "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+     [
+      [
+       26.66,
+       37.76
+      ],
+      [
+       26.7,
+       37.76
+      ],
+      [
+       26.7,
+       37.79
+      ],
+      [
+       26.66,
+       37.79
+      ],
+      [
+       26.66,
+       37.76
+      ]
+     ]
+    ]
+   },
+   "properties": {
+    "id": 99001,
+    "FIREDATE": "2099-08-12",
+    "LASTUPDATE": "2099-08-13",
+    "AREA_HA": 120,
+    "COUNTRY": "EL",
+    "PROVINCE": "Samos (fictional)",
+    "COMMUNE": "Karlovasi (fictional)"
+   }
+  }
+ ]
+}

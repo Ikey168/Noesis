@@ -83,6 +83,8 @@ def run_pack(conn, key, **controls):
         principal_id="operator",
         adapters=runtime.fixture_adapters(value["pack_id"], h.ROOT),
         dns_resolver=PUBLIC_DNS,
+        # The courts and justice-statistics sources (#2218) require a secret; fixture adapters use a placeholder.
+        secret_resolver=lambda _ref: "fixture-credential",
     )
 
 

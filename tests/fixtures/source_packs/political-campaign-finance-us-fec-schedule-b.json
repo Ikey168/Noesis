@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"api_version\": \"1.0\",\n \"pagination\": {\n  \"count\": 2,\n  \"per_page\": 100,\n  \"last_indexes\": null\n },\n \"results\": [\n  {\n   \"committee_id\": \"C00999901\",\n   \"file_number\": 1500101,\n   \"sub_id\": \"4100001\",\n   \"transaction_id\": \"SB23.0001\",\n   \"image_number\": \"209915001010005\",\n   \"line_number\": \"23\",\n   \"filing_form\": \"F3P\",\n   \"report_type\": \"Q1\",\n   \"report_year\": 2099,\n   \"two_year_transaction_period\": 2100,\n   \"amendment_indicator\": \"N\",\n   \"memo_code\": null,\n   \"entity_type\": \"ORG\",\n   \"recipient_name\": \"EXAMPLE MEDIA BUYING LLC\",\n   \"recipient_city\": \"EXAMPLETON\",\n   \"recipient_state\": \"EX\",\n   \"recipient_committee_id\": null,\n   \"disbursement_amount\": 12000.0,\n   \"disbursement_date\": \"2099-03-10\",\n   \"disbursement_description\": \"MEDIA BUY\",\n   \"disbursement_purpose_category\": \"ADVERTISING\"\n  },\n  {\n   \"committee_id\": \"C00999901\",\n   \"file_number\": 1500101,\n   \"sub_id\": \"4100002\",\n   \"transaction_id\": \"SB23.0002\",\n   \"image_number\": \"209915001010006\",\n   \"line_number\": \"23\",\n   \"filing_form\": \"F3P\",\n   \"report_type\": \"Q1\",\n   \"report_year\": 2099,\n   \"two_year_transaction_period\": 2100,\n   \"amendment_indicator\": \"N\",\n   \"memo_code\": null,\n   \"entity_type\": \"IND\",\n   \"recipient_name\": \"SAMPLE, JO\",\n   \"recipient_first_name\": \"JO\",\n   \"recipient_last_name\": \"SAMPLE\",\n   \"recipient_street_1\": \"3 MOCK LANE\",\n   \"recipient_city\": \"EXAMPLETON\",\n   \"recipient_state\": \"EX\",\n   \"recipient_zip\": \"99004\",\n   \"disbursement_amount\": 3000.0,\n   \"disbursement_date\": \"2099-03-31\",\n   \"disbursement_description\": \"SALARY\",\n   \"disbursement_purpose_category\": \"ADMINISTRATIVE\",\n   \"memo_text\": \"PAYROLL FOR SAMPLE, JO\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1/schedules/schedule_b/?committee_id=C00999901&per_page=100&sort=disbursement_date&two_year_transaction_period=2100",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (cycle 2100 and state EX are placeholders); every committee, candidate and organisation is fictional and individual donors carry placeholder names that the parser discards (CF01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-individuals"
+ ]
+}

@@ -1,0 +1,266 @@
+{
+  "description": "PubChem PUG-REST compound identity for the bounded substance set. Authored offline fixture in the provider's documented (PubChem, CTX) or observed (ECHA CHEM portal) response shape. Identifiers are the substances' public identifiers; classification, list and data-point values are transcribed or authored for illustration and are NOT live evidence. Verify against the live sources before any live run (#2317).",
+  "scenarios": [
+    "identity fields only",
+    "depositor CAS conflict kept (27100-33-0 beside 80-05-7)",
+    "excluded field dropped and reported",
+    "unknown CID is a not_found selection outcome",
+    "record version from the modification date"
+  ],
+  "native_pages": [
+    {
+      "request": "/rest/pug/compound/cid/6623/property/Title,IUPACName,MolecularFormula,InChI,InChIKey/JSON",
+      "status": 200,
+      "body": {
+        "PropertyTable": {
+          "Properties": [
+            {
+              "CID": 6623,
+              "Title": "Bisphenol A",
+              "IUPACName": "4-[2-(4-hydroxyphenyl)propan-2-yl]phenol",
+              "MolecularFormula": "C15H16O2",
+              "InChI": "InChI=1S/C15H16O2/c1-15(2,11-3-7-13(16)8-4-11)12-5-9-14(17)10-6-12/h3-10,16-17H,1-2H3",
+              "InChIKey": "IISBACLAFKSPIT-UHFFFAOYSA-N",
+              "Preparation": "authored excluded field: never parsed or stored"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/6623/synonyms/JSON",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 6623,
+              "Synonym": [
+                "bisphenol A",
+                "80-05-7",
+                "4,4'-Isopropylidenediphenol",
+                "2,2-Bis(4-hydroxyphenyl)propane",
+                "BPA",
+                "EINECS 201-245-8",
+                "DTXSID7020182",
+                "27100-33-0"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/6623/dates/JSON?dates_type=modification",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 6623,
+              "ModificationDate": {
+                "Year": 2026,
+                "Month": 9,
+                "Day": 12
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/8343/property/Title,IUPACName,MolecularFormula,InChI,InChIKey/JSON",
+      "status": 200,
+      "body": {
+        "PropertyTable": {
+          "Properties": [
+            {
+              "CID": 8343,
+              "Title": "Bis(2-ethylhexyl) phthalate",
+              "IUPACName": "bis(2-ethylhexyl) benzene-1,2-dicarboxylate",
+              "MolecularFormula": "C24H38O4",
+              "InChI": "InChI=1S/C24H38O4/c1-5-9-13-19(7-3)17-27-23(25)21-15-11-12-16-22(21)24(26)28-18-20(8-4)14-10-6-2/h11-12,15-16,19-20H,5-10,13-14,17-18H2,1-4H3",
+              "InChIKey": "BJQHLKABXJIVAM-UHFFFAOYSA-N"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/8343/synonyms/JSON",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 8343,
+              "Synonym": [
+                "DEHP",
+                "117-81-7",
+                "Di(2-ethylhexyl) phthalate",
+                "EINECS 204-211-0",
+                "DTXSID5020607"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/8343/dates/JSON?dates_type=modification",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 8343,
+              "ModificationDate": {
+                "Year": 2026,
+                "Month": 9,
+                "Day": 5
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/702/property/Title,IUPACName,MolecularFormula,InChI,InChIKey/JSON",
+      "status": 200,
+      "body": {
+        "PropertyTable": {
+          "Properties": [
+            {
+              "CID": 702,
+              "Title": "Ethanol",
+              "IUPACName": "ethanol",
+              "MolecularFormula": "C2H6O",
+              "InChI": "InChI=1S/C2H6O/c1-2-3/h3H,2H2,1H3",
+              "InChIKey": "LFQSCWFLJHTTHZ-UHFFFAOYSA-N"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/702/synonyms/JSON",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 702,
+              "Synonym": [
+                "ethanol",
+                "ethyl alcohol",
+                "64-17-5",
+                "EINECS 200-578-6",
+                "DTXSID9020584"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/702/dates/JSON?dates_type=modification",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 702,
+              "ModificationDate": {
+                "Year": 2026,
+                "Month": 8,
+                "Day": 30
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/5988/property/Title,IUPACName,MolecularFormula,InChI,InChIKey/JSON",
+      "status": 200,
+      "body": {
+        "PropertyTable": {
+          "Properties": [
+            {
+              "CID": 5988,
+              "Title": "Sucrose",
+              "IUPACName": "(2R,3R,4S,5S,6R)-2-[(2S,3S,4S,5R)-3,4-dihydroxy-2,5-bis(hydroxymethyl)oxolan-2-yl]oxy-6-(hydroxymethyl)oxane-3,4,5-triol",
+              "MolecularFormula": "C12H22O11",
+              "InChI": "InChI=1S/C12H22O11/c13-1-4-6(16)8(18)9(19)11(21-4)23-12(3-15)10(20)7(17)5(2-14)22-12/h4-11,13-20H,1-3H2/t4-,5-,6-,7-,8+,9-,10+,11-,12+/m1/s1",
+              "InChIKey": "CZMRCDWAGMRECN-UGDNZRGBSA-N"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/5988/synonyms/JSON",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 5988,
+              "Synonym": [
+                "sucrose",
+                "saccharose",
+                "57-50-1",
+                "EINECS 200-334-9"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/5988/dates/JSON?dates_type=modification",
+      "status": 200,
+      "body": {
+        "InformationList": {
+          "Information": [
+            {
+              "CID": 5988,
+              "ModificationDate": {
+                "Year": 2026,
+                "Month": 7,
+                "Day": 21
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/999999999/property/Title,IUPACName,MolecularFormula,InChI,InChIKey/JSON",
+      "status": 404,
+      "body": {
+        "Fault": {
+          "Code": "PUGREST.NotFound"
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/999999999/synonyms/JSON",
+      "status": 404,
+      "body": {
+        "Fault": {
+          "Code": "PUGREST.NotFound"
+        }
+      }
+    },
+    {
+      "request": "/rest/pug/compound/cid/999999999/dates/JSON?dates_type=modification",
+      "status": 404,
+      "body": {
+        "Fault": {
+          "Code": "PUGREST.NotFound"
+        }
+      }
+    }
+  ]
+}

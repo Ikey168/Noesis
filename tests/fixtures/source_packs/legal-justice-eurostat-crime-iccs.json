@@ -1,0 +1,35 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"version\": \"2.0\",\n \"class\": \"dataset\",\n \"label\": \"Offences by offence category - ICCS\",\n \"source\": \"ESTAT\",\n \"updated\": \"2099-04-01T11:00:00+0200\",\n \"value\": {\n  \"0\": 38000,\n  \"1\": 37000,\n  \"2\": 36500,\n  \"3\": 45.8,\n  \"4\": 44.4,\n  \"5\": 43.7\n },\n \"status\": {\n  \"2\": \"p\",\n  \"5\": \"p\"\n },\n \"id\": [\n  \"freq\",\n  \"iccs\",\n  \"unit\",\n  \"geo\",\n  \"time\"\n ],\n \"size\": [\n  1,\n  1,\n  2,\n  1,\n  3\n ],\n \"dimension\": {\n  \"freq\": {\n   \"label\": \"Time frequency\",\n   \"category\": {\n    \"index\": {\n     \"A\": 0\n    },\n    \"label\": {\n     \"A\": \"Annual\"\n    }\n   }\n  },\n  \"iccs\": {\n   \"label\": \"International classification of crime for statistical purposes (ICCS)\",\n   \"category\": {\n    \"index\": {\n     \"ICCS0401\": 0\n    },\n    \"label\": {\n     \"ICCS0401\": \"Robbery\"\n    }\n   }\n  },\n  \"unit\": {\n   \"label\": \"Unit of measure\",\n   \"category\": {\n    \"index\": {\n     \"NR\": 0,\n     \"P_HTHAB\": 1\n    },\n    \"label\": {\n     \"NR\": \"Number\",\n     \"P_HTHAB\": \"Per hundred thousand inhabitants\"\n    }\n   }\n  },\n  \"geo\": {\n   \"label\": \"Geopolitical entity (reporting)\",\n   \"category\": {\n    \"index\": {\n     \"DE\": 0\n    },\n    \"label\": {\n     \"DE\": \"Germany\"\n    }\n   }\n  },\n  \"time\": {\n   \"label\": \"Time\",\n   \"category\": {\n    \"index\": {\n     \"2096\": 0,\n     \"2097\": 1,\n     \"2098\": 2\n    },\n    \"label\": {\n     \"2096\": \"2096\",\n     \"2097\": \"2097\",\n     \"2098\": \"2098\"\n    }\n   }\n  }\n },\n \"extension\": {\n  \"status\": {\n   \"label\": {\n    \"b\": \"break in time series\",\n    \"p\": \"provisional\",\n    \"e\": \"estimated\",\n    \"c\": \"confidential\",\n    \"d\": \"definition differs (see metadata)\"\n   }\n  },\n  \"annotation\": [\n   {\n    \"type\": \"FOOTNOTE\",\n    \"title\": \"DE: offences recorded by the police (Polizeiliche Kriminalstatistik).\"\n   }\n  ]\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/crim_off_cat?format=JSON&geo=DE&iccs=ICCS0401",
+   "status": 200
+  },
+  {
+   "body": "{\n \"version\": \"2.0\",\n \"class\": \"dataset\",\n \"label\": \"Offences by offence category - ICCS\",\n \"source\": \"ESTAT\",\n \"updated\": \"2099-04-01T11:00:00+0200\",\n \"value\": {\n  \"0\": 52000,\n  \"1\": 50500,\n  \"2\": 49000,\n  \"3\": 77.1,\n  \"4\": 74.6\n },\n \"status\": {\n  \"0\": \"b\",\n  \"3\": \"b\",\n  \"5\": \"c\"\n },\n \"id\": [\n  \"freq\",\n  \"iccs\",\n  \"unit\",\n  \"geo\",\n  \"time\"\n ],\n \"size\": [\n  1,\n  1,\n  2,\n  1,\n  3\n ],\n \"dimension\": {\n  \"freq\": {\n   \"label\": \"Time frequency\",\n   \"category\": {\n    \"index\": {\n     \"A\": 0\n    },\n    \"label\": {\n     \"A\": \"Annual\"\n    }\n   }\n  },\n  \"iccs\": {\n   \"label\": \"International classification of crime for statistical purposes (ICCS)\",\n   \"category\": {\n    \"index\": {\n     \"ICCS0401\": 0\n    },\n    \"label\": {\n     \"ICCS0401\": \"Robbery\"\n    }\n   }\n  },\n  \"unit\": {\n   \"label\": \"Unit of measure\",\n   \"category\": {\n    \"index\": {\n     \"NR\": 0,\n     \"P_HTHAB\": 1\n    },\n    \"label\": {\n     \"NR\": \"Number\",\n     \"P_HTHAB\": \"Per hundred thousand inhabitants\"\n    }\n   }\n  },\n  \"geo\": {\n   \"label\": \"Geopolitical entity (reporting)\",\n   \"category\": {\n    \"index\": {\n     \"FR\": 0\n    },\n    \"label\": {\n     \"FR\": \"France\"\n    }\n   }\n  },\n  \"time\": {\n   \"label\": \"Time\",\n   \"category\": {\n    \"index\": {\n     \"2096\": 0,\n     \"2097\": 1,\n     \"2098\": 2\n    },\n    \"label\": {\n     \"2096\": \"2096\",\n     \"2097\": \"2097\",\n     \"2098\": \"2098\"\n    }\n   }\n  }\n },\n \"extension\": {\n  \"status\": {\n   \"label\": {\n    \"b\": \"break in time series\",\n    \"p\": \"provisional\",\n    \"e\": \"estimated\",\n    \"c\": \"confidential\",\n    \"d\": \"definition differs (see metadata)\"\n   }\n  },\n  \"annotation\": [\n   {\n    \"type\": \"FOOTNOTE\",\n    \"title\": \"FR: break in series in 2096 after a change in recording rules (d).\"\n   }\n  ]\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/crim_off_cat?format=JSON&geo=FR&iccs=ICCS0401",
+   "status": 200
+  },
+  {
+   "body": "<!DOCTYPE html>\n<html><head><title>Crime and criminal justice (crim) - ESMS</title></head><body>\n<h2>15. Coherence and comparability</h2>\n<div id=\"comparability_geo\"><p>Comparisons between countries should be avoided: legal definitions, police recording practices and counting rules differ between national systems.</p><p>Data are reported by national authorities under ICCS as far as possible.</p></div>\n<div id=\"comparability_time\"><p>Breaks in series are flagged.</p></div>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "text/html"
+   },
+   "request": "/eurostat/cache/metadata/en/crim_esms.htm",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (verify live); every docket, party, opinion, place and figure is fictional placeholder data (years 2096-2099).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

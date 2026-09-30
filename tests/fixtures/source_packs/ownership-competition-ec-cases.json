@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "request": "/api/cases/M.99001",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"caseNumber\": \"M.99001\",\n \"caseTitle\": \"EXAMPLA HOLDINGS / NORTHWIND WIDGETS\",\n \"caseInstrument\": \"Merger\",\n \"policyArea\": \"MERGERS\",\n \"caseStatus\": \"Open\",\n \"notificationDate\": \"2025-02-03\",\n \"lastUpdated\": \"2025-06-16T10:00:00Z\",\n \"memberState\": null,\n \"caseSectors\": [\n  {\n   \"code\": \"C.27.1\",\n   \"description\": \"Manufacture of electric motors, generators and transformers\"\n  }\n ],\n \"companies\": [\n  {\n   \"name\": \"Exampla Holdings plc\",\n   \"role\": \"Notifying party\",\n   \"country\": \"United Kingdom\"\n  },\n  {\n   \"name\": \"Northwind Widgets GmbH\",\n   \"role\": \"Target\",\n   \"country\": \"Germany\"\n  }\n ],\n \"events\": [\n  {\n   \"date\": \"2025-02-03\",\n   \"type\": \"Notification\",\n   \"document\": null\n  },\n  {\n   \"date\": \"2025-03-10\",\n   \"type\": \"Art. 6(1)(c) - opening of in-depth investigation (Phase II)\",\n   \"document\": {\n    \"title\": \"Article 6(1)(c) decision\",\n    \"url\": \"https://ec.europa.eu/competition/fixture/M_99001_6_1_c.pdf\",\n    \"type\": \"Decision\"\n   }\n  },\n  {\n   \"date\": \"2025-06-16\",\n   \"type\": \"Statement of Objections\",\n   \"document\": null\n  }\n ],\n \"decisions\": [\n  {\n   \"date\": \"2025-03-10\",\n   \"type\": \"Art. 6(1)(c)\",\n   \"language\": \"EN\",\n   \"url\": \"https://ec.europa.eu/competition/fixture/M_99001_6_1_c.pdf\",\n   \"celex\": null,\n   \"ojReference\": null,\n   \"decisionNumber\": \"C(2025) 1500\",\n   \"legalBasis\": [\n    \"Council Regulation (EC) No 139/2004\"\n   ]\n  }\n ],\n \"relatedCases\": [],\n \"courtCases\": [],\n \"legalBasis\": [\n  \"Council Regulation (EC) No 139/2004\"\n ]\n}\n"
+  },
+  {
+   "request": "/api/cases/SA.99002",
+   "status": 200,
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "body": "{\n \"caseNumber\": \"SA.99002\",\n \"caseTitle\": \"Netherlands - Exampla green hydrogen investment aid\",\n \"caseInstrument\": \"State aid\",\n \"policyArea\": \"STATE AID\",\n \"caseStatus\": \"Closed\",\n \"notificationDate\": \"2025-01-15\",\n \"closingDate\": \"2025-04-02\",\n \"lastUpdated\": \"2025-04-25T09:00:00Z\",\n \"memberState\": \"Netherlands\",\n \"caseSectors\": [\n  {\n   \"code\": \"C.20.11\",\n   \"description\": \"Manufacture of industrial gases\"\n  }\n ],\n \"companies\": [\n  {\n   \"name\": \"Exampla Intermediate B.V.\",\n   \"role\": \"Beneficiary\",\n   \"country\": \"Netherlands\"\n  }\n ],\n \"events\": [\n  {\n   \"date\": \"2025-01-15\",\n   \"type\": \"Notification\",\n   \"document\": null\n  },\n  {\n   \"date\": \"2025-04-02\",\n   \"type\": \"Decision not to raise objections\",\n   \"document\": {\n    \"title\": \"Decision\",\n    \"url\": \"https://ec.europa.eu/competition/fixture/SA_99002_decision.pdf\",\n    \"type\": \"Decision\"\n   }\n  }\n ],\n \"decisions\": [\n  {\n   \"date\": \"2025-04-02\",\n   \"type\": \"Decision not to raise objections\",\n   \"language\": \"EN\",\n   \"url\": \"https://ec.europa.eu/competition/fixture/SA_99002_decision.pdf\",\n   \"celex\": null,\n   \"ojReference\": \"OJ C 150, 25.4.2025, p. 3\",\n   \"decisionNumber\": \"C(2025) 1234\",\n   \"legalBasis\": [\n    \"Article 107(3)(c) TFEU\",\n    \"Commission Regulation (EU) No 651/2014\"\n   ]\n  }\n ],\n \"relatedCases\": [],\n \"courtCases\": [],\n \"legalBasis\": [\n  \"Article 107(3)(c) TFEU\"\n ]\n}\n"
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every case, award, party, identifier and amount is fictional placeholder data.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

@@ -1,0 +1,30 @@
+{
+ "authored": true,
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,REF_AREA,FREQ,MEASURE,UNIT_MEASURE,TIME_PERIOD,OBS_VALUE,OBS_STATUS,UNIT_MULT\nOECD.ELS.HD:DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC(1.0),DEU,A,HOSP_BEDS,10P3HB,2096,7.9,A,0\nOECD.ELS.HD:DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC(1.0),DEU,A,HOSP_BEDS,10P3HB,2097,7.8,P,0\nOECD.ELS.HD:DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC(1.0),FRA,A,HOSP_BEDS,10P3HB,2096,5.7,A,0\nOECD.ELS.HD:DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC(1.0),FRA,A,HOSP_BEDS,10P3HB,2097,5.6,B,0\nOECD.ELS.HD:DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC(1.0),OECD,A,HOSP_BEDS,10P3HB,2097,4.3,E,0\n",
+   "headers": {
+    "Content-Type": "text/csv",
+    "Last-Modified": "Tue, 01 Jul 2098 08:00:00 GMT"
+   },
+   "request": "/public/rest/data/OECD.ELS.HD,DSD_HEALTH_REAC_HOSP@DF_BEDS_FUNC,1.0/DEU+FRA+OECD.A.HOSP_BEDS.10P3HB?format=csvfile&startPeriod=2096",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,REF_AREA,FREQ,MEASURE,UNIT_MEASURE,TIME_PERIOD,OBS_VALUE,OBS_STATUS,UNIT_MULT\nOECD.ELS.HD:DSD_HEALTH_EMP_REAC@DF_PHYS(1.0),DEU,A,PRACT_PHYS,10P3HB,2096,4.4,A,0\nOECD.ELS.HD:DSD_HEALTH_EMP_REAC@DF_PHYS(1.0),DEU,A,PRACT_PHYS,10P3HB,2097,4.5,A,0\n",
+   "headers": {
+    "Content-Type": "text/csv",
+    "Last-Modified": "Tue, 01 Jul 2098 08:00:00 GMT"
+   },
+   "request": "/public/rest/data/OECD.ELS.HD,DSD_HEALTH_EMP_REAC@DF_PHYS,1.0/DEU.A.PRACT_PHYS.10P3HB?format=csvfile&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are the publishers' codes, every value, year, definition wording and note is fictional. Not live evidence.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-values"
+ ]
+}

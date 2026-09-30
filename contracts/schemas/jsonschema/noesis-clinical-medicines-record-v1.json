@@ -1,0 +1,54 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-clinical-medicines-record-v1.json",
+  "title": "Noesis Clinical Medicines Record v1",
+  "description": "Medicines-regulation records of the Clinical Evidence pack (#2214): medicinal product, marketing-authorisation event (a status change is a new record), label revision with sections keyed by the regulator's section codes (LOINC for SPL, SmPC section numbers for EMA), label section change quoting both revisions, and safety communication with dated updates and named substances. Every record keeps its source, native revision and provider disclaimer. No prescribing, dosing or treatment advice and no efficacy or safety verdict.",
+  "type": "object",
+  "required": ["contract", "record_kind", "provider", "native_id", "jurisdiction", "authority", "source_url", "native_version", "unknowns"],
+  "properties": {
+    "contract": {"const": "noesis-clinical-medicines-record-v1"},
+    "record_kind": {"enum": ["medicinal-product", "marketing-authorisation", "label-revision", "label-section-change", "safety-communication"]},
+    "provider": {"enum": ["ema", "openfda", "dailymed", "fda-dsc"]},
+    "native_id": {"type": "string", "minLength": 1},
+    "jurisdiction": {"enum": ["EU", "US"]},
+    "authority": {"enum": ["EMA", "FDA"]},
+    "source_url": {"type": "string", "pattern": "^https://"},
+    "native_version": {
+      "type": "object",
+      "required": ["basis"],
+      "properties": {
+        "version": {"type": ["string", "null"]},
+        "date": {"type": ["string", "null"], "pattern": "^[0-9]{4}-[0-9]{2}(-[0-9]{2})?$"},
+        "basis": {"enum": ["epar-revision", "spl-version", "submission", "publication-date", "observation", "derived"]}
+      },
+      "additionalProperties": false
+    },
+    "attribution": {"type": "string"},
+    "disclaimer": {"type": "object", "required": ["text"]},
+    "unknowns": {"type": "array", "items": {"type": "string"}}
+  },
+  "not": {"anyOf": [{"required": ["dose"]}, {"required": ["dosing"]}, {"required": ["dosage"]}, {"required": ["recommendation"]}, {"required": ["advice"]}, {"required": ["verdict"]}, {"required": ["grade"]}]},
+  "allOf": [
+    {"if": {"properties": {"provider": {"const": "openfda"}}}, "then": {"required": ["disclaimer"]}},
+    {"if": {"properties": {"record_kind": {"const": "medicinal-product"}}},
+     "then": {"required": ["name"]}},
+    {"if": {"properties": {"record_kind": {"const": "marketing-authorisation"}}},
+     "then": {"required": ["product", "procedure", "event"],
+              "properties": {"event": {"type": "object", "required": ["kind", "status", "locator"],
+                                       "properties": {"kind": {"enum": ["grant", "variation", "supplement", "labeling-revision", "renewal", "suspension", "withdrawal", "refusal", "revocation", "lapse", "not-renewed", "discontinuation", "marketing-status", "status"]},
+                                                      "status": {"enum": ["authorised", "approved", "withdrawn", "suspended", "refused", "revoked", "lapsed", "not-renewed", "discontinued", "marketed", "pending", "unknown"]},
+                                                      "effective_date": {"type": ["string", "null"]}}}}}},
+    {"if": {"properties": {"record_kind": {"const": "label-revision"}}},
+     "then": {"required": ["product", "document", "sections"],
+              "properties": {"document": {"type": "object", "required": ["kind", "id", "version"], "properties": {"kind": {"enum": ["spl", "smpc"]}}},
+                             "sections": {"type": "array", "items": {"type": "object", "required": ["code_system", "text", "locator"], "properties": {"code_system": {"enum": ["loinc", "smpc"]}}}},
+                             "omitted_sections": {"type": "array", "items": {"type": "object", "not": {"required": ["text"]}}}}}},
+    {"if": {"properties": {"record_kind": {"const": "label-section-change"}}},
+     "then": {"required": ["product", "document", "from_revision", "to_revision", "changes"],
+              "properties": {"changes": {"type": "array", "items": {"type": "object", "required": ["change"], "properties": {"change": {"enum": ["added", "removed", "changed"]}}}}}}},
+    {"if": {"properties": {"record_kind": {"const": "safety-communication"}}},
+     "then": {"required": ["title"],
+              "properties": {"updates": {"type": "array", "items": {"type": "object", "required": ["date", "text", "locator"]}},
+                             "named_substances": {"type": "array", "items": {"type": "object", "required": ["name"]}}}}}
+  ]
+}

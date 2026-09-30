@@ -148,6 +148,7 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
     assert plan["omissions"] == [
         {"pack": "products", "feature": "appliances", "reason": "not selected"},
         {"pack": "products", "feature": "components", "reason": "not selected"},
+        {"pack": "products", "feature": "food", "reason": "not selected"},  # food composition (#2216)
         {"pack": "products", "feature": "safety", "reason": "not selected"},
     ]
     assert {

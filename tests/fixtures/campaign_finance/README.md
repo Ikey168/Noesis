@@ -1,0 +1,3 @@
+# Campaign-finance fixtures
+
+Authored responses in the documented OpenFEC v1 JSON and Electoral Commission CSV shapes (#2209). Every committee, candidate, organisation, filing and amount is fictional (cycle 2100, fictional state `EX`). Individual donors and payees carry placeholder names *only* in these native responses so the parser's minimisation can be tested; no record, document or receipt keeps them. `v2/` holds later provider revisions: a second amendment of a quarterly report with the most-recent flag moved, a corrected Commission donation, a late-reported donation and a new-period donation.

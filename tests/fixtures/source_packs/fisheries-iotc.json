@@ -1,0 +1,26 @@
+{
+  "description": "IOTC Record of Authorised Vessels and IOTC IUU Vessel List (semicolon CSV). Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "scenarios": [
+    "register bounded to flags ESP and SYC",
+    "IMO number failing its check digit flagged malformed",
+    "IUU listing of a renamed and re-flagged vessel with previous identities"
+  ],
+  "native_pages": [
+    {
+      "request": "/vessels/export/rav.csv",
+      "status": 200,
+      "headers": {
+        "Last-Modified": "Wed, 02 Sep 2026 06:00:00 GMT"
+      },
+      "body": "IOTC.No;Vessel.Name;Flag;IRCS;IMO;Gear;Auth.From;Auth.To;Owner\nIOTC000101;SAMPLE ALBACORA UNO;ESP;EAAA1;9000015;LL;2024-01-01;2026-12-31;Sample Pesquerias S.L.\nIOTC000102;SAMPLE CORAL;SYC;S7AA2;9000016;PS;2025-06-01;2026-05-31;Jean Sample\n"
+    },
+    {
+      "request": "/vessels/export/iuu.csv",
+      "status": 200,
+      "headers": {
+        "Last-Modified": "Wed, 02 Sep 2026 06:00:00 GMT"
+      },
+      "body": "Ref;Vessel.Name;Flag;IMO;IRCS;Previous.Names;Previous.Flags;Listed;Delisted;Reason\nIOTC-IUU-2025-01;SAMPLE NOVA;TGO;9000027;5VAA2;SAMPLE STAR;GHA;2025-07-01;;Fishing in the IOTC Area of Competence without being on the IOTC Record of Authorised Vessels (Resolution 18/03, para 2a) - as stated by the listing\n"
+    }
+  ]
+}

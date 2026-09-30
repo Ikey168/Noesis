@@ -1,0 +1,28 @@
+ST/SG/SER.E/9901
+Committee on the Peaceful Uses of Outer Space
+Information furnished in conformity with the Convention on Registration of Objects Launched into Outer Space (authored fictional document)
+Instrument: Convention on Registration of Objects Launched into Outer Space | UNTS-1023-15
+Instrument: Fictland Space Activities Act | FL-SAA-2090
+
+1. Note verbale dated 20 March 2099 from the Permanent Mission of Fictland to the United Nations (Vienna) addressed to the Secretary-General.
+
+2. International designator: 2099-001A
+   Catalogue number: 99901
+   Name of space object: FICTSAT 1
+   National designator: FL-2099-01
+   State of registry: Fictland
+   Date of launch: 2099-03-03
+   Territory or location of launch: Fictland Space Centre
+   Nodal period: 94.1 minutes
+   Inclination: 51.6 degrees
+   Apogee: 420 kilometres
+   Perigee: 410 kilometres
+   General function: Earth observation
+   Operator: Fictional Satellite Operations LLC
+   Operator LEI: 5299FICT0000000000001
+   Owner: Fictland Space Agency
+
+3. Name of space object: FICTCUBE
+   Date of launch: 2099-03-03
+   General function: Technology demonstration
+   Operator: Fictland University

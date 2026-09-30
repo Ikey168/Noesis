@@ -7,8 +7,8 @@
   "ui_flags": {},
   "panels": [],
   "planner_keywords": {
-    "entities": ["boundary", "district", "bezirk", "facility", "feature", "geometry", "place", "bodenrichtwert", "land value", "bebauungsplan", "development plan", "mietspiegel", "rent index", "wohnlage", "parcel", "address"],
-    "sources": ["attribution", "collection", "dataset revision", "snapshot", "wfs", "boris", "fis-broker", "statistik berlin-brandenburg", "genesis 31111", "genesis 31231"],
+    "entities": ["boundary", "district", "bezirk", "facility", "feature", "geometry", "place", "bodenrichtwert", "land value", "bebauungsplan", "development plan", "mietspiegel", "rent index", "wohnlage", "parcel", "address", "power plant", "pipeline", "lng terminal", "transmission line", "substation", "operator"],
+    "sources": ["attribution", "collection", "dataset revision", "snapshot", "wfs", "boris", "fis-broker", "statistik berlin-brandenburg", "genesis 31111", "genesis 31231", "global power plant database", "global energy monitor", "overpass", "entsog"],
     "events": ["inside", "within", "bbox", "bounding box", "nearby", "proximity", "valuation date", "stichtag", "plan stage", "building permits", "completions"]
   },
   "enrichers": [],
@@ -27,7 +27,11 @@
     "housing-building-statistics",
     "housing-as-of-dossiers",
     "housing-citation-links",
-    "housing-monitoring"
+    "housing-monitoring",
+    "infrastructure-asset-revisions",
+    "infrastructure-as-of-answers",
+    "infrastructure-identity",
+    "infrastructure-monitoring"
   ],
   "schema_versions": {
     "geospatial-feature": "1.0.0",
@@ -35,11 +39,13 @@
     "geospatial-geometry": "2.0.0",
     "housing-record": "1.0.0",
     "housing-dossier": "1.0.0",
+    "infrastructure-asset-record": "1.0.0",
+    "infrastructure-answer": "1.0.0",
     "source-pack": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
-    "reuses": ["noesis-geospatial-geometry-v2", "noesis-geospatial-place-v1", "noesis-spatial-result-v1", "noesis-housing-record-v1"],
+    "reuses": ["noesis-geospatial-geometry-v2", "noesis-geospatial-place-v1", "noesis-spatial-result-v1", "noesis-housing-record-v1", "noesis-infrastructure-asset-record-v1"],
     "object_types": ["feature", "feature_revision", "collection_snapshot", "geometry", "place", "land_value_revision", "rent_index_cell", "plan_stage", "area_category", "building_statistic", "indicator_vintage"],
     "relation_types": ["located_within", "revision_of", "acquired_from", "projected_as", "valued_on", "stage_of", "cites", "supersedes"]
   },
@@ -65,7 +71,7 @@
     }
   ],
   "exclusions": [
-    "OGC API Features", "OSM/Overpass", "global gazetteers", "raster, satellite and terrain processing",
+    "OGC API Features", "OSM/Overpass mirroring (only bounded infrastructure extracts under the optional infrastructure feature)", "infrastructure vulnerability assessment or asset valuation", "global gazetteers", "raster, satellite and terrain processing",
     "tiles and basemaps", "road-network routing", "new spatial databases", "GIS editing",
     "property valuation, rent or investment advice", "tenancy legal advice",
     "values interpolated, averaged or merged between zones, cells, sources or editions",

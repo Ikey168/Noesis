@@ -1,0 +1,32 @@
+{
+ "note": "Authored in a declared notification export shape (GloFAS notifications are partner-distributed; no public API is relied on). River point, thresholds and dates are fictional.",
+ "notifications": [
+  {
+   "id": "GLOFAS-2099-0042",
+   "type": "Flood notification",
+   "river": "Evros (fictional point)",
+   "issued_at": "2099-08-20T00:00:00Z",
+   "valid_from": "2099-08-21T00:00:00Z",
+   "valid_to": "2099-08-25T00:00:00Z",
+   "station": {
+    "lon": 26.3,
+    "lat": 41.6
+   },
+   "threshold": {
+    "return_period_years": "5",
+    "exceedance_probability_percent": "60"
+   },
+   "model": {
+    "name": "GloFAS",
+    "version": "4.0",
+    "issued_at": "2099-08-20T00:00:00Z"
+   },
+   "countries": [
+    "GRC",
+    "TUR"
+   ],
+   "wording": "Probability of exceeding the 5-year return period discharge above 60% (fictional)",
+   "status": "issued"
+  }
+ ]
+}

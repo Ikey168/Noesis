@@ -1,0 +1,307 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "elements": [
+     {
+      "bounds": {
+       "maxlat": 51.666,
+       "maxlon": 14.459999999999999,
+       "minlat": 51.658,
+       "minlon": 14.452
+      },
+      "changeset": "990001",
+      "geometry": [
+       {
+        "lat": 51.658,
+        "lon": 14.452
+       },
+       {
+        "lat": 51.658,
+        "lon": 14.459999999999999
+       },
+       {
+        "lat": 51.666,
+        "lon": 14.459999999999999
+       },
+       {
+        "lat": 51.666,
+        "lon": 14.452
+       },
+       {
+        "lat": 51.658,
+        "lon": 14.452
+       }
+      ],
+      "id": 9001,
+      "nodes": [
+       90010,
+       90011,
+       90012,
+       90013,
+       90014
+      ],
+      "tags": {
+       "name": "Fixture Lignite Plant Nord",
+       "operator": "Fixture Energie AG",
+       "operator:wikidata": "Q999001",
+       "plant:output:electricity": "1450 MW",
+       "plant:source": "coal",
+       "power": "plant"
+      },
+      "timestamp": "2026-05-01T10:00:00Z",
+      "type": "way",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "3"
+     },
+     {
+      "bounds": {
+       "maxlat": 51.4221,
+       "maxlon": 14.3322,
+       "minlat": 51.418099999999995,
+       "minlon": 14.328199999999999
+      },
+      "changeset": "990077",
+      "geometry": [
+       {
+        "lat": 51.418099999999995,
+        "lon": 14.328199999999999
+       },
+       {
+        "lat": 51.418099999999995,
+        "lon": 14.3322
+       },
+       {
+        "lat": 51.4221,
+        "lon": 14.3322
+       },
+       {
+        "lat": 51.4221,
+        "lon": 14.328199999999999
+       },
+       {
+        "lat": 51.418099999999995,
+        "lon": 14.328199999999999
+       }
+      ],
+      "id": 9002,
+      "nodes": [
+       90020,
+       90021,
+       90022,
+       90023,
+       90024
+      ],
+      "tags": {
+       "name": "Fixture Gaskraftwerk Sued",
+       "operator": "Fixture Kraftwerke Sued Neu GmbH",
+       "plant:output:electricity": "420 MW",
+       "power": "plant",
+       "ref:gppd": "DEU9990002"
+      },
+      "timestamp": "2026-09-26T08:00:00Z",
+      "type": "way",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "4"
+     },
+     {
+      "bounds": {
+       "maxlat": 51.662,
+       "maxlon": 14.6,
+       "minlat": 51.55,
+       "minlon": 14.462
+      },
+      "changeset": "990001",
+      "geometry": [
+       {
+        "lat": 51.662,
+        "lon": 14.462
+       },
+       {
+        "lat": 51.6,
+        "lon": 14.53
+       },
+       {
+        "lat": 51.55,
+        "lon": 14.6
+       }
+      ],
+      "id": 9101,
+      "nodes": [
+       91010,
+       91011,
+       91012
+      ],
+      "tags": {
+       "cables": "6",
+       "operator": "Fixture Netz GmbH",
+       "power": "line",
+       "voltage": "380000"
+      },
+      "timestamp": "2026-05-01T10:00:00Z",
+      "type": "way",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "3"
+     },
+     {
+      "bounds": {
+       "maxlat": 51.550999999999995,
+       "maxlon": 14.600999999999999,
+       "minlat": 51.549,
+       "minlon": 14.599
+      },
+      "changeset": "990001",
+      "geometry": [
+       {
+        "lat": 51.549,
+        "lon": 14.599
+       },
+       {
+        "lat": 51.549,
+        "lon": 14.600999999999999
+       },
+       {
+        "lat": 51.550999999999995,
+        "lon": 14.600999999999999
+       },
+       {
+        "lat": 51.550999999999995,
+        "lon": 14.599
+       },
+       {
+        "lat": 51.549,
+        "lon": 14.599
+       }
+      ],
+      "id": 9102,
+      "nodes": [
+       91020,
+       91021,
+       91022,
+       91023,
+       91024
+      ],
+      "tags": {
+       "name": "Fixture Umspannwerk",
+       "operator": "Fixture Netz GmbH",
+       "power": "substation",
+       "voltage": "380000;110000"
+      },
+      "timestamp": "2026-05-01T10:00:00Z",
+      "type": "way",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "3"
+     },
+     {
+      "bounds": {
+       "maxlat": 51.748,
+       "maxlon": 14.698,
+       "minlat": 51.352,
+       "minlon": 14.252
+      },
+      "changeset": "990001",
+      "geometry": [
+       {
+        "lat": 51.352,
+        "lon": 14.252
+       },
+       {
+        "lat": 51.549,
+        "lon": 14.481
+       },
+       {
+        "lat": 51.748,
+        "lon": 14.698
+       }
+      ],
+      "id": 9201,
+      "nodes": [
+       92010,
+       92011,
+       92012
+      ],
+      "tags": {
+       "man_made": "pipeline",
+       "name": "Fixture Ostsee-Anbindung",
+       "operator": "Fixture Gastransport GmbH",
+       "substance": "gas"
+      },
+      "timestamp": "2026-05-01T10:00:00Z",
+      "type": "way",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "3"
+     },
+     {
+      "changeset": "990002",
+      "id": 9301,
+      "lat": "51.4000000",
+      "lon": "14.7000000",
+      "tags": {
+       "disused:power": "plant",
+       "name": "Fixture Kraftwerk Alt"
+      },
+      "timestamp": "2025-11-02T09:00:00Z",
+      "type": "node",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "2"
+     },
+     {
+      "changeset": "990003",
+      "id": 9401,
+      "tags": {
+       "name": "Fixture Solarpark Ost",
+       "power": "plant",
+       "type": "multipolygon"
+      },
+      "timestamp": "2024-01-01T00:00:00Z",
+      "type": "relation",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "1"
+     },
+     {
+      "changeset": "990078",
+      "id": 9302,
+      "lat": "51.7000000",
+      "lon": "14.6500000",
+      "tags": {
+       "generator:output:electricity": "4.2 MW",
+       "name": "Fixture Windrad 1",
+       "operator": "Fixture Wind GmbH",
+       "power": "generator"
+      },
+      "timestamp": "2026-09-26T09:00:00Z",
+      "type": "node",
+      "uid": 424242,
+      "user": "fixture-mapper",
+      "version": "1"
+     }
+    ],
+    "generator": "Overpass API (fixture)",
+    "osm3s": {
+     "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL.",
+     "timestamp_osm_base": "2026-09-27T21:00:00Z"
+    },
+    "version": 0.6
+   },
+   "params": {
+    "data": "[out:json][timeout:60][maxsize:16777216][bbox:51.3,14.2,51.8,14.8];\n(\n  nwr[\"power\"=\"plant\"];\n  nwr[\"construction:power\"=\"plant\"];\n  nwr[\"proposed:power\"=\"plant\"];\n  nwr[\"planned:power\"=\"plant\"];\n  nwr[\"disused:power\"=\"plant\"];\n  nwr[\"abandoned:power\"=\"plant\"];\n  nwr[\"demolished:power\"=\"plant\"];\n  nwr[\"razed:power\"=\"plant\"];\n  nwr[\"removed:power\"=\"plant\"];\n  nwr[\"power\"=\"generator\"];\n  nwr[\"construction:power\"=\"generator\"];\n  nwr[\"proposed:power\"=\"generator\"];\n  nwr[\"planned:power\"=\"generator\"];\n  nwr[\"disused:power\"=\"generator\"];\n  nwr[\"abandoned:power\"=\"generator\"];\n  nwr[\"demolished:power\"=\"generator\"];\n  nwr[\"razed:power\"=\"generator\"];\n  nwr[\"removed:power\"=\"generator\"];\n  nwr[\"power\"=\"line\"];\n  nwr[\"construction:power\"=\"line\"];\n  nwr[\"proposed:power\"=\"line\"];\n  nwr[\"planned:power\"=\"line\"];\n  nwr[\"disused:power\"=\"line\"];\n  nwr[\"abandoned:power\"=\"line\"];\n  nwr[\"demolished:power\"=\"line\"];\n  nwr[\"razed:power\"=\"line\"];\n  nwr[\"removed:power\"=\"line\"];\n  nwr[\"power\"=\"substation\"];\n  nwr[\"construction:power\"=\"substation\"];\n  nwr[\"proposed:power\"=\"substation\"];\n  nwr[\"planned:power\"=\"substation\"];\n  nwr[\"disused:power\"=\"substation\"];\n  nwr[\"abandoned:power\"=\"substation\"];\n  nwr[\"demolished:power\"=\"substation\"];\n  nwr[\"razed:power\"=\"substation\"];\n  nwr[\"removed:power\"=\"substation\"];\n  nwr[\"man_made\"=\"pipeline\"];\n  nwr[\"construction:man_made\"=\"pipeline\"];\n  nwr[\"proposed:man_made\"=\"pipeline\"];\n  nwr[\"planned:man_made\"=\"pipeline\"];\n  nwr[\"disused:man_made\"=\"pipeline\"];\n  nwr[\"abandoned:man_made\"=\"pipeline\"];\n  nwr[\"demolished:man_made\"=\"pipeline\"];\n  nwr[\"razed:man_made\"=\"pipeline\"];\n  nwr[\"removed:man_made\"=\"pipeline\"];\n);\nout meta geom 200;"
+   },
+   "status": 200,
+   "url": "https://overpass-api.de/api/interpreter"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "osm",
+ "retrieved_at": "2026-09-28T06:00:00Z",
+ "scenarios": [
+  "later-release"
+ ]
+}

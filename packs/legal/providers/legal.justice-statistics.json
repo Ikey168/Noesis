@@ -1,0 +1,187 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "legal.justice-statistics",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.justice_statistics",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "legal.justice-statistics",
+      "contract": {
+        "name": "noesis-justice-statistic",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "justice-statistics-for-place",
+        "compare-justice-statistics",
+        "resolve-justice-places",
+        "list-justice-place-resolutions",
+        "review-justice-place",
+        "record-justice-comparability",
+        "review-justice-comparability"
+      ],
+      "semantic_constraints": {
+        "records": "FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics as released: definitions (UCR/NIBRS, ICCS, publisher categories) with revisions, observations with flags and coverage, and vintages",
+        "as_of": "the vintage released on or before the date; earlier vintages stay queryable; gaps and suppressed values are explicit",
+        "comparability": "series of different jurisdictions are returned separately; an aligned comparison needs a stated comparability note for every pair",
+        "places": "reporting areas map to geospatial places by exact published code; ambiguous mappings stay review candidates",
+        "minimisation": "police.uk crimes are counts only; locations and persistent IDs are not stored",
+        "exclusions": "no rankings of places, no neighbourhood safety ratings, no risk scores"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "justice-statistics-for-place",
+      "tool": "noesis-knowledge-engine.justice_statistics_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-justice-statistics",
+      "tool": "noesis-knowledge-engine.compare_justice_statistics",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-justice-places",
+      "tool": "noesis-knowledge-engine.resolve_justice_places",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-justice-place-resolutions",
+      "tool": "noesis-knowledge-engine.list_justice_place_resolutions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-justice-place",
+      "tool": "noesis-knowledge-engine.review_justice_place",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-justice-comparability",
+      "tool": "noesis-knowledge-engine.record_justice_comparability",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-justice-comparability",
+      "tool": "noesis-knowledge-engine.review_justice_comparability",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "justice-statistic",
+      "store": "src.kb.justice_statistics",
+      "tables": [
+        "justice_definitions",
+        "justice_vintages",
+        "justice_observations",
+        "justice_coverage_notes",
+        "justice_comparability_notes",
+        "justice_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "justice-place-resolution",
+      "store": "src.kb.courts_justice_identity",
+      "tables": [
+        "justice_place_resolutions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "justice_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "legal-research",
+      "version": "1.4.0",
+      "range": "^1.4.0"
+    }
+  ]
+}

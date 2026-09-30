@@ -1,0 +1,15 @@
+ST/SG/SER.E/9903
+Information furnished in conformity with the Convention on Registration of Objects Launched into Outer Space (authored fictional document)
+Instrument: Convention on Registration of Objects Launched into Outer Space | UNTS-1023-15
+
+1. International designator: 2099-003B
+   Catalogue number: 99904
+   Name of space object: FICTSAT 3
+   State of registry: European Fictional Space Organisation
+   Date of launch: 2099-04-28
+   Nodal period: 96.0 minutes
+   Inclination: 97.5 degrees
+   Apogee: 560 kilometres
+   Perigee: 540 kilometres
+   General function: Communications
+   Operator: European Fictional Space Organisation

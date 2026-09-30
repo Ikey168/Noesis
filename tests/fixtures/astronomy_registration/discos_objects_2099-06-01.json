@@ -1,0 +1,14 @@
+{
+  "note": "Authored fictional DISCOSweb JSON:API response (not captured, not ESA data).",
+  "data": [
+    {"type": "object", "id": "70001", "attributes": {"cosparId": "2099-001A", "satno": 99901, "name": "Fictsat-1", "objectClass": "Payload"},
+     "relationships": {"operators": {"data": [{"type": "operator", "id": "501"}]}}},
+    {"type": "object", "id": "70004", "attributes": {"cosparId": "2099-003B", "satno": 99904, "name": "Fictsat-3", "objectClass": "Payload"},
+     "relationships": {"operators": {"data": [{"type": "operator", "id": "502"}]}}},
+    {"type": "object", "id": "70999", "attributes": {"cosparId": "2098-077A", "satno": 99877, "name": "Oldsat", "objectClass": "Payload"}}
+  ],
+  "included": [
+    {"type": "operator", "id": "501", "attributes": {"name": "Fictional Satellite Operations", "acronym": "FSO"}},
+    {"type": "operator", "id": "502", "attributes": {"name": "European Fictional Space Organisation", "acronym": "EFSO"}}
+  ]
+}

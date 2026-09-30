@@ -9284,6 +9284,12 @@ from tools.knowledge_engine_mcp.astronomy import (
 
 register_astronomy_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.astronomy_registration import (
+    register as register_astronomy_registration_tools,
+)
+
+register_astronomy_registration_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.weather import (
     register as register_weather_tools,
 )
@@ -9320,6 +9326,12 @@ from tools.knowledge_engine_mcp.housing import (
 
 register_housing_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.real_estate import (  # noqa: E402 - registration order
+    register as register_real_estate_tools,
+)
+
+register_real_estate_tools(mcp, _intake_safe, _intake_context)
+
 from tools.knowledge_engine_mcp.vulnerabilities import (
     register as register_vulnerability_tools,
 )
@@ -9332,6 +9344,14 @@ from tools.knowledge_engine_mcp.development_finance import (
 
 register_development_finance_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.substances import (
+    register as register_substance_tools,
+)
+
+register_substance_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.hazards import register as register_hazards_tools
+
+register_hazards_tools(mcp, _intake_safe, _intake_context)
 from tools.knowledge_engine_mcp.materials import (
     register as register_materials_tools,
 )
@@ -9349,6 +9369,64 @@ from tools.knowledge_engine_mcp.oss_ecosystems import (
 )
 
 register_oss_ecosystem_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.trade import (  # noqa: E402 - registration order
+    register as register_trade_tools,
+)
+
+register_trade_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.education_statistics import (  # noqa: E402 - registration order
+    register as register_education_statistics_tools,
+)
+
+register_education_statistics_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.legislation import (
+    register as register_legislation_tools,
+)
+
+register_legislation_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.energy import register as register_energy_tools
+
+register_energy_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.fisheries import (
+    register as register_fisheries_tools,
+)
+
+register_fisheries_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.humanitarian import register as register_humanitarian_tools
+
+register_humanitarian_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.infrastructure import register as register_infrastructure_tools
+
+register_infrastructure_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.agrifood import (
+    register as register_agrifood_tools,
+)
+
+register_agrifood_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.labour import (  # noqa: E402 - registration order
+    register as register_labour_tools,
+)
+
+register_labour_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.web_archives import (  # noqa: E402 - registration order
+    register as register_web_archive_tools,
+)
+
+register_web_archive_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.campaign_finance import (  # noqa: E402 - registration order
+    register as register_campaign_finance_tools,
+)
+
+register_campaign_finance_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.logistics import (  # noqa: E402 - registration order
+    register as register_logistics_tools,
+)
+
+register_logistics_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

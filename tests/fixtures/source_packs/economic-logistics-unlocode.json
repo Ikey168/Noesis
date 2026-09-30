@@ -1,0 +1,22 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIViA5VJC7AAAANsBAAAhAAAAMjAyNC0xIFVOTE9DT0RFIENvZGVMaXN0UGFydDEuY3N2bVHdbsIgFL7fU/gAXxcoxdnLNrJhQrlAo3F3XSTTpLiEqc8vWGZr5kngHOB8PwDmAnj9EKap9BYpXhB2a2FQW98djvckkGUsi4FqAUIIBXjOqJ4QyvJCJKBZo/bWWb9vL/b4UMsa9D8FYyxQkBnjiUI0YbhdAPSzXgwwoxKsb5VVA9m6r7P/HrIEzVnBxyqx70+o5LMktFlrbA7d3nbut3f4uBoLj/3Sm19yo3k3UEJC2YlsL94Oxdv0Cbgo8zKCCZlGsFbh+bVYSWFUpefL4QvCiVk1MD+nk/W71o2qzyf3i72cch65C0YC9xVQSwECFAMUAAAACAAAACFYgOVSQuwAAADbAQAAIQAAAAAAAAAAAAAAgAEAAAAAMjAyNC0xIFVOTE9DT0RFIENvZGVMaXN0UGFydDEuY3N2UEsFBgAAAAABAAEATwAAACsBAAAAAA==",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/trade/locode/loc241csv.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "zip-csv",
+  "non-port-entry-skipped",
+  "undeclared-country-skipped",
+  "no-coordinates-published"
+ ]
+}

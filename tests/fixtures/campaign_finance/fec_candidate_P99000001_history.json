@@ -1,0 +1,54 @@
+{
+ "api_version": "1.0",
+ "pagination": {
+  "count": 2,
+  "page": 1,
+  "pages": 1,
+  "per_page": 100
+ },
+ "results": [
+  {
+   "candidate_id": "P99000001",
+   "two_year_period": 2100,
+   "name": "EXAMPLE, ALEX",
+   "office": "P",
+   "office_full": "President",
+   "state": "US",
+   "district": "00",
+   "party": "EXP",
+   "party_full": "EXAMPLE PARTY",
+   "candidate_status": "C",
+   "incumbent_challenge": "O",
+   "election_years": [
+    2099
+   ],
+   "cycles": [
+    2098,
+    2100
+   ],
+   "load_date": "2099-07-20T00:00:00",
+   "address_street_1": "1 EXAMPLE WAY",
+   "address_zip": "99001"
+  },
+  {
+   "candidate_id": "P99000001",
+   "two_year_period": 2098,
+   "name": "EXAMPLE, ALEX",
+   "office": "P",
+   "office_full": "President",
+   "state": "US",
+   "district": "00",
+   "party": "EXP",
+   "party_full": "EXAMPLE PARTY",
+   "candidate_status": "N",
+   "incumbent_challenge": "O",
+   "election_years": [
+    2099
+   ],
+   "cycles": [
+    2098
+   ],
+   "load_date": "2098-12-31T00:00:00"
+  }
+ ]
+}

@@ -133,8 +133,11 @@ def test_descriptor_declares_the_capability_read_only_operations_stores_probe_an
 def test_the_bundle_validates_and_behaves_unchanged_with_the_feature_off_by_default():
     composition = json.loads((ROOT / "packs/economics/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
-    # public-finance and the demographics feature (#1914) are both optional and off by default.
-    assert set(features) == {"public-finance", "demographics"}
+    # public-finance, the demographics feature (#1914) and the trade features (#2210) are optional and off by default.
+    # The labour-statistics (#2219) and logistics (#2229) features are optional and off by default too.
+    assert set(features) == {
+        "public-finance", "demographics", "trade-comtrade", "trade-comext", "labour-statistics", "logistics",
+    }
     assert features["demographics"]["default"] is False
     feature = features["public-finance"]
     assert feature["default"] is False
@@ -168,7 +171,8 @@ def test_enabling_it_binds_the_legal_political_procurement_funding_identity_and_
         plan["features"]["economics"] == ["public-finance"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    assert PACK in plan["source_packs"]
+    # The bundle now pins 1.6.0 (the labour sources, #2219); this provider still declares ^1.3.0, which it meets.
+    assert {**PACK, "version": "1.6.0", "range": "^1.6.0"} in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     tool = view.tools["noesis-knowledge-engine.compare_budget_line"]
     assert tool.pack == "economics" and tool.provider == "economics.public-finance"

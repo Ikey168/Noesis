@@ -1,0 +1,17 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": "GEM location ID,GEM unit/phase ID,Country/Area,Plant name,Unit name,Owner,Parent,Capacity (MW),Status,Start year,Retired year,Latitude,Longitude,Location accuracy,Wiki URL,Other IDs (location)\nL100001,G100001,Germany,Fixture Lignite Plant Nord,Unit A,Fixture Energie AG [100%],Fixture Holding SE [75%]; Stadtwerke Fixture [25%],750,retired,1985,2026,51.6618,14.4561,exact,https://www.gem.wiki/Fixture_Lignite_Plant_Nord,WRI: DEU9990001; WEPP: 99001\nL100001,G100002,Germany,Fixture Lignite Plant Nord,Unit B,Fixture Energie AG [100%],Fixture Holding SE [75%]; Stadtwerke Fixture [25%],760,operating,1987,,51.6618,14.4561,exact,https://www.gem.wiki/Fixture_Lignite_Plant_Nord,WRI: DEU9990001; WEPP: 99001\nL100009,G100009,Poland,Fixture Elektrownia,1,Fixture Energia SA [100%],,500,operating,,,51.1,17.0,,,\n",
+   "params": {},
+   "status": 200,
+   "url": "https://globalenergymonitor.org/wp-content/uploads/fixture/gcpt-2026-07.csv"
+  }
+ ],
+ "note": "Authored offline fixture in the publisher's documented response shape; every asset, owner and identifier is synthetic. Not live evidence.",
+ "provider": "gem",
+ "retrieved_at": "2026-09-28T06:00:00Z",
+ "scenarios": [
+  "later-release"
+ ]
+}

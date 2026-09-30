@@ -1,0 +1,258 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.logistics",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.logistics_series",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.logistics",
+      "contract": {
+        "name": "noesis-logistics-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-series",
+        "series-values",
+        "port-as-of",
+        "country-as-of",
+        "route-as-of",
+        "value-history",
+        "freight-indices",
+        "port-lookup",
+        "port-matches",
+        "links",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "ports": "a port record is a UN/LOCODE entry as published in one code-list release; changed entries add revisions and removed codes are marked removed, never deleted",
+        "series": "a logistics series maps one published source series (concept, unit, frequency, port, country or published route geography, definition reference, licence) onto the Economics series storage; each release that changes values is an appended vintage",
+        "as_of": "answers select the vintage released by the date and cite its release; all vintages of a value can be listed",
+        "identity": "source port codes reach UN/LOCODE only through accepted matches: embedded UN/LOCODEs and published crosswalks are exact, name or coordinate matches are candidates until reviewed; changes and removals record a re-match",
+        "links": "links to trade flows and other Economics series rest on a shared published identifier or an explicit citation; units and frequencies are listed side by side and never combined",
+        "freight_indices": "only indices with an in-scope licence decision are acquired; excluded indices are reported with the reason",
+        "exclusions": "no freight-rate forecasting, no derived, rebased or interpolated index, no route inferred from port totals, no merged series and no commercial index redistribution without a licence"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_logistics_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-values",
+      "tool": "noesis-knowledge-engine.logistics_series_values",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "port-as-of",
+      "tool": "noesis-knowledge-engine.query_port_logistics",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "country-as-of",
+      "tool": "noesis-knowledge-engine.query_country_logistics",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "route-as-of",
+      "tool": "noesis-knowledge-engine.query_route_logistics",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "value-history",
+      "tool": "noesis-knowledge-engine.logistics_value_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "freight-indices",
+      "tool": "noesis-knowledge-engine.logistics_freight_indices",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "port-lookup",
+      "tool": "noesis-knowledge-engine.list_logistics_ports",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "port-matches",
+      "tool": "noesis-knowledge-engine.list_logistics_port_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_logistics_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_logistics_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:logistics:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "logistics-record",
+      "store": "src.kb.logistics_series",
+      "tables": [
+        "logistics_releases",
+        "logistics_series",
+        "logistics_vintages",
+        "logistics_values",
+        "logistics_breaks"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "logistics-port",
+      "store": "src.kb.logistics_ports",
+      "tables": [
+        "logistics_ports",
+        "logistics_crosswalks",
+        "logistics_port_matches",
+        "logistics_rematches",
+        "logistics_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "logistics-refresh-receipt",
+      "store": "src.kb.logistics_monitoring",
+      "tables": [
+        "logistics_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "logistics_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-shipping-and-logistics",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

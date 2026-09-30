@@ -1,0 +1,99 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "apiVersion": "2.1.8",
+    "response": {
+     "data": [
+      {
+       "balancing_authority_code": "CISO",
+       "energy_source_code": "SUN",
+       "generatorid": "G1",
+       "nameplate-capacity-mw": "250",
+       "net-summer-capacity-mw": "248",
+       "operating-year-month": "2019-04",
+       "period": "2026-06",
+       "plantName": "Fixture Solar Park",
+       "plantid": "99901",
+       "stateid": "CA",
+       "status": "OP",
+       "technology": "Solar Photovoltaic"
+      },
+      {
+       "balancing_authority_code": "CISO",
+       "energy_source_code": "MWH",
+       "generatorid": "G2",
+       "nameplate-capacity-mw": "50",
+       "net-summer-capacity-mw": "50",
+       "operating-year-month": "2021-08",
+       "period": "2026-06",
+       "planned-retirement-year-month": "2026-07",
+       "plantName": "Fixture Solar Park",
+       "plantid": "99901",
+       "stateid": "CA",
+       "status": "OP",
+       "technology": "Batteries"
+      },
+      {
+       "balancing_authority_code": "CISO",
+       "energy_source_code": "SUN",
+       "generatorid": "G1",
+       "nameplate-capacity-mw": "250",
+       "net-summer-capacity-mw": "248",
+       "operating-year-month": "2019-04",
+       "period": "2026-07",
+       "plantName": "Fixture Solar Park",
+       "plantid": "99901",
+       "stateid": "CA",
+       "status": "OP",
+       "technology": "Solar Photovoltaic"
+      },
+      {
+       "balancing_authority_code": "CISO",
+       "energy_source_code": "MWH",
+       "generatorid": "G2",
+       "nameplate-capacity-mw": "50",
+       "net-summer-capacity-mw": null,
+       "operating-year-month": "2021-08",
+       "period": "2026-07",
+       "planned-retirement-year-month": "2026-07",
+       "plantName": "Fixture Solar Park",
+       "plantid": "99901",
+       "stateid": "CA",
+       "status": "RE",
+       "technology": "Batteries"
+      }
+     ],
+     "frequency": "monthly",
+     "total": "4"
+    }
+   },
+   "body_sha256": "f723eff4cc3950b2970e1b056f10936ef65854b30a4444f7f0e75384f59d6e28",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "data[0]": "nameplate-capacity-mw",
+    "data[1]": "net-summer-capacity-mw",
+    "end": "2026-07",
+    "facets[plantid][]": "99901",
+    "frequency": "monthly",
+    "length": "500",
+    "offset": "0",
+    "sort[0][column]": "period",
+    "sort[0][direction]": "asc",
+    "start": "2026-06"
+   },
+   "status": 200,
+   "url": "https://api.eia.gov/v2/electricity/operating-generator-capacity/data/"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "eia",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "plant-capacity",
+  "retired-generator"
+ ]
+}

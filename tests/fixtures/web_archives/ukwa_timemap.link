@@ -1,0 +1,4 @@
+<https://example.org/report>; rel="original",
+<https://www.webarchive.org.uk/wayback/archive/https://example.org/report>; rel="timegate",
+<https://www.webarchive.org.uk/wayback/archive/20240120100000/https://example.org/report>; rel="first memento"; datetime="Sat, 20 Jan 2024 10:00:00 GMT",
+<https://www.webarchive.org.uk/wayback/ld/20240305120000/https://example.org/report>; rel="last memento"; datetime="Tue, 05 Mar 2024 12:00:00 GMT"

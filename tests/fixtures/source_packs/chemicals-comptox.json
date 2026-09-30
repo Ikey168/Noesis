@@ -1,0 +1,102 @@
+{
+  "description": "US EPA CompTox (CTX) chemical detail and ToxValDB data points. Authored offline fixture in the provider's documented (PubChem, CTX) or observed (ECHA CHEM portal) response shape. Identifiers are the substances' public identifiers; classification, list and data-point values are transcribed or authored for illustration and are NOT live evidence. Verify against the live sources before any live run (#2317). Data-point values and references are authored and are not real study results.",
+  "scenarios": [
+    "DTXSID identity",
+    "data points quoted with endpoint, value, unit, reference and data version",
+    "substance with no data points"
+  ],
+  "native_pages": [
+    {
+      "request": "/chemical/detail/search/by-dtxsid/DTXSID7020182",
+      "status": 200,
+      "body": {
+        "dtxsid": "DTXSID7020182",
+        "dtxcid": "DTXCID30182",
+        "casrn": "80-05-7",
+        "preferredName": "Bisphenol A",
+        "inchikey": "IISBACLAFKSPIT-UHFFFAOYSA-N"
+      }
+    },
+    {
+      "request": "/hazard/toxval/search/by-dtxsid/DTXSID7020182",
+      "status": 200,
+      "body": [
+        {
+          "toxvalId": 900001,
+          "toxvalType": "NOAEL",
+          "toxvalNumeric": 5,
+          "toxvalNumericQualifier": "=",
+          "toxvalUnits": "mg/kg-day",
+          "studyType": "repeat dose other",
+          "exposureRoute": "oral",
+          "speciesCommon": "Rat",
+          "source": "Authored source A",
+          "subsource": "authored fixture",
+          "longRef": "Authored fixture study reference A (not a real citation)",
+          "year": "2020"
+        },
+        {
+          "toxvalId": 900002,
+          "toxvalType": "LOAEL",
+          "toxvalNumeric": 50,
+          "toxvalNumericQualifier": "=",
+          "toxvalUnits": "mg/kg-day",
+          "studyType": "repeat dose other",
+          "exposureRoute": "oral",
+          "speciesCommon": "Rat",
+          "source": "Authored source B",
+          "subsource": "authored fixture",
+          "longRef": "Authored fixture study reference B (not a real citation)",
+          "year": "2020"
+        }
+      ]
+    },
+    {
+      "request": "/chemical/detail/search/by-dtxsid/DTXSID5020607",
+      "status": 200,
+      "body": {
+        "dtxsid": "DTXSID5020607",
+        "dtxcid": "DTXCID00607",
+        "casrn": "117-81-7",
+        "preferredName": "Di(2-ethylhexyl) phthalate",
+        "inchikey": "BJQHLKABXJIVAM-UHFFFAOYSA-N"
+      }
+    },
+    {
+      "request": "/hazard/toxval/search/by-dtxsid/DTXSID5020607",
+      "status": 200,
+      "body": [
+        {
+          "toxvalId": 900101,
+          "toxvalType": "NOAEL",
+          "toxvalNumeric": 4.8,
+          "toxvalNumericQualifier": "=",
+          "toxvalUnits": "mg/kg-day",
+          "studyType": "reproduction developmental",
+          "exposureRoute": "oral",
+          "speciesCommon": "Rat",
+          "source": "Authored source A",
+          "subsource": "authored fixture",
+          "longRef": "Authored fixture study reference C (not a real citation)",
+          "year": "2020"
+        }
+      ]
+    },
+    {
+      "request": "/chemical/detail/search/by-dtxsid/DTXSID9020584",
+      "status": 200,
+      "body": {
+        "dtxsid": "DTXSID9020584",
+        "dtxcid": "DTXCID20584",
+        "casrn": "64-17-5",
+        "preferredName": "Ethanol",
+        "inchikey": "LFQSCWFLJHTTHZ-UHFFFAOYSA-N"
+      }
+    },
+    {
+      "request": "/hazard/toxval/search/by-dtxsid/DTXSID9020584",
+      "status": 200,
+      "body": []
+    }
+  ]
+}

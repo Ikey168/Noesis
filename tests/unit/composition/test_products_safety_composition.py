@@ -135,7 +135,8 @@ def test_the_bundle_resolves_with_the_feature_off_by_default():
     composition = json.loads((ROOT / "packs/products/composition.json").read_text())
     # The expansion's appliances and components features (#2061) sit beside safety, all off by default.
     features = {f["id"]: f for f in composition["optional_features"]}
-    assert set(features) == {"safety", "appliances", "components"}
+    # The food composition feature (#2216) is optional and off by default too.
+    assert set(features) == {"safety", "appliances", "components", "food"}
     assert not any(f["default"] for f in features.values())
     feature = features["safety"]
     assert {r["capability"] for r in feature["requires"]} == {
@@ -156,7 +157,7 @@ def test_the_bundle_resolves_with_the_feature_off_by_default():
     ]
     assert {
         "pack_id": "products-displays",
-        "version": "1.2.0",
+        "version": "1.3.0",  # the bundle pins 1.3.0 (food sources, #2216) inside its ^1.0.0 range
         "range": "^1.0.0",
     } in plan["source_packs"]
 
@@ -171,12 +172,13 @@ def test_selecting_the_feature_binds_one_authority_per_store_and_every_requireme
     assert [o for o in plan["omissions"] if o["pack"] == "products"] == [
         {"pack": "products", "feature": "appliances", "reason": "not selected"},
         {"pack": "products", "feature": "components", "reason": "not selected"},
+        {"pack": "products", "feature": "food", "reason": "not selected"},
     ]
     bindings = [b for b in plan["bindings"] if "products" in b["consumers"]]
     assert len({b["capability"] for b in bindings}) == len(
         bindings
     )  # one provider per capability
-    assert {"pack_id": "legal-research", "version": "1.3.0", "range": "^1.1.0"} in plan[
+    assert {"pack_id": "legal-research", "version": "1.4.0", "range": "^1.1.0"} in plan[
         "source_packs"
     ]
     stores = [

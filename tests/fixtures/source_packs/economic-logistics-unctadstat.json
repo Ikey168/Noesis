@@ -1,0 +1,48 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsUG9ydCxQb3J0IExhYmVsLFVOL0xPQ09ERSxNYXJrZXQgc2VnbWVudCBMYWJlbCxOdW1iZXIgb2YgcG9ydCBjYWxscyxOdW1iZXIgb2YgcG9ydCBjYWxscyBGb290bm90ZQoyMDIyLDI3NixHZXJtYW55LDExMDEsSGFtYnVyZyxERUhBTSxBbGwgc2hpcHMsNzgwMCwKMjAyMywyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQWxsIHNoaXBzLDc5MDAsUHJvdmlzaW9uYWwKMjAyMiwyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQ29udGFpbmVyIHNoaXBzLDQxMDAsCjIwMjIsMjc2LEdlcm1hbnksMTEwMixCcmVtZXJoYXZlbiwsQWxsIHNoaXBzLDQzMDAsCjIwMjMsMjc2LEdlcm1hbnksMTEwMixCcmVtZXJoYXZlbiwsQWxsIHNoaXBzLDQzNTAsCjIwMjIsMjc2LEdlcm1hbnksMTEwMyxXaWxoZWxtc2hhdmVuLCxBbGwgc2hpcHMsOTAwLAoyMDIzLDI3NixHZXJtYW55LDExMDMsV2lsaGVsbXNoYXZlbiwsQWxsIHNoaXBzLCxOb3QgYXZhaWxhYmxlCjIwMjIsNTI4LE5ldGhlcmxhbmRzLDIyMDEsUm90dGVyZGFtLE5MUlRNLEFsbCBzaGlwcywxMjgwMCwKMjAyMyw1MjgsTmV0aGVybGFuZHMsMjIwMSxSb3R0ZXJkYW0sTkxSVE0sQWxsIHNoaXBzLDEyOTUwLAo=",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/bulkdownload/US.PortCalls/US_PortCalls.csv",
+   "status": 200
+  },
+  {
+   "body_base64": "UXVhcnRlcixQb3J0LFBvcnQgTGFiZWwsVU4vTE9DT0RFLEluZGV4CjIwMjNRMywxMTAxLEhhbWJ1cmcsREVIQU0sOTEuMgoyMDIzUTQsMTEwMSxIYW1idXJnLERFSEFNLDkyLjAKMjAyM1EzLDIyMDEsUm90dGVyZGFtLE5MUlRNLDk1LjUKMjAyM1E0LDIyMDEsUm90dGVyZGFtLE5MUlRNLDk2LjEK",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/bulkdownload/US.PLSCI/US_PLSCI.csv",
+   "status": 200
+  },
+  {
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsVEVVCjIwMjIsMjc2LEdlcm1hbnksMTUxMDAwMDAKMjAyMywyNzYsR2VybWFueSwxNTMwMDAwMAoyMDIyLDUyOCxOZXRoZXJsYW5kcywxNTgwMDAwMAoyMDIzLDUyOCxOZXRoZXJsYW5kcywxNjAwMDAwMAo=",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/bulkdownload/US.ContPortThroughput/US_ContPortThroughput.csv",
+   "status": 200
+  },
+  {
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsU2hpcCB0eXBlIExhYmVsLERlYWQgd2VpZ2h0IHRvbnMgaW4gdGhvdXNhbmRzCjIwMjIsMjc2LEdlcm1hbnksVG90YWwgZmxlZXQsNzQwMAoyMDIzLDI3NixHZXJtYW55LFRvdGFsIGZsZWV0LDc5MDAKMjAyMiwyNzYsR2VybWFueSxPaWwgdGFua2VycywxMjAKMjAyMiw1MjgsTmV0aGVybGFuZHMsVG90YWwgZmxlZXQsNjgwMAoyMDIzLDUyOCxOZXRoZXJsYW5kcyxUb3RhbCBmbGVldCw3MTAwCg==",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/bulkdownload/US.MerchantFleet/US_MerchantFleet.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "port-with-unlocode",
+  "port-without-unlocode",
+  "value-not-available",
+  "row-filter",
+  "declared-series-break",
+  "m49-economies"
+ ]
+}

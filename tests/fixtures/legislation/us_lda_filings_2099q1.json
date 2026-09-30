@@ -1,0 +1,88 @@
+{
+ "count": 2,
+ "next": null,
+ "previous": null,
+ "results": [
+  {
+   "url": "https://lda.senate.gov/api/v1/filings/00000000-0000-4000-8000-00000000f001/",
+   "filing_uuid": "00000000-0000-4000-8000-00000000f001",
+   "filing_type": "Q1",
+   "filing_type_display": "1st Quarter - Report",
+   "filing_year": 2099,
+   "filing_period": "first_quarter",
+   "filing_period_display": "1st Quarter (Jan 1 - Mar 31)",
+   "filing_document_url": "https://lda.senate.gov/filings/public/filing/00000000-0000-4000-8000-00000000f001/print/",
+   "income": "20000.00",
+   "expenses": null,
+   "dt_posted": "2099-04-15T10:00:00-04:00",
+   "registrant": {
+    "id": 9001,
+    "name": "EXAMPLE ADVOCACY LLC"
+   },
+   "client": {
+    "id": 8001,
+    "client_id": 1,
+    "name": "FICTIONAL GRID COUNCIL"
+   },
+   "lobbying_activities": [
+    {
+     "general_issue_code": "ENG",
+     "general_issue_code_display": "Energy/Nuclear",
+     "description": "H.R. 9901, Example Grid Reliability Act; transmission permitting provisions.",
+     "government_entities": [
+      {
+       "id": 1,
+       "name": "HOUSE OF REPRESENTATIVES"
+      }
+     ]
+    },
+    {
+     "general_issue_code": "TRA",
+     "general_issue_code_display": "Transportation",
+     "description": "S. 9950, Example Charging Corridors Act.",
+     "government_entities": [
+      {
+       "id": 2,
+       "name": "SENATE"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "url": "https://lda.senate.gov/api/v1/filings/00000000-0000-4000-8000-00000000f002/",
+   "filing_uuid": "00000000-0000-4000-8000-00000000f002",
+   "filing_type": "Q1",
+   "filing_type_display": "1st Quarter - Report",
+   "filing_year": 2099,
+   "filing_period": "first_quarter",
+   "filing_period_display": "1st Quarter (Jan 1 - Mar 31)",
+   "filing_document_url": "https://lda.senate.gov/filings/public/filing/00000000-0000-4000-8000-00000000f002/print/",
+   "income": null,
+   "expenses": "10000.00",
+   "dt_posted": "2099-04-18T10:00:00-04:00",
+   "registrant": {
+    "id": 9002,
+    "name": "SAMPLE UTILITIES ASSOCIATION"
+   },
+   "client": {
+    "id": 8002,
+    "client_id": 1,
+    "name": "SAMPLE UTILITIES ASSOCIATION"
+   },
+   "lobbying_activities": [
+    {
+     "general_issue_code": "ENG",
+     "general_issue_code_display": "Energy/Nuclear",
+     "description": "Grid reliability reporting legislation and example grid reliability standards.",
+     "government_entities": [
+      {
+       "id": 1,
+       "name": "HOUSE OF REPRESENTATIVES"
+      }
+     ]
+    }
+   ]
+  }
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"Overview\": {\n  \"ExtId\": \"ABCD1234-0000-4000-8000-000000000001\",\n  \"Title\": \"Example Heat Networks Bill\",\n  \"HRSTag\": \"hs_2BillTitle\",\n  \"Date\": \"2099-02-01T00:00:00\",\n  \"Location\": \"Commons Chamber\",\n  \"House\": \"Commons\",\n  \"Source\": 1,\n  \"VolumeNo\": 999,\n  \"ContentLastUpdated\": \"2099-02-02T06:00:00\"\n },\n \"Items\": [\n  {\n   \"ItemType\": \"Contribution\",\n   \"ItemId\": 1,\n   \"MemberId\": 4001,\n   \"AttributedTo\": \"Sam Minister\",\n   \"Value\": \"<p>Synthetic remarks that are never retained.</p>\",\n   \"ExternalId\": \"C0000001-0000-4000-8000-000000000001\",\n   \"Timecode\": \"2099-02-01T16:00:00\"\n  },\n  {\n   \"ItemType\": \"Contribution\",\n   \"ItemId\": 2,\n   \"MemberId\": 4003,\n   \"AttributedTo\": \"Robin Opposition\",\n   \"Value\": \"<p>Synthetic reply that is never retained.</p>\",\n   \"ExternalId\": \"C0000002-0000-4000-8000-000000000002\",\n   \"Timecode\": \"2099-02-01T16:10:00\"\n  },\n  {\n   \"ItemType\": \"Timestamp\",\n   \"ItemId\": 3,\n   \"Value\": \"4.10 pm\"\n  }\n ],\n \"ChildDebates\": []\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/debates/debate/ABCD1234-0000-4000-8000-000000000001.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

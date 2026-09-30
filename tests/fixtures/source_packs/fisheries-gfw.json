@@ -1,0 +1,131 @@
+{
+  "description": "Global Fishing Watch Vessels API identity and 4Wings effort report. Authored offline fixture in the provider's documented or observed export shape. Every vessel, name, IMO number (check digits valid), call sign, owner and listing here is SYNTHETIC and describes no real vessel; statistics and effort values are illustrative, NOT live evidence. Verify against the live sources before any live run (#2346).",
+  "scenarios": [
+    "vessel identity segments keyed by GFW vessel id and dataset version",
+    "renamed and re-flagged vessel as time-bounded self-reported segments",
+    "track field dropped and reported",
+    "monthly effort aggregates at the LOW grid by flag and gear",
+    "unknown vessel id (not found)"
+  ],
+  "native_pages": [
+    {
+      "request": "/v3/vessels/a1b2c3d4-0001-4000-8000-000000000001?dataset=public-global-vessel-identity%3Av3.0",
+      "status": 200,
+      "body": {
+        "dataset": "public-global-vessel-identity:v3.0",
+        "selfReportedInfo": [
+          {
+            "id": "seg-v1-a",
+            "shipname": "SAMPLE ALBACORA UNO",
+            "flag": "ESP",
+            "callsign": "EAAA1",
+            "imo": "9000015",
+            "ssvid": "224000001",
+            "transmissionDateFrom": "2019-03-01T00:00:00Z",
+            "transmissionDateTo": "2026-08-31T23:59:59Z"
+          }
+        ],
+        "combinedSourcesInfo": [
+          {
+            "geartypes": [
+              {
+                "name": "DRIFTING_LONGLINES"
+              }
+            ]
+          }
+        ],
+        "track": [
+          {
+            "lat": 35.1,
+            "lon": -20.3,
+            "timestamp": "2024-01-02T00:00:00Z"
+          }
+        ]
+      }
+    },
+    {
+      "request": "/v3/vessels/a1b2c3d4-0002-4000-8000-000000000002?dataset=public-global-vessel-identity%3Av3.0",
+      "status": 200,
+      "body": {
+        "dataset": "public-global-vessel-identity:v3.0",
+        "selfReportedInfo": [
+          {
+            "id": "seg-v2-a",
+            "shipname": "SAMPLE STAR",
+            "flag": "GHA",
+            "callsign": "9GAA2",
+            "imo": "9000027",
+            "ssvid": "627000002",
+            "transmissionDateFrom": "2018-01-01T00:00:00Z",
+            "transmissionDateTo": "2024-12-31T23:59:59Z"
+          },
+          {
+            "id": "seg-v2-b",
+            "shipname": "SAMPLE NOVA",
+            "flag": "TGO",
+            "callsign": "5VAA2",
+            "imo": "9000027",
+            "ssvid": "671000002",
+            "transmissionDateFrom": "2025-01-15T00:00:00Z",
+            "transmissionDateTo": "2026-08-31T23:59:59Z"
+          }
+        ],
+        "combinedSourcesInfo": [
+          {
+            "geartypes": [
+              {
+                "name": "TUNA_PURSE_SEINES"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "request": "/v3/vessels/ffffffff-0000-4000-8000-00000000dead?dataset=public-global-vessel-identity%3Av3.0",
+      "status": 404,
+      "body": {
+        "error": "not found"
+      }
+    },
+    {
+      "request": "/v3/4wings/report?datasets%5B0%5D=public-global-fishing-effort%3Av3.0&date-range=2024-01-01%2C2024-02-29&format=JSON&group-by=FLAGANDGEARTYPE&region-dataset=public-rfmo&region-id=ICCAT&spatial-resolution=LOW&temporal-resolution=MONTHLY",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "public-global-fishing-effort:v3.0": [
+              {
+                "date": "2024-01",
+                "flag": "ESP",
+                "geartype": "drifting_longlines",
+                "hours": 120.5,
+                "lat": 35.1,
+                "lon": -20.3,
+                "vesselIDs": 3
+              },
+              {
+                "date": "2024-02",
+                "flag": "ESP",
+                "geartype": "drifting_longlines",
+                "hours": 98.0,
+                "lat": 35.1,
+                "lon": -20.3,
+                "vesselIDs": 2
+              },
+              {
+                "date": "2024-01",
+                "flag": "GHA",
+                "geartype": "tuna_purse_seines",
+                "hours": 40.0,
+                "lat": 4.2,
+                "lon": -3.1,
+                "vesselIDs": 1
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

@@ -30,13 +30,41 @@ SURVEILLANCE_TOOLS = SURVEILLANCE_WRITES | {
     "surveillance_reporting_delay", "surveillance_pin_status", "surveillance_series_links",
     "surveillance_series_claims", "poll_surveillance_monitor",
 }
-CLINICAL_WRITES = CLINICAL_WRITES | SURVEILLANCE_WRITES
+# The optional ``medicines`` feature's entry points (#2214): authorisation status and label text as of a date, label
+# diffs, safety communications, regulatory timelines, RxNorm identity review, citation links and monitors (records
+# in src/kb/clinical_medicines.py, provider clinical.medicines). Every answer carries the feature's boundary.
+MEDICINES_WRITES = {
+    "propose_medicine_identities", "review_medicine_identity", "revert_medicine_identity", "link_medicine_evidence",
+    "create_medicines_monitor", "run_medicines_monitor",
+    # Label diffs are stored as derived label-section-change records and reused (MR08), so these two write.
+    "compare_medicine_labels", "medicine_regulatory_timeline",
+}
+MEDICINES_TOOLS = MEDICINES_WRITES | {
+    "medicines_readiness", "medicine_status_as_of", "medicine_label_as_of", "medicine_safety_communications",
+    "list_medicine_identity_matches",
+    "poll_medicines_monitor",
+}
+# The optional ``health_capacity`` feature's entry points (#2215): capacity indicators (beds, workforce, expenditure)
+# as of a date with definitions and vintages, place resolution, reviewable mappings and comparability notes, cited
+# Economics denominators and monitors (records composed over src/kb/surveillance.py by src/kb/health_capacity*.py,
+# provider clinical.health-capacity). Every answer carries the feature's boundary sentence.
+HEALTH_CAPACITY_WRITES = {
+    "resolve_health_capacity_places", "review_health_capacity_place", "propose_health_capacity_mapping",
+    "review_health_capacity_mapping", "record_health_capacity_note", "review_health_capacity_note",
+    "link_health_capacity_economics", "create_health_capacity_monitor", "run_health_capacity_monitor",
+}
+HEALTH_CAPACITY_TOOLS = HEALTH_CAPACITY_WRITES | {
+    "health_capacity_readiness", "list_health_capacity_indicators", "health_capacity_as_of",
+    "health_capacity_definition_history", "health_capacity_comparability", "health_capacity_beside_surveillance",
+    "health_capacity_series_links", "poll_health_capacity_monitor",
+}
+CLINICAL_WRITES = CLINICAL_WRITES | SURVEILLANCE_WRITES | MEDICINES_WRITES | HEALTH_CAPACITY_WRITES
 CLINICAL_TOOLS = CLINICAL_WRITES | {
     "clinical_bundle_status", "clinical_provider_contracts", "lookup_clinical_trial", "clinical_trial_history",
     "clinical_coverage_gaps", "clinical_outcome_switching", "expand_clinical_question",
     "inspect_clinical_evidence_map", "clinical_strength_view", "export_clinical_evidence_bundle",
     "poll_clinical_monitor",
-} | SURVEILLANCE_TOOLS
+} | SURVEILLANCE_TOOLS | MEDICINES_TOOLS | HEALTH_CAPACITY_TOOLS
 READ = "knowledge:clinical:read"
 WRITE = "knowledge:clinical:write"
 REVIEW = "knowledge:clinical:review"
@@ -70,6 +98,41 @@ SURVEILLANCE_SCOPES = {
     "create_surveillance_monitor": [READ, SUBSCRIPTIONS_WRITE],
     "run_surveillance_monitor": [READ, SUBSCRIPTIONS_READ, SUBSCRIPTIONS_WRITE],
 }
+MEDICINES_SCOPES = {
+    "medicines_readiness": [READ],
+    "medicine_status_as_of": [READ],
+    "medicine_label_as_of": [READ],
+    "compare_medicine_labels": [READ],
+    "medicine_safety_communications": [READ],
+    "medicine_regulatory_timeline": [READ],
+    "list_medicine_identity_matches": [READ],
+    "poll_medicines_monitor": [READ, SUBSCRIPTIONS_READ],
+    "propose_medicine_identities": [READ, WRITE],
+    "review_medicine_identity": [REVIEW],
+    "revert_medicine_identity": [REVIEW],
+    "link_medicine_evidence": [READ, WRITE],
+    "create_medicines_monitor": [READ, SUBSCRIPTIONS_WRITE],
+    "run_medicines_monitor": [READ, SUBSCRIPTIONS_READ, SUBSCRIPTIONS_WRITE],
+}
+HEALTH_CAPACITY_SCOPES = {
+    "health_capacity_readiness": [READ],
+    "list_health_capacity_indicators": [READ],
+    "health_capacity_as_of": [READ],
+    "health_capacity_definition_history": [READ],
+    "health_capacity_comparability": [READ],
+    "health_capacity_beside_surveillance": [READ],
+    "health_capacity_series_links": [READ],
+    "poll_health_capacity_monitor": [READ, SUBSCRIPTIONS_READ],
+    "resolve_health_capacity_places": [WRITE, GEO_READ],
+    "review_health_capacity_place": [REVIEW],
+    "propose_health_capacity_mapping": [READ, WRITE],
+    "review_health_capacity_mapping": [REVIEW],
+    "record_health_capacity_note": [READ, WRITE],
+    "review_health_capacity_note": [REVIEW],
+    "link_health_capacity_economics": [READ, WRITE],
+    "create_health_capacity_monitor": [READ, SUBSCRIPTIONS_WRITE],
+    "run_health_capacity_monitor": [READ, SUBSCRIPTIONS_READ, SUBSCRIPTIONS_WRITE],
+}
 CLINICAL_SCOPES = {
     "set_clinical_bundle_enabled": ["operator"],
     "import_prospero_registration": ["knowledge:clinical:write"],
@@ -96,6 +159,10 @@ def required_scopes(tool_name, mutability):
         return []
     if tool_name in SURVEILLANCE_SCOPES:
         return SURVEILLANCE_SCOPES[tool_name]
+    if tool_name in MEDICINES_SCOPES:
+        return MEDICINES_SCOPES[tool_name]
+    if tool_name in HEALTH_CAPACITY_SCOPES:
+        return HEALTH_CAPACITY_SCOPES[tool_name]
     return CLINICAL_SCOPES.get(tool_name, ["knowledge:clinical:write" if mutability == "write"
                                            else "knowledge:clinical:read"])
 
@@ -295,6 +362,8 @@ def register(mcp, safe, context):
             subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))
 
     register_surveillance(mcp, gated, who)
+    register_medicines(mcp, gated, who)
+    register_health_capacity(mcp, gated, who)
 
 
 def register_surveillance(mcp, gated, who):
@@ -527,3 +596,325 @@ def register_surveillance(mcp, gated, who):
 
         return sv(namespace, lambda conn: SurveillanceMonitor(conn).run(
             subscription_id, watermark, principal_id=who()[0], scopes=who()[1]), write=True, scope=READ)
+
+
+def register_medicines(mcp, gated, who):
+    """The optional ``medicines`` feature's tools; each answer carries the feature's boundary sentence."""
+    from src.kb.clinical_medicines import BOUNDARY
+
+    def md(namespace, operation, *, write=False, scope=READ):
+        def run(conn):
+            result = operation(conn)
+            return {**result, "boundary": BOUNDARY} if isinstance(result, dict) else result
+        return gated(namespace, run, write=write, scope=scope)
+
+    @mcp.tool()
+    def medicines_readiness(namespace: str) -> dict:
+        """Whether the medicines feature is selected, per-source access decisions, freshness and live state."""
+        from src.ingestion.medicines_sources import BOUNDED_SET, LIVE_VERIFICATION, PROVIDER_CONTRACTS
+        from src.kb.clinical_medicines import feature_enabled
+        from src.kb.clinical_records import ClinicalRecordStore, _require_read
+
+        def run(conn):
+            _require_read(namespace, who()[1])
+            store = ClinicalRecordStore(conn, initialize=False)
+            return {"feature": "medicines", "selected": feature_enabled(conn), "contracts": PROVIDER_CONTRACTS,
+                    "live_verification": LIVE_VERIFICATION, "bounded_set": BOUNDED_SET,
+                    "providers": {p: store.provider_state(namespace, p) for p in PROVIDER_CONTRACTS}}
+        return md(namespace, run)
+
+    @mcp.tool()
+    def medicine_status_as_of(namespace: str, medicine: str, as_of: str, jurisdiction: str | None = None) -> dict:
+        """Authorisation status per jurisdiction and product on a date, cited, with the identity match used."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).status_as_of(
+            namespace, medicine, as_of, scopes=who()[1], jurisdiction=jurisdiction))
+
+    @mcp.tool()
+    def medicine_label_as_of(namespace: str, medicine: str, as_of: str, provider: str | None = None) -> dict:
+        """The label revision in force on a date per label document: sections verbatim with locators (dosing
+        sections are listed as omitted, never quoted)."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).label_as_of(
+            namespace, medicine, as_of, scopes=who()[1], provider=provider))
+
+    @mcp.tool()
+    def compare_medicine_labels(namespace: str, medicine: str | None = None, left_record_id: str | None = None,
+                                right_record_id: str | None = None, document_id: str | None = None,
+                                from_version: str | None = None, to_version: str | None = None) -> dict:
+        """Section-by-section changes between two label revisions (two record ids, or a medicine's consecutive or
+        chosen versions), quoting both revisions; unaligned sections reported, no significance rating."""
+        from src.kb.clinical_medicines import MedicinesService
+        from src.kb.clinical_records import ClinicalRecordError
+
+        def run(conn):
+            service = MedicinesService(conn, initialize=False)
+            if left_record_id and right_record_id:
+                return service.diff(namespace, left_record_id, right_record_id, scopes=who()[1])
+            if not medicine:
+                raise ClinicalRecordError("invalid_request", "name a medicine or two label-revision record ids")
+            return service.what_changed(namespace, medicine, scopes=who()[1], document_id=document_id,
+                                        from_version=from_version, to_version=to_version)
+        return md(namespace, run, write=True, scope=READ)
+
+    @mcp.tool()
+    def medicine_safety_communications(namespace: str, substance: str) -> dict:
+        """FDA Drug Safety Communications naming a substance, with dated updates, quotes and the match used."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).communications(
+            namespace, substance, scopes=who()[1]))
+
+    @mcp.tool()
+    def medicine_regulatory_timeline(namespace: str, medicine: str, view_id: str | None = None) -> dict:
+        """Authorisations, label revisions with section diffs and safety communications in date order, sources
+        side by side, with explicitly cited trials and FAERS reporting counts; none on record is said so."""
+        from src.kb.clinical_medicines import MedicinesService
+
+        return md(namespace, lambda conn: MedicinesService(conn, initialize=False).timeline(
+            namespace, medicine, scopes=who()[1], view_id=view_id), write=True, scope=READ)
+
+    @mcp.tool()
+    def list_medicine_identity_matches(namespace: str, state: str | None = None) -> dict:
+        """RxNorm crosswalk records (kind, evidence, RxNorm release, review state and decisions)."""
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: {"matches": MedicineIdentity(conn, initialize=False).matches(
+            namespace, scopes=who()[1], state=state)})
+
+    @mcp.tool()
+    def propose_medicine_identities(namespace: str) -> dict:
+        """Look published medicine and substance names up in RxNav (bounded, receipted) and record crosswalk
+        candidates; EU products match by active substance only and wait for review; unmatched names reported."""
+        from src.ingestion.medicines_sources import RxNavClient
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: MedicineIdentity(conn).propose(
+            namespace, principal_id=who()[0], scopes=who()[1], client=RxNavClient()), write=True, scope=WRITE)
+
+    @mcp.tool()
+    def review_medicine_identity(namespace: str, match_id: str, decision: str, reason: str) -> dict:
+        """Accept or reject a medicine identity match with a reason."""
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: MedicineIdentity(conn).review(
+            namespace, match_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True,
+            scope=REVIEW)
+
+    @mcp.tool()
+    def revert_medicine_identity(namespace: str, match_id: str, reason: str) -> dict:
+        """Undo the latest review decision of a medicine identity match; decisions are kept."""
+        from src.kb.clinical_terms import MedicineIdentity
+
+        return md(namespace, lambda conn: MedicineIdentity(conn).revert(
+            namespace, match_id, reason, principal_id=who()[0], scopes=who()[1]), write=True, scope=REVIEW)
+
+    @mcp.tool()
+    def link_medicine_evidence(namespace: str, observation: str, document_ids: list[str] | None = None) -> dict:
+        """Link regulatory records to trials and publications they cite, and to FAERS counts by reviewed identity."""
+        from src.kb.clinical_publications import PublicationLinker
+
+        return md(namespace, lambda conn: PublicationLinker(conn).link_medicines(
+            namespace, principal_id=who()[0], scopes=who()[1], observation_id=observation,
+            document_ids=document_ids), write=True, scope=WRITE)
+
+    @mcp.tool()
+    def create_medicines_monitor(namespace: str, medicine: str, request_key: str, delivery: dict | None = None) -> dict:
+        """Watch a medicine or substance for authorisation changes, label revisions and safety communications."""
+        from src.kb.clinical_monitoring import MedicinesMonitor
+
+        return md(namespace, lambda conn: MedicinesMonitor(conn).create_medicine(
+            namespace, medicine, request_key, principal_id=who()[0], scopes=who()[1], delivery=delivery),
+            write=True, scope=READ)
+
+    @mcp.tool()
+    def run_medicines_monitor(namespace: str, subscription_id: str, watermark: int | None = None) -> dict:
+        """Evaluate a medicines monitor at a committed watermark; unchanged records deliver nothing."""
+        from src.kb.clinical_monitoring import MedicinesMonitor
+
+        return md(namespace, lambda conn: MedicinesMonitor(conn).run_medicine(
+            subscription_id, watermark, principal_id=who()[0], scopes=who()[1]), write=True, scope=READ)
+
+    @mcp.tool()
+    def poll_medicines_monitor(namespace: str, subscription_id: str, cursor: str = "") -> dict:
+        """Poll medicines monitor events after a cursor."""
+        from src.kb.clinical_monitoring import MedicinesMonitor
+
+        return md(namespace, lambda conn: MedicinesMonitor(conn, initialize=False).poll(
+            subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))
+
+
+def register_health_capacity(mcp, gated, who):
+    """The optional ``health_capacity`` feature's tools; each answer carries the feature's boundary sentence."""
+    from src.kb.health_capacity import NEVER_SENTENCE
+
+    def hc(namespace, operation, *, write=False, scope=READ):
+        def run(conn):
+            result = operation(conn)
+            return {**result, "boundary": NEVER_SENTENCE} if isinstance(result, dict) else result
+        return gated(namespace, run, write=write, scope=scope)
+
+    @mcp.tool()
+    def health_capacity_readiness(namespace: str) -> dict:
+        """Whether the health_capacity feature is selected, per-source access decisions, bounded coverage, series
+        and evidence origin."""
+        from src.ingestion.health_capacity_sources import CAPACITY_CONTRACTS, LIVE_VERIFICATION
+        from src.kb.health_capacity import readiness
+        from src.kb.surveillance import authorize
+
+        def run(conn):
+            authorize(namespace, who()[1], READ)
+            return {**readiness(conn), "contracts": CAPACITY_CONTRACTS, "live_verification": LIVE_VERIFICATION}
+        return hc(namespace, run)
+
+    @mcp.tool()
+    def list_health_capacity_indicators(namespace: str, domain: str | None = None, provider: str | None = None,
+                                        geography_system: str | None = None,
+                                        geography_code: str | None = None) -> dict:
+        """Capacity indicators (beds, workforce, expenditure) with source code, unit, place, definition and
+        definition history, breaks and vintage count."""
+        from src.kb.health_capacity import HealthCapacityStore
+
+        return hc(namespace, lambda conn: {"indicators": HealthCapacityStore(conn, initialize=False).indicators(
+            namespace, scopes=who()[1], domain=domain, provider=provider, geography_system=geography_system,
+            geography_code=geography_code)})
+
+    @mcp.tool()
+    def health_capacity_as_of(namespace: str, place_id: str | None = None, place_code: str | None = None,
+                              as_of: str | None = None, domains: list[str] | None = None) -> dict:
+        """Beds, workforce and expenditure indicators of one place as published at a date, per source side by
+        side, with units, definitions, flags, citations, breaks, comparability notes and vintage differences.
+        Never blended or ranked; missing values are unknown; a place without data is none on record."""
+        from src.kb.health_capacity_queries import capacity_as_of
+
+        return hc(namespace, lambda conn: capacity_as_of(conn, namespace, scopes=who()[1], place_id=place_id,
+                                                         place_code=place_code, as_of=as_of, domains=domains))
+
+    @mcp.tool()
+    def health_capacity_definition_history(namespace: str, series_id: str) -> dict:
+        """Every published definition revision of a capacity indicator (editions by valid-from, retrieval time)."""
+        from src.kb.health_capacity import HealthCapacityStore
+        from src.kb.surveillance import authorize
+
+        def run(conn):
+            authorize(namespace, who()[1], READ)
+            return HealthCapacityStore(conn, initialize=False).definition_history(namespace, series_id)
+        return hc(namespace, run)
+
+    @mcp.tool()
+    def health_capacity_comparability(namespace: str, provider: str | None = None,
+                                      source_code: str | None = None) -> dict:
+        """Indicator mappings, comparability notes (both definitions cited) and place resolutions, optionally for
+        one indicator (provider and source_code)."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        ref = {"provider": provider, "source_code": source_code} if provider or source_code else None
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn, initialize=False).overview(
+            namespace, scopes=who()[1], ref=ref))
+
+    @mcp.tool()
+    def resolve_health_capacity_places(namespace: str, geo_namespace: str = "global") -> dict:
+        """Resolve series geography codes to Geospatial places by the published code; aggregates stay aggregates."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn).resolve_places(
+            namespace, principal_id=who()[0], scopes=who()[1], geo_namespace=geo_namespace), write=True, scope=WRITE)
+
+    @mcp.tool()
+    def review_health_capacity_place(namespace: str, resolution_id: str, decision: str, reason: str) -> dict:
+        """Accept, reject or revert a place resolution; a rejected resolution is not used."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn).review_place(
+            namespace, resolution_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True,
+            scope=REVIEW)
+
+    @mcp.tool()
+    def propose_health_capacity_mapping(namespace: str, left: dict, right: dict, kind: str, evidence: str) -> dict:
+        """Propose that one indicator (provider, source_code) is equivalent to, broader or narrower than another,
+        with evidence; both definitions are cited."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn).propose_mapping(
+            namespace, left, right, kind, evidence, principal_id=who()[0], scopes=who()[1]), write=True,
+            scope=WRITE)
+
+    @mcp.tool()
+    def review_health_capacity_mapping(namespace: str, mapping_id: str, decision: str, reason: str) -> dict:
+        """Accept, reject or revert an indicator mapping; decisions are kept."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn).review_mapping(
+            namespace, mapping_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True,
+            scope=REVIEW)
+
+    @mcp.tool()
+    def record_health_capacity_note(namespace: str, left: dict, right: dict, relation: str, statement: str) -> dict:
+        """Propose a comparability note between two indicators citing both definitions (no value is adjusted)."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn).record_note(
+            namespace, left, right, relation, statement, principal_id=who()[0], scopes=who()[1]), write=True,
+            scope=WRITE)
+
+    @mcp.tool()
+    def review_health_capacity_note(namespace: str, note_id: str, decision: str, reason: str) -> dict:
+        """Accept, reject or revert a comparability note; a reverted note never reactivates an earlier one."""
+        from src.kb.health_capacity_comparability import HealthCapacityComparability
+
+        return hc(namespace, lambda conn: HealthCapacityComparability(conn).review_note(
+            namespace, note_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True, scope=REVIEW)
+
+    @mcp.tool()
+    def health_capacity_beside_surveillance(namespace: str, place_id: str) -> dict:
+        """Capacity indicators and the pack's surveillance series for the same resolved place, side by side; no
+        combined metric; rejected resolutions excluded."""
+        from src.kb.health_capacity_links import HealthCapacityLinks
+
+        return hc(namespace, lambda conn: HealthCapacityLinks(conn, initialize=False).beside_surveillance(
+            namespace, place_id, scopes=who()[1]))
+
+    @mcp.tool()
+    def link_health_capacity_economics(namespace: str) -> dict:
+        """Link capacity series to Economics series only where the publisher cites the denominator series."""
+        from src.kb.health_capacity_links import HealthCapacityLinks
+
+        return hc(namespace, lambda conn: HealthCapacityLinks(conn).link_economics(
+            namespace, principal_id=who()[0], scopes=who()[1]), write=True, scope=WRITE)
+
+    @mcp.tool()
+    def health_capacity_series_links(namespace: str, series_id: str) -> dict:
+        """The cited Economics denominator of one capacity series: linked, cited-not-held or none cited."""
+        from src.kb.health_capacity_links import HealthCapacityLinks
+
+        return hc(namespace, lambda conn: HealthCapacityLinks(conn, initialize=False).series_links(
+            namespace, series_id, scopes=who()[1]))
+
+    @mcp.tool()
+    def create_health_capacity_monitor(namespace: str, request_key: str, watch: dict,
+                                       thresholds: list[dict] | None = None, delivery: dict | None = None) -> dict:
+        """Watch a place's capacity indicators (place_id or place_code, optional domains and indicators) for new
+        releases, revisions and definition changes; thresholds are user-configured and unit-checked."""
+        from src.kb.health_capacity_monitoring import HealthCapacityMonitor
+
+        return hc(namespace, lambda conn: HealthCapacityMonitor(conn).create(
+            namespace, request_key, watch=watch, principal_id=who()[0], scopes=who()[1],
+            thresholds=thresholds or [], delivery=delivery), write=True, scope=READ)
+
+    @mcp.tool()
+    def run_health_capacity_monitor(namespace: str, subscription_id: str, watermark: int | None = None) -> dict:
+        """Evaluate a capacity monitor at a committed watermark; replaying a watermark delivers nothing new."""
+        from src.kb.health_capacity_monitoring import HealthCapacityMonitor
+
+        return hc(namespace, lambda conn: HealthCapacityMonitor(conn).run(
+            subscription_id, watermark, principal_id=who()[0], scopes=who()[1]), write=True, scope=READ)
+
+    @mcp.tool()
+    def poll_health_capacity_monitor(namespace: str, subscription_id: str, cursor: str = "") -> dict:
+        """Poll capacity monitor deliveries after a cursor."""
+        from src.kb.health_capacity_monitoring import HealthCapacityMonitor
+
+        return hc(namespace, lambda conn: HealthCapacityMonitor(conn, initialize=False).poll(
+            subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))

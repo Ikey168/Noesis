@@ -1,0 +1,364 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.media-metadata",
+  "version": "1.0.0",
+  "description": "Books, music and authority metadata beside Cultural Collections: Open Library works, editions and authors, MusicBrainz recordings, releases, works and artists (CC0 core data only), Wikidata items, GND and DNB catalogue records and Library of Congress LCNAF and catalogue records as work, edition, recording, release, creator and authority-link records keyed by source, native ID and provider revision; reviewable identity, citation-only links to cultural objects and News entity candidates, as-of answers and monitors. No full text, media content, popularity ranking or rights clearance determination.",
+  "implementation": {
+    "name": "src.kb.media_metadata",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.media-metadata",
+      "contract": {
+        "name": "noesis-media-metadata-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "media-source-contracts",
+        "media-status",
+        "resolve-media-identifier",
+        "search-media-titles",
+        "media-authority-history",
+        "export-media-evidence-bundle",
+        "list-media-identity-matches",
+        "propose-media-identity-matches",
+        "review-media-identity-match",
+        "revert-media-identity-match",
+        "link-media-cultural-objects",
+        "review-media-link",
+        "assert-media-link",
+        "create-media-monitor",
+        "run-media-monitor",
+        "poll-media-monitor"
+      ],
+      "semantic_constraints": {
+        "levels": "work, edition (manifestation), recording, release, creator and authority-link records are distinct; a record's level is fixed at its first revision, so an edition never becomes a work",
+        "revisions": "immutable revisions keyed by the provider's revision marker (Open Library revision, Wikidata revision ID, MARC 005, MusicBrainz CC0 core digest); redirects, merges and deprecations are history revisions and entity-history redirect decisions",
+        "identity": "explicit identifier statements are matches citing the asserting revision; title, creator and date similarity only proposes candidates; conflicting claims stay visible; records are never merged",
+        "links": "cultural objects link only through identifiers or provider relations in the object record or a reviewed assertion; keyword overlap is a candidate; links cite both revisions",
+        "licences": "MusicBrainz CC0 core data only (supplementary data dropped); Open Library dumps only as named slices; DNB and Library of Congress under their documented access decisions",
+        "exclusions": "no full text, audio, cover images, popularity ranking or rights clearance determination"
+      }
+    },
+    {
+      "id": "science.media-news-candidates",
+      "contract": {
+        "name": "noesis-media-metadata-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-media-news-entities",
+        "review-media-link",
+        "assert-media-link"
+      ],
+      "semantic_constraints": {
+        "news": "authority records are reviewable candidates for News canonical entities; canonical entities and aliases are only read and never re-labelled"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "media-source-contracts",
+      "tool": "noesis-knowledge-engine.media_metadata_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "media-status",
+      "tool": "noesis-knowledge-engine.media_metadata_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "resolve-media-identifier",
+      "tool": "noesis-knowledge-engine.resolve_media_identifier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "search-media-titles",
+      "tool": "noesis-knowledge-engine.search_media_titles",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "media-authority-history",
+      "tool": "noesis-knowledge-engine.media_authority_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-media-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_media_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-media-identity-matches",
+      "tool": "noesis-knowledge-engine.list_media_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-media-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_media_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "current media revisions"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-media-identity-match",
+      "tool": "noesis-knowledge-engine.review_media_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and review sequence"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-media-identity-match",
+      "tool": "noesis-knowledge-engine.revert_media_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and entity-history undo"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-media-cultural-objects",
+      "tool": "noesis-knowledge-engine.link_media_cultural_objects",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "object, record and basis"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-media-news-entities",
+      "tool": "noesis-knowledge-engine.link_media_news_entities",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "canonical entity, record and match"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-media-link",
+      "tool": "noesis-knowledge-engine.review_media_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "link_id"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "assert-media-link",
+      "tool": "noesis-knowledge-engine.assert_media_link",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject and record"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-media-monitor",
+      "tool": "noesis-knowledge-engine.create_media_metadata_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-media-monitor",
+      "tool": "noesis-knowledge-engine.run_media_metadata_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription and committed watermark"
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:cultural:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "poll-media-monitor",
+      "tool": "noesis-knowledge-engine.poll_media_metadata_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "media-revisions",
+      "required_scopes": [
+        "knowledge:subscriptions:read",
+        "knowledge:cultural:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "media-metadata-record",
+      "store": "src.kb.media_metadata",
+      "tables": [
+        "media_records",
+        "media_revisions",
+        "media_current",
+        "media_identifiers",
+        "media_revision_conflicts",
+        "media_redirects",
+        "media_selection",
+        "media_dump_imports",
+        "media_matches",
+        "media_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "media-metadata-refresh-receipt",
+      "store": "src.kb.media_metadata_monitoring",
+      "tables": [
+        "media_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "media-revisions",
+      "kind": "table-exists",
+      "target": "media_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "primary-scientific-evidence",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

@@ -1,0 +1,163 @@
+{
+  "description": "Authored synthetic payloads in the provider's documented or observed shape (verify against a live run, #2291). Every registration, ICAO address, IMO number, MMSI, owner, airport and port is fictional; positions are illustrative, not live evidence.",
+  "scenarios": [
+    "bounded-window",
+    "coverage-gap",
+    "estimated-airports",
+    "natural-person-aircraft-refused-at-projection",
+    "no-coverage-window",
+    "declared-refusal"
+  ],
+  "native_pages": [
+    {
+      "request": "/api/flights/aircraft?begin=4081298400&end=4081384800&icao24=a0f1b2",
+      "status": 200,
+      "body": [
+        {
+          "icao24": "a0f1b2",
+          "firstSeen": 4081305600,
+          "estDepartureAirport": "KEXA",
+          "lastSeen": 4081315800,
+          "estArrivalAirport": "KEXB",
+          "callsign": "EXA901  "
+        }
+      ]
+    },
+    {
+      "request": "/api/tracks/all?icao24=a0f1b2&time=4081305600",
+      "status": 200,
+      "body": {
+        "icao24": "a0f1b2",
+        "callsign": "EXA901",
+        "startTime": 4081305600,
+        "endTime": 4081315800,
+        "path": [
+          [
+            4081305600,
+            40.001,
+            -100.001,
+            0,
+            90.0,
+            true
+          ],
+          [
+            4081305900,
+            40.002,
+            -100.002,
+            0,
+            90.0,
+            true
+          ],
+          [
+            4081306200,
+            40.003,
+            -99.999,
+            0,
+            90.0,
+            true
+          ],
+          [
+            4081306800,
+            40.2,
+            -99.8,
+            3000,
+            45.0,
+            false
+          ],
+          [
+            4081307400,
+            40.4,
+            -99.6,
+            6000,
+            45.0,
+            false
+          ],
+          [
+            4081310400,
+            40.8,
+            -99.2,
+            6000,
+            45.0,
+            false
+          ],
+          [
+            4081312800,
+            40.9,
+            -99.1,
+            2000,
+            45.0,
+            false
+          ],
+          [
+            4081314600,
+            41.001,
+            -99.001,
+            0,
+            10.0,
+            true
+          ],
+          [
+            4081315200,
+            41.002,
+            -99.002,
+            0,
+            10.0,
+            true
+          ],
+          [
+            4081315800,
+            41.003,
+            -98.999,
+            0,
+            10.0,
+            true
+          ]
+        ]
+      }
+    },
+    {
+      "request": "/api/flights/aircraft?begin=4081298400&end=4081384800&icao24=a0f1c3",
+      "status": 200,
+      "body": [
+        {
+          "icao24": "a0f1c3",
+          "firstSeen": 4081320000,
+          "estDepartureAirport": "KEXA",
+          "lastSeen": 4081323600,
+          "estArrivalAirport": null,
+          "callsign": "N902EX"
+        }
+      ]
+    },
+    {
+      "request": "/api/tracks/all?icao24=a0f1c3&time=4081320000",
+      "status": 200,
+      "body": {
+        "icao24": "a0f1c3",
+        "path": [
+          [
+            4081320000,
+            40.001,
+            -100.001,
+            0,
+            0.0,
+            true
+          ],
+          [
+            4081321800,
+            40.3,
+            -100.3,
+            2000,
+            0.0,
+            false
+          ]
+        ]
+      }
+    },
+    {
+      "request": "/api/flights/aircraft?begin=4081298400&end=4081384800&icao24=a0f1e5",
+      "status": 404,
+      "body": null
+    }
+  ]
+}

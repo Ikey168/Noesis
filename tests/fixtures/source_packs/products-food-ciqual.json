@@ -1,0 +1,23 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: a SYNTHETIC excerpt in the Ciqual XML archive shape (alim_*, const_*, compo_* inside the edition zip); values are illustrative, NOT Ciqual data. Element names are unverified-live (#2302).",
+ "provider": "composition-table",
+ "scenarios": [
+  "edition 2020 keyed by table, edition and native food code",
+  "INFOODS tagnames where published",
+  "trace, less-than and missing markers verbatim",
+  "unselected food codes are not read",
+  "a selected code absent from the table yields no record"
+ ],
+ "native_pages": [
+  {
+   "request": "/cms/sites/default/files/inline-files/XML_2020_07_07.zip",
+   "zip_files": {
+    "alim_2020_07_07.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TABLE>\n<ALIM><alim_code>13039</alim_code><alim_nom_fr>Pomme, crue, avec peau</alim_nom_fr><alim_nom_eng>Apple, raw, with skin</alim_nom_eng><alim_grp_code>04</alim_grp_code></ALIM>\n<ALIM><alim_code>9310</alim_code><alim_nom_fr>Flocons d'avoine</alim_nom_fr><alim_nom_eng>Oat flakes</alim_nom_eng><alim_grp_code>03</alim_grp_code></ALIM>\n<ALIM><alim_code>20000</alim_code><alim_nom_fr>Aliment non sélectionné</alim_nom_fr><alim_nom_eng>Unselected food</alim_nom_eng><alim_grp_code>01</alim_grp_code></ALIM>\n</TABLE>\n",
+    "const_2020_07_07.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TABLE>\n<CONST><const_code>328</const_code><const_nom_fr>Energie, Règlement UE N° 1169/2011 (kcal/100 g)</const_nom_fr><const_nom_eng>Energy, Regulation EU No 1169/2011 (kcal/100 g)</const_nom_eng><code_INFOODS>ENERC</code_INFOODS></CONST>\n<CONST><const_code>25000</const_code><const_nom_fr>Protéines, N x facteur de Jones (g/100 g)</const_nom_fr><const_nom_eng>Protein, N x Jones' factor (g/100 g)</const_nom_eng><code_INFOODS>PROCNT</code_INFOODS></CONST>\n<CONST><const_code>40000</const_code><const_nom_fr>Lipides (g/100 g)</const_nom_fr><const_nom_eng>Fat (g/100 g)</const_nom_eng><code_INFOODS>FAT</code_INFOODS></CONST>\n<CONST><const_code>32000</const_code><const_nom_fr>Sucres (g/100 g)</const_nom_fr><const_nom_eng>Sugars (g/100 g)</const_nom_eng><code_INFOODS>SUGAR</code_INFOODS></CONST>\n<CONST><const_code>10110</const_code><const_nom_fr>Sodium (mg/100 g)</const_nom_fr><const_nom_eng>Sodium (mg/100 g)</const_nom_eng><code_INFOODS>NA</code_INFOODS></CONST>\n</TABLE>\n",
+    "compo_2020_07_07.xml": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<TABLE>\n<COMPO><alim_code>13039</alim_code><const_code>328</const_code><teneur>54,3</teneur><code_confiance>A</code_confiance><source_code>1</source_code></COMPO>\n<COMPO><alim_code>13039</alim_code><const_code>25000</const_code><teneur>0,25</teneur><min>0,1</min><max>0,4</max><code_confiance>B</code_confiance></COMPO>\n<COMPO><alim_code>13039</alim_code><const_code>40000</const_code><teneur>traces</teneur><code_confiance>C</code_confiance></COMPO>\n<COMPO><alim_code>13039</alim_code><const_code>32000</const_code><teneur>11,6</teneur><code_confiance>A</code_confiance></COMPO>\n<COMPO><alim_code>13039</alim_code><const_code>10110</const_code><teneur>&lt; 0,5</teneur><code_confiance>D</code_confiance></COMPO>\n<COMPO><alim_code>9310</alim_code><const_code>328</const_code><teneur>374</teneur><code_confiance>A</code_confiance></COMPO>\n<COMPO><alim_code>9310</alim_code><const_code>25000</const_code><teneur>13,5</teneur><code_confiance>A</code_confiance></COMPO>\n<COMPO><alim_code>9310</alim_code><const_code>32000</const_code><teneur>-</teneur></COMPO>\n<COMPO><alim_code>20000</alim_code><const_code>328</const_code><teneur>100</teneur></COMPO>\n</TABLE>\n"
+   }
+  }
+ ]
+}

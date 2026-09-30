@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "noaa-ncei-billion-dollar-disasters",
+  "note": "Authored documents naming fictional insurers and events only, served for the production document URLs. The production scope (audited countries, insurer sample and events, verify) therefore excludes their rows, the NAIC source records a publication reference only, and parsing is exercised with the fictional scope in tests/unit/insurance_harness.py.",
+  "native_pages": [
+    {
+      "request": "/access/billions/events-US-1980-2024.csv",
+      "status": 200,
+      "body_base64": "TmFtZSxEaXNhc3RlcixCZWdpbiBEYXRlLEVuZCBEYXRlLENQSS1BZGp1c3RlZCBDb3N0LFJlcG9ydCBEYXRlCkh1cnJpY2FuZSBGaWt0aXZhLFRyb3BpY2FsIEN5Y2xvbmUsMjAyNC0wOS0yNCwyMDI0LTA5LTI5LCIzLDEwMCwwMDAsMDAwIiwyMDI1LTAxLTEwCkh1cnJpY2FuZSBGaWt0aXZhLFRyb3BpY2FsIEN5Y2xvbmUsMjAyNC0wOS0yNCwyMDI0LTA5LTI5LCIzLDIwMCwwMDAsMDAwIiwyMDI1LTA3LTEwCg==",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-scope",
+    "out-of-scope-rows-counted",
+    "licence-decision-enforced"
+  ]
+}

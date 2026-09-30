@@ -1,0 +1,121 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-astronomy-registration-record-v1",
+  "title": "Space-object registration record: UN index entry or registration document entry, operator/owner assertion, re-entry report, DISCOS object or DISCOS citation",
+  "description": "What one publisher states about a space object's registration, operator and re-entry, as it states it (#2224, SO02). Registration entries keep the UN document symbol, the paragraph or table locator, the language and the verbatim quotation; orbital parameters are the registered text, never reconciled with catalogue elements. Operator assertions keep the name and role as published and nothing beyond. Re-entry reports keep the publisher's reported time, uncertainty window and location as published with the report's revision (prediction or post-event). Records link to SATCAT/GCAT orbital objects by the COSPAR and NORAD identifiers they state. ESA DISCOS records are restricted (never redistributed). A value the source does not state is absent and listed in unknowns.",
+  "type": "object",
+  "required": ["contract", "kind", "source", "unknowns"],
+  "definitions": {
+    "day": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "when": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}(T\\d{2}:\\d{2}:\\d{2}Z)?$"},
+    "cospar": {"type": "string", "pattern": "^\\d{4}-\\d{3}[A-Z]{1,3}$"},
+    "norad": {"type": "string", "pattern": "^[1-9]\\d{0,8}$"},
+    "text": {"type": "string", "minLength": 1},
+    "reference": {
+      "type": "object",
+      "required": ["text"],
+      "properties": {"text": {"type": "string"}, "identifier": {"type": "string"}, "bibcode": {"type": "string"}, "doi": {"type": "string"}, "url": {"type": "string"}},
+      "additionalProperties": false
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-astronomy-registration-record-v1"},
+    "kind": {"enum": ["registration_entry", "operator_assertion", "reentry_report", "discos_object", "discos_citation"]},
+    "source": {
+      "type": "object",
+      "required": ["provider", "source_record_id"],
+      "properties": {
+        "provider": {"enum": ["unoosa-index", "unoosa-registration-documents", "esa-discos", "aerospace-reentry"]},
+        "source_record_id": {"type": "string", "minLength": 1, "maxLength": 500},
+        "url": {"type": "string"},
+        "locator": {"type": "string"},
+        "published_at": {"$ref": "#/definitions/when"},
+        "retrieved_at_ms": {"type": "integer", "minimum": 0},
+        "attribution": {"type": "string"},
+        "document": {"type": "string"}
+      },
+      "additionalProperties": false
+    },
+    "unknowns": {"type": "array", "items": {"type": "string"}},
+    "cospar": {"$ref": "#/definitions/cospar"},
+    "norad": {"$ref": "#/definitions/norad"},
+    "object_name": {"$ref": "#/definitions/text"},
+    "national_designator": {"$ref": "#/definitions/text"},
+    "discos_id": {"type": "string", "pattern": "^[0-9]+$"},
+    "restricted": {"const": true, "description": "account-restricted DISCOS data: stored for the namespace only, never exported"},
+    "entry_kind": {"enum": ["index_entry", "registration", "change_of_status", "transfer_of_supervision", "re_entry_notice", "additional_information"]},
+    "registering_state": {"$ref": "#/definitions/text"},
+    "registrant_kind": {"enum": ["state", "intergovernmental_organisation"]},
+    "un_registered": {"type": "boolean", "description": "as the UN index states it; false is 'no UN registration on record', never 'unregistered by the State'"},
+    "un_document": {"type": "string", "pattern": "^(ST/SG/SER\\.E/|A/AC\\.105/)[A-Z0-9./]+$"},
+    "document_date": {"$ref": "#/definitions/day"},
+    "document_locator": {
+      "type": "object",
+      "properties": {"paragraph": {"type": "string"}, "table": {"type": "string"}, "row": {"type": "string"}},
+      "minProperties": 1,
+      "additionalProperties": false
+    },
+    "language": {"enum": ["en", "fr", "es", "ru", "zh", "ar"]},
+    "quotation": {"type": "string", "minLength": 1, "maxLength": 20000},
+    "launch_date": {"$ref": "#/definitions/day"},
+    "launch_site": {"$ref": "#/definitions/text"},
+    "status": {"$ref": "#/definitions/text"},
+    "function": {"$ref": "#/definitions/text"},
+    "decay_date": {"$ref": "#/definitions/day"},
+    "index_retrieved_on": {"$ref": "#/definitions/day"},
+    "registered_orbit": {
+      "type": "object",
+      "description": "orbital parameters as registered: the registered text and the unit as printed",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {"value": {"type": "string"}, "unit": {"type": "string"}},
+        "additionalProperties": false
+      }
+    },
+    "status_change": {
+      "type": "object", "required": ["status"],
+      "properties": {"status": {"type": "string"}, "effective_date": {"$ref": "#/definitions/day"}},
+      "additionalProperties": false
+    },
+    "supervision": {
+      "type": "object", "required": ["to"],
+      "properties": {"from": {"type": "string"}, "to": {"type": "string"}, "effective_date": {"$ref": "#/definitions/day"}},
+      "additionalProperties": false
+    },
+    "reentry": {
+      "type": "object",
+      "properties": {"date": {"$ref": "#/definitions/day"}, "location": {"type": "string"}},
+      "additionalProperties": false
+    },
+    "instruments": {"type": "array", "maxItems": 20, "items": {"$ref": "#/definitions/reference"}},
+    "references": {"type": "array", "maxItems": 20, "items": {"$ref": "#/definitions/reference"}},
+    "operator_name": {"$ref": "#/definitions/text"},
+    "role": {"$ref": "#/definitions/text"},
+    "asserted_on": {"$ref": "#/definitions/day"},
+    "identifier": {
+      "type": "object", "required": ["scheme", "value"],
+      "properties": {"scheme": {"type": "string"}, "value": {"type": "string"}},
+      "additionalProperties": false
+    },
+    "country": {"$ref": "#/definitions/text"},
+    "report_kind": {"enum": ["prediction", "post_event"]},
+    "issued_at": {"$ref": "#/definitions/when"},
+    "reported_time": {"$ref": "#/definitions/when"},
+    "reported_time_text": {"$ref": "#/definitions/text"},
+    "uncertainty": {
+      "type": "object", "required": ["text"],
+      "properties": {"text": {"type": "string"}, "window_start": {"$ref": "#/definitions/when"}, "window_end": {"$ref": "#/definitions/when"}},
+      "additionalProperties": false
+    },
+    "location": {
+      "type": "object", "required": ["text"],
+      "properties": {"text": {"type": "string"}, "latitude": {"type": "string", "pattern": "^-?\\d+(\\.\\d+)?$"}, "longitude": {"type": "string", "pattern": "^-?\\d+(\\.\\d+)?$"}},
+      "additionalProperties": false
+    },
+    "object_class": {"$ref": "#/definitions/text"},
+    "url": {"type": "string", "pattern": "^https://"},
+    "note": {"type": "string"}
+  },
+  "additionalProperties": false
+}

@@ -54,8 +54,9 @@ def test_every_provider_has_an_access_decision_and_imf_terms_are_decided_before_
 def test_the_source_pack_declares_pinned_fixtures_that_replay_offline():
     manifest = h.manifest()
     # 1.2.0 added the public-finance sources; 1.3.0 adds the demographics feature's sources (#1914); 1.4.0 adds the
-    # Funding development-finance feature's OECD CRS source (#1932) and keeps every earlier source verbatim.
-    assert manifest["version"] == "1.4.0"
+    # Funding development-finance feature's OECD CRS source (#1932), 1.5.0 the trade features' sources (#2210) and
+    # 1.6.0 the labour-statistics feature's sources (#2219); every earlier source is kept verbatim.
+    assert manifest["version"] == "1.6.0"
     sources = {
         s["source_id"]: s
         for s in manifest["sources"]

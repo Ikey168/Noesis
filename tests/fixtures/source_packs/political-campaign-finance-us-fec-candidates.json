@@ -1,0 +1,28 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"api_version\": \"1.0\",\n \"pagination\": {\n  \"count\": 2,\n  \"page\": 1,\n  \"pages\": 1,\n  \"per_page\": 100\n },\n \"results\": [\n  {\n   \"candidate_id\": \"P99000001\",\n   \"two_year_period\": 2100,\n   \"name\": \"EXAMPLE, ALEX\",\n   \"office\": \"P\",\n   \"office_full\": \"President\",\n   \"state\": \"US\",\n   \"district\": \"00\",\n   \"party\": \"EXP\",\n   \"party_full\": \"EXAMPLE PARTY\",\n   \"candidate_status\": \"C\",\n   \"incumbent_challenge\": \"O\",\n   \"election_years\": [\n    2099\n   ],\n   \"cycles\": [\n    2098,\n    2100\n   ],\n   \"load_date\": \"2099-07-20T00:00:00\",\n   \"address_street_1\": \"1 EXAMPLE WAY\",\n   \"address_zip\": \"99001\"\n  },\n  {\n   \"candidate_id\": \"P99000001\",\n   \"two_year_period\": 2098,\n   \"name\": \"EXAMPLE, ALEX\",\n   \"office\": \"P\",\n   \"office_full\": \"President\",\n   \"state\": \"US\",\n   \"district\": \"00\",\n   \"party\": \"EXP\",\n   \"party_full\": \"EXAMPLE PARTY\",\n   \"candidate_status\": \"N\",\n   \"incumbent_challenge\": \"O\",\n   \"election_years\": [\n    2099\n   ],\n   \"cycles\": [\n    2098\n   ],\n   \"load_date\": \"2098-12-31T00:00:00\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1/candidate/P99000001/history/?page=1&per_page=100&sort=-two_year_period",
+   "status": 200
+  },
+  {
+   "body": "{\n \"api_version\": \"1.0\",\n \"pagination\": {\n  \"count\": 1,\n  \"page\": 1,\n  \"pages\": 1,\n  \"per_page\": 100\n },\n \"results\": [\n  {\n   \"candidate_id\": \"P99000002\",\n   \"two_year_period\": 2100,\n   \"name\": \"DEMO, SAM\",\n   \"office\": \"P\",\n   \"office_full\": \"President\",\n   \"state\": \"US\",\n   \"district\": \"00\",\n   \"party\": \"DMO\",\n   \"party_full\": \"DEMO PARTY\",\n   \"candidate_status\": \"C\",\n   \"incumbent_challenge\": \"O\",\n   \"election_years\": [\n    2099\n   ],\n   \"cycles\": [\n    2100\n   ],\n   \"load_date\": \"2099-07-20T00:00:00\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1/candidate/P99000002/history/?page=1&per_page=100&sort=-two_year_period",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (cycle 2100 and state EX are placeholders); every committee, candidate and organisation is fictional and individual donors carry placeholder names that the parser discards (CF01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-individuals"
+ ]
+}

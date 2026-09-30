@@ -1,0 +1,108 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/schemas/noesis-energy-record-v1.json",
+  "title": "Noesis energy record v1",
+  "description": "One published electricity or energy-balance series as one release states it (generation by fuel, load, day-ahead price, installed capacity by zone or plant/unit, cross-border flow, energy balance). Series identity is provider + dataset + native_id; each release is a separate vintage and is never overwritten. Observations only: forecasts are refused. Values are decimal text as published with flags verbatim; nothing is converted, gap-filled, estimated or blended across sources.",
+  "type": "object",
+  "required": ["contract", "schema_version", "record_type", "kind", "provider", "dataset", "native_id", "title", "source_url", "attribution", "licence", "subject", "counterpart", "facets", "unit", "resolution", "reference_period", "values", "release", "status", "status_basis", "retrieved_at", "capacity", "derived_from", "publisher_figures", "locator", "unknowns"],
+  "properties": {
+    "contract": {"const": "noesis-energy-record-v1"},
+    "schema_version": {"const": "1.0.0"},
+    "record_type": {"enum": ["generation", "load", "price", "capacity", "cross_border_flow", "energy_balance"]},
+    "kind": {"const": "observation"},
+    "provider": {"enum": ["entsoe", "eia", "ember", "eurostat", "energy-charts"]},
+    "dataset": {"type": "string", "minLength": 1},
+    "native_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "source_url": {"type": "string", "pattern": "^https://"},
+    "attribution": {"type": "string", "minLength": 1},
+    "licence": {
+      "type": "object", "required": ["id", "terms_url"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "terms_url": {"type": "string", "pattern": "^https://"}},
+      "additionalProperties": false
+    },
+    "subject": {"$ref": "#/definitions/area"},
+    "counterpart": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/area"}]},
+    "facets": {"type": "object", "description": "Published classification codes (fuel/production type, balance item nrg_bal, product siec, direction, document and process type)."},
+    "unit": {"type": "string", "minLength": 1, "description": "The unit as published (e.g. MW, MWh, TWh, EUR/MWh, KTOE)."},
+    "resolution": {"type": ["string", "null"], "pattern": "^P"},
+    "reference_period": {
+      "type": "object", "required": ["start", "end"],
+      "properties": {"start": {"type": "string"}, "end": {"type": ["string", "null"]}},
+      "additionalProperties": false
+    },
+    "values": {
+      "type": "array", "maxItems": 50000,
+      "items": {
+        "type": "object", "required": ["start", "end", "value", "flags"],
+        "properties": {
+          "start": {"type": "string"},
+          "end": {"type": ["string", "null"]},
+          "value": {"type": ["string", "null"], "pattern": "^-?[0-9]+(\\.[0-9]+)?([eE][-+]?[0-9]+)?$"},
+          "flags": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "release": {
+      "type": "object", "required": ["key", "released_at", "basis", "label", "revision"],
+      "properties": {
+        "key": {"type": "string", "minLength": 1},
+        "released_at": {"type": ["string", "null"]},
+        "basis": {"enum": ["document_created", "provider_last_update", "declared_release", "retrieval_time"]},
+        "label": {"type": ["string", "null"]},
+        "revision": {"type": ["string", "integer", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "status": {"enum": ["provisional", "revised", "final", "unknown"]},
+    "status_basis": {"type": ["string", "null"]},
+    "retrieved_at": {"type": "string", "minLength": 4},
+    "capacity": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "required": ["level", "effective_from", "effective_to", "operating_status", "plant"],
+          "properties": {
+            "level": {"enum": ["zone", "plant", "unit"]},
+            "effective_from": {"type": ["string", "null"]},
+            "effective_to": {"type": ["string", "null"]},
+            "operating_status": {"type": ["string", "null"]},
+            "plant": {"type": ["object", "null"]}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "derived_from": {
+      "oneOf": [
+        {"type": "null"},
+        {
+          "type": "object", "required": ["provider", "basis", "reconciliation"],
+          "properties": {
+            "provider": {"enum": ["entsoe", "eia", "ember", "eurostat", "energy-charts"]},
+            "basis": {"type": "string", "minLength": 1},
+            "reconciliation": {"type": "string", "minLength": 1}
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "publisher_figures": {"type": "object", "description": "Figures the publisher computed (e.g. Ember shares), quoted as published and labelled as the publisher's; the pack computes none."},
+    "locator": {"type": "object"},
+    "unknowns": {"type": "array", "items": {"type": "string"}, "uniqueItems": true}
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "area": {
+      "type": "object", "required": ["kind", "scheme", "code", "name"],
+      "properties": {
+        "kind": {"enum": ["bidding-zone", "control-area", "country", "balancing-area", "plant", "unit", "region"]},
+        "scheme": {"enum": ["eic", "iso3166-alpha2", "iso3166-alpha3", "eurostat-geo", "eia-ba", "eia-plant", "eia-generator", "entsoe-unit", "energy-charts-country", "ember-entity"]},
+        "code": {"type": "string", "minLength": 1},
+        "name": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    }
+  }
+}

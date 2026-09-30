@@ -1,0 +1,426 @@
+{
+  "pack_id": "agrifood",
+  "version": "1.0.0",
+  "description": "Agriculture and Food Systems: published production, yield, area, producer and market prices and food balances for a bounded set of commodities (maize/corn, wheat, soybeans) and places (United States with Iowa and one county, France, Germany, the EU), from FAOSTAT (QCL, PP, FBS), USDA NASS Quick Stats, USDA FAS PSD, Eurostat agriculture (through the SDMX connector) and the EU Agri-food data portal. Every figure keeps its unit, reference period (calendar or marketing year, never converted), source flag verbatim and release vintage; revisions are new vintages. No forecasting, projection or food-security scoring by the pack; publisher forecasts and USDA projections are labelled as the publisher's. Access audit: docs/roadmaps/agrifood-source-audit.md.",
+  "domains": [
+    "agrifood"
+  ],
+  "defaults": {
+    "connector": "agrifood",
+    "update_cadence": "weekly re-check of the explicit selection; FAOSTAT domains update a few times a year, NASS on its release calendar, PSD monthly with WASDE, Eurostat on dataset update, portal prices weekly",
+    "temporal_semantics": "publisher release time per vintage (FAOSTAT domain date_update, NASS load_time, PSD release month, Eurostat LAST UPDATE); portal answers state none and are dated by first retrieval; reference periods are kept as published (calendar year, marketing year, week)",
+    "mapping": {
+      "target_schema": "noesis-agrifood-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "agrifood-sources:1.0.0"
+    ],
+    "operations": [
+      "series"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 5184000
+    },
+    "policy": {
+      "flags_verbatim": true,
+      "vintages_never_overwritten": true,
+      "excluded": [
+        "yield, production or price forecasting by the pack",
+        "food-security scoring beyond quoting the publisher",
+        "blending or summing across sources",
+        "marketing-year to calendar-year conversion",
+        "imputation of withheld or missing values"
+      ]
+    }
+  },
+  "sources": [
+    {
+      "source_id": "faostat-qcl-pp-fbs",
+      "endpoint": "https://faostatservices.fao.org/api/v1",
+      "publisher": "Food and Agriculture Organization of the United Nations (FAOSTAT)",
+      "scope": "FAOSTAT QCL production, area harvested and yield, PP producer prices and FBS food balance elements for the explicit area, item, element and year selections, with the FAOSTAT flag, flag description and note verbatim and the domain update date as the release",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.fao.org/contact-us/terms/db-terms-of-use/en/",
+        "redistribution": "CC BY 4.0 with attribution 'Source: FAO. FAOSTAT' and the access date (verify the current FAO terms)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "agrifood": {
+        "provider": "faostat",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "domain": "QCL",
+            "area": "231",
+            "item": "56",
+            "elements": [
+              "5510",
+              "5312",
+              "5412"
+            ],
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "United States maize: production, area harvested, yield"
+          },
+          {
+            "domain": "QCL",
+            "area": "68",
+            "item": "15",
+            "elements": [
+              "5510"
+            ],
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "France wheat production"
+          },
+          {
+            "domain": "PP",
+            "area": "231",
+            "item": "56",
+            "elements": [
+              "5532"
+            ],
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "United States maize producer price (USD/tonne)"
+          },
+          {
+            "domain": "FBS",
+            "area": "231",
+            "item": "2514",
+            "elements": [
+              "5511",
+              "5142"
+            ],
+            "years": [
+              2021,
+              2022
+            ],
+            "label": "United States maize and products: production and food"
+          },
+          {
+            "domain": "QCL",
+            "area": "79",
+            "item": "236",
+            "elements": [
+              "5510"
+            ],
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "Germany soya beans (no data on record)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/agrifood-faostat.json",
+        "sha256": "12737772b3bbb0c47bc4ab24c534651e7ef8fcf277e3459e009c1e8d75838086",
+        "expected_output_hash": "6bfcf6dd1ceb47b052deaa638f7f43122f452a1e44a7c2af7691d99cabfc6cfd"
+      }
+    },
+    {
+      "source_id": "nass-quickstats-crops",
+      "endpoint": "https://quickstats.nass.usda.gov",
+      "publisher": "U.S. Department of Agriculture, National Agricultural Statistics Service",
+      "scope": "Quick Stats production, yield, area harvested and price received for the explicit short_desc, geography (national, Iowa, Story County) and years, with survey vs census, suppression codes as text and load_time as the release",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://quickstats.nass.usda.gov/api",
+        "redistribution": "U.S. Government work, public domain; cite USDA NASS Quick Stats"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_NASS_API_KEY"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "agrifood": {
+        "provider": "nass-quickstats",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+            "agg_level_desc": "NATIONAL",
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "US corn grain production"
+          },
+          {
+            "short_desc": "CORN, GRAIN - YIELD, MEASURED IN BU / ACRE",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "Iowa corn grain yield (with NASS August forecast)"
+          },
+          {
+            "short_desc": "CORN, GRAIN - PRODUCTION, MEASURED IN BU",
+            "agg_level_desc": "COUNTY",
+            "state_fips_code": "19",
+            "county_code": "169",
+            "years": [
+              2022
+            ],
+            "label": "Story County, Iowa corn grain production (withheld)"
+          },
+          {
+            "short_desc": "CORN, GRAIN - PRICE RECEIVED, MEASURED IN $ / BU",
+            "agg_level_desc": "NATIONAL",
+            "years": [
+              2022,
+              2023
+            ],
+            "label": "US corn price received, marketing year"
+          },
+          {
+            "short_desc": "SOYBEANS - ACRES HARVESTED",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "years": [
+              2022
+            ],
+            "label": "Iowa soybeans acres harvested (survey and census)"
+          },
+          {
+            "short_desc": "WHEAT - PRODUCTION, MEASURED IN BU",
+            "agg_level_desc": "STATE",
+            "state_fips_code": "19",
+            "years": [
+              2022
+            ],
+            "label": "Iowa wheat production (no data)"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/agrifood-nass-quickstats.json",
+        "sha256": "6cb335e6d26c86cb90a293979f8a1f4ceea8e7157da284dba26084fa206f2eff",
+        "expected_output_hash": "c7c159841c867ee71ee6242aecdcd3563cae85f5d19d7f192fffba9d8ee51409"
+      }
+    },
+    {
+      "source_id": "fas-psd-balances",
+      "endpoint": "https://apps.fas.usda.gov/OpenData",
+      "publisher": "U.S. Department of Agriculture, Foreign Agricultural Service (PSD Online)",
+      "scope": "PSD supply and distribution attributes per marketing year for the explicit commodity, country and market years (corn United States, wheat European Union), each monthly release a vintage, current-year figures labelled as USDA projections or estimates",
+      "license": {
+        "id": "us-government-public-domain",
+        "terms_url": "https://apps.fas.usda.gov/psdonline/app/index.html#/app/about",
+        "redistribution": "U.S. Government work, public domain; cite USDA FAS PSD Online"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_FAS_API_KEY"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "agrifood": {
+        "provider": "fas-psd",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "commodity": "0440000",
+            "commodity_name": "Corn",
+            "country": "US",
+            "country_name": "United States",
+            "market_years": [
+              2024,
+              2025
+            ],
+            "attributes": [
+              28,
+              88,
+              176
+            ],
+            "label": "US corn: production, exports, ending stocks"
+          },
+          {
+            "commodity": "0410000",
+            "commodity_name": "Wheat",
+            "country": "E4",
+            "country_name": "European Union",
+            "market_years": [
+              2025
+            ],
+            "attributes": [
+              28,
+              57
+            ],
+            "label": "EU wheat: production, imports"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/agrifood-fas-psd.json",
+        "sha256": "4e0111dfff5c80bdd940fce1ac37d2d935c7b8e3ebf4deb3ee1acf38a187cb5a",
+        "expected_output_hash": "8db04f864866067c7e7d3fc806753c0b2aa2c8d4f5f8ff89b138f19be1d5de15"
+      }
+    },
+    {
+      "source_id": "eurostat-agri-crops-prices",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1",
+      "publisher": "Eurostat",
+      "scope": "Crop production in EU standard humidity (apro_cpsh1: area, harvested production, yield) for common wheat in France and Germany and selling prices of crop products (apri_ap_crpouta) for common wheat in France, through the SDMX connector with OBS_FLAG letters and the dataset LAST UPDATE",
+      "license": {
+        "id": "eurostat-copyright",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "reuse authorised with acknowledgement 'Source: Eurostat' (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "agrifood": {
+        "provider": "eurostat-agri",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "dataset": "apro_cpsh1",
+            "key": "A.C1110.AR+PR_HU_EU+YI_HU_EU.FR+DE",
+            "startPeriod": "2022",
+            "endPeriod": "2023",
+            "commodity_dimension": "crops",
+            "commodity_scheme": "eurostat-crops",
+            "measure_dimension": "strucpro",
+            "measures": {
+              "AR": {
+                "kind": "area_harvested",
+                "label": "Area (cultivation/harvested/production)",
+                "unit": "Thousand hectares"
+              },
+              "PR_HU_EU": {
+                "kind": "production",
+                "label": "Harvested production in EU standard humidity",
+                "unit": "Thousand tonnes"
+              },
+              "YI_HU_EU": {
+                "kind": "yield",
+                "label": "Yield in EU standard humidity",
+                "unit": "Tonnes per hectare"
+              }
+            },
+            "labels": {
+              "C1110": "Common wheat and spelt",
+              "FR": "France",
+              "DE": "Germany"
+            },
+            "label": "common wheat area, production and yield, France and Germany"
+          },
+          {
+            "dataset": "apri_ap_crpouta",
+            "key": "A.01110000.EUR.FR",
+            "startPeriod": "2022",
+            "endPeriod": "2023",
+            "commodity_dimension": "prod_veg",
+            "commodity_scheme": "eurostat-prod-veg",
+            "measure": {
+              "kind": "producer_price",
+              "label": "Selling price of crop products (absolute prices)",
+              "unit": "EUR per 100 kg (verify)"
+            },
+            "labels": {
+              "01110000": "Common wheat",
+              "FR": "France"
+            },
+            "label": "common wheat selling price, France"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/agrifood-eurostat-agri.json",
+        "sha256": "f97f202d6aa2b35b99a8f404dc9aefcc2e41acd892e46a84d1e3ddbc70bc6d3c",
+        "expected_output_hash": "87c828d6b19e35f9749c941672411aaa4c270bbc7dde859cc724ef53679986da"
+      }
+    },
+    {
+      "source_id": "agri-food-portal-cereal-prices",
+      "endpoint": "https://ec.europa.eu/agrifood/api",
+      "publisher": "European Commission, DG AGRI (Agri-food data portal)",
+      "scope": "Weekly cereal market prices for the explicit product, member state and date window (milling wheat France, maize Germany), keyed by product, member state, market and week",
+      "license": {
+        "id": "ec-reuse-decision-2011-833",
+        "terms_url": "https://commission.europa.eu/legal-notice_en",
+        "redistribution": "reuse with acknowledgement 'Source: European Commission, Agri-food data portal' (verify)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "agrifood": {
+        "provider": "agri-food-portal",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {
+            "sector": "cereal",
+            "product": "BLTPAN",
+            "member_state": "FR",
+            "beginDate": "01/01/2024",
+            "endDate": "21/01/2024",
+            "label": "milling wheat, France"
+          },
+          {
+            "sector": "cereal",
+            "product": "MAI",
+            "member_state": "DE",
+            "beginDate": "01/01/2024",
+            "endDate": "14/01/2024",
+            "label": "maize, Germany"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/agrifood-agri-food-portal.json",
+        "sha256": "5a3e3c64aa193d111af72957e9fda7009bea67c2f4a384815dd5a3d124f8136a",
+        "expected_output_hash": "5274e7a83f6638ccb5e09ae7be6185bbbcd8170da59cd6f184873d7acb074098"
+      }
+    }
+  ]
+}

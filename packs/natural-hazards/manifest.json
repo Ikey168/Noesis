@@ -1,0 +1,238 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "natural-hazards",
+  "version": "0.1.0",
+  "description": "Natural Hazards: from a place or bounded area and window to the hazard events authorities published (earthquakes with magnitude and location revisions, tropical cyclone advisories as issued, flood and wildfire alerts), each with source, revision and as-of time. Parameters are quoted from the issuing body; revisions are kept, never overwritten.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "hazards.records",
+        "provider": "hazards.core",
+        "contract": {
+          "name": "noesis-hazard-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "hazards.place-events",
+        "provider": "hazards.core",
+        "contract": {
+          "name": "noesis-hazard-place-events",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "hazards.alerts",
+        "provider": "hazards.core",
+        "contract": {
+          "name": "noesis-hazard-alerts",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "hazards.identity",
+        "provider": "hazards.core",
+        "contract": {
+          "name": "noesis-hazard-correspondence",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "hazards.links",
+        "provider": "hazards.core",
+        "contract": {
+          "name": "noesis-hazard-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "hazards.monitoring",
+        "provider": "hazards.core",
+        "contract": {
+          "name": "noesis-hazard-monitor",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "hazards.core",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "natural-hazards",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "hazards.place",
+        "description": "Published-hazard vocabulary",
+        "vocabulary": {
+          "revision": "one publisher update, appended",
+          "estimate": "the publisher's impact estimate with product version",
+          "none on record": "a covered source published nothing; never 'safe'"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "hazards.records",
+      "contract": "noesis-hazard-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "hazards.place-events",
+      "contract": "noesis-hazard-place-events",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "hazards.alerts",
+      "contract": "noesis-hazard-alerts",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "hazards.identity",
+      "contract": "noesis-hazard-correspondence",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "hazards.links",
+      "contract": "noesis-hazard-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "hazards.monitoring",
+      "contract": "noesis-hazard-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "affected places are geospatial places"
+    },
+    {
+      "capability": "geospatial.geometry-store",
+      "contract": "noesis-geospatial-geometry",
+      "range": "^2.0.0",
+      "reason": "published hazard geometry is stored by the geospatial owner"
+    },
+    {
+      "capability": "geospatial.spatial-relation",
+      "contract": "noesis-spatial-relation",
+      "range": "^1.0.0",
+      "reason": "place/event relations with replayable spatial receipts"
+    },
+    {
+      "capability": "osint.corroboration",
+      "contract": "noesis-osint-corroboration",
+      "range": "^1.1.0",
+      "reason": "news and OSINT documents citing a published hazard identifier"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "cross-source correspondences are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the natural-hazards source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "environment-links",
+      "default": false,
+      "description": "Link hazard events to climate-environment records that publish the same identifier; a selection of this feature, so disabling Climate and Environment never depends on Natural Hazards",
+      "requires": [
+        {
+          "capability": "environment.records",
+          "contract": "noesis-environment-record",
+          "range": "^1.0.0",
+          "reason": "climate-environment records linked by citation or shared identifier"
+        }
+      ]
+    },
+    {
+      "id": "weather-warnings",
+      "default": false,
+      "description": "Link hazard events to weather warnings (Weather bundle, #2163) by citation; a selection of this feature, so disabling Weather never depends on Natural Hazards",
+      "requires": [
+        {
+          "capability": "weather.warnings",
+          "contract": "noesis-weather-warning",
+          "range": "^1.0.0",
+          "reason": "weather warnings cited by or citing a hazard record"
+        }
+      ]
+    },
+    {
+      "id": "glofas",
+      "default": false,
+      "description": "GloFAS flood notifications behind the NH01 access decision: registered access (NOESIS_GLOFAS_TOKEN), modelled output quoted with version and issue time, no layer mirroring",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the key-gated glofas-notifications source of the natural-hazards source pack"
+        }
+      ]
+    }
+  ],
+  "compatibility_aliases": {
+    "hazards": "natural-hazards"
+  },
+  "advisory": {
+    "exclusions": [
+      "hazard prediction or forecasting by Noesis",
+      "risk scores",
+      "damage or loss estimates beyond quoting the publisher",
+      "evacuation, safety or protective-action advice",
+      "attribution of events to climate change or other causes",
+      "mirroring of GloFAS or EFFIS raster layers",
+      "EMSC felt reports and testimonies"
+    ],
+    "never": [
+      "predict hazards",
+      "score risk",
+      "estimate damage beyond quoting the publisher",
+      "advise on safety, evacuation or protective action",
+      "merge or average two publishers' parameters",
+      "attribute an event to a cause"
+    ],
+    "query_examples": [
+      {
+        "intent": "Which hazard events affected this place as of a date",
+        "tool": "noesis-knowledge-engine.hazard_events_for_place",
+        "semantics": "revision in force at as-of with full revision history; none on record vs source not covered"
+      },
+      {
+        "intent": "Which advisories and alerts were in force here at a time",
+        "tool": "noesis-knowledge-engine.hazard_alerts_in_force",
+        "semantics": "published validity only, quoted level/wording, supersession chain"
+      }
+    ]
+  },
+  "content_hash": "sha256:2724ac6581ca980dde44a617092cf3946df058a1b7df213d3ed017aff5132904"
+}

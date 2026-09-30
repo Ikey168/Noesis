@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"count\": 2,\n \"next\": null,\n \"previous\": null,\n \"results\": [\n  {\n   \"url\": \"https://lda.senate.gov/api/v1/filings/00000000-0000-4000-8000-00000000f001/\",\n   \"filing_uuid\": \"00000000-0000-4000-8000-00000000f001\",\n   \"filing_type\": \"Q1\",\n   \"filing_type_display\": \"1st Quarter - Report\",\n   \"filing_year\": 2099,\n   \"filing_period\": \"first_quarter\",\n   \"filing_period_display\": \"1st Quarter (Jan 1 - Mar 31)\",\n   \"filing_document_url\": \"https://lda.senate.gov/filings/public/filing/00000000-0000-4000-8000-00000000f001/print/\",\n   \"income\": \"20000.00\",\n   \"expenses\": null,\n   \"dt_posted\": \"2099-04-15T10:00:00-04:00\",\n   \"registrant\": {\n    \"id\": 9001,\n    \"name\": \"EXAMPLE ADVOCACY LLC\"\n   },\n   \"client\": {\n    \"id\": 8001,\n    \"client_id\": 1,\n    \"name\": \"FICTIONAL GRID COUNCIL\"\n   },\n   \"lobbying_activities\": [\n    {\n     \"general_issue_code\": \"ENG\",\n     \"general_issue_code_display\": \"Energy/Nuclear\",\n     \"description\": \"H.R. 9901, Example Grid Reliability Act; transmission permitting provisions.\",\n     \"government_entities\": [\n      {\n       \"id\": 1,\n       \"name\": \"HOUSE OF REPRESENTATIVES\"\n      }\n     ]\n    },\n    {\n     \"general_issue_code\": \"TRA\",\n     \"general_issue_code_display\": \"Transportation\",\n     \"description\": \"S. 9950, Example Charging Corridors Act.\",\n     \"government_entities\": [\n      {\n       \"id\": 2,\n       \"name\": \"SENATE\"\n      }\n     ]\n    }\n   ]\n  },\n  {\n   \"url\": \"https://lda.senate.gov/api/v1/filings/00000000-0000-4000-8000-00000000f002/\",\n   \"filing_uuid\": \"00000000-0000-4000-8000-00000000f002\",\n   \"filing_type\": \"Q1\",\n   \"filing_type_display\": \"1st Quarter - Report\",\n   \"filing_year\": 2099,\n   \"filing_period\": \"first_quarter\",\n   \"filing_period_display\": \"1st Quarter (Jan 1 - Mar 31)\",\n   \"filing_document_url\": \"https://lda.senate.gov/filings/public/filing/00000000-0000-4000-8000-00000000f002/print/\",\n   \"income\": null,\n   \"expenses\": \"10000.00\",\n   \"dt_posted\": \"2099-04-18T10:00:00-04:00\",\n   \"registrant\": {\n    \"id\": 9002,\n    \"name\": \"SAMPLE UTILITIES ASSOCIATION\"\n   },\n   \"client\": {\n    \"id\": 8002,\n    \"client_id\": 1,\n    \"name\": \"SAMPLE UTILITIES ASSOCIATION\"\n   },\n   \"lobbying_activities\": [\n    {\n     \"general_issue_code\": \"ENG\",\n     \"general_issue_code_display\": \"Energy/Nuclear\",\n     \"description\": \"Grid reliability reporting legislation and example grid reliability standards.\",\n     \"government_entities\": [\n      {\n       \"id\": 1,\n       \"name\": \"HOUSE OF REPRESENTATIVES\"\n      }\n     ]\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v1/filings/?client_name=FICTIONAL+GRID+COUNCIL&filing_period=first_quarter&filing_year=2099",
+   "status": 200
+  }
+ ],
+ "note": "Authored LDA filings response in the documented shape; every registrant, client and bill is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

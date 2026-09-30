@@ -1,0 +1,36 @@
+{
+ "type": "FeatureCollection",
+ "metadata": {
+  "count": 1,
+  "note": "Authored in the documented EMSC FDSN json shape; values are fictional (not EMSC data)."
+ },
+ "features": [
+  {
+   "type": "Feature",
+   "id": "20990810_0000031",
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     26.81,
+     37.89,
+     -12.0
+    ]
+   },
+   "properties": {
+    "source_id": "1500031",
+    "source_catalog": "EMSC-RTS",
+    "lastupdate": "2099-08-10T07:10:00.0Z",
+    "time": "2099-08-10T03:12:46.1Z",
+    "flynn_region": "DODECANESE ISLANDS, GREECE",
+    "lat": 37.89,
+    "lon": 26.81,
+    "depth": 12.0,
+    "evtype": "ke",
+    "auth": "NOA",
+    "mag": 6.0,
+    "magtype": "mw",
+    "unid": "20990810_0000031"
+   }
+  }
+ ]
+}

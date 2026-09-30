@@ -39,6 +39,7 @@ def test_access_decisions_cover_every_audited_source_and_none_is_live():
         "ep-meetings",
         "ec-meetings",
         "uk-orcl",
+        "us-lda",  # added by the legislation feature (#2208, LT08)
         "bundestag-party-financing",
         "integrity-watch-eu",
     }
@@ -327,10 +328,12 @@ def test_a_bounded_selection_emits_only_named_entries():
 
 def test_the_source_pack_declares_pinned_fixtures_that_replay_offline():
     manifest = h.manifest()
-    # Lobbying sources shipped in 1.1.0; 1.2.0 adds the elections feature's result sources (#1908).
-    assert manifest["version"] == "1.2.0"
+    # Lobbying sources shipped in 1.1.0; 1.2.0 adds the elections feature's result sources (#1908); 1.3.0 adds the
+    # legislation features' sources and the US LDA register whose filings name bills (#2208); 1.4.0 adds the
+    # campaign-finance features' sources (#2209).
+    assert manifest["version"] == "1.4.0"
     lobbying = [s for s in manifest["sources"] if s["connector"] == "lobbying-register"]
-    assert {s["source_id"] for s in lobbying} == set(h.SOURCES.values())
+    assert {s["source_id"] for s in lobbying} == set(h.SOURCES.values()) | {"us-senate-lda"}
     for item in lobbying:
         assert item["mapping"]["target_schema"] == "noesis-lobbying-record-v1"
         assert (

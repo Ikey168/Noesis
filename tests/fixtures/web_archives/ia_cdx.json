@@ -1,0 +1,5 @@
+[["timestamp","original","mimetype","statuscode","digest","redirect"],
+["20231215120000","https://example.org/report","text/html","200","AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA2","-"],
+["20240215093000","https://example.org/report","text/html","200","QQQQQQQQQQQQQQQQQQQQQQQQQQQQQQQ7","-"],
+["20240301000000","https://example.org/report","text/html","301","3I42H3S6NNFQ2MSVX7XZKYAYSCX5QBYJ","https://example.org/reports/2024"],
+["20240410080000","https://example.org/report","text/html","200","ZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZZ3","-"]]

@@ -1,0 +1,259 @@
+{
+  "pack_id": "natural-hazards",
+  "version": "1.0.0",
+  "description": "Natural Hazards sources for one bounded coverage (NH01, docs/development/hazards-evidence/source-audit.md): USGS earthquake catalog events and PAGER products and EMSC events for the Eastern Mediterranean, GDACS multi-hazard episodes, NOAA NHC Atlantic advisories as issued, Copernicus EFFIS burnt areas and key-gated GloFAS flood notifications. Parameters are quoted as published and every update is a revision. Every source is live-unverified until a dated run.",
+  "domains": [
+    "natural-hazards"
+  ],
+  "defaults": {
+    "connector": "natural-hazards",
+    "temporal_semantics": "the issuing body's update or issue time per revision (USGS updated, EMSC lastupdate, GDACS episode datemodified, NHC advisory issue time, EFFIS LASTUPDATE, GloFAS issue time); acquisition time recorded separately",
+    "mapping": {
+      "target_schema": "noesis-hazard-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "natural-hazards:1.0.0"
+    ],
+    "operations": [
+      "observe"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 3600
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 200,
+      "max_bytes": 10000000,
+      "max_pages": 10
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 259200
+    }
+  },
+  "sources": [
+    {
+      "source_id": "usgs-earthquakes",
+      "endpoint": "https://earthquake.usgs.gov/fdsnws/event/1/query",
+      "publisher": "U.S. Geological Survey (USGS) Earthquake Hazards Program",
+      "scope": "FDSN events M4.5+ in the Eastern Mediterranean and Anatolia box [19, 34, 45, 43] for one declared 30-day window (deleted events included), plus event details with PAGER (losspager) products for declared event IDs",
+      "update_cadence": "minutes (event updates) to days (review)",
+      "license": {
+        "id": "us-public-domain",
+        "terms_url": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+        "redistribution": "public domain (U.S. government work); credit 'U.S. Geological Survey' requested"
+      },
+      "natural_hazards": {
+        "provider": "usgs",
+        "namespace": "hazards",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "FDSN events M4.5+ Eastern Mediterranean, 2099-08",
+            "format": "usgs-fdsn-geojson",
+            "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?format=geojson&starttime=2099-08-01&endtime=2099-08-31&minlatitude=34&maxlatitude=43&minlongitude=19&maxlongitude=45&minmagnitude=4.5&orderby=time&limit=200&includedeleted=true"
+          },
+          {
+            "label": "Event detail and PAGER for us7000zz01",
+            "format": "usgs-detail-geojson",
+            "requested_id": "us7000zz01",
+            "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz01&format=geojson"
+          },
+          {
+            "label": "Event detail for us7000zz03 (secondary ID check)",
+            "format": "usgs-detail-geojson",
+            "requested_id": "us7000zz03",
+            "url": "https://earthquake.usgs.gov/fdsnws/event/1/query?eventid=us7000zz03&format=geojson"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/hazards-usgs.json",
+        "sha256": "34afd7a45624d4262dba5be570f940e8ef7db6894913d481c3e7ab018da62cd7",
+        "expected_output_hash": "2fa2b4df3709f7967eb2364f90715a9f032300ccd1a442951acab72c9f647e40"
+      }
+    },
+    {
+      "source_id": "emsc-earthquakes",
+      "endpoint": "https://www.seismicportal.eu/fdsnws/event/1/query",
+      "publisher": "European-Mediterranean Seismological Centre (EMSC-CSEM)",
+      "scope": "EMSC FDSN events M4.5+ in the Eastern Mediterranean and Anatolia box [19, 34, 45, 43] for one declared 30-day window; felt reports and testimonies are not requested",
+      "update_cadence": "minutes",
+      "license": {
+        "id": "emsc-terms",
+        "terms_url": "https://www.emsc-csem.org/",
+        "redistribution": "reuse with acknowledgement of EMSC-CSEM and contributing agencies; commercial redistribution by agreement (operator must verify)"
+      },
+      "natural_hazards": {
+        "provider": "emsc",
+        "namespace": "hazards",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "EMSC events M4.5+ Eastern Mediterranean, 2099-08",
+            "format": "emsc-fdsn-json",
+            "url": "https://www.seismicportal.eu/fdsnws/event/1/query?format=json&start=2099-08-01&end=2099-08-31&minlat=34&maxlat=43&minlon=19&maxlon=45&minmag=4.5&limit=200"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/hazards-emsc.json",
+        "sha256": "1a0c1c8e19e0a6b19f1167325840740e416e4f5c4b5ac53e25d73e3cf910ec36",
+        "expected_output_hash": "1cd945103c6790e66c5731ab5f28480f236ec24a60139d621957a70a1a5d1444"
+      }
+    },
+    {
+      "source_id": "gdacs-events",
+      "endpoint": "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH",
+      "publisher": "Global Disaster Alert and Coordination System (GDACS)",
+      "scope": "GDACS earthquake, tropical cyclone, flood, volcano, drought and wildfire episodes for one declared window; each episode's alert level, severity text, affected countries, GLIDE and alert score as published",
+      "update_cadence": "per episode",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 300,
+        "max_bytes": 10000000,
+        "max_pages": 2
+      },
+      "license": {
+        "id": "gdacs-terms",
+        "terms_url": "https://www.gdacs.org/About/termsofuse.aspx",
+        "redistribution": "use with attribution 'GDACS' (operator must verify)"
+      },
+      "natural_hazards": {
+        "provider": "gdacs",
+        "namespace": "hazards",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "GDACS episodes 2099-08-01..2099-09-30",
+            "format": "gdacs-geojson",
+            "url": "https://www.gdacs.org/gdacsapi/api/events/geteventlist/SEARCH?eventlist=EQ;TC;FL;VO;DR;WF&fromdate=2099-08-01&todate=2099-09-30"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/hazards-gdacs.json",
+        "sha256": "304ba10b6d751ba16371755b1a4c0f2f4401cf7f5e0e7e72db722bd624fa2453",
+        "expected_output_hash": "6320dcc8713dd052596daec5a4b5ecacdfdd9c41e8dec9e75a8a1e9cfcd62dd8"
+      }
+    },
+    {
+      "source_id": "nhc-advisories",
+      "endpoint": "https://www.nhc.noaa.gov/archive/2099/al05/",
+      "publisher": "NOAA National Hurricane Center (NHC)",
+      "scope": "Forecast/advisory (TCM) and public/intermediate advisory (TCP) products for declared Atlantic storms, each advisory as issued; forecast cone referenced by locator only",
+      "update_cadence": "every 3 to 6 hours while a storm is active",
+      "license": {
+        "id": "us-public-domain",
+        "terms_url": "https://www.weather.gov/disclaimer",
+        "redistribution": "public domain (U.S. government work); credit 'NOAA/NHC'"
+      },
+      "natural_hazards": {
+        "provider": "nhc",
+        "namespace": "hazards",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "AL052099 forecast/advisory 11",
+            "format": "nhc-tcm",
+            "url": "https://www.nhc.noaa.gov/archive/2099/al05/al052099.fstadv.011.shtml"
+          },
+          {
+            "label": "AL052099 forecast/advisory 12",
+            "format": "nhc-tcm",
+            "url": "https://www.nhc.noaa.gov/archive/2099/al05/al052099.fstadv.012.shtml",
+            "cone_url": "https://www.nhc.noaa.gov/gis/forecast/archive/al052099_5day_012.zip"
+          },
+          {
+            "label": "AL052099 intermediate public advisory 12A",
+            "format": "nhc-tcp",
+            "url": "https://www.nhc.noaa.gov/archive/2099/al05/al052099.public.012a.shtml"
+          },
+          {
+            "label": "AL052099 forecast/advisory 13",
+            "format": "nhc-tcm",
+            "url": "https://www.nhc.noaa.gov/archive/2099/al05/al052099.fstadv.013.shtml"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/hazards-nhc.json",
+        "sha256": "dea5c41807a173930e3c02ca1db336d19caefd8797b24e151b5175ee95760b76",
+        "expected_output_hash": "841a3605b9096808e8859070311fbd67eb9417d555eaf4aa29b578d582c755bb"
+      }
+    },
+    {
+      "source_id": "effis-burnt-areas",
+      "endpoint": "https://maps.effis.emergency.copernicus.eu/effis",
+      "publisher": "European Forest Fire Information System (EFFIS), Copernicus Emergency Management Service",
+      "scope": "EFFIS mapped burnt-area polygons for one declared bbox in the Mediterranean coverage [-10, 34, 45, 46]; active-fire hotspots are not implemented",
+      "update_cadence": "daily during the fire season",
+      "license": {
+        "id": "copernicus-ems",
+        "terms_url": "https://effis.jrc.ec.europa.eu/about-effis/data-license",
+        "redistribution": "free and open with attribution to the Copernicus Emergency Management Service (operator must verify)"
+      },
+      "natural_hazards": {
+        "provider": "effis",
+        "namespace": "hazards",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "EFFIS burnt areas, Samos bbox",
+            "format": "effis-burnt-area-geojson",
+            "url": "https://maps.effis.emergency.copernicus.eu/effis?service=WFS&version=2.0.0&request=GetFeature&typeNames=ms:modis.ba.poly&outputFormat=application/json&bbox=37.5,26.5,38.0,27.2&count=500"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/hazards-effis.json",
+        "sha256": "31f1fea076d8ecc2d1863dff4fb7992826f40092049dde3597e77d49940e7f94",
+        "expected_output_hash": "8b110c74186ff9ebd422a5181092633281c1336f56220057d80d6577effb42a0"
+      }
+    },
+    {
+      "source_id": "glofas-notifications",
+      "endpoint": "https://www.globalfloods.eu/api/notifications",
+      "publisher": "Global Flood Awareness System (GloFAS), Copernicus Emergency Management Service",
+      "scope": "Operator-provided GloFAS flood notifications for declared river points (registered access; disabled by default); modelled output quoted with model version and issue time; no forecast layer is mirrored",
+      "update_cadence": "daily forecast cycle",
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_GLOFAS_TOKEN"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 1
+      },
+      "license": {
+        "id": "cems-floods",
+        "terms_url": "https://www.globalfloods.eu/",
+        "redistribution": "CEMS-FLOODS licence for registered users; quote notifications only, never mirror forecast layers (operator must verify)"
+      },
+      "natural_hazards": {
+        "provider": "glofas",
+        "namespace": "hazards",
+        "live_verification": "key-gated",
+        "documents": [
+          {
+            "label": "GloFAS notifications 2099-08 (declared export shape)",
+            "format": "glofas-notification-json",
+            "url": "https://www.globalfloods.eu/api/notifications?issued_from=2099-08-01&issued_to=2099-08-31"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/hazards-glofas.json",
+        "sha256": "1ad6cbb7d8a23b2b261b7464d0e91d2c22f41d4a15f65acfbac6d848b231293e",
+        "expected_output_hash": "8c56d4e2574198ebd70b5ecf967c40d0269116308c4db3ebbdeff17c52b9428a"
+      }
+    }
+  ]
+}

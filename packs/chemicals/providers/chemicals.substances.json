@@ -1,0 +1,424 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "chemicals.substances",
+  "version": "1.0.0",
+  "description": "Chemicals and Substances: PubChem, ECHA CHEM (CLP, REACH lists) and US EPA CompTox records kept as immutable revisions; reviewable substance identity; classification and restriction status as of a date; dossiers linking cited legal acts, product notices, materials and literature; subscription monitors. No hazard verdict, safety advice, exposure assessment or synthesis information.",
+  "implementation": {
+    "name": "src.kb.substances_*",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "chemicals.substances",
+      "contract": {
+        "name": "noesis-substance-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "bundle-status",
+        "acquire-sources",
+        "status-as-of",
+        "history",
+        "dossier"
+      ],
+      "semantic_constraints": {
+        "records": "values quoted as published with locator; every distinct payload is an immutable revision",
+        "classifications": "harmonised vs notified distinguished; each ATP a dated revision, prior kept",
+        "status": "as of a date by date of application or event date; later revisions are scheduled, not in force",
+        "absence": "a substance without entries has none on record, never safe or unregulated",
+        "exclusions": "no hazard verdict, safety advice, exposure assessment or synthesis information"
+      }
+    },
+    {
+      "id": "chemicals.identity",
+      "contract": {
+        "name": "noesis-substance-identity-candidate",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "resolve",
+        "propose-identities",
+        "review-identity",
+        "revert-identity",
+        "propose-identity-manual",
+        "list-candidates",
+        "list-unmatched"
+      ],
+      "semantic_constraints": {
+        "matching": "exact identifier (check digits verified), InChIKey or exact published synonym; never similarity",
+        "review": "accept/reject are entity identity decisions; revert appends an undo; nothing merged",
+        "composites": "group entries, mixtures, salts and isomers join only through an explicit reviewed match"
+      }
+    },
+    {
+      "id": "chemicals.citations",
+      "contract": {
+        "name": "noesis-substance-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-citations",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "legal": "exact CELEX/ELI of the cited act with the entry locator",
+        "products": "a stated identifier or the substance's own published name as a whole word",
+        "materials_clinical": "a stated CAS/EC/InChIKey/DTXSID or a reviewed identity only",
+        "claims": "no exposure or causation claim"
+      }
+    },
+    {
+      "id": "chemicals.monitoring",
+      "contract": {
+        "name": "noesis-substance-notification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "schedule": "committed complete chemicals-substances runs; no scheduler of its own",
+        "events": "prior and new status with both citations and effective dates; no advisory text"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.substance_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.chemicals_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-sources",
+      "tool": "noesis-knowledge-engine.acquire_substance_sources",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "run_key (source-pack run receipt)"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "network",
+        "source_terms",
+        "credentials"
+      ]
+    },
+    {
+      "id": "status-as-of",
+      "tool": "noesis-knowledge-engine.substance_status_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "history",
+      "tool": "noesis-knowledge-engine.substance_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "dossier",
+      "tool": "noesis-knowledge-engine.substance_dossier",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve",
+      "tool": "noesis-knowledge-engine.resolve_substance",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identities",
+      "tool": "noesis-knowledge-engine.propose_substance_identities",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject pair"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_substance_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate_id and decision"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_substance_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "candidate_id and decision_id"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity-manual",
+      "tool": "noesis-knowledge-engine.propose_substance_identity_manual",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject pair"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-candidates",
+      "tool": "noesis-knowledge-engine.list_substance_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-unmatched",
+      "tool": "noesis-knowledge-engine.list_unmatched_substances",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-citations",
+      "tool": "noesis-knowledge-engine.link_substance_citations",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject, citing revision and target"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:write",
+        "knowledge:legal:read",
+        "knowledge:products:read",
+        "knowledge:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_substance_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_substance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_substance_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_substance_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:substances:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "substance-record",
+      "store": "src.kb.substances_store",
+      "tables": [
+        "substance_records",
+        "substance_revisions",
+        "substance_identifiers",
+        "substance_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "substance-identity-candidate",
+      "store": "src.kb.substances_identity",
+      "tables": [
+        "substance_identity_candidates"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "substance-link",
+      "store": "src.kb.substances_links",
+      "tables": [
+        "substance_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "substance_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "chemicals-substances",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

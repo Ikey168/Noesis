@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<roll_call_vote>\n  <congress>156</congress>\n  <session>1</session>\n  <congress_year>2099</congress_year>\n  <vote_number>55</vote_number>\n  <vote_date>April 20, 2099,  02:15 PM</vote_date>\n  <modify_date>April 20, 2099,  03:00 PM</modify_date>\n  <vote_question_text>On Passage of the Bill (H.R. 9901)</vote_question_text>\n  <vote_result>Bill Passed</vote_result>\n  <document>\n    <document_congress>156</document_congress>\n    <document_type>H.R.</document_type>\n    <document_number>9901</document_number>\n    <document_name>H.R. 9901</document_name>\n    <document_title>Example Grid Reliability Act</document_title>\n  </document>\n  <count><yeas>1</yeas><nays>1</nays><present></present><absent>0</absent></count>\n  <members>\n    <member><member_full>Fixture (D-CA)</member_full><last_name>Fixture</last_name><first_name>Casey</first_name><party>D</party><state>CA</state><vote_cast>Yea</vote_cast><lis_member_id>S901</lis_member_id></member>\n    <member><member_full>Example (R-TX)</member_full><last_name>Example</last_name><first_name>Jordan</first_name><party>R</party><state>TX</state><vote_cast>Nay</vote_cast><lis_member_id>S902</lis_member_id></member>\n  </members>\n</roll_call_vote>\n",
+   "headers": {
+    "Content-Type": "application/xml"
+   },
+   "request": "/legislative/LIS/roll_call_votes/vote1561/vote_156_1_00055.xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (156th Congress / UK session 2098-99 are placeholders); every bill, member and vote is fictional.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties"
+ ]
+}

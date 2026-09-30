@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-court-justice-record-v1.json",
+  "title": "Court docket, opinion cluster or justice-statistics release as published",
+  "description": "One acquired record of the Legal pack's courts and justice-statistics features (#2218). A docket (court, docket number, case name as published, filing and termination dates, docket entries with descriptions verbatim and linked documents, parties minimised under the CJ01 decision) and an opinion cluster (published citations, disposition quoted verbatim, opinions with author or per curiam, type, cited opinions and paragraph text) are projected onto Legal works, expressions and versions; a statistics release (definitions, observations with place, period, value, unit and flags, coverage and comparability notes) is a justice-statistics vintage. No record carries a derived outcome label, an outcome prediction, a risk or recidivism score, a safety rating or a ranking.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "jurisdiction", "record_kind", "record_key", "native_revision", "title", "locator", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-court-justice-record-v1"},
+    "format": {"enum": ["courtlistener-docket-json", "courtlistener-cluster-json", "fbi-cde-summarized-json", "police-uk-crimes-json", "eurostat-crime-jsonstat"]},
+    "provider": {"enum": ["courtlistener", "fbi-cde", "police-uk", "eurostat"]},
+    "jurisdiction": {"enum": ["US", "GB", "EU"]},
+    "record_kind": {"enum": ["docket", "opinion-cluster", "statistics-release"]},
+    "record_key": {"type": "string", "pattern": "^(courts:(docket|cluster):courtlistener:\\d+|justice:release:[A-Za-z0-9:_./-]+)$"},
+    "native_revision": {"type": ["string", "null"]},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "published_at": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "fields": {
+      "type": "object",
+      "properties": {
+        "parties": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["ordinal", "party_type", "roles"],
+            "properties": {
+              "ordinal": {"type": "integer", "minimum": 1},
+              "party_type": {"enum": ["organisation", "natural_person"]},
+              "roles": {"type": "array", "items": {"type": "string"}},
+              "name_as_published": {"type": ["string", "null"]},
+              "pseudonym": {"type": "string"},
+              "party_key": {"type": ["string", "null"]}
+            },
+            "additionalProperties": false,
+            "if": {"properties": {"party_type": {"const": "natural_person"}}},
+            "then": {"required": ["pseudonym"], "properties": {"name_as_published": {"const": null}, "party_key": {"const": null}}}
+          }
+        },
+        "entries": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["entry_number", "date_filed", "description", "documents"],
+            "properties": {"document_policy": {"const": "linked, not mirrored"}}
+          }
+        },
+        "observations": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["series_key", "indicator", "place", "period", "value", "unit", "flags", "suppressed", "definition_code"],
+            "properties": {
+              "place": {"type": "object", "required": ["scheme", "code"], "properties": {"scheme": {"enum": ["us-state", "fbi-ori", "police-uk-neighbourhood", "police-uk-polygon", "eurostat-geo"]}, "code": {"type": "string", "minLength": 1}}},
+              "value": {"type": ["number", "null"]},
+              "suppressed": {"type": "boolean"}
+            }
+          }
+        },
+        "definitions": {
+          "type": "array",
+          "items": {"type": "object", "required": ["classification", "code", "label", "text", "source_url"]}
+        }
+      }
+    }
+  },
+  "not": {"anyOf": [{"required": ["outcome_label"]}, {"required": ["prediction"]}, {"required": ["risk_score"]},
+                    {"required": ["recidivism_score"]}, {"required": ["safety_rating"]}, {"required": ["rank"]},
+                    {"properties": {"fields": {"anyOf": [{"required": ["outcome_label"]}, {"required": ["risk_score"]}, {"required": ["safety_rating"]}, {"required": ["rank"]}, {"required": ["winner"]}]}}}]}
+}

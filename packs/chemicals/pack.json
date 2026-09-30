@@ -1,0 +1,126 @@
+{
+  "pack_format": "noesis-pack-v1",
+  "name": "chemicals",
+  "version": "1.0.0",
+  "description": "Chemicals and Substances: from a substance name, CAS/EC number or InChIKey to its reviewable identity, harmonised (CLP Annex VI) and notified classifications with every ATP revision, REACH registration status, SVHC Candidate List and Annex XIV/XVII entries over time, and published toxicity data points - each with source, revision and as-of time - linked by citation to the legal acts, product safety notices, materials and literature that cite it.",
+  "source_types": [
+    "web"
+  ],
+  "ui_flags": {},
+  "panels": [],
+  "planner_keywords": {
+    "entities": [
+      "cas number",
+      "chemical",
+      "ec number",
+      "inchikey",
+      "substance",
+      "dtxsid"
+    ],
+    "sources": [
+      "pubchem",
+      "echa",
+      "clp",
+      "reach",
+      "svhc",
+      "comptox",
+      "annex xiv",
+      "annex xvii"
+    ],
+    "overview": [
+      "classification",
+      "restriction",
+      "authorisation",
+      "dossier",
+      "candidate list"
+    ]
+  },
+  "enrichers": [],
+  "provisioning_templates": [],
+  "capabilities": [
+    "substance-identity-records",
+    "clp-classification-revisions",
+    "reach-list-entries",
+    "published-toxicity-data-points",
+    "reviewable-substance-identity",
+    "citation-links",
+    "status-as-of-date",
+    "substance-dossiers",
+    "subscription-monitors"
+  ],
+  "schema_versions": {
+    "substance-record": "1.0.0",
+    "substance-identity": "1.0.0",
+    "substance-link": "1.0.0",
+    "substance-dossier": "1.0.0",
+    "source-pack": "1.0.0"
+  },
+  "ontology_extensions": {
+    "extends": "noesis-canonical-entity-relation-ontology",
+    "reuses": [
+      "noesis-substance-record-v1",
+      "noesis-substance-dossier-v1"
+    ],
+    "object_types": [
+      "substance",
+      "substance_identifier",
+      "classification",
+      "classification_revision",
+      "registration",
+      "candidate_listing",
+      "restriction",
+      "authorisation",
+      "data_point"
+    ],
+    "relation_types": [
+      "identified_by",
+      "classified_as",
+      "listed_on",
+      "restricted_by",
+      "authorised_under",
+      "cited_by",
+      "same_substance_as"
+    ]
+  },
+  "source_pack": "config/source_packs/chemicals.json",
+  "query_examples": [
+    {
+      "intent": "Which substances does this CAS number reach",
+      "tool": "resolve_substance",
+      "arguments": {
+        "namespace": "global",
+        "query": "80-05-7"
+      },
+      "semantics": "exact identifier with verified check digits; records join only through accepted identity decisions, and each match is returned with its basis and reviewer"
+    },
+    {
+      "intent": "Classification and restriction status on a date",
+      "tool": "substance_status_as_of",
+      "arguments": {
+        "namespace": "global",
+        "query": "80-05-7",
+        "as_of": "2017-06-01"
+      },
+      "semantics": "the harmonised classification and list entries in force on the date, each with the ATP or amending act that set it; later revisions are scheduled; none on record is never 'safe'"
+    },
+    {
+      "intent": "Cited substance dossier",
+      "tool": "substance_dossier",
+      "arguments": {
+        "namespace": "global",
+        "query": "bisphenol A",
+        "as_of": "2026-09-01"
+      },
+      "semantics": "identity, status, history, regulation text by citation, linked notices and published data points quoted as the source's data"
+    }
+  ],
+  "exclusions": [
+    "hazard or exposure assessment",
+    "safety advice",
+    "synthesis or preparation information",
+    "derived hazard scores",
+    "combined or ranked data points",
+    "registration dossier contents",
+    "unrestricted catalogue mirroring"
+  ]
+}

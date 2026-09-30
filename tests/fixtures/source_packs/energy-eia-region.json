@@ -1,0 +1,67 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": {
+    "apiVersion": "2.1.8",
+    "response": {
+     "data": [
+      {
+       "period": "2026-09-24T00",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type": "D",
+       "type-name": "Demand",
+       "value": "24110",
+       "value-units": "megawatthours"
+      },
+      {
+       "period": "2026-09-24T01",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type": "D",
+       "type-name": "Demand",
+       "value": "23150",
+       "value-units": "megawatthours"
+      },
+      {
+       "period": "2026-09-24T02",
+       "respondent": "CISO",
+       "respondent-name": "California Independent System Operator",
+       "type": "D",
+       "type-name": "Demand",
+       "value": "22480",
+       "value-units": "megawatthours"
+      }
+     ],
+     "frequency": "hourly",
+     "total": "3"
+    }
+   },
+   "body_sha256": "bc0b271ae51b3a492b7202f0aa2078b3b280c2e17a1802f491a731246ea7d861",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "params": {
+    "data[0]": "value",
+    "end": "2026-09-24T02",
+    "facets[respondent][]": "CISO",
+    "facets[type][]": "D",
+    "frequency": "hourly",
+    "length": "500",
+    "offset": "0",
+    "sort[0][column]": "period",
+    "sort[0][direction]": "asc",
+    "start": "2026-09-24T00"
+   },
+   "status": 200,
+   "url": "https://api.eia.gov/v2/electricity/rto/region-data/data/"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "eia",
+ "retrieved_at": "2026-09-25T06:00:00Z",
+ "scenarios": [
+  "demand"
+ ]
+}

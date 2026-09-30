@@ -133,7 +133,7 @@ def test_selecting_the_feature_binds_its_provider_and_composes_with_sanctions():
         for o in plan["omissions"]
         if o["pack"] == "legal" and o["feature"] == "federal-statutes"
     ]
-    assert {"pack_id": "legal-research", "version": "1.3.0", "range": "^1.1.0"} in plan[
+    assert {"pack_id": "legal-research", "version": "1.4.0", "range": "^1.1.0"} in plan[
         "source_packs"
     ]
     both = legal_plan(["federal-statutes", "sanctions"])

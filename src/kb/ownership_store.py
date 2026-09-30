@@ -67,6 +67,15 @@ def authorize(namespace: str, scopes: Iterable[str], required: str, *, write: bo
         raise OwnershipError("unauthorized", f"{required} and namespace access are required")
 
 
+def _validate(item: dict[str, Any]) -> dict[str, Any]:
+    """Validate a record by its contract; competition records (#2217) share this store and its revisions."""
+    if item.get("contract") == "noesis-competition-record-v1":
+        from src.kb.competition_records import validate_record as validate_competition
+
+        return validate_competition(item)
+    return validate_record(item)
+
+
 def canonical_entity_id(record_key: str) -> str:
     return "ent-own-" + re.sub(r"[^a-z0-9]+", "-", record_key.lower()).strip("-")[:280]
 
@@ -100,7 +109,7 @@ class OwnershipStore:
               principal_id: str) -> dict[str, int]:
         """Validate and append records; content-identical replays are no-ops."""
         counts = {"inserted": 0, "revised": 0, "unchanged": 0}
-        validated = [validate_record(dict(item)) for item in records]
+        validated = [_validate(dict(item)) for item in records]
         self.conn.execute("BEGIN")
         try:
             for item in validated:

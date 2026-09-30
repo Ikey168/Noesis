@@ -1,0 +1,61 @@
+{
+ "offenses": {
+  "actuals": {
+   "Example City Police Department Offenses": {
+    "01-2098": 61,
+    "02-2098": 58,
+    "03-2098": 64
+   },
+   "Example City Police Department Clearances": {
+    "01-2098": 9,
+    "02-2098": 7,
+    "03-2098": 8
+   },
+   "United States Offenses": {
+    "01-2098": 90000,
+    "02-2098": 88000,
+    "03-2098": 91000
+   }
+  },
+  "rates": {
+   "Example City Police Department Offenses": {
+    "01-2098": 22.1,
+    "02-2098": 21.0,
+    "03-2098": 23.2
+   }
+  }
+ },
+ "populations": {
+  "population": {
+   "Example City Police Department": {
+    "01-2098": 276000,
+    "02-2098": 276000,
+    "03-2098": 276000
+   }
+  },
+  "participated_population": {
+   "Example City Police Department": {
+    "01-2098": 276000,
+    "02-2098": 276000,
+    "03-2098": 276000
+   }
+  }
+ },
+ "cde_properties": {
+  "last_refresh_date": {
+   "UCR": "2099-09-15"
+  },
+  "max_data_date": {
+   "UCR": "12/2098"
+  }
+ },
+ "tooltips": {
+  "Percent of Population Coverage": {
+   "Example City Police Department": {
+    "01-2098": 100.0,
+    "02-2098": 100.0,
+    "03-2098": 100.0
+   }
+  }
+ }
+}

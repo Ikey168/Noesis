@@ -190,6 +190,12 @@ def _housing_projector(conn: Any) -> Any:
     return HousingProjector(conn)
 
 
+def _medicines_projector(conn: Any) -> Any:
+    from src.kb.clinical_medicines import MedicinesProjector
+
+    return MedicinesProjector(conn)
+
+
 def _surveillance_projector(conn: Any) -> Any:
     from src.kb.surveillance import SurveillanceProjector
 
@@ -208,10 +214,20 @@ def _development_finance_projector(conn: Any) -> Any:
     return DevelopmentFinanceProjector(conn)
 
 
+def _hazard_projector(conn: Any) -> Any:
+    from src.kb.hazards_store import HazardProjector
+
+    return HazardProjector(conn)
 def _bafin_notice_projector(conn: Any) -> Any:
     from src.domains.market.bafin_notices import BafinNoticeProjector
 
     return BafinNoticeProjector(conn)
+
+
+def _insurance_projector(conn: Any) -> Any:
+    from src.domains.market.insurance import InsuranceProjector
+
+    return InsuranceProjector(conn)
 
 
 def _engineering_safety_projector(conn: Any) -> Any:
@@ -242,6 +258,38 @@ def _linguistics_projector(conn: Any) -> Any:
     from src.kb.linguistics_store import LinguisticsProjector
 
     return LinguisticsProjector(conn)
+def _trade_flow_projector(conn: Any) -> Any:
+    from src.kb.trade_flows import TradeFlowProjector
+
+    return TradeFlowProjector(conn)
+
+
+def _labour_projector(conn: Any) -> Any:
+    from src.kb.labour_statistics import LabourProjector
+
+    return LabourProjector(conn)
+def _legislation_projector(conn: Any) -> Any:
+    from src.kb.legislation import LegislationProjector
+
+    return LegislationProjector(conn)
+def _energy_projector(conn: Any) -> Any:
+    from src.kb.energy_store import EnergyProjector
+
+    return EnergyProjector(conn)
+def _humanitarian_projector(conn: Any) -> Any:
+    from src.kb.humanitarian_store import HumanitarianProjector
+
+    return HumanitarianProjector(conn)
+
+
+def _infrastructure_projector(conn: Any) -> Any:
+    from src.kb.infrastructure_assets import InfrastructureProjector
+
+    return InfrastructureProjector(conn)
+def _education_projector(conn: Any) -> Any:
+    from src.kb.education_statistics import EducationProjector
+
+    return EducationProjector(conn)
 
 
 def _vulnerability_projector(conn: Any) -> Any:
@@ -282,16 +330,137 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-demographic-series-v1": _demographic_projector,
     "noesis-development-finance-record-v1": _development_finance_projector,
     "noesis-bafin-notice-v1": _bafin_notice_projector,
+    "noesis-insurance-record-v1": _insurance_projector,
     "noesis-astronomy-record-v1": _astronomy_projector,
     "noesis-weather-record-v1": _weather_projector,
+    "noesis-trade-flow-record-v1": _trade_flow_projector,
+    "noesis-labour-statistics-record-v1": _labour_projector,
+    "noesis-education-statistic-record-v1": _education_projector,
+    "noesis-energy-record-v1": _energy_projector,
+    "noesis-humanitarian-record-v1": _humanitarian_projector,
     "noesis-housing-record-v1": _housing_projector,
+    "noesis-infrastructure-asset-record-v1": _infrastructure_projector,
     "noesis-surveillance-record-v1": _surveillance_projector,
+    "noesis-clinical-medicines-record-v1": _medicines_projector,
+    "noesis-hazard-record-v1": _hazard_projector,
     "noesis-engineering-safety-record-v1": _engineering_safety_projector,
     "noesis-material-record-v1": _materials_projector,
     "noesis-sports-record-v1": _sports_projector,
     "noesis-linguistic-record-v1": _linguistics_projector,
     "noesis-oss-ecosystem-record-v1": _oss_ecosystem_projector,
+    "noesis-legislation-record-v1": _legislation_projector,
 }
+
+
+def _substance_projector(conn: Any) -> Any:
+    from src.kb.substances_store import SubstanceProjector
+
+    return SubstanceProjector(conn)
+
+
+PROJECTORS["noesis-substance-record-v1"] = _substance_projector
+
+
+def _fisheries_projector(conn: Any) -> Any:
+    from src.kb.fisheries_store import FisheriesProjector
+
+    return FisheriesProjector(conn)
+
+
+PROJECTORS["noesis-fisheries-record-v1"] = _fisheries_projector
+def _agrifood_projector(conn: Any) -> Any:
+    from src.kb.agrifood_store import AgrifoodProjector
+
+    return AgrifoodProjector(conn)
+
+
+PROJECTORS["noesis-agrifood-record-v1"] = _agrifood_projector
+def _court_justice_projector(conn: Any) -> Any:
+    from src.kb.courts_justice import CourtsJusticeProjector
+
+    return CourtsJusticeProjector(conn)
+
+
+# Legal courts and justice-statistics features (#2218).
+PROJECTORS["noesis-court-justice-record-v1"] = _court_justice_projector
+
+
+def _biodiversity_projector(conn: Any) -> Any:
+    from src.kb.biodiversity_store import BiodiversityProjector
+
+    return BiodiversityProjector(conn)
+
+
+PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
+
+
+def _food_composition_projector(conn: Any) -> Any:
+    from src.kb.food_composition import FoodCompositionProjector
+
+    return FoodCompositionProjector(conn)
+
+
+PROJECTORS["noesis-food-composition-record-v1"] = _food_composition_projector
+
+
+def _astronomy_registration_projector(conn: Any) -> Any:
+    from src.kb.astronomy_registration import RegistrationProjector
+
+    return RegistrationProjector(conn)
+
+
+PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
+def _real_estate_projector(conn: Any) -> Any:
+    from src.kb.real_estate import RealEstateProjector
+
+    return RealEstateProjector(conn)
+
+
+PROJECTORS["noesis-real-estate-record-v1"] = _real_estate_projector
+def _logistics_projector(conn: Any) -> Any:
+    from src.kb.logistics_series import LogisticsProjector
+
+    return LogisticsProjector(conn)
+
+
+# Economics shipping and logistics feature (#2229).
+PROJECTORS["noesis-logistics-record-v1"] = _logistics_projector
+def _competition_projector(conn: Any) -> Any:
+    from src.kb.competition import CompetitionProjector
+
+    return CompetitionProjector(conn)
+
+
+# Corporate Ownership competition feature (#2217).
+PROJECTORS["noesis-competition-record-v1"] = _competition_projector
+
+
+def _osint_movement_projector(conn: Any) -> Any:
+    from src.osint.movements import MovementProjector
+
+    return MovementProjector(conn)
+
+
+PROJECTORS["noesis-osint-movement-record-v1"] = _osint_movement_projector
+
+
+def _media_metadata_projector(conn: Any) -> Any:
+    from src.kb.media_metadata import MediaMetadataProjector
+
+    return MediaMetadataProjector(conn)
+
+
+PROJECTORS["noesis-media-metadata-record-v1"] = _media_metadata_projector
+
+
+def _campaign_finance_projector(conn: Any) -> Any:
+    from src.kb.campaign_finance_records import CampaignFinanceProjector
+
+    return CampaignFinanceProjector(conn)
+
+
+# Political campaign-finance features (#2209).
+PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

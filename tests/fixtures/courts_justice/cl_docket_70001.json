@@ -1,0 +1,16 @@
+{
+ "id": 70001,
+ "court": "https://www.courtlistener.com/api/rest/v4/courts/dcd/",
+ "court_id": "dcd",
+ "docket_number": "1:99-cv-00101",
+ "case_name": "Example Data Co. v. Roe",
+ "case_name_full": "Example Data Co. v. Jane Roe",
+ "date_filed": "2099-01-15",
+ "date_terminated": null,
+ "date_modified": "2099-03-01T10:00:00Z",
+ "pacer_case_id": "990101",
+ "cause": "42:1983 Civil Rights Act",
+ "nature_of_suit": "440 Civil Rights: Other",
+ "assigned_to_str": "Judge Fixture",
+ "absolute_url": "/docket/70001/example-data-co-v-roe/"
+}

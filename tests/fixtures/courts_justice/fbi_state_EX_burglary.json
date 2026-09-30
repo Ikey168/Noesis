@@ -1,0 +1,61 @@
+{
+ "offenses": {
+  "actuals": {
+   "Examplestate Offenses": {
+    "01-2098": 410,
+    "02-2098": 385,
+    "03-2098": 402
+   },
+   "Examplestate Clearances": {
+    "01-2098": 52,
+    "02-2098": 48,
+    "03-2098": null
+   },
+   "United States Offenses": {
+    "01-2098": 90000,
+    "02-2098": 88000,
+    "03-2098": 91000
+   }
+  },
+  "rates": {
+   "Examplestate Offenses": {
+    "01-2098": 10.5,
+    "02-2098": 9.9,
+    "03-2098": 10.3
+   }
+  }
+ },
+ "populations": {
+  "population": {
+   "Examplestate": {
+    "01-2098": 3900000,
+    "02-2098": 3900000,
+    "03-2098": 3900000
+   }
+  },
+  "participated_population": {
+   "Examplestate": {
+    "01-2098": 3700000,
+    "02-2098": 3700000,
+    "03-2098": 3700000
+   }
+  }
+ },
+ "cde_properties": {
+  "last_refresh_date": {
+   "UCR": "2099-09-15"
+  },
+  "max_data_date": {
+   "UCR": "12/2098"
+  }
+ },
+ "tooltips": {
+  "Percent of Population Coverage": {
+   "Examplestate": {
+    "01-2098": 94.9,
+    "02-2098": 94.9,
+    "03-2098": 94.9
+   }
+  }
+ }
+}

@@ -1,0 +1,7 @@
+ST/SG/SER.E/9970
+Notification of re-entry of a space object (authored fictional document)
+
+1. International designator: 2099-001A
+   Name of space object: FICTSAT 1
+   Date of re-entry: 2099-06-21
+   Location of re-entry: South Pacific Ocean

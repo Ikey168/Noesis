@@ -1,0 +1,185 @@
+{
+  "pack_id": "chemicals-substances",
+  "version": "1.0.0",
+  "description": "Chemicals and Substances: substance identity (PubChem PUG-REST, US EPA CompTox), harmonised and notified CLP classifications with every ATP revision, REACH registration status, SVHC Candidate List events and Annex XIV/XVII entries (ECHA CHEM), and published toxicity data points (CompTox ToxValDB), bounded to an explicit substance set. Every value is quoted as published with its source, revision and dates. No hazard or exposure assessment, safety advice or synthesis information is acquired. Access audit: docs/roadmaps/chemicals-substances-source-audit.md.",
+  "domains": [
+    "chemicals"
+  ],
+  "defaults": {
+    "connector": "substances",
+    "update_cadence": "weekly re-check of the explicit selection; ECHA lists change by dated amendment, PubChem and CompTox records carry their own version or release",
+    "temporal_semantics": "provider-declared dates (ATP application date, list inclusion/amendment/removal date, registration last-updated date, PubChem modification date, ToxValDB release); every distinct payload is an immutable revision; absence from a response never implies removal",
+    "mapping": {
+      "target_schema": "noesis-substance-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "substance-sources:1.0.0"
+    ],
+    "operations": [
+      "substances"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 2592000
+    },
+    "policy": {
+      "identity_and_status_fields_only": true,
+      "excluded": ["synthesis routes", "preparation or manufacturing methods", "reaction data", "precursors", "bioassay results", "registration dossier contents", "hazard or exposure assessment", "safety advice"],
+      "no_derived_verdicts": true
+    }
+  },
+  "sources": [
+    {
+      "source_id": "pubchem-compounds",
+      "endpoint": "https://pubchem.ncbi.nlm.nih.gov/rest/pug",
+      "publisher": "U.S. National Library of Medicine, NCBI (PubChem)",
+      "scope": "PubChem compound identity for the explicitly selected CIDs: CID, InChI, InChIKey, preferred and IUPAC names, depositor synonyms (CAS and EC numbers among them, conflicts kept) and the modification date as record version",
+      "license": {
+        "id": "ncbi-pubchem-data-policy",
+        "terms_url": "https://www.ncbi.nlm.nih.gov/home/about/policies/",
+        "redistribution": "public data with attribution 'Source: PubChem, National Library of Medicine'; depositor records may carry their own terms (verify per depositor)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "substances": {
+        "provider": "pubchem",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {"cid": 6623, "cas": "80-05-7", "ec": "201-245-8", "inchikey": "IISBACLAFKSPIT-UHFFFAOYSA-N", "label": "bisphenol A: classified, SVHC and restricted"},
+          {"cid": 8343, "cas": "117-81-7", "ec": "204-211-0", "inchikey": "BJQHLKABXJIVAM-UHFFFAOYSA-N", "label": "DEHP: classified, SVHC, Annex XIV and XVII"},
+          {"cid": 702, "cas": "64-17-5", "ec": "200-578-6", "inchikey": "LFQSCWFLJHTTHZ-UHFFFAOYSA-N", "label": "ethanol: classified, on no list"},
+          {"cid": 5988, "cas": "57-50-1", "ec": "200-334-9", "inchikey": "CZMRCDWAGMRECN-UGDNZRGBSA-N", "label": "sucrose: no harmonised classification, on no list"},
+          {"cid": 999999999, "label": "unknown CID (not found)"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/chemicals-pubchem.json",
+        "sha256": "981beda346b6cb6eebd405f43063c2080af34bd304eaae1a5aa6058da92ab216",
+        "expected_output_hash": "998ef383302fd093588267dd1f45299ff5e2b67cda09e43f5dcba6e6fc2e4a90"
+      }
+    },
+    {
+      "source_id": "echa-clp-classifications",
+      "endpoint": "https://chem.echa.europa.eu",
+      "publisher": "European Chemicals Agency (ECHA CHEM)",
+      "scope": "Harmonised CLP Annex VI classifications (every ATP revision, with its act and dates) and notified C&L inventory aggregates for the explicitly selected ECHA substances and one CLP group entry",
+      "license": {
+        "id": "echa-legal-notice",
+        "terms_url": "https://echa.europa.eu/legal-notice",
+        "redistribution": "reproduction authorised with acknowledgement 'Source: European Chemicals Agency, https://echa.europa.eu/'; no endorsement implied (verify the notice before bulk or commercial reuse)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "substances": {
+        "provider": "echa-clp",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {"echa_id": "100.001.133", "cas": "80-05-7", "ec": "201-245-8", "label": "bisphenol A (ATP 9 reclassification)"},
+          {"echa_id": "100.003.829", "cas": "117-81-7", "ec": "204-211-0", "label": "DEHP"},
+          {"echa_id": "100.000.526", "cas": "64-17-5", "ec": "200-578-6", "label": "ethanol"},
+          {"echa_id": "100.000.304", "cas": "57-50-1", "ec": "200-334-9", "label": "sucrose (no harmonised entry)"},
+          {"index_number": "082-001-00-6", "label": "lead compounds (group entry: no EC or CAS)"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/chemicals-echa-clp.json",
+        "sha256": "c598047bdee60fc4ada04beb5f52d3e98b1c7e754c65a3816b527b7483d064fa",
+        "expected_output_hash": "7e2811ddde7b741ecc0b6f39bb71cbfd05293d5f257730597f911d2e4f7f46d0"
+      }
+    },
+    {
+      "source_id": "echa-reach-lists",
+      "endpoint": "https://chem.echa.europa.eu",
+      "publisher": "European Chemicals Agency (ECHA CHEM)",
+      "scope": "REACH registration status (not dossier contents), SVHC Candidate List events, Annex XIV authorisation entries and Annex XVII restriction entries for the explicitly selected ECHA substances",
+      "license": {
+        "id": "echa-legal-notice",
+        "terms_url": "https://echa.europa.eu/legal-notice",
+        "redistribution": "reproduction authorised with acknowledgement 'Source: European Chemicals Agency, https://echa.europa.eu/'; no endorsement implied (verify the notice before bulk or commercial reuse)"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "substances": {
+        "provider": "echa-reach",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "selection": [
+          {"echa_id": "100.001.133", "cas": "80-05-7", "ec": "201-245-8", "label": "bisphenol A: SVHC, Annex XVII entry 66"},
+          {"echa_id": "100.003.829", "cas": "117-81-7", "ec": "204-211-0", "label": "DEHP: SVHC, Annex XIV entry 4, Annex XVII entry 51"},
+          {"echa_id": "100.000.526", "cas": "64-17-5", "ec": "200-578-6", "label": "ethanol: registered, on no list"},
+          {"echa_id": "100.000.304", "cas": "57-50-1", "ec": "200-334-9", "label": "sucrose: registered, on no list"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/chemicals-echa-reach.json",
+        "sha256": "387c57a4d3fce15692193c848ab0f119efbcba88642dde6d761f29ebcbfa34c4",
+        "expected_output_hash": "93e1714861954188b98de3481f74213baa29a69498fc4a0781357e468da710de"
+      }
+    },
+    {
+      "source_id": "comptox-toxval",
+      "endpoint": "https://api-ccte.epa.gov",
+      "publisher": "U.S. Environmental Protection Agency (CompTox Chemicals Dashboard, CTX APIs)",
+      "scope": "CompTox chemical identity (DTXSID, DTXCID, CAS, InChIKey, preferred name) and ToxValDB data points as published for the explicitly selected DTXSIDs; values are never combined or ranked",
+      "license": {
+        "id": "us-epa-public",
+        "terms_url": "https://www.epa.gov/comptox-tools/computational-toxicology-and-exposure-apis",
+        "redistribution": "U.S. Government data, generally public domain, with attribution to the CompTox Chemicals Dashboard; ToxValDB source citations kept per data point (verify third-party source terms)"
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_COMPTOX_API_KEY"
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 500,
+        "max_bytes": 2000000,
+        "max_pages": 20
+      },
+      "substances": {
+        "provider": "comptox",
+        "namespace": "global",
+        "live_verification": "unverified-live",
+        "data_version": "ToxValDB release served by the CTX Hazard API (verify the release label before a live run)",
+        "selection": [
+          {"dtxsid": "DTXSID7020182", "cas": "80-05-7", "label": "bisphenol A"},
+          {"dtxsid": "DTXSID5020607", "cas": "117-81-7", "label": "DEHP"},
+          {"dtxsid": "DTXSID9020584", "cas": "64-17-5", "label": "ethanol (no data points in the fixture)"}
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/chemicals-comptox.json",
+        "sha256": "1362852ba114f3b503323a739889fc4d82ec45a8d1a7d31f3ae77e1313fcfb13",
+        "expected_output_hash": "03b0c823d1ba92e3eb02085ad94d1d1cb8347d50023edfa8e98a73d0992e6ec3"
+      }
+    }
+  ]
+}

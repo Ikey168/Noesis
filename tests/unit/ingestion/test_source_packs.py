@@ -42,19 +42,34 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Sports pack's sports-records pack (#2135),
     # plus the Weather pack's weather-operational pack (#2163),
     # plus the Linguistics pack's linguistics-lexical-typological pack (#2178),
-    # plus the OSS Ecosystems pack (#2192).
-    assert len(packs) == 23
+    # plus the OSS Ecosystems pack (#2192),
+    # plus the Chemicals and Substances pack (#2212),
+    # plus the Natural Hazards pack (#2207),
+    # plus the Energy Systems pack (#2211),
+    # plus the Fisheries and Maritime Activity pack (#2222),
+    # plus the Humanitarian Response and Conflict Events pack (#2206),
+    # plus the Agriculture and Food Systems pack (#2213),
+    # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223),
+    # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229),
+    # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230).
+    assert len(packs) == 32
     assert {domain for pack in packs for domain in pack["domains"]} == {
+        "agrifood",
         "astronomy",
+        "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "energy",
         "engineering-safety",
+        "fisheries",
         "geospatial",
+        "humanitarian",
         "legal",
         "linguistics",
         "market",
         "materials",
+        "natural-hazards",
         "onchain",
         "osint",
         "oss-ecosystems",
@@ -87,8 +102,30 @@ def test_all_production_packs_validate_against_contract() -> None:
     # sources (#2135),
     # plus the Weather pack's nine DWD, MOSMIX, CAP, aviationweather.gov, NWS and Open-Meteo sources (#2163),
     # plus the Linguistics pack's Wikidata, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 sources (#2178),
-    # plus the OSS Ecosystems pack's four registries, deps.dev, the SPDX License List and Software Heritage (#2192).
-    assert sum(len(pack["sources"]) for pack in packs) == 175
+    # plus the OSS Ecosystems pack's four registries, deps.dev, the SPDX License List and Software Heritage (#2192),
+    # plus the Chemicals and Substances pack's PubChem, ECHA CLP, ECHA REACH and CompTox sources (#2212),
+    # plus the Natural Hazards pack's six hazard sources (#2207),
+    # plus the Economics trade features' Comtrade, Comext and WITS concordance sources (#2210),
+    # plus the Political legislation features' nine US/UK sources and the US LDA register (#2208),
+    # plus the Energy Systems pack's ten ENTSO-E, EIA, Ember, Eurostat and Energy-Charts selections (#2211),
+    # plus the Fisheries pack's GFW, FishStat, ICCAT, WCPFC, IOTC and Combined IUU Vessel List sources (#2222),
+    # plus the Humanitarian pack's ReliefWeb, HDX and UCDP sources and its declined ACLED entry (#2206),
+    # plus the Clinical Evidence medicines feature's four EMA, Drugs@FDA, DailyMed and FDA DSC sources (#2214),
+    # plus the Agriculture and Food Systems pack's FAOSTAT, NASS, PSD, Eurostat and Agri-food portal sources (#2213),
+    # plus the Legal courts and justice-statistics features' CourtListener, FBI CDE, police.uk and Eurostat sources (#2218),
+    # plus the Economics labour-statistics feature's ILOSTAT, OECD, Eurostat LFS and BLS sources (#2219),
+    # plus the Geospatial infrastructure feature's GPPD, GEM, Overpass, EIA and ENTSOG selections (#2223),
+    # plus the Products food feature's Open Food Facts, FoodData Central and Ciqual sources (#2216),
+    # plus the Astronomy space-object registration feature's UNOOSA, DISCOS and Aerospace sources (#2224),
+    # plus the Clinical Evidence health-capacity feature's WHO GHO, OECD Health Statistics and Eurostat sources (#2215),
+    # plus the Science education-statistics feature's IPEDS, ETER, UIS, OECD EAG and Eurostat R&D sources (#2227),
+    # plus the Economics logistics feature's UN/LOCODE, UNCTADstat, Eurostat maritime and BLS freight PPI sources (#2229),
+    # plus the Market insurance feature's EIOPA, SFCR, NAIC (metadata-only), Florida OIR and NCEI sources (#2230),
+    # plus the Corporate Ownership competition feature's EC, TAM, CMA, FTC and DOJ sources (#2217),
+    # plus the OSINT movements feature's FAA, G-INFO, OpenSky, GFW port-visit, open AIS and UNCTAD sources (#2221),
+    # plus the Cultural Collections media-metadata Open Library, MusicBrainz, Wikidata, DNB and LoC sources (#2225),
+    # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209).
+    assert sum(len(pack["sources"]) for pack in packs) == 298
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -349,16 +386,22 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
     assert "must-not-leak" not in encoded
     coverage = store.coverage()
     assert set(coverage["domains"]) == {
+        "agrifood",
         "astronomy",
+        "chemicals",
         "clinical",
         "corporate-ownership",
         "economic",
+        "energy",
         "engineering-safety",
+        "fisheries",
         "geospatial",
+        "humanitarian",
         "legal",
         "linguistics",
         "market",
         "materials",
+        "natural-hazards",
         "onchain",
         "osint",
         "oss-ecosystems",

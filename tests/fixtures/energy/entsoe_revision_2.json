@@ -1,0 +1,156 @@
+{
+ "captured_at": "authored 2026-09-29 (not a capture)",
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\"><mRID>fixture-a75-7f3c1d</mRID><revisionNumber>2</revisionNumber><type>A75</type><process.processType>A16</process.processType><createdDateTime>2026-09-26T09:40:00Z</createdDateTime><TimeSeries><mRID>1</mRID><businessType>A01</businessType><inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><MktPSRType><psrType>B16</psrType></MktPSRType><Period><timeInterval><start>2026-09-24T00:00Z</start><end>2026-09-24T04:00Z</end></timeInterval><resolution>PT60M</resolution><Point><position>1</position><quantity>0</quantity></Point><Point><position>2</position><quantity>0</quantity></Point><Point><position>3</position><quantity>0</quantity></Point><Point><position>4</position><quantity>0</quantity></Point></Period></TimeSeries><TimeSeries><mRID>2</mRID><businessType>A01</businessType><inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><MktPSRType><psrType>B19</psrType></MktPSRType><Period><timeInterval><start>2026-09-24T00:00Z</start><end>2026-09-24T04:00Z</end></timeInterval><resolution>PT60M</resolution><Point><position>1</position><quantity>9120</quantity></Point><Point><position>2</position><quantity>9240</quantity></Point><Point><position>3</position><quantity>9311</quantity></Point><Point><position>4</position><quantity>9287</quantity></Point></Period></TimeSeries></GL_MarketDocument>",
+   "body_sha256": "08f9fc0cb89ae8cf7ab8e9f4fa8b69341e9b403bc17be59bacfdae67cc22ecb7",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A75",
+    "in_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000",
+    "processType": "A16"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\"><mRID>fixture-a65-51aa20</mRID><revisionNumber>1</revisionNumber><type>A65</type><process.processType>A16</process.processType><createdDateTime>2026-09-24T05:03:40Z</createdDateTime><TimeSeries><mRID>1</mRID><businessType>A04</businessType><outBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</outBiddingZone_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><Period><timeInterval><start>2026-09-24T00:00Z</start><end>2026-09-24T04:00Z</end></timeInterval><resolution>PT60M</resolution><Point><position>1</position><quantity>44810</quantity></Point><Point><position>2</position><quantity>43120</quantity></Point><Point><position>3</position><quantity>42655</quantity></Point><Point><position>4</position><quantity>42930</quantity></Point></Period></TimeSeries></GL_MarketDocument>",
+   "body_sha256": "3af03012665e0ffeb6982f57864e90d84786cc345b879a97041303cf00b7ac94",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A65",
+    "outBiddingZone_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000",
+    "processType": "A16"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Publication_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3\"><mRID>fixture-a44-0c9e77</mRID><revisionNumber>1</revisionNumber><type>A44</type><createdDateTime>2026-09-23T10:45:00Z</createdDateTime><TimeSeries><mRID>1</mRID><auction.type>A01</auction.type><businessType>A62</businessType><in_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</in_Domain.mRID><out_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</out_Domain.mRID><contract_MarketAgreement.type>A01</contract_MarketAgreement.type><currency_Unit.name>EUR</currency_Unit.name><price_Measure_Unit.name>MWH</price_Measure_Unit.name><curveType>A01</curveType><Period><timeInterval><start>2026-09-24T00:00Z</start><end>2026-09-24T04:00Z</end></timeInterval><resolution>PT60M</resolution><Point><position>1</position><price.amount>85.12</price.amount></Point><Point><position>2</position><price.amount>79.40</price.amount></Point><Point><position>3</position><price.amount>-3.50</price.amount></Point><Point><position>4</position><price.amount>12.05</price.amount></Point></Period></TimeSeries></Publication_MarketDocument>",
+   "body_sha256": "bc5af9b86fe69e2464b6114f79a6b01b19576adecc8fee238e019d404781860d",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "contract_MarketAgreement.type": "A01",
+    "documentType": "A44",
+    "in_Domain": "10Y1001A1001A82H",
+    "out_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\"><mRID>fixture-a68-2b41e0</mRID><revisionNumber>1</revisionNumber><type>A68</type><process.processType>A33</process.processType><createdDateTime>2025-12-18T08:00:00Z</createdDateTime><TimeSeries><mRID>1</mRID><businessType>A33</businessType><inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><MktPSRType><psrType>B16</psrType></MktPSRType><Period><timeInterval><start>2025-12-31T23:00Z</start><end>2026-12-31T23:00Z</end></timeInterval><resolution>P1Y</resolution><Point><position>1</position><quantity>99450</quantity></Point></Period></TimeSeries><TimeSeries><mRID>2</mRID><businessType>A33</businessType><inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><MktPSRType><psrType>B19</psrType></MktPSRType><Period><timeInterval><start>2025-12-31T23:00Z</start><end>2026-12-31T23:00Z</end></timeInterval><resolution>P1Y</resolution><Point><position>1</position><quantity>63120</quantity></Point></Period></TimeSeries></GL_MarketDocument>",
+   "body_sha256": "defc8876313dc1c225fcf7684183eb48a8fecd8b7c7a50e6cbcc5f75527411e4",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A68",
+    "in_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000",
+    "processType": "A33"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<GL_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-6:generationloaddocument:3:0\"><mRID>fixture-a71-93d002</mRID><revisionNumber>1</revisionNumber><type>A71</type><process.processType>A33</process.processType><createdDateTime>2025-12-18T08:05:00Z</createdDateTime><TimeSeries><mRID>1</mRID><businessType>A37</businessType><inBiddingZone_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</inBiddingZone_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><MktPSRType><psrType>B14</psrType><PowerSystemResources><mRID codingScheme=\"A01\">11WD2FIXTURE0001</mRID><name>Fixture Nuclear Unit 1</name></PowerSystemResources></MktPSRType><Period><timeInterval><start>2025-12-31T23:00Z</start><end>2026-12-31T23:00Z</end></timeInterval><resolution>P1Y</resolution><Point><position>1</position><quantity>1400</quantity></Point></Period></TimeSeries></GL_MarketDocument>",
+   "body_sha256": "c4bb102adb492543dca72b81d26c489b3ad8db3b89b20cc08ec2a1d4c722df67",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A71",
+    "in_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000",
+    "processType": "A33"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Publication_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3\"><mRID>fixture-a11-de-fr</mRID><revisionNumber>1</revisionNumber><type>A11</type><createdDateTime>2026-09-24T06:10:00Z</createdDateTime><TimeSeries><mRID>1</mRID><businessType>A66</businessType><in_Domain.mRID codingScheme=\"A01\">10YFR-RTE------C</in_Domain.mRID><out_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</out_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><Period><timeInterval><start>2026-09-24T00:00Z</start><end>2026-09-24T04:00Z</end></timeInterval><resolution>PT60M</resolution><Point><position>1</position><quantity>1830</quantity></Point><Point><position>2</position><quantity>1795</quantity></Point><Point><position>3</position><quantity>2010</quantity></Point><Point><position>4</position><quantity>1950</quantity></Point></Period></TimeSeries></Publication_MarketDocument>",
+   "body_sha256": "68f068598528e62eead9203a689602916644dc5420ec800c1fb781b4dab7ddc4",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A11",
+    "in_Domain": "10YFR-RTE------C",
+    "out_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Publication_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-3:publicationdocument:7:3\"><mRID>fixture-a11-fr-de</mRID><revisionNumber>1</revisionNumber><type>A11</type><createdDateTime>2026-09-24T06:10:00Z</createdDateTime><TimeSeries><mRID>1</mRID><businessType>A66</businessType><in_Domain.mRID codingScheme=\"A01\">10Y1001A1001A82H</in_Domain.mRID><out_Domain.mRID codingScheme=\"A01\">10YFR-RTE------C</out_Domain.mRID><quantity_Measure_Unit.name>MAW</quantity_Measure_Unit.name><curveType>A01</curveType><Period><timeInterval><start>2026-09-24T00:00Z</start><end>2026-09-24T04:00Z</end></timeInterval><resolution>PT60M</resolution><Point><position>1</position><quantity>0</quantity></Point><Point><position>2</position><quantity>12</quantity></Point><Point><position>3</position><quantity>0</quantity></Point><Point><position>4</position><quantity>0</quantity></Point></Period></TimeSeries></Publication_MarketDocument>",
+   "body_sha256": "5025540b1defe4321e345c498f148990f2c1b61d84a37a037944d41a2218616b",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A11",
+    "in_Domain": "10Y1001A1001A82H",
+    "out_Domain": "10YFR-RTE------C",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Acknowledgement_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-1:acknowledgementdocument:7:0\"><mRID>fixture-ack</mRID><createdDateTime>2026-09-25T06:00:00Z</createdDateTime><Reason><code>999</code><text>No matching data found for Data item Physical Flows</text></Reason></Acknowledgement_MarketDocument>",
+   "body_sha256": "30d1824f63006f150ce0ffa3ed3a71ceb1ee73d4d73d3d6805ee4b1f90a8d52b",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A11",
+    "in_Domain": "10YPL-AREA-----S",
+    "out_Domain": "10Y1001A1001A82H",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  },
+  {
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<Acknowledgement_MarketDocument xmlns=\"urn:iec62325.351:tc57wg16:451-1:acknowledgementdocument:7:0\"><mRID>fixture-ack</mRID><createdDateTime>2026-09-25T06:00:00Z</createdDateTime><Reason><code>999</code><text>No matching data found for Data item Physical Flows</text></Reason></Acknowledgement_MarketDocument>",
+   "body_sha256": "30d1824f63006f150ce0ffa3ed3a71ceb1ee73d4d73d3d6805ee4b1f90a8d52b",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "params": {
+    "documentType": "A11",
+    "in_Domain": "10Y1001A1001A82H",
+    "out_Domain": "10YPL-AREA-----S",
+    "periodEnd": "202609240400",
+    "periodStart": "202609240000"
+   },
+   "status": 200,
+   "url": "https://web-api.tp.entsoe.eu/api"
+  }
+ ],
+ "note": "Authored offline fixture in the provider's documented response shape; identifiers are illustrative and values are invented. Not live evidence.",
+ "provider": "entsoe",
+ "retrieved_at": "2026-09-27T06:00:00Z",
+ "scenarios": [
+  "revision"
+ ]
+}

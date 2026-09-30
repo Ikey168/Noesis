@@ -1,0 +1,39 @@
+{
+ "Overview": {
+  "ExtId": "ABCD1234-0000-4000-8000-000000000001",
+  "Title": "Example Heat Networks Bill",
+  "HRSTag": "hs_2BillTitle",
+  "Date": "2099-02-01T00:00:00",
+  "Location": "Commons Chamber",
+  "House": "Commons",
+  "Source": 1,
+  "VolumeNo": 999,
+  "ContentLastUpdated": "2099-02-02T06:00:00"
+ },
+ "Items": [
+  {
+   "ItemType": "Contribution",
+   "ItemId": 1,
+   "MemberId": 4001,
+   "AttributedTo": "Sam Minister",
+   "Value": "<p>Synthetic remarks that are never retained.</p>",
+   "ExternalId": "C0000001-0000-4000-8000-000000000001",
+   "Timecode": "2099-02-01T16:00:00"
+  },
+  {
+   "ItemType": "Contribution",
+   "ItemId": 2,
+   "MemberId": 4003,
+   "AttributedTo": "Robin Opposition",
+   "Value": "<p>Synthetic reply that is never retained.</p>",
+   "ExternalId": "C0000002-0000-4000-8000-000000000002",
+   "Timecode": "2099-02-01T16:10:00"
+  },
+  {
+   "ItemType": "Timestamp",
+   "ItemId": 3,
+   "Value": "4.10 pm"
+  }
+ ],
+ "ChildDebates": []
+}
