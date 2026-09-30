@@ -235,6 +235,7 @@
 
     "environment.biodiversity": {"subdomains": ["biodiversity"], "shapes": ["observations", "registry-records"]},
     "environment.core": {"subdomains": ["climate-emissions-air"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
+    "environment.water": {"subdomains": ["water-hydrology"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
 
     "clinical.core": {"subdomains": ["clinical-evidence-trials"], "shapes": ["versioned-documents"]},
     "clinical.health-capacity": {"subdomains": ["health-systems"], "shapes": ["statistical-series"]},

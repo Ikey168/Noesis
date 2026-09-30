@@ -397,6 +397,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
 # News fact-checks: Google Fact Check Tools, Data Commons ClaimReview and the IFCN signatory list (#2659).
 NATIVE_CONNECTOR_MODULES["fact-checks"] = "src.ingestion.fact_checks_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fact-checks"})
+# Climate and Environment water and hydrology: PEGELONLINE, USGS Water Data and EEA WISE (#2582).
+NATIVE_CONNECTOR_MODULES["water"] = "src.ingestion.water_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"water"})
 
 
 def native_connector_module(connector: str) -> Any:

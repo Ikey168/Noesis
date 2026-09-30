@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1658,
+      "tool_count": 1676,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1236,6 +1236,7 @@
         "noesis-knowledge-engine.create_trade_monitor",
         "noesis-knowledge-engine.create_treaties_monitor",
         "noesis-knowledge-engine.create_vulnerability_monitor",
+        "noesis-knowledge-engine.create_water_monitor",
         "noesis-knowledge-engine.create_weather_monitor",
         "noesis-knowledge-engine.create_web_archive_monitor",
         "noesis-knowledge-engine.cultural_readiness",
@@ -1379,6 +1380,7 @@
         "noesis-knowledge-engine.export_technical_impact_report",
         "noesis-knowledge-engine.export_trade_evidence_bundle",
         "noesis-knowledge-engine.export_treaty_evidence_bundle",
+        "noesis-knowledge-engine.export_water_bundle",
         "noesis-knowledge-engine.export_zotero_bibliography",
         "noesis-knowledge-engine.extract_math_text_objects",
         "noesis-knowledge-engine.extract_methodology_statements",
@@ -1661,6 +1663,7 @@
         "noesis-knowledge-engine.link_trade_ownership",
         "noesis-knowledge-engine.link_trade_sanctions",
         "noesis-knowledge-engine.link_treaty_records",
+        "noesis-knowledge-engine.link_water_records",
         "noesis-knowledge-engine.list_agrifood_crosswalks",
         "noesis-knowledge-engine.list_agrifood_links",
         "noesis-knowledge-engine.list_amendment_acts",
@@ -1794,6 +1797,8 @@
         "noesis-knowledge-engine.list_unmatched_substances",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
         "noesis-knowledge-engine.list_vulnerability_components",
+        "noesis-knowledge-engine.list_water_identity_matches",
+        "noesis-knowledge-engine.list_water_links",
         "noesis-knowledge-engine.list_weather_station_matches",
         "noesis-knowledge-engine.list_web_archive_captures",
         "noesis-knowledge-engine.list_world_bank_project_links",
@@ -1826,6 +1831,7 @@
         "noesis-knowledge-engine.lookup_sponsor_bills",
         "noesis-knowledge-engine.lookup_taxa",
         "noesis-knowledge-engine.lookup_treaty",
+        "noesis-knowledge-engine.lookup_water_station",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.map_trade_product_code",
@@ -1925,6 +1931,7 @@
         "noesis-knowledge-engine.poll_trade_monitor",
         "noesis-knowledge-engine.poll_treaties_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
+        "noesis-knowledge-engine.poll_water_monitor",
         "noesis-knowledge-engine.poll_weather_monitor",
         "noesis-knowledge-engine.poll_web_archive_monitor",
         "noesis-knowledge-engine.preflight_intake_mode",
@@ -2043,6 +2050,7 @@
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
+        "noesis-knowledge-engine.propose_water_identity_matches",
         "noesis-knowledge-engine.propose_weather_station_matches",
         "noesis-knowledge-engine.propose_web_archive_matches",
         "noesis-knowledge-engine.public_finance_readiness",
@@ -2155,6 +2163,7 @@
         "noesis-knowledge-engine.register_source_capability",
         "noesis-knowledge-engine.register_source_identity",
         "noesis-knowledge-engine.register_sports_forecast",
+        "noesis-knowledge-engine.register_water_schemas",
         "noesis-knowledge-engine.register_weather_schemas",
         "noesis-knowledge-engine.relate_events",
         "noesis-knowledge-engine.relate_evidence_applicability",
@@ -2277,6 +2286,7 @@
         "noesis-knowledge-engine.revert_trade_identity_match",
         "noesis-knowledge-engine.revert_treaty_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
+        "noesis-knowledge-engine.revert_water_identity_match",
         "noesis-knowledge-engine.revert_weather_station_match",
         "noesis-knowledge-engine.review_agrifood_crosswalk",
         "noesis-knowledge-engine.review_astronomy_identity_match",
@@ -2363,6 +2373,7 @@
         "noesis-knowledge-engine.review_translation",
         "noesis-knowledge-engine.review_treaty_match",
         "noesis-knowledge-engine.review_vulnerability_component_match",
+        "noesis-knowledge-engine.review_water_identity_match",
         "noesis-knowledge-engine.review_weather_evidence_link",
         "noesis-knowledge-engine.review_weather_station_match",
         "noesis-knowledge-engine.review_web_archive_match",
@@ -2439,6 +2450,7 @@
         "noesis-knowledge-engine.run_trade_monitor",
         "noesis-knowledge-engine.run_treaties_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
+        "noesis-knowledge-engine.run_water_monitor",
         "noesis-knowledge-engine.run_weather_monitor",
         "noesis-knowledge-engine.run_web_archive_monitor",
         "noesis-knowledge-engine.sanctions_readiness",
@@ -2618,6 +2630,12 @@
         "noesis-knowledge-engine.vulnerability_source_contracts",
         "noesis-knowledge-engine.vulnerability_standard_links",
         "noesis-knowledge-engine.warnings_in_force",
+        "noesis-knowledge-engine.water_body_status_history",
+        "noesis-knowledge-engine.water_for_place",
+        "noesis-knowledge-engine.water_readiness",
+        "noesis-knowledge-engine.water_series",
+        "noesis-knowledge-engine.water_source_contracts",
+        "noesis-knowledge-engine.water_value_at",
         "noesis-knowledge-engine.weather_observations",
         "noesis-knowledge-engine.weather_source_contracts",
         "noesis-knowledge-engine.web_archive_contracts",
@@ -2631,7 +2649,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1658
+      "visible_tool_count": 1676
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2642,11 +2660,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 151,
+      "available": 152,
       "degraded": 174,
-      "unauthorized": 1671
+      "unauthorized": 1688
     },
-    "tools": 1996
+    "tools": 2014
   },
   "tools": [
     {
@@ -37603,6 +37621,112 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch stations, rivers or water bodies for new values above published characteristic values, revised or\nwithdrawn values, station changes and new reporting cycles. Notices are record changes, not assessments.",
+      "id": "noesis-knowledge-engine.create_water_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "rivers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "stations": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "thresholds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "water_bodies": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_water_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription on a place (warnings by containment), a station, a provider + parameter or a warning event\nand severity; events warning_issued/updated/cancelled, forecast_issued, observation_corrected,\nstation_relocated. No new scheduler; notifications quote the issuer and add no advice.",
       "id": "noesis-knowledge-engine.create_weather_monitor",
       "input_schema": {
@@ -44564,6 +44688,54 @@
       "required_scopes": [
         "knowledge:legal:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The water section of a Climate and Environment place bundle; every item cites its source, record\nrevision and retrieval time.",
+      "id": "noesis-knowledge-engine.export_water_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "place_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_water_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -57874,6 +58046,39 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "Link stations and water bodies to flood events citing them, weather sources stating the gauge,\ninfrastructure assets sharing an identifier and accepted places; absent providers are reported unavailable.\nNo proximity or causal links.",
+      "id": "noesis-knowledge-engine.link_water_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_water_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Commodity crosswalks with kind, evidence and review state.",
       "id": "noesis-knowledge-engine.list_agrifood_crosswalks",
@@ -64898,6 +65103,127 @@
     },
     {
       "cost_class": "low",
+      "description": "Water identity proposals and decisions with method, evidence class and evidence.",
+      "id": "noesis-knowledge-engine.list_water_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_water_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Water links with basis and both revisions.",
+      "id": "noesis-knowledge-engine.list_water_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_water_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Station match candidates with their decision state and the source-stated identifier links.",
       "id": "noesis-knowledge-engine.list_weather_station_matches",
       "input_schema": {
@@ -66714,6 +67040,54 @@
       ],
       "required_scopes": [
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A gauging station (id, number or name) as published: river, location and gauge-zero/datum vintages,\npublished time series and characteristic values, each vintage citing its revision.",
+      "id": "noesis-knowledge-engine.lookup_water_station",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "station"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_water_station",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70984,6 +71358,48 @@
         "knowledge-engine-runtime"
       ],
       "required_scopes": [
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll water monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_water_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_water_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -76404,6 +76820,54 @@
         "knowledge:technical:read",
         "knowledge:technical:write",
         "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer station and water-body to place/river candidates for review (none accepted): published identifiers\nfirst, then published coordinates or geometry with contains receipts; unmatched records are listed.",
+      "id": "noesis-knowledge-engine.propose_water_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "place_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_water_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:geospatial:calculate"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -84277,6 +84741,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Register noesis-water-record-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_water_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_water_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:schema:register"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Register noesis-weather-record-v1 in the shared schema registry (idempotent per version).",
       "id": "noesis-knowledge-engine.register_weather_schemas",
       "input_schema": {
@@ -89443,6 +89941,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed water identity decision (the entity identity decision is undone).",
+      "id": "noesis-knowledge-engine.revert_water_identity_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_water_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed station match; the candidate becomes reverted and never reactivates.",
       "id": "noesis-knowledge-engine.revert_weather_station_match",
       "input_schema": {
@@ -93532,6 +94072,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a water identity proposal with a reason; recorded as an entity identity decision.",
+      "id": "noesis-knowledge-engine.review_water_identity_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_water_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept, reject or revert a weather evidence link (`accept` | `reject` | `revert`).",
       "id": "noesis-knowledge-engine.review_weather_evidence_link",
       "input_schema": {
@@ -97460,6 +98046,55 @@
         "knowledge:technical:read",
         "knowledge:subscriptions:write",
         "knowledge:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a water monitor at a complete source-pack watermark; replays deliver nothing.",
+      "id": "noesis-knowledge-engine.run_water_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_water_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -107482,6 +108117,286 @@
       "required_scopes": [
         "knowledge:weather:read",
         "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A water body's ecological and chemical status per WFD reporting cycle as reported; cycles are never\nmerged and no trend or Noesis assessment is derived.",
+      "id": "noesis-knowledge-engine.water_body_status_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "water_body": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "water_body"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "water_body_status_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Stations (optionally on one river place) and water bodies of a place, by accepted identity matches or\ncontainment in the stated geometry version, with latest values and status per reporting cycle, all cited.",
+      "id": "noesis-knowledge-engine.water_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "type": "string"
+          },
+          "river": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "place_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "water_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which water features are selected, which stores exist, per-provider state and which linked providers\n(hazards, weather, infrastructure) are available.",
+      "id": "noesis-knowledge-engine.water_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "water_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Published values in a window with quality per value; missing steps of the published interval are listed,\nnever filled or resampled.",
+      "id": "noesis-knowledge-engine.water_series",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "end": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "parameter": {
+            "type": "string"
+          },
+          "start": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "station",
+          "parameter",
+          "start",
+          "end"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "water_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "PEGELONLINE, USGS Water Data and EEA WISE access contracts, the GRDC not-implemented decision, the\nno-personal-data minimisation decision, bounded coverage and live state. No flood forecasting, gap filling,\nown status assessment or flood-risk scoring.",
+      "id": "noesis-knowledge-engine.water_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "water_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Water level or discharge at a station and time as on record at a date: the value, its quality state\n(provisional or approved) and qualifiers as published, the observation revision cited and later revisions.\nA time without a published value stays missing; nothing is interpolated or forecast.",
+      "id": "noesis-knowledge-engine.water_value_at",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "parameter": {
+            "type": "string"
+          },
+          "station": {
+            "type": "string"
+          },
+          "time": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "station",
+          "parameter",
+          "time"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "water_value_at",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
