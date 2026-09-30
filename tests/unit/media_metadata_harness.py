@@ -76,3 +76,24 @@ class Env:
 
     def record_id(self, source_name: str, native_id: str) -> str:
         return self.store.resolve_record(NS, f"{source_name}:{native_id}")
+
+    def cultural_object(self, native_id: str, title: str, *, creators=(), same_as=()) -> str:
+        """Project one synthetic DDB-shaped cultural object through the cultural store (no places)."""
+        from src.kb.cultural import CulturalStore
+
+        record = {"contract": "noesis-cultural-object-v1", "provider": "ddb", "provider_record_id": native_id,
+                  "source_url": f"https://www.deutsche-digitale-bibliothek.de/item/{native_id}",
+                  "titles": [{"value": title, "language": "en"}], "descriptions": [], "dates": [], "places": [],
+                  "creators": [dict(c) for c in creators], "subjects": [], "languages": ["en"],
+                  "rights": {"statement": None}, "representations": [], "same_as": list(same_as),
+                  "native_sha256": native_id.lower().ljust(64, "0")[:64]}
+        CulturalStore(self.conn).observe_page(NS, [{"id": f"ddb:{native_id}", "cultural_record": record}],
+                                              run_id="cultural-fixture", source={"source_id": "ddb-fixture"})
+        return self.conn.execute("SELECT object_id FROM cultural_objects WHERE provider_record_id=?",
+                                 [native_id]).fetchone()[0]
+
+    def canonical_entity(self, canonical_id: str, name: str, entity_type: str = "PERSON") -> None:
+        """A News canonical entity row (the table the News pipeline owns; created here only for the fixture)."""
+        self.conn.execute("CREATE TABLE IF NOT EXISTS canonical_entities (canonical_id TEXT PRIMARY KEY, "
+                          "preferred_name TEXT NOT NULL, entity_type TEXT, created_at BIGINT NOT NULL)")
+        self.conn.execute("INSERT INTO canonical_entities VALUES (?,?,?,1)", [canonical_id, name, entity_type])

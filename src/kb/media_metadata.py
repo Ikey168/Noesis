@@ -720,9 +720,564 @@ class MediaMetadataProjector:
         return {"source_id": source["source_id"], "status": status}
 
 
+# ------------------------------------------------------------------ reviewable identity (MM07)
+
+MATCH_DECISIONS = frozenset({"accepted", "rejected", "deferred"})
+# Record levels compared by similarity; a Wikidata authority link compares at the level its P31 describes.
+_IDENTITY_FAMILIES = ("isbn", "isrc", "iswc", "barcode")
+_STOPWORDS = frozenset({"the", "a", "an", "der", "die", "das", "le", "la", "les", "of", "and", "und"})
+_IDENTITY_DDL = """
+CREATE TABLE IF NOT EXISTS media_matches (
+  namespace TEXT NOT NULL, match_id TEXT NOT NULL, left_id TEXT NOT NULL, right_kind TEXT NOT NULL,
+  right_id TEXT NOT NULL, basis TEXT NOT NULL, candidate_state TEXT NOT NULL, score DOUBLE NOT NULL,
+  evidence_json TEXT NOT NULL, asserting_revision_id TEXT, state TEXT NOT NULL, decision_id TEXT,
+  history_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL, updated_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, match_id)
+);
+"""
+
+
+def name_tokens(value: Any) -> frozenset[str]:
+    """Order-free tokens of a title or name (``Quell, Mara`` meets ``Mara Quell``)."""
+    text = re.sub(r"[^\w\s]", " ", str(value or "").casefold())
+    return frozenset(t for t in text.split() if t not in _STOPWORDS and (len(t) > 1 or t.isdigit()))
+
+
+def _jaccard(left: frozenset[str], right: frozenset[str]) -> float:
+    return len(left & right) / len(left | right) if left and right else 0.0
+
+
+def _year(dates: Sequence[Mapping[str, Any]]) -> str | None:
+    for item in dates:
+        if match := re.search(r"(?<!\d)(\d{4})(?!\d)", str(item.get("original") or "")):
+            return match.group(1)
+    return None
+
+
+def level_of(statement: Mapping[str, Any]) -> str:
+    if statement["record_type"] == "authority-link":
+        return str(statement.get("describes") or "unknown")
+    return statement["record_type"]
+
+
+class MediaMetadataIdentity:
+    """Explicit identifier matches, similarity candidates and canonical-entity candidates; never a merge."""
+
+    def __init__(self, conn: Any, *, initialize: bool = True, now: Callable[[], int] | None = None) -> None:
+        from src.kb.entity_history import EntityHistoryStore
+
+        self.conn = conn
+        self.store = MediaMetadataStore(conn, initialize=initialize, now=now)
+        self.now = self.store.now
+        self.history = EntityHistoryStore(conn, initialize=initialize, now=self.now)
+        if initialize:
+            conn.execute(_IDENTITY_DDL)
+
+    def ready(self) -> bool:
+        return table_exists(self.conn, "media_matches")
+
+    # ------------------------------------------------------------------ profiles
+
+    def profiles(self, namespace: str, *, as_of: date | None = None) -> dict[str, dict[str, Any]]:
+        """Current (or as-of) statement per record with its identifier keys."""
+        result = {}
+        for head in self.store.records(namespace):
+            revision, _ = self.store.revision_as_of(namespace, head["record_id"], as_of)
+            if revision is None:
+                continue
+            statement = self.store.statement(namespace, revision["revision_id"])
+            identifiers = self.store.identifiers(namespace, revision["revision_id"])
+            result[head["record_id"]] = {
+                **head, "revision": revision, "statement": statement, "level": level_of(statement),
+                "self_keys": {i["key"] for i in identifiers if i["role"] == "self" and i["key"]},
+                "asserted": [i for i in identifiers if i["role"] == "asserted" and i["key"]],
+                "titles": [t["value"] for t in statement["titles"]],
+                "names": [n["value"] for n in statement["names"]],
+                "year": _year(statement["dates"]), "status": statement["status"]}
+        by_key = {key: record_id for record_id, p in result.items() for key in p["self_keys"]}
+        for profile in result.values():
+            names = set()
+            for creator in profile["statement"]["creators"]:
+                ref = creator.get("ref")
+                target = by_key.get(normalize_identifier(ref["scheme"], ref["value"])["key"]) if ref and \
+                    ref["scheme"] in SCHEMES else None
+                if target and result[target]["names"]:
+                    names.add(result[target]["names"][0])
+                elif not (ref and creator["name"] == ref["value"]):
+                    names.add(creator["name"])
+            profile["creator_names"] = sorted(names)
+        return result
+
+    # ------------------------------------------------------------------ proposals
+
+    def _row(self, namespace: str, match_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT match_id, left_id, right_kind, right_id, basis, candidate_state, score, evidence_json, "
+            "asserting_revision_id, state, decision_id, history_json FROM media_matches WHERE namespace=? "
+            "AND match_id=?", [namespace, match_id]).fetchone()
+        if row is None:
+            raise MediaMetadataError("not_found", "match is not visible in this namespace")
+        value = dict(zip(("match_id", "left_id", "right_kind", "right_id", "basis", "candidate_state", "score",
+                          "evidence", "asserting_revision_id", "state", "decision_id", "history"), row))
+        value["evidence"], value["history"] = _load(value["evidence"], []), _load(value["history"], [])
+        value["review_state"] = value["state"]
+        return {"contract": MATCH_CONTRACT, **value,
+                "notice": "an identity match only: provider records, revisions and licences stay separate"}
+
+    def _upsert(self, namespace, left, right_kind, right, basis, candidate_state, score, evidence, revision_id):
+        a, b = (left, right) if right_kind != "record" else tuple(sorted([left, right]))
+        match_id = "media-match:" + digest([namespace, a, right_kind, b])[:24]
+        now = self.now()
+        existing = self.conn.execute("SELECT basis, history_json, state FROM media_matches WHERE namespace=? AND "
+                                     "match_id=?", [namespace, match_id]).fetchone()
+        rank = {"similarity": 0, "name-similarity": 0, "shared-identifier": 1, "explicit-identifier": 2}
+        if existing is None:
+            state = "accepted" if candidate_state == "identifier-match" else "unreviewed"
+            self.conn.execute("INSERT INTO media_matches VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                              [namespace, match_id, a, right_kind, b, basis, candidate_state, score,
+                               canonical(evidence), revision_id, state, None, "[]", now, now])
+            return match_id
+        if rank[basis] < rank[existing[0]]:
+            return match_id  # a weaker basis never replaces a stronger one
+        # Reviews stand; an unreviewed match follows the current evidence (an identifier match that became a
+        # conflict needs review again).
+        reviewed = bool(_load(existing[1], []))
+        state = existing[2] if reviewed else ("accepted" if candidate_state == "identifier-match" else "unreviewed")
+        self.conn.execute(
+            "UPDATE media_matches SET basis=?, candidate_state=?, score=?, evidence_json=?, asserting_revision_id=?, "
+            "state=?, updated_at_ms=? WHERE namespace=? AND match_id=?",
+            [basis, candidate_state, score, canonical(evidence), revision_id, state, now, namespace, match_id])
+        return match_id
+
+    def conflicting_keys(self, namespace: str, profiles: Mapping[str, Mapping[str, Any]] | None = None
+                         ) -> dict[str, dict[str, list[str]]]:
+        """Identifier keys one source asserts for two or more different records (e.g. an ISBN claimed by two
+        works): ``{key: {source: [record_id, ...]}}``."""
+        profiles = profiles if profiles is not None else self.profiles(namespace)
+        asserting: dict[str, dict[str, set[str]]] = {}
+        for record_id, profile in profiles.items():
+            if profile["status"] != "active":
+                continue
+            for item in profile["asserted"]:
+                if item["rank"] == "deprecated":
+                    continue
+                asserting.setdefault(item["key"], {}).setdefault(profile["source"], set()).add(record_id)
+        return {key: {s: sorted(ids) for s, ids in sources.items() if len(ids) > 1}
+                for key, sources in asserting.items() if any(len(ids) > 1 for ids in sources.values())}
+
+    def propose(self, namespace: str, *, scopes: Iterable[str], principal_id: str,
+                threshold: float = 0.5) -> dict[str, Any]:
+        """Explicit identifier statements become matches citing the asserting revision; shared identifiers match
+        across sources; title/creator/date similarity only proposes scored candidates; creators are proposed
+        against ``canonical_entities`` (read only). Nothing is merged and nothing is re-labelled."""
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        del principal_id
+        self.store.require_ready()
+        profiles = self.profiles(namespace)
+        conflicts = self.conflicting_keys(namespace, profiles)
+        by_self = {key: record_id for record_id, p in profiles.items() for key in p["self_keys"]}
+        produced = set()
+        self.conn.execute("BEGIN")
+        try:
+            # 1. explicit identifier statements (Wikidata P648/P227/P244/P434..., Open Library identifiers and
+            # remote_ids, MusicBrainz URL relations, MARC 024/010) naming another record's own key.
+            for record_id, profile in profiles.items():
+                if profile["status"] != "active":
+                    continue
+                for item in profile["asserted"]:
+                    target = by_self.get(item["key"])
+                    if target is None or target == record_id or item["rank"] == "deprecated":
+                        continue
+                    state = "conflict" if item["key"] in conflicts else "identifier-match"
+                    evidence = [{"kind": "identifier-statement", "asserted_by": record_id, "scheme": item["scheme"],
+                                 "value": item["value"], "property": item["property"], "rank": item["rank"],
+                                 "revision_id": profile["revision"]["revision_id"],
+                                 "revision_marker": profile["revision"]["marker"]}]
+                    if item["key"] in conflicts:
+                        evidence.append({"kind": "conflict", "key": item["key"], "claimed_by": conflicts[item["key"]]})
+                    produced.add(self._upsert(namespace, record_id, "record", target, "explicit-identifier", state,
+                                              1.0, evidence, profile["revision"]["revision_id"]))
+            # 2. shared identifiers (ISBN, ISRC, ISWC, barcode) asserted by records of different sources.
+            shared: dict[str, list[tuple[str, dict]]] = {}
+            for record_id, profile in profiles.items():
+                if profile["status"] != "active":
+                    continue
+                for item in profile["asserted"]:
+                    if item["key"].split(":", 1)[0] in _IDENTITY_FAMILIES and item["rank"] != "deprecated":
+                        shared.setdefault(item["key"], []).append((record_id, item))
+            for key, holders in sorted(shared.items()):
+                for i, (left, left_item) in enumerate(holders):
+                    for right, right_item in holders[i + 1:]:
+                        if left == right or profiles[left]["source"] == profiles[right]["source"]:
+                            continue
+                        state = "conflict" if key in conflicts else "identifier-match"
+                        evidence = [{"kind": "shared-identifier", "key": key,
+                                     "left": {"record_id": left, "value": left_item["value"],
+                                              "revision_id": profiles[left]["revision"]["revision_id"]},
+                                     "right": {"record_id": right, "value": right_item["value"],
+                                               "revision_id": profiles[right]["revision"]["revision_id"]}}]
+                        if key in conflicts:
+                            evidence.append({"kind": "conflict", "key": key, "claimed_by": conflicts[key]})
+                        produced.add(self._upsert(namespace, left, "record", right, "shared-identifier", state, 1.0,
+                                                  evidence, profiles[left]["revision"]["revision_id"]))
+            # 3. title / creator / date similarity: scored candidates only.
+            items = sorted(profiles.items())
+            for i, (left, a) in enumerate(items):
+                for right, b in items[i + 1:]:
+                    if a["source"] == b["source"] or a["level"] != b["level"] or a["level"] == "unknown" \
+                            or a["status"] != "active" or b["status"] != "active":
+                        continue
+                    scored = self._similarity(a, b)
+                    if scored["score"] >= threshold:
+                        produced.add(self._upsert(namespace, left, "record", right, "similarity", "candidate",
+                                                  scored["score"], [scored], a["revision"]["revision_id"]))
+            # 4. creators against canonical entities (News), read only.
+            for record_id, profile in items:
+                if profile["level"] != "creator" or profile["status"] != "active":
+                    continue
+                for entity in self._canonical_candidates(profile):
+                    produced.add(self._upsert(namespace, record_id, "canonical-entity", entity["canonical_id"],
+                                              "name-similarity", "candidate", entity["score"], [entity],
+                                              profile["revision"]["revision_id"]))
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        matches = [self._row(namespace, m) for m in sorted(produced)]
+        return {"contract": MATCH_CONTRACT, "namespace": namespace, "matches": matches,
+                "conflicts": [{"key": k, "claimed_by": v} for k, v in sorted(conflicts.items())],
+                "notice": "explicit identifier statements are matches citing the asserting revision; similarity and "
+                          "canonical-entity candidates need review; records are never merged"}
+
+    @staticmethod
+    def _similarity(a: Mapping[str, Any], b: Mapping[str, Any]) -> dict[str, Any]:
+        if a["level"] == "creator":
+            name = max((_jaccard(name_tokens(x), name_tokens(y)) for x in a["names"] for y in b["names"]),
+                       default=0.0)
+            years = a["year"] and b["year"] and a["year"] == b["year"]
+            score = round(0.8 * name + (0.2 if years else 0.0), 4)
+            return {"kind": "similarity", "method": "name-tokens-v1", "score": score,
+                    "components": {"name": round(name, 4), "year": bool(years)},
+                    "left": a["names"][:1], "right": b["names"][:1]}
+        title = max((_jaccard(name_tokens(x), name_tokens(y)) for x in a["titles"] for y in b["titles"]),
+                    default=0.0)
+        creator = max((_jaccard(name_tokens(x), name_tokens(y)) for x in a["creator_names"]
+                       for y in b["creator_names"]), default=0.0)
+        years = bool(a["year"] and b["year"] and a["year"] == b["year"])
+        score = round(0.6 * title + 0.3 * creator + (0.1 if years else 0.0), 4)
+        return {"kind": "similarity", "method": "title-creator-date-v1", "score": score,
+                "components": {"title": round(title, 4), "creator": round(creator, 4), "year": years},
+                "left": {"titles": a["titles"][:1], "creators": a["creator_names"], "year": a["year"]},
+                "right": {"titles": b["titles"][:1], "creators": b["creator_names"], "year": b["year"]}}
+
+    def _canonical_candidates(self, profile: Mapping[str, Any]) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "canonical_entities"):
+            return []
+        names = {name_tokens(n) for n in profile["names"] if name_tokens(n)}
+        if not names:
+            return []
+        rows = self.conn.execute("SELECT canonical_id, preferred_name, entity_type FROM canonical_entities "
+                                 "ORDER BY canonical_id").fetchall()
+        aliases: dict[str, list[str]] = {}
+        if table_exists(self.conn, "entity_aliases"):
+            for surface, canonical_id in self.conn.execute(
+                    "SELECT surface_form, canonical_id FROM entity_aliases ORDER BY surface_form").fetchall():
+                aliases.setdefault(canonical_id, []).append(surface)
+        found = []
+        for canonical_id, preferred, entity_type in rows:
+            if entity_type and str(entity_type).upper() not in {"PERSON", "PER", "ORG", "ORGANIZATION"}:
+                continue
+            surfaces = [preferred, *aliases.get(canonical_id, [])]
+            score = max((_jaccard(n, name_tokens(s)) for n in names for s in surfaces), default=0.0)
+            if score >= 0.75:
+                found.append({"kind": "canonical-entity-name", "canonical_id": canonical_id,
+                              "preferred_name": preferred, "entity_type": entity_type, "score": round(score, 4),
+                              "method": "name-tokens-v1", "creator_names": profile["names"]})
+        return found
+
+    # ------------------------------------------------------------------ review
+
+    def matches(self, namespace: str, *, record_id: str | None = None, state: str | None = None,
+                right_kind: str | None = None) -> list[dict[str, Any]]:
+        if not self.ready():
+            return []
+        rows = self.conn.execute(
+            "SELECT match_id FROM media_matches WHERE namespace=? AND (? IS NULL OR left_id=? OR right_id=?) "
+            "AND (? IS NULL OR candidate_state=?) AND (? IS NULL OR right_kind=?) ORDER BY match_id",
+            [namespace, record_id, record_id, record_id, state, state, right_kind, right_kind]).fetchall()
+        return [self._row(namespace, r[0]) for r in rows]
+
+    def review(self, namespace: str, match_id: str, decision: str, reason: str, *, scopes: Iterable[str],
+               principal_id: str) -> dict[str, Any]:
+        """Accept, reject or defer with a reason; the decision is an entity-history decision and reversible."""
+        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        if decision not in MATCH_DECISIONS or not str(reason or "").strip():
+            raise MediaMetadataError("invalid_decision", "decide accepted, rejected or deferred with a reason")
+        match = self._row(namespace, match_id)
+        decision_id = None
+        if decision != "deferred":
+            left, right = f"media-record:{match['left_id']}", f"{match['right_kind']}:{match['right_id']}"
+            for entity in (left, right):
+                self.history.register_entity(namespace, entity, [entity], principal_id=principal_id,
+                                             scopes=_ENTITY_HISTORY_SCOPES)
+            recorded = self.history.decide(
+                namespace, "match" if decision == "accepted" else "non-match", [left, right],
+                {"match_id": match_id, "basis": match["basis"], "candidate_state": match["candidate_state"],
+                 "evidence": match["evidence"], "reason": reason.strip(),
+                 "provenance": {"producer": "science.media-metadata"},
+                 "policy": {"merge": False, "note": "identity decision only; provider records stay separate"}},
+                reviewer_id=principal_id, principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES,
+                event_key=f"media-identity:{namespace}:{match_id}:{len(match['history'])}")
+            decision_id = recorded["decision_id"]
+        return self._transition(namespace, match, decision, decision_id, principal_id, reason.strip())
+
+    def revert(self, namespace: str, match_id: str, reason: str, *, scopes: Iterable[str],
+               principal_id: str) -> dict[str, Any]:
+        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        if not str(reason or "").strip():
+            raise MediaMetadataError("invalid_decision", "a revert needs a reason")
+        match = self._row(namespace, match_id)
+        if match["state"] not in {"accepted", "rejected"} or not match["decision_id"]:
+            raise MediaMetadataError("invalid_state", "only a reviewed accepted or rejected match can be reverted")
+        undo = self.history.undo(namespace, match["decision_id"], reviewer_id=principal_id, principal_id=principal_id,
+                                 scopes=_ENTITY_HISTORY_SCOPES)
+        return self._transition(namespace, match, "reverted", undo["decision_id"], principal_id, reason.strip())
+
+    def _transition(self, namespace, match, state, decision_id, principal_id, reason):
+        history = match["history"] + [{"state": state, "by": principal_id, "reason": reason,
+                                       "at": iso_from_ms(self.now()), "decision_id": decision_id}]
+        self.conn.execute("UPDATE media_matches SET state=?, decision_id=?, history_json=?, updated_at_ms=? "
+                          "WHERE namespace=? AND match_id=?",
+                          [state, decision_id, canonical(history), self.now(), namespace, match["match_id"]])
+        return self._row(namespace, match["match_id"])
+
+    def cluster(self, namespace: str, record_id: str) -> list[str]:
+        """The record plus every record an identifier match or an accepted review connects to it."""
+        parent: dict[str, str] = {}
+
+        def find(key: str) -> str:
+            parent.setdefault(key, key)
+            while parent[key] != key:
+                parent[key] = parent[parent[key]]
+                key = parent[key]
+            return key
+
+        for match in self.matches(namespace, right_kind="record"):
+            if match["state"] == "accepted":
+                parent[find(match["left_id"])] = find(match["right_id"])
+        root = find(record_id)
+        return sorted({k for k in list(parent) if find(k) == root} | {record_id})
+
+
+# ------------------------------------------------------------------ cultural objects and news entities (MM08)
+
+LINK_BASES = frozenset({"identifier", "provider-relation", "reviewed-assertion"})
+_LINKS_DDL = """
+CREATE TABLE IF NOT EXISTS media_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, subject_kind TEXT NOT NULL, subject_id TEXT NOT NULL,
+  subject_revision TEXT NOT NULL, record_id TEXT NOT NULL, record_revision_id TEXT NOT NULL, basis TEXT NOT NULL,
+  state TEXT NOT NULL, evidence_json TEXT NOT NULL, principal_id TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
+  reviewed_by TEXT, reviewed_at_ms BIGINT, reason TEXT, PRIMARY KEY(namespace, link_id)
+);
+"""
+_AUTHORITY_URLS = (
+    (re.compile(r"wikidata\.org/(?:wiki|entity)/(Q[1-9]\d*)"), "wikidata"),
+    (re.compile(r"d-nb\.info/gnd/([0-9X\-]+)"), "gnd"),
+    (re.compile(r"id\.loc\.gov/authorities/names/([a-z]{1,3}\d+)"), "lcnaf"),
+    (re.compile(r"openlibrary\.org/(?:works|books|authors)/(OL\d+[AWM])"), "olid"),
+    (re.compile(r"musicbrainz\.org/(?:artist|work|recording|release)/([0-9a-f\-]{36})"), "mbid"),
+)
+
+
+def authority_reference(value: Any) -> dict[str, str] | None:
+    """An identifier named in a cultural object record: an authority URI, ``scheme:value`` or ``(DE-588)`` form."""
+    text = str(value or "").strip()
+    if not text:
+        return None
+    for pattern, scheme in _AUTHORITY_URLS:
+        if match := pattern.search(text):
+            return {"scheme": scheme, "value": match.group(1)}
+    if text.startswith("(DE-588)"):
+        return {"scheme": "gnd", "value": text[8:]}
+    scheme, _, rest = text.partition(":")
+    if scheme.casefold() in SCHEMES and rest:
+        return {"scheme": scheme.casefold(), "value": rest}
+    return None
+
+
+class MediaMetadataLinks:
+    """Cultural objects and news entities reach media records only by identifier, provider relation or review."""
+
+    def __init__(self, conn: Any, *, initialize: bool = True, now: Callable[[], int] | None = None) -> None:
+        self.conn = conn
+        self.identity = MediaMetadataIdentity(conn, initialize=initialize, now=now)
+        self.store = self.identity.store
+        self.now = self.store.now
+        if initialize:
+            conn.execute(_LINKS_DDL)
+
+    def _objects(self, namespace: str) -> list[tuple[str, str, dict[str, Any]]]:
+        if not table_exists(self.conn, "cultural_current"):
+            return []
+        rows = self.conn.execute(
+            "SELECT c.object_id, c.revision_id, r.record_json FROM cultural_current c JOIN cultural_revisions r "
+            "ON r.revision_id=c.revision_id WHERE c.namespace=? ORDER BY c.object_id", [namespace]).fetchall()
+        return [(r[0], r[1], _load(r[2], {})) for r in rows]
+
+    def _put(self, namespace, kind, subject_id, subject_revision, record_id, record_revision, basis, state, evidence,
+             principal_id):
+        link_id = "media-link:" + digest([namespace, kind, subject_id, record_id])[:24]
+        existing = self.conn.execute("SELECT state FROM media_links WHERE namespace=? AND link_id=?",
+                                     [namespace, link_id]).fetchone()
+        if existing and (existing[0] in {"linked", "rejected"} and state == "candidate" or existing[0] == state):
+            return link_id  # reviewed links are never re-labelled by a later suggestion
+        if existing:
+            self.conn.execute(
+                "UPDATE media_links SET subject_revision=?, record_revision_id=?, basis=?, state=?, evidence_json=? "
+                "WHERE namespace=? AND link_id=?",
+                [subject_revision, record_revision, basis, state, canonical(evidence), namespace, link_id])
+        else:
+            self.conn.execute("INSERT INTO media_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                              [namespace, link_id, kind, subject_id, subject_revision, record_id, record_revision,
+                               basis, state, canonical(evidence), principal_id, self.now(), None, None, None])
+        return link_id
+
+    def link_cultural_objects(self, namespace: str, *, scopes: Iterable[str], principal_id: str) -> dict[str, Any]:
+        """Identifiers and provider relations in a cultural object record link it; keyword overlap only proposes."""
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        self.store.require_ready()
+        profiles = self.identity.profiles(namespace)
+        by_self = {key: record_id for record_id, p in profiles.items() for key in p["self_keys"]}
+        touched = []
+        for object_id, object_revision, record in self._objects(namespace):
+            refs = []
+            for creator in record.get("creators") or []:
+                if ref := authority_reference(creator.get("authority_id")):
+                    refs.append(("identifier", ref, {"field": "creators.authority_id", "name": creator.get("name")}))
+            for item in record.get("identifiers") or []:
+                ref = authority_reference(f"{item.get('scheme')}:{item.get('value')}") if isinstance(item, Mapping) \
+                    else authority_reference(item)
+                if ref:
+                    refs.append(("identifier", ref, {"field": "identifiers"}))
+            for target in record.get("same_as") or []:
+                if ref := authority_reference(target):
+                    refs.append(("provider-relation", ref, {"field": "same_as", "value": target}))
+            linked = set()
+            for basis, ref, where in refs:
+                if ref["scheme"] not in SCHEMES:
+                    continue
+                record_id = by_self.get(normalize_identifier(ref["scheme"], ref["value"])["key"])
+                if record_id is None:
+                    continue
+                revision = profiles[record_id]["revision"]
+                touched.append(self._put(
+                    namespace, "cultural-object", object_id, object_revision, record_id, revision["revision_id"],
+                    basis, "linked", {**where, "identifier": ref, "object_revision_id": object_revision,
+                                      "record_revision_id": revision["revision_id"],
+                                      "record_revision_marker": revision["marker"]}, principal_id))
+                linked.add(record_id)
+            words = set()
+            for text in [t.get("value") for t in record.get("titles") or []] + \
+                    [c.get("name") for c in record.get("creators") or []]:
+                words |= {w for w in name_tokens(text) if len(w) >= 4}
+            for record_id, profile in profiles.items():
+                if record_id in linked or profile["status"] != "active":
+                    continue
+                terms = {w for t in profile["titles"] + profile["names"] for w in name_tokens(t) if len(w) >= 4}
+                overlap = sorted(words & terms)
+                if len(overlap) >= 2:
+                    touched.append(self._put(
+                        namespace, "cultural-object", object_id, object_revision, record_id,
+                        profile["revision"]["revision_id"], "keyword-overlap", "candidate",
+                        {"overlap": overlap, "object_revision_id": object_revision,
+                         "record_revision_id": profile["revision"]["revision_id"]}, principal_id))
+        return {"namespace": namespace, "links": [self.link(namespace, i) for i in sorted(set(touched))],
+                "notice": "identifier and provider-relation links cite both revisions; keyword overlap is only a "
+                          "candidate for review"}
+
+    def link_news_entities(self, namespace: str, *, scopes: Iterable[str], principal_id: str) -> dict[str, Any]:
+        """Creator-to-canonical-entity matches become news-entity link candidates (reviewed ones become links).
+        ``canonical_entities`` and ``entity_aliases`` are only read: no existing entity is re-labelled."""
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        touched = []
+        for match in self.identity.matches(namespace, right_kind="canonical-entity"):
+            revision = self.store.current_revision(namespace, match["left_id"])
+            entity = match["evidence"][0]
+            subject_revision = "canonical-entity:" + digest([entity.get("preferred_name"),
+                                                             entity.get("entity_type")])[:16]
+            state = {"accepted": "linked", "rejected": "rejected"}.get(match["state"], "candidate")
+            basis = "reviewed-assertion" if state != "candidate" else "name-similarity"
+            touched.append(self._put(namespace, "news-entity", match["right_id"], subject_revision, match["left_id"],
+                                     revision["revision_id"], basis, state,
+                                     {"match_id": match["match_id"], "score": match["score"],
+                                      "record_revision_id": revision["revision_id"],
+                                      "entity_revision": subject_revision, "entity": entity}, principal_id))
+        return {"namespace": namespace, "links": [self.link(namespace, i) for i in sorted(set(touched))],
+                "notice": "authority records are reviewable candidates for news entities; no entity is re-labelled"}
+
+    def assert_link(self, namespace: str, subject_kind: str, subject_id: str, record: str, evidence: str, *,
+                    scopes: Iterable[str], principal_id: str) -> dict[str, Any]:
+        """A reviewer's explicit assertion that a cultural object or news entity refers to a media record."""
+        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        if subject_kind not in {"cultural-object", "news-entity"} or not str(evidence or "").strip():
+            raise MediaMetadataError("invalid_request", "name cultural-object or news-entity and cite the evidence")
+        record_id = self.store.resolve_record(namespace, record)
+        revision = self.store.current_revision(namespace, record_id)
+        subject_revision = subject_id
+        if subject_kind == "cultural-object":
+            found = [r for r in self._objects(namespace) if r[0] == subject_id]
+            if not found:
+                raise MediaMetadataError("not_found", "cultural object is not visible in this namespace")
+            subject_revision = found[0][1]
+        link_id = self._put(namespace, subject_kind, subject_id, subject_revision, record_id, revision["revision_id"],
+                            "reviewed-assertion", "linked", {"assertion": evidence.strip(),
+                                                             "record_revision_id": revision["revision_id"]},
+                            principal_id)
+        self.conn.execute("UPDATE media_links SET reviewed_by=?, reviewed_at_ms=?, reason=? WHERE namespace=? AND "
+                          "link_id=?", [principal_id, self.now(), evidence.strip(), namespace, link_id])
+        return self.link(namespace, link_id)
+
+    def review_link(self, namespace: str, link_id: str, decision: str, reason: str, *, scopes: Iterable[str],
+                    principal_id: str) -> dict[str, Any]:
+        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        if decision not in {"accepted", "rejected"} or not str(reason or "").strip():
+            raise MediaMetadataError("invalid_decision", "accept or reject a link with a reason")
+        self.link(namespace, link_id)
+        state, basis = ("linked", "reviewed-assertion") if decision == "accepted" else ("rejected", None)
+        self.conn.execute(
+            "UPDATE media_links SET state=?, basis=coalesce(?, basis), reviewed_by=?, reviewed_at_ms=?, reason=? "
+            "WHERE namespace=? AND link_id=?", [state, basis, principal_id, self.now(), reason.strip(), namespace,
+                                                link_id])
+        return self.link(namespace, link_id)
+
+    def link(self, namespace: str, link_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT link_id, subject_kind, subject_id, subject_revision, record_id, record_revision_id, basis, state, "
+            "evidence_json, principal_id, reviewed_by, reason FROM media_links WHERE namespace=? AND link_id=?",
+            [namespace, link_id]).fetchone()
+        if row is None:
+            raise MediaMetadataError("not_found", "link is not visible in this namespace")
+        value = dict(zip(("link_id", "subject_kind", "subject_id", "subject_revision", "record_id",
+                          "record_revision_id", "basis", "state", "evidence", "principal_id", "reviewed_by",
+                          "reason"), row))
+        value["evidence"] = _load(value["evidence"], {})
+        return {"contract": LINK_CONTRACT, **value}
+
+    def links(self, namespace: str, *, record_id: str | None = None, subject_id: str | None = None,
+              state: str | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "media_links"):
+            return []
+        rows = self.conn.execute(
+            "SELECT link_id FROM media_links WHERE namespace=? AND (? IS NULL OR record_id=?) AND "
+            "(? IS NULL OR subject_id=?) AND (? IS NULL OR state=?) ORDER BY link_id",
+            [namespace, record_id, record_id, subject_id, subject_id, state, state]).fetchall()
+        return [self.link(namespace, r[0]) for r in rows]
+
+
 __all__ = [
     "ANSWER_CONTRACT", "BOUNDARY", "CONTRACT", "FEATURE", "LINK_CONTRACT", "MATCH_CONTRACT", "MediaMetadataError",
-    "MediaMetadataProjector", "MediaMetadataStore", "NEWS_FEATURE", "READ_SCOPE", "RECORD_TYPES", "REVIEW_SCOPE",
+    "MediaMetadataIdentity", "MediaMetadataLinks", "MediaMetadataProjector", "MediaMetadataStore",
+    "authority_reference", "level_of", "name_tokens", "NEWS_FEATURE", "READ_SCOPE", "RECORD_TYPES", "REVIEW_SCOPE",
     "SCHEMES", "SOURCES", "WRITE_SCOPE", "detect_scheme", "isbn13_from_isbn10", "native_key", "normalize_identifier",
     "normalize_lccn", "record_id_for", "validate_statement",
 ]
