@@ -105,3 +105,34 @@ def series_by_key(conn, provider: str, native_key: str) -> dict[str, Any]:
     from src.kb.labour_statistics import LabourStore
 
     return next(s for s in LabourStore(conn).find_series(NS, provider=provider) if s["native_key"] == native_key)
+
+
+PLACES = {
+    "de": ("Germany", "country", {"iso3166-1-alpha3": "DEU", "iso3166-1-alpha2": "DE"}),
+    "us": ("United States", "country", {"iso3166-1-alpha3": "USA", "iso3166-1-alpha2": "US"}),
+    "ca": ("California", "state", {"us-fips-state": "06"}),
+    "be": ("Berlin", "region", {"nuts": "DE30"}),
+}
+
+
+def register_places(conn, geo_namespace: str = "geo", keys=tuple(PLACES)) -> dict[str, str]:
+    """Register the fixture places in the Geospatial store; returns key -> place_id."""
+    from src.kb.geospatial import GeospatialStore
+
+    places = GeospatialStore(conn)
+    out = {}
+    for key in keys:
+        name, kind, ids = PLACES[key]
+        place = places.register_place(geo_namespace, name, kind, names=[{"value": name, "language": "en"}],
+                                      source_ids=ids, parent_ids=[], principal_id="op",
+                                      scopes={"knowledge:geospatial:write"}, place_key=f"fixture:{key}")
+        out[key] = place["place_id"]
+    return out
+
+
+def import_concordances(conn) -> list[dict[str, Any]]:
+    from src.kb.labour_identity import LabourIdentity
+
+    tables = json.loads((FIXTURES / "concordances.json").read_text())["tables"]
+    identity = LabourIdentity(conn)
+    return [identity.import_concordance(NS, table, principal_id="op", scopes=SCOPES) for table in tables]
