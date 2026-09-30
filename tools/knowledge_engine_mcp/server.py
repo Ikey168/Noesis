@@ -9421,6 +9421,11 @@ from tools.knowledge_engine_mcp.campaign_finance import (  # noqa: E402 - regist
 )
 
 register_campaign_finance_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.fact_checks import (
+    register as register_fact_check_tools,
+)
+
+register_fact_check_tools(mcp, _intake_safe, _intake_context)
 
 from tools.knowledge_engine_mcp.logistics import (  # noqa: E402 - registration order
     register as register_logistics_tools,

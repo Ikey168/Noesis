@@ -294,6 +294,7 @@
     "hazards.core": {"subdomains": ["natural-hazards"], "shapes": ["events-notices"], "themes": ["climate"]},
 
     "news.core": {"subdomains": ["news-media"], "shapes": ["versioned-documents"]},
+    "news.fact-checks": {"subdomains": ["fact-checks"], "shapes": ["versioned-documents", "registry-records"]},
 
     "onchain.core": {"subdomains": ["digital-assets"], "shapes": ["observations"]},
 
