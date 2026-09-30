@@ -137,7 +137,8 @@ def test_the_market_bundle_resolves_unchanged_with_the_feature_off_by_default():
         "market.lei",
     }
     assert plan["omissions"] == [
-        {"pack": "market", "feature": "bafin-notices", "reason": "not selected"}
+        {"pack": "market", "feature": "bafin-notices", "reason": "not selected"},
+        {"pack": "market", "feature": "insurance", "reason": "not selected"},  # #2230
     ]
     # The pins the Market bundle already had are unchanged; the new pack is additive.
     assert {
@@ -155,7 +156,9 @@ def test_selecting_the_feature_binds_its_provider_and_exposes_its_tools():
         plan["features"]["market"] == ["bafin-notices"]
         and bound(plan, "market") == FEATURE_PROVIDERS
     )
-    assert plan["omissions"] == []
+    assert plan["omissions"] == [
+        {"pack": "market", "feature": "insurance", "reason": "not selected"}  # #2230
+    ]
     assert {
         "pack_id": "bafin-capital-market-notices",
         "version": "1.0.0",

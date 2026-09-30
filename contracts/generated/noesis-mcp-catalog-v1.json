@@ -498,7 +498,7 @@
       "pack": null,
       "reason": null,
       "state": "unauthorized",
-      "tool_count": 62,
+      "tool_count": 75,
       "tools": [
         "noesis-market.build_market_company_dossier",
         "noesis-market.build_market_industry_model",
@@ -506,6 +506,7 @@
         "noesis-market.calculate_market_price_metrics",
         "noesis-market.calculate_market_sizing",
         "noesis-market.consume_market_budget",
+        "noesis-market.create_insurance_monitor",
         "noesis-market.create_market_backup",
         "noesis-market.deliver_market_alert",
         "noesis-market.deliver_market_brief",
@@ -527,11 +528,20 @@
         "noesis-market.inspect_market_research_artifact",
         "noesis-market.inspect_market_screener_run",
         "noesis-market.inspect_market_specialized_run",
+        "noesis-market.insurance_coverage",
+        "noesis-market.insurance_event_estimates",
+        "noesis-market.insurance_insurer_as_of",
+        "noesis-market.insurance_market_as_of",
+        "noesis-market.insurance_revision_history",
+        "noesis-market.link_insurance_loss_estimates",
+        "noesis-market.list_insurance_identity_candidates",
         "noesis-market.lookup_market_instrument",
         "noesis-market.market_acceptance_journey",
         "noesis-market.market_alert_history",
         "noesis-market.market_provider_health",
         "noesis-market.market_readiness",
+        "noesis-market.poll_insurance_monitor",
+        "noesis-market.propose_insurance_identity_matches",
         "noesis-market.prune_market_operations_audit",
         "noesis-market.record_market_driver_hypotheses",
         "noesis-market.record_market_operations_measurements",
@@ -539,8 +549,11 @@
         "noesis-market.record_market_recovery_drill",
         "noesis-market.record_market_repair",
         "noesis-market.restore_market_backup",
+        "noesis-market.review_insurance_event_link",
+        "noesis-market.review_insurance_identity_match",
         "noesis-market.review_market_acceptance_journey",
         "noesis-market.review_market_thesis",
+        "noesis-market.run_insurance_monitor",
         "noesis-market.run_market_alerts",
         "noesis-market.run_market_backtest",
         "noesis-market.run_market_brief_schedules",
@@ -568,7 +581,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 62
+      "visible_tool_count": 75
     },
     {
       "aliases": [
@@ -2547,9 +2560,9 @@
     "states": {
       "available": 146,
       "degraded": 173,
-      "unauthorized": 1580
+      "unauthorized": 1593
     },
-    "tools": 1899
+    "tools": 1912
   },
   "tools": [
     {
@@ -10014,6 +10027,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch an insurer, a market (country) or an event for new releases, new or corrected SFCRs, new\nloss-estimate revisions and identity-match changes (a knowledge subscription; no separate scheduler).",
+      "id": "noesis-market.create_insurance_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_insurance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Persist a bounded, hash-verified operations backup manifest and content snapshot.",
       "id": "noesis-market.create_market_backup",
       "input_schema": {
@@ -11350,6 +11409,359 @@
     },
     {
       "cost_class": "low",
+      "description": "The recorded access and licence decision per source and publisher (in scope, metadata-only, excluded),\nwith reasons and live-verification status.",
+      "id": "noesis-market.insurance_coverage",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "insurance_coverage",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every publisher's catastrophe-loss estimate series for an event as of a date, listed separately (never\nmerged) with the revision in force, all revisions known then, links and citations. ``event`` is the\nevent name or reference as published, a published identifier, or a linked Natural Hazards record id.",
+      "id": "noesis-market.insurance_event_estimates",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "event": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "event",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "insurance_event_estimates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An insurer's SFCR figures (quoted QRT cells) and insurer-level statistics as of a date (YYYY-MM-DD).\n\n``insurer`` is an LEI, a NAIC company code, an insurance party key or an accepted match. Group and solo\nreports stay distinct; with ``lei_namespace`` a group report appears beside an undertaking only through\na GLEIF parent relationship, labelled as the group's. No solvency or rating assessment.",
+      "id": "noesis-market.insurance_insurer_as_of",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "insurer": {
+            "type": "string"
+          },
+          "lei_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "insurer",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "insurance_insurer_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Supervisory statistics for a market (country) as of a date, per publisher with definitions, currency,\nperiod, release vintage and history; confidential cells keep their markers; nothing is reconciled.",
+      "id": "noesis-market.insurance_market_as_of",
+      "input_schema": {
+        "properties": {
+          "acquired_by_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "type": "string"
+          },
+          "country": {
+            "type": "string"
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "line_of_business": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "country",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "insurance_market_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The full revision history of one insurance record (an estimate, figure or report), in publication\norder, each revision cited; optionally only what was published by ``as_of``.",
+      "id": "noesis-market.insurance_revision_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "insurance_revision_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link current loss estimates to Natural Hazards events and insurer reports on published identifiers or\nexplicit citations; name and date matches become candidates for review. Idempotent.",
+      "id": "noesis-market.link_insurance_loss_estimates",
+      "input_schema": {
+        "properties": {
+          "hazard_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_insurance_loss_estimates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "market:insurance:write"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Reviewable insurer identity candidates (name + jurisdiction or name-only) and their states.",
+      "id": "noesis-market.list_insurance_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "party": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_insurance_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Resolve a listing symbol, identifier, or exact instrument revision as of cutoffs.",
       "id": "noesis-market.lookup_market_instrument",
       "input_schema": {
@@ -11662,6 +12074,83 @@
       ],
       "required_scopes": [
         "market:instruments:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll an insurance monitor's recorded events from a cursor.",
+      "id": "noesis-market.poll_insurance_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_insurance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer name + jurisdiction candidates between insurers and ownership entities (exact LEI/NAIC matches\nneed no review and are never offered as candidates). Idempotent.",
+      "id": "noesis-market.propose_insurance_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_insurance_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-market",
       "state": "unauthorized",
@@ -12144,6 +12633,102 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a name/date candidate link between an estimate and a hazard event.",
+      "id": "noesis-market.review_insurance_event_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_insurance_event_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "market:insurance:review"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject an insurer identity candidate with a reason, or revert a decision (revert=true).",
+      "id": "noesis-market.review_insurance_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "revert": {
+            "default": false,
+            "type": "boolean"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_insurance_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Record an immutable, explicitly human-attested usefulness review of a five-company journey.",
       "id": "noesis-market.review_market_acceptance_journey",
       "input_schema": {
@@ -12304,6 +12889,52 @@
       ],
       "required_scopes": [
         "market:research:write"
+      ],
+      "server": "noesis-market",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate an insurance monitor at a committed watermark; notifications cite the publication and carry no\nsolvency, rating or loss-trend verdict.",
+      "id": "noesis-market.run_insurance_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_insurance_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "market-instrument-store"
+      ],
+      "required_scopes": [
+        "market:insurance:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-market",
       "state": "unauthorized",

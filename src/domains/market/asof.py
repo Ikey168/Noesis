@@ -42,7 +42,7 @@ _SELECTION_KEYS = frozenset(
     }
 )
 # Optional input kinds join a request only when selected, so requests without them hash as before.
-_OPTIONAL_SELECTION_KEYS = frozenset({"bafin_notices"})
+_OPTIONAL_SELECTION_KEYS = frozenset({"bafin_notices", "insurance_records"})
 _BAFIN_NOTICE_KINDS = frozenset(
     {
         "voting_rights_notification",
@@ -252,6 +252,8 @@ class MarketAsOfSnapshotStore:
         selected = {key: selection.get(key, []) for key in sorted(_SELECTION_KEYS)}
         if selection.get("bafin_notices"):
             selected["bafin_notices"] = selection["bafin_notices"]
+        if selection.get("insurance_records"):
+            selected["insurance_records"] = selection["insurance_records"]
         if not any(selected.values()):
             raise MarketAsOfError("invalid_selection", "at least one input is required")
         for kind, values in selected.items():
@@ -363,6 +365,24 @@ class MarketAsOfSnapshotStore:
                     selector["kinds"] = kinds
                 normalized_bafin.append(selector)
             selected["bafin_notices"] = _sort_specs(normalized_bafin)
+        if "insurance_records" in selected:
+            # Insurance records (#2230): a namespace and optional record kinds.
+            from src.domains.market.insurance import KINDS as _INSURANCE_KINDS
+
+            normalized_insurance = []
+            for item in selected["insurance_records"]:
+                if not isinstance(item, Mapping) or set(item) - {"namespace", "kinds"} or "namespace" not in item:
+                    raise MarketAsOfError(
+                        "invalid_selection", "insurance selectors require a namespace and optional kinds"
+                    )
+                kinds = sorted(set(item.get("kinds") or []))
+                if set(kinds) - set(_INSURANCE_KINDS):
+                    raise MarketAsOfError("invalid_selection", "unsupported insurance record kind")
+                selector = {"namespace": _text(item["namespace"], "insurance namespace", 100)}
+                if kinds:
+                    selector["kinds"] = kinds
+                normalized_insurance.append(selector)
+            selected["insurance_records"] = _sort_specs(normalized_insurance)
         if (
             not isinstance(transformations, (list, tuple))
             or len(transformations) > _MAX_ITEMS
@@ -858,6 +878,46 @@ class MarketAsOfSnapshotStore:
                         "retrieved_at_ms": view["observed_at_ms"],
                         "notice_kind": view["notice"]["kind"],
                         "source_id": view["notice"]["source"]["source_id"],
+                        "source_ref_ids": [],
+                        "entitlement_ids": [],
+                        "source_entitlements": [],
+                    }
+                )
+
+        for selector in request["selection"].get("insurance_records", []):
+            # Insurance records (#2230): each record's revision published by the public cutoff and
+            # acquired by the acquisition cutoff; nothing later is seen.
+            from src.domains.market.insurance import InsuranceError, InsuranceStore
+            from src.domains.market.insurance import authorize as insurance_authorize
+
+            object_id = f"{selector['namespace']}:*"
+            try:
+                insurance_authorize(selector["namespace"], scopes, "market:insurance:read")
+                visible = InsuranceStore(self.conn, initialize=False).visible(
+                    selector["namespace"],
+                    kinds=selector.get("kinds"),
+                    public_cutoff_ms=public_cutoff,
+                    acquired_by_ms=acquired_cutoff,
+                )
+            except InsuranceError as exc:
+                if exc.code == "unauthorized":
+                    raise MarketAsOfError("unauthorized", "insurance record access is required") from exc
+                gap("insurance_records", object_id, "insurance_records_not_acquired")
+                continue
+            if not visible:
+                gap("insurance_records", object_id, "no_records_published_at_cutoffs")
+            for view in visible:
+                append_input(
+                    {
+                        "kind": "insurance_record",
+                        "object_id": view["record_id"],
+                        "revision_id": view["revision_id"],
+                        "record_hash": view["record_hash"],
+                        "public_at_ms": view["public_at_ms"],
+                        "publication_basis": view["public_basis"],
+                        "retrieved_at_ms": view["observed_at_ms"],
+                        "record_kind": view["record"]["kind"],
+                        "source_id": view["record"]["source"]["source_id"],
                         "source_ref_ids": [],
                         "entitlement_ids": [],
                         "source_entitlements": [],

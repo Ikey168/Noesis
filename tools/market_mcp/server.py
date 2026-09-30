@@ -855,6 +855,20 @@ def calculate_market_fact_metrics(
     )
 
 
+def _connect(write: bool) -> Any:
+    import duckdb
+
+    from src.config.env import warehouse_path
+
+    return duckdb.connect(warehouse_path() or str(ROOT / "data" / "neuronews.duckdb"), read_only=not write)
+
+
+# Optional insurance feature (#2230): insurer, market and event lookups as of a date.
+from tools.market_mcp.insurance import register as register_insurance_tools  # noqa: E402
+
+register_insurance_tools(mcp, _context, _connect)
+
+
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server
 

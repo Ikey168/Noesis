@@ -50,8 +50,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Humanitarian Response and Conflict Events pack (#2206),
     # plus the Agriculture and Food Systems pack (#2213),
     # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223),
-    # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229).
-    assert len(packs) == 31
+    # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229),
+    # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230).
+    assert len(packs) == 32
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -118,8 +119,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Astronomy space-object registration feature's UNOOSA, DISCOS and Aerospace sources (#2224),
     # plus the Clinical Evidence health-capacity feature's WHO GHO, OECD Health Statistics and Eurostat sources (#2215),
     # plus the Science education-statistics feature's IPEDS, ETER, UIS, OECD EAG and Eurostat R&D sources (#2227),
-    # plus the Economics logistics feature's UN/LOCODE, UNCTADstat, Eurostat maritime and BLS freight PPI sources (#2229).
-    assert sum(len(pack["sources"]) for pack in packs) == 267
+    # plus the Economics logistics feature's UN/LOCODE, UNCTADstat, Eurostat maritime and BLS freight PPI sources (#2229),
+    # plus the Market insurance feature's EIOPA, SFCR, NAIC (metadata-only), Florida OIR and NCEI sources (#2230).
+    assert sum(len(pack["sources"]) for pack in packs) == 272
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

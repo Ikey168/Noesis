@@ -24,6 +24,14 @@
           "name": "noesis-bafin-notice",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "market.insurance",
+        "provider": "market.insurance",
+        "contract": {
+          "name": "noesis-insurance-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -38,6 +46,10 @@
       {
         "id": "market.bafin",
         "version": "1.0.0"
+      },
+      {
+        "id": "market.insurance",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
@@ -48,6 +60,11 @@
       },
       {
         "pack_id": "bafin-capital-market-notices",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      },
+      {
+        "pack_id": "insurance-supervisory-and-catastrophe-losses",
         "version": "1.0.0",
         "range": "^1.0.0"
       }
@@ -108,6 +125,43 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "notices are acquired through the bafin-capital-market-notices source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "insurance",
+      "default": false,
+      "description": "Insurance supervisory statistics and published catastrophe losses: EIOPA statistics per release vintage, insurers' SFCR figures quoted from the public QRTs, NAIC under its metadata-only access decision and catastrophe-loss estimates kept as publisher revisions, answered for an insurer, market or event as of a date under the Market publication cutoffs, with reviewable insurer identity (LEI, NAIC codes, ownership entities) and links to Natural Hazards events by published identifier or citation when those records are present. No solvency or rating assessment and no loss modelling.",
+      "requires": [
+        {
+          "capability": "market.insurance",
+          "contract": "noesis-insurance-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "market.legal-entities",
+          "contract": "noesis-lei-part",
+          "range": "^1.0.0",
+          "reason": "published insurer LEIs match LEI records and GLEIF parent relationships link group and solo reporting"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted insurer matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "insurer, market and event monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "records are acquired through the insurance-supervisory-and-catastrophe-losses source pack runtime"
         }
       ]
     }

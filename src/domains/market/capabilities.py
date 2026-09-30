@@ -34,6 +34,8 @@ _READINESS_TABLES = {
     "specialized": "market_specialized_runs",
     # Optional bafin-notices feature (#2106): BaFin and Bundesanzeiger notices as acquired.
     "bafin_notices": "bafin_notice_revisions",
+    # Optional insurance feature (#2230): supervisory statistics, SFCR figures and loss estimates as acquired.
+    "insurance": "insurance_record_revisions",
 }
 
 

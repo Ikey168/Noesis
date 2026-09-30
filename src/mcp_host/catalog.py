@@ -338,6 +338,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.bafin_notices import BAFIN_WRITES
     if name in BAFIN_WRITES:
         return "write"
+    from tools.market_mcp.insurance import INSURANCE_WRITES
+    if name in INSURANCE_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.engineering_safety import (
         ENGINEERING_SAFETY_WRITES,
     )
@@ -913,6 +916,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
         }
         if tool_name in market_scopes:
             return market_scopes[tool_name]
+        from tools.market_mcp.insurance import INSURANCE_TOOLS
+        from tools.market_mcp.insurance import required_scopes as insurance_scopes
+        if tool_name in INSURANCE_TOOLS:
+            return insurance_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, required_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in FUNDING_TOOLS:
         return required_scopes(tool_name, mutability)

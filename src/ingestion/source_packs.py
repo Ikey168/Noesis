@@ -292,6 +292,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"substances"})
 # Market BaFin capital-market notices (voting rights, dealings, net short positions, company DB, warnings; #2106).
 NATIVE_CONNECTOR_MODULES["bafin-notices"] = "src.ingestion.bafin_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"bafin-notices"})
+# Market insurance: EIOPA statistics, SFCR reports, NAIC (metadata-only) and catastrophe-loss estimates (#2230).
+NATIVE_CONNECTOR_MODULES["insurance"] = "src.ingestion.insurance_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"insurance"})
 
 # Linguistics: Wikidata lexemes, Wiktextract, Glottolog, WALS, CLDR and ISO 639-3 tables (#2178).
 NATIVE_CONNECTOR_MODULES["linguistics"] = "src.ingestion.linguistics_sources"

@@ -1,0 +1,18 @@
+{
+  "captured": false,
+  "provider": "florida-oir-catastrophe-claims",
+  "note": "Authored documents naming fictional insurers and events only, served for the production document URLs. The production scope (audited countries, insurer sample and events, verify) therefore excludes their rows, the NAIC source records a publication reference only, and parsing is exercised with the fictional scope in tests/unit/insurance_harness.py.",
+  "native_pages": [
+    {
+      "request": "/docs-sf/default-source/property-and-casualty/catastrophe-claims-data.csv",
+      "status": 200,
+      "body_base64": "RXZlbnQsU3Rvcm0gSUQsTGFuZGZhbGwsUmVwb3J0IERhdGUsRXN0aW1hdGVkIEluc3VyZWQgTG9zc2VzLEFyZWEKSHVycmljYW5lIEZpa3RpdmEsQUw5OTIwMjQsMjAyNC0wOS0yNiwyMDI0LTEwLTE1LCIxLDAwMCwwMDAsMDAwIixGbG9yaWRhCkh1cnJpY2FuZSBGaWt0aXZhLEFMOTkyMDI0LDIwMjQtMDktMjYsMjAyNC0xMS0xNSwiMSw1MDAsMDAwLDAwMCIsRmxvcmlkYQpIdXJyaWNhbmUgRmlrdGl2YSxBTDk5MjAyNCwyMDI0LTA5LTI2LDIwMjUtMDEtMTUsIjEsNDUwLDAwMCwwMDAiLEZsb3JpZGEKSHVycmljYW5lIEJlaXNwaWVsLCwyMDI0LTEwLTA5LDIwMjQtMTEtMDEsIjI1MCwwMDAsMDAwIixGbG9yaWRhCkh1cnJpY2FuZSBNdXN0ZXJmYWxsLEFMOTcyMDE5LDIwMTktMDgtMzAsMjAxOS0xMC0wMSwiMTAsMDAwLDAwMCIsRmxvcmlkYQo=",
+      "authored": true
+    }
+  ],
+  "scenarios": [
+    "bounded-scope",
+    "out-of-scope-rows-counted",
+    "licence-decision-enforced"
+  ]
+}

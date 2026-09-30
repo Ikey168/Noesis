@@ -1,0 +1,141 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "market.insurance",
+  "version": "1.0.0",
+  "description": "Insurance supervisory statistics (EIOPA release vintages), insurers' SFCR figures quoted from the public QRTs, NAIC under its metadata-only access decision and published catastrophe-loss estimates kept as publisher revisions; insurer, market and event lookups as of a date under the Market publication cutoffs, with reviewable insurer identity and links to Natural Hazards events by citation.",
+  "implementation": {
+    "name": "src.domains.market.insurance",
+    "version": "1.0.0",
+    "server": "noesis-market"
+  },
+  "capabilities": [
+    {
+      "id": "market.insurance",
+      "contract": {
+        "name": "noesis-insurance-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "insurer-as-of",
+        "market-as-of",
+        "event-estimates",
+        "revision-history",
+        "coverage"
+      ],
+      "semantic_constraints": {
+        "as_of": "only revisions published by the as-of cutoff (end of day, UTC) and acquired by the acquisition cutoff: the Market public_and_acquired policy",
+        "revisions": "every EIOPA release is a vintage, a corrected SFCR and each new estimate publication are revisions; earlier revisions stay in history",
+        "publishers": "estimates from different publishers are listed separately and never merged; figures shown side by side with definitions, currencies and periods",
+        "identity": "published LEI and NAIC codes match exactly; name matches are reviewable candidates; group and solo reporting stay distinct and a group report reaches an undertaking only through a recorded ownership link",
+        "licences": "every answer lists the IN01 licence decisions; excluded publishers are never acquired and metadata-only sources yield references without figures",
+        "exclusions": "no solvency or rating assessment, no loss modelling, no computed ratio, reconciliation or aggregate across publishers"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "insurer-as-of",
+      "tool": "noesis-market.insurance_insurer_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "market-as-of",
+      "tool": "noesis-market.insurance_market_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "event-estimates",
+      "tool": "noesis-market.insurance_event_estimates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revision-history",
+      "tool": "noesis-market.insurance_revision_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "coverage",
+      "tool": "noesis-market.insurance_coverage",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "market:insurance:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "insurance-record",
+      "store": "src.domains.market.insurance",
+      "tables": [
+        "insurance_records",
+        "insurance_record_revisions",
+        "insurance_releases",
+        "insurance_page_receipts",
+        "insurance_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "insurance_record_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "insurance-supervisory-and-catastrophe-losses",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}
