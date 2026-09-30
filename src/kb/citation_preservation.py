@@ -1202,7 +1202,22 @@ class CitationPreservationStore:
                     [namespace, cid],
                 ).fetchall()
             ]
-            items.append({**state, "verifications": verifications})
+            item = {**state, "verifications": verifications}
+            pins = self.pins(namespace, cid, scopes=scopes)
+            if pins:
+                # Only pinned citations gain the key, so exports without pins are unchanged.
+                current = pins[-1]
+                item["archive_pin"] = {
+                    "cited_url": current["cited_url"],
+                    "archive_id": current["capture"]["archive_id"],
+                    "uri_m": current["capture"]["uri_m"],
+                    "memento_datetime": current["capture"]["memento_datetime"],
+                    "digests": current["capture"]["digests"],
+                    "pin_id": current["pin_id"],
+                    "revision": current["revision"],
+                    "revisions": pins,
+                }
+            items.append(item)
         payload = {
             "contract": EXPORT_CONTRACT,
             "namespace": namespace,
