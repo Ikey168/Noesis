@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1626,
+      "tool_count": 1649,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1107,6 +1107,7 @@
         "noesis-knowledge-engine.command_intake_creation",
         "noesis-knowledge-engine.command_intake_mode",
         "noesis-knowledge-engine.command_practice_review",
+        "noesis-knowledge-engine.commodity_production_side_by_side",
         "noesis-knowledge-engine.company_source_contracts",
         "noesis-knowledge-engine.compare_advisory_revisions",
         "noesis-knowledge-engine.compare_budget_line",
@@ -1183,6 +1184,7 @@
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
         "noesis-knowledge-engine.create_event_record",
+        "noesis-knowledge-engine.create_extractives_monitor",
         "noesis-knowledge-engine.create_fisheries_monitor",
         "noesis-knowledge-engine.create_food_composition_monitor",
         "noesis-knowledge-engine.create_funding_monitor",
@@ -1291,6 +1293,7 @@
         "noesis-knowledge-engine.education_source_contracts",
         "noesis-knowledge-engine.education_statistics_readiness",
         "noesis-knowledge-engine.education_value_vintages",
+        "noesis-knowledge-engine.eiti_report_history",
         "noesis-knowledge-engine.election_constituency_place",
         "noesis-knowledge-engine.election_contest_dossier",
         "noesis-knowledge-engine.election_contest_results",
@@ -1347,6 +1350,7 @@
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_environment_dossier",
         "noesis-knowledge-engine.export_event_dossier_comparison",
+        "noesis-knowledge-engine.export_extractives_evidence_bundle",
         "noesis-knowledge-engine.export_formal_references",
         "noesis-knowledge-engine.export_funding_application_draft",
         "noesis-knowledge-engine.export_hazard_bundle",
@@ -1380,6 +1384,11 @@
         "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.extract_review_field",
+        "noesis-knowledge-engine.extractive_payments_for_company",
+        "noesis-knowledge-engine.extractive_payments_for_country",
+        "noesis-knowledge-engine.extractives_readiness",
+        "noesis-knowledge-engine.extractives_series_history",
+        "noesis-knowledge-engine.extractives_source_contracts",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.filter_access_bound_query",
         "noesis-knowledge-engine.fisheries_area_aggregates",
@@ -1458,6 +1467,7 @@
         "noesis-knowledge-engine.import_certificates",
         "noesis-knowledge-engine.import_demographic_figure_sheet",
         "noesis-knowledge-engine.import_election_poll_release",
+        "noesis-knowledge-engine.import_extractives_concordance",
         "noesis-knowledge-engine.import_geospatial_features",
         "noesis-knowledge-engine.import_humanitarian_admin_boundaries",
         "noesis-knowledge-engine.import_labour_concordance",
@@ -1624,6 +1634,7 @@
         "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
+        "noesis-knowledge-engine.link_extractives_records",
         "noesis-knowledge-engine.link_fisheries_citations",
         "noesis-knowledge-engine.link_food_notices",
         "noesis-knowledge-engine.link_health_capacity_economics",
@@ -1696,6 +1707,10 @@
         "noesis-knowledge-engine.list_epistemic_taxonomies",
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
+        "noesis-knowledge-engine.list_extractives_company_matches",
+        "noesis-knowledge-engine.list_extractives_identity",
+        "noesis-knowledge-engine.list_extractives_links",
+        "noesis-knowledge-engine.list_extractives_series",
         "noesis-knowledge-engine.list_extractors",
         "noesis-knowledge-engine.list_federal_statute_versions",
         "noesis-knowledge-engine.list_fisheries_identity_matches",
@@ -1877,6 +1892,7 @@
         "noesis-knowledge-engine.poll_energy_monitor",
         "noesis-knowledge-engine.poll_engineering_safety_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
+        "noesis-knowledge-engine.poll_extractives_monitor",
         "noesis-knowledge-engine.poll_fisheries_monitor",
         "noesis-knowledge-engine.poll_food_composition_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
@@ -1968,6 +1984,8 @@
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_energy_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
+        "noesis-knowledge-engine.propose_extractives_company_matches",
+        "noesis-knowledge-engine.propose_extractives_identity",
         "noesis-knowledge-engine.propose_fisheries_identities",
         "noesis-knowledge-engine.propose_food_matches",
         "noesis-knowledge-engine.propose_forecast_resolution",
@@ -2224,6 +2242,8 @@
         "noesis-knowledge-engine.revert_education_ror_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
+        "noesis-knowledge-engine.revert_extractives_company_match",
+        "noesis-knowledge-engine.revert_extractives_identity",
         "noesis-knowledge-engine.revert_fisheries_identity",
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
@@ -2282,6 +2302,8 @@
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
+        "noesis-knowledge-engine.review_extractives_company_match",
+        "noesis-knowledge-engine.review_extractives_identity",
         "noesis-knowledge-engine.review_fisheries_identity",
         "noesis-knowledge-engine.review_food_match",
         "noesis-knowledge-engine.review_funding_rule_interpretation",
@@ -2376,6 +2398,7 @@
         "noesis-knowledge-engine.run_energy_monitor",
         "noesis-knowledge-engine.run_engineering_safety_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
+        "noesis-knowledge-engine.run_extractives_monitor",
         "noesis-knowledge-engine.run_fisheries_monitor",
         "noesis-knowledge-engine.run_food_composition_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
@@ -2599,7 +2622,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1626
+      "visible_tool_count": 1649
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2610,11 +2633,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 149,
+      "available": 150,
       "degraded": 174,
-      "unauthorized": 1641
+      "unauthorized": 1663
     },
-    "tools": 1964
+    "tools": 1987
   },
   "tools": [
     {
@@ -29760,6 +29783,89 @@
     },
     {
       "cost_class": "low",
+      "description": "Production, reserves, capacity, imports or exports of a commodity (name as published or {hs_code})\nfor a country (name or ISO alpha-3) from each source by vintage; withheld, unavailable and estimated values\nstay marked and each figure cites its vintage.\nExclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,\nno corruption or governance risk scoring, no price forecasts; currencies never converted or summed across\nreports; USGS and BGS never blended.",
+      "id": "noesis-knowledge-engine.commodity_production_side_by_side",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "commodity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          },
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "statistic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "commodity",
+          "country"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "commodity_production_side_by_side",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "GLEIF access, the reused OpenCorporates provider and why official registers are not wired.",
       "id": "noesis-knowledge-engine.company_source_contracts",
       "input_schema": {
@@ -34012,6 +34118,61 @@
       ],
       "required_scopes": [
         "knowledge:event:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a company, a country or a commodity: notices of new EITI reports, report revisions and new\ncommodity releases, each citing the new or revised record (record changes, never assessments).",
+      "id": "noesis-knowledge-engine.create_extractives_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_extractives_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -40229,6 +40390,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Every retained revision of an EITI report (a withdrawal or correction is a revision) with its lines.",
+      "id": "noesis-knowledge-engine.eiti_report_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "report_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "report_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "eiti_report_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A constituency's place link: accepted by review, otherwise unresolved.",
       "id": "noesis-knowledge-engine.election_constituency_place",
       "input_schema": {
@@ -42906,6 +43104,110 @@
     },
     {
       "cost_class": "low",
+      "description": "An evidence bundle for a payments or production answer, citing every item with source, record revision\nand as-of time (question: payments-for-company, payments-for-country or commodity-production).\nExclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,\nno corruption or governance risk scoring, no price forecasts; currencies never converted or summed across\nreports; USGS and BGS never blended.",
+      "id": "noesis-knowledge-engine.export_extractives_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "commodity": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "company": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "question": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "question"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_extractives_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A reproducible, hashed bundle of declaration references pinned to one commit.",
       "id": "noesis-knowledge-engine.export_formal_references",
       "input_schema": {
@@ -44635,6 +44937,223 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Payments by a company (an extractives company key, or an ownership entity - with its group through\naccepted ownership links when group=true) per EITI report revision and revenue stream: government- and\ncompany-reported figures side by side with EITI's own discrepancies, each citing its report revision.\nExclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,\nno corruption or governance risk scoring, no price forecasts; currencies never converted or summed across\nreports; USGS and BGS never blended.",
+      "id": "noesis-knowledge-engine.extractive_payments_for_company",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "company": {
+            "type": "string"
+          },
+          "group": {
+            "default": false,
+            "type": "boolean"
+          },
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "company"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "extractive_payments_for_company",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A country's EITI reports (ISO alpha-3) as of a date: government revenues by stream, company lines and\ndiscrepancies per report revision, cited.\nExclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,\nno corruption or governance risk scoring, no price forecasts; currencies never converted or summed across\nreports; USGS and BGS never blended.",
+      "id": "noesis-knowledge-engine.extractive_payments_for_country",
+      "input_schema": {
+        "properties": {
+          "as_of_ms": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country": {
+            "type": "string"
+          },
+          "history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "country"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "extractive_payments_for_country",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which extractives features are selected, the stores and per-provider releases.",
+      "id": "noesis-knowledge-engine.extractives_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "extractives_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained vintage of a commodity series with its new, revised and removed years.",
+      "id": "noesis-knowledge-engine.extractives_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "extractives_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (EITI summary data, USGS Mineral Commodity Summaries, BGS World Mineral\nStatistics), endpoints, terms, revision models, the minimisation decision and the bounded coverage.\nExclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,\nno corruption or governance risk scoring, no price forecasts; currencies never converted or summed across\nreports; USGS and BGS never blended.",
+      "id": "noesis-knowledge-engine.extractives_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "extractives_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -48421,6 +48940,44 @@
       ],
       "required_scopes": [
         "knowledge:political:elections:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record a published commodity-to-HS or country-name-to-code table with its URL, publisher, publication\ndate and file digest; each row exact, partial or one-to-many as published.",
+      "id": "noesis-knowledge-engine.import_extractives_concordance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "table": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "table"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_extractives_concordance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -55947,6 +56504,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link payments to public-finance lines, commodities to trade series, hydrocarbon series to Energy series\nand projects to infrastructure assets by shared identifier or accepted match; missing providers or targets\nare reported, never dropped.\nExclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,\nno corruption or governance risk scoring, no price forecasts; currencies never converted or summed across\nreports; USGS and BGS never blended.",
+      "id": "noesis-knowledge-engine.link_extractives_records",
+      "input_schema": {
+        "properties": {
+          "energy_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "finance_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "trade_namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_extractives_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link by explicit citation: sanctions (stated IMO), areas (published codes), OSINT movements, Agri-food.",
       "id": "noesis-knowledge-engine.link_fisheries_citations",
       "input_schema": {
@@ -59754,6 +60356,216 @@
       ],
       "required_scopes": [
         "knowledge:freshness:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Reporting-company candidates against ownership entities (exact identifier first, names as low evidence)\nand the companies that stay unmatched; nothing is auto-merged.",
+      "id": "noesis-knowledge-engine.list_extractives_company_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_extractives_company_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Commodity, country and project mappings (proposed, unmatched, accepted, rejected, reverted), each with\nmethod, evidence and confidence.",
+      "id": "noesis-knowledge-engine.list_extractives_identity",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_extractives_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links to public finance, trade, energy and infrastructure with their basis (citation, shared identifier\nor accepted match) and target revision; missing providers or targets are listed as unresolved.",
+      "id": "noesis-knowledge-engine.list_extractives_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_owner": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_extractives_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Commodity series with source, commodity and form as published, statistic, unit, country and vintages;\nUSGS and BGS series are always separate.",
+      "id": "noesis-knowledge-engine.list_extractives_series",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "statistic": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_extractives_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -68813,6 +69625,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll an extractives monitor's events (new reports, report revisions, new releases, revised values).",
+      "id": "noesis-knowledge-engine.poll_extractives_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_extractives_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll delivered monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_fisheries_monitor",
       "input_schema": {
@@ -72968,6 +73818,92 @@
       ],
       "required_scopes": [
         "knowledge:environment:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer reporting companies to ownership entities: published identifiers first, names as low evidence;\nnever accepted automatically; redacted natural persons are never proposed.",
+      "id": "noesis-knowledge-engine.propose_extractives_company_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ownership_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_extractives_company_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:write",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose commodity (stated HS code, else a cited concordance), country (published code, else a cited code\nlist) or project (published identifier or coordinates of an infrastructure asset) mappings; unmatched\nsubjects stay visible and nothing is used until reviewed.",
+      "id": "noesis-knowledge-engine.propose_extractives_identity",
+      "input_schema": {
+        "properties": {
+          "infra_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kind": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_extractives_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -86995,6 +87931,89 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a company identity decision; payments stay as reported and the company is unmatched again.",
+      "id": "noesis-knowledge-engine.revert_extractives_company_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_extractives_company_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:review",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert a reviewed commodity, country or project mapping; the subject is unmapped again.",
+      "id": "noesis-knowledge-engine.revert_extractives_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_extractives_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected match (IMO matches included); both records stay intact.",
       "id": "noesis-knowledge-engine.revert_fisheries_identity",
       "input_schema": {
@@ -89568,6 +90587,97 @@
       ],
       "required_scopes": [
         "knowledge:freshness:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a company candidate as an entity identity decision (records are never merged).",
+      "id": "noesis-knowledge-engine.review_extractives_company_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_extractives_company_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:review",
+        "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed commodity, country or project mapping with a reason.",
+      "id": "noesis-knowledge-engine.review_extractives_identity",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_extractives_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -94278,6 +95388,51 @@
       ],
       "required_scopes": [
         "knowledge:environment:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate an extractives monitor at a committed watermark; notices cite the records before and after.",
+      "id": "noesis-knowledge-engine.run_extractives_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_extractives_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:extractives:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

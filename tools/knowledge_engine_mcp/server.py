@@ -9427,6 +9427,11 @@ from tools.knowledge_engine_mcp.logistics import (  # noqa: E402 - registration 
 )
 
 register_logistics_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.extractives import (
+    register as register_extractives_tools,
+)
+
+register_extractives_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

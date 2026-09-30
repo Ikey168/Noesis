@@ -137,6 +137,7 @@ def test_the_bundle_validates_and_behaves_unchanged_with_the_feature_off_by_defa
     # The labour-statistics (#2219) and logistics (#2229) features are optional and off by default too.
     assert set(features) == {
         "public-finance", "demographics", "trade-comtrade", "trade-comext", "labour-statistics", "logistics",
+        "extractives-eiti", "extractives-usgs", "extractives-bgs",  # #2653
     }
     assert features["demographics"]["default"] is False
     feature = features["public-finance"]
@@ -171,8 +172,8 @@ def test_enabling_it_binds_the_legal_political_procurement_funding_identity_and_
         plan["features"]["economics"] == ["public-finance"]
         and bound(plan) == FEATURE_PROVIDERS
     )
-    # The bundle now pins 1.6.0 (the labour sources, #2219); this provider still declares ^1.3.0, which it meets.
-    assert {**PACK, "version": "1.6.0", "range": "^1.6.0"} in plan["source_packs"]
+    # The bundle now pins 1.7.0 (the extractives sources, #2653); this provider still declares ^1.3.0.
+    assert {**PACK, "version": "1.7.0", "range": "^1.7.0"} in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     tool = view.tools["noesis-knowledge-engine.compare_budget_line"]
     assert tool.pack == "economics" and tool.provider == "economics.public-finance"
