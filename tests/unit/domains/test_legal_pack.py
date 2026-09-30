@@ -134,7 +134,9 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
                                                           "sanctions-list", "gesetze-im-internet",
                                                           "rechtsinformationen-bund", "recht-bund",
                                                           # Courts and justice-statistics features (#2218).
-                                                          "courts-justice"} <= SUPPORTED_CONNECTORS
+                                                          "courts-justice",
+                                                          # Regulatory enforcement features (#2651).
+                                                          "enforcement"} <= SUPPORTED_CONNECTORS
     result = SourcePackConformance(ROOT).offline(value)
     assert result["valid"]
     assert {s["source_id"]: s["records"] for s in result["sources"]} == {
@@ -151,7 +153,11 @@ def test_pack_declares_implemented_connectors_and_replays_offline():
         # Courts and justice-statistics features (#2218): one docket, two opinion clusters, two FBI CDE series, one
         # police.uk month and one Eurostat release.
         "courtlistener-dockets": 1, "courtlistener-opinions": 2, "fbi-cde-summarized": 2,
-        "police-uk-street-crime": 1, "eurostat-crime-iccs": 1}
+        "police-uk-street-crime": 1, "eurostat-crime-iccs": 1,
+        # Regulatory enforcement features (#2651): action, respondent, decision, penalty, appeal and notice-document
+        # records per declared release, notice, case or register entry (the individual-only FCA notice is withheld).
+        "sec-litigation-releases": 9, "sec-administrative-proceedings": 6, "fca-final-notices": 12,
+        "epa-echo-cases": 9, "edpb-art60-decisions": 12}
 
 
 def test_records_follow_the_legal_record_contract_and_never_claim_current_law():

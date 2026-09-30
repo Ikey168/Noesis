@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"Results\": {\n  \"Message\": \"Success\",\n  \"CaseNumber\": \"04-2099-0101\",\n  \"ActivityId\": \"3600999901\",\n  \"CaseName\": \"EXAMPLA INTERMEDIATE B.V.\",\n  \"CaseType\": \"Civil Judicial\",\n  \"CaseStatus\": \"Active\",\n  \"LeadAgency\": \"EPA\",\n  \"Region\": \"04\",\n  \"DateFiled\": \"03/15/2099\",\n  \"EnforcementOutcome\": \"Consent Decree\",\n  \"SettlementDate\": \"08/01/2099\",\n  \"CourtDocketNumber\": \"1:99-cv-00501\",\n  \"Court\": \"N.D. Ga.\",\n  \"LastUpdated\": \"2099-08-05\",\n  \"Defendants\": [\n   {\n    \"DefendantName\": \"EXAMPLA INTERMEDIATE B.V.\",\n    \"NamedInComplaint\": \"Y\",\n    \"NamedInSettlement\": \"Y\"\n   }\n  ],\n  \"Facilities\": [\n   {\n    \"RegistryID\": \"110099990001\",\n    \"FacilityName\": \"EXAMPLA SOLVENTS PLANT (FICTIONAL)\",\n    \"City\": \"EXAMPLE CITY\",\n    \"State\": \"EX\",\n    \"Latitude\": \"33.7490\",\n    \"Longitude\": \"-84.3880\"\n   }\n  ],\n  \"LawsAndSections\": [\n   {\n    \"Law\": \"CAA\",\n    \"Sections\": \"112(r)(1)\"\n   },\n   {\n    \"Law\": \"EPCRA\",\n    \"Sections\": \"312\"\n   }\n  ],\n  \"Penalties\": {\n   \"FedPenalty\": \"250000\",\n   \"StateLocalPenalty\": \"0\",\n   \"SEPCost\": \"75000\",\n   \"CostRecovery\": null,\n   \"ComplianceActionCost\": \"1200000\"\n  },\n  \"Milestones\": [\n   {\n    \"Milestone\": \"Complaint Filed\",\n    \"ActualDate\": \"03/15/2099\"\n   },\n   {\n    \"Milestone\": \"Consent Decree Entered\",\n    \"ActualDate\": \"08/01/2099\"\n   }\n  ]\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/echo/case_rest_services.get_case_report?output=JSON&p_id=04-2099-0101",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the publisher's documented or observed shape (verify live); every action, respondent, identifier and figure is fictional placeholder data (years 2097-2099; the Exampla group of the ownership fixtures).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "penalty-not-published"
+ ]
+}
