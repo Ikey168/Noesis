@@ -1,0 +1,56 @@
+{
+  "description": "Authored synthetic payloads in the provider's documented or observed shape (verify against a live run, #2291). Every registration, ICAO address, IMO number, MMSI, owner, airport and port is fictional; positions are illustrative, not live evidence.",
+  "scenarios": [
+    "nationality-prefix",
+    "icao-address-when-published",
+    "deregistration-revision",
+    "owner-address-dropped"
+  ],
+  "native_pages": [
+    {
+      "request": "/g-info/api/aircraft?registration=G-EXMP",
+      "status": 200,
+      "body": {
+        "aircraft": {
+          "registrationMark": "G-EXMP",
+          "icaoAircraftAddress": "4007F1",
+          "manufacturer": "EXAMPLE AIRCRAFT CO",
+          "model": "EX-300",
+          "serialNumber": "EX-3001",
+          "registrationStatus": "Registered",
+          "registeredDate": "2097-06-01",
+          "ownerType": "Company",
+          "owners": [
+            {
+              "name": "EXAMPLE AVIATION LTD",
+              "address": "1 Example Street, Exampleford"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "request": "/g-info/api/aircraft?registration=G-EXMQ",
+      "status": 200,
+      "body": {
+        "aircraft": {
+          "registrationMark": "G-EXMQ",
+          "manufacturer": "EXAMPLE LIGHT AIRCRAFT",
+          "model": "EX-2",
+          "serialNumber": "EX-0002",
+          "registrationStatus": "Deregistered",
+          "registeredDate": "2090-01-01",
+          "deregisteredDate": "2099-02-01",
+          "deregistrationReason": "Transferred to another State",
+          "ownerType": "Private Individual",
+          "owners": [
+            {
+              "name": "J EXAMPLE",
+              "address": "2 Example Lane"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

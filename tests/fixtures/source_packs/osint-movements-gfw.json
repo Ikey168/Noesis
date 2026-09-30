@@ -1,0 +1,83 @@
+{
+  "description": "Authored synthetic payloads in the provider's documented or observed shape (verify against a live run, #2291). Every registration, ICAO address, IMO number, MMSI, owner, airport and port is fictional; positions are illustrative, not live evidence.",
+  "scenarios": [
+    "published-port-visits-with-confidence",
+    "no-events-window",
+    "identity-shared-with-fisheries"
+  ],
+  "native_pages": [
+    {
+      "request": "/v3/events?datasets%5B0%5D=public-global-port-visits-events%3Alatest&end-date=2025-12-31&limit=200&offset=0&start-date=2025-01-01&vessels%5B0%5D=a1b2c3d4-0002-4000-8000-000000000002",
+      "status": 200,
+      "body": {
+        "entries": [
+          {
+            "id": "synthetic-pv-0001",
+            "type": "port_visit",
+            "start": "2025-03-10T09:40:00Z",
+            "end": "2025-03-10T16:20:00Z",
+            "position": {
+              "lat": 60.395,
+              "lon": 5.305
+            },
+            "vessel": {
+              "id": "a1b2c3d4-0002-4000-8000-000000000002",
+              "ssvid": "671000002",
+              "name": "SAMPLE NOVA",
+              "flag": "TGO"
+            },
+            "port_visit": {
+              "visitId": "pv-0001",
+              "confidence": "4",
+              "durationHrs": 6.7,
+              "startAnchorage": {
+                "anchorageId": "anch-exh-1",
+                "name": "EXAMPLE HARBOUR",
+                "flag": "NOR"
+              }
+            }
+          },
+          {
+            "id": "synthetic-pv-0002",
+            "type": "port_visit",
+            "start": "2025-07-02T04:00:00Z",
+            "end": "2025-07-03T11:00:00Z",
+            "position": {
+              "lat": 43.36,
+              "lon": -8.39
+            },
+            "vessel": {
+              "id": "a1b2c3d4-0002-4000-8000-000000000002",
+              "ssvid": "671000002",
+              "name": "SAMPLE NOVA",
+              "flag": "TGO"
+            },
+            "port_visit": {
+              "visitId": "pv-0002",
+              "confidence": "2",
+              "durationHrs": 31.0,
+              "startAnchorage": {
+                "anchorageId": "anch-exs-7",
+                "name": "EXAMPLE SOUTH ANCHORAGE",
+                "flag": "ESP"
+              }
+            }
+          }
+        ],
+        "total": 2,
+        "limit": 200,
+        "offset": 0
+      }
+    },
+    {
+      "request": "/v3/events?datasets%5B0%5D=public-global-port-visits-events%3Alatest&end-date=2025-06-30&limit=200&offset=0&start-date=2025-06-01&vessels%5B0%5D=a1b2c3d4-0001-4000-8000-000000000001",
+      "status": 200,
+      "body": {
+        "entries": [],
+        "total": 0,
+        "limit": 200,
+        "offset": 0
+      }
+    }
+  ]
+}

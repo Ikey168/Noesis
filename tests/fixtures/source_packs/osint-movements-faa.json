@@ -1,0 +1,33 @@
+{
+  "description": "Authored synthetic payloads in the provider's documented or observed shape (verify against a live run, #2291). Every registration, ICAO address, IMO number, MMSI, owner, airport and port is fictional; positions are illustrative, not live evidence.",
+  "scenarios": [
+    "organisation-registrant",
+    "natural-person-registrant",
+    "privacy-withheld",
+    "deregistered",
+    "declared-ladd-refusal",
+    "owner-address-dropped"
+  ],
+  "native_pages": [
+    {
+      "request": "/AircraftInquiry/Search/NNumberResult?nNumberTxt=N901EX",
+      "status": 200,
+      "body": "<html><body><!-- Authored synthetic FAA inquiry page. -->\n<table>\n<tr><td data-label=\"Serial Number\">EX-0901</td></tr>\n<tr><td data-label=\"Status\">Valid</td></tr>\n<tr><td data-label=\"Manufacturer Name\">EXAMPLE AIRCRAFT CO</td></tr>\n<tr><td data-label=\"Model\">EX-200</td></tr>\n<tr><td data-label=\"Type Aircraft\">Fixed Wing Multi-Engine</td></tr>\n<tr><td data-label=\"Type Engine\">Turbo-fan</td></tr>\n<tr><td data-label=\"Mode S Code (Base 8 / Oct)\">50170662</td></tr>\n<tr><td data-label=\"Mode S Code (Base 16 / Hex)\">A0F1B2</td></tr>\n<tr><td data-label=\"Certificate Issue Date\">01/15/2098</td></tr>\n<tr><td data-label=\"Expiration Date\">01/31/2105</td></tr>\n<tr><td data-label=\"Type Registrant\">LLC</td></tr>\n<tr><td data-label=\"Name\">EXAMPLE AIR CHARTER LLC</td></tr>\n<tr><td data-label=\"Street\">1 EXAMPLE WAY</td></tr>\n<tr><td data-label=\"City\">EXAMPLETON</td></tr>\n<tr><td data-label=\"State\">KS</td></tr>\n<tr><td data-label=\"Zip Code\">00000</td></tr>\n</table></body></html>\n"
+    },
+    {
+      "request": "/AircraftInquiry/Search/NNumberResult?nNumberTxt=N902EX",
+      "status": 200,
+      "body": "<html><body><!-- Authored synthetic FAA inquiry page. -->\n<table>\n<tr><td data-label=\"Serial Number\">EX-0902</td></tr>\n<tr><td data-label=\"Status\">Valid</td></tr>\n<tr><td data-label=\"Manufacturer Name\">EXAMPLE AIRCRAFT CO</td></tr>\n<tr><td data-label=\"Model\">EX-200</td></tr>\n<tr><td data-label=\"Type Aircraft\">Fixed Wing Multi-Engine</td></tr>\n<tr><td data-label=\"Type Engine\">Turbo-fan</td></tr>\n<tr><td data-label=\"Mode S Code (Base 8 / Oct)\">50170703</td></tr>\n<tr><td data-label=\"Mode S Code (Base 16 / Hex)\">A0F1C3</td></tr>\n<tr><td data-label=\"Certificate Issue Date\">01/15/2098</td></tr>\n<tr><td data-label=\"Expiration Date\">01/31/2105</td></tr>\n<tr><td data-label=\"Type Registrant\">Individual</td></tr>\n<tr><td data-label=\"Name\">JANE Q EXAMPLE</td></tr>\n<tr><td data-label=\"Street\">1 EXAMPLE WAY</td></tr>\n<tr><td data-label=\"City\">EXAMPLETON</td></tr>\n<tr><td data-label=\"State\">KS</td></tr>\n<tr><td data-label=\"Zip Code\">00000</td></tr>\n</table></body></html>\n"
+    },
+    {
+      "request": "/AircraftInquiry/Search/NNumberResult?nNumberTxt=N903EX",
+      "status": 200,
+      "body": "<html><body><p>Registration information for this aircraft is withheld at the owner's request under the FAA privacy program.</p></body></html>\n"
+    },
+    {
+      "request": "/AircraftInquiry/Search/NNumberResult?nNumberTxt=N904EX",
+      "status": 200,
+      "body": "<html><body><!-- Authored synthetic FAA inquiry page. --><h2>Deregistered Aircraft</h2>\n<table>\n<tr><td data-label=\"Serial Number\">EX-0904</td></tr>\n<tr><td data-label=\"Status\">Deregistered</td></tr>\n<tr><td data-label=\"Manufacturer Name\">EXAMPLE AIRCRAFT CO</td></tr>\n<tr><td data-label=\"Model\">EX-200</td></tr>\n<tr><td data-label=\"Type Aircraft\">Fixed Wing Multi-Engine</td></tr>\n<tr><td data-label=\"Type Engine\">Turbo-fan</td></tr>\n<tr><td data-label=\"Mode S Code (Base 8 / Oct)\">50170724</td></tr>\n<tr><td data-label=\"Mode S Code (Base 16 / Hex)\">A0F1D4</td></tr>\n<tr><td data-label=\"Certificate Issue Date\">01/15/2098</td></tr>\n<tr><td data-label=\"Expiration Date\">01/31/2105</td></tr>\n<tr><td data-label=\"Type Registrant\">LLC</td></tr>\n<tr><td data-label=\"Name\">EXAMPLE AIR CHARTER LLC</td></tr>\n<tr><td data-label=\"Street\">1 EXAMPLE WAY</td></tr>\n<tr><td data-label=\"City\">EXAMPLETON</td></tr>\n<tr><td data-label=\"State\">KS</td></tr>\n<tr><td data-label=\"Zip Code\">00000</td></tr>\n<tr><td data-label=\"Cancel Date\">03/01/2099</td></tr>\n</table></body></html>\n"
+    }
+  ]
+}

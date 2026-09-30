@@ -720,7 +720,7 @@ class MovementProjector:
             keys.add((scheme, value))
         if any(self.store.refusal(namespace, s, k) for s, k in keys if k):
             return "privacy_opt_out"
-        if statement["record_type"] in {"sample_window", "position_sample", "call"} and kind == "aircraft":
+        if statement["record_type"] != "registry_record" and kind == "aircraft":
             if natural_person_registrant(self.store.registry_state(namespace, subject)):
                 return "private_aircraft_refused"
         return None
@@ -730,7 +730,7 @@ class MovementProjector:
         namespace = self._namespace(source)
         receipt = dict(page_receipt or {})
         for refusal in receipt.get("privacy_refusals") or []:
-            self.store.record_refusal(namespace, refusal["scheme"], refusal["value"], programme=refusal["programme"],
+            self.store.record_refusal(namespace, refusal["scheme"], refusal["identifier"], programme=refusal["programme"],
                                       reason=refusal["reason"], source_id=source["source_id"])
         by_id = {str(dict(d.get("metadata") or {}).get("source_pack_record_id")): d["document_id"] for d in documents}
         kept, ids, refused = [], [], {}

@@ -399,6 +399,15 @@ def _astronomy_registration_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
 
+
+def _osint_movement_projector(conn: Any) -> Any:
+    from src.osint.movements import MovementProjector
+
+    return MovementProjector(conn)
+
+
+PROJECTORS["noesis-osint-movement-record-v1"] = _osint_movement_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,
