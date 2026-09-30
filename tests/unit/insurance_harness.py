@@ -300,6 +300,33 @@ def lei_records(conn, *, parent: bool = True) -> None:
     store.observe_page(LEI_NS, records, run_id="lei-fixture", page_receipt={"part": "record"})
 
 
+def ownership_entities(conn) -> None:
+    """Register-side records: the group's GLEIF record (LEI), a register record for the subsidiary without an LEI,
+    a same-named record in another country and a same-named record without a jurisdiction."""
+    from src.kb.ownership_records import record
+    from src.kb.ownership_store import OwnershipStore
+
+    OwnershipStore(conn, now=lambda: ms("2025-01-01")).apply(
+        OWN_NS,
+        [
+            record("legal_entity", f"lei:{GROUP_LEI}", {"provider": "gleif", "provider_record_id": GROUP_LEI},
+                   name=GROUP, jurisdiction="DE", identifiers=[{"scheme": "lei", "value": GROUP_LEI}]),
+            record("legal_entity", "register:fiktiva-leben", {"provider": "handelsregister",
+                                                              "provider_record_id": "fiktiva-leben"},
+                   name=SOLO, jurisdiction="DE", identifiers=[{"scheme": "register", "value": "HRB 000002"}]),
+            record("legal_entity", "register:fiktiva-leben-at", {"provider": "handelsregister",
+                                                                 "provider_record_id": "fiktiva-leben-at"},
+                   name=SOLO, jurisdiction="AT", identifiers=[{"scheme": "register", "value": "FN 000003"}]),
+            record("legal_entity", "register:fiktiva-leben-unknown", {"provider": "opencorporates",
+                                                                      "provider_record_id": "fiktiva-leben-x"},
+                   name=SOLO, identifiers=[{"scheme": "register", "value": "X-000004"}]),
+        ],
+        run_id="register-run",
+        observed_at_ms=ms("2025-01-01"),
+        principal_id=PRINCIPAL,
+    )
+
+
 def hazard_events(conn) -> dict:
     """A fictional NHC storm matching the estimates' storm ID, and a GDACS event naming it without an identifier."""
     from src.kb import hazards_records as hr

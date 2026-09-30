@@ -1509,7 +1509,9 @@ class InsuranceQueries:
         resolved = identity.resolve(namespace, insurer, scopes=scopes)
         own = set(resolved["record_keys"])
         reports, indicators, estimates, group_reports = [], [], [], []
-        via = identity.group_links(namespace, resolved, scopes=scopes, lei_namespace=lei_namespace)
+        via = identity.group_links(
+            namespace, resolved, scopes=scopes, lei_namespace=lei_namespace, as_of_ms=cut["publicly_available_by_ms"]
+        )
         for view in self.store.visible(namespace, **bounds):
             record = view["record"]
             if not record.get("insurer"):
