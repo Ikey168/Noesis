@@ -1,0 +1,34 @@
+{
+ "claims": [
+  {
+   "text": "Tidal turbines in Example Bay killed 4,000 seals last year.",
+   "claimant": "Mayor Alex Example",
+   "claimDate": "2025-03-02T00:00:00Z",
+   "claimReview": [
+    {
+     "publisher": {
+      "name": "Example Fact Check",
+      "site": "factcheck.example.org"
+     },
+     "url": "https://factcheck.example.org/2025/03/tidal-turbines-seals/",
+     "title": "Update: tidal turbines did not kill 4,000 seals",
+     "reviewDate": "2025-06-20T00:00:00Z",
+     "textualRating": "Mostly false",
+     "languageCode": "en"
+    },
+    {
+     "publisher": {
+      "name": "Verifica Example",
+      "site": "verifica.example.net"
+     },
+     "url": "https://verifica.example.net/checks/seals-turbines",
+     "title": "Seal deaths and the Example Bay turbines: what the counts show",
+     "reviewDate": "2025-03-12T09:00:00Z",
+     "textualRating": "Misleading",
+     "languageCode": "en"
+    }
+   ]
+  }
+ ],
+ "nextPageToken": "page-2-token"
+}

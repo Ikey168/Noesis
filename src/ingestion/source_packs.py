@@ -394,6 +394,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 # Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
 NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
+# News fact-checks: Google Fact Check Tools, Data Commons ClaimReview feed and IFCN signatories (#2659).
+NATIVE_CONNECTOR_MODULES["fact-checks"] = "src.ingestion.fact_checks_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fact-checks"})
 
 
 def native_connector_module(connector: str) -> Any:

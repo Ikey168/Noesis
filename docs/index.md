@@ -200,6 +200,11 @@ For the project overview and local setup, start with the
   donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest
   filings with reviewable identity and monitors; individual donors minimised; no influence scoring or dark-money
   inference; [source audit and minimisation decision](development/campaign-finance-evidence/source-audit.md)
+- [News fact-checks guide](guides/news-fact-checks.md) — ClaimReview fact-checks from the Google Fact Check
+  Tools API and the Data Commons feed and IFCN signatory status history: a claim, claimant or news article to
+  cited fact-checks as of a date with ratings as published side by side, reviewable claimant, claim and
+  publisher matches, citation links and monitors; no truth verdict or rating normalisation;
+  [source audit and minimisation decision](development/fact-checks-evidence/source-audit.md)
 - [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
   opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and

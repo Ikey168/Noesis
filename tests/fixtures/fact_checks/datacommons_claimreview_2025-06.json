@@ -1,0 +1,209 @@
+{
+ "@context": "https://schema.org",
+ "@type": "DataFeed",
+ "dateModified": "2025-06-01T00:00:00Z",
+ "dataFeedElement": [
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2025-03-10T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://www.factcheck.example.org/2025/03/tidal-turbines-seals",
+     "claimReviewed": "Tidal turbines in Example Bay killed 4,000 seals last year.",
+     "author": {
+      "@type": "Organization",
+      "name": "Example Fact Check",
+      "url": "https://factcheck.example.org",
+      "logo": "https://factcheck.example.org/logo.png"
+     },
+     "datePublished": "2025-03-10",
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Person",
+       "name": "Mayor Alex Example",
+       "sameAs": [
+        "https://www.wikidata.org/wiki/Q999999901"
+       ],
+       "jobTitle": "Mayor of Example Bay",
+       "image": "https://factcheck.example.org/img/mayor.jpg"
+      },
+      "datePublished": "2025-03-02",
+      "appearance": [
+       {
+        "@type": "CreativeWork",
+        "url": "https://news.example.com/2025/03/01/mayor-seals-speech"
+       }
+      ],
+      "firstAppearance": {
+       "@type": "CreativeWork",
+       "url": "https://news.example.com/2025/03/01/mayor-seals-speech",
+       "author": {
+        "@type": "Person",
+        "name": "Sam Placeholder"
+       }
+      }
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": "1",
+      "bestRating": "5",
+      "worstRating": "1",
+      "alternateName": "False",
+      "image": "https://factcheck.example.org/img/false.png"
+     },
+     "inLanguage": "en",
+     "sdLicense": "https://creativecommons.org/licenses/by/4.0/",
+     "name": "No, tidal turbines did not kill 4,000 seals"
+    }
+   ]
+  },
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2025-03-12T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://verifica.example.net/checks/seals-turbines",
+     "claimReviewed": "Tidal turbines in Example Bay killed 4,000 seals last year.",
+     "author": {
+      "@type": "Person",
+      "name": "Reviewer Placeholder",
+      "url": "https://verifica.example.net/staff/reviewer-placeholder"
+     },
+     "datePublished": "2025-03-12",
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Person",
+       "name": "Mayor Alex Example"
+      },
+      "datePublished": "2025-03-02",
+      "appearance": [
+       {
+        "@type": "CreativeWork",
+        "url": "https://news.example.com/2025/03/01/mayor-seals-speech?utm_source=feed"
+       }
+      ]
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "ratingValue": 2,
+      "bestRating": 7,
+      "worstRating": 1,
+      "alternateName": "Misleading"
+     },
+     "inLanguage": "en",
+     "sdLicense": "https://creativecommons.org/licenses/by/4.0/",
+     "name": "Seal deaths and the Example Bay turbines: what the counts show"
+    }
+   ]
+  },
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2025-05-30T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://claimwatch.example.com/fact-check/grid-blackout",
+     "claimReviewed": "The Example Bay tidal array caused the May blackout.",
+     "author": {
+      "@type": "Organization",
+      "name": "ClaimWatch Example",
+      "url": "https://claimwatch.example.com"
+     },
+     "datePublished": "2025-05-30",
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Organization",
+       "name": "Example Grid Operator"
+      },
+      "datePublished": "2025-03-02",
+      "appearance": [
+       {
+        "@type": "CreativeWork",
+        "url": "https://news.example.com/2025/05/29/grid-blackout"
+       }
+      ]
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "alternateName": "Correct"
+     },
+     "inLanguage": "en",
+     "sdLicense": "https://creativecommons.org/licenses/by/4.0/",
+     "name": "Yes, the grid operator confirmed the array fault"
+    }
+   ]
+  },
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2025-04-01T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://other.example.org/checks/unrelated",
+     "claimReviewed": "An unrelated claim outside the declared publishers.",
+     "author": {
+      "@type": "Organization",
+      "name": "Other Example",
+      "url": "https://other.example.org"
+     },
+     "datePublished": "2025-04-01",
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Organization",
+       "name": "Unrelated Example Body"
+      },
+      "datePublished": "2025-03-02"
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "alternateName": "False"
+     },
+     "inLanguage": "en",
+     "sdLicense": "https://creativecommons.org/licenses/by/4.0/"
+    }
+   ]
+  },
+  {
+   "@type": "DataFeedItem",
+   "dateCreated": "2024-01-05T00:00:00Z",
+   "item": [
+    {
+     "@context": "https://schema.org",
+     "@type": "ClaimReview",
+     "url": "https://factcheck.example.org/2024/01/old-check/",
+     "claimReviewed": "A claim reviewed before the declared window.",
+     "author": {
+      "@type": "Organization",
+      "name": "Example Fact Check",
+      "url": "https://factcheck.example.org"
+     },
+     "datePublished": "2024-01-05",
+     "itemReviewed": {
+      "@type": "Claim",
+      "author": {
+       "@type": "Organization",
+       "name": "Example Energy Council"
+      },
+      "datePublished": "2025-03-02"
+     },
+     "reviewRating": {
+      "@type": "Rating",
+      "alternateName": "False"
+     },
+     "inLanguage": "en",
+     "sdLicense": "https://creativecommons.org/licenses/by/4.0/"
+    }
+   ]
+  }
+ ]
+}

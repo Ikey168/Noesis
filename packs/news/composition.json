@@ -16,13 +16,127 @@
           "name": "noesis-news-articles",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "news.fact-checks",
+        "provider": "news.fact-checks",
+        "contract": {
+          "name": "noesis-fact-check-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "news.core",
         "version": "1.0.0"
+      },
+      {
+        "id": "news.fact-checks",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "bounded-public-osint",
+        "version": "1.2.0",
+        "range": "^1.2.0"
       }
     ]
-  }
+  },
+  "optional_features": [
+    {
+      "id": "fact-checks-google",
+      "default": false,
+      "description": "Google Fact Check Tools coverage: ClaimReview results of declared claim searches or review-publisher sites as fact-check records keyed by publisher and review URL, publisher updates as revisions. Ratings as published with the publisher's scale, claims as quoted and claimants as named (FC01 minimisation), reviewable claimant, claim and publisher matches, news, OSINT-corroboration and claim-timeline links that degrade when those providers are absent, and subscription monitors. No truth verdict by Noesis, no rating normalisation, no automatic claim matching and no scraping beyond each publisher's terms.",
+      "requires": [
+        {
+          "capability": "news.fact-checks",
+          "contract": "noesis-fact-check-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted claimant and publisher matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "fact-checks monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "claim-search results are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "fact-checks-datacommons",
+      "default": false,
+      "description": "Data Commons ClaimReview coverage: feed releases as vintages filtered to declared publisher sites and a review window, duplicates with API records resolved by review URL with both provenance records kept, removals as revisions. Ratings as published with the publisher's scale, claims as quoted and claimants as named (FC01 minimisation), reviewable claimant, claim and publisher matches, news, OSINT-corroboration and claim-timeline links that degrade when those providers are absent, and subscription monitors. No truth verdict by Noesis, no rating normalisation, no automatic claim matching and no scraping beyond each publisher's terms.",
+      "requires": [
+        {
+          "capability": "news.fact-checks",
+          "contract": "noesis-fact-check-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted claimant and publisher matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "fact-checks monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "feed releases are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "fact-checks-ifcn",
+      "default": false,
+      "description": "IFCN signatory coverage: signatories as publisher records with their status label and date as published and status changes as dated revisions, shown as the publisher's status at review time; publishers link to source identities by domain only as a reviewable assertion. Ratings as published with the publisher's scale, claims as quoted and claimants as named (FC01 minimisation), reviewable claimant, claim and publisher matches, news, OSINT-corroboration and claim-timeline links that degrade when those providers are absent, and subscription monitors. No truth verdict by Noesis, no rating normalisation, no automatic claim matching and no scraping beyond each publisher's terms.",
+      "requires": [
+        {
+          "capability": "news.fact-checks",
+          "contract": "noesis-fact-check-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted claimant and publisher matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "fact-checks monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the signatories listing is acquired through the source-pack runtime once its terms are confirmed"
+        }
+      ]
+    }
+  ]
 }

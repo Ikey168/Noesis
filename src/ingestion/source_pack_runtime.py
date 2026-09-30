@@ -472,6 +472,16 @@ def _campaign_finance_projector(conn: Any) -> Any:
 # Political campaign-finance features (#2209).
 PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
 
+
+def _fact_checks_projector(conn: Any) -> Any:
+    from src.kb.fact_checks_records import FactChecksProjector
+
+    return FactChecksProjector(conn)
+
+
+# News fact-checks provider: ClaimReview records and IFCN signatory status (#2659).
+PROJECTORS["noesis-fact-check-record-v1"] = _fact_checks_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

@@ -1,0 +1,60 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-fact-check-record-v1.json",
+  "title": "Fact-check or fact-checker record as published",
+  "description": "One acquired record (#2659): a fact-check keyed by its publisher site and review URL (canonicalised with the versioned wa-canon-v1 rules) with every claim the page reviewed - claim text as quoted, claimant as named, claim date, appearance URLs and the rating text and any numeric rating with the publisher's own scale exactly as published - or an IFCN signatory with its status label and status date as published. Each carries its provider, format, revision order, locator, listing status (a source removal is an absent-from-* revision, never a deletion) and evidence origin. Natural-person review authors, images, job titles and other personal attributes are withheld under the FC01 minimisation decision and listed under minimisation.withheld. No record carries a Noesis verdict or a normalised rating.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "record_kind", "record_key", "unit_key", "publisher_site", "status", "native_revision", "revision_order", "effective_on", "language", "title", "locator", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-fact-check-record-v1"},
+    "format": {"enum": ["google-factcheck-claimsearch-json", "datacommons-claimreview-feed-json", "ifcn-signatories-html"]},
+    "provider": {"enum": ["google-fact-check-tools", "datacommons", "ifcn"]},
+    "record_kind": {"enum": ["fact-check", "publisher"]},
+    "record_key": {"type": "string", "pattern": "^fact-checks:(review|ifcn):[A-Za-z0-9:._-]+$"},
+    "unit_key": {"type": "string", "minLength": 1},
+    "publisher_site": {"type": ["string", "null"]},
+    "review_url_canonical": {"type": ["string", "null"]},
+    "status": {"enum": ["published", "absent-from-release", "absent-from-listing"]},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "effective_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "language": {"type": ["string", "null"]},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "vintage": {"type": ["string", "null"]},
+    "minimisation": {
+      "type": "object",
+      "required": ["policy", "withheld"],
+      "properties": {
+        "policy": {"const": "fact-checks-minimisation-v1"},
+        "withheld": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "fields": {
+      "type": "object",
+      "properties": {
+        "publisher": {"type": "object", "required": ["site"], "properties": {"name_as_published": {"type": ["string", "null"]}, "site": {"type": "string"}}, "additionalProperties": false},
+        "review_url": {"type": "string", "pattern": "^https://"},
+        "claims": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["claim_text_as_quoted", "claimant_as_named", "rating"],
+            "propertyNames": {"enum": ["claim_text_as_quoted", "claimant_as_named", "claimant_type_as_published", "claimant_same_as", "claim_date", "appearance_urls", "first_appearance_url", "rating"]},
+            "properties": {
+              "rating": {
+                "type": "object",
+                "required": ["textual_rating"],
+                "propertyNames": {"enum": ["textual_rating", "rating_value", "best_rating", "worst_rating", "rating_name"]}
+              }
+            }
+          }
+        },
+        "status_as_published": {"type": ["string", "null"]}
+      }
+    }
+  },
+  "not": {"anyOf": [{"required": ["verdict"]}, {"required": ["normalised_rating"]}, {"required": ["normalized_rating"]},
+                    {"required": ["truth_value"]}, {"required": ["score"]}]}
+}

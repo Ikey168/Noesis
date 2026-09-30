@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1644,
+      "tool_count": 1661,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1183,6 +1183,7 @@
         "noesis-knowledge-engine.create_event_dossier",
         "noesis-knowledge-engine.create_event_dossier_report",
         "noesis-knowledge-engine.create_event_record",
+        "noesis-knowledge-engine.create_fact_checks_monitor",
         "noesis-knowledge-engine.create_fisheries_monitor",
         "noesis-knowledge-engine.create_food_composition_monitor",
         "noesis-knowledge-engine.create_funding_monitor",
@@ -1348,6 +1349,7 @@
         "noesis-knowledge-engine.export_entity_identity_history",
         "noesis-knowledge-engine.export_environment_dossier",
         "noesis-knowledge-engine.export_event_dossier_comparison",
+        "noesis-knowledge-engine.export_fact_checks_evidence_bundle",
         "noesis-knowledge-engine.export_formal_references",
         "noesis-knowledge-engine.export_funding_application_draft",
         "noesis-knowledge-engine.export_hazard_bundle",
@@ -1382,6 +1384,13 @@
         "noesis-knowledge-engine.extract_methodology_statements",
         "noesis-knowledge-engine.extract_multimodal_observations",
         "noesis-knowledge-engine.extract_review_field",
+        "noesis-knowledge-engine.fact_check_history",
+        "noesis-knowledge-engine.fact_checks_citing_url",
+        "noesis-knowledge-engine.fact_checks_for_claim",
+        "noesis-knowledge-engine.fact_checks_for_claimant",
+        "noesis-knowledge-engine.fact_checks_publisher_status",
+        "noesis-knowledge-engine.fact_checks_readiness",
+        "noesis-knowledge-engine.fact_checks_source_contracts",
         "noesis-knowledge-engine.fetch_declarative_api",
         "noesis-knowledge-engine.filter_access_bound_query",
         "noesis-knowledge-engine.fisheries_area_aggregates",
@@ -1626,6 +1635,7 @@
         "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
+        "noesis-knowledge-engine.link_fact_checks",
         "noesis-knowledge-engine.link_fisheries_citations",
         "noesis-knowledge-engine.link_food_notices",
         "noesis-knowledge-engine.link_health_capacity_economics",
@@ -1700,6 +1710,8 @@
         "noesis-knowledge-engine.list_event_accounts",
         "noesis-knowledge-engine.list_expiring_evidence",
         "noesis-knowledge-engine.list_extractors",
+        "noesis-knowledge-engine.list_fact_check_links",
+        "noesis-knowledge-engine.list_fact_check_matches",
         "noesis-knowledge-engine.list_federal_statute_versions",
         "noesis-knowledge-engine.list_fisheries_identity_matches",
         "noesis-knowledge-engine.list_fisheries_links",
@@ -1882,6 +1894,7 @@
         "noesis-knowledge-engine.poll_energy_monitor",
         "noesis-knowledge-engine.poll_engineering_safety_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
+        "noesis-knowledge-engine.poll_fact_checks_monitor",
         "noesis-knowledge-engine.poll_fisheries_monitor",
         "noesis-knowledge-engine.poll_food_composition_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
@@ -1974,6 +1987,7 @@
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_energy_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
+        "noesis-knowledge-engine.propose_fact_check_matches",
         "noesis-knowledge-engine.propose_fisheries_identities",
         "noesis-knowledge-engine.propose_food_matches",
         "noesis-knowledge-engine.propose_forecast_resolution",
@@ -2232,6 +2246,7 @@
         "noesis-knowledge-engine.revert_education_ror_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
+        "noesis-knowledge-engine.revert_fact_check_match",
         "noesis-knowledge-engine.revert_fisheries_identity",
         "noesis-knowledge-engine.revert_hazard_correspondence",
         "noesis-knowledge-engine.revert_housing_link",
@@ -2291,6 +2306,7 @@
         "noesis-knowledge-engine.review_environment_operator_link",
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
+        "noesis-knowledge-engine.review_fact_check_match",
         "noesis-knowledge-engine.review_fisheries_identity",
         "noesis-knowledge-engine.review_food_match",
         "noesis-knowledge-engine.review_funding_rule_interpretation",
@@ -2386,6 +2402,7 @@
         "noesis-knowledge-engine.run_energy_monitor",
         "noesis-knowledge-engine.run_engineering_safety_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
+        "noesis-knowledge-engine.run_fact_checks_monitor",
         "noesis-knowledge-engine.run_fisheries_monitor",
         "noesis-knowledge-engine.run_food_composition_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
@@ -2617,7 +2634,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1644
+      "visible_tool_count": 1661
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2628,11 +2645,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 150,
+      "available": 151,
       "degraded": 174,
-      "unauthorized": 1658
+      "unauthorized": 1674
     },
-    "tools": 1982
+    "tools": 1999
   },
   "tools": [
     {
@@ -34037,6 +34054,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch a claimant (claimant scope), a topic query or a publisher site for new or updated fact-checks and\npublisher status changes.",
+      "id": "noesis-knowledge-engine.create_fact_checks_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_fact_checks_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch vessels, lists, areas or species for authorisations, listings, delistings and new releases.",
       "id": "noesis-knowledge-engine.create_fisheries_monitor",
       "input_schema": {
@@ -43030,6 +43093,58 @@
     },
     {
       "cost_class": "low",
+      "description": "An evidence bundle for a claim, claim-text, claimant or cited-URL answer (query: claim | text | claimant |\nurl): each rating quoted as published, citing the fact-check revision, source and observation time.",
+      "id": "noesis-knowledge-engine.export_fact_checks_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_fact_checks_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A reproducible, hashed bundle of declaration references pinned to one commit.",
       "id": "noesis-knowledge-engine.export_formal_references",
       "input_schema": {
@@ -44836,6 +44951,333 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every revision of one fact-check or IFCN signatory record per source, including publisher updates, older\nobservations and removals by the source (absent-from-* revisions).",
+      "id": "noesis-knowledge-engine.fact_check_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_check_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Fact-checks whose revision in effect cites a URL or a news document's URL as an appearance or the review\nitself, matched with the stated wa-canon-v1 URL rules, plus archived captures of the URL when the web-archives\nprovider holds them. Each fact-check revision is cited. No verdict on the article.",
+      "id": "noesis-knowledge-engine.fact_checks_citing_url",
+      "input_schema": {
+        "properties": {
+          "archive_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "document_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "url": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_checks_citing_url",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Fact-checks of an argument claim (claim_id: accepted claim matches only; unreviewed candidates listed apart)\nor of a quoted-claim text search (text), as published by a date, with each publisher's rating verbatim and\nits scale, conflicting ratings side by side and the publisher's IFCN status at review time. No truth verdict\nby Noesis and no rating normalisation.",
+      "id": "noesis-knowledge-engine.fact_checks_for_claim",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "claim_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "text": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_checks_for_claim",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Fact-checks of a claimant as the publisher named them, or (claimant='ent-...') of every claimant accepted as\nmatching that canonical entity, as published by a date with ratings verbatim. Needs the claimant scope (FC01\nminimisation). No truth verdict by Noesis.",
+      "id": "noesis-knowledge-engine.fact_checks_for_claimant",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "claimant": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "claimant"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_checks_for_claimant",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:claimant:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The IFCN signatory status label and date as published, in effect on a date, for the signatory whose website\nis the publisher site; absence from the listing is never read as a statement about the publisher.",
+      "id": "noesis-knowledge-engine.fact_checks_publisher_status",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "site": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "site"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_checks_publisher_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the fact-checks-google / -datacommons / -ifcn features are selected, and records per provider.",
+      "id": "noesis-knowledge-engine.fact_checks_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_checks_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider endpoints, API-key handling, licences, rate limits, revision models, bounded coverage,\nLIVE_VERIFICATION status, the claimant data-minimisation decision and the exclusions for the Google Fact Check\nTools API, the Data Commons ClaimReview feed and the IFCN signatories listing.",
+      "id": "noesis-knowledge-engine.fact_checks_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "fact_checks_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {
@@ -56148,6 +56590,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link current fact-check revisions to the news articles they cite and, through accepted claim matches, to\nargument claims, OSINT corroboration results and claim timelines; missing providers and targets are reported.\nNo verdict is inferred for a linked claim.",
+      "id": "noesis-knowledge-engine.link_fact_checks",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "timeline_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_fact_checks",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link by explicit citation: sanctions (stated IMO), areas (published codes), OSINT movements, Agri-food.",
       "id": "noesis-knowledge-engine.link_fisheries_citations",
       "input_schema": {
@@ -60017,6 +60504,127 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "News-article, argument-claim, OSINT-corroboration and claim-timeline links with the fact-check and target\nrevisions they point at and their basis. A link carries no verdict on the linked record.",
+      "id": "noesis-knowledge-engine.list_fact_check_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_fact_check_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Claimant, claim and publisher match assertions with method, evidence, confidence and review state, and the\nsubjects that stay unmatched. Claimant matches are listed only with the claimant scope.",
+      "id": "noesis-knowledge-engine.list_fact_check_matches",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_fact_check_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -69168,6 +69776,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Delivered fact-checks monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_fact_checks_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_fact_checks_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll delivered monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_fisheries_monitor",
       "input_schema": {
@@ -73365,6 +74011,51 @@
       ],
       "required_scopes": [
         "knowledge:environment:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose reviewable matches: claimants to canonical entities (published identifiers before names; generic\nclaimants never), fact-checked claims to argument claims (appearance URL, stored review URL, lexical overlap)\nand publishers to source identities by published domain. Nothing is merged or accepted automatically.",
+      "id": "noesis-knowledge-engine.propose_fact_check_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "source_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_fact_check_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -87460,6 +88151,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected fact-check match; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_fact_check_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_fact_check_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected match (IMO matches included); both records stay intact.",
       "id": "noesis-knowledge-engine.revert_fisheries_identity",
       "input_schema": {
@@ -90075,6 +90808,52 @@
       ],
       "required_scopes": [
         "knowledge:freshness:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a fact-check match assertion; claimant and publisher matches are also entity identity\ndecisions. Claimant matches need the claimant scope.",
+      "id": "noesis-knowledge-engine.review_fact_check_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_fact_check_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -94831,6 +95610,51 @@
       ],
       "required_scopes": [
         "knowledge:environment:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a fact-checks monitor at a committed watermark; notices cite the new and previous revision and state\nwhat changed as published. Notices are record changes, not assessments.",
+      "id": "noesis-knowledge-engine.run_fact_checks_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_fact_checks_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

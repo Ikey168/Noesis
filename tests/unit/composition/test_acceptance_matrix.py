@@ -241,6 +241,12 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The News fact-checks provider's offline journey (#2719) composes its record owner with the source-pack
+    # runtime, news documents and argument claims, entity and source identity, claim timelines, web archives and
+    # subscriptions.
+    "Claim or news article to cited fact-checks":
+        "tests/unit/domains/test_fact_checks_acceptance.py::"
+        "test_claim_and_article_to_cited_fact_checks_with_revisions_reviewable_matches_and_ratings_as_published",
 }
 
 
