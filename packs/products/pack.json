@@ -7,8 +7,8 @@
   "ui_flags": {},
   "panels": [],
   "planner_keywords": {
-    "entities": ["display", "gtin", "model", "monitor", "mpn", "product", "tv", "variant"],
-    "sources": ["datasheet", "energy label", "eprel", "icecat", "product information sheet"],
+    "entities": ["display", "gtin", "model", "monitor", "mpn", "product", "tv", "variant", "food product", "ingredients", "allergens", "nutrients", "barcode"],
+    "sources": ["datasheet", "energy label", "eprel", "icecat", "product information sheet", "open food facts", "fooddata central", "ciqual", "food composition table", "food label"],
     "overview": ["compare", "comparison", "specification", "specs"]
   },
   "enrichers": [],
@@ -22,7 +22,11 @@
     "explicit-withdrawal-refresh-semantics",
     "provider-linked-document-acquisition",
     "evidence-linked-model-comparison",
-    "per-provider-readiness"
+    "per-provider-readiness",
+    "food-composition-and-labelling-records",
+    "food-label-revision-history-as-of",
+    "reviewable-gtin-food-identity",
+    "citation-only-food-notice-links"
   ],
   "schema_versions": {
     "product-record": "1.0.0",
@@ -30,7 +34,8 @@
     "product-match": "1.0.0",
     "product-comparison": "1.0.0",
     "product-document": "1.0.0",
-    "source-pack": "1.0.0"
+    "source-pack": "1.0.0",
+    "food-composition-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -39,9 +44,10 @@
       "noesis-product-identity-v1",
       "noesis-product-match-v1",
       "noesis-product-comparison-v1",
-      "noesis-product-document-v1"
+      "noesis-product-document-v1",
+      "noesis-food-composition-record-v1"
     ],
-    "object_types": ["product_family", "product_model", "product_variant", "product_revision", "attribute_assertion", "product_document"],
+    "object_types": ["product_family", "product_model", "product_variant", "product_revision", "attribute_assertion", "product_document", "food_product", "generic_food", "label_revision", "nutrient_value"],
     "relation_types": ["variant_of", "member_of_family", "equivalent_model", "asserted_by", "documented_by", "manufactured_by"]
   },
   "source_pack": "config/source_packs/products.json",
@@ -63,11 +69,25 @@
       "tool": "compare_product_models",
       "arguments": {"namespace": "global", "model_ids": ["<model_id>", "<model_id>", "<model_id>"]},
       "semantics": "every value cites its record revision and locator; a row compares only on a shared attribute, mode, unit and label scheme"
+    },
+    {
+      "intent": "What did the label of this barcode declare on a date",
+      "tool": "food_composition_as_of",
+      "arguments": {"namespace": "global", "gtin": "4000000000105", "as_of": "2026-03-15"},
+      "semantics": "per provider the label revision current at the date: ingredients, allergens, nutrient values and claims quoted and cited (ODbL attribution for Open Food Facts); crowd-sourced and reference values side by side, never reconciled; linked notices or no notice on record"
+    },
+    {
+      "intent": "How has this food's label changed",
+      "tool": "food_label_history",
+      "arguments": {"namespace": "global", "gtin": "4000000000105"},
+      "semantics": "every label revision oldest first with its parts and citation"
     }
   ],
   "exclusions": [
     "prices, stock and retailer feeds", "shopping recommendations and affiliate links", "reviews and ratings",
     "inferred compatibility", "Full Icecat content", "EPREL supplier-only endpoints",
-    "unrestricted catalogue mirroring", "manufacturer support and manual sources"
+    "unrestricted catalogue mirroring", "manufacturer support and manual sources",
+    "health or diet advice", "nutrition scores, health ratings or rankings computed by Noesis",
+    "Open Food Facts images"
   ]
 }

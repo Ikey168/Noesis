@@ -32,6 +32,14 @@
           "name": "noesis-product-component",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "products.food-composition",
+        "provider": "products.food",
+        "contract": {
+          "name": "noesis-food-composition-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -50,12 +58,16 @@
       {
         "id": "products.components",
         "version": "1.0.0"
+      },
+      {
+        "id": "products.food",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "products-displays",
-        "version": "1.2.0",
+        "version": "1.3.0",
         "range": "^1.0.0"
       }
     ]
@@ -183,6 +195,43 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "BMEcat catalogue sources run through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "food",
+      "default": false,
+      "description": "Food composition and labelling: Open Food Facts products by GTIN (crowd-sourced, ODbL attribution and share-alike obligations carried on every record), USDA FoodData Central foods and the Ciqual composition table (reference) with declared ingredients, allergens, nutrient values and label claims per provider and immutable label revision, reviewable GTIN and name identity against Products identities, citation-only links to notices already held by Products safety (RASFF), as-of answers and subscription monitors. Crowd-sourced and reference values are never merged. No nutrition score, health rating, ranking or diet advice.",
+      "requires": [
+        {
+          "capability": "products.food-composition",
+          "contract": "noesis-food-composition-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "products.identities",
+          "contract": "noesis-product-record",
+          "range": "^1.0.0",
+          "reason": "food products match Products identities through reviewed GTIN matches"
+        },
+        {
+          "capability": "products.safety-notices",
+          "contract": "noesis-product-safety-notice",
+          "range": "^1.0.0",
+          "reason": "food products link to RASFF and other notices already held by Products safety, by citation"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "food composition monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "Open Food Facts, FoodData Central and Ciqual sources run through the source-pack runtime"
         }
       ]
     }

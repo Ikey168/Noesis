@@ -12,7 +12,11 @@ resistors); comparison never crosses categories. Values are provider assertions
 data), never independent tests, buying recommendations or cross-references. Safety notices are what an authority published, quoted and
 cited to a notice revision: no tool returns a safety verdict, risk score or
 consumer advice, and a product without an accepted notice match has no notice
-on record.
+on record. Food composition (the ``food`` feature, #2216) quotes ingredients,
+allergens, nutrient values and label claims per provider and revision:
+crowd-sourced Open Food Facts records (ODbL attribution) and reference FoodData
+Central and composition-table records side by side, never reconciled; no tool
+computes a nutrition score, health rating or ranking or gives diet advice.
 """
 
 SAFETY_WRITES = {
@@ -29,9 +33,15 @@ SAFETY_TOOLS = SAFETY_WRITES | SAFETY_READS
 EXPANSION_WRITES = {"review_component_manufacturer_link", "revert_component_manufacturer_link"}
 EXPANSION_READS = {"product_category_registry", "lookup_component", "cite_product_document"}
 EXPANSION_TOOLS = EXPANSION_WRITES | EXPANSION_READS
+# Food composition and labelling (#2216).
+FOOD_WRITES = {"propose_food_matches", "review_food_match", "link_food_notices", "create_food_composition_monitor",
+               "run_food_composition_monitor"}
+FOOD_READS = {"food_composition_source_contracts", "lookup_food_products", "food_composition_as_of",
+              "food_label_history", "list_food_identity_conflicts", "poll_food_composition_monitor"}
+FOOD_TOOLS = FOOD_WRITES | FOOD_READS
 PRODUCT_WRITES = {"propose_product_matches", "review_product_match", "acquire_product_documents"} | SAFETY_WRITES \
-    | EXPANSION_WRITES
-PRODUCT_TOOLS = PRODUCT_WRITES | SAFETY_READS | EXPANSION_READS | {
+    | EXPANSION_WRITES | FOOD_WRITES
+PRODUCT_TOOLS = PRODUCT_WRITES | SAFETY_READS | EXPANSION_READS | FOOD_READS | {
     "products_readiness", "product_provider_contracts", "lookup_product_models",
     "inspect_product_identity", "product_selection_outcomes", "compare_product_models",
 }
@@ -72,6 +82,20 @@ PRODUCT_SCOPES = {
                                    "knowledge:subscriptions:write"],
     # The subscription retains the products scope its evaluations read under; polling needs it too.
     "poll_product_notice_monitor": ["knowledge:subscriptions:read", "knowledge:products:read"],
+    "food_composition_source_contracts": [],
+    "lookup_food_products": ["knowledge:products:read"],
+    "food_composition_as_of": ["knowledge:products:read"],
+    "food_label_history": ["knowledge:products:read"],
+    "list_food_identity_conflicts": ["knowledge:products:read"],
+    # Proposing reads food records and Products identities and writes candidates.
+    "propose_food_matches": ["knowledge:products:write", "knowledge:products:read"],
+    "review_food_match": ["knowledge:products:review"],
+    # Linking reads the notices Products safety holds (same products scopes) and writes link rows.
+    "link_food_notices": ["knowledge:products:write", "knowledge:products:read"],
+    "create_food_composition_monitor": ["knowledge:products:read", "knowledge:subscriptions:write"],
+    "run_food_composition_monitor": ["knowledge:products:read", "knowledge:subscriptions:read",
+                                     "knowledge:subscriptions:write"],
+    "poll_food_composition_monitor": ["knowledge:subscriptions:read", "knowledge:products:read"],
 }
 
 
@@ -376,4 +400,128 @@ def register(mcp, safe, context):
         """Poll a product-notice monitor's delivered events."""
         return safe(lambda conn: monitor(conn, initialize=False).poll(subscription_id, principal_id=who()[0],
                                                                       scopes=who()[1], cursor=cursor),
+                    required_scope="knowledge:subscriptions:read")
+
+    # ------------------------------------------------------------ food composition (#2216)
+
+    def food_queries(conn):
+        from src.kb.food_composition import FoodCompositionQueries
+
+        return FoodCompositionQueries(conn)
+
+    def food_identity(conn, *, initialize=True):
+        from src.kb.food_identity import FoodIdentity
+
+        return FoodIdentity(conn, initialize=initialize)
+
+    def food_monitor(conn, *, initialize=True):
+        from src.kb.food_monitoring import FoodCompositionMonitor
+
+        return FoodCompositionMonitor(conn, initialize=initialize)
+
+    @mcp.tool()
+    def food_composition_source_contracts() -> dict:
+        """FC01 access decisions: Open Food Facts (ODbL attribution and share-alike obligations, excluded OFF
+        scores), USDA FoodData Central (key, rate limits, data types, public domain), composition tables (acquire,
+        reference-only or excluded with the reason), bounded coverage and live-verification state. No nutrition
+        score, health rating, ranking or diet advice is in scope."""
+        from src.ingestion.food_composition_sources import (
+            BOUNDED_COVERAGE,
+            LIVE_VERIFICATION,
+            PROVIDER_CONTRACTS,
+            TABLE_DECISIONS,
+        )
+        from src.kb.food_composition import ODBL_ATTRIBUTION
+
+        return {"contracts": PROVIDER_CONTRACTS, "tables": TABLE_DECISIONS, "live_verification": LIVE_VERIFICATION,
+                "bounded_coverage": BOUNDED_COVERAGE, "odbl": ODBL_ATTRIBUTION}
+
+    @mcp.tool()
+    def lookup_food_products(namespace: str, gtin: str | None = None, query: str | None = None,
+                             provider: str | None = None, food_kind: str | None = None, limit: int = 25) -> dict:
+        """Food records by GTIN (UPC-A/EAN-13/GTIN-14 normalised), name or brand text, provider (open-food-facts,
+        fooddata-central, composition-table) or kind (food-product, generic-food), each with its provenance class,
+        current revision and attribution. Quoted as published; no nutrition score, rating, ranking or diet advice."""
+        return safe(lambda conn: food_queries(conn).lookup(
+            namespace, scopes=who()[1], gtin=gtin, query=query, provider=provider, food_kind=food_kind, limit=limit),
+            required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def food_composition_as_of(namespace: str, gtin: str | None = None, food: str | None = None,
+                               as_of: str | None = None, include_history: bool = False) -> dict:
+        """A GTIN's (or one food's) declared ingredients, allergens, nutrient values and label claims current at an
+        ISO date per provider, each value cited (provider, key, revision, retrieval time; ODbL attribution for
+        Open Food Facts), crowd-sourced and reference values side by side with differences named (never
+        reconciled or converted), explicit unknowns and linked notices ("no notice on record" otherwise, which is
+        not a statement of safety). No nutrition score, health rating, ranking or diet advice."""
+        return safe(lambda conn: food_queries(conn).answer(namespace, scopes=who()[1], gtin=gtin, food=food,
+                                                           as_of=as_of, include_history=include_history),
+                    required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def food_label_history(namespace: str, gtin: str | None = None, food: str | None = None) -> dict:
+        """Every label revision (Open Food Facts revisions, FDC publications, table editions) of the records a GTIN
+        or food resolves to, oldest first, each with its parts and citation. Quoted as published;
+        no nutrition score, ranking or diet advice."""
+        return safe(lambda conn: food_queries(conn).label_history(namespace, scopes=who()[1], gtin=gtin, food=food),
+                    required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def propose_food_matches(namespace: str) -> dict:
+        """Candidates between Open Food Facts, FDC Branded and Products identities by normalised GTIN (the same GTIN
+        under different brands is a conflict) and between generic foods by published name with the evidence used;
+        none is accepted without review."""
+        return safe(lambda conn: food_identity(conn).propose(namespace, scopes=who()[1], principal_id=who()[0]),
+                    write=True, required_scope="knowledge:products:write")
+
+    @mcp.tool()
+    def review_food_match(namespace: str, match_id: str, decision: str, reason: str) -> dict:
+        """Accept, reject or defer a food match with a reason; append-only with reviewer and time. Conflicting
+        identifiers cannot be accepted."""
+        return safe(lambda conn: food_identity(conn).review(namespace, match_id, decision, reason, scopes=who()[1],
+                                                            principal_id=who()[0]),
+                    write=True, required_scope="knowledge:products:review")
+
+    @mcp.tool()
+    def list_food_identity_conflicts(namespace: str) -> dict:
+        """GTINs published under different brands or products: surfaced as conflicts, never resolved silently."""
+        return safe(lambda conn: {"conflicts": food_identity(conn, initialize=False).conflicts(
+            namespace, scopes=who()[1])}, required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def link_food_notices(namespace: str) -> dict:
+        """Link food products to notices held by Products safety (RASFF and others) only where a notice revision
+        cites the GTIN or the brand and exact designation, or a reviewed notice match exists; each link cites its
+        notice revision. Never by hazard, category or ingredient similarity; no safety verdict or advice."""
+        def run(conn):
+            from src.kb.food_notice_links import FoodNoticeLinks
+
+            return FoodNoticeLinks(conn).link(namespace, scopes=who()[1], principal_id=who()[0])
+        return safe(run, write=True, required_scope="knowledge:products:write")
+
+    @mcp.tool()
+    def create_food_composition_monitor(namespace: str, request_key: str, gtins: list[str] | None = None,
+                                        foods: list[str] | None = None, table_editions: list[str] | None = None,
+                                        delivery: dict | None = None) -> dict:
+        """Watch GTINs, generic foods or composition-table editions for label revisions, nutrient-value and
+        allergen-declaration changes, new table editions and newly linked notices, as a knowledge subscription."""
+        watch = {k: v for k, v in (("gtins", gtins), ("foods", foods), ("table_editions", table_editions)) if v}
+        return safe(lambda conn: food_monitor(conn).create(namespace, request_key, watch=watch,
+                                                           principal_id=who()[0], scopes=who()[1],
+                                                           delivery=delivery),
+                    write=True, required_scope="knowledge:products:read")
+
+    @mcp.tool()
+    def run_food_composition_monitor(subscription_id: str, watermark: int | None = None) -> dict:
+        """Evaluate a food composition monitor at the committed food state; each notification cites both
+        revisions. Replays and unchanged payloads emit nothing."""
+        return safe(lambda conn: food_monitor(conn).run(subscription_id, watermark, principal_id=who()[0],
+                                                        scopes=who()[1]),
+                    write=True, required_scope="knowledge:subscriptions:write")
+
+    @mcp.tool()
+    def poll_food_composition_monitor(subscription_id: str, cursor: str = "") -> dict:
+        """Poll a food composition monitor's delivered events."""
+        return safe(lambda conn: food_monitor(conn, initialize=False).poll(subscription_id, principal_id=who()[0],
+                                                                           scopes=who()[1], cursor=cursor),
                     required_scope="knowledge:subscriptions:read")

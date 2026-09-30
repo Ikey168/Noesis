@@ -60,6 +60,7 @@ PROJECTOR_OWNERS = {
     "noesis-oss-ecosystem-record-v1": "src.kb.oss_ecosystem_store",
     "noesis-legislation-record-v1": "src.kb.legislation",
     "noesis-fisheries-record-v1": "src.kb.fisheries_store",
+    "noesis-food-composition-record-v1": "src.kb.food_composition",
 }
 
 

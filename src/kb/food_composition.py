@@ -906,6 +906,36 @@ class FoodCompositionQueries:
             raise FoodCompositionError("invalid_answer", f"answer carries forbidden keys {sorted(bad)}")
         return answer
 
+    def lookup(self, namespace: str, *, scopes: Iterable[str], gtin: str | None = None, query: str | None = None,
+               provider: str | None = None, food_kind: str | None = None, limit: int = 25) -> dict[str, Any]:
+        """Food records by GTIN (normalised key), name or brand text, provider and kind; one row per record."""
+        authorize(namespace, set(scopes), READ_SCOPE)
+        self.store.require_ready()
+        if provider is not None and provider not in PROVIDERS:
+            raise FoodCompositionError("invalid_request", f"provider is one of {PROVIDERS}")
+        needle = str(query or "").strip().casefold()
+        rows = []
+        for item in self.store.items(namespace, provider=provider, gtin=gtin, food_kind=food_kind):
+            revision = self.store.current_revision(namespace, item["food_id"])
+            if revision is None:
+                continue
+            names = self.store.statement(namespace, revision["revision_id"])["names"]
+            text = " ".join(str(v) for v in (names.get("product_name"), names.get("description"),
+                                              *(names.get("brands") or [])) if v).casefold()
+            if needle and needle not in text:
+                continue
+            rows.append({**item, "names": names, "current_revision": {
+                "revision_id": revision["revision_id"], "revision": revision["revision_value"],
+                "revision_date": revision["revision_date"], "retrieved_at": revision["retrieved_at"]},
+                "revision_count": len(self.store.revisions(namespace, item["food_id"])),
+                "attribution": self.store.statement(namespace, revision["revision_id"])["attribution"]})
+            if len(rows) >= max(1, min(int(limit), 100)):
+                break
+        unknowns = [] if rows or not gtin else [{"kind": "unmatched_gtin", "gtin": gtin}]
+        return {"contract": ANSWER_CONTRACT, "namespace": namespace,
+                "query": {"gtin": gtin, "query": query, "provider": provider, "food_kind": food_kind},
+                "foods": rows, "unknowns": unknowns, "boundary": BOUNDARY}
+
     def label_history(self, namespace: str, *, scopes: Iterable[str], gtin: str | None = None,
                       food: str | None = None) -> dict[str, Any]:
         """Every label revision of the food records a GTIN (or one food) resolves to, oldest first, cited."""

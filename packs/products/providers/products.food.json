@@ -1,0 +1,191 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "products.food",
+  "version": "1.0.0",
+  "description": "Food composition and labelling for the Products pack: Open Food Facts (crowd-sourced, ODbL), USDA FoodData Central and national composition tables (reference) as food-product, generic-food, ingredient, allergen, nutrient-value, labelling-claim and immutable label-revision records with source, revision and as-of time; reviewable GTIN and name identity; citation-only links to notices held by Products safety. No nutrition score, health rating, ranking or diet advice.",
+  "implementation": {
+    "name": "src.kb.food_composition",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "products.food-composition",
+      "contract": {
+        "name": "noesis-food-composition-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "food-source-contracts",
+        "lookup-food-products",
+        "food-composition-as-of",
+        "food-label-history",
+        "propose-food-matches",
+        "review-food-match",
+        "list-food-identity-conflicts",
+        "link-food-notices",
+        "create-food-monitor",
+        "run-food-monitor",
+        "poll-food-monitor"
+      ],
+      "semantic_constraints": {
+        "provenance": "every record carries a mandatory provenance class: crowd-sourced (Open Food Facts) or reference (FoodData Central, composition tables); classes are never merged into one value and differences are shown, never reconciled",
+        "odbl": "Open Food Facts records carry the ODbL attribution and share-alike obligation on every record, answer and export and stay in separable provider rows; images are never mirrored",
+        "revisions": "label revisions are immutable; the current one follows the provider's own order (OFF revision, FDC publication date, table edition); units are stored as published beside a normalized form and unknown units stay unknown",
+        "identity": "GTINs normalised to one 14-digit key; food records reach each other and Products identities only through reviewed match proposals; the same GTIN under different brands is a conflict, never resolved silently",
+        "notices": "notice links come only from a notice revision citing the GTIN or the brand and exact designation, or a reviewed notice match; each link cites its notice revision; never hazard, category or ingredient similarity; a food without a link has no notice on record",
+        "exclusions": "no nutrition score, health rating, ranking or diet advice; Open Food Facts scores (Nutri-Score, NOVA, Eco-Score) are excluded at acquisition; no safety verdict"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "food-source-contracts",
+      "tool": "noesis-knowledge-engine.food_composition_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "food-revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "lookup-food-products",
+      "tool": "noesis-knowledge-engine.lookup_food_products",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "food-composition-as-of",
+      "tool": "noesis-knowledge-engine.food_composition_as_of",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "food-label-history",
+      "tool": "noesis-knowledge-engine.food_label_history",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "propose-food-matches",
+      "tool": "noesis-knowledge-engine.propose_food_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {"supported": true, "key": "current food revisions and Products identities"},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:write", "knowledge:products:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "review-food-match",
+      "tool": "noesis-knowledge-engine.review_food_match",
+      "side_effect": "local-mutation",
+      "idempotency": {"supported": true, "key": "match_id and review sequence"},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:review"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "list-food-identity-conflicts",
+      "tool": "noesis-knowledge-engine.list_food_identity_conflicts",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "link-food-notices",
+      "tool": "noesis-knowledge-engine.link_food_notices",
+      "side_effect": "local-mutation",
+      "idempotency": {"supported": true, "key": "food, notice revision and basis"},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:write", "knowledge:products:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "create-food-monitor",
+      "tool": "noesis-knowledge-engine.create_food_composition_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {"supported": true, "key": "request_key"},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:read", "knowledge:subscriptions:write"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "run-food-monitor",
+      "tool": "noesis-knowledge-engine.run_food_composition_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {"supported": true, "key": "subscription and committed watermark"},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:products:read", "knowledge:subscriptions:read", "knowledge:subscriptions:write"],
+      "required_context": []
+    },
+    {
+      "id": "poll-food-monitor",
+      "tool": "noesis-knowledge-engine.poll_food_composition_monitor",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "food-revisions",
+      "required_scopes": ["knowledge:subscriptions:read", "knowledge:products:read"],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "food-composition-record",
+      "store": "src.kb.food_composition",
+      "tables": [
+        "food_items",
+        "food_revisions",
+        "food_current",
+        "food_ingredients",
+        "food_allergens",
+        "food_nutrients",
+        "food_claims",
+        "food_selection",
+        "food_source_runs",
+        "food_generation",
+        "food_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "food-match",
+      "store": "src.kb.food_identity",
+      "tables": ["food_matches", "food_match_reviews"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "food-notice-link",
+      "store": "src.kb.food_notice_links",
+      "tables": ["food_notice_links"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "food-revisions",
+      "kind": "table-exists",
+      "target": "food_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "products-displays",
+      "version": "1.3.0",
+      "range": "^1.3.0"
+    }
+  ]
+}
