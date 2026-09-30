@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1533,
+      "tool_count": 1552,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1070,6 +1070,7 @@
         "noesis-knowledge-engine.chemicals_bundle_status",
         "noesis-knowledge-engine.cite_humanitarian_link",
         "noesis-knowledge-engine.cite_product_document",
+        "noesis-knowledge-engine.cite_real_estate_legal_work",
         "noesis-knowledge-engine.classify_epistemic_statement",
         "noesis-knowledge-engine.climate_environment_bundle_status",
         "noesis-knowledge-engine.clinical_bundle_status",
@@ -1184,6 +1185,7 @@
         "noesis-knowledge-engine.create_procurement_workspace",
         "noesis-knowledge-engine.create_product_notice_monitor",
         "noesis-knowledge-engine.create_public_finance_monitor",
+        "noesis-knowledge-engine.create_real_estate_monitor",
         "noesis-knowledge-engine.create_research_decision",
         "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_research_project",
@@ -1517,6 +1519,7 @@
         "noesis-knowledge-engine.inspect_product_identity",
         "noesis-knowledge-engine.inspect_product_notice",
         "noesis-knowledge-engine.inspect_quality_health",
+        "noesis-knowledge-engine.inspect_real_estate_record",
         "noesis-knowledge-engine.inspect_reference_workflow",
         "noesis-knowledge-engine.inspect_research_analysis",
         "noesis-knowledge-engine.inspect_research_analysis_run",
@@ -1596,6 +1599,7 @@
         "noesis-knowledge-engine.link_lobbying_dossier",
         "noesis-knowledge-engine.link_medicine_evidence",
         "noesis-knowledge-engine.link_product_notice_citations",
+        "noesis-knowledge-engine.link_real_estate_records",
         "noesis-knowledge-engine.link_safety_citations",
         "noesis-knowledge-engine.link_space_registration_citations",
         "noesis-knowledge-engine.link_sports_venue_place",
@@ -1690,6 +1694,10 @@
         "noesis-knowledge-engine.list_procurement_notices",
         "noesis-knowledge-engine.list_public_finance_identity_candidates",
         "noesis-knowledge-engine.list_public_finance_links",
+        "noesis-knowledge-engine.list_real_estate_links",
+        "noesis-knowledge-engine.list_real_estate_matches",
+        "noesis-knowledge-engine.list_real_estate_records",
+        "noesis-knowledge-engine.list_real_estate_vintages",
         "noesis-knowledge-engine.list_registrant_declarations",
         "noesis-knowledge-engine.list_research_analysis_runs",
         "noesis-knowledge-engine.list_research_gap_tasks",
@@ -1825,6 +1833,7 @@
         "noesis-knowledge-engine.poll_procurement_monitor",
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
+        "noesis-knowledge-engine.poll_real_estate_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
         "noesis-knowledge-engine.poll_space_registration_monitor",
         "noesis-knowledge-engine.poll_sports_monitor",
@@ -1930,6 +1939,7 @@
         "noesis-knowledge-engine.propose_public_finance_award_parties",
         "noesis-knowledge-engine.propose_public_finance_identity_matches",
         "noesis-knowledge-engine.propose_publisher_organisation_matches",
+        "noesis-knowledge-engine.propose_real_estate_matches",
         "noesis-knowledge-engine.propose_repository_package_matches",
         "noesis-knowledge-engine.propose_safety_subject_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
@@ -1962,6 +1972,11 @@
         "noesis-knowledge-engine.rank_by_quality",
         "noesis-knowledge-engine.read_quantitative_series",
         "noesis-knowledge-engine.read_workflow_stage",
+        "noesis-knowledge-engine.real_estate_parcel_as_of",
+        "noesis-knowledge-engine.real_estate_parcel_revisions",
+        "noesis-knowledge-engine.real_estate_place_as_of",
+        "noesis-knowledge-engine.real_estate_readiness",
+        "noesis-knowledge-engine.real_estate_source_contracts",
         "noesis-knowledge-engine.recheck_modulo_plugin_link",
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_clinical_trial_design",
@@ -2052,6 +2067,7 @@
         "noesis-knowledge-engine.relate_evidence_applicability",
         "noesis-knowledge-engine.release_retention_legal_hold",
         "noesis-knowledge-engine.release_review_annotation_dataset",
+        "noesis-knowledge-engine.rematch_real_estate_parcel",
         "noesis-knowledge-engine.remove_paper_family_member",
         "noesis-knowledge-engine.renew_research_snapshot",
         "noesis-knowledge-engine.reopen_authored_report",
@@ -2150,6 +2166,7 @@
         "noesis-knowledge-engine.revert_product_notice_party_link",
         "noesis-knowledge-engine.revert_public_finance_identity_match",
         "noesis-knowledge-engine.revert_public_finance_link",
+        "noesis-knowledge-engine.revert_real_estate_match",
         "noesis-knowledge-engine.revert_safety_subject_match",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
         "noesis-knowledge-engine.revert_space_registration_citation",
@@ -2224,6 +2241,7 @@
         "noesis-knowledge-engine.review_public_finance_identity_match",
         "noesis-knowledge-engine.review_public_finance_link",
         "noesis-knowledge-engine.review_quality_override",
+        "noesis-knowledge-engine.review_real_estate_match",
         "noesis-knowledge-engine.review_research_claim_independence",
         "noesis-knowledge-engine.review_safety_subject_match",
         "noesis-knowledge-engine.review_sanctions_identity_match",
@@ -2296,6 +2314,7 @@
         "noesis-knowledge-engine.run_procurement_monitor",
         "noesis-knowledge-engine.run_product_notice_monitor",
         "noesis-knowledge-engine.run_public_finance_monitor",
+        "noesis-knowledge-engine.run_real_estate_monitor",
         "noesis-knowledge-engine.run_reference_workflow",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
@@ -2492,7 +2511,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1533
+      "visible_tool_count": 1552
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2503,11 +2522,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 144,
+      "available": 145,
       "degraded": 173,
-      "unauthorized": 1540
+      "unauthorized": 1558
     },
-    "tools": 1857
+    "tools": 1876
   },
   "tools": [
     {
@@ -27943,6 +27962,71 @@
       "version": "1"
     },
     {
+      "cost_class": "medium",
+      "description": "An explicit citation stated by a publication, resolved to exactly one legal work or kept unresolved.",
+      "id": "noesis-knowledge-engine.cite_real_estate_legal_work",
+      "input_schema": {
+        "properties": {
+          "identifier": {
+            "type": "string"
+          },
+          "jurisdiction": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "legal_namespace": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "stated_in": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id",
+          "identifier",
+          "relation",
+          "stated_in",
+          "legal_namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "cite_real_estate_legal_work",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:write",
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "low",
       "description": "Classify a statement kind using deterministic, inspectable rules.",
       "id": "noesis-knowledge-engine.classify_epistemic_statement",
@@ -34573,6 +34657,87 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Follow places, place codes or parcels for new releases, revisions, index vintages and parcel revisions.",
+      "id": "noesis-knowledge-engine.create_real_estate_monitor",
+      "input_schema": {
+        "properties": {
+          "codes": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "parcels": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "places": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_real_estate_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -50796,6 +50961,43 @@
     },
     {
       "cost_class": "low",
+      "description": "One record with every revision (added, changed, withdrawn, removed) and its release vintage.",
+      "id": "noesis-knowledge-engine.inspect_real_estate_record",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "inspect_real_estate_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Inspect workflow state, immutable receipts, and its committed watermark.",
       "id": "noesis-knowledge-engine.inspect_reference_workflow",
       "input_schema": {
@@ -54458,6 +54660,41 @@
         "knowledge:products:write",
         "knowledge:standards:read",
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Links from shared published identifiers (parcel reference, geography code, dataset code) only.",
+      "id": "noesis-knowledge-engine.link_real_estate_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_real_estate_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:write",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:calculate"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -59466,6 +59703,215 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links with their basis, both records and the revision in force (as of a date).",
+      "id": "noesis-knowledge-engine.list_real_estate_links",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_real_estate_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Transaction-parcel and transaction-place matches with basis, pinned revisions and drift.",
+      "id": "noesis-knowledge-engine.list_real_estate_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "transaction_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_real_estate_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Transactions, parcels or price-index observations with their provider and native key.",
+      "id": "noesis-knowledge-engine.list_real_estate_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "record_type": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_real_estate_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every release read per source (a vintage even when nothing in it changed).",
+      "id": "noesis-knowledge-engine.list_real_estate_vintages",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "source_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_real_estate_vintages",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -66034,6 +66480,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Delivered real-estate notifications after a cursor.",
+      "id": "noesis-knowledge-engine.poll_real_estate_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_real_estate_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a sanctions monitor's events through the subscription delivery path.",
       "id": "noesis-knowledge-engine.poll_sanctions_monitor",
       "input_schema": {
@@ -70895,6 +71379,41 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record exact identifier matches and offer address- or geometry-derived candidates for review.",
+      "id": "noesis-knowledge-engine.propose_real_estate_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_real_estate_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:write",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose repository candidates from registry links, deps.dev related projects and archive tags. Idempotent.",
       "id": "noesis-knowledge-engine.propose_repository_package_matches",
       "input_schema": {
@@ -72456,6 +72975,244 @@
       "required_scopes": [
         "knowledge:read"
       ],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A parcel's revision in force, history, matched transactions, links and containment context.",
+      "id": "noesis-knowledge-engine.real_estate_parcel_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reference": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "real_estate_parcel_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A parcel's revisions known by a date: identifiers, geometry reference and source CRS as published.",
+      "id": "noesis-knowledge-engine.real_estate_parcel_revisions",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "real_estate_parcel_revisions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Transactions, price indices and parcels published for a place (or place codes) by a date, with citations.\nWrites only replayable spatial receipts.",
+      "id": "noesis-knowledge-engine.real_estate_place_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "codes": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "real_estate_place_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:geospatial:read",
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Geospatial real-estate feature is selected, record counts and per-source decisions.",
+      "id": "noesis-knowledge-engine.real_estate_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "real_estate_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access, identifiers, licence, rate limits, reuse conditions, bounded coverage and live status.",
+      "id": "noesis-knowledge-engine.real_estate_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "real_estate_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",
       "version": "1"
@@ -79196,6 +79953,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Re-match a parcel match whose parcel was revised; the old match is kept as superseded.",
+      "id": "noesis-knowledge-engine.rematch_real_estate_parcel",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "rematch_real_estate_parcel",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Reverse a family assignment while retaining earlier versions and citations.",
       "id": "noesis-knowledge-engine.remove_paper_family_member",
       "input_schema": {
@@ -83260,6 +84058,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an accepted or rejected candidate decision.",
+      "id": "noesis-knowledge-engine.revert_real_estate_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_real_estate_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:review",
+        "knowledge:entity-history:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert the decision on a subject match; an earlier acceptance is never reactivated.",
       "id": "noesis-knowledge-engine.revert_safety_subject_match",
       "input_schema": {
@@ -86727,6 +87567,52 @@
       ],
       "required_scopes": [
         "knowledge:quality:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate match; recorded as an entity identity decision.",
+      "id": "noesis-knowledge-engine.review_real_estate_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_real_estate_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:review",
+        "knowledge:entity-history:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -90411,6 +91297,52 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a monitor at a committed geospatial-real-estate watermark; unchanged releases emit nothing.",
+      "id": "noesis-knowledge-engine.run_real_estate_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_real_estate_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:housing:read",
+        "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

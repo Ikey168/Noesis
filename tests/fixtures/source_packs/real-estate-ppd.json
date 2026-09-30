@@ -1,0 +1,18 @@
+{
+ "description": "HM Land Registry PPD monthly change file. Authored offline fixture in the publisher's documented shape; identifiers, prices, index values, dates and geometries are FICTIONAL and not live evidence; verify against the live sources before any live run (RE13, #2519).",
+ "scenarios": [
+  "standard and additional price paid rows",
+  "a row outside the declared districts"
+ ],
+ "native_pages": [
+  {
+   "request": "/pp-monthly-update-new-version.csv",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv",
+    "Last-Modified": "Thu, 26 Feb 2099 08:00:00 GMT"
+   },
+   "body": "\"{A1B2C3D4-0001-4E00-9F00-000000000001}\",\"450000\",\"2099-01-10 00:00\",\"ZZ1 1AA\",\"F\",\"N\",\"L\",\"12\",\"FLAT 3\",\"EXAMPLE STREET\",\"\",\"LONDON\",\"FICTIONAL BOROUGH\",\"GREATER LONDON\",\"A\",\"A\"\n\"{A1B2C3D4-0002-4E00-9F00-000000000002}\",\"780000\",\"2099-01-17 00:00\",\"ZZ1 2BB\",\"D\",\"Y\",\"F\",\"7\",\"\",\"SAMPLE ROAD\",\"\",\"LONDON\",\"FICTIONAL BOROUGH\",\"GREATER LONDON\",\"B\",\"A\"\n\"{A1B2C3D4-0003-4E00-9F00-000000000003}\",\"210000\",\"2099-01-20 00:00\",\"XX9 9ZZ\",\"T\",\"N\",\"F\",\"1\",\"\",\"ELSEWHERE LANE\",\"\",\"OTHERTOWN\",\"OTHER DISTRICT\",\"OTHER COUNTY\",\"A\",\"A\"\n"
+  }
+ ]
+}

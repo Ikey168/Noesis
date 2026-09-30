@@ -403,6 +403,13 @@ def _astronomy_registration_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
+def _real_estate_projector(conn: Any) -> Any:
+    from src.kb.real_estate import RealEstateProjector
+
+    return RealEstateProjector(conn)
+
+
+PROJECTORS["noesis-real-estate-record-v1"] = _real_estate_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

@@ -313,6 +313,11 @@ For the project overview and local setup, start with the
   (Memento, RFC 7089), with digests, reviewable URL matches, citation pins exported with evidence, link-rot monitors
   and Save Page Now behind a write scope (off by default); archive.today excluded by access decision;
   [archive audit](roadmaps/platform-web-archives-source-audit.md)
+- [Geospatial real estate guide](guides/geospatial-real-estate.md) — from a place or parcel to HM Land Registry Price
+  Paid transactions (with change and deletion rows), UK HPI and Eurostat house price indices by release vintage, French
+  DVF mutations with parcel ids and INSPIRE cadastral parcels with revisions, as of a date with citations, reviewable
+  identity, citation links and monitors; no valuation, owner profiling or investment advice;
+  [source audit](roadmaps/geospatial-real-estate-source-audit.md)
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier

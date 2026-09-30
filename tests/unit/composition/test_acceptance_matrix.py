@@ -204,6 +204,11 @@ MATRIX = {
     "Taxon or place to cited biodiversity records":
         "tests/unit/domains/test_biodiversity_acceptance.py::"
         "test_taxon_and_place_to_cited_occurrences_and_conservation_status_history",
+    # The Geospatial real-estate feature's offline journey (#2516) composes its record owner with the WFS path,
+    # geospatial places and receipts, entity identity decisions, legal works and subscriptions.
+    "Place or parcel to cited real-estate transactions":
+        "tests/unit/domains/test_real_estate_acceptance.py::"
+        "test_place_and_parcel_to_cited_transactions_indices_and_parcels_with_vintages",
 }
 
 

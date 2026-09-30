@@ -1,0 +1,27 @@
+{
+ "description": "INSPIRE CP WFS GetFeature response (NRW, EPSG:25832). Authored offline fixture in the publisher's documented shape; identifiers, prices, index values, dates and geometries are FICTIONAL and not live evidence; verify against the live sources before any live run (RE13, #2519).",
+ "scenarios": [
+  "one parcel"
+ ],
+ "native_pages": [
+  {
+   "start_index": 0,
+   "status": 200,
+   "params": {
+    "SERVICE": "WFS",
+    "VERSION": "2.0.0",
+    "REQUEST": "GetFeature",
+    "TYPENAMES": "cp:CadastralParcel",
+    "OUTPUTFORMAT": "application/json",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25832",
+    "SORTBY": "localId",
+    "COUNT": 50,
+    "STARTINDEX": 0,
+    "PROPERTYNAME": "localId,namespace,nationalCadastralReference,label,areaValue,beginLifespanVersion",
+    "BBOX": "356000.0,5644500.0,357500.0,5646000.0,urn:ogc:def:crs:EPSG::25832"
+   },
+   "body_sha256": "f79707b94397fb5bc602a9163db1efe81341a77ed4128d16d7a015c6447dd197",
+   "body": "{\"crs\": {\"properties\": {\"name\": \"urn:ogc:def:crs:EPSG::25832\"}, \"type\": \"name\"}, \"features\": [{\"geometry\": {\"coordinates\": [[[356700.0, 5645000.0], [356730.0, 5645000.0], [356730.0, 5645030.0], [356700.0, 5645030.0], [356700.0, 5645000.0]]], \"type\": \"Polygon\"}, \"id\": \"cp.053001001000120003______\", \"properties\": {\"areaValue\": 225, \"beginLifespanVersion\": \"2091-05-01T00:00:00Z\", \"label\": \"12/3\", \"localId\": \"DENW36AL0530010010FL\", \"namespace\": \"https://registry.gdi-de.org/id/de.nw.inspire.cp.alkis\", \"nationalCadastralReference\": \"053001001000120003______\"}, \"type\": \"Feature\"}], \"numberMatched\": 1, \"numberReturned\": 1, \"timeStamp\": \"2099-03-01T08:00:00Z\", \"type\": \"FeatureCollection\"}"
+  }
+ ]
+}

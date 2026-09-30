@@ -1,0 +1,28 @@
+{
+ "description": "INSPIRE CP WFS GetFeature response (France, EPSG:25831). Authored offline fixture in the publisher's documented shape; identifiers, prices, index values, dates and geometries are FICTIONAL and not live evidence; verify against the live sources before any live run (RE13, #2519).",
+ "scenarios": [
+  "two parcels named by DVF",
+  "a rights-holder property the service should not have sent (dropped)"
+ ],
+ "native_pages": [
+  {
+   "start_index": 0,
+   "status": 200,
+   "params": {
+    "SERVICE": "WFS",
+    "VERSION": "2.0.0",
+    "REQUEST": "GetFeature",
+    "TYPENAMES": "CP.CadastralParcel",
+    "OUTPUTFORMAT": "application/json",
+    "SRSNAME": "urn:ogc:def:crs:EPSG::25831",
+    "SORTBY": "localId",
+    "COUNT": 50,
+    "STARTINDEX": 0,
+    "PROPERTYNAME": "localId,namespace,nationalCadastralReference,label,areaValue,beginLifespanVersion",
+    "BBOX": "452000.0,5410500.0,453500.0,5412000.0,urn:ogc:def:crs:EPSG::25831"
+   },
+   "body_sha256": "1992b37f7e486ce56495966d6bb8df47738a4b5a39597ce05b01c9da5f268918",
+   "body": "{\"crs\": {\"properties\": {\"name\": \"urn:ogc:def:crs:EPSG::25831\"}, \"type\": \"name\"}, \"features\": [{\"geometry\": {\"coordinates\": [[[452600.0, 5410900.0], [452640.0, 5410900.0], [452640.0, 5410940.0], [452600.0, 5410940.0], [452600.0, 5410900.0]]], \"type\": \"Polygon\"}, \"id\": \"CP.CadastralParcel.75104000AB0012\", \"properties\": {\"areaValue\": 400, \"beginLifespanVersion\": \"2090-01-01T00:00:00Z\", \"label\": \"AB 12\", \"localId\": \"75104000AB0012\", \"namespace\": \"FR.CADASTRALPARCELS\", \"nationalCadastralReference\": \"75104000AB0012\", \"proprietaire\": \"NOM FICTIF (must be dropped)\"}, \"type\": \"Feature\"}, {\"geometry\": {\"coordinates\": [[[452640.0, 5410900.0], [452680.0, 5410900.0], [452680.0, 5410940.0], [452640.0, 5410940.0], [452640.0, 5410900.0]]], \"type\": \"Polygon\"}, \"id\": \"CP.CadastralParcel.75104000AB0013\", \"properties\": {\"areaValue\": 400, \"beginLifespanVersion\": \"2090-01-01T00:00:00Z\", \"label\": \"AB 13\", \"localId\": \"75104000AB0013\", \"namespace\": \"FR.CADASTRALPARCELS\", \"nationalCadastralReference\": \"75104000AB0013\"}, \"type\": \"Feature\"}], \"numberMatched\": 2, \"numberReturned\": 2, \"timeStamp\": \"2099-03-01T08:00:00Z\", \"type\": \"FeatureCollection\"}"
+  }
+ ]
+}

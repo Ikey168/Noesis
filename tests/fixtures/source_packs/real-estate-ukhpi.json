@@ -1,0 +1,26 @@
+{
+ "description": "UK HPI full file of release 2099-03. Authored offline fixture in the publisher's documented shape; identifiers, prices, index values, dates and geometries are FICTIONAL and not live evidence; verify against the live sources before any live run (RE13, #2519).",
+ "scenarios": [
+  "borough and England rows",
+  "a geography outside the declaration",
+  "release 2099-04 revising January and adding February (declared by a later pack version)"
+ ],
+ "native_pages": [
+  {
+   "request": "/market-trend-data/house-price-index-data/UK-HPI-full-file-2099-03.csv",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "body": "\"Date\",\"RegionName\",\"AreaCode\",\"AveragePrice\",\"Index\",\"IndexSA\",\"1m%Change\",\"12m%Change\",\"AveragePriceSA\",\"SalesVolume\"\n\"01/12/2098\",\"City of Westminster\",\"E09000033\",\"901000\",\"151.2\",\"\",\"\",\"\",\"\",\"12\"\n\"01/01/2099\",\"City of Westminster\",\"E09000033\",\"905500\",\"151.9\",\"\",\"\",\"\",\"\",\"9\"\n\"01/12/2098\",\"England\",\"E92000001\",\"301200\",\"139.4\",\"\",\"\",\"\",\"\",\"60100\"\n\"01/01/2099\",\"England\",\"E92000001\",\"302000\",\"139.8\",\"\",\"\",\"\",\"\",\"55210\"\n\"01/01/2099\",\"Wales\",\"W92000004\",\"201000\",\"137.0\",\"\",\"\",\"\",\"\",\"3100\"\n"
+  },
+  {
+   "request": "/market-trend-data/house-price-index-data/UK-HPI-full-file-2099-04.csv",
+   "status": 200,
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "body": "\"Date\",\"RegionName\",\"AreaCode\",\"AveragePrice\",\"Index\",\"IndexSA\",\"1m%Change\",\"12m%Change\",\"AveragePriceSA\",\"SalesVolume\"\n\"01/12/2098\",\"City of Westminster\",\"E09000033\",\"901000\",\"151.2\",\"\",\"\",\"\",\"\",\"12\"\n\"01/01/2099\",\"City of Westminster\",\"E09000033\",\"907100\",\"152.2\",\"\",\"\",\"\",\"\",\"11\"\n\"01/02/2099\",\"City of Westminster\",\"E09000033\",\"910300\",\"152.7\",\"\",\"\",\"\",\"\",\"8\"\n\"01/12/2098\",\"England\",\"E92000001\",\"301200\",\"139.4\",\"\",\"\",\"\",\"\",\"60100\"\n\"01/01/2099\",\"England\",\"E92000001\",\"302000\",\"139.8\",\"\",\"\",\"\",\"\",\"57002\"\n\"01/02/2099\",\"England\",\"E92000001\",\"302600\",\"140.1\",\"\",\"\",\"\",\"\",\"49870\"\n"
+  }
+ ]
+}
