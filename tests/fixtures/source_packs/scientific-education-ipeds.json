@@ -1,0 +1,45 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe4lUby2lQAAAMAAAAAKAAAAaGQyMDk4LmNzdj2MvQ6CMBgAd5+iD/ANRQd15M+kg2hoGWRr2k9oUlpSGpW3F2Lk5rtrKiZYAaziorpCzsQDuEizrIbbvWTFLqELCVyMisY7aQmPMiJpnHlhmEycgY/BuO5p0GpoW6DnFUp/5R7KjxxGi0Sg6p1RyyH31mKHUK+L6N1Wnf7VARqnUVkZUJNUSY3DDKWd8N1jwM0/Lv4XUEsBAhQDFAAAAAgAAAAh7iVRvLaVAAAAwAAAAAoAAAAAAAAAAAAAAIABAAAAAGhkMjA5OC5jc3ZQSwUGAAAAAAEAAQA4AAAAvQAAAAAA",
+   "headers": {},
+   "request": "/ipeds/datacenter/data/HD2098.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe5R8aDyPwAAAGIAAAALAAAAZWYyMDk4YS5jc3YL9fMM8XTRcXVz9HENc/UBMkL8Q3xCdCKgDC5DAyAw1DHUMTIFMnSCYAJGOoYWSAJAro6hEZDvA+Mb6ViAuQBQSwECFAMUAAAACAAAACHuUfGg8j8AAABiAAAACwAAAAAAAAAAAAAAgAEAAAAAZWYyMDk4YS5jc3ZQSwUGAAAAAAEAAQA5AAAAaAAAAAAA",
+   "headers": {},
+   "request": "/ipeds/datacenter/data/EF2098A.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe7i4qJyPgAAAEsAAAALAAAAYzIwOThfYS5jc3YL9fMM8XTRcfYMcPZ3cdXxdfTyD/IL9dVxDvEPcfQJ0YmAMrgMDYDAUMfSUsdQx9TIwEAnCCJkBBHSceQCAFBLAQIUAxQAAAAIAAAAIe7i4qJyPgAAAEsAAAALAAAAAAAAAAAAAACAAQAAAABjMjA5OF9hLmNzdlBLBQYAAAAAAQABADkAAABnAAAAAAA=",
+   "headers": {},
+   "request": "/ipeds/datacenter/data/C2098_A.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe5kKnblLQAAAD0AAAAMAAAAczIwOThfaXMuY3N2C/XzDPF00Qn2DHZ2DAFRIf4hPjoRUAaXoQEQGOoAoYmpgU4QhG8E5FtYAHkAUEsBAhQDFAAAAAgAAAAh7mQqduUtAAAAPQAAAAwAAAAAAAAAAAAAAIABAAAAAHMyMDk4X2lzLmNzdlBLBQYAAAAAAQABADoAAABXAAAAAAA=",
+   "headers": {},
+   "request": "/ipeds/datacenter/data/S2098_IS.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe7BFfzfKwAAADQAAAANAAAAZjIwOThfZjFhLmNzdgv18wzxdNFxM3QxMNSJAFNchgZAYKhjaGRsYmpmbmFpoBMEETPS0TUCsgFQSwECFAMUAAAACAAAACHuwRX83ysAAAA0AAAADQAAAAAAAAAAAAAAgAEAAAAAZjIwOThfZjFhLmNzdlBLBQYAAAAAAQABADsAAABWAAAAAAA=",
+   "headers": {},
+   "request": "/ipeds/datacenter/data/F2098_F1A.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional.",
+ "provider": "ipeds",
+ "scenarios": [
+  "directory profiles",
+  "provisional release",
+  "imputation flag L",
+  "not applicable flag A",
+  "declared suppression code",
+  "undeclared UNITID ignored"
+ ]
+}

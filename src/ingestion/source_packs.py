@@ -320,6 +320,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
 NATIVE_CONNECTOR_MODULES["trade-flows"] = "src.ingestion.trade_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
 
+# Science education statistics: IPEDS, ETER, UNESCO UIS, OECD EAG and Eurostat R&D (#2227).
+NATIVE_CONNECTOR_MODULES["education-statistics"] = "src.ingestion.education_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"education-statistics"})
+
 
 # Political legislation: congress.gov, senate.gov, GovInfo and UK Parliament Bills/Votes/Hansard (#2208).
 NATIVE_CONNECTOR_MODULES["legislation"] = "src.ingestion.legislation_sources"

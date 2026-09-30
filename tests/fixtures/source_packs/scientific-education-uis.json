@@ -1,0 +1,18 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\"hints\": [], \"indicatorMetadata\": [{\"definition\": \"Total enrolment in tertiary education, regardless of age, expressed as a percentage of the population in the five-year age group following secondary school leaving (fixture wording)\", \"indicatorCode\": \"GER.5T8\", \"lastDataUpdate\": \"2099-02-27T00:00:00Z\", \"name\": \"Gross enrolment ratio for tertiary education, both sexes (%)\"}, {\"definition\": \"General government expenditure on tertiary education expressed as a percentage of GDP (fixture wording)\", \"indicatorCode\": \"XGDP.5T8\", \"lastDataUpdate\": \"2099-02-27T00:00:00Z\", \"name\": \"Government expenditure on tertiary education as a percentage of GDP (%)\"}], \"records\": [{\"footnotes\": [\"Data refer to ISCED 2011 levels 5 to 8\"], \"geoUnit\": \"DEU\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 73.1, \"year\": 2096}, {\"geoUnit\": \"DEU\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 74.0, \"year\": 2097}, {\"geoUnit\": \"FRA\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": \"UIS_EST\", \"value\": 68.2, \"year\": 2096}, {\"geoUnit\": \"USA\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 87.9, \"year\": 2096}, {\"geoUnit\": \"DEU\", \"indicatorId\": \"XGDP.5T8\", \"magnitude\": null, \"qualifier\": \"NAT_EST\", \"value\": 1.2, \"year\": 2096}, {\"geoUnit\": \"FRA\", \"indicatorId\": \"XGDP.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 1.4, \"year\": 2096}]}",
+   "headers": {},
+   "request": "/api/public/data/indicators?end=2097&footnotes=true&geoUnit=DEU&geoUnit=FRA&geoUnit=USA&indicator=GER.5T8&indicator=XGDP.5T8&indicatorMetadata=true&start=2096&version=20990301",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional.",
+ "provider": "unesco-uis",
+ "scenarios": [
+  "UIS_EST and NAT_EST qualifiers",
+  "footnote",
+  "indicator metadata lastDataUpdate"
+ ]
+}

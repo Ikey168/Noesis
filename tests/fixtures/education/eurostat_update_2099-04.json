@@ -1,0 +1,12 @@
+{
+ "documents": {},
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sectperf,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:RD_E_GERDTOT(1.0),20/04/99 23:00:00,A,MIO_EUR,HES,DE,2096,21000.5,b\nESTAT:RD_E_GERDTOT(1.0),20/04/99 23:00:00,A,MIO_EUR,HES,DE,2097,21900.2,\nESTAT:RD_E_GERDTOT(1.0),20/04/99 23:00:00,A,MIO_EUR,HES,FR,2096,12500,\nESTAT:RD_E_GERDTOT(1.0),20/04/99 23:00:00,A,MIO_EUR,HES,FR,2097,12850.1,\n",
+   "headers": {},
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/rd_e_gerdtot/A.MIO_EUR.HES.DE+FR?endPeriod=2097&format=SDMX-CSV&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional. A later dataset update (LAST UPDATE) revises FR 2097 and drops its provisional flag."
+}
