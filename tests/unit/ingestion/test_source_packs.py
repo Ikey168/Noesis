@@ -125,8 +125,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the OSINT movements feature's FAA, G-INFO, OpenSky, GFW port-visit, open AIS and UNCTAD sources (#2221),
     # plus the Cultural Collections media-metadata Open Library, MusicBrainz, Wikidata, DNB and LoC sources (#2225),
     # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209),
-    # plus the News fact-checks features' Google claim-search, Data Commons feed and IFCN signatories sources (#2659).
-    assert sum(len(pack["sources"]) for pack in packs) == 301
+    # plus the News fact-checks features' Google claim-search, Data Commons feed and IFCN signatories sources (#2659),
+    # plus the Legal treaties provider's CELLAR, Council of Europe and declined UN Treaty Collection sources (#2581).
+    assert sum(len(pack["sources"]) for pack in packs) == 304
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

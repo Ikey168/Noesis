@@ -8,13 +8,15 @@
   "panels": [],
   "planner_keywords": {
     "entities": ["celex", "ecli", "eli", "gesetz", "law", "regulation", "urteil", "verordnung", "designation",
-                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence"],
+                 "dual-use", "sanctions list", "docket", "court", "opinion", "crime statistics", "offence",
+                 "treaty", "convention", "reservation", "ratification", "accession", "cets", "unts"],
     "sources": ["cellar", "eur-lex", "gesetze.berlin.de", "rechtsprechung im internet", "consolidated list",
                 "ofac", "uk sanctions list", "un security council", "courtlistener", "recap",
-                "fbi crime data explorer", "data.police.uk", "eurostat crime"],
+                "fbi crime data explorer", "data.police.uk", "eurostat crime", "un treaty collection",
+                "council of europe treaty office", "eu international agreements"],
     "claims": ["article", "artikel", "paragraph", "section"],
     "events": ["amendment", "commencement", "entry into force", "inkrafttreten", "repeal", "delisting",
-               "designation", "listing"]
+               "designation", "listing", "signature", "ratification", "accession", "denunciation", "objection"]
   },
   "enrichers": [],
   "provisioning_templates": [],
@@ -41,7 +43,13 @@
     "court-party-identity-review",
     "justice-statistics-as-of",
     "justice-statistics-comparability",
-    "courts-justice-monitoring"
+    "courts-justice-monitoring",
+    "treaty-actions-as-published",
+    "treaty-status-as-of",
+    "treaty-reservations-verbatim",
+    "treaty-identity-review",
+    "treaty-links",
+    "treaties-monitoring"
   ],
   "schema_versions": {
     "legal-work": "1.0.0",
@@ -58,7 +66,12 @@
     "justice-statistics-answer": "1.0.0",
     "justice-comparability-note": "1.0.0",
     "court-citation-link": "1.0.0",
-    "court-justice-notification": "1.0.0"
+    "court-justice-notification": "1.0.0",
+    "treaty-record": "1.0.0",
+    "treaty-answer": "1.0.0",
+    "treaty-identity-candidate": "1.0.0",
+    "treaty-link": "1.0.0",
+    "treaty-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -122,6 +135,18 @@
       "tool": "justice_statistics_for_place",
       "arguments": {"namespace": "global", "place": "eurostat-geo:DE", "indicator": "ICCS0401"},
       "semantics": "each source's series with definition, unit, flags, coverage notes and vintage; no ranking or safety rating"
+    },
+    {
+      "intent": "Which actions did the depositary record for Germany under CETS No. 990 on 1 March 2100",
+      "tool": "treaty_status_as_of",
+      "arguments": {"namespace": "global", "treaty": "cets:990", "participant": "Germany", "as_of": "2100-03-01"},
+      "semantics": "the action chain by published dates with pending and unclear items and the depositary revision cited; a description of the record, not a legal status"
+    },
+    {
+      "intent": "Reservations and objections to a treaty, verbatim",
+      "tool": "treaty_reservations_and_objections",
+      "arguments": {"namespace": "global", "treaty": "untc:XXIX-99"},
+      "semantics": "statements quoted verbatim with anchors; objections linked to reservations only where the source links them; no legal effect assessed"
     }
   ],
   "exclusions": [
@@ -132,6 +157,10 @@
     "scraped sanctions portals (EU Sanctions Map)",
     "personal profiles of private individuals in dockets", "recidivism or risk scoring",
     "neighbourhood safety ratings", "rankings of places or countries", "derived case outcome labels or predictions",
-    "unqualified cross-jurisdiction comparison of crime statistics"
+    "unqualified cross-jurisdiction comparison of crime statistics",
+    "inferred treaty obligations or compliance",
+    "interpretation of the legal effect of reservations, declarations or objections",
+    "treaty-text redistribution beyond what each source licenses",
+    "UN Treaty Collection acquisition without written permission", "natural-person data in treaty records"
   ]
 }

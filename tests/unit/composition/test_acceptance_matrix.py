@@ -215,6 +215,11 @@ MATRIX = {
     "Provision or party to cited dockets; place to cited justice statistics":
         "tests/unit/domains/test_courts_justice_acceptance.py::"
         "test_provision_and_party_to_cited_dockets_and_place_to_cited_statistics",
+    # The Legal treaties provider's offline journey (#2640) composes the source-pack runtime (CELLAR adapter reuse),
+    # reviewable identity with entity history, geospatial places, cross-pack links and subscriptions.
+    "Treaty or state to cited treaty actions":
+        "tests/unit/domains/test_treaties_acceptance.py::"
+        "test_treaty_and_state_to_cited_actions_with_revisions_identity_and_links",
     # The Climate and Environment biodiversity feature's offline journey (#2531) composes its record owner with
     # geospatial places and receipts, entity identity decisions, Science papers by DOI and subscriptions.
     "Taxon or place to cited biodiversity records":

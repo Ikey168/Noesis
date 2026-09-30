@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1661,
+      "tool_count": 1678,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1234,6 +1234,7 @@
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
         "noesis-knowledge-engine.create_trade_monitor",
+        "noesis-knowledge-engine.create_treaties_monitor",
         "noesis-knowledge-engine.create_vulnerability_monitor",
         "noesis-knowledge-engine.create_water_monitor",
         "noesis-knowledge-engine.create_weather_monitor",
@@ -1378,6 +1379,7 @@
         "noesis-knowledge-engine.export_systematic_review",
         "noesis-knowledge-engine.export_technical_impact_report",
         "noesis-knowledge-engine.export_trade_evidence_bundle",
+        "noesis-knowledge-engine.export_treaty_evidence_bundle",
         "noesis-knowledge-engine.export_water_bundle",
         "noesis-knowledge-engine.export_zotero_bibliography",
         "noesis-knowledge-engine.extract_math_text_objects",
@@ -1662,6 +1664,7 @@
         "noesis-knowledge-engine.link_surveillance_series",
         "noesis-knowledge-engine.link_trade_ownership",
         "noesis-knowledge-engine.link_trade_sanctions",
+        "noesis-knowledge-engine.link_treaty_records",
         "noesis-knowledge-engine.link_water_records",
         "noesis-knowledge-engine.list_agrifood_crosswalks",
         "noesis-knowledge-engine.list_agrifood_links",
@@ -1790,6 +1793,8 @@
         "noesis-knowledge-engine.list_trade_identity_assertions",
         "noesis-knowledge-engine.list_trade_links",
         "noesis-knowledge-engine.list_trade_series",
+        "noesis-knowledge-engine.list_treaty_identity_candidates",
+        "noesis-knowledge-engine.list_treaty_links",
         "noesis-knowledge-engine.list_unmapped_agrifood_codes",
         "noesis-knowledge-engine.list_unmatched_substances",
         "noesis-knowledge-engine.list_vulnerability_component_matches",
@@ -1827,6 +1832,7 @@
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.lookup_sponsor_bills",
         "noesis-knowledge-engine.lookup_taxa",
+        "noesis-knowledge-engine.lookup_treaties",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.map_trade_product_code",
@@ -1867,6 +1873,7 @@
         "noesis-knowledge-engine.package_advisories",
         "noesis-knowledge-engine.package_release_history",
         "noesis-knowledge-engine.packages_by_organisation",
+        "noesis-knowledge-engine.participant_treaty_actions",
         "noesis-knowledge-engine.patent_family_members",
         "noesis-knowledge-engine.patent_links",
         "noesis-knowledge-engine.patent_source_contracts",
@@ -1923,6 +1930,7 @@
         "noesis-knowledge-engine.poll_substance_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
         "noesis-knowledge-engine.poll_trade_monitor",
+        "noesis-knowledge-engine.poll_treaties_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
         "noesis-knowledge-engine.poll_water_monitor",
         "noesis-knowledge-engine.poll_weather_monitor",
@@ -2039,6 +2047,7 @@
         "noesis-knowledge-engine.propose_taxon_identity_matches",
         "noesis-knowledge-engine.propose_trade_area_matches",
         "noesis-knowledge-engine.propose_trade_product_matches",
+        "noesis-knowledge-engine.propose_treaty_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
         "noesis-knowledge-engine.propose_vulnerability_component_matches",
         "noesis-knowledge-engine.propose_vulnerability_product_matches",
@@ -2276,6 +2285,7 @@
         "noesis-knowledge-engine.revert_substance_identity",
         "noesis-knowledge-engine.revert_taxon_identity_match",
         "noesis-knowledge-engine.revert_trade_identity_match",
+        "noesis-knowledge-engine.revert_treaty_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.revert_water_identity_match",
         "noesis-knowledge-engine.revert_weather_station_match",
@@ -2362,6 +2372,7 @@
         "noesis-knowledge-engine.review_trade_comparability",
         "noesis-knowledge-engine.review_trade_identity_match",
         "noesis-knowledge-engine.review_translation",
+        "noesis-knowledge-engine.review_treaty_match",
         "noesis-knowledge-engine.review_vulnerability_component_match",
         "noesis-knowledge-engine.review_water_identity_match",
         "noesis-knowledge-engine.review_weather_evidence_link",
@@ -2438,6 +2449,7 @@
         "noesis-knowledge-engine.run_substance_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
         "noesis-knowledge-engine.run_trade_monitor",
+        "noesis-knowledge-engine.run_treaties_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
         "noesis-knowledge-engine.run_water_monitor",
         "noesis-knowledge-engine.run_weather_monitor",
@@ -2587,6 +2599,11 @@
         "noesis-knowledge-engine.transit_source_contracts",
         "noesis-knowledge-engine.transit_stops_in_bbox",
         "noesis-knowledge-engine.transition_anomaly_alert",
+        "noesis-knowledge-engine.treaties_readiness",
+        "noesis-knowledge-engine.treaties_source_contracts",
+        "noesis-knowledge-engine.treaty_reservations_and_objections",
+        "noesis-knowledge-engine.treaty_revision_history",
+        "noesis-knowledge-engine.treaty_status_as_of",
         "noesis-knowledge-engine.triage_awareness_batch",
         "noesis-knowledge-engine.triage_awareness_item",
         "noesis-knowledge-engine.typological_profile",
@@ -2634,7 +2651,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1661
+      "visible_tool_count": 1678
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2645,11 +2662,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 151,
+      "available": 152,
       "degraded": 174,
-      "unauthorized": 1674
+      "unauthorized": 1690
     },
-    "tools": 1999
+    "tools": 2016
   },
   "tools": [
     {
@@ -37502,6 +37519,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a treaty (record key or identifier) or a participant: new actions, depositary\ncorrections, removals by the source and entry into force.",
+      "id": "noesis-knowledge-engine.create_treaties_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_treaties_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription on a component (package coordinate) or a CVE; no new scheduler or delivery path.",
       "id": "noesis-knowledge-engine.create_vulnerability_monitor",
       "input_schema": {
@@ -44556,6 +44619,51 @@
       ],
       "required_scopes": [
         "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A noesis-evidence-bundle-v1 for a treaty status answer citing every item with source, record revision\nand as-of time; pending, unclear and not-acquired items are omissions.",
+      "id": "noesis-knowledge-engine.export_treaty_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "participant": {
+            "type": "string"
+          },
+          "treaty": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "treaty",
+          "participant",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_treaty_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -57951,6 +58059,73 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link treaties to Legal works of the EU acts CELLAR cites, to sanctions legal bases citing them and to\nTrade flows reporters through accepted matches; missing targets and absent providers are reported. No\nimplementation or trade relationship is inferred.",
+      "id": "noesis-knowledge-engine.link_treaty_records",
+      "input_schema": {
+        "properties": {
+          "legal_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "sanctions_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "trade_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_treaty_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link stations and water bodies to hazard records and documents that cite them, weather stations that\npublish the relation, infrastructure assets sharing an identifier and places by accepted match; missing\nproviders are reported; no causal links.",
       "id": "noesis-knowledge-engine.link_water_records",
       "input_schema": {
@@ -64753,6 +64928,127 @@
     },
     {
       "cost_class": "low",
+      "description": "Reviewable identity candidates (participant to place, participant to canonical entity, treaty to\ntreaty) with method, evidence and confidence, and the unmatched participants and treaties.",
+      "id": "noesis-knowledge-engine.list_treaty_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subject": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_treaty_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Treaty links with their basis, the treaty revision and the target revision they point at.",
+      "id": "noesis-knowledge-engine.list_treaty_links",
+      "input_schema": {
+        "properties": {
+          "link_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "treaty_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_treaty_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Commodity codes no accepted mapping connects, partial matches, and place codes no place carries.",
       "id": "noesis-knowledge-engine.list_unmapped_agrifood_codes",
       "input_schema": {
@@ -66814,6 +67110,61 @@
     },
     {
       "cost_class": "low",
+      "description": "Treaties by published identifier (untc:XXIX-99, celex:..., cets:990, UNTS registration) with the title,\ndepositary, adoption and entry into force as published and the revision cited; accepted cross-source\nmatches add the other sources' records. Texts are linked, not reproduced. No legal advice.",
+      "id": "noesis-knowledge-engine.lookup_treaties",
+      "input_schema": {
+        "properties": {
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_treaties",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Trace a committed generation to pack, source runs, workflow, and artifacts.",
       "id": "noesis-knowledge-engine.maintenance_generation_lineage",
       "input_schema": {
@@ -68657,6 +69008,90 @@
       ],
       "required_scopes": [
         "knowledge:oss:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A participant's treaty actions over a period, filtered by action type and source, each citing its\nrecord revision; undated items are listed separately. No legal advice or inferred obligations.",
+      "id": "noesis-knowledge-engine.participant_treaty_actions",
+      "input_schema": {
+        "properties": {
+          "action_types": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "participant": {
+            "type": "string"
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "participant"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "participant_treaty_actions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -70910,6 +71345,44 @@
       ],
       "required_scopes": [
         "knowledge:trade:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a treaties monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_treaties_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_treaties_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -76239,6 +76712,45 @@
       ],
       "required_scopes": [
         "knowledge:trade:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose participant-to-place matches (published ISO 3166-1 codes first, then the exact name of a\ncoded place; names alone are never acceptable) and treaty-to-treaty matches through published\ncross-references only. Nothing is merged or accepted automatically.",
+      "id": "noesis-knowledge-engine.propose_treaty_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_treaty_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:write",
+        "knowledge:geospatial:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -89386,6 +89898,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed treaty identity decision.",
+      "id": "noesis-knowledge-engine.revert_treaty_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_treaty_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo a decision; the match returns to candidate and no record changes.",
       "id": "noesis-knowledge-engine.revert_vulnerability_component_match",
       "input_schema": {
@@ -93467,6 +94021,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a treaty identity candidate with a reason (an entity identity decision; records are\nnever merged).",
+      "id": "noesis-knowledge-engine.review_treaty_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_treaty_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
+        "knowledge:legal:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a candidate as an entity identity decision; records are linked, never rewritten.",
       "id": "noesis-knowledge-engine.review_vulnerability_component_match",
       "input_schema": {
@@ -97394,6 +97994,51 @@
       ],
       "required_scopes": [
         "knowledge:trade:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a treaties monitor at a committed watermark; each notice cites the new and previous record\nrevision and states what changed (a record change, not an assessment).",
+      "id": "noesis-knowledge-engine.run_treaties_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_treaties_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -105864,6 +106509,244 @@
       ],
       "required_scopes": [
         "knowledge:anomalies:deliver"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the treaties-untc, treaties-eu and treaties-coe features are selected and what each provider\nhas acquired; declined and unverified-live access is stated.",
+      "id": "noesis-knowledge-engine.treaties_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "treaties_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access, licence and redistribution terms, rate limits, revision models, the licence\ndecisions (the UN Treaty Collection is declined pending written permission), the minimisation decision,\nbounded coverage and LIVE_VERIFICATION for UNTC, CELLAR and the Council of Europe Treaty Office.",
+      "id": "noesis-knowledge-engine.treaties_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "treaties_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A treaty's reservations, declarations, objections and withdrawals quoted verbatim with their anchors,\nan objection linked to the objected reservation only where the source links it, each citing its record\nrevision. No interpretation of the legal effect of any reservation; no legal advice.",
+      "id": "noesis-knowledge-engine.treaty_reservations_and_objections",
+      "input_schema": {
+        "properties": {
+          "date_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "date_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "kinds": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "participant": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "treaty": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "treaty"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "treaty_reservations_and_objections",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every revision of a treaty and its actions (new, revised by a depositary correction, removed by the\nsource, relisted) with the fields each revision changed.",
+      "id": "noesis-knowledge-engine.treaty_revision_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "treaty": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "treaty"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "treaty_revision_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The action chain a depositary records for a treaty and a participant (key, ISO 3166-1 code via an\naccepted match, or name as published) on a date: signature, consent to be bound, reservations,\nwithdrawals and entry into force selected by published dates, with pending and unclear items returned as\nsuch and every item citing its depositary revision. Describes the record only: no legal advice, no\ninferred obligation, compliance or effect of a reservation.",
+      "id": "noesis-knowledge-engine.treaty_status_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "known_as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "participant": {
+            "type": "string"
+          },
+          "treaty": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "treaty",
+          "participant",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "treaty_status_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:legal:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

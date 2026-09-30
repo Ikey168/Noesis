@@ -1,7 +1,7 @@
 {
   "pack_id": "legal-research",
-  "version": "1.4.0",
-  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores).",
+  "version": "1.5.0",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores)., plus the treaties provider's EU international agreements from CELLAR and Council of Europe Treaty Office charts and declarations (the UN Treaty Collection entry is declined pending written permission); treaty actions as published, no legal advice or inferred obligations",
   "domains": [
     "legal"
   ],
@@ -1088,6 +1088,181 @@
         "path": "tests/fixtures/source_packs/legal-justice-eurostat-crime-iccs.json",
         "sha256": "c4effb606c74d2a88d4ded8ba01a8dd25bf9fcfc9ca31052ea1d7ccf6a5fc84f",
         "expected_output_hash": "1dfcdda16ccbe9b83c58b81f1ad7456d93c9094b900985bfafac15fd65e0bbf4"
+      }
+    },
+    {
+      "source_id": "untc-multilateral-status",
+      "connector": "treaties",
+      "publisher": "United Nations, Office of Legal Affairs, Treaty Section (United Nations Treaty Collection)",
+      "endpoint": "https://treaties.un.org",
+      "scope": "Declined under the TR01 licence decision (written permission required for reuse and compilation of the online collection): no request is made and no record is stored; the entry keeps the treaties-untc feature's gap visible until an operator records an accepted decision",
+      "update_cadence": "not acquired (written permission required)",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "un-terms-of-use",
+        "terms_url": "https://www.un.org/en/about-us/terms-of-use",
+        "redistribution": "declined: the UN terms permit personal, non-commercial use without any right to redistribute or compile; reuse of the online UN Treaty Collection needs prior written permission (docs/development/treaties-evidence/source-audit.md#un-treaty-collection-licence-decision)"
+      },
+      "temporal_semantics": "the page's 'Status as at' stamp as the depositary revision; signature, consent and statement dates as published; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "treaties": {
+        "namespace": "global",
+        "provider": "untc",
+        "format": "untc-status-html",
+        "selection": {
+          "treaties": [
+            {
+              "mtdsg_no": "XXIX-99",
+              "chapter": 29
+            }
+          ]
+        },
+        "live_verification": "declined",
+        "licence_decision": {
+          "status": "declined",
+          "recorded": "2026-09-30",
+          "reference": "docs/development/treaties-evidence/source-audit.md#un-treaty-collection-licence-decision"
+        }
+      },
+      "mapping": {
+        "target_schema": "noesis-treaty-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "treaties-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 7776000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-treaties-untc-status.json",
+        "sha256": "bc2ddf38361aee1052e6b843e8de22ca6a77b5ffeee8e2b7692fa3ccfe9aa58e",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "cellar-eu-international-agreements",
+      "connector": "treaties",
+      "publisher": "Publications Office of the European Union (CELLAR)",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "scope": "Declared EU international agreements (CELEX sector 2) with their language expressions, signature and entry-into-force dates as CELLAR states them and the EU acts CELLAR links to them (cited, not characterised); the Legal pack's CELLAR adapter query is reused",
+      "update_cadence": "continuous; new expressions and linked acts appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eu-publications-reuse",
+        "terms_url": "https://eur-lex.europa.eu/content/legal-notice/legal-notice.html",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU (operator must confirm per document); texts are linked, not stored"
+      },
+      "temporal_semantics": "signature and entry-into-force dates as CELLAR states them as valid time; no source revision stamp, so acquisition time dates each revision",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 2
+      },
+      "treaties": {
+        "namespace": "global",
+        "provider": "cellar",
+        "format": "cellar-agreement-sparql",
+        "selection": {
+          "agreements": [
+            "22099A0101(01)"
+          ],
+          "languages": [
+            "ENG",
+            "FRA"
+          ],
+          "page_size": 100
+        },
+        "live_verification": "unverified-live",
+        "licence_decision": {
+          "status": "accepted",
+          "recorded": "2026-09-30",
+          "reference": "docs/development/treaties-evidence/source-audit.md#access-decisions"
+        }
+      },
+      "mapping": {
+        "target_schema": "noesis-treaty-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "treaties-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 7776000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-treaties-cellar-agreements.json",
+        "sha256": "1b47a0a1dc06dab328ed9052787711cc4e1999a31fa794ee61f72789aa788845",
+        "expected_output_hash": "f2d6e972f75cd71a354aab3f02c6eec419f83d306c61d648a8c1234133a6089c"
+      }
+    },
+    {
+      "source_id": "coe-treaty-office-charts",
+      "connector": "treaties",
+      "publisher": "Council of Europe Treaty Office",
+      "endpoint": "https://www.coe.int/en/web/conventions",
+      "scope": "Declared Council of Europe treaties (CETS/ETS): the chart of signatures and ratifications (every state and organisation listed) and the reservations, declarations, withdrawals and denunciations page, kept verbatim with their dates; texts linked, not stored",
+      "update_cadence": "as the Treaty Office publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "coe-website-terms",
+        "terms_url": "https://www.coe.int/en/web/portal/disclaimer",
+        "redistribution": "reproduction authorised for private, informational and educational use with the source acknowledged; commercial use needs prior permission (operator must confirm); only the printed CETS texts are authentic"
+      },
+      "temporal_semantics": "the chart's 'Status as of' date as the depositary revision; signature, ratification, entry-into-force and deposit dates as charted; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "treaties": {
+        "namespace": "global",
+        "provider": "coe-treaty-office",
+        "format": "coe-chart-html",
+        "selection": {
+          "treaties": [
+            {
+              "number": "990"
+            }
+          ]
+        },
+        "live_verification": "unverified-live",
+        "licence_decision": {
+          "status": "accepted",
+          "recorded": "2026-09-30",
+          "reference": "docs/development/treaties-evidence/source-audit.md#access-decisions"
+        }
+      },
+      "mapping": {
+        "target_schema": "noesis-treaty-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "treaties-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 7776000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-treaties-coe-charts.json",
+        "sha256": "ce1f41de7373c87ececde86bd039e5d62599ed3b274da6686271d394c05cc818",
+        "expected_output_hash": "3cc9517e1129e38c337ae8d206e63e6bec08d984465ced0eaba88638b47a5aeb"
       }
     }
   ]

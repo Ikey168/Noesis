@@ -385,6 +385,16 @@ def _court_justice_projector(conn: Any) -> Any:
 PROJECTORS["noesis-court-justice-record-v1"] = _court_justice_projector
 
 
+def _treaty_projector(conn: Any) -> Any:
+    from src.kb.treaties_store import TreatiesProjector
+
+    return TreatiesProjector(conn)
+
+
+# Legal treaties provider: treaties and treaty actions with depositary revisions (#2581).
+PROJECTORS["noesis-treaty-record-v1"] = _treaty_projector
+
+
 def _biodiversity_projector(conn: Any) -> Any:
     from src.kb.biodiversity_store import BiodiversityProjector
 

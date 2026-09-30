@@ -1,0 +1,100 @@
+{
+ "head": {
+  "vars": [
+   "celex",
+   "signature",
+   "direction",
+   "relation",
+   "actCelex",
+   "actDate"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "celex": {
+     "type": "literal",
+     "value": "22099A0101(01)",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "signature": {
+     "type": "literal",
+     "value": "2098-09-05"
+    },
+    "direction": {
+     "type": "literal",
+     "value": "act-to-agreement"
+    },
+    "relation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#work_cites_work"
+    },
+    "actCelex": {
+     "type": "literal",
+     "value": "32098D0901",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "actDate": {
+     "type": "literal",
+     "value": "2098-08-20"
+    }
+   },
+   {
+    "celex": {
+     "type": "literal",
+     "value": "22099A0101(01)",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "signature": {
+     "type": "literal",
+     "value": "2098-09-05"
+    },
+    "direction": {
+     "type": "literal",
+     "value": "act-to-agreement"
+    },
+    "relation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#work_cites_work"
+    },
+    "actCelex": {
+     "type": "literal",
+     "value": "32099D0042",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "actDate": {
+     "type": "literal",
+     "value": "2098-12-01"
+    }
+   },
+   {
+    "celex": {
+     "type": "literal",
+     "value": "22099A0101(01)",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "signature": {
+     "type": "literal",
+     "value": "2098-09-05"
+    },
+    "direction": {
+     "type": "literal",
+     "value": "act-to-agreement"
+    },
+    "relation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/ontology/cdm#work_cites_work"
+    },
+    "actCelex": {
+     "type": "literal",
+     "value": "32100R0007",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "actDate": {
+     "type": "literal",
+     "value": "2100-02-15"
+    }
+   }
+  ]
+ }
+}

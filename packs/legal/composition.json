@@ -40,6 +40,14 @@
           "name": "noesis-justice-statistic",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "legal.treaties",
+        "provider": "legal.treaties",
+        "contract": {
+          "name": "noesis-treaty-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -62,12 +70,16 @@
       {
         "id": "legal.justice-statistics",
         "version": "1.0.0"
+      },
+      {
+        "id": "legal.treaties",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "legal-research",
-        "version": "1.4.0",
+        "version": "1.5.0",
         "range": "^1.1.0"
       }
     ]
@@ -238,6 +250,99 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "statistics are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "treaties-untc",
+      "default": false,
+      "description": "UN Treaty Collection multilateral treaty status (MTDSG): participant signatures, consents, reservations, declarations, objections and notes verbatim with depositary revisions. The recorded licence decision is declined (written permission required), so the source fetches nothing until an operator records an accepted decision. No legal advice or inferred obligations.",
+      "requires": [
+        {
+          "capability": "legal.treaties",
+          "contract": "noesis-treaty-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted participant and treaty matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "treaty and participant monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "treaty records are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "treaties-eu",
+      "default": false,
+      "description": "EU international agreements from CELLAR (through the Legal CELLAR adapter): language expressions, signature and entry-into-force dates as CELLAR states them and the EU acts it links, cited as Legal works where acquired. No inferred implementation relationship or legal advice.",
+      "requires": [
+        {
+          "capability": "legal.treaties",
+          "contract": "noesis-treaty-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted participant and treaty matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "treaty and participant monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "treaty records are acquired through the legal-research source pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "treaties-coe",
+      "default": false,
+      "description": "Council of Europe Treaty Office charts of signatures and ratifications and the reservations, declarations, withdrawals and denunciations verbatim, answered as of a date with depositary revisions, reviewable participant identity and monitors. No legal advice, inferred obligations or interpretation of reservations.",
+      "requires": [
+        {
+          "capability": "legal.treaties",
+          "contract": "noesis-treaty-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "accepted and reverted participant and treaty matches are entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "treaty and participant monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "treaty records are acquired through the legal-research source pack runtime"
         }
       ]
     }

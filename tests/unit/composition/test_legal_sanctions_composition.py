@@ -151,8 +151,11 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "economics", "feature": "public-finance", "reason": "not selected"},
         {"pack": "economics", "feature": "trade-comext", "reason": "not selected"},
         {"pack": "economics", "feature": "trade-comtrade", "reason": "not selected"},
+        {"pack": "legal", "feature": "treaties-coe", "reason": "not selected"},  # #2581
+        {"pack": "legal", "feature": "treaties-eu", "reason": "not selected"},  # #2581
+        {"pack": "legal", "feature": "treaties-untc", "reason": "not selected"},  # #2581
     ]
-    assert {"pack_id": "legal-research", "version": "1.4.0", "range": "^1.1.0"} in plan[
+    assert {"pack_id": "legal-research", "version": "1.5.0", "range": "^1.1.0"} in plan[
         "source_packs"
     ]
 
