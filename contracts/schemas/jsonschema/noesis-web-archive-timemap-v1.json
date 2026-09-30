@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-web-archive-timemap-v1.json",
+  "title": "Noesis TimeMap snapshot record",
+  "description": "What one archive listed for a URI-R at a retrieval time, directly or through an aggregator (the resolver). Outcomes keep 'no capture on record', 'archive unavailable' and access decisions distinct. Re-reading an unchanged TimeMap adds no snapshot (#2226, WA02).",
+  "type": "object",
+  "required": ["contract", "timemap_id", "namespace", "uri_r", "archive_id", "resolver", "outcome", "capture_ids", "capture_count", "truncated", "retrieved_at_ms", "content_hash"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "noesis-web-archive-timemap-v1"},
+    "timemap_id": {"type": "string", "pattern": "^web-archive-timemap:[0-9a-f]{24}$"},
+    "namespace": {"type": "string", "minLength": 1},
+    "uri_r": {"type": "string", "minLength": 1},
+    "archive_id": {"type": "string", "minLength": 1},
+    "resolver": {"type": "string", "minLength": 1},
+    "outcome": {"enum": ["captures", "no_capture_on_record", "archive_unavailable", "excluded_by_access_decision", "deferred_by_access_decision", "excluded_by_archive", "blocked_by_archive", "not_reported_by_aggregator"]},
+    "capture_ids": {"type": "array", "items": {"type": "string"}},
+    "capture_count": {"type": "integer", "minimum": 0},
+    "truncated": {"type": "boolean"},
+    "detail": {"type": "object"},
+    "retrieved_at_ms": {"type": "integer"},
+    "receipt": {"type": "object"},
+    "content_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "previous_timemap_id": {"type": ["string", "null"]},
+    "idempotent": {"type": "boolean"},
+    "unchanged": {"type": "boolean"}
+  }
+}

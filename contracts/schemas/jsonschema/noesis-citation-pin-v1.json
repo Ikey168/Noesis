@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/schemas/noesis-citation-pin-v1.json",
+  "title": "Noesis citation pin to an archived capture",
+  "description": "Binds one citation to one archived capture, by citation id. The cited URL is kept as given and never rewritten. Re-pinning adds a revision that supersedes the earlier pin, which stays inspectable (#2226, WA02/WA09).",
+  "type": "object",
+  "required": ["contract", "pin_id", "namespace", "citation_id", "revision", "cited_url", "original_url_unchanged", "capture_id", "capture", "match", "principal_id", "pinned_at_ms", "supersedes_pin_id"],
+  "additionalProperties": false,
+  "properties": {
+    "contract": {"const": "noesis-citation-pin-v1"},
+    "pin_id": {"type": "string", "pattern": "^citation-pin:[0-9a-f]{24}$"},
+    "namespace": {"type": "string", "minLength": 1},
+    "citation_id": {"type": "string", "minLength": 1},
+    "revision": {"type": "integer", "minimum": 1},
+    "cited_url": {"type": "string", "minLength": 1},
+    "original_url_unchanged": {"const": true},
+    "capture_id": {"type": "string", "pattern": "^web-archive-capture:[0-9a-f]{24}$"},
+    "capture": {
+      "type": "object",
+      "required": ["archive_id", "uri_m", "memento_datetime", "digests"],
+      "properties": {
+        "archive_id": {"type": "string"},
+        "archive_kind": {"type": "string"},
+        "uri_r": {"type": "string"},
+        "uri_m": {"type": "string"},
+        "memento_datetime": {"type": "string"},
+        "digests": {"type": "array"},
+        "access_condition": {"type": "string"},
+        "resolver": {"type": "string"}
+      }
+    },
+    "match": {
+      "type": "object",
+      "required": ["match_id", "match_kind"],
+      "properties": {
+        "match_id": {"type": ["string", "null"]},
+        "match_kind": {"enum": ["exact", "canonicalised", "redirect-derived"]},
+        "rules": {"type": "array", "items": {"type": "string"}},
+        "rule_version": {"type": ["string", "null"]}
+      }
+    },
+    "principal_id": {"type": "string", "minLength": 1},
+    "reason": {"type": ["string", "null"]},
+    "pinned_at_ms": {"type": "integer"},
+    "supersedes_pin_id": {"type": ["string", "null"]},
+    "idempotent": {"type": "boolean"}
+  }
+}
