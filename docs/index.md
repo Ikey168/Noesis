@@ -307,6 +307,10 @@ For the project overview and local setup, start with the
 - [OSINT pack guide](guides/osint-pack.md) — Admiralty grades, ownership
   dossiers, video reuse, registry and certificate history, infrastructure
   pivots and the gated imagery tier
+- [Aircraft and vessel movements guide](guides/osint-movements.md) — the OSINT pack's optional movements
+  feature: FAA and G-INFO registry revisions, bounded OpenSky and open AIS samples with receiver-coverage caveats,
+  GFW port visits, derived calls, reviewable identity and sanctions citations for one named aircraft or vessel and
+  window; no real-time tracking or mirroring; [access decision](security/osint-movements-access.md)
 
 ## Subsystems
 
