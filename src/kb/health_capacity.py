@@ -40,7 +40,8 @@ from src.kb.surveillance import (
 CONTRACT = "noesis-health-capacity-record-v1"
 SCHEME = "health-capacity"
 DOMAINS = CAPACITY_DOMAINS
-FEATURE = "health_capacity"
+# The issue names it ``health_capacity``; composition feature ids are kebab-case, so it is declared as below.
+FEATURE = "health-capacity"
 RECORD_TYPES = ("capacity-indicator", "indicator-definition", "definition-revision", "capacity-observation")
 NEVER_SENTENCE = BOUNDARY
 AGGREGATE_SYSTEMS = ("who-region", "who-global", "eurostat-aggregate", "oecd-aggregate", "ecdc-aggregate")

@@ -1,0 +1,403 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "clinical.health-capacity",
+  "version": "1.0.0",
+  "description": "Health-system capacity of the Clinical Evidence bundle: hospital beds, health workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics (SDMX) and Eurostat as indicators with definitions, definition breaks and release vintages over the surveillance series storage; Geospatial place resolution, reviewable indicator mappings and comparability notes, surveillance co-display, cited Economics denominators, as-of answers and monitors. No rankings or quality scores.",
+  "implementation": {
+    "name": "src.kb.health_capacity",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "clinical.health-capacity-indicators",
+      "contract": {
+        "name": "noesis-health-capacity-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "capacity-readiness",
+        "list-indicators",
+        "capacity-as-of",
+        "definition-history",
+        "beside-surveillance",
+        "series-links",
+        "link-economics"
+      ],
+      "semantic_constraints": {
+        "records": "capacity indicators, definitions, definition revisions and observations composed over the surveillance series and vintage storage; source code, unit, definition as published, flags verbatim, release vintage and as-of time on every value",
+        "definitions": "declared with valid-from dates and the release's retrieval time; an edition change is a marked break and earlier values are never restated",
+        "as_of": "the vintage released at or before the as-of time per series; vintage differences cite both vintages",
+        "sources": "WHO GHO, OECD Health Statistics and Eurostat side by side per domain; never blended, averaged or preferred; missing values are unknown",
+        "links": "surveillance series shown beside capacity for the same resolved place without a combined metric; Economics series only where the publisher cites the denominator",
+        "exclusions": "no health-system performance ranking or quality score and no harmonised, adjusted or re-estimated value"
+      }
+    },
+    {
+      "id": "clinical.health-capacity-alignment",
+      "contract": {
+        "name": "noesis-health-capacity-comparability",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "comparability",
+        "resolve-places",
+        "review-place",
+        "propose-mapping",
+        "review-mapping",
+        "record-note",
+        "review-note"
+      ],
+      "semantic_constraints": {
+        "places": "codes resolve to Geospatial places by the published code only; aggregates are never treated as countries; resolutions are reviewable, rejectable and revertible",
+        "mappings": "equivalent, broader or narrower with evidence and both definitions cited; reviewable, rejectable and revertible",
+        "notes": "comparability notes cite both definitions and their source revisions; a reverted note never reactivates an earlier one"
+      }
+    },
+    {
+      "id": "clinical.health-capacity-monitoring",
+      "contract": {
+        "name": "noesis-health-capacity-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "events": "new releases, revisions with old and new values and both vintages cited, definition changes as breaks and stale sources; deduplicated at committed watermarks",
+        "thresholds": "user-configured only and unit-checked; the pack derives none",
+        "schedule": "source-pack runtime schedules and the maintenance orchestrator; no new scheduler"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "capacity-readiness",
+      "tool": "noesis-knowledge-engine.health_capacity_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-indicators",
+      "tool": "noesis-knowledge-engine.list_health_capacity_indicators",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "capacity-as-of",
+      "tool": "noesis-knowledge-engine.health_capacity_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "definition-history",
+      "tool": "noesis-knowledge-engine.health_capacity_definition_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "beside-surveillance",
+      "tool": "noesis-knowledge-engine.health_capacity_beside_surveillance",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-links",
+      "tool": "noesis-knowledge-engine.health_capacity_series_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-economics",
+      "tool": "noesis-knowledge-engine.link_health_capacity_economics",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "capacity series and cited denominator"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability",
+      "tool": "noesis-knowledge-engine.health_capacity_comparability",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "resolve-places",
+      "tool": "noesis-knowledge-engine.resolve_health_capacity_places",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "code system, code, geo namespace and evaluation outcome"
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:write",
+        "knowledge:geospatial:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-place",
+      "tool": "noesis-knowledge-engine.review_health_capacity_place",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "resolution id and decision history"
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-mapping",
+      "tool": "noesis-knowledge-engine.propose_health_capacity_mapping",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "indicator pair, kind, evidence and cited definition revisions"
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-mapping",
+      "tool": "noesis-knowledge-engine.review_health_capacity_mapping",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "mapping id and decision history"
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "record-note",
+      "tool": "noesis-knowledge-engine.record_health_capacity_note",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "indicator pair, relation, statement and cited definition revisions"
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-note",
+      "tool": "noesis-knowledge-engine.review_health_capacity_note",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "note id and decision history"
+      },
+      "readiness_probe": "alignment",
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_health_capacity_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request key"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_health_capacity_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription and watermark"
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_health_capacity_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "monitors",
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "health-capacity-place-resolution",
+      "store": "src.kb.health_capacity_comparability",
+      "tables": [
+        "health_capacity_place_resolutions"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "health-capacity-alignment",
+      "store": "src.kb.health_capacity_comparability",
+      "tables": [
+        "health_capacity_mappings",
+        "health_capacity_notes"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "health-capacity-economic-link",
+      "store": "src.kb.health_capacity_links",
+      "tables": [
+        "health_capacity_economic_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "series",
+      "kind": "table-exists",
+      "target": "surveillance_vintages"
+    },
+    {
+      "id": "alignment",
+      "kind": "table-exists",
+      "target": "health_capacity_mappings"
+    },
+    {
+      "id": "monitors",
+      "kind": "table-exists",
+      "target": "clinical_monitors"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "clinical-evidence",
+      "version": "0.1.3",
+      "range": "^0.1.3"
+    }
+  ]
+}

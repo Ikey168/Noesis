@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1400,
+      "tool_count": 1417,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1150,6 +1150,7 @@
         "noesis-knowledge-engine.create_funding_profile",
         "noesis-knowledge-engine.create_funding_workspace",
         "noesis-knowledge-engine.create_hazard_monitor",
+        "noesis-knowledge-engine.create_health_capacity_monitor",
         "noesis-knowledge-engine.create_housing_monitor",
         "noesis-knowledge-engine.create_humanitarian_monitor",
         "noesis-knowledge-engine.create_hypothesis_research_plan",
@@ -1378,6 +1379,12 @@
         "noesis-knowledge-engine.hazard_event_revisions",
         "noesis-knowledge-engine.hazard_events_for_place",
         "noesis-knowledge-engine.hazard_provider_contracts",
+        "noesis-knowledge-engine.health_capacity_as_of",
+        "noesis-knowledge-engine.health_capacity_beside_surveillance",
+        "noesis-knowledge-engine.health_capacity_comparability",
+        "noesis-knowledge-engine.health_capacity_definition_history",
+        "noesis-knowledge-engine.health_capacity_readiness",
+        "noesis-knowledge-engine.health_capacity_series_links",
         "noesis-knowledge-engine.housing_dossier",
         "noesis-knowledge-engine.housing_indicator_values",
         "noesis-knowledge-engine.housing_readiness",
@@ -1540,6 +1547,7 @@
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
         "noesis-knowledge-engine.link_fisheries_citations",
+        "noesis-knowledge-engine.link_health_capacity_economics",
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
@@ -1600,6 +1608,7 @@
         "noesis-knowledge-engine.list_government_finance_series",
         "noesis-knowledge-engine.list_hazard_correspondences",
         "noesis-knowledge-engine.list_hazard_links",
+        "noesis-knowledge-engine.list_health_capacity_indicators",
         "noesis-knowledge-engine.list_housing_links",
         "noesis-knowledge-engine.list_housing_projection_outcomes",
         "noesis-knowledge-engine.list_housing_records",
@@ -1733,6 +1742,7 @@
         "noesis-knowledge-engine.poll_fisheries_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_hazard_monitor",
+        "noesis-knowledge-engine.poll_health_capacity_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
         "noesis-knowledge-engine.poll_humanitarian_monitor",
         "noesis-knowledge-engine.poll_legislation_monitor",
@@ -1811,6 +1821,7 @@
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
         "noesis-knowledge-engine.propose_hazard_correspondences",
+        "noesis-knowledge-engine.propose_health_capacity_mapping",
         "noesis-knowledge-engine.propose_housing_link_candidates",
         "noesis-knowledge-engine.propose_humanitarian_identity",
         "noesis-knowledge-engine.propose_intake_concept_revision",
@@ -1879,6 +1890,7 @@
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_funding_workspace_outcome",
         "noesis-knowledge-engine.record_geospatial_resolution",
+        "noesis-knowledge-engine.record_health_capacity_note",
         "noesis-knowledge-engine.record_intake_iteration_outcome",
         "noesis-knowledge-engine.record_iso_code_events",
         "noesis-knowledge-engine.record_justice_comparability",
@@ -1998,6 +2010,7 @@
         "noesis-knowledge-engine.resolve_geospatial_boundary",
         "noesis-knowledge-engine.resolve_geospatial_candidates",
         "noesis-knowledge-engine.resolve_hazard_places",
+        "noesis-knowledge-engine.resolve_health_capacity_places",
         "noesis-knowledge-engine.resolve_justice_places",
         "noesis-knowledge-engine.resolve_research_package_closure",
         "noesis-knowledge-engine.resolve_review_inbox_task",
@@ -2082,6 +2095,9 @@
         "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_hazard_correspondence",
+        "noesis-knowledge-engine.review_health_capacity_mapping",
+        "noesis-knowledge-engine.review_health_capacity_note",
+        "noesis-knowledge-engine.review_health_capacity_place",
         "noesis-knowledge-engine.review_housing_link",
         "noesis-knowledge-engine.review_humanitarian_identity",
         "noesis-knowledge-engine.review_intake_iteration_stability",
@@ -2155,6 +2171,7 @@
         "noesis-knowledge-engine.run_fisheries_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hazard_monitor",
+        "noesis-knowledge-engine.run_health_capacity_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
         "noesis-knowledge-engine.run_housing_monitor",
         "noesis-knowledge-engine.run_humanitarian_monitor",
@@ -2359,7 +2376,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1400
+      "visible_tool_count": 1417
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2372,9 +2389,9 @@
     "states": {
       "available": 138,
       "degraded": 173,
-      "unauthorized": 1413
+      "unauthorized": 1430
     },
-    "tools": 1724
+    "tools": 1741
   },
   "tools": [
     {
@@ -32286,6 +32303,76 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch a place's capacity indicators (place_id or place_code, optional domains and indicators) for new\nreleases, revisions and definition changes; thresholds are user-configured and unit-checked.",
+      "id": "noesis-knowledge-engine.create_health_capacity_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "thresholds": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "watch": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_health_capacity_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A subscription for new land-value publications, plan-stage changes and rent-index editions for one\nplace_id, district_code, plan_id or zone_id. Conditional scope: knowledge:geospatial:read for a place or\ndistrict selector.",
       "id": "noesis-knowledge-engine.create_housing_monitor",
       "input_schema": {
@@ -44120,6 +44207,285 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Beds, workforce and expenditure indicators of one place as published at a date, per source side by\nside, with units, definitions, flags, citations, breaks, comparability notes and vintage differences.\nNever blended or ranked; missing values are unknown; a place without data is none on record.",
+      "id": "noesis-knowledge-engine.health_capacity_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "domains": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "health_capacity_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Capacity indicators and the pack's surveillance series for the same resolved place, side by side; no\ncombined metric; rejected resolutions excluded.",
+      "id": "noesis-knowledge-engine.health_capacity_beside_surveillance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "place_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "health_capacity_beside_surveillance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Indicator mappings, comparability notes (both definitions cited) and place resolutions, optionally for\none indicator (provider and source_code).",
+      "id": "noesis-knowledge-engine.health_capacity_comparability",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "source_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "health_capacity_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every published definition revision of a capacity indicator (editions by valid-from, retrieval time).",
+      "id": "noesis-knowledge-engine.health_capacity_definition_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "health_capacity_definition_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the health_capacity feature is selected, per-source access decisions, bounded coverage, series\nand evidence origin.",
+      "id": "noesis-knowledge-engine.health_capacity_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "health_capacity_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The cited Economics denominator of one capacity series: linked, cited-not-held or none cited.",
+      "id": "noesis-knowledge-engine.health_capacity_series_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "health_capacity_series_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "The cited housing dossier of an address or parcel (place or reviewed resolution), a point or a district\nas of a date: containing land-value zone with valuation date and prior revisions, plans with stage history,\nWohnlage, rent-index edition and cells, district and Land statistics side by side, and citation links;\nboundary points and places outside all zones are reported, never resolved (records spatial receipts).\nConditional scopes: knowledge:transit:read for include_transit_feed, knowledge:read for include_news.",
       "id": "noesis-knowledge-engine.housing_dossier",
@@ -51422,6 +51788,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link capacity series to Economics series only where the publisher cites the denominator series.",
+      "id": "noesis-knowledge-engine.link_health_capacity_economics",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_health_capacity_economics",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link rent-index editions and plans to legal works by their published GVBl, Amtsblatt, juris, BGBl,\nCELEX or ELI references in the reference's jurisdiction; unmatched references stay unresolved.",
       "id": "noesis-knowledge-engine.link_housing_citations",
       "input_schema": {
@@ -54643,6 +55043,83 @@
       ],
       "required_scopes": [
         "knowledge:hazards:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Capacity indicators (beds, workforce, expenditure) with source code, unit, place, definition and\ndefinition history, breaks and vintage count.",
+      "id": "noesis-knowledge-engine.list_health_capacity_indicators",
+      "input_schema": {
+        "properties": {
+          "domain": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "geography_code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "geography_system": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_health_capacity_indicators",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -61318,6 +61795,48 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll capacity monitor deliveries after a cursor.",
+      "id": "noesis-knowledge-engine.poll_health_capacity_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_health_capacity_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Events of a housing monitor after a cursor.",
       "id": "noesis-knowledge-engine.poll_housing_monitor",
       "input_schema": {
@@ -64946,6 +65465,58 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose that one indicator (provider, source_code) is equivalent to, broader or narrower than another,\nwith evidence; both definitions are cited.",
+      "id": "noesis-knowledge-engine.propose_health_capacity_mapping",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "type": "string"
+          },
+          "kind": {
+            "type": "string"
+          },
+          "left": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "right": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "left",
+          "right",
+          "kind",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_health_capacity_mapping",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "A plan number or edition name in a work title as a reviewable discovery candidate, never a link.",
       "id": "noesis-knowledge-engine.propose_housing_link_candidates",
       "input_schema": {
@@ -68288,6 +68859,58 @@
       ],
       "required_scopes": [
         "knowledge:geospatial:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a comparability note between two indicators citing both definitions (no value is adjusted).",
+      "id": "noesis-knowledge-engine.record_health_capacity_note",
+      "input_schema": {
+        "properties": {
+          "left": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "relation": {
+            "type": "string"
+          },
+          "right": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "left",
+          "right",
+          "relation",
+          "statement"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_health_capacity_note",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -75952,6 +76575,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Resolve series geography codes to Geospatial places by the published code; aggregates stay aggregates.",
+      "id": "noesis-knowledge-engine.resolve_health_capacity_places",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "resolve_health_capacity_places",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Resolve statistic reporting areas (states, ORIs, police.uk neighbourhoods, GEO codes) to geospatial\nplaces by exact published code; ambiguous mappings stay review candidates.",
       "id": "noesis-knowledge-engine.resolve_justice_places",
       "input_schema": {
@@ -79628,6 +80289,141 @@
       ],
       "required_scopes": [
         "knowledge:hazards:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert an indicator mapping; decisions are kept.",
+      "id": "noesis-knowledge-engine.review_health_capacity_mapping",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "mapping_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "mapping_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_health_capacity_mapping",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert a comparability note; a reverted note never reactivates an earlier one.",
+      "id": "noesis-knowledge-engine.review_health_capacity_note",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_health_capacity_note",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert a place resolution; a rejected resolution is not used.",
+      "id": "noesis-knowledge-engine.review_health_capacity_place",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          },
+          "resolution_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "resolution_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_health_capacity_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -83367,6 +84163,56 @@
       ],
       "required_scopes": [
         "knowledge:hazards:write",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a capacity monitor at a committed watermark; replaying a watermark delivers nothing new.",
+      "id": "noesis-knowledge-engine.run_health_capacity_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_health_capacity_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
