@@ -60,7 +60,6 @@ providers stay where they are; their ids are preserved.
 | `extractives-natural-resources` | Economy and markets | `economics.extractives` | EITI summary data; USGS Mineral Commodity Summaries; BGS World Mineral Statistics | ownership, energy, public finance | 1 |
 | `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `industry-business` | Economy and markets | `economics.business` | Eurostat short-term business statistics and business demography; US Census County Business Patterns | trade, labour | 2 |
-| `water-hydrology` | Earth and environment | `environment.water` | PEGELONLINE; USGS Water Data; EEA WISE; GRDC (registration, no redistribution) | hazards, weather, infrastructure | 1 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
 | `waste-circular-economy` | Earth and environment | `environment.waste` | Eurostat waste statistics; EEA Industrial Reporting (E-PRTR successor); OECD waste statistics | chemicals, products | 2 |

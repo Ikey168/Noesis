@@ -76,6 +76,30 @@
           "name": "noesis-biodiversity-notification",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "environment.water-records",
+        "provider": "environment.water",
+        "contract": {
+          "name": "noesis-water-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "environment.water-identity",
+        "provider": "environment.water",
+        "contract": {
+          "name": "noesis-water-identity-match",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "environment.water-monitoring",
+        "provider": "environment.water",
+        "contract": {
+          "name": "noesis-water-notification",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -85,6 +109,10 @@
       },
       {
         "id": "environment.biodiversity",
+        "version": "1.0.0"
+      },
+      {
+        "id": "environment.water",
         "version": "1.0.0"
       }
     ],
@@ -123,6 +151,21 @@
           "as_of": "records retrieved on or before the date",
           "counts": "counts of records returned only; never abundance or presence/absence",
           "never": "No distribution modelling, abundance estimation, de-generalised locations or Noesis-derived threat status."
+        }
+      },
+      {
+        "id": "environment.water",
+        "description": "Water and hydrology: a place, river or station to cited water levels, discharge and WFD water-body status, each with source, revision, quality state and as-of time",
+        "vocabulary": {
+          "station": "a gauging station or monitoring location with its location and gauge zero or datum vintages",
+          "observation": "one published value at a station and time with its unit and quality state",
+          "provisional": "a value the source may still revise; an approved value replacing it is a new revision",
+          "cycle": "one WFD reporting cycle; status is never merged across cycles"
+        },
+        "workflow_defaults": {
+          "as_of": "revisions retrieved on or before the time",
+          "missing": "missing periods stay missing",
+          "never": "No flood forecasting, interpolation or gap filling, own status assessments or flood-risk scoring."
         }
       }
     ]
@@ -282,7 +325,172 @@
           "reason": "biodiversity monitors are knowledge subscriptions"
         }
       ]
+    },
+    {
+      "id": "water-pegelonline",
+      "default": false,
+      "description": "Water levels and discharge from PEGELONLINE (WSV): Elbe gauging stations with gauge zero and characteristic values, and bounded measurement windows as published (unchecked raw values, provisional). Served by environment.water with reviewable place matches, cross-pack links, as-of answers and monitors; hazard, weather and infrastructure links degrade to unavailable when absent. No flood forecasting, interpolation or gap filling, own status assessment or flood-risk scoring.",
+      "requires": [
+        {
+          "capability": "environment.water-records",
+          "contract": "noesis-water-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.water-identity",
+          "contract": "noesis-water-identity-match",
+          "range": "^1.0.0",
+          "reason": "stations and water bodies reach places only through reviewed matches"
+        },
+        {
+          "capability": "environment.water-monitoring",
+          "contract": "noesis-water-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "stations and water bodies match registered places, rivers and boundaries"
+        },
+        {
+          "capability": "geospatial.spatial-relation",
+          "contract": "noesis-spatial-relation",
+          "range": "^1.0.0",
+          "reason": "published coordinates and geometries are related to place boundaries with replayable receipts"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "match reviews and reverts are entity identity decisions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "water monitors are knowledge subscriptions"
+        }
+      ]
+    },
+    {
+      "id": "water-usgs",
+      "default": false,
+      "description": "USGS Water Data: monitoring locations with vertical datum and bounded continuous and daily values with approval status (provisional or approved) and qualifiers. Served by environment.water with reviewable place matches, cross-pack links, as-of answers and monitors; hazard, weather and infrastructure links degrade to unavailable when absent. No flood forecasting, interpolation or gap filling, own status assessment or flood-risk scoring.",
+      "requires": [
+        {
+          "capability": "environment.water-records",
+          "contract": "noesis-water-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.water-identity",
+          "contract": "noesis-water-identity-match",
+          "range": "^1.0.0",
+          "reason": "stations and water bodies reach places only through reviewed matches"
+        },
+        {
+          "capability": "environment.water-monitoring",
+          "contract": "noesis-water-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "stations and water bodies match registered places, rivers and boundaries"
+        },
+        {
+          "capability": "geospatial.spatial-relation",
+          "contract": "noesis-spatial-relation",
+          "range": "^1.0.0",
+          "reason": "published coordinates and geometries are related to place boundaries with replayable receipts"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "match reviews and reverts are entity identity decisions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "water monitors are knowledge subscriptions"
+        }
+      ]
+    },
+    {
+      "id": "water-eea-wise",
+      "default": false,
+      "description": "EEA WISE Water Framework Directive: surface water-body ecological and chemical status per reporting cycle and the reporting dataset's published water-body geometries. Served by environment.water with reviewable place matches, cross-pack links, as-of answers and monitors; hazard, weather and infrastructure links degrade to unavailable when absent. No flood forecasting, interpolation or gap filling, own status assessment or flood-risk scoring.",
+      "requires": [
+        {
+          "capability": "environment.water-records",
+          "contract": "noesis-water-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.water-identity",
+          "contract": "noesis-water-identity-match",
+          "range": "^1.0.0",
+          "reason": "stations and water bodies reach places only through reviewed matches"
+        },
+        {
+          "capability": "environment.water-monitoring",
+          "contract": "noesis-water-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "stations and water bodies match registered places, rivers and boundaries"
+        },
+        {
+          "capability": "geospatial.spatial-relation",
+          "contract": "noesis-spatial-relation",
+          "range": "^1.0.0",
+          "reason": "published coordinates and geometries are related to place boundaries with replayable receipts"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "match reviews and reverts are entity identity decisions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "water monitors are knowledge subscriptions"
+        }
+      ]
     }
   ],
-  "content_hash": "sha256:8c1fb3f2d2008db1a336a0e89d1644ace1b54d308c8e80abea9f7cc9383a64b8"
+  "content_hash": "sha256:165408af813c90f186e0adb690a8637ed68ba7b61fec3a2247797d14e7fd25cc"
 }
