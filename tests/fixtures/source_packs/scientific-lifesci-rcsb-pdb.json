@@ -1,0 +1,43 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\"audit_author\": [{\"name\": \"Quell, M.\", \"pdbx_ordinal\": 1}], \"exptl\": [{\"method\": \"X-RAY DIFFRACTION\"}], \"pdbx_audit_revision_history\": [{\"data_content_type\": \"Structure model\", \"major_revision\": 1, \"minor_revision\": 0, \"ordinal\": 1, \"revision_date\": \"2099-01-07T00:00:00+0000\"}], \"rcsb_accession_info\": {\"deposit_date\": \"2098-11-02T00:00:00+0000\", \"initial_release_date\": \"2099-01-07T00:00:00+0000\", \"major_revision\": 1, \"minor_revision\": 0, \"revision_date\": \"2099-01-07T00:00:00+0000\", \"status_code\": \"REL\"}, \"rcsb_entry_container_identifiers\": {\"polymer_entity_ids\": [\"1\"]}, \"rcsb_entry_info\": {\"polymer_entity_count\": 1, \"resolution_combined\": [1.8]}, \"rcsb_id\": \"9EXA\", \"rcsb_primary_citation\": {\"pdbx_database_id_doi\": \"10.99999/exampla.2099.002\", \"pdbx_database_id_pub_med\": 99000002, \"rcsb_authors\": [\"Quell, M.\", \"Fictive, A.\"], \"title\": \"Structure of Exampla kinase 1 catalytic domain (fictional)\"}, \"struct\": {\"title\": \"Exampla kinase 1 catalytic domain\"}}",
+   "headers": {},
+   "request": "/rest/v1/core/entry/9EXA",
+   "status": 200
+  },
+  {
+   "body": "{\"rcsb_id\": \"9EXA_1\", \"rcsb_polymer_entity\": {\"pdbx_description\": \"Exampla kinase 1\"}, \"rcsb_polymer_entity_container_identifiers\": {\"entity_id\": \"1\", \"reference_sequence_identifiers\": [{\"database_accession\": \"X9EXA1\", \"database_name\": \"UniProt\"}], \"uniprot_ids\": [\"X9EXA1\"]}}",
+   "headers": {},
+   "request": "/rest/v1/core/polymer_entity/9EXA/1",
+   "status": 200
+  },
+  {
+   "body": "{\"audit_author\": [{\"name\": \"Quell, M.\", \"pdbx_ordinal\": 1}], \"exptl\": [{\"method\": \"ELECTRON MICROSCOPY\"}], \"pdbx_audit_revision_history\": [{\"data_content_type\": \"Structure model\", \"major_revision\": 1, \"minor_revision\": 0, \"ordinal\": 1, \"revision_date\": \"2099-01-07T00:00:00+0000\"}], \"rcsb_accession_info\": {\"deposit_date\": \"2098-11-02T00:00:00+0000\", \"initial_release_date\": \"2099-01-07T00:00:00+0000\", \"major_revision\": 1, \"minor_revision\": 0, \"revision_date\": \"2099-01-07T00:00:00+0000\", \"status_code\": \"REL\"}, \"rcsb_entry_container_identifiers\": {\"polymer_entity_ids\": [\"1\"]}, \"rcsb_entry_info\": {\"polymer_entity_count\": 1, \"resolution_combined\": [3.1]}, \"rcsb_id\": \"9EXC\", \"rcsb_primary_citation\": {\"pdbx_database_id_doi\": null, \"pdbx_database_id_pub_med\": null, \"rcsb_authors\": [\"Quell, M.\", \"Fictive, A.\"], \"title\": \"Structure of Exampla kinase 1 full length (fictional)\"}, \"struct\": {\"title\": \"Exampla kinase 1 full length\"}}",
+   "headers": {},
+   "request": "/rest/v1/core/entry/9EXC",
+   "status": 200
+  },
+  {
+   "body": "{\"rcsb_id\": \"9EXC_1\", \"rcsb_polymer_entity\": {\"pdbx_description\": \"Exampla kinase 1\"}, \"rcsb_polymer_entity_container_identifiers\": {\"entity_id\": \"1\", \"reference_sequence_identifiers\": [{\"database_accession\": \"X9EXA1\", \"database_name\": \"UniProt\"}], \"uniprot_ids\": [\"X9EXA1\"]}}",
+   "headers": {},
+   "request": "/rest/v1/core/polymer_entity/9EXC/1",
+   "status": 200
+  },
+  {
+   "body": "{\"rcsb_id\": \"9EXB\", \"rcsb_repository_holdings_removed\": {\"audit_authors\": [\"Quell, M.\"], \"id_codes_replaced_by\": [\"9EXC\"], \"remove_date\": \"2099-01-07T00:00:00+0000\", \"title\": \"Exampla kinase 1 low resolution model\"}}",
+   "headers": {},
+   "request": "/rest/v1/holdings/removed/9EXB",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every accession, organism, compound, value, identifier and title is fictional. Author and depositor fields are present only to prove they are dropped.",
+ "provider": "rcsb-pdb",
+ "scenarios": [
+  "revision history",
+  "entity-to-UniProt mapping",
+  "obsolete entry with successor",
+  "audit_author dropped"
+ ]
+}

@@ -1,0 +1,52 @@
+{
+ "life_sciences": {
+  "documents": [
+   {
+    "accessions": [
+     "X9EXA1",
+     "X9EXA2",
+     "X9NRW1"
+    ],
+    "label": "Exampla fictiva and Northwindia borealis bounded protein set"
+   }
+  ],
+  "live_verification": "unverified-live",
+  "namespace": "global",
+  "provider": "uniprot",
+  "release": {
+   "label": "2099_02",
+   "published_on": "2099-03-09"
+  }
+ },
+ "native_pages": [
+  {
+   "body": "{\"comments\": [{\"commentType\": \"FUNCTION\", \"texts\": [{\"value\": \"Fictional function text (not stored).\"}]}], \"entryAudit\": {\"entryVersion\": 2, \"firstPublicDate\": \"2098-06-01\", \"lastAnnotationUpdateDate\": \"2099-03-01\", \"lastSequenceUpdateDate\": \"2099-03-01\", \"sequenceVersion\": 2}, \"entryType\": \"UniProtKB reviewed (Swiss-Prot)\", \"genes\": [{\"geneName\": {\"value\": \"exk1\"}}], \"organism\": {\"lineage\": [\"Eukaryota\", \"Examplaceae\"], \"scientificName\": \"Exampla fictiva\", \"taxonId\": 99000001}, \"primaryAccession\": \"X9EXA1\", \"proteinDescription\": {\"recommendedName\": {\"fullName\": {\"value\": \"Exampla kinase 1\"}}}, \"references\": [{\"citation\": {\"authors\": [\"Quell M.\", \"Fictive A.\"], \"citationCrossReferences\": [{\"database\": \"PubMed\", \"id\": \"99000001\"}, {\"database\": \"DOI\", \"id\": \"10.99999/EXAMPLA.2099.001\"}], \"citationType\": \"journal article\", \"id\": \"99000001\", \"title\": \"Cloning of Exampla kinase 1 (fictional).\"}, \"referenceNumber\": 1}], \"secondaryAccessions\": [\"X9EXA2\"], \"sequence\": {\"crc64\": \"FEDCBA9876543210\", \"length\": 22, \"md5\": \"D1B75057EEAC6C162F4AB2DE2AA4E212\", \"molWeight\": 2322, \"value\": \"MEXAMPLAKINASEFICTIVAQ\"}, \"uniProtKBCrossReferences\": [{\"database\": \"PDB\", \"id\": \"9EXA\", \"properties\": [{\"key\": \"Method\", \"value\": \"X-ray\"}, {\"key\": \"Resolution\", \"value\": \"1.80 A\"}]}, {\"database\": \"PDB\", \"id\": \"9EXC\", \"properties\": [{\"key\": \"Method\", \"value\": \"EM\"}, {\"key\": \"Resolution\", \"value\": \"3.10 A\"}]}, {\"database\": \"GeneID\", \"id\": \"990000101\", \"properties\": []}, {\"database\": \"ChEMBL\", \"id\": \"CHEMBL9900001\", \"properties\": []}], \"uniProtkbId\": \"EXK1_EXAFI\"}",
+   "headers": {
+    "X-UniProt-Release": "2099_02",
+    "X-UniProt-Release-Date": "09-March-2099"
+   },
+   "request": "/uniprotkb/X9EXA1.json",
+   "status": 200
+  },
+  {
+   "body": "{\"entryType\": \"Inactive\", \"inactiveReason\": {\"inactiveReasonType\": \"MERGED\", \"mergeDemergeTo\": [\"X9EXA1\"]}, \"primaryAccession\": \"X9EXA2\"}",
+   "headers": {
+    "X-UniProt-Release": "2099_02",
+    "X-UniProt-Release-Date": "09-March-2099"
+   },
+   "request": "/uniprotkb/X9EXA2.json",
+   "status": 200
+  },
+  {
+   "body": "{\"comments\": [{\"commentType\": \"FUNCTION\", \"texts\": [{\"value\": \"Fictional function text (not stored).\"}]}], \"entryAudit\": {\"entryVersion\": 1, \"firstPublicDate\": \"2098-06-01\", \"lastAnnotationUpdateDate\": \"2099-01-10\", \"lastSequenceUpdateDate\": \"2098-06-01\", \"sequenceVersion\": 1}, \"entryType\": \"UniProtKB unreviewed (TrEMBL)\", \"genes\": [{\"geneName\": {\"value\": \"nwp1\"}}], \"organism\": {\"lineage\": [\"Eukaryota\", \"Examplaceae\"], \"scientificName\": \"Northwindia borealis\", \"taxonId\": 99000100}, \"primaryAccession\": \"X9NRW1\", \"proteinDescription\": {\"submissionNames\": [{\"fullName\": {\"value\": \"Northwind transporter\"}}]}, \"references\": [], \"secondaryAccessions\": [], \"sequence\": {\"crc64\": \"0123456789ABCDEF\", \"length\": 21, \"md5\": \"71BA1000725110C47613BAEF0A08C421\", \"molWeight\": 2321, \"value\": \"MEXAMPLAKINASEFICTIVA\"}, \"uniProtKBCrossReferences\": [{\"database\": \"GeneID\", \"id\": \"990000102\", \"properties\": []}], \"uniProtkbId\": \"NWP1_EXAFI\"}",
+   "headers": {
+    "X-UniProt-Release": "2099_02",
+    "X-UniProt-Release-Date": "09-March-2099"
+   },
+   "request": "/uniprotkb/X9NRW1.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every accession, organism, compound, value, identifier and title is fictional. Author and depositor fields are present only to prove they are dropped.",
+ "provider": "uniprot"
+}

@@ -1,0 +1,48 @@
+{
+ "life_sciences": {
+  "documents": [
+   {
+    "kind": "target",
+    "label": "Exampla kinase 1 target",
+    "target_ids": [
+     "CHEMBL9900001"
+    ]
+   },
+   {
+    "kind": "activities",
+    "label": "Activities against CHEMBL9900001",
+    "limit": 50,
+    "target_id": "CHEMBL9900001"
+   }
+  ],
+  "live_verification": "unverified-live",
+  "namespace": "global",
+  "provider": "chembl",
+  "release": {
+   "label": "CHEMBL_100",
+   "published_on": "2099-04-15"
+  }
+ },
+ "native_pages": [
+  {
+   "body": "{\"activities\": 4, \"chembl_db_version\": \"CHEMBL_100\", \"chembl_release_date\": \"2099-04-15\", \"status\": \"UP\"}",
+   "headers": {},
+   "request": "/chembl/api/data/status.json",
+   "status": 200
+  },
+  {
+   "body": "{\"cross_references\": [{\"xref_id\": \"X9EXA1\", \"xref_src\": \"UniProt\"}], \"organism\": \"Exampla fictiva\", \"pref_name\": \"Exampla kinase 1\", \"species_group_flag\": false, \"target_chembl_id\": \"CHEMBL9900001\", \"target_components\": [{\"accession\": \"X9EXA1\", \"component_description\": \"Exampla kinase 1\", \"component_id\": 99001, \"component_type\": \"PROTEIN\", \"relationship\": \"SINGLE PROTEIN\"}], \"target_type\": \"SINGLE PROTEIN\", \"tax_id\": 99000001}",
+   "headers": {},
+   "request": "/chembl/api/data/target/CHEMBL9900001.json",
+   "status": 200
+  },
+  {
+   "body": "{\"activities\": [{\"activity_comment\": null, \"activity_id\": 990000301, \"assay_chembl_id\": \"CHEMBL9900401\", \"assay_description\": \"Fictional IC50 assay CHEMBL9900401\", \"assay_type\": \"B\", \"data_validity_comment\": null, \"document_chembl_id\": \"CHEMBL9900201\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900101\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \"=\", \"standard_flag\": 1, \"standard_relation\": \"=\", \"standard_type\": \"IC50\", \"standard_units\": \"nM\", \"standard_value\": \"12.5\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"IC50\", \"units\": \"nM\", \"value\": \"12.5\"}, {\"activity_comment\": null, \"activity_id\": 990000302, \"assay_chembl_id\": \"CHEMBL9900402\", \"assay_description\": \"Fictional Ki assay CHEMBL9900402\", \"assay_type\": \"B\", \"data_validity_comment\": \"Potential transcription error\", \"document_chembl_id\": \"CHEMBL9900201\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900102\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \">\", \"standard_flag\": 1, \"standard_relation\": \">\", \"standard_type\": \"Ki\", \"standard_units\": \"nM\", \"standard_value\": \"10000\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"Ki\", \"units\": \"nM\", \"value\": \"10000\"}, {\"activity_comment\": null, \"activity_id\": 990000303, \"assay_chembl_id\": \"CHEMBL9900403\", \"assay_description\": \"Fictional Inhibition assay CHEMBL9900403\", \"assay_type\": \"F\", \"data_validity_comment\": \"Outside typical range\", \"document_chembl_id\": \"CHEMBL9900202\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900101\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \"=\", \"standard_flag\": 1, \"standard_relation\": \"=\", \"standard_type\": \"Inhibition\", \"standard_units\": \"%\", \"standard_value\": \"45\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"Inhibition\", \"units\": \"%\", \"value\": \"45\"}, {\"activity_comment\": null, \"activity_id\": 990000304, \"assay_chembl_id\": \"CHEMBL9900404\", \"assay_description\": \"Fictional IC50 assay CHEMBL9900404\", \"assay_type\": \"B\", \"data_validity_comment\": null, \"document_chembl_id\": \"CHEMBL9900202\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900102\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \"=\", \"standard_flag\": 1, \"standard_relation\": \"=\", \"standard_type\": \"IC50\", \"standard_units\": \"uM\", \"standard_value\": \"0.2\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"IC50\", \"units\": \"uM\", \"value\": \"0.2\"}], \"page_meta\": {\"limit\": 50, \"next\": null, \"offset\": 0, \"total_count\": 4}}",
+   "headers": {},
+   "request": "/chembl/api/data/activity.json?limit=50&offset=0&target_chembl_id=CHEMBL9900001",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every accession, organism, compound, value, identifier and title is fictional. Author and depositor fields are present only to prove they are dropped.",
+ "provider": "chembl"
+}
