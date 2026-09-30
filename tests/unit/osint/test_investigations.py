@@ -162,3 +162,15 @@ def test_is_gated():
     assert is_gated("geolocate_claims")
     assert is_gated("narrative_coordination")
     assert not is_gated("corroborate")
+
+
+def test_movement_position_tools_are_behind_the_review_gate(monkeypatch):
+    """#2221: the position-bearing movement tools are named by the gate and never served while it is closed,
+    even with the movements feature flag on (NOESIS_OSINT_MOVEMENTS)."""
+    from src.osint.investigations import MOVEMENT_GATED_TOOLS
+
+    monkeypatch.setenv("NOESIS_OSINT_MOVEMENTS", "on")
+    off = _served_tool_names(monkeypatch, None)
+    assert all(is_gated(tool) for tool in MOVEMENT_GATED_TOOLS)
+    assert not set(MOVEMENT_GATED_TOOLS) & off and "movement_registry" in off
+    assert set(MOVEMENT_GATED_TOOLS) <= _served_tool_names(monkeypatch, "on")

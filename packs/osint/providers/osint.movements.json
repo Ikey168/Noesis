@@ -1,0 +1,86 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "osint.movements",
+  "version": "1.0.0",
+  "description": "Aircraft and vessel registry records and bounded movement samples under documented licence and volume bounds (#2221): FAA and UK CAA G-INFO registry revisions, OpenSky samples for one named ICAO address and a 48-hour window, GFW port visits with GFW confidence (vessel identity cited from the Fisheries pack), open AIS samples for one named MMSI, UNCTAD port-call aggregates; derived calls with coverage caveats, reviewable identity through ownership identity, and citation links to sanctions listings.",
+  "implementation": {
+    "name": "src.osint.movements",
+    "version": "1.0.0",
+    "server": "noesis-osint"
+  },
+  "capabilities": [
+    {
+      "id": "osint.movements",
+      "contract": {
+        "name": "noesis-osint-movement-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "movement-source-contracts"
+      ],
+      "semantic_constraints": {
+        "optional_feature": "movements",
+        "default_enabled": false,
+        "feature_flag": "NOESIS_OSINT_MOVEMENTS; movement_registry is served only with it, and movement_window and movement_calls also need the osint-review gate (NOESIS_OSINT_GATED_TOOLS) and the knowledge:osint:movements scope, so they are not catalog operations",
+        "bounds": "one named identifier and a window of at most 92 days per question; per-source windows and sample counts in docs/security/osint-movements-access.md; no area, background or real-time query and no continuous ADS-B/AIS mirroring",
+        "coverage": "absence of positions is 'no coverage observed', never absence of movement or presence",
+        "persons": "natural-person registrants never keyed, matched or shown; opted-out (LADD/PIA) aircraft and aircraft registered to a natural person refused; person-keyed identifiers refused",
+        "calls": "source-published calls keep the source's confidence; derived calls carry method, samples, facility geometry and the gaps that make them uncertain",
+        "identity": "time-bounded exact identifier matches and organisation candidates through ownership.identity (movements: keys); records never merged",
+        "sanctions": "links only on an identifier the listing states; name-only similarity is a candidate; no evasion, screening or compliance verdict",
+        "monitoring": "registry, identity and listing changes through platform.subscriptions; position and call subscriptions refused",
+        "purpose_log": "every position-bearing request is logged with its stated purpose",
+        "no_new_store": true
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "movement-source-contracts",
+      "tool": "noesis-osint.movement_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "source",
+      "required_scopes": [
+        "knowledge:read"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "osint-movement-record",
+      "store": "src.osint.movements",
+      "tables": [
+        "osint_movement_records",
+        "osint_movement_revisions",
+        "osint_movement_identifiers",
+        "osint_movement_privacy_refusals",
+        "osint_movement_source_runs",
+        "osint_movement_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "osint_movement_revisions"
+    },
+    {
+      "id": "source",
+      "kind": "source-pack-enabled",
+      "target": "bounded-public-osint"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "bounded-public-osint",
+      "version": "1.1.0",
+      "range": "^1.1.0"
+    }
+  ]
+}

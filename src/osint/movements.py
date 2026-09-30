@@ -146,6 +146,14 @@ def licence(provider: str) -> dict[str, str]:
             "attribution": attribution}
 
 
+def movements_enabled() -> bool:
+    """The feature flag (``NOESIS_OSINT_MOVEMENTS``, off by default): without it no movement tool but
+    ``movement_source_contracts`` is served."""
+    from src.config.env import resolve_env
+
+    return (resolve_env(FEATURE_FLAG, "off") or "off").lower() in ("on", "1", "true")
+
+
 def require(scopes: Iterable[str], *required: str) -> None:
     scopes = set(scopes)
     if "operator" in scopes:

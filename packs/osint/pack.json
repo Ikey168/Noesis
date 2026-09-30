@@ -71,7 +71,8 @@
     "registry-and-certificate-history",
     "organization-keyed-infrastructure-pivot",
     "review-gated-chronolocation",
-    "review-gated-reference-imagery"
+    "review-gated-reference-imagery",
+    "bounded-aircraft-and-vessel-movements"
   ],
   "schema_versions": {
     "source-identity": "1.0.0",
@@ -80,7 +81,8 @@
     "source-pack": "1.0.0",
     "osint-observation": "1.0.0",
     "source-relationship": "1.0.0",
-    "osint-corroboration": "1.1.0"
+    "osint-corroboration": "1.1.0",
+    "osint-movement-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -194,6 +196,7 @@
     "search-engine or multi-engine querying",
     "exposed-service search, subdomain enumeration or attack-surface mapping",
     "person-keyed identifier pivoting (e-mail, username, handle, IP address)",
-    "screening or compliance determinations"
+    "screening or compliance determinations",
+    "real-time tracking, continuous ADS-B or AIS mirroring, area-wide movement queries or movement alerts"
   ]
 }

@@ -128,9 +128,34 @@ With `NOESIS_OSINT_GATED_TOOLS=on`:
 
 ## Aircraft and vessel movements (#2221)
 
-Optional `movements` feature (default off). Access, licence and volume
-decisions per source: [`docs/security/osint-movements-access.md`](../security/osint-movements-access.md).
-Tools, bounds and exclusions: [`osint-movements.md`](osint-movements.md).
+Optional `movements` feature (default off; provider `osint.movements`).
+Access, licence and volume decisions per source:
+[`docs/security/osint-movements-access.md`](../security/osint-movements-access.md).
+Walkthrough: [`osint-movements.md`](osint-movements.md).
+
+| Tool | Served when | Scope | What it returns |
+| --- | --- | --- | --- |
+| `movement_source_contracts` | always | `knowledge:read` | the licence, access and volume decisions, excluded sources and whether the feature is on |
+| `movement_registry` | `NOESIS_OSINT_MOVEMENTS=on` | `knowledge:read` | registry revisions valid on a date, cited; natural-person registrants withheld |
+| `movement_window` | the flag **and** `NOESIS_OSINT_GATED_TOOLS=on` | `knowledge:osint:movements` | registry, sample windows with gaps and coverage caveats, published and derived calls, identity matches, sanctions statements; optional evidence bundle |
+| `movement_calls` | the flag **and** the review gate | `knowledge:osint:movements` | published and derived calls with coverage |
+
+Bounds: one named identifier (ICAO 24-bit address, registration, IMO, MMSI,
+GFW vessel id) and a window of at most 92 days per question; per source at most
+48 h and 500 samples (OpenSky), 72 h and 500 samples (open AIS), 366 days and
+200 events (GFW port visits). `movement_window` and `movement_calls` need a
+`purpose`, logged with the principal and outcome in the request log
+(`NOESIS_OSINT_MOVEMENT_LOG_PATH`, a separate store; the warehouse stays
+read-only).
+
+Refused with a stated reason: person-keyed identifiers
+(`person_identifier_refused`), opted-out aircraft (`privacy_opt_out`),
+aircraft registered to a natural person (`private_aircraft_refused`),
+over-bound windows (`over_bound`), missing purpose (`purpose_required`) and
+position or call subscriptions (`movement_subscription_refused`). Excluded:
+real-time tracking, continuous ADS-B/AIS mirroring, area queries, movement
+alerts, behaviour inference, route prediction and any evasion, screening or
+compliance verdict. No coverage is reported as "no coverage observed".
 
 ## Workflows
 

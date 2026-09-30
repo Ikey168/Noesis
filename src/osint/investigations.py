@@ -38,9 +38,15 @@ GATED_TOOLS = (
 )
 
 
+# The optional movements feature (#2221): served only with NOESIS_OSINT_MOVEMENTS; the
+# position-bearing tools are additionally behind this review gate.
+MOVEMENT_TOOLS = ("movement_registry", "movement_window", "movement_calls")
+MOVEMENT_GATED_TOOLS = ("movement_window", "movement_calls")
+
+
 def is_gated(tool_name: str) -> bool:
     """True if a tool is behind the review gate (must not be served yet)."""
-    return tool_name in GATED_TOOLS
+    return tool_name in GATED_TOOLS or tool_name in MOVEMENT_GATED_TOOLS
 
 
 def investigation_audit(conn, name: str) -> Dict[str, Any]:
