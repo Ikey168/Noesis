@@ -1,0 +1,136 @@
+{
+ "head": {
+  "vars": [
+   "work",
+   "celex",
+   "eli",
+   "ecli",
+   "expression",
+   "language",
+   "title",
+   "manifestation",
+   "format",
+   "item",
+   "document_date",
+   "journal",
+   "published",
+   "effective",
+   "predicate",
+   "related"
+  ]
+ },
+ "results": {
+  "bindings": [
+   {
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001"
+    },
+    "celex": {
+     "type": "literal",
+     "value": "22099A0101(01)",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2099/1/oj"
+    },
+    "expression": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001.0002"
+    },
+    "language": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/language/ENG"
+    },
+    "title": {
+     "type": "literal",
+     "value": "Framework Convention on Example Data Governance (CETS No. 990)"
+    },
+    "manifestation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001.0002.03"
+    },
+    "format": {
+     "type": "literal",
+     "value": "xhtml"
+    },
+    "item": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001.0002.03/DOC_1"
+    },
+    "document_date": {
+     "type": "literal",
+     "value": "2098-09-05"
+    },
+    "journal": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-0000000000aa"
+    },
+    "published": {
+     "type": "literal",
+     "value": "2099-01-01"
+    },
+    "effective": {
+     "type": "literal",
+     "value": "2099-06-01"
+    }
+   },
+   {
+    "work": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001"
+    },
+    "celex": {
+     "type": "literal",
+     "value": "22099A0101(01)",
+     "datatype": "http://www.w3.org/2001/XMLSchema#string"
+    },
+    "eli": {
+     "type": "uri",
+     "value": "http://data.europa.eu/eli/agree_internation/2099/1/oj"
+    },
+    "expression": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001.0003"
+    },
+    "language": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/authority/language/FRA"
+    },
+    "title": {
+     "type": "literal",
+     "value": "Convention-cadre sur la gouvernance des données d'exemple (STCE nº 990)"
+    },
+    "manifestation": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001.0003.03"
+    },
+    "format": {
+     "type": "literal",
+     "value": "xhtml"
+    },
+    "item": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-000000000001.0003.03/DOC_1"
+    },
+    "document_date": {
+     "type": "literal",
+     "value": "2098-09-05"
+    },
+    "journal": {
+     "type": "uri",
+     "value": "http://publications.europa.eu/resource/cellar/00000000-2099-4000-8000-0000000000aa"
+    },
+    "published": {
+     "type": "literal",
+     "value": "2099-01-01"
+    },
+    "effective": {
+     "type": "literal",
+     "value": "2099-06-01"
+    }
+   }
+  ]
+ }
+}
