@@ -151,6 +151,11 @@ MATRIX = {
     "Place or crisis to humanitarian dossier":
         "tests/unit/domains/test_humanitarian_acceptance.py::"
         "test_place_and_crisis_to_a_cited_dossier_with_precision_history_identity_and_gaps",
+    # The Climate and Environment biodiversity feature's offline journey (#2531) composes its record owner with
+    # geospatial places and receipts, entity identity decisions, Science papers by DOI and subscriptions.
+    "Taxon or place to cited biodiversity records":
+        "tests/unit/domains/test_biodiversity_acceptance.py::"
+        "test_taxon_and_place_to_cited_occurrences_and_conservation_status_history",
 }
 
 
