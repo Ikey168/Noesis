@@ -1,0 +1,205 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Identifiers, names, sequences and values are fictional; person fields are placeholders present only to prove they are dropped; unverified-live (#2721).",
+ "provider": "chembl",
+ "scenarios": [
+  "release ChEMBL_99 read first; every record keyed by ChEMBL ID and release",
+  "a single-protein target naming its UniProt component",
+  "two compounds with standard InChIKeys (computed properties and max_phase dropped)",
+  "three activities with published and standardised values as strings, a data-validity comment and an activity comment; pChEMBL values dropped",
+  "the two cited documents (author lists dropped; one without DOI)"
+ ],
+ "native_pages": [
+  {
+   "request": "/chembl/api/data/status.json",
+   "body": {
+    "chembl_db_version": "ChEMBL_99",
+    "chembl_release_date": "2099-01-20",
+    "status": "UP"
+   }
+  },
+  {
+   "request": "/chembl/api/data/target/CHEMBL9990201.json",
+   "body": {
+    "target_chembl_id": "CHEMBL9990201",
+    "pref_name": "Fictional kinase A",
+    "target_type": "SINGLE PROTEIN",
+    "organism": "Exemplomyces fictus",
+    "tax_id": 999001,
+    "species_group_flag": false,
+    "target_components": [
+     {
+      "accession": "P0DZZ1",
+      "component_id": 1,
+      "component_type": "PROTEIN",
+      "relationship": "SINGLE PROTEIN"
+     }
+    ],
+    "cross_references": [
+     {
+      "xref_src": "UniProt",
+      "xref_id": "P0DZZ1",
+      "xref_name": null
+     }
+    ]
+   }
+  },
+  {
+   "request": "/chembl/api/data/molecule/CHEMBL9990101.json",
+   "body": {
+    "molecule_chembl_id": "CHEMBL9990101",
+    "pref_name": "FICTINIB",
+    "molecule_type": "Small molecule",
+    "max_phase": null,
+    "molecule_properties": {
+     "full_mwt": "300.00",
+     "alogp": "2.00"
+    },
+    "molecule_structures": {
+     "standard_inchi_key": "ZZZZZZZZZZZZZA-UHFFFAOYSA-N",
+     "standard_inchi": "InChI=1S/fictional/a",
+     "canonical_smiles": "C1=CC=CC=C1"
+    },
+    "cross_references": [
+     {
+      "xref_src": "PubChem",
+      "xref_id": "999001",
+      "xref_name": "SID: 999001"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/chembl/api/data/molecule/CHEMBL9990102.json",
+   "body": {
+    "molecule_chembl_id": "CHEMBL9990102",
+    "pref_name": null,
+    "molecule_type": "Small molecule",
+    "molecule_properties": {
+     "full_mwt": "320.00"
+    },
+    "molecule_structures": {
+     "standard_inchi_key": "ZZZZZZZZZZZZZB-UHFFFAOYSA-N",
+     "standard_inchi": "InChI=1S/fictional/b",
+     "canonical_smiles": "C1CCCCC1"
+    },
+    "cross_references": []
+   }
+  },
+  {
+   "request": "/chembl/api/data/activity.json?limit=10&offset=0&target_chembl_id=CHEMBL9990201",
+   "body": {
+    "activities": [
+     {
+      "activity_id": 99990001,
+      "assay_chembl_id": "CHEMBL9990401",
+      "assay_type": "B",
+      "assay_description": "Inhibition of fictional kinase A (fictional assay)",
+      "target_chembl_id": "CHEMBL9990201",
+      "molecule_chembl_id": "CHEMBL9990101",
+      "document_chembl_id": "CHEMBL9990301",
+      "type": "IC50",
+      "relation": "=",
+      "value": "12",
+      "units": "nM",
+      "standard_type": "IC50",
+      "standard_relation": "=",
+      "standard_value": "12.0",
+      "standard_units": "nM",
+      "standard_flag": 1,
+      "data_validity_comment": null,
+      "data_validity_description": null,
+      "activity_comment": null,
+      "document_journal": "J. Fict. Med. Chem.",
+      "document_year": 2098,
+      "pchembl_value": "7.92"
+     },
+     {
+      "activity_id": 99990002,
+      "assay_chembl_id": "CHEMBL9990401",
+      "assay_type": "B",
+      "assay_description": "Inhibition of fictional kinase A (fictional assay)",
+      "target_chembl_id": "CHEMBL9990201",
+      "molecule_chembl_id": "CHEMBL9990102",
+      "document_chembl_id": "CHEMBL9990301",
+      "type": "Ki",
+      "relation": ">",
+      "value": "10",
+      "units": "uM",
+      "standard_type": "Ki",
+      "standard_relation": ">",
+      "standard_value": "10000.0",
+      "standard_units": "nM",
+      "standard_flag": 1,
+      "data_validity_comment": "Outside typical range",
+      "data_validity_description": "Values for this activity type are outside the typical range",
+      "activity_comment": null,
+      "document_journal": "J. Fict. Med. Chem.",
+      "document_year": 2098,
+      "pchembl_value": null
+     },
+     {
+      "activity_id": 99990003,
+      "assay_chembl_id": "CHEMBL9990401",
+      "assay_type": "F",
+      "assay_description": "Inhibition of fictional kinase A (fictional assay)",
+      "target_chembl_id": "CHEMBL9990201",
+      "molecule_chembl_id": "CHEMBL9990101",
+      "document_chembl_id": "CHEMBL9990302",
+      "type": "Inhibition",
+      "relation": "=",
+      "value": "45",
+      "units": "%",
+      "standard_type": "Inhibition",
+      "standard_relation": "=",
+      "standard_value": "45.0",
+      "standard_units": "%",
+      "standard_flag": 1,
+      "data_validity_comment": null,
+      "data_validity_description": null,
+      "activity_comment": "Active",
+      "document_journal": "J. Fict. Med. Chem.",
+      "document_year": 2098,
+      "pchembl_value": null
+     }
+    ],
+    "page_meta": {
+     "limit": 10,
+     "offset": 0,
+     "next": null,
+     "previous": null,
+     "total_count": 3
+    }
+   }
+  },
+  {
+   "request": "/chembl/api/data/document/CHEMBL9990301.json",
+   "body": {
+    "document_chembl_id": "CHEMBL9990301",
+    "doi": "10.5555/fict.lifesci.2099.3",
+    "pubmed_id": 99990013,
+    "title": "Fictinib, a fictional kinase A inhibitor",
+    "journal": "J. Fict. Med. Chem.",
+    "year": 2098,
+    "volume": "12",
+    "first_page": "101",
+    "doc_type": "PUBLICATION",
+    "authors": "Placeholder A, Placeholder B"
+   }
+  },
+  {
+   "request": "/chembl/api/data/document/CHEMBL9990302.json",
+   "body": {
+    "document_chembl_id": "CHEMBL9990302",
+    "doi": null,
+    "pubmed_id": null,
+    "title": "Fictional screening dataset",
+    "journal": null,
+    "year": 2098,
+    "doc_type": "DATASET",
+    "authors": null
+   }
+  }
+ ]
+}
