@@ -399,3 +399,9 @@ def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any])
         if cursor is None:
             break
     return records
+
+
+# Books, music and authority metadata (#2225) extend these cultural sources as the ``media-metadata`` connector of the
+# same scientific source pack: Open Library, MusicBrainz (CC0 core), Wikidata, DNB and Library of Congress adapters
+# live in :mod:`src.ingestion.media_metadata_sources` and project into :mod:`src.kb.media_metadata`.
+MEDIA_METADATA_MODULE = "src.ingestion.media_metadata_sources"

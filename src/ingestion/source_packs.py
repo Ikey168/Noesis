@@ -385,6 +385,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"osint-movements"})
 # Corporate Ownership competition cases and state aid: EC case search, TAM, GOV.UK CMA, FTC and DOJ (#2217).
 NATIVE_CONNECTOR_MODULES["competition"] = "src.ingestion.competition_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"competition"})
+# Cultural Collections books, music and authority metadata (Open Library, MusicBrainz, Wikidata, DNB, LoC; #2225).
+NATIVE_CONNECTOR_MODULES["media-metadata"] = "src.ingestion.media_metadata_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 
 
 def native_connector_module(connector: str) -> Any:

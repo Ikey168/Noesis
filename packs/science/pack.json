@@ -2,7 +2,7 @@
   "pack_format": "noesis-pack-v1",
   "name": "science",
   "version": "1.2.0",
-  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places, with book, music and authority metadata (Open Library, MusicBrainz CC0 core data, Wikidata, DNB, Library of Congress) as their identity backbone; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
   "source_types": [
     "paper"
   ],
@@ -36,7 +36,14 @@
       "unesco uis",
       "education at a glance",
       "eurostat r&d",
-      "ror"
+      "ror",
+      "open library",
+      "musicbrainz",
+      "wikidata",
+      "gnd",
+      "deutsche nationalbibliothek",
+      "library of congress",
+      "lcnaf"
     ],
     "claims": [
       "finding",
@@ -66,7 +73,15 @@
       "formal library",
       "institution",
       "university",
-      "education indicator"
+      "education indicator",
+      "book",
+      "edition",
+      "recording",
+      "release",
+      "isbn",
+      "isrc",
+      "mbid",
+      "authority record"
     ]
   },
   "enrichers": [],
@@ -94,7 +109,11 @@
     "education-indicator-vintages",
     "education-ror-identity",
     "education-citation-links",
-    "education-monitoring"
+    "education-monitoring",
+    "media-metadata-authority-records",
+    "media-revision-history-as-of",
+    "reviewable-media-identity",
+    "citation-only-media-links"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -110,7 +129,8 @@
     "education-statistic-answer": "1.0.0",
     "education-identity": "1.0.0",
     "education-link": "1.0.0",
-    "education-notification": "1.0.0"
+    "education-notification": "1.0.0",
+    "media-metadata-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -124,7 +144,8 @@
       "noesis-math-record-v1",
       "noesis-formal-declaration-v1",
       "noesis-math-link-v1",
-      "noesis-education-statistic-record-v1"
+      "noesis-education-statistic-record-v1",
+      "noesis-media-metadata-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -141,7 +162,13 @@
       "math_object",
       "institution_statistic",
       "education_indicator",
-      "comparability_note"
+      "comparability_note",
+      "work",
+      "edition",
+      "recording",
+      "release",
+      "creator",
+      "authority_link"
     ],
     "relation_types": [
       "cites",
@@ -159,7 +186,11 @@
       "formalizes_candidate",
       "cites_identifier",
       "statistic_of",
-      "matched_to_ror"
+      "matched_to_ror",
+      "edition_of",
+      "recording_of",
+      "has_track",
+      "redirected_to"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -246,6 +277,26 @@
         "to_commit": "<newer commit>"
       },
       "semantics": "declarations added/removed/changed by statement hash; renames are candidates"
+    },
+    {
+      "intent": "Which work and authority records does this ISBN, MBID or QID identify on a date",
+      "tool": "resolve_media_identifier",
+      "arguments": {
+        "namespace": "global",
+        "identifier": "9783000000027",
+        "as_of": "2026-03-01"
+      },
+      "semantics": "exact identifier lookup: the identity, each authority record's source, revision and as-of time, identity matches used, redirects and merges; unknown or ambiguous identifiers are reported as such"
+    },
+    {
+      "intent": "Which works match this title and creator",
+      "tool": "search_media_titles",
+      "arguments": {
+        "namespace": "global",
+        "title": "The Glass Orchard",
+        "creator": "Mara Quell"
+      },
+      "semantics": "ranked candidates with title and name evidence, one per identity; never a single asserted answer and no popularity ranking"
     }
   ],
   "exclusions": [
@@ -264,6 +315,11 @@
     "licensed MathSciNet access",
     "university rankings, league tables, quality or composite scores",
     "merged, averaged or harmonised education statistics",
-    "derived per-student or per-staff ratios"
+    "derived per-student or per-staff ratios",
+    "full text, audio, cover images and other media content",
+    "popularity rankings of works or recordings",
+    "rights clearance determinations from catalogue notes",
+    "MusicBrainz supplementary (non-CC0) data",
+    "bulk provider mirrors"
   ]
 }

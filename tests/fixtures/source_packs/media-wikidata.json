@@ -1,0 +1,736 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "wikidata",
+ "scenarios": [
+  "items keyed by QID and revision ID; a pinned earlier revision and the current revision of the same item",
+  "external-ID statements (P648, P227, P244, P214, P212, P434, P435, P1827) with rank and references",
+  "a deprecated GND statement kept with its rank",
+  "a redirected QID is a history revision of the old QID"
+ ],
+ "native_pages": [
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900001&maxlag=5&props=info%7Clabels%7Cclaims&revision=2000000001",
+   "body": {
+    "entities": {
+     "Q999900001": {
+      "type": "item",
+      "id": "Q999900001",
+      "lastrevid": 2000000001,
+      "modified": "2025-06-01T08:00:00Z",
+      "ns": 0,
+      "title": "Q999900001",
+      "pageid": 99000001,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "Mara Quell"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q5",
+            "numeric-id": 5
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q5",
+         "references": []
+        }
+       ],
+       "P648": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P648",
+          "datavalue": {
+           "value": "OL9990001A",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P648$OL9990001A",
+         "references": []
+        }
+       ],
+       "P227": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P227",
+          "datavalue": {
+           "value": "1099990002",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P227$1099990002",
+         "references": [
+          {
+           "hash": "fixture-ref-P227-0",
+           "snaks": {
+            "P248": [
+             {
+              "snaktype": "value",
+              "property": "P248",
+              "datavalue": {
+               "value": {
+                "entity-type": "item",
+                "id": "Q36578",
+                "numeric-id": 36578
+               },
+               "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+             }
+            ]
+           },
+           "snaks-order": [
+            "P248"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900001&maxlag=5&props=info%7Clabels%7Cclaims",
+   "body": {
+    "entities": {
+     "Q999900001": {
+      "type": "item",
+      "id": "Q999900001",
+      "lastrevid": 2100000001,
+      "modified": "2026-01-20T10:00:00Z",
+      "ns": 0,
+      "title": "Q999900001",
+      "pageid": 99000001,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "Mara Quell"
+       },
+       "de": {
+        "language": "de",
+        "value": "Mara Quell"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q5",
+            "numeric-id": 5
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q5",
+         "references": []
+        }
+       ],
+       "P648": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P648",
+          "datavalue": {
+           "value": "OL9990001A",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P648$OL9990001A",
+         "references": []
+        }
+       ],
+       "P227": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P227",
+          "datavalue": {
+           "value": "1099990001",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "preferred",
+         "id": "FIXTURE$P227$1099990001",
+         "references": [
+          {
+           "hash": "fixture-ref-P227-0",
+           "snaks": {
+            "P248": [
+             {
+              "snaktype": "value",
+              "property": "P248",
+              "datavalue": {
+               "value": {
+                "entity-type": "item",
+                "id": "Q36578",
+                "numeric-id": 36578
+               },
+               "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+             }
+            ]
+           },
+           "snaks-order": [
+            "P248"
+           ]
+          }
+         ]
+        },
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P227",
+          "datavalue": {
+           "value": "1099990002",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "deprecated",
+         "id": "FIXTURE$P227$1099990002",
+         "references": [
+          {
+           "hash": "fixture-ref-P227-0",
+           "snaks": {
+            "P248": [
+             {
+              "snaktype": "value",
+              "property": "P248",
+              "datavalue": {
+               "value": {
+                "entity-type": "item",
+                "id": "Q36578",
+                "numeric-id": 36578
+               },
+               "type": "wikibase-entityid"
+              },
+              "datatype": "wikibase-item"
+             }
+            ]
+           },
+           "snaks-order": [
+            "P248"
+           ]
+          }
+         ]
+        }
+       ],
+       "P244": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P244",
+          "datavalue": {
+           "value": "n2099000001",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P244$n2099000001",
+         "references": []
+        }
+       ],
+       "P214": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P214",
+          "datavalue": {
+           "value": "999900001",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P214$999900001",
+         "references": []
+        }
+       ]
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900002&maxlag=5&props=info%7Clabels%7Cclaims",
+   "body": {
+    "entities": {
+     "Q999900002": {
+      "type": "item",
+      "id": "Q999900002",
+      "lastrevid": 2100000002,
+      "modified": "2026-01-21T10:00:00Z",
+      "ns": 0,
+      "title": "Q999900002",
+      "pageid": 99000002,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "The Glass Orchard"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q7725634",
+            "numeric-id": 7725634
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q7725634",
+         "references": []
+        }
+       ],
+       "P50": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P50",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q999900001",
+            "numeric-id": 999900001
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P50$Q999900001",
+         "references": []
+        }
+       ],
+       "P648": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P648",
+          "datavalue": {
+           "value": "OL9990001W",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P648$OL9990001W",
+         "references": []
+        }
+       ],
+       "P577": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P577",
+          "datavalue": {
+           "value": {
+            "time": "+2019-00-00T00:00:00Z",
+            "precision": 9,
+            "calendarmodel": "http://www.wikidata.org/entity/Q1985727"
+           },
+           "type": "time"
+          },
+          "datatype": "time"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P577$+2019-00-00T00:00:00Z",
+         "references": []
+        }
+       ]
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900003&maxlag=5&props=info%7Clabels%7Cclaims",
+   "body": {
+    "entities": {
+     "Q999900003": {
+      "type": "item",
+      "id": "Q999900003",
+      "lastrevid": 2100000003,
+      "modified": "2026-01-21T10:05:00Z",
+      "ns": 0,
+      "title": "Q999900003",
+      "pageid": 99000003,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "The Glass Orchard"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q3331189",
+            "numeric-id": 3331189
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q3331189",
+         "references": []
+        }
+       ],
+       "P629": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P629",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q999900002",
+            "numeric-id": 999900002
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P629$Q999900002",
+         "references": []
+        }
+       ],
+       "P212": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P212",
+          "datavalue": {
+           "value": "978-3-00-000001-0",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P212$978-3-00-000001-0",
+         "references": []
+        }
+       ],
+       "P648": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P648",
+          "datavalue": {
+           "value": "OL9990001M",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P648$OL9990001M",
+         "references": []
+        }
+       ]
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900010&maxlag=5&props=info%7Clabels%7Cclaims",
+   "body": {
+    "entities": {
+     "Q999900010": {
+      "type": "item",
+      "id": "Q999900010",
+      "lastrevid": 2100000010,
+      "modified": "2026-03-05T10:00:00Z",
+      "ns": 0,
+      "title": "Q999900010",
+      "pageid": 99000010,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "The Quell Ensemble"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q215380",
+            "numeric-id": 215380
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q215380",
+         "references": []
+        }
+       ],
+       "P434": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P434",
+          "datavalue": {
+           "value": "a1000000-0000-4000-8000-000000000001",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P434$a1000000-0000-4000-8000-000000000001",
+         "references": []
+        }
+       ]
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900011&maxlag=5&props=info%7Clabels%7Cclaims",
+   "body": {
+    "entities": {
+     "Q999900011": {
+      "type": "item",
+      "id": "Q999900011",
+      "lastrevid": 2100000011,
+      "modified": "2026-03-05T10:05:00Z",
+      "ns": 0,
+      "title": "Q999900011",
+      "pageid": 99000011,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "Harbour Lights"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q7366",
+            "numeric-id": 7366
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q7366",
+         "references": []
+        }
+       ],
+       "P175": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P175",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q999900010",
+            "numeric-id": 999900010
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P175$Q999900010",
+         "references": []
+        }
+       ],
+       "P435": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P435",
+          "datavalue": {
+           "value": "c1000000-0000-4000-8000-000000000001",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P435$c1000000-0000-4000-8000-000000000001",
+         "references": []
+        }
+       ],
+       "P1827": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P1827",
+          "datavalue": {
+           "value": "T-000.000.001-0",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P1827$T-000.000.001-0",
+         "references": []
+        }
+       ]
+      }
+     }
+    },
+    "success": 1
+   }
+  },
+  {
+   "request": "www.wikidata.org/w/api.php?action=wbgetentities&format=json&ids=Q999900019&maxlag=5&props=info%7Clabels%7Cclaims",
+   "body": {
+    "entities": {
+     "Q999900010": {
+      "type": "item",
+      "id": "Q999900010",
+      "lastrevid": 2100000010,
+      "modified": "2026-03-05T10:00:00Z",
+      "ns": 0,
+      "title": "Q999900010",
+      "pageid": 99000010,
+      "labels": {
+       "en": {
+        "language": "en",
+        "value": "The Quell Ensemble"
+       }
+      },
+      "claims": {
+       "P31": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P31",
+          "datavalue": {
+           "value": {
+            "entity-type": "item",
+            "id": "Q215380",
+            "numeric-id": 215380
+           },
+           "type": "wikibase-entityid"
+          },
+          "datatype": "wikibase-item"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P31$Q215380",
+         "references": []
+        }
+       ],
+       "P434": [
+        {
+         "mainsnak": {
+          "snaktype": "value",
+          "property": "P434",
+          "datavalue": {
+           "value": "a1000000-0000-4000-8000-000000000001",
+           "type": "string"
+          },
+          "datatype": "external-id"
+         },
+         "type": "statement",
+         "rank": "normal",
+         "id": "FIXTURE$P434$a1000000-0000-4000-8000-000000000001",
+         "references": []
+        }
+       ]
+      },
+      "redirects": {
+       "from": "Q999900019",
+       "to": "Q999900010"
+      }
+     }
+    },
+    "success": 1
+   }
+  }
+ ]
+}

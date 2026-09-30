@@ -59,6 +59,22 @@
           "name": "noesis-education-statistic-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "science.media-metadata",
+        "provider": "science.media-metadata",
+        "contract": {
+          "name": "noesis-media-metadata-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "science.media-news-candidates",
+        "provider": "science.media-metadata",
+        "contract": {
+          "name": "noesis-media-metadata-link",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -76,6 +92,10 @@
       },
       {
         "id": "science.education-statistics",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.media-metadata",
         "version": "1.0.0"
       }
     ],
@@ -180,6 +200,74 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "statistics are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "media-metadata",
+      "default": false,
+      "description": "Books, music and authority metadata beside Cultural Collections: Open Library, MusicBrainz (CC0 core data), Wikidata, Deutsche Nationalbibliothek and Library of Congress works, editions, recordings, releases, creators and authority links with immutable provider revisions, reviewable identity, citation-only links to cultural objects, as-of answers and monitors. No full text, media content, popularity ranking or rights clearance.",
+      "requires": [
+        {
+          "capability": "science.media-metadata",
+          "contract": "noesis-media-metadata-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "science.cultural-objects",
+          "contract": "noesis-cultural-object",
+          "range": "^1.0.0",
+          "reason": "cultural objects link to works and creators by identifier or provider relation"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "identity reviews and provider redirects are entity-history decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "authority monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "Open Library, MusicBrainz, Wikidata, DNB and LoC sources run through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "media-metadata-news",
+      "default": false,
+      "description": "News entity resolution may use media authority records as reviewable candidates for canonical entities; only reviewed matches become links and no existing entity is re-labelled.",
+      "requires": [
+        {
+          "capability": "science.media-news-candidates",
+          "contract": "noesis-media-metadata-link",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "science.media-metadata",
+          "contract": "noesis-media-metadata-record",
+          "range": "^1.0.0",
+          "reason": "candidates come from the authority records and their creator matches"
+        },
+        {
+          "capability": "news.articles",
+          "contract": "noesis-news-articles",
+          "range": "^1.0.0",
+          "reason": "News owns the canonical entities the candidates are offered to"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "reviews are entity-history decisions"
         }
       ]
     }

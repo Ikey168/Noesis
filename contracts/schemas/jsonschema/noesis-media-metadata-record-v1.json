@@ -1,0 +1,129 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-media-metadata-record-v1.json",
+  "title": "noesis-media-metadata-record-v1",
+  "description": "One provider statement of a work, edition (manifestation), recording, release, creator or authority link from Open Library, MusicBrainz (CC0 core data), Wikidata, the Deutsche Nationalbibliothek or the Library of Congress (#2225, MM02). Keyed by source and native ID; each statement is one immutable revision keyed by the provider's revision marker. Work and edition levels, and recording and release levels, are distinct record types; an edition never becomes a work. Metadata only: no full text, media content, cover images, popularity data or rights determinations.",
+  "type": "object",
+  "required": ["contract", "record_type", "source", "native_id", "revision", "status", "titles", "names", "identifiers", "relations", "creators", "dates", "licence", "url"],
+  "properties": {
+    "contract": {"const": "noesis-media-metadata-record-v1"},
+    "record_type": {"enum": ["work", "edition", "recording", "release", "creator", "authority-link"]},
+    "source": {"enum": ["open-library", "musicbrainz", "wikidata", "dnb", "loc"]},
+    "native_id": {"type": "string", "minLength": 1, "maxLength": 200},
+    "url": {"type": ["string", "null"]},
+    "revision": {"$ref": "#/definitions/revision"},
+    "status": {"enum": ["active", "redirected", "deprecated", "deleted"]},
+    "redirect_to": {"type": ["string", "null"]},
+    "describes": {"enum": ["work", "edition", "recording", "release", "creator", "unknown"]},
+    "titles": {"type": "array", "items": {"$ref": "#/definitions/text"}},
+    "names": {"type": "array", "items": {"$ref": "#/definitions/text"}},
+    "identifiers": {"type": "array", "items": {"$ref": "#/definitions/identifier"}},
+    "relations": {"type": "array", "items": {"$ref": "#/definitions/relation"}},
+    "creators": {"type": "array", "items": {"$ref": "#/definitions/creator"}},
+    "dates": {"type": "array", "items": {"$ref": "#/definitions/date"}},
+    "attributes": {"type": "object"},
+    "licence": {
+      "type": "object",
+      "required": ["id", "scope"],
+      "properties": {
+        "id": {"type": "string", "minLength": 1},
+        "scope": {"type": "string", "minLength": 1},
+        "attribution": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "excluded_fields": {"type": "array", "items": {"type": "string"}}
+  },
+  "allOf": [
+    {"if": {"properties": {"status": {"const": "redirected"}}}, "then": {"required": ["redirect_to"], "properties": {"redirect_to": {"type": "string", "minLength": 1}}}},
+    {"if": {"properties": {"source": {"const": "musicbrainz"}}}, "then": {"properties": {"record_type": {"enum": ["recording", "release", "work", "creator"]}}}},
+    {"if": {"properties": {"source": {"const": "open-library"}}}, "then": {"properties": {"record_type": {"enum": ["work", "edition", "creator"]}}}},
+    {"if": {"properties": {"source": {"const": "wikidata"}}}, "then": {"properties": {"record_type": {"enum": ["authority-link", "creator"]}}}}
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "text": {
+      "type": "object",
+      "required": ["value"],
+      "properties": {
+        "value": {"type": "string", "minLength": 1},
+        "language": {"type": ["string", "null"]},
+        "kind": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "revision": {
+      "type": "object",
+      "description": "The provider's own revision marker: Open Library revision, MusicBrainz CC0 core digest (WS/2 exposes no edit id), Wikidata revision ID or MARC 005.",
+      "required": ["marker", "basis", "order", "date"],
+      "properties": {
+        "marker": {"type": "string", "minLength": 1},
+        "basis": {"enum": ["ol-revision", "mb-core-digest", "wikidata-revid", "marc-005", "provider-redirect"]},
+        "order": {"type": ["string", "null"]},
+        "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "declared": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "identifier": {
+      "type": "object",
+      "description": "An identifier as published. role self is the record's own key; asserted identifiers are statements the provider makes (with Wikidata rank and references as published).",
+      "required": ["scheme", "value", "role"],
+      "properties": {
+        "scheme": {"enum": ["isbn10", "isbn13", "isrc", "iswc", "mbid", "wikidata", "gnd", "idn", "lccn", "lcnaf", "olid", "viaf", "isni", "oclc", "barcode"]},
+        "value": {"type": "string", "minLength": 1},
+        "role": {"enum": ["self", "asserted"]},
+        "property": {"type": ["string", "null"]},
+        "rank": {"enum": ["preferred", "normal", "deprecated", null]},
+        "references": {"type": "array", "items": {"type": "object"}},
+        "locator": {"type": ["string", "null"]}
+      },
+      "additionalProperties": false
+    },
+    "relation": {
+      "type": "object",
+      "required": ["type", "target"],
+      "properties": {
+        "type": {"enum": ["edition_of", "has_edition", "recording_of", "has_track", "release_group", "author", "performer", "composer", "same_as", "replaced_by"]},
+        "target": {
+          "type": "object",
+          "properties": {
+            "source": {"enum": ["open-library", "musicbrainz", "wikidata", "dnb", "loc"]},
+            "native_id": {"type": "string"},
+            "scheme": {"type": "string"},
+            "value": {"type": "string"},
+            "label": {"type": ["string", "null"]}
+          },
+          "minProperties": 1,
+          "additionalProperties": false
+        },
+        "attributes": {"type": "object"}
+      },
+      "additionalProperties": false
+    },
+    "creator": {
+      "type": "object",
+      "required": ["name", "role"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "role": {"type": "string", "minLength": 1},
+        "ref": {
+          "type": ["object", "null"],
+          "properties": {"scheme": {"type": "string"}, "value": {"type": "string"}},
+          "required": ["scheme", "value"],
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "date": {
+      "type": "object",
+      "required": ["kind", "original"],
+      "properties": {
+        "kind": {"type": "string", "minLength": 1},
+        "original": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    }
+  }
+}

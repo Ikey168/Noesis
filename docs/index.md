@@ -208,6 +208,10 @@ For the project overview and local setup, start with the
   USDA FoodData Central and Ciqual (reference) ingredients, allergens, nutrient values and label claims per provider
   and label revision as of a date, reviewable GTIN identity, citation-only links to RASFF notices and monitors; no
   nutrition score, ranking or diet advice; [source audit](development/food-composition-evidence/source-audit.md)
+- [Cultural media metadata guide](guides/cultural-media-metadata.md) — Open Library, MusicBrainz (CC0 core data),
+  Wikidata, DNB and Library of Congress works, editions, recordings, releases, creators and authority links with
+  provider revisions, reviewable identity, citation-only links to cultural objects and News entity candidates, as-of
+  answers and monitors; [source audit](development/cultural-evidence/media-metadata-source-audit.md)
 - [Economics trade-flows guide](guides/economics-trade-flows.md) — UN Comtrade and Eurostat Comext flows by reporter,
   partner and product as of a release, reporter and mirror figures side by side with displayed asymmetries,
   classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership

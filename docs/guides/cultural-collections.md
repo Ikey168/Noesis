@@ -127,3 +127,14 @@ Live acceptance and the measured cross-provider overlap remain outstanding.
 - Mirroring digitized files, and universal OCR/transcription.
 - New archive connectors and unreviewed semantic location resolution.
 - A museum-management interface.
+
+## Books, music and authority metadata
+
+Works, editions, recordings, releases, creators and authority links from Open
+Library, MusicBrainz (CC0 core data only), Wikidata, the Deutsche
+Nationalbibliothek and the Library of Congress extend this feature as an
+identity backbone for cultural objects. They do not form a separate pack.
+Access, licence, rate-limit and revision decisions, the bounded coverage and
+the excluded record classes are in the
+[media metadata source audit](../development/cultural-evidence/media-metadata-source-audit.md)
+([#2225](https://github.com/Ikey168/Noesis/issues/2225)).
