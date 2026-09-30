@@ -196,10 +196,15 @@ class ExtractivesQueries:
                              all_versions: bool = False) -> dict[str, Any]:
         authorize(namespace, scopes, READ_SCOPE)
         clock = as_of_ms(as_of)
-        matches = {}
-        for view in self.identity.company_candidates(namespace, scopes=scopes):
-            if view["state"] == "accepted":
-                matches.setdefault(view["subject_key"], []).append(view["candidate_id"])
+        from src.kb.ownership_store import OwnershipError
+
+        matches: dict[str, list[str]] | None = {}
+        try:
+            for view in self.identity.company_candidates(namespace, scopes=scopes):
+                if view["state"] == "accepted":
+                    matches.setdefault(view["subject_key"], []).append(view["candidate_id"])
+        except OwnershipError:
+            matches = None  # match decisions are ownership identity records; not visible without ownership read
         reports = []
         for report_key in self.store.report_keys(namespace, country=country):
             block = self._report_block(namespace, report_key, clock, None, all_versions)
@@ -215,8 +220,8 @@ class ExtractivesQueries:
                 for v in self.store.records(namespace, record_types=("revenue_stream",), report_key=report_key,
                                             as_of_ms=clock_used)]
             for payment in block["payments"]:
-                payment["company"]["match_status"] = "matched" if matches.get(payment["company"]["record_key"]) \
-                    else "unmatched"
+                payment["company"]["match_status"] = "not_visible" if matches is None else "matched" \
+                    if matches.get(payment["company"]["record_key"]) else "unmatched"
             reports.append(block)
         return {"contract": ANSWER_CONTRACT, "query": "payments_for_country", "namespace": namespace,
                 "country": country.upper(), "as_of": as_of,

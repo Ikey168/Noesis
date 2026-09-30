@@ -411,6 +411,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.logistics import LOGISTICS_WRITES
     if name in LOGISTICS_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_WRITES
+    if name in EXTRACTIVES_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
     if name in LEGISLATION_WRITES:
         return "write"
@@ -1119,6 +1122,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.logistics import required_scopes as logistics_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LOGISTICS_TOOLS:
         return logistics_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_TOOLS
+    from tools.knowledge_engine_mcp.extractives import required_scopes as extractives_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in EXTRACTIVES_TOOLS:
+        return extractives_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
     from tools.knowledge_engine_mcp.legislation import required_scopes as legislation_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LEGISLATION_TOOLS:
