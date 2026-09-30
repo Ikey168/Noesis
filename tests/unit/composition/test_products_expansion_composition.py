@@ -80,6 +80,7 @@ def test_descriptors_declare_capabilities_operations_stores_and_the_source_pack(
         "products.safety",
         "products.appliances",
         "products.components",
+        "products.food",  # food composition (#2216)
     }
     catalog = {
         t["name"]: t
@@ -135,6 +136,7 @@ def test_features_are_off_by_default_and_the_v1_manifest_is_unchanged():
         "safety": False,
         "appliances": False,
         "components": False,
+        "food": False,
     }
     assert {r["capability"] for r in features["components"]["requires"]} == {
         "products.components",
@@ -148,7 +150,7 @@ def test_features_are_off_by_default_and_the_v1_manifest_is_unchanged():
     assert plan["features"]["products"] == [] and bound(plan) == {"products.core"}
     assert {
         "pack_id": "products-displays",
-        "version": "1.2.0",
+        "version": "1.3.0",  # the bundle pins 1.3.0 (food sources, #2216) inside its ^1.0.0 range
         "range": "^1.0.0",
     } in plan["source_packs"]
     pack = json.loads((ROOT / "packs/products/pack.json").read_text())
@@ -178,7 +180,7 @@ def test_selecting_a_feature_binds_its_providers(features, providers):
         bindings
     )  # one provider per capability
     omitted = {o["feature"] for o in plan["omissions"] if o["pack"] == "products"}
-    assert omitted == {"appliances", "components", "safety"} - set(features)
+    assert omitted == {"appliances", "components", "food", "safety"} - set(features)
 
 
 def test_the_expansion_composes_with_the_safety_feature():
@@ -187,7 +189,8 @@ def test_the_expansion_composes_with_the_safety_feature():
     assert {"products.safety", "products.appliances", "products.components"} <= bound(
         plan
     )
-    assert not [o for o in plan["omissions"] if o["pack"] == "products"]
+    assert [o for o in plan["omissions"] if o["pack"] == "products"] == [
+        {"pack": "products", "feature": "food", "reason": "not selected"}]
 
 
 def test_a_missing_consumed_provider_is_a_visible_omission_not_a_failure():

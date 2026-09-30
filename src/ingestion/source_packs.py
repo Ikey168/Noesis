@@ -355,6 +355,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"labour-statistics"})
 NATIVE_CONNECTOR_MODULES["infrastructure"] = "src.ingestion.infrastructure_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"infrastructure"})
 
+# Products food composition and labelling: Open Food Facts, FoodData Central and Ciqual (#2216).
+NATIVE_CONNECTOR_MODULES["food-composition"] = "src.ingestion.food_composition_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"food-composition"})
+
 
 def native_connector_module(connector: str) -> Any:
     import importlib

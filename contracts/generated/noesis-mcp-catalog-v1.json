@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1471,
+      "tool_count": 1482,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1153,6 +1153,7 @@
         "noesis-knowledge-engine.create_event_dossier_report",
         "noesis-knowledge-engine.create_event_record",
         "noesis-knowledge-engine.create_fisheries_monitor",
+        "noesis-knowledge-engine.create_food_composition_monitor",
         "noesis-knowledge-engine.create_funding_monitor",
         "noesis-knowledge-engine.create_funding_profile",
         "noesis-knowledge-engine.create_funding_workspace",
@@ -1342,6 +1343,9 @@
         "noesis-knowledge-engine.fisheries_source_contracts",
         "noesis-knowledge-engine.fisheries_vessel_identity",
         "noesis-knowledge-engine.fisheries_vessel_status",
+        "noesis-knowledge-engine.food_composition_as_of",
+        "noesis-knowledge-engine.food_composition_source_contracts",
+        "noesis-knowledge-engine.food_label_history",
         "noesis-knowledge-engine.forecast_as_issued",
         "noesis-knowledge-engine.forecast_evolution",
         "noesis-knowledge-engine.formal_declaration_dependencies",
@@ -1563,6 +1567,7 @@
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
         "noesis-knowledge-engine.link_fisheries_citations",
+        "noesis-knowledge-engine.link_food_notices",
         "noesis-knowledge-engine.link_housing_citations",
         "noesis-knowledge-engine.link_housing_dossier",
         "noesis-knowledge-engine.link_hypothesis_evidence",
@@ -1622,6 +1627,7 @@
         "noesis-knowledge-engine.list_federal_statute_versions",
         "noesis-knowledge-engine.list_fisheries_identity_matches",
         "noesis-knowledge-engine.list_fisheries_links",
+        "noesis-knowledge-engine.list_food_identity_conflicts",
         "noesis-knowledge-engine.list_funding_opportunities",
         "noesis-knowledge-engine.list_geospatial_geometries",
         "noesis-knowledge-engine.list_government_finance_series",
@@ -1702,6 +1708,7 @@
         "noesis-knowledge-engine.lookup_crs_aggregates",
         "noesis-knowledge-engine.lookup_dockets",
         "noesis-knowledge-engine.lookup_environment_series",
+        "noesis-knowledge-engine.lookup_food_products",
         "noesis-knowledge-engine.lookup_launches",
         "noesis-knowledge-engine.lookup_legal_work",
         "noesis-knowledge-engine.lookup_lexeme",
@@ -1772,6 +1779,7 @@
         "noesis-knowledge-engine.poll_engineering_safety_monitor",
         "noesis-knowledge-engine.poll_environment_monitor",
         "noesis-knowledge-engine.poll_fisheries_monitor",
+        "noesis-knowledge-engine.poll_food_composition_monitor",
         "noesis-knowledge-engine.poll_funding_monitor",
         "noesis-knowledge-engine.poll_hazard_monitor",
         "noesis-knowledge-engine.poll_housing_monitor",
@@ -1852,6 +1860,7 @@
         "noesis-knowledge-engine.propose_energy_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
         "noesis-knowledge-engine.propose_fisheries_identities",
+        "noesis-knowledge-engine.propose_food_matches",
         "noesis-knowledge-engine.propose_forecast_resolution",
         "noesis-knowledge-engine.propose_funding_rule_interpretation",
         "noesis-knowledge-engine.propose_hazard_correspondences",
@@ -2136,6 +2145,7 @@
         "noesis-knowledge-engine.review_epistemic_status",
         "noesis-knowledge-engine.review_evidence_freshness_override",
         "noesis-knowledge-engine.review_fisheries_identity",
+        "noesis-knowledge-engine.review_food_match",
         "noesis-knowledge-engine.review_funding_rule_interpretation",
         "noesis-knowledge-engine.review_geospatial_resolution",
         "noesis-knowledge-engine.review_hazard_correspondence",
@@ -2218,6 +2228,7 @@
         "noesis-knowledge-engine.run_engineering_safety_monitor",
         "noesis-knowledge-engine.run_environment_monitor",
         "noesis-knowledge-engine.run_fisheries_monitor",
+        "noesis-knowledge-engine.run_food_composition_monitor",
         "noesis-knowledge-engine.run_funding_monitor",
         "noesis-knowledge-engine.run_hazard_monitor",
         "noesis-knowledge-engine.run_hosted_typed_decision",
@@ -2430,7 +2441,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1471
+      "visible_tool_count": 1482
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2441,11 +2452,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 142,
+      "available": 143,
       "degraded": 173,
-      "unauthorized": 1480
+      "unauthorized": 1490
     },
-    "tools": 1795
+    "tools": 1806
   },
   "tools": [
     {
@@ -32443,6 +32454,98 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch GTINs, generic foods or composition-table editions for label revisions, nutrient-value and\nallergen-declaration changes, new table editions and newly linked notices, as a knowledge subscription.",
+      "id": "noesis-knowledge-engine.create_food_composition_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "foods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gtins": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "table_editions": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_food_composition_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch new calls, rule/eligibility changes and deadlines via a knowledge subscription.",
       "id": "noesis-knowledge-engine.create_funding_monitor",
       "input_schema": {
@@ -42518,6 +42621,155 @@
       ],
       "required_scopes": [
         "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A GTIN's (or one food's) declared ingredients, allergens, nutrient values and label claims current at an\nISO date per provider, each value cited (provider, key, revision, retrieval time; ODbL attribution for\nOpen Food Facts), crowd-sourced and reference values side by side with differences named (never\nreconciled or converted), explicit unknowns and linked notices (\"no notice on record\" otherwise, which is\nnot a statement of safety). No nutrition score, health rating, ranking or diet advice.",
+      "id": "noesis-knowledge-engine.food_composition_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "food": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gtin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "include_history": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "food_composition_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "FC01 access decisions: Open Food Facts (ODbL attribution and share-alike obligations, excluded OFF\nscores), USDA FoodData Central (key, rate limits, data types, public domain), composition tables (acquire,\nreference-only or excluded with the reason), bounded coverage and live-verification state. No nutrition\nscore, health rating, ranking or diet advice is in scope.",
+      "id": "noesis-knowledge-engine.food_composition_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "food_composition_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every label revision (Open Food Facts revisions, FDC publications, table editions) of the records a GTIN\nor food resolves to, oldest first, each with its parts and citation. Quoted as published;\nno nutrition score, ranking or diet advice.",
+      "id": "noesis-knowledge-engine.food_label_history",
+      "input_schema": {
+        "properties": {
+          "food": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gtin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "food_label_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -52689,6 +52941,40 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link food products to notices held by Products safety (RASFF and others) only where a notice revision\ncites the GTIN or the brand and exact designation, or a reviewed notice match exists; each link cites its\nnotice revision. Never by hazard, category or ingredient similarity; no safety verdict or advice.",
+      "id": "noesis-knowledge-engine.link_food_notices",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_food_notices",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:write",
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link rent-index editions and plans to legal works by their published GVBl, Amtsblatt, juris, BGBl,\nCELEX or ELI references in the reference's jurisdiction; unmatched references stay unresolved.",
       "id": "noesis-knowledge-engine.link_housing_citations",
       "input_schema": {
@@ -55854,6 +56140,39 @@
       ],
       "required_scopes": [
         "knowledge:fisheries:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "GTINs published under different brands or products: surfaced as conflicts, never resolved silently.",
+      "id": "noesis-knowledge-engine.list_food_identity_conflicts",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_food_identity_conflicts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60063,6 +60382,87 @@
     },
     {
       "cost_class": "low",
+      "description": "Food records by GTIN (UPC-A/EAN-13/GTIN-14 normalised), name or brand text, provider (open-food-facts,\nfooddata-central, composition-table) or kind (food-product, generic-food), each with its provenance class,\ncurrent revision and attribution. Quoted as published; no nutrition score, rating, ranking or diet advice.",
+      "id": "noesis-knowledge-engine.lookup_food_products",
+      "input_schema": {
+        "properties": {
+          "food_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "gtin": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 25,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "query": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_food_products",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Launches by GCAT provider code, site code or date window, with the outcome as coded by the source\n(native code kept), payloads, reviewed provider identity and the site's reviewed place.",
       "id": "noesis-knowledge-engine.lookup_launches",
       "input_schema": {
@@ -63439,6 +63839,44 @@
       "required_scopes": [
         "knowledge:fisheries:read",
         "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a food composition monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_food_composition_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_food_composition_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read",
+        "knowledge:products:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -67145,6 +67583,40 @@
       ],
       "required_scopes": [
         "knowledge:fisheries:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Candidates between Open Food Facts, FDC Branded and Products identities by normalised GTIN (the same GTIN\nunder different brands is a conflict) and between generic foods by published name with the evidence used;\nnone is accepted without review.",
+      "id": "noesis-knowledge-engine.propose_food_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_food_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:write",
+        "knowledge:products:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -82403,6 +82875,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept, reject or defer a food match with a reason; append-only with reviewer and time. Conflicting\nidentifiers cannot be accepted.",
+      "id": "noesis-knowledge-engine.review_food_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_food_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Approve or reject another principal's interpretation.",
       "id": "noesis-knowledge-engine.review_funding_rule_interpretation",
       "input_schema": {
@@ -86568,6 +87085,52 @@
       ],
       "required_scopes": [
         "knowledge:fisheries:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a food composition monitor at the committed food state; each notification cites both\nrevisions. Replays and unchanged payloads emit nothing.",
+      "id": "noesis-knowledge-engine.run_food_composition_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_food_composition_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:products:read",
+        "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

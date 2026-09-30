@@ -77,6 +77,11 @@ MATRIX = {
     # The Economics trade features' offline journey (#2555) composes economics (Comtrade, Comext through the Eurostat
     # connector, concordances), geospatial place resolution, legal sanctions correlations, subscriptions and the
     # source-pack runtime.
+    # The Products food feature's offline journey (#2297) composes products (food records, identities, safety
+    # notices), subscriptions and the source-pack runtime.
+    "GTIN to cited food composition":
+        "tests/unit/domains/test_food_composition_acceptance.py::"
+        "test_gtin_to_cited_composition_label_history_identity_and_linked_notices",
     "Country pair to trade flows":
         "tests/unit/domains/test_trade_flows_acceptance.py::"
         "test_country_pair_and_product_to_cited_flows_with_release_vintages_and_mirror_asymmetries",
