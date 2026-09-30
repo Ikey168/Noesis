@@ -1,0 +1,68 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "Results": {
+     "series": [
+      {
+       "data": [
+        {
+         "footnotes": [
+          {
+           "code": "P",
+           "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+          }
+         ],
+         "latest": "true",
+         "period": "M08",
+         "periodName": "August",
+         "value": "112.5",
+         "year": "2099"
+        },
+        {
+         "footnotes": [
+          {
+           "code": "P",
+           "text": "Preliminary. All indexes are subject to monthly revisions up to four months after original publication."
+          }
+         ],
+         "period": "M07",
+         "periodName": "July",
+         "value": "111.9",
+         "year": "2099"
+        },
+        {
+         "footnotes": [
+          {}
+         ],
+         "period": "M06",
+         "periodName": "June",
+         "value": "110.4",
+         "year": "2099"
+        }
+       ],
+       "seriesID": "PCU483111483111"
+      }
+     ]
+    },
+    "message": [],
+    "responseTime": 42,
+    "status": "REQUEST_SUCCEEDED"
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/publicAPI/v2/timeseries/data/PCU483111483111?endyear=2099&startyear=2099",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data) and dated in 2097-2099 so it cannot be mistaken for a published figure.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "freight-index-in-scope",
+  "preliminary-footnote",
+  "licence-per-observation"
+ ]
+}

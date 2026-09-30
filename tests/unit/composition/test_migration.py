@@ -70,6 +70,7 @@ PROJECTOR_OWNERS = {
     "noesis-biodiversity-record-v1": "src.kb.biodiversity_store",
     "noesis-food-composition-record-v1": "src.kb.food_composition",
     "noesis-real-estate-record-v1": "src.kb.real_estate",
+    "noesis-logistics-record-v1": "src.kb.logistics_series",
 }
 
 

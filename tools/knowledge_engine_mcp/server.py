@@ -9417,6 +9417,12 @@ from tools.knowledge_engine_mcp.web_archives import (  # noqa: E402 - registrati
 
 register_web_archive_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.logistics import (  # noqa: E402 - registration order
+    register as register_logistics_tools,
+)
+
+register_logistics_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

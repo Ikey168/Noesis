@@ -323,6 +323,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"oss-ecosystem"})
 # Economics trade flows: UN Comtrade, Eurostat Comext and WITS concordances (#2210).
 NATIVE_CONNECTOR_MODULES["trade-flows"] = "src.ingestion.trade_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"trade-flows"})
+# Economics shipping and logistics: UN/LOCODE, UNCTADstat, Eurostat maritime and the BLS freight PPI (#2229).
+NATIVE_CONNECTOR_MODULES["logistics"] = "src.ingestion.logistics_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"logistics"})
 
 # Science education statistics: IPEDS, ETER, UNESCO UIS, OECD EAG and Eurostat R&D (#2227).
 NATIVE_CONNECTOR_MODULES["education-statistics"] = "src.ingestion.education_sources"

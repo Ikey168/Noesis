@@ -101,6 +101,11 @@ MATRIX = {
     "Institution and country to education statistics":
         "tests/unit/domains/test_education_statistics_acceptance.py::"
         "test_ror_institution_and_country_to_cited_statistics_with_vintages_and_links",
+    # The Economics logistics feature's offline journey (#2551) composes economics (UN/LOCODE, UNCTADstat, Eurostat
+    # maritime, the BLS freight index, trade-flow joins), geospatial places, subscriptions and the source-pack runtime.
+    "Port to logistics series":
+        "tests/unit/domains/test_logistics_acceptance.py::"
+        "test_port_and_country_to_cited_logistics_series_with_vintages_identity_and_trade_joins",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

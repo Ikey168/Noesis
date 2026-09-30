@@ -1,0 +1,441 @@
+{
+ "defaults": {
+  "auth": {
+   "kind": "none"
+  },
+  "connector": "logistics",
+  "extractor_versions": [
+   "logistics:1.0.0"
+  ],
+  "health": {
+   "max_staleness_s": 31536000,
+   "required": false
+  },
+  "mapping": {
+   "target_schema": "noesis-logistics-record-v1",
+   "version": "1.0.0"
+  },
+  "operations": [
+   "release"
+  ],
+  "schedule": {
+   "interval_s": 604800,
+   "kind": "interval"
+  }
+ },
+ "description": "Published maritime and logistics statistics for the Economics bundle's optional logistics feature: UN/LOCODE port identities per code-list release, UNCTADstat port calls, liner shipping connectivity, container port throughput and merchant fleet series, Eurostat maritime goods by port, country and published port-to-partner route, and the one freight index cleared as openly licensed (BLS PPI deep sea freight). Values as published with release vintages; commercial freight indices are excluded by licence decision; no forecasting.",
+ "domains": [
+  "economic"
+ ],
+ "pack_id": "economic-shipping-and-logistics",
+ "sources": [
+  {
+   "budgets": {
+    "max_bytes": 10000000,
+    "max_pages": 1,
+    "max_results": 5000,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://service.unece.org/trade/locode",
+   "fixture": {
+    "expected_output_hash": "83985ef21ced9a8c23dbc4a4bf2e45024749f1ac3f380bbc97e1d2ad4571ad33",
+    "path": "tests/fixtures/source_packs/economic-logistics-unlocode.json",
+    "sha256": "856aee997c166f4a2cfce7515ddca468a2781993a94bbf075dddd62bff993a1f"
+   },
+   "license": {
+    "id": "unece-terms",
+    "redistribution": "free reuse with attribution to UNECE (operator must confirm)",
+    "terms_url": "https://unece.org/legal-notice"
+   },
+   "logistics": {
+    "documents": [
+     {
+      "countries": [
+       "DE",
+       "NL"
+      ],
+      "encoding": "latin-1",
+      "label": "UN/LOCODE release 2099-1, port entries of Germany and the Netherlands",
+      "member": "2099-1 UNLOCODE CodeListPart1.csv",
+      "release": {
+       "label": "UN/LOCODE 2099-1 (declared by the operator; verify the release file)",
+       "published_on": "2099-06-30",
+       "version": "2099-1"
+      },
+      "url": "https://service.unece.org/trade/locode/loc991csv.zip"
+     }
+    ],
+    "format": "unlocode-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "unece-unlocode"
+   },
+   "publisher": "United Nations Economic Commission for Europe (UN/CEFACT, UN/LOCODE)",
+   "scope": "UN/LOCODE port-function entries of Germany and the Netherlands from one declared code-list release (operator must verify the release file name, the CSV part and the column order)",
+   "source_id": "unece-unlocode-ports",
+   "temporal_semantics": "the declared release version and publication date; changed entries add revisions and codes absent from a later release of the same countries are marked removed",
+   "update_cadence": "about twice a year (one release version per declaration)"
+  },
+  {
+   "budgets": {
+    "max_bytes": 20000000,
+    "max_pages": 4,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://unctadstat-api.unctad.org/bulkdownload",
+   "fixture": {
+    "expected_output_hash": "7d73d75748b9e5b704b64f107f2d99bf505c2e54b379b1b1a0c03d30718b27d1",
+    "path": "tests/fixtures/source_packs/economic-logistics-unctadstat.json",
+    "sha256": "7845f952381dbef966c08b4c85f405030c0e064c40ea72a758059f95eca3bc31"
+   },
+   "license": {
+    "id": "unctad-terms",
+    "redistribution": "reuse with attribution to UNCTAD (operator must confirm)",
+    "terms_url": "https://unctadstat.unctad.org/EN/Terms.html"
+   },
+   "logistics": {
+    "documents": [
+     {
+      "columns": {
+       "figure": "Number of port calls",
+       "footnote": "Number of port calls Footnote",
+       "geography": "Port",
+       "geography_label": "Port Label",
+       "period": "Year",
+       "unlocode": "UN/LOCODE"
+      },
+      "dataset": "US.PortCalls",
+      "encoding": "utf-8-sig",
+      "label": "UNCTADstat port calls, all ships, Hamburg, Bremerhaven, Wilhelmshaven and Rotterdam, 2097-2098",
+      "release": {
+       "label": "UNCTADstat US.PortCalls release (declared by the operator; verify the data centre's last-update date)",
+       "published_on": "2099-07-15"
+      },
+      "row_filter": {
+       "Market segment Label": "All ships"
+      },
+      "series": {
+       "concept": "port_calls",
+       "definition": {
+        "reference": "https://unctadstat.unctad.org/datacentre/reportInfo/US.PortCalls",
+        "text": "Arrivals of ships of 1000 GT and above at the port (verify)"
+       },
+       "frequency": "annual",
+       "geography": {
+        "kind": "port",
+        "scheme": "unctad-port"
+       },
+       "measure_label": "Number of port calls (all ships)",
+       "unit": "number"
+      },
+      "url": "https://unctadstat-api.unctad.org/bulkdownload/US.PortCalls/US_PortCalls.csv"
+     },
+     {
+      "columns": {
+       "figure": "Index",
+       "geography": "Port",
+       "geography_label": "Port Label",
+       "period": "Quarter",
+       "unlocode": "UN/LOCODE"
+      },
+      "dataset": "US.PLSCI",
+      "encoding": "utf-8-sig",
+      "label": "UNCTADstat port liner shipping connectivity index, Hamburg and Rotterdam, 2098Q3-2098Q4",
+      "release": {
+       "label": "UNCTADstat US.PLSCI release (declared by the operator; verify the data centre's last-update date)",
+       "published_on": "2099-07-15"
+      },
+      "series": {
+       "concept": "port_liner_shipping_connectivity",
+       "definition": {
+        "reference": "https://unctadstat.unctad.org/datacentre/reportInfo/US.PLSCI",
+        "text": "Index of a port's position in the global liner shipping network (verify the base)"
+       },
+       "frequency": "quarterly",
+       "geography": {
+        "kind": "port",
+        "scheme": "unctad-port"
+       },
+       "measure_label": "Port liner shipping connectivity index",
+       "unit": "index"
+      },
+      "url": "https://unctadstat-api.unctad.org/bulkdownload/US.PLSCI/US_PLSCI.csv"
+     },
+     {
+      "columns": {
+       "figure": "TEU",
+       "geography": "Economy",
+       "geography_label": "Economy Label",
+       "period": "Year"
+      },
+      "dataset": "US.ContPortThroughput",
+      "encoding": "utf-8-sig",
+      "label": "UNCTADstat container port throughput, Germany and the Netherlands, 2097-2098",
+      "release": {
+       "label": "UNCTADstat US.ContPortThroughput release (declared by the operator; verify the data centre's last-update date)",
+       "published_on": "2099-07-15"
+      },
+      "series": {
+       "concept": "container_port_throughput",
+       "definition": {
+        "reference": "https://unctadstat.unctad.org/datacentre/reportInfo/US.ContPortThroughput",
+        "text": "Twenty-foot equivalent units handled in the economy's ports (verify)"
+       },
+       "frequency": "annual",
+       "geography": {
+        "kind": "country",
+        "scheme": "m49"
+       },
+       "measure_label": "Container port throughput",
+       "unit": "TEU"
+      },
+      "url": "https://unctadstat-api.unctad.org/bulkdownload/US.ContPortThroughput/US_ContPortThroughput.csv"
+     },
+     {
+      "breaks": [
+       {
+        "note": "fleet coverage extended to ships of 100 GT and above from 2098",
+        "period": "2098",
+        "source_text": "Methodology note: from 2098 the fleet covers ships of 100 GT and above (authored fixture text; verify the published note)"
+       }
+      ],
+      "columns": {
+       "figure": "Dead weight tons in thousands",
+       "geography": "Economy",
+       "geography_label": "Economy Label",
+       "period": "Year"
+      },
+      "dataset": "US.MerchantFleet",
+      "encoding": "utf-8-sig",
+      "label": "UNCTADstat merchant fleet by flag of registration, total fleet, Germany and the Netherlands, 2097-2098",
+      "release": {
+       "label": "UNCTADstat US.MerchantFleet release (declared by the operator; verify the data centre's last-update date)",
+       "published_on": "2099-07-15"
+      },
+      "row_filter": {
+       "Ship type Label": "Total fleet"
+      },
+      "series": {
+       "concept": "merchant_fleet_by_flag",
+       "definition": {
+        "reference": "https://unctadstat.unctad.org/datacentre/reportInfo/US.MerchantFleet",
+        "text": "Dead-weight tonnage of propelled seagoing merchant ships by flag (verify)"
+       },
+       "frequency": "annual",
+       "geography": {
+        "kind": "country",
+        "scheme": "m49"
+       },
+       "measure_label": "Merchant fleet by flag of registration (total fleet)",
+       "unit": "thousand dwt"
+      },
+      "url": "https://unctadstat-api.unctad.org/bulkdownload/US.MerchantFleet/US_MerchantFleet.csv"
+     }
+    ],
+    "format": "unctadstat-csv",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "unctadstat"
+   },
+   "publisher": "UNCTAD (UNCTADstat data centre)",
+   "scope": "UNCTADstat port calls, port liner shipping connectivity, container port throughput and merchant fleet by flag for declared ports and economies (bulk CSV; operator must verify paths, archive type and headers - a 7z bulk file is refused and imported by an operator)",
+   "source_id": "unctadstat-maritime-series",
+   "temporal_semantics": "the declared release date (the report's last update) as the vintage; the period column as reference period",
+   "update_cadence": "annual, semi-annual or quarterly per report"
+  },
+  {
+   "budgets": {
+    "max_bytes": 5000000,
+    "max_pages": 3,
+    "max_results": 50,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data",
+   "fixture": {
+    "expected_output_hash": "a3c885702cac6db72b7c62d128c1523d509115bef26941d723bda20ebee997bc",
+    "path": "tests/fixtures/source_packs/economic-logistics-eurostat-maritime.json",
+    "sha256": "bf680e8ea1c29566e5bd324de5522c3da5c5491155d7986a24a1db1a9c6f4c4b"
+   },
+   "license": {
+    "id": "eurostat-reuse",
+    "redistribution": "attribution-required",
+    "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright"
+   },
+   "logistics": {
+    "documents": [
+     {
+      "dataset": "mar_mg_aa_pwhd",
+      "filters": {
+       "direct": "TOTAL",
+       "rep_mar": [
+        "DE001",
+        "DE003",
+        "DE999"
+       ],
+       "time": [
+        "2097",
+        "2098"
+       ],
+       "unit": "THS_T"
+      },
+      "label": "Eurostat mar_mg_aa_pwhd: gross weight of goods handled in main German ports, 2097-2098",
+      "series": {
+       "concept": "goods_handled",
+       "definition": {
+        "reference": "https://ec.europa.eu/eurostat/cache/metadata/en/mar_esms.htm",
+        "text": "Gross weight of goods handled in main ports (Directive 2009/42/EC)"
+       },
+       "frequency": "annual",
+       "geography": {
+        "dimension": "rep_mar",
+        "kind": "port",
+        "scheme": "eurostat-port"
+       },
+       "measure_label": "Gross weight of goods handled (inwards and outwards)",
+       "unit": "thousand tonnes"
+      }
+     },
+     {
+      "dataset": "mar_mg_aa_cwh",
+      "filters": {
+       "direct": "TOTAL",
+       "geo": [
+        "DE",
+        "NL"
+       ],
+       "time": [
+        "2097",
+        "2098"
+       ],
+       "unit": "THS_T"
+      },
+      "label": "Eurostat mar_mg_aa_cwh: gross weight of goods handled in all ports, Germany and the Netherlands",
+      "series": {
+       "concept": "goods_handled",
+       "definition": {
+        "reference": "https://ec.europa.eu/eurostat/cache/metadata/en/mar_esms.htm",
+        "text": "Gross weight of goods handled in all ports of the reporting country"
+       },
+       "frequency": "annual",
+       "geography": {
+        "dimension": "geo",
+        "kind": "country",
+        "scheme": "eurostat-geo"
+       },
+       "measure_label": "Gross weight of goods handled in all ports",
+       "unit": "thousand tonnes"
+      }
+     },
+     {
+      "dataset": "mar_go_am_de",
+      "filters": {
+       "direct": "OUT",
+       "par_mar": [
+        "NL002"
+       ],
+       "rep_mar": [
+        "DE001"
+       ],
+       "time": [
+        "2097",
+        "2098"
+       ],
+       "unit": "THS_T"
+      },
+      "label": "Eurostat mar_go_am_de: goods transported from Hamburg to Rotterdam (partner port), 2097-2098",
+      "series": {
+       "concept": "goods_port_to_port",
+       "definition": {
+        "reference": "https://ec.europa.eu/eurostat/cache/metadata/en/mar_esms.htm",
+        "text": "Goods loaded in the reporting port for unloading in the partner port"
+       },
+       "frequency": "annual",
+       "geography": {
+        "dimension": "rep_mar",
+        "kind": "route",
+        "partner_dimension": "par_mar",
+        "partner_scheme": "eurostat-port",
+        "scheme": "eurostat-port"
+       },
+       "measure_label": "Gross weight of goods transported to the partner port",
+       "unit": "thousand tonnes"
+      }
+     }
+    ],
+    "format": "eurostat-maritime-jsonstat",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "eurostat-maritime"
+   },
+   "publisher": "Eurostat (maritime transport statistics)",
+   "scope": "Eurostat mar_mg_aa_pwhd, mar_mg_aa_cwh and mar_go_am_de selections through the Eurostat connector: goods handled by declared main ports and countries and one published port-to-partner-port flow (operator must verify dataset codes and the rep_mar/par_mar code lists)",
+   "source_id": "eurostat-maritime-transport",
+   "temporal_semantics": "the cube's updated stamp dates the release; the time dimension is the reference period",
+   "update_cadence": "quarterly and annual releases with revisions"
+  },
+  {
+   "budgets": {
+    "max_bytes": 1000000,
+    "max_pages": 1,
+    "max_results": 5,
+    "timeout_ms": 30000
+   },
+   "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data",
+   "fixture": {
+    "expected_output_hash": "e3ee1c6a0a22ded7f8aac5fcc3f6d7b7d2fc8aab0ff588a8541f64a3482f48b9",
+    "path": "tests/fixtures/source_packs/economic-logistics-bls-ppi.json",
+    "sha256": "ec506408b7670086e97584e88e5ffaa75907d748519e9a8eee64b2375de94c05"
+   },
+   "license": {
+    "id": "us-public-domain",
+    "redistribution": "public domain; cite BLS",
+    "terms_url": "https://www.bls.gov/opub/copyright-information.htm"
+   },
+   "logistics": {
+    "documents": [
+     {
+      "index_id": "bls-ppi-deep-sea-freight",
+      "label": "BLS PPI deep sea freight transportation (PCU483111483111), 2099",
+      "params": {
+       "endyear": "2099",
+       "startyear": "2099"
+      },
+      "release": {
+       "label": "PPI release of 2099-09-14 (declared by the operator; verify the BLS schedule)",
+       "published_on": "2099-09-14"
+      },
+      "series": {
+       "base": "December 2003=100 (verify)",
+       "concept": "freight_price_index",
+       "definition": {
+        "reference": "https://www.bls.gov/ppi/",
+        "text": "Industry PPI for NAICS 483111, deep sea freight transportation"
+       },
+       "frequency": "monthly",
+       "geography": {
+        "code": "US",
+        "kind": "country",
+        "label": "United States",
+        "scheme": "iso2"
+       },
+       "measure_label": "Producer price index: deep sea freight transportation",
+       "unit": "index"
+      },
+      "series_id": "PCU483111483111"
+     }
+    ],
+    "format": "bls-timeseries-json",
+    "live_verification": "unverified-live",
+    "namespace": "global",
+    "provider": "bls-ppi"
+   },
+   "publisher": "U.S. Bureau of Labor Statistics (Producer Price Index)",
+   "scope": "The PPI for deep sea freight transportation (NAICS 483111), the one freight index cleared as openly licensed (SL01); monthly values of one declared year with their preliminary footnotes (operator must verify the series id and base period)",
+   "source_id": "bls-ppi-deep-sea-freight",
+   "temporal_semantics": "the declared PPI release date as the vintage; the month as reference period",
+   "update_cadence": "monthly, preliminary values revised up to four months later"
+  }
+ ],
+ "version": "1.0.0"
+}
