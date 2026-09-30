@@ -631,6 +631,8 @@ class FoodCompositionStore:
         for item in nutrients:
             item["unit"] = {"published": item.pop("unit_published"), "normalized": item.pop("unit_normalized"),
                             "state": item.pop("unit_state")}
+            item["nutrient"] = {"scheme": item["scheme"], "id": item["nutrient_id"], "name": item["name"],
+                                "tagname": item["tagname"]}
         return {
             "ingredient_statements": rows(
                 "SELECT part_id, text, language, locator_json FROM food_ingredients WHERE namespace=? AND "
@@ -718,6 +720,209 @@ class FoodCompositionProjector:
         return self.store.finish_source(run_id, source["source_id"], self._namespace(source), status)
 
 
+# ------------------------------------------------------------------ as-of answers (FC08)
+
+# Display alignment only: which native nutrient ids name the same nutrient, so values can be shown side by side.
+# Values are never converted, harmonised or reconciled across providers.
+NUTRIENT_ALIGNMENT = {
+    "energy (kcal)": {"off-nutriment": "energy-kcal", "fdc-nutrient-number": "208", "ciqual-const-code": "328"},
+    "protein": {"off-nutriment": "proteins", "fdc-nutrient-number": "203", "ciqual-const-code": "25000"},
+    "fat": {"off-nutriment": "fat", "fdc-nutrient-number": "204", "ciqual-const-code": "40000"},
+    "sugars": {"off-nutriment": "sugars", "fdc-nutrient-number": "269", "ciqual-const-code": "32000"},
+    "sodium": {"off-nutriment": "sodium", "fdc-nutrient-number": "307", "ciqual-const-code": "10110"},
+}
+
+
+def _cite(citation: Mapping[str, Any]) -> dict[str, Any]:
+    cite = {k: citation[k] for k in ("provider", "provider_key", "revision_id", "revision", "retrieved_at")}
+    if citation["attribution"].get("share_alike"):
+        cite["attribution"] = {k: citation["attribution"][k] for k in ("licence", "text", "share_alike")}
+    return cite
+
+
+class FoodCompositionQueries:
+    """A GTIN or generic food to cited composition, label history and linked notices as of a date."""
+
+    def __init__(self, conn: Any) -> None:
+        self.conn = conn
+        self.store = FoodCompositionStore(conn, initialize=False)
+
+    def _entry(self, namespace: str, food_id: str, cutoff: date | None, how: Mapping[str, Any],
+               include_history: bool) -> dict[str, Any]:
+        head = self.store.item(namespace, food_id)
+        chosen, later = self.store.revision_as_of(namespace, food_id, cutoff)
+        revisions = self.store.revisions(namespace, food_id)
+        entry: dict[str, Any] = {**head, "connected_by": dict(how), "revision_count": len(revisions)}
+        if chosen is None:
+            first = min((r["revision_date"] for r in revisions if r["revision_date"]), default=None)
+            entry.update({"status": "no label history before this date", "first_revision_date": first,
+                          "label": None})
+        else:
+            citation = self.citation(namespace, food_id, chosen)
+            cite = _cite(citation)
+            parts = self.store.parts(namespace, chosen["revision_id"])
+            statement = self.store.statement(namespace, chosen["revision_id"])
+            label = {key: [{**{k: v for k, v in item.items() if k != "part_id"}, "cite": cite}
+                           for item in parts[key]] for key in parts}
+            entry.update({"status": "published", "citation": citation, "names": statement["names"],
+                          "identifiers": statement["identifiers"], "source_fields": statement["source_fields"],
+                          "label": label,
+                          "later_revisions": [{"revision_id": r["revision_id"], "revision": r["revision_value"],
+                                               "revision_date": r["revision_date"], "note": "after as_of; excluded"}
+                                              for r in later if cutoff is not None]})
+        if include_history:
+            entry["revision_history"] = [
+                {"revision_id": r["revision_id"], "revision": r["revision_value"], "basis": r["revision_basis"],
+                 "revision_date": r["revision_date"], "retrieved_at": r["retrieved_at"],
+                 "current_as_of": chosen is not None and r["revision_id"] == chosen["revision_id"],
+                 "label": self.store.parts(namespace, r["revision_id"])}
+                for r in revisions]
+        return entry
+
+    def citation(self, namespace: str, food_id: str, revision: Mapping[str, Any]) -> dict[str, Any]:
+        return self.store.citation(namespace, food_id, revision)
+
+    @staticmethod
+    def _side_by_side(entries: Sequence[Mapping[str, Any]]) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        """Aligned per-100 g values per provider, differences named, never reconciled; missing values listed."""
+        published = [e for e in entries if e.get("label")]
+        rows, unknowns = [], []
+        for concept, ids in NUTRIENT_ALIGNMENT.items():
+            values = []
+            for entry in published:
+                hit = next((n for n in entry["label"]["nutrient_values"]
+                            if ids.get(n["nutrient"]["scheme"]) == n["nutrient"]["id"] and n["basis"] == "per 100 g"
+                            and n["value_kind"] != "label-nutrient"), None)
+                if hit is None:
+                    unknowns.append({"kind": "nutrient_not_published", "nutrient": concept,
+                                     "provider": entry["provider"], "provider_key": entry["provider_key"]})
+                    continue
+                values.append({"provider": entry["provider"], "provider_key": entry["provider_key"],
+                               "provenance_class": entry["provenance_class"], "amount": hit["amount"],
+                               "amount_decimal": hit["amount_decimal"], "unit": hit["unit"], "basis": hit["basis"],
+                               "cite": hit["cite"]})
+            if len(values) < 2:
+                continue
+            units = {(v["unit"]["normalized"], v["basis"]) for v in values}
+            amounts = {v["amount_decimal"] for v in values}
+            comparison = ("not comparable as published (different unit or basis; nothing is converted)"
+                          if len(units) > 1 or None in amounts
+                          else "same value as published" if len(amounts) == 1 else "differs as published")
+            rows.append({"nutrient": concept, "values": values, "comparison": comparison,
+                         "classes": sorted({v["provenance_class"] for v in values})})
+        return rows, unknowns
+
+    def answer(self, namespace: str, *, scopes: Iterable[str], gtin: str | None = None, food: str | None = None,
+               as_of: str | None = None, include_history: bool = False) -> dict[str, Any]:
+        from src.kb.food_identity import FoodIdentity
+        from src.kb.food_notice_links import NO_NOTICE, FoodNoticeLinks
+
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        self.store.require_ready()
+        if bool(gtin) == bool(food):
+            raise FoodCompositionError("invalid_request", "name one GTIN or one food (id or provider:provider_key)")
+        cutoff = as_of_date(as_of)
+        identity = FoodIdentity(self.conn, initialize=False) if table_exists(self.conn, "food_matches") else None
+        found: dict[str, dict[str, Any]] = {}
+        unknowns: list[dict[str, Any]] = []
+        query: dict[str, Any] = {"gtin": gtin, "food": food, "as_of": None if cutoff is None else cutoff.isoformat()}
+        if gtin:
+            key = gtin_key(gtin)
+            query["gtin_key"] = key
+            if key is None:
+                unknowns.append({"kind": "invalid_gtin", "gtin": gtin, "note": "check digit or length fails"})
+            for item in self.store.items(namespace, gtin=gtin) if key else []:
+                found[item["food_id"]] = {"kind": "gtin", "gtin_key": key}
+        else:
+            food_id = self.store.resolve_food(namespace, food)
+            self.store.item(namespace, food_id)
+            found[food_id] = {"kind": "requested"}
+        matches: dict[str, dict[str, Any]] = {}
+        models: set[str] = set()
+        if identity is not None:
+            for food_id in list(found):
+                for match in identity.matches_for(namespace, food_id):
+                    matches[match["match_id"]] = match
+                accepted = identity.accepted(namespace, food_id)
+                models.update(accepted["product_models"])
+                for other in accepted["foods"]:
+                    found.setdefault(other, {"kind": "accepted-match", "via": food_id})
+        if not found:
+            unknowns.append({"kind": "unmatched_gtin", "gtin": gtin,
+                             "note": "no food record in this namespace publishes this GTIN"})
+        entries = [self._entry(namespace, food_id, cutoff, how, include_history)
+                   for food_id, how in sorted(found.items(), key=lambda kv: (self.store.item(namespace, kv[0])
+                                                                              ["provider"], kv[0]))]
+        for entry in entries:
+            if entry["status"] != "published":
+                unknowns.append({"kind": "no_label_history_before_date", "provider": entry["provider"],
+                                 "provider_key": entry["provider_key"],
+                                 "first_revision_date": entry["first_revision_date"]})
+            else:
+                for nutrient in entry["label"]["nutrient_values"]:
+                    if nutrient["unit"]["state"] != "known":
+                        unknowns.append({"kind": f"unit_{nutrient['unit']['state']}", "provider": entry["provider"],
+                                         "nutrient": nutrient["nutrient"]["id"],
+                                         "unit_published": nutrient["unit"]["published"]})
+        side_by_side, missing = self._side_by_side(entries)
+        unknowns += missing
+        notices: dict[str, Any] = {"status": NO_NOTICE, "notices": [], "per_food": {}}
+        if table_exists(self.conn, "food_notice_links"):
+            links = FoodNoticeLinks(self.conn, initialize=False)
+            for entry in entries:
+                if entry["food_kind"] != "food-product":
+                    continue
+                allergens = entry["label"]["allergen_declarations"] if entry.get("label") else []
+                result = links.notices_for(namespace, entry["food_id"], scopes=scopes, as_of=cutoff,
+                                           allergens=allergens)
+                notices["per_food"][entry["food_id"]] = result["status"]
+                notices["notices"] += [{**n, "food_id": entry["food_id"]} for n in result["notices"]]
+            notices["status"] = "notices on record" if notices["notices"] else NO_NOTICE
+        if notices["status"] == NO_NOTICE:
+            notices["note"] = "no notice on record is not a statement that the food is safe"
+        attributions = []
+        for entry in entries:
+            attribution = (entry.get("citation") or {}).get("attribution")
+            if attribution and attribution not in attributions:
+                attributions.append(attribution)
+        answer = {
+            "contract": ANSWER_CONTRACT,
+            "namespace": namespace,
+            "query": query,
+            "status": "found" if entries else "unmatched_gtin",
+            "sources": entries,
+            "provenance_classes": sorted({e["provenance_class"] for e in entries}),
+            "side_by_side_nutrients": side_by_side,
+            "identity": {"matches": [matches[k] for k in sorted(matches)], "product_models": sorted(models),
+                         "conflicts": [m for m in matches.values() if m["candidate_state"] == "conflict"]},
+            "notices": notices,
+            "unknowns": unknowns,
+            "attributions": attributions,
+            "boundary": BOUNDARY,
+        }
+        bad = forbidden_keys(answer)
+        if bad:  # pragma: no cover - a guard, never expected
+            raise FoodCompositionError("invalid_answer", f"answer carries forbidden keys {sorted(bad)}")
+        return answer
+
+    def label_history(self, namespace: str, *, scopes: Iterable[str], gtin: str | None = None,
+                      food: str | None = None) -> dict[str, Any]:
+        """Every label revision of the food records a GTIN (or one food) resolves to, oldest first, cited."""
+        answer = self.answer(namespace, scopes=scopes, gtin=gtin, food=food, include_history=True)
+        return {
+            "contract": ANSWER_CONTRACT,
+            "namespace": namespace,
+            "query": answer["query"],
+            "status": answer["status"],
+            "histories": [{"provider": e["provider"], "provider_key": e["provider_key"],
+                           "provenance_class": e["provenance_class"], "revisions": e["revision_history"],
+                           "attribution": (e.get("citation") or {}).get("attribution")} for e in answer["sources"]],
+            "unknowns": [u for u in answer["unknowns"] if u["kind"] in {"unmatched_gtin", "invalid_gtin"}],
+            "boundary": BOUNDARY,
+        }
+
+
 def feature_enabled(conn: Any, namespace: str | None = None) -> bool:
     """Whether the Products bundle's optional ``food`` feature is selected in the active plan (default off)."""
     del namespace  # composition selection is deployment-wide
@@ -733,7 +938,9 @@ __all__ = [
     "FDC_ATTRIBUTION",
     "FoodCompositionError",
     "FoodCompositionProjector",
+    "FoodCompositionQueries",
     "FoodCompositionStore",
+    "NUTRIENT_ALIGNMENT",
     "ODBL_ATTRIBUTION",
     "PROVENANCE",
     "PROVIDERS",
