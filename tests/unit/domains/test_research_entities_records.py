@@ -36,7 +36,7 @@ def test_every_acquired_record_validates_against_the_contract_and_carries_source
 
 
 def test_organisation_releases_form_a_revision_chain_and_answer_as_of_a_date():
-    conn, store = loaded()
+    _conn, store = loaded()
     key = "research-entities:ror:0zznwd303"
     history = store.history(h.NS, key, scopes=h.SCOPES)
     assert [(v["revision_no"], v["change"], v["status"], v["native_revision"]) for v in history] == [
@@ -74,7 +74,7 @@ def test_reacquiring_is_idempotent_and_an_older_response_never_becomes_current()
 
 
 def test_removals_by_the_source_are_revisions_never_deletions():
-    conn, store = loaded()
+    _conn, store = loaded()
     bo = store.history(h.NS, f"research-entities:orcid:{h.BO}", scopes=h.SCOPES)
     assert [v["status"] for v in bo] == ["active", "deactivated"]
     assert bo[0]["record"]["fields"]["employments"]  # the earlier revision is kept as acquired
@@ -89,7 +89,7 @@ def test_removals_by_the_source_are_revisions_never_deletions():
 
 
 def test_minimisation_is_enforced_at_write_time():
-    conn, store = loaded()
+    _conn, store = loaded()
     researcher = store.records(h.NS, scopes=h.SCOPES, kinds=["researcher"])[0]["record"]
     for mutate, path in (
         (lambda r: r["fields"].update(biography="x"), "$.fields.biography"),
@@ -119,7 +119,7 @@ def test_minimisation_is_enforced_at_write_time():
 
 
 def test_researcher_records_need_the_researcher_scope_and_can_be_redacted():
-    conn, store = loaded()
+    _conn, store = loaded()
     assert not store.records(h.NS, scopes=h.NO_RESEARCHERS, kinds=["researcher"])
     assert store.withheld_researchers(h.NS, scopes=h.NO_RESEARCHERS) == 3
     assert len(store.records(h.NS, scopes=h.SCOPES, kinds=["researcher"])) == 3
