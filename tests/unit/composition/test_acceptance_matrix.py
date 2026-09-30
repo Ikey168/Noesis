@@ -63,6 +63,11 @@ MATRIX = {
     "Medicine to regulatory timeline":
         "tests/unit/domains/test_medicines_acceptance.py::"
         "test_medicine_to_a_cited_regulatory_timeline_with_label_diffs_and_linked_trials",
+    # The Clinical Evidence health-capacity feature's offline journey (#2478) composes the surveillance storage,
+    # Geospatial place resolution, alignment records, subscriptions and the source-pack runtime.
+    "Place to health-system capacity indicators":
+        "tests/unit/domains/test_health_capacity_acceptance.py::"
+        "test_place_to_cited_capacity_indicators_with_definitions_notes_breaks_and_vintages",
     # The Products safety feature's offline journey (#2030) composes products, technology (standards), legal
     # (works), news, entity identity, subscriptions and the source-pack runtime.
     "Product to safety-notice dossier":
