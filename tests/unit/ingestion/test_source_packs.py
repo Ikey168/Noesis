@@ -115,8 +115,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Geospatial infrastructure feature's GPPD, GEM, Overpass, EIA and ENTSOG selections (#2223),
     # plus the Products food feature's Open Food Facts, FoodData Central and Ciqual sources (#2216),
     # plus the Astronomy space-object registration feature's UNOOSA, DISCOS and Aerospace sources (#2224),
-    # plus the Clinical Evidence health-capacity feature's WHO GHO, OECD Health Statistics and Eurostat sources (#2215).
-    assert sum(len(pack["sources"]) for pack in packs) == 258
+    # plus the Clinical Evidence health-capacity feature's WHO GHO, OECD Health Statistics and Eurostat sources (#2215),
+    # plus the Cultural Collections media-metadata Open Library, MusicBrainz, Wikidata, DNB and LoC sources (#2225).
+    assert sum(len(pack["sources"]) for pack in packs) == 265
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

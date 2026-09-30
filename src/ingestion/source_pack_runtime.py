@@ -399,6 +399,15 @@ def _astronomy_registration_projector(conn: Any) -> Any:
 
 PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
 
+
+def _media_metadata_projector(conn: Any) -> Any:
+    from src.kb.media_metadata import MediaMetadataProjector
+
+    return MediaMetadataProjector(conn)
+
+
+PROJECTORS["noesis-media-metadata-record-v1"] = _media_metadata_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

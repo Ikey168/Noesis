@@ -1,0 +1,20 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "dnb",
+ "scenarios": [
+  "a GND person authority keyed by GND ID with MARC 005 as the revision marker",
+  "a GND record redirected (682 Umlenkung) to its successor is kept as history"
+ ],
+ "native_pages": [
+  {
+   "request": "services.dnb.de/sru/authorities?maximumRecords=5&operation=searchRetrieve&query=nid%3D1099990001&recordSchema=MARC21-xml&version=1.1",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><searchRetrieveResponse xmlns=\"http://www.loc.gov/zing/srw/\"><version>1.1</version><numberOfRecords>1</numberOfRecords><records><record><recordSchema>MARC21-xml</recordSchema><recordPacking>xml</recordPacking><recordData><record xmlns=\"http://www.loc.gov/MARC21/slim\"><leader>00000nz  a2200000nc 4500</leader><controlfield tag=\"001\">1099990001</controlfield><controlfield tag=\"003\">DE-101</controlfield><controlfield tag=\"005\">20260115103000.0</controlfield><datafield tag=\"024\" ind1=\"7\" ind2=\" \"><subfield code=\"a\">1099990001</subfield><subfield code=\"0\">https://d-nb.info/gnd/1099990001</subfield><subfield code=\"2\">gnd</subfield></datafield><datafield tag=\"024\" ind1=\"7\" ind2=\" \"><subfield code=\"a\">Q999900001</subfield><subfield code=\"2\">wikidata</subfield></datafield><datafield tag=\"035\" ind1=\" \" ind2=\" \"><subfield code=\"a\">(DE-588)1099990001</subfield></datafield><datafield tag=\"100\" ind1=\"1\" ind2=\" \"><subfield code=\"a\">Quell, Mara</subfield><subfield code=\"d\">1971-</subfield></datafield><datafield tag=\"400\" ind1=\"1\" ind2=\" \"><subfield code=\"a\">Quell, M.</subfield></datafield><datafield tag=\"670\" ind1=\" \" ind2=\" \"><subfield code=\"a\">Fixture source</subfield></datafield></record></recordData><recordPosition>1</recordPosition></record></records></searchRetrieveResponse>"
+  },
+  {
+   "request": "services.dnb.de/sru/authorities?maximumRecords=5&operation=searchRetrieve&query=nid%3D1099990002&recordSchema=MARC21-xml&version=1.1",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><searchRetrieveResponse xmlns=\"http://www.loc.gov/zing/srw/\"><version>1.1</version><numberOfRecords>1</numberOfRecords><records><record><recordSchema>MARC21-xml</recordSchema><recordPacking>xml</recordPacking><recordData><record xmlns=\"http://www.loc.gov/MARC21/slim\"><leader>00000dz  a2200000nc 4500</leader><controlfield tag=\"001\">1099990002</controlfield><controlfield tag=\"003\">DE-101</controlfield><controlfield tag=\"005\">20251201090000.0</controlfield><datafield tag=\"035\" ind1=\" \" ind2=\" \"><subfield code=\"a\">(DE-588)1099990002</subfield></datafield><datafield tag=\"100\" ind1=\"1\" ind2=\" \"><subfield code=\"a\">Quell, Mara</subfield></datafield><datafield tag=\"682\" ind1=\" \" ind2=\" \"><subfield code=\"i\">Umlenkung</subfield><subfield code=\"0\">(DE-588)1099990001</subfield><subfield code=\"a\">Quell, Mara</subfield></datafield></record></recordData><recordPosition>1</recordPosition></record></records></searchRetrieveResponse>"
+  }
+ ]
+}

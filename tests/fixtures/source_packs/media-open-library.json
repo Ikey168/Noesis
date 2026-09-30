@@ -1,0 +1,237 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "open-library",
+ "scenarios": [
+  "a work, two editions (one found by ISBN) and the author keyed by OLID with revision and last_modified",
+  "an ISBN-10 and ISBN-13 on one edition meet as one ISBN",
+  "a second work of the same title whose edition claims the first work's ISBN (conflict)",
+  "a merged author as /type/redirect is a history revision",
+  "covers, ocaid, description and unaudited identifier schemes (goodreads, storygraph) are dropped",
+  "an unknown ISBN answers 404 and yields no record"
+ ],
+ "native_pages": [
+  {
+   "request": "openlibrary.org/works/OL9990001W.json",
+   "body": {
+    "key": "/works/OL9990001W",
+    "type": {
+     "key": "/type/work"
+    },
+    "title": "The Glass Orchard",
+    "authors": [
+     {
+      "author": {
+       "key": "/authors/OL9990001A"
+      },
+      "type": {
+       "key": "/type/author_role"
+      }
+     }
+    ],
+    "first_publish_date": "2019",
+    "covers": [
+     99990001
+    ],
+    "description": "Excluded description text.",
+    "subjects": [
+     "Orchards -- Fiction"
+    ],
+    "revision": 4,
+    "latest_revision": 4,
+    "created": {
+     "type": "/type/datetime",
+     "value": "2024-05-01T10:00:00.000000"
+    },
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2026-02-03T08:30:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/works/OL9990002W.json",
+   "body": {
+    "key": "/works/OL9990002W",
+    "type": {
+     "key": "/type/work"
+    },
+    "title": "The Glass Orchard",
+    "subtitle": "A Winter Chronicle",
+    "authors": [
+     {
+      "author": {
+       "key": "/authors/OL9990002A"
+      },
+      "type": {
+       "key": "/type/author_role"
+      }
+     }
+    ],
+    "first_publish_date": "1988",
+    "revision": 2,
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2025-11-12T12:00:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/books/OL9990001M.json",
+   "body": {
+    "key": "/books/OL9990001M",
+    "type": {
+     "key": "/type/edition"
+    },
+    "title": "The Glass Orchard",
+    "works": [
+     {
+      "key": "/works/OL9990001W"
+     }
+    ],
+    "authors": [
+     {
+      "key": "/authors/OL9990001A"
+     }
+    ],
+    "isbn_13": [
+     "9783000000010"
+    ],
+    "isbn_10": [
+     "3000000011"
+    ],
+    "lccn": [
+     "2019001234"
+    ],
+    "identifiers": {
+     "wikidata": [
+      "Q999900003"
+     ],
+     "goodreads": [
+      "99990001"
+     ]
+    },
+    "publish_date": "2019",
+    "publishers": [
+     "Fixture Verlag"
+    ],
+    "covers": [
+     99990002
+    ],
+    "ocaid": "glassorchard0000quel",
+    "revision": 7,
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2026-01-18T09:00:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/isbn/9783000000027.json",
+   "body": {
+    "key": "/books/OL9990002M",
+    "type": {
+     "key": "/type/edition"
+    },
+    "title": "The Glass Orchard",
+    "subtitle": "Second edition",
+    "works": [
+     {
+      "key": "/works/OL9990001W"
+     }
+    ],
+    "authors": [
+     {
+      "key": "/authors/OL9990001A"
+     }
+    ],
+    "isbn_13": [
+     "978-3-00-000002-7"
+    ],
+    "publish_date": "2023",
+    "revision": 2,
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2025-09-30T15:00:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/books/OL9990003M.json",
+   "body": {
+    "key": "/books/OL9990003M",
+    "type": {
+     "key": "/type/edition"
+    },
+    "title": "The Glass Orchard",
+    "subtitle": "A Winter Chronicle",
+    "works": [
+     {
+      "key": "/works/OL9990002W"
+     }
+    ],
+    "authors": [
+     {
+      "key": "/authors/OL9990002A"
+     }
+    ],
+    "isbn_13": [
+     "9783000000010"
+    ],
+    "publish_date": "1988",
+    "revision": 1,
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2025-11-12T12:05:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/authors/OL9990001A.json",
+   "body": {
+    "key": "/authors/OL9990001A",
+    "type": {
+     "key": "/type/author"
+    },
+    "name": "Mara Quell",
+    "birth_date": "1971",
+    "remote_ids": {
+     "wikidata": "Q999900001",
+     "viaf": "999900001",
+     "storygraph": "abc"
+    },
+    "photos": [
+     99990003
+    ],
+    "revision": 3,
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2025-12-01T11:00:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/authors/OL9990009A.json",
+   "body": {
+    "key": "/authors/OL9990009A",
+    "type": {
+     "key": "/type/redirect"
+    },
+    "location": "/authors/OL9990001A",
+    "revision": 2,
+    "last_modified": {
+     "type": "/type/datetime",
+     "value": "2025-12-01T11:05:00.000000"
+    }
+   }
+  },
+  {
+   "request": "openlibrary.org/isbn/9791000000015.json",
+   "status": 404,
+   "body": {
+    "error": "notfound"
+   }
+  }
+ ]
+}

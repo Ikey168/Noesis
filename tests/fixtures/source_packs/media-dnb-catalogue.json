@@ -1,0 +1,16 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Titles, names and identifiers are fictional (checksums valid, ISRC country ZZ); unverified-live (#2513).",
+ "provider": "dnb",
+ "scenarios": [
+  "a DNB catalogue record keyed by IDN with its ISBN and the author's GND reference",
+  "the 856 table-of-contents link is dropped (content)"
+ ],
+ "native_pages": [
+  {
+   "request": "services.dnb.de/sru/dnb?maximumRecords=5&operation=searchRetrieve&query=num%3D9783000000010&recordSchema=MARC21-xml&version=1.1",
+   "body": "<?xml version=\"1.0\" encoding=\"UTF-8\"?><searchRetrieveResponse xmlns=\"http://www.loc.gov/zing/srw/\"><version>1.1</version><numberOfRecords>1</numberOfRecords><records><record><recordSchema>MARC21-xml</recordSchema><recordPacking>xml</recordPacking><recordData><record xmlns=\"http://www.loc.gov/MARC21/slim\"><leader>00000nam a2200000 c 4500</leader><controlfield tag=\"001\">123456789X</controlfield><controlfield tag=\"003\">DE-101</controlfield><controlfield tag=\"005\">20250310120000.0</controlfield><datafield tag=\"020\" ind1=\" \" ind2=\" \"><subfield code=\"a\">978-3-00-000001-0 kart.</subfield></datafield><datafield tag=\"100\" ind1=\"1\" ind2=\" \"><subfield code=\"a\">Quell, Mara</subfield><subfield code=\"0\">(DE-588)1099990001</subfield><subfield code=\"4\">aut</subfield></datafield><datafield tag=\"245\" ind1=\"1\" ind2=\"0\"><subfield code=\"a\">The glass orchard</subfield><subfield code=\"c\">Mara Quell</subfield></datafield><datafield tag=\"264\" ind1=\" \" ind2=\"1\"><subfield code=\"a\">Berlin</subfield><subfield code=\"b\">Fixture Verlag</subfield><subfield code=\"c\">2019</subfield></datafield><datafield tag=\"856\" ind1=\"4\" ind2=\"2\"><subfield code=\"u\">https://d-nb.info/123456789X/04</subfield><subfield code=\"3\">Inhaltsverzeichnis</subfield></datafield></record></recordData><recordPosition>1</recordPosition></record></records></searchRetrieveResponse>"
+  }
+ ]
+}

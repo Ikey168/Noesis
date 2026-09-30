@@ -365,6 +365,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"food-composition"})
 # Astronomy space-object registration, operators and re-entries (UNOOSA, ESA DISCOS, Aerospace; #2224).
 NATIVE_CONNECTOR_MODULES["astronomy-registration"] = "src.ingestion.astronomy_registration_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"astronomy-registration"})
+# Cultural Collections books, music and authority metadata (Open Library, MusicBrainz, Wikidata, DNB, LoC; #2225).
+NATIVE_CONNECTOR_MODULES["media-metadata"] = "src.ingestion.media_metadata_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 
 
 def native_connector_module(connector: str) -> Any:
