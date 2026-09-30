@@ -150,6 +150,37 @@ parties sharing a host. The output carries the caveat that shared hosting and
 CDNs commonly explain shared infrastructure, and there is no same-operator or
 attribution field.
 
+## Aircraft and vessel movements (#2221)
+
+Registry state and bounded movement samples for one named aircraft or vessel
+are an OSINT capability with an obvious abuse surface: an aircraft or yacht can
+stand in for the person who uses it, and a stream of positions is a tracking
+tool. The movement extension is therefore off by default
+(`NOESIS_OSINT_MOVEMENTS`), its position-bearing tools (`movement_window`,
+`movement_calls`) additionally sit behind this review gate, and the access
+decision (`osint-movements-access.md`) bounds every source.
+
+- **Purpose limitation in code.** One named identifier (ICAO 24-bit address,
+  registration, IMO, MMSI, GFW vessel id) and one window of at most 92 days per
+  question; positions only from windows the source-pack runtime stored within
+  the per-source bounds (48 hours / 500 samples for OpenSky, 72 hours / 500
+  samples for open AIS); no area query, no live feed, no alert on positions.
+- **Persons.** Aircraft on opt-out lists (LADD/PIA or operator-recorded) are
+  refused; positions of aircraft registered to a natural person are refused at
+  projection; registrant names of natural persons are never keys and are
+  withheld from answers; name, e-mail, handle and `person:` keys are refused.
+- **No inference.** Calls derived from samples are labelled `derived` with the
+  method, the samples and the gaps that could hide or fake a call; absence of
+  positions is "no coverage observed". No behaviour inference, route
+  prediction, pattern of life, or sanctions-evasion or compliance verdict.
+- **Accountability.** Every movement request is written with its stated
+  purpose, principal and scopes to the movement request log.
+
+**Residual risk.** A bounded window of a commercial aircraft or ship still
+shows where it was; the constraint is that it is one window, for one named
+identifier, stated purpose, logged, and cited to a source whose terms permit
+it.
+
 ## Gate status
 
 Criteria 1 (purpose limitation in code), 3 (evidence discipline: cited,

@@ -126,6 +126,12 @@ With `NOESIS_OSINT_GATED_TOOLS=on`:
 - Reverse image search: see "Deploying a reverse-image provider" in the
   review gate and the conformance harness `tests/unit/osint/provider_conformance.py`.
 
+## Aircraft and vessel movements (#2221)
+
+Optional `movements` feature (default off). Access, licence and volume
+decisions per source: [`docs/security/osint-movements-access.md`](../security/osint-movements-access.md).
+Tools, bounds and exclusions: [`osint-movements.md`](osint-movements.md).
+
 ## Workflows
 
 - `osint.location-investigation`: place a reported event against a boundary.
