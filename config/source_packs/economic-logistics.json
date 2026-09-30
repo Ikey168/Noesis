@@ -38,9 +38,9 @@
    },
    "endpoint": "https://service.unece.org/trade/locode",
    "fixture": {
-    "expected_output_hash": "83985ef21ced9a8c23dbc4a4bf2e45024749f1ac3f380bbc97e1d2ad4571ad33",
+    "expected_output_hash": "a58b0bfbe6a252610f444dde81b4622d4f7d0cea4749df56422b6fa3e783f1ea",
     "path": "tests/fixtures/source_packs/economic-logistics-unlocode.json",
-    "sha256": "856aee997c166f4a2cfce7515ddca468a2781993a94bbf075dddd62bff993a1f"
+    "sha256": "17f12644b97b950bf68c010c5d32c9d88a60ae64260f8fe1e0f630ba97fa7608"
    },
    "license": {
     "id": "unece-terms",
@@ -55,14 +55,14 @@
        "NL"
       ],
       "encoding": "latin-1",
-      "label": "UN/LOCODE release 2099-1, port entries of Germany and the Netherlands",
-      "member": "2099-1 UNLOCODE CodeListPart1.csv",
+      "label": "UN/LOCODE release 2024-1, port entries of Germany and the Netherlands",
+      "member": "2024-1 UNLOCODE CodeListPart1.csv",
       "release": {
-       "label": "UN/LOCODE 2099-1 (declared by the operator; verify the release file)",
-       "published_on": "2099-06-30",
-       "version": "2099-1"
+       "label": "UN/LOCODE 2024-1 (declared by the operator; verify the release file)",
+       "published_on": "2024-06-30",
+       "version": "2024-1"
       },
-      "url": "https://service.unece.org/trade/locode/loc991csv.zip"
+      "url": "https://service.unece.org/trade/locode/loc241csv.zip"
      }
     ],
     "format": "unlocode-csv",
@@ -85,9 +85,9 @@
    },
    "endpoint": "https://unctadstat-api.unctad.org/bulkdownload",
    "fixture": {
-    "expected_output_hash": "7d73d75748b9e5b704b64f107f2d99bf505c2e54b379b1b1a0c03d30718b27d1",
+    "expected_output_hash": "78dbd05d021fe5d76ab6b2c65ec5ad39e29d4e3f1cd0ad20739bc004ce4bee11",
     "path": "tests/fixtures/source_packs/economic-logistics-unctadstat.json",
-    "sha256": "7845f952381dbef966c08b4c85f405030c0e064c40ea72a758059f95eca3bc31"
+    "sha256": "2d613edfa08efec3f504becd3bc502383b10854dfcdfd287a9e2806afdfd4d77"
    },
    "license": {
     "id": "unctad-terms",
@@ -107,10 +107,10 @@
       },
       "dataset": "US.PortCalls",
       "encoding": "utf-8-sig",
-      "label": "UNCTADstat port calls, all ships, Hamburg, Bremerhaven, Wilhelmshaven and Rotterdam, 2097-2098",
+      "label": "UNCTADstat port calls, all ships, Hamburg, Bremerhaven, Wilhelmshaven and Rotterdam, 2022-2023",
       "release": {
        "label": "UNCTADstat US.PortCalls release (declared by the operator; verify the data centre's last-update date)",
-       "published_on": "2099-07-15"
+       "published_on": "2024-07-15"
       },
       "row_filter": {
        "Market segment Label": "All ships"
@@ -141,10 +141,10 @@
       },
       "dataset": "US.PLSCI",
       "encoding": "utf-8-sig",
-      "label": "UNCTADstat port liner shipping connectivity index, Hamburg and Rotterdam, 2098Q3-2098Q4",
+      "label": "UNCTADstat port liner shipping connectivity index, Hamburg and Rotterdam, 2023Q3-2023Q4",
       "release": {
        "label": "UNCTADstat US.PLSCI release (declared by the operator; verify the data centre's last-update date)",
-       "published_on": "2099-07-15"
+       "published_on": "2024-07-15"
       },
       "series": {
        "concept": "port_liner_shipping_connectivity",
@@ -171,10 +171,10 @@
       },
       "dataset": "US.ContPortThroughput",
       "encoding": "utf-8-sig",
-      "label": "UNCTADstat container port throughput, Germany and the Netherlands, 2097-2098",
+      "label": "UNCTADstat container port throughput, Germany and the Netherlands, 2022-2023",
       "release": {
        "label": "UNCTADstat US.ContPortThroughput release (declared by the operator; verify the data centre's last-update date)",
-       "published_on": "2099-07-15"
+       "published_on": "2024-07-15"
       },
       "series": {
        "concept": "container_port_throughput",
@@ -195,9 +195,9 @@
      {
       "breaks": [
        {
-        "note": "fleet coverage extended to ships of 100 GT and above from 2098",
-        "period": "2098",
-        "source_text": "Methodology note: from 2098 the fleet covers ships of 100 GT and above (authored fixture text; verify the published note)"
+        "note": "fleet coverage extended to ships of 100 GT and above from 2023",
+        "period": "2023",
+        "source_text": "Methodology note: from 2023 the fleet covers ships of 100 GT and above (authored fixture text; verify the published note)"
        }
       ],
       "columns": {
@@ -208,10 +208,10 @@
       },
       "dataset": "US.MerchantFleet",
       "encoding": "utf-8-sig",
-      "label": "UNCTADstat merchant fleet by flag of registration, total fleet, Germany and the Netherlands, 2097-2098",
+      "label": "UNCTADstat merchant fleet by flag of registration, total fleet, Germany and the Netherlands, 2022-2023",
       "release": {
        "label": "UNCTADstat US.MerchantFleet release (declared by the operator; verify the data centre's last-update date)",
-       "published_on": "2099-07-15"
+       "published_on": "2024-07-15"
       },
       "row_filter": {
        "Ship type Label": "Total fleet"
@@ -253,9 +253,9 @@
    },
    "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/statistics/1.0/data",
    "fixture": {
-    "expected_output_hash": "a3c885702cac6db72b7c62d128c1523d509115bef26941d723bda20ebee997bc",
+    "expected_output_hash": "9ab1f0a40a1eab49519612d33c57d35eb95feef323ac9233e1917964e1d0fbb9",
     "path": "tests/fixtures/source_packs/economic-logistics-eurostat-maritime.json",
-    "sha256": "bf680e8ea1c29566e5bd324de5522c3da5c5491155d7986a24a1db1a9c6f4c4b"
+    "sha256": "4e6926b287b0b26a73249c7883c8c12ef5a91adfee5502bcac0187ed1d17c6bb"
    },
    "license": {
     "id": "eurostat-reuse",
@@ -274,12 +274,12 @@
         "DE999"
        ],
        "time": [
-        "2097",
-        "2098"
+        "2022",
+        "2023"
        ],
        "unit": "THS_T"
       },
-      "label": "Eurostat mar_mg_aa_pwhd: gross weight of goods handled in main German ports, 2097-2098",
+      "label": "Eurostat mar_mg_aa_pwhd: gross weight of goods handled in main German ports, 2022-2023",
       "series": {
        "concept": "goods_handled",
        "definition": {
@@ -305,8 +305,8 @@
         "NL"
        ],
        "time": [
-        "2097",
-        "2098"
+        "2022",
+        "2023"
        ],
        "unit": "THS_T"
       },
@@ -338,12 +338,12 @@
         "DE001"
        ],
        "time": [
-        "2097",
-        "2098"
+        "2022",
+        "2023"
        ],
        "unit": "THS_T"
       },
-      "label": "Eurostat mar_go_am_de: goods transported from Hamburg to Rotterdam (partner port), 2097-2098",
+      "label": "Eurostat mar_go_am_de: goods transported from Hamburg to Rotterdam (partner port), 2022-2023",
       "series": {
        "concept": "goods_port_to_port",
        "definition": {
@@ -383,9 +383,9 @@
    },
    "endpoint": "https://api.bls.gov/publicAPI/v2/timeseries/data",
    "fixture": {
-    "expected_output_hash": "e3ee1c6a0a22ded7f8aac5fcc3f6d7b7d2fc8aab0ff588a8541f64a3482f48b9",
+    "expected_output_hash": "948266baca2d1372a7d944697a8e0b3c6ab44afd378ef23cddb0559eea205837",
     "path": "tests/fixtures/source_packs/economic-logistics-bls-ppi.json",
-    "sha256": "ec506408b7670086e97584e88e5ffaa75907d748519e9a8eee64b2375de94c05"
+    "sha256": "b82a06c18fbef53f0fe0326b4f22564e14355c2c79168ed788c8b61de5c2b1e2"
    },
    "license": {
     "id": "us-public-domain",
@@ -396,14 +396,14 @@
     "documents": [
      {
       "index_id": "bls-ppi-deep-sea-freight",
-      "label": "BLS PPI deep sea freight transportation (PCU483111483111), 2099",
+      "label": "BLS PPI deep sea freight transportation (PCU483111483111), 2024",
       "params": {
-       "endyear": "2099",
-       "startyear": "2099"
+       "endyear": "2024",
+       "startyear": "2024"
       },
       "release": {
-       "label": "PPI release of 2099-09-14 (declared by the operator; verify the BLS schedule)",
-       "published_on": "2099-09-14"
+       "label": "PPI release of 2024-09-14 (declared by the operator; verify the BLS schedule)",
+       "published_on": "2024-09-14"
       },
       "series": {
        "base": "December 2003=100 (verify)",

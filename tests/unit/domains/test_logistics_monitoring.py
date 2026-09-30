@@ -28,7 +28,7 @@ def test_each_event_type_is_emitted_once_with_record_ids_and_citations_and_uncha
     kinds = {n["kind"] for n in first["notifications"]}
     assert kinds == {"new_vintage", "series_break"}
     brk = next(n for n in first["notifications"] if n["kind"] == "series_break")
-    assert brk["break_id"] and brk["period"] == "2098" and brk["citation"]["release_id"]
+    assert brk["break_id"] and brk["period"] == "2023" and brk["citation"]["release_id"]
     assert forbidden_keys(first) == []
     # An unchanged re-acquisition emits nothing.
     h.load_all(conn)
@@ -42,13 +42,13 @@ def test_each_event_type_is_emitted_once_with_record_ids_and_citations_and_uncha
         by_kind.setdefault(n["kind"], []).append(n)
     assert set(by_kind) == {"revised_value", "port_code_change"}
     (revised,) = by_kind["revised_value"]
-    assert revised["changed_values"] == [{"period": "2098", "before": {"value_text": "7900", "status": "reported"},
+    assert revised["changed_values"] == [{"period": "2023", "before": {"value_text": "7900", "status": "reported"},
                                           "after": {"value_text": "7950", "status": "reported"}}]
     assert revised["vintage_id"] and revised["previous_vintage_id"] and revised["citation"]["published_on"] == \
-        "2099-11-15"
+        "2024-11-15"
     changes = {n["unlocode"]: n for n in by_kind["port_code_change"]}
     assert changes["DEWVN"]["state"] == "removed" and changes["DEWVN"]["rematches"][0]["trigger"] == "removed"
-    assert changes["DEHAM"]["change_indicator"] == "|" and changes["DEHAM"]["release_version"] == "2099-2"
+    assert changes["DEHAM"]["change_indicator"] == "|" and changes["DEHAM"]["release_version"] == "2024-2"
     # A restart replays the same watermark and emits nothing.
     again = _monitor(conn, h.SECOND_RETRIEVAL).run(sub["subscription_id"], principal_id="alice", scopes=h.SCOPES)
     assert again["notifications"] == []
@@ -70,8 +70,8 @@ def test_new_months_of_a_freight_index_are_a_new_vintage_and_refresh_stays_withi
     assert receipt["status"] == "complete" and receipt["new_releases"] == 1
     later = _monitor(conn, h.SECOND_RETRIEVAL).run(sub["subscription_id"], principal_id="alice", scopes=h.SCOPES)
     (notice,) = later["notifications"]
-    assert notice["kind"] == "revised_value" and notice["added_periods"] == ["2099-09"]
-    assert [c["period"] for c in notice["changed_values"]] == ["2099-08"]
+    assert notice["kind"] == "revised_value" and notice["added_periods"] == ["2024-09"]
+    assert [c["period"] for c in notice["changed_values"]] == ["2024-08"]
     limited = [{"request": p["request"], "status": 429, "headers": {"Retry-After": "120"}, "body": ""}
                for p in h.pages("bls", True)]
     stopped = _monitor(conn, h.SECOND_RETRIEVAL + 1).refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,

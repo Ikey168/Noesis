@@ -7,7 +7,7 @@ Five providers are recorded under an access contract (:data:`PROVIDER_CONTRACTS`
 * **UN/LOCODE** (``unece-unlocode``, format ``unlocode-csv``) - the UNECE code list release (a zip holding the
   headerless CSV parts, or one CSV), read for the declared countries' entries with port function (function
   position 1 = ``1``). Code, name, subdivision, function, status, date, IATA code, coordinates and the change
-  indicator are kept as published; each release is a version declared by the operator (``2099-1``).
+  indicator are kept as published; each release is a version declared by the operator (``2024-1``).
 * **UNCTADstat** (``unctadstat``, format ``unctadstat-csv``) - maritime reports (port calls, container port
   throughput, liner shipping connectivity, merchant fleet by flag) as the data centre's bulk CSV, with the declared
   column names, series definition and release. UNCTAD port identifiers are kept beside any UN/LOCODE the file
@@ -324,7 +324,7 @@ def iso_day(value: Any) -> str | None:
 
 
 def normalise_period(raw: Any) -> str:
-    """Published period codes in the dataset-series forms (2098, 2098-Q1, 2098-S1, 2098-01); others verbatim."""
+    """Published period codes in the dataset-series forms (2023, 2023-Q1, 2023-S1, 2023-01); others verbatim."""
     value = str(raw).strip()
     match = re.fullmatch(r"(\d{4})[-_ ]?Q([1-4])", value, flags=re.I)
     if match:
