@@ -125,7 +125,8 @@ For the project overview and local setup, start with the
   delivery guarantees
 - Decision records:
   [ADR-001 tool-panel annotation](architecture/decisions/ADR-001-tool-panel-annotation.md) ·
-  [ADR-002 data-plane stage 3](architecture/decisions/ADR-002-data-plane-stage3.md)
+  [ADR-002 data-plane stage 3](architecture/decisions/ADR-002-data-plane-stage3.md) ·
+  [ADR-004 pack taxonomy](architecture/decisions/ADR-004-pack-taxonomy.md)
 
 ## Integration
 
