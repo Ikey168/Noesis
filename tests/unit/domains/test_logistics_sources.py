@@ -94,14 +94,14 @@ def test_unlocode_releases_are_versions_with_revisions_and_removed_codes_kept():
         assert not list(Draft7Validator(SCHEMA).iter_errors({"record_type": "port", **port}))
     result = h.apply(conn, "unlocode", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
     assert result[0]["ports"] == {"created": 1, "revised": 2, "unchanged": 2, "removed": 1}
-    emden = ports.port_history(h.NS, "DEEME")
-    assert [(r["revision"], r["state"]) for r in emden] == [(1, "active"), (2, "removed")]
-    assert emden[-1]["release_version"] == "2099-2" and emden[0]["record"]["name"] == "Emden"
-    assert ports.port(h.NS, "DEWVN")["state"] == "marked-for-removal"
+    wilhelmshaven = ports.port_history(h.NS, "DEWVN")
+    assert [(r["revision"], r["state"]) for r in wilhelmshaven] == [(1, "active"), (2, "removed")]
+    assert wilhelmshaven[-1]["release_version"] == "2099-2" and wilhelmshaven[0]["record"]["name"] == "Wilhelmshaven"
+    assert ports.port(h.NS, "DEEME")["state"] == "marked-for-removal"
     assert ports.port(h.NS, "DEHAM")["change_indicator"] == "|" and ports.port(h.NS, "DECUX")["revisions"] == 1
-    assert ports.port(h.NS, "DEEME", as_of_day="2099-07-01")["state"] == "active"
-    assert "DEEME" not in {p["unlocode"] for p in ports.ports(h.NS)}
-    assert "DEEME" in {p["unlocode"] for p in ports.ports(h.NS, include_removed=True)}
+    assert ports.port(h.NS, "DEWVN", as_of_day="2099-07-01")["state"] == "active"
+    assert "DEWVN" not in {p["unlocode"] for p in ports.ports(h.NS)}
+    assert "DEWVN" in {p["unlocode"] for p in ports.ports(h.NS, include_removed=True)}
     # Re-acquiring the same release adds nothing.
     assert h.apply(conn, "unlocode", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)[0]["status"] == "unchanged"
 
