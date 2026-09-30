@@ -205,6 +205,11 @@ For the project overview and local setup, start with the
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and
   comparability notes; no personal profiles, risk scores, safety ratings or rankings;
   [source audit](development/courts-justice-evidence/source-audit.md)
+- [Legal regulatory enforcement guide](guides/legal-enforcement.md) — SEC litigation releases and administrative
+  proceedings, FCA final notices, EPA ECHO cases and EDPB Article 60 decisions: company or group to cited actions
+  as of a date with outcomes, settlement wording, penalties and appeals as published, actions by authority or legal
+  basis with penalties never summed; natural persons pseudonymised; no risk or compliance scoring;
+  [source audit and minimisation decision](development/enforcement-evidence/source-audit.md)
 - [Economics public finance guide](guides/economics-public-finance.md) — budget plans, supplementary budgets and
   outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
   without verdicts, acts and dossiers linked by citation and basis-aware comparisons;
