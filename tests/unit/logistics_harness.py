@@ -37,18 +37,18 @@ SOURCES = {
 }
 # Later releases: (fixture file, index of the declared document the release replaces).
 REVISIONS = {
-    "unlocode": ("unlocode_release_2099-2.json", 0),
-    "unctad": ("unctad_port_calls_revision_2099-11.json", 0),
-    "bls": ("bls_ppi_revision_2099-10.json", 0),
+    "unlocode": ("unlocode_release_2024-2.json", 0),
+    "unctad": ("unctad_port_calls_revision_2024-11.json", 0),
+    "bls": ("bls_ppi_revision_2024-10.json", 0),
 }
-FIRST_RETRIEVAL = 4_099_766_400_000  # 2099-12-01
-SECOND_RETRIEVAL = 4_102_444_800_000  # 2100-01-01
+FIRST_RETRIEVAL = 1_733_011_200_000  # 2024-12-01
+SECOND_RETRIEVAL = 1_735_689_600_000  # 2025-01-01
 # A Hamburg crosswalk row in the shape of Eurostat's port code list (authored; the code list must be verified).
 CROSSWALK = {
     "publisher": "Eurostat (maritime reporting-port code list)",
     "source_scheme": "eurostat-port",
     "citation": {"title": "Maritime transport statistics - list of reporting ports (authored fixture; verify)",
-                 "url": "https://ec.europa.eu/eurostat/cache/metadata/en/mar_esms.htm", "published_on": "2099-01-31"},
+                 "url": "https://ec.europa.eu/eurostat/cache/metadata/en/mar_esms.htm", "published_on": "2024-01-31"},
     "rows": [{"source_code": "DE001", "unlocode": "DEHAM", "label": "Hamburg"}],
 }
 

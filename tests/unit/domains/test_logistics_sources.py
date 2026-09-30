@@ -89,17 +89,17 @@ def test_unlocode_releases_are_versions_with_revisions_and_removed_codes_kept():
     hamburg = current["DEHAM"]["record"]
     assert hamburg["function"] == "12345---" and hamburg["status"] == "AI" and hamburg["subdivision"] == "HH"
     assert hamburg["coordinates"] == {"published": "5333N 00958E", "parsed": True, "lat": 53.55, "lon": 9.966667}
-    assert current["DEEME"]["record"]["coordinates"] is None and current["DEHAM"]["release_version"] == "2099-1"
+    assert current["DEEME"]["record"]["coordinates"] is None and current["DEHAM"]["release_version"] == "2024-1"
     for port in current.values():
         assert not list(Draft7Validator(SCHEMA).iter_errors({"record_type": "port", **port}))
     result = h.apply(conn, "unlocode", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
     assert result[0]["ports"] == {"created": 1, "revised": 2, "unchanged": 2, "removed": 1}
     wilhelmshaven = ports.port_history(h.NS, "DEWVN")
     assert [(r["revision"], r["state"]) for r in wilhelmshaven] == [(1, "active"), (2, "removed")]
-    assert wilhelmshaven[-1]["release_version"] == "2099-2" and wilhelmshaven[0]["record"]["name"] == "Wilhelmshaven"
+    assert wilhelmshaven[-1]["release_version"] == "2024-2" and wilhelmshaven[0]["record"]["name"] == "Wilhelmshaven"
     assert ports.port(h.NS, "DEEME")["state"] == "marked-for-removal"
     assert ports.port(h.NS, "DEHAM")["change_indicator"] == "|" and ports.port(h.NS, "DECUX")["revisions"] == 1
-    assert ports.port(h.NS, "DEWVN", as_of_day="2099-07-01")["state"] == "active"
+    assert ports.port(h.NS, "DEWVN", as_of_day="2024-07-01")["state"] == "active"
     assert "DEWVN" not in {p["unlocode"] for p in ports.ports(h.NS)}
     assert "DEWVN" in {p["unlocode"] for p in ports.ports(h.NS, include_removed=True)}
     # Re-acquiring the same release adds nothing.
@@ -116,15 +116,15 @@ def test_unctad_series_keep_port_identifiers_beside_published_unlocodes_breaks_a
                                           "unlocode": "DEHAM"}
     assert "unlocode" not in calls["1102"]["geography"]
     wilhelmshaven = store.values(h.NS, calls["1103"]["current_vintage_id"])
-    assert wilhelmshaven[1] == {"period": "2098", "period_published": "2098", "value_text": None, "value": None,
+    assert wilhelmshaven[1] == {"period": "2023", "period_published": "2023", "value_text": None, "value": None,
                                 "status": "not_published", "flags": {}, "footnotes": ["Not available"]}
     hamburg = store.values(h.NS, calls["1101"]["current_vintage_id"])
     assert [v["value"] for v in hamburg] == ["7800", "7900"] and hamburg[1]["footnotes"] == ["Provisional"]
     fleet = store.find_series(h.NS, concept="merchant_fleet_by_flag", codes=[("m49", "276")])
     assert len(fleet) == 1 and fleet[0]["geography"]["scheme"] == "m49"
-    assert [b["period"] for b in store.breaks(h.NS, fleet[0]["series_id"])] == ["2098"]
+    assert [b["period"] for b in store.breaks(h.NS, fleet[0]["series_id"])] == ["2023"]
     lsci = store.find_series(h.NS, concept="port_liner_shipping_connectivity", codes=[("unlocode", "NLRTM")])
-    assert [v["period"] for v in store.values(h.NS, lsci[0]["current_vintage_id"])] == ["2098-Q3", "2098-Q4"]
+    assert [v["period"] for v in store.values(h.NS, lsci[0]["current_vintage_id"])] == ["2023-Q3", "2023-Q4"]
     for series in store.find_series(h.NS):
         assert not list(Draft7Validator(SCHEMA).iter_errors(series)), series["series_id"]
 
@@ -136,7 +136,7 @@ def test_a_7z_bulk_file_is_refused_and_the_extracted_csv_is_an_operator_import()
         parse_unctad(b"7z\xbc\xaf'\x1c" + b"\x00" * 20, document=document)
     assert caught.value.code == "unsupported_archive"
     conn = h.connection()
-    csv_bytes = b"Year,Economy,Economy Label,TEU\n2097,276,Germany,15100000\n"
+    csv_bytes = b"Year,Economy,Economy Label,TEU\n2022,276,Germany,15100000\n"
     result = operator_import(conn, h.NS, source, 2, csv_bytes, principal_id="operator-1", scopes=h.SCOPES,
                              now=lambda: h.FIRST_RETRIEVAL)
     assert result["status"] == "applied" and result["evidence_origin"] == "operator"
@@ -167,7 +167,7 @@ def test_eurostat_maritime_through_the_connector_keeps_reporting_ports_routes_fl
     assert route["geography"]["code"] == "DE001" and route["partner"] == {"scheme": "eurostat-port", "code": "NL002",
                                                                            "label": "Rotterdam"}
     vintage = store.vintage_rows(h.NS, route["series_id"])[0]
-    assert vintage["release_basis"] == "eurostat_dataset_updated" and vintage["release_at"].startswith("2099-05-02")
+    assert vintage["release_basis"] == "eurostat_dataset_updated" and vintage["release_at"].startswith("2024-05-02")
 
 
 def test_observations_live_in_the_economics_series_storage_and_revisions_add_vintages():
@@ -186,7 +186,7 @@ def test_observations_live_in_the_economics_series_storage_and_revisions_add_vin
     h.apply(conn, "unctad", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
     vintages = store.vintage_rows(h.NS, sid)
     assert len(vintages) == 2 and vintages[1]["revision_of"] == vintages[0]["vintage_id"]
-    rows = conn.execute("SELECT as_of, period, value FROM dataset_observations WHERE series_id=? AND period='2098' "
+    rows = conn.execute("SELECT as_of, period, value FROM dataset_observations WHERE series_id=? AND period='2023' "
                         "ORDER BY as_of", [sid]).fetchall()
     assert [r[2] for r in rows] == [7900.0, 7950.0]
     economic = conn.execute("SELECT count(*), max(revision_of) IS NOT NULL FROM economic_vintages WHERE "

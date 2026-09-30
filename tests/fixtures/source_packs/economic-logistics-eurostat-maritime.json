@@ -45,12 +45,12 @@
      "time": {
       "category": {
        "index": {
-        "2097": 0,
-        "2098": 1
+        "2022": 0,
+        "2023": 1
        },
        "label": {
-        "2097": "2097",
-        "2098": "2098"
+        "2022": "2022",
+        "2023": "2023"
        }
       },
       "label": "Time"
@@ -94,7 +94,7 @@
      "1": "p",
      "5": "c"
     },
-    "updated": "2099-05-02T11:00:00Z",
+    "updated": "2024-05-02T11:00:00Z",
     "value": {
      "0": 110000,
      "1": 112000,
@@ -107,7 +107,7 @@
    "headers": {
     "Content-Type": "application/json"
    },
-   "request": "/eurostat/api/dissemination/statistics/1.0/data/mar_mg_aa_pwhd?direct=TOTAL&format=JSON&rep_mar=DE001&rep_mar=DE003&rep_mar=DE999&time=2097&time=2098&unit=THS_T",
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/mar_mg_aa_pwhd?direct=TOTAL&format=JSON&rep_mar=DE001&rep_mar=DE003&rep_mar=DE999&time=2022&time=2023&unit=THS_T",
    "status": 200
   },
   {
@@ -152,12 +152,12 @@
      "time": {
       "category": {
        "index": {
-        "2097": 0,
-        "2098": 1
+        "2022": 0,
+        "2023": 1
        },
        "label": {
-        "2097": "2097",
-        "2098": "2098"
+        "2022": "2022",
+        "2023": "2023"
        }
       },
       "label": "Time"
@@ -197,7 +197,7 @@
      2,
      2
     ],
-    "updated": "2099-05-02T11:00:00Z",
+    "updated": "2024-05-02T11:00:00Z",
     "value": {
      "0": 270000,
      "1": 275000,
@@ -209,7 +209,7 @@
    "headers": {
     "Content-Type": "application/json"
    },
-   "request": "/eurostat/api/dissemination/statistics/1.0/data/mar_mg_aa_cwh?direct=TOTAL&format=JSON&geo=DE&geo=NL&time=2097&time=2098&unit=THS_T",
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/mar_mg_aa_cwh?direct=TOTAL&format=JSON&geo=DE&geo=NL&time=2022&time=2023&unit=THS_T",
    "status": 200
   },
   {
@@ -263,12 +263,12 @@
      "time": {
       "category": {
        "index": {
-        "2097": 0,
-        "2098": 1
+        "2022": 0,
+        "2023": 1
        },
        "label": {
-        "2097": "2097",
-        "2098": "2098"
+        "2022": "2022",
+        "2023": "2023"
        }
       },
       "label": "Time"
@@ -310,7 +310,7 @@
      1,
      2
     ],
-    "updated": "2099-05-02T11:00:00Z",
+    "updated": "2024-05-02T11:00:00Z",
     "value": {
      "0": 5000,
      "1": 5200
@@ -320,11 +320,11 @@
    "headers": {
     "Content-Type": "application/json"
    },
-   "request": "/eurostat/api/dissemination/statistics/1.0/data/mar_go_am_de?direct=OUT&format=JSON&par_mar=NL002&rep_mar=DE001&time=2097&time=2098&unit=THS_T",
+   "request": "/eurostat/api/dissemination/statistics/1.0/data/mar_go_am_de?direct=OUT&format=JSON&par_mar=NL002&rep_mar=DE001&time=2022&time=2023&unit=THS_T",
    "status": 200
   }
  ],
- "note": "Authored fixture in the documented response shape; every value is fictional (not provider data) and dated in 2097-2099 so it cannot be mistaken for a published figure.",
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
  "provider": "authored",
  "scenarios": [
   "authored-fixture",

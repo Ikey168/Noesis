@@ -72,8 +72,8 @@ def test_port_and_country_to_cited_logistics_series_with_vintages_identity_and_t
     queries = LogisticsQueries(conn)
 
     # A port: UN/LOCODE match basis per source, sources side by side, the vintage known at each date, citations.
-    early = queries.port(h.NS, "DEHAM", scopes=h.READ_ONLY, as_of_ms=h.day_ms("2099-08-01"), all_vintages=True)
-    late = queries.port(h.NS, "DEHAM", scopes=h.READ_ONLY, as_of_ms=h.day_ms("2100-01-15"))
+    early = queries.port(h.NS, "DEHAM", scopes=h.READ_ONLY, as_of_ms=h.day_ms("2024-08-01"), all_vintages=True)
+    late = queries.port(h.NS, "DEHAM", scopes=h.READ_ONLY, as_of_ms=h.day_ms("2025-01-15"))
     assert forbidden_keys(early) == [] and forbidden_keys(late) == []
     bases = {(e["provider"], e["concept"]): e["identity_basis"] for e in early["series"]}
     assert bases[("unctadstat", "port_calls")] == "embedded-unlocode"
@@ -104,7 +104,7 @@ def test_port_and_country_to_cited_logistics_series_with_vintages_identity_and_t
     assert ports.trade_join(h.NS, nl_teu["series_id"])["status"] == "none_on_record"
 
     # Freight indices: the revised in-scope index as of each release and the excluded ones by licence decision.
-    indices = queries.freight_indices(h.NS, scopes=h.READ_ONLY, as_of_ms=h.day_ms("2099-09-30"))
+    indices = queries.freight_indices(h.NS, scopes=h.READ_ONLY, as_of_ms=h.day_ms("2024-09-30"))
     assert indices["series"][0]["values"][-1]["value"] == "112.5"
     assert {"baltic-dry-index", "drewry-wci"} <= {i["index_id"] for i in indices["excluded"]}
 

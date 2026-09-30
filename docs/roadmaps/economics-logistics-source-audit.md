@@ -79,7 +79,8 @@ their identity can be checked across an embedded UN/LOCODE (UNCTAD), a published
 code list (Eurostat) and a name candidate (Bremerhaven); Germany and the
 Netherlands are the reporters of the Comext trade-flow fixtures, so the
 trade-flow join is exercised on shared codes. The offline fixtures use these
-selections with fictional values dated 2097-2099.
+selections with fictional values; every declared release date in the
+production manifest lies in the past, so a real retrieval always follows it.
 
 ## Gap against existing components
 

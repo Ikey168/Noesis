@@ -2,7 +2,7 @@
  "captured": null,
  "native_pages": [
   {
-   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsUG9ydCxQb3J0IExhYmVsLFVOL0xPQ09ERSxNYXJrZXQgc2VnbWVudCBMYWJlbCxOdW1iZXIgb2YgcG9ydCBjYWxscyxOdW1iZXIgb2YgcG9ydCBjYWxscyBGb290bm90ZQoyMDk3LDI3NixHZXJtYW55LDExMDEsSGFtYnVyZyxERUhBTSxBbGwgc2hpcHMsNzgwMCwKMjA5OCwyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQWxsIHNoaXBzLDc5MDAsUHJvdmlzaW9uYWwKMjA5NywyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQ29udGFpbmVyIHNoaXBzLDQxMDAsCjIwOTcsMjc2LEdlcm1hbnksMTEwMixCcmVtZXJoYXZlbiwsQWxsIHNoaXBzLDQzMDAsCjIwOTgsMjc2LEdlcm1hbnksMTEwMixCcmVtZXJoYXZlbiwsQWxsIHNoaXBzLDQzNTAsCjIwOTcsMjc2LEdlcm1hbnksMTEwMyxXaWxoZWxtc2hhdmVuLCxBbGwgc2hpcHMsOTAwLAoyMDk4LDI3NixHZXJtYW55LDExMDMsV2lsaGVsbXNoYXZlbiwsQWxsIHNoaXBzLCxOb3QgYXZhaWxhYmxlCjIwOTcsNTI4LE5ldGhlcmxhbmRzLDIyMDEsUm90dGVyZGFtLE5MUlRNLEFsbCBzaGlwcywxMjgwMCwKMjA5OCw1MjgsTmV0aGVybGFuZHMsMjIwMSxSb3R0ZXJkYW0sTkxSVE0sQWxsIHNoaXBzLDEyOTUwLAo=",
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsUG9ydCxQb3J0IExhYmVsLFVOL0xPQ09ERSxNYXJrZXQgc2VnbWVudCBMYWJlbCxOdW1iZXIgb2YgcG9ydCBjYWxscyxOdW1iZXIgb2YgcG9ydCBjYWxscyBGb290bm90ZQoyMDIyLDI3NixHZXJtYW55LDExMDEsSGFtYnVyZyxERUhBTSxBbGwgc2hpcHMsNzgwMCwKMjAyMywyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQWxsIHNoaXBzLDc5MDAsUHJvdmlzaW9uYWwKMjAyMiwyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQ29udGFpbmVyIHNoaXBzLDQxMDAsCjIwMjIsMjc2LEdlcm1hbnksMTEwMixCcmVtZXJoYXZlbiwsQWxsIHNoaXBzLDQzMDAsCjIwMjMsMjc2LEdlcm1hbnksMTEwMixCcmVtZXJoYXZlbiwsQWxsIHNoaXBzLDQzNTAsCjIwMjIsMjc2LEdlcm1hbnksMTEwMyxXaWxoZWxtc2hhdmVuLCxBbGwgc2hpcHMsOTAwLAoyMDIzLDI3NixHZXJtYW55LDExMDMsV2lsaGVsbXNoYXZlbiwsQWxsIHNoaXBzLCxOb3QgYXZhaWxhYmxlCjIwMjIsNTI4LE5ldGhlcmxhbmRzLDIyMDEsUm90dGVyZGFtLE5MUlRNLEFsbCBzaGlwcywxMjgwMCwKMjAyMyw1MjgsTmV0aGVybGFuZHMsMjIwMSxSb3R0ZXJkYW0sTkxSVE0sQWxsIHNoaXBzLDEyOTUwLAo=",
    "headers": {
     "Content-Type": "text/csv"
    },
@@ -10,7 +10,7 @@
    "status": 200
   },
   {
-   "body_base64": "UXVhcnRlcixQb3J0LFBvcnQgTGFiZWwsVU4vTE9DT0RFLEluZGV4CjIwOThRMywxMTAxLEhhbWJ1cmcsREVIQU0sOTEuMgoyMDk4UTQsMTEwMSxIYW1idXJnLERFSEFNLDkyLjAKMjA5OFEzLDIyMDEsUm90dGVyZGFtLE5MUlRNLDk1LjUKMjA5OFE0LDIyMDEsUm90dGVyZGFtLE5MUlRNLDk2LjEK",
+   "body_base64": "UXVhcnRlcixQb3J0LFBvcnQgTGFiZWwsVU4vTE9DT0RFLEluZGV4CjIwMjNRMywxMTAxLEhhbWJ1cmcsREVIQU0sOTEuMgoyMDIzUTQsMTEwMSxIYW1idXJnLERFSEFNLDkyLjAKMjAyM1EzLDIyMDEsUm90dGVyZGFtLE5MUlRNLDk1LjUKMjAyM1E0LDIyMDEsUm90dGVyZGFtLE5MUlRNLDk2LjEK",
    "headers": {
     "Content-Type": "text/csv"
    },
@@ -18,7 +18,7 @@
    "status": 200
   },
   {
-   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsVEVVCjIwOTcsMjc2LEdlcm1hbnksMTUxMDAwMDAKMjA5OCwyNzYsR2VybWFueSwxNTMwMDAwMAoyMDk3LDUyOCxOZXRoZXJsYW5kcywxNTgwMDAwMAoyMDk4LDUyOCxOZXRoZXJsYW5kcywxNjAwMDAwMAo=",
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsVEVVCjIwMjIsMjc2LEdlcm1hbnksMTUxMDAwMDAKMjAyMywyNzYsR2VybWFueSwxNTMwMDAwMAoyMDIyLDUyOCxOZXRoZXJsYW5kcywxNTgwMDAwMAoyMDIzLDUyOCxOZXRoZXJsYW5kcywxNjAwMDAwMAo=",
    "headers": {
     "Content-Type": "text/csv"
    },
@@ -26,7 +26,7 @@
    "status": 200
   },
   {
-   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsU2hpcCB0eXBlIExhYmVsLERlYWQgd2VpZ2h0IHRvbnMgaW4gdGhvdXNhbmRzCjIwOTcsMjc2LEdlcm1hbnksVG90YWwgZmxlZXQsNzQwMAoyMDk4LDI3NixHZXJtYW55LFRvdGFsIGZsZWV0LDc5MDAKMjA5NywyNzYsR2VybWFueSxPaWwgdGFua2VycywxMjAKMjA5Nyw1MjgsTmV0aGVybGFuZHMsVG90YWwgZmxlZXQsNjgwMAoyMDk4LDUyOCxOZXRoZXJsYW5kcyxUb3RhbCBmbGVldCw3MTAwCg==",
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsU2hpcCB0eXBlIExhYmVsLERlYWQgd2VpZ2h0IHRvbnMgaW4gdGhvdXNhbmRzCjIwMjIsMjc2LEdlcm1hbnksVG90YWwgZmxlZXQsNzQwMAoyMDIzLDI3NixHZXJtYW55LFRvdGFsIGZsZWV0LDc5MDAKMjAyMiwyNzYsR2VybWFueSxPaWwgdGFua2VycywxMjAKMjAyMiw1MjgsTmV0aGVybGFuZHMsVG90YWwgZmxlZXQsNjgwMAoyMDIzLDUyOCxOZXRoZXJsYW5kcyxUb3RhbCBmbGVldCw3MTAwCg==",
    "headers": {
     "Content-Type": "text/csv"
    },
@@ -34,7 +34,7 @@
    "status": 200
   }
  ],
- "note": "Authored fixture in the documented response shape; every value is fictional (not provider data) and dated in 2097-2099 so it cannot be mistaken for a published figure.",
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
  "provider": "authored",
  "scenarios": [
   "authored-fixture",

@@ -1,0 +1,51 @@
+{
+ "document": {
+  "columns": {
+   "figure": "Number of port calls",
+   "footnote": "Number of port calls Footnote",
+   "geography": "Port",
+   "geography_label": "Port Label",
+   "period": "Year",
+   "unlocode": "UN/LOCODE"
+  },
+  "dataset": "US.PortCalls",
+  "encoding": "utf-8-sig",
+  "label": "UNCTADstat port calls, all ships, Hamburg, Bremerhaven, Wilhelmshaven and Rotterdam, 2022-2023",
+  "release": {
+   "label": "UNCTADstat US.PortCalls release (declared by the operator; verify)",
+   "published_on": "2024-11-15"
+  },
+  "row_filter": {
+   "Market segment Label": "All ships"
+  },
+  "series": {
+   "concept": "port_calls",
+   "definition": {
+    "reference": "https://unctadstat.unctad.org/datacentre/reportInfo/US.PortCalls",
+    "text": "Arrivals of ships of 1000 GT and above at the port (verify)"
+   },
+   "frequency": "annual",
+   "geography": {
+    "kind": "port",
+    "scheme": "unctad-port"
+   },
+   "measure_label": "Number of port calls (all ships)",
+   "unit": "number"
+  },
+  "url": "https://unctadstat-api.unctad.org/bulkdownload/US.PortCalls/US_PortCalls.csv"
+ },
+ "native_pages": [
+  {
+   "body_base64": "WWVhcixFY29ub215LEVjb25vbXkgTGFiZWwsUG9ydCxQb3J0IExhYmVsLFVOL0xPQ09ERSxNYXJrZXQgc2VnbWVudCBMYWJlbCxOdW1iZXIgb2YgcG9ydCBjYWxscyxOdW1iZXIgb2YgcG9ydCBjYWxscyBGb290bm90ZQoyMDIyLDI3NixHZXJtYW55LDExMDEsSGFtYnVyZyxERUhBTSxBbGwgc2hpcHMsNzgwMCwKMjAyMywyNzYsR2VybWFueSwxMTAxLEhhbWJ1cmcsREVIQU0sQWxsIHNoaXBzLDc5NTAsCjIwMjIsMjc2LEdlcm1hbnksMTEwMSxIYW1idXJnLERFSEFNLENvbnRhaW5lciBzaGlwcyw0MTAwLAoyMDIyLDI3NixHZXJtYW55LDExMDIsQnJlbWVyaGF2ZW4sLEFsbCBzaGlwcyw0MzAwLAoyMDIzLDI3NixHZXJtYW55LDExMDIsQnJlbWVyaGF2ZW4sLEFsbCBzaGlwcyw0MzUwLAoyMDIyLDI3NixHZXJtYW55LDExMDMsV2lsaGVsbXNoYXZlbiwsQWxsIHNoaXBzLDkwMCwKMjAyMywyNzYsR2VybWFueSwxMTAzLFdpbGhlbG1zaGF2ZW4sLEFsbCBzaGlwcywsTm90IGF2YWlsYWJsZQoyMDIyLDUyOCxOZXRoZXJsYW5kcywyMjAxLFJvdHRlcmRhbSxOTFJUTSxBbGwgc2hpcHMsMTI4MDAsCjIwMjMsNTI4LE5ldGhlcmxhbmRzLDIyMDEsUm90dGVyZGFtLE5MUlRNLEFsbCBzaGlwcywxMjk1MCwK",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/bulkdownload/US.PortCalls/US_PortCalls.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "scenarios": [
+  "revised-value"
+ ]
+}

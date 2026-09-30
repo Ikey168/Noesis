@@ -18,7 +18,7 @@
          "period": "M08",
          "periodName": "August",
          "value": "112.5",
-         "year": "2099"
+         "year": "2024"
         },
         {
          "footnotes": [
@@ -30,7 +30,7 @@
          "period": "M07",
          "periodName": "July",
          "value": "111.9",
-         "year": "2099"
+         "year": "2024"
         },
         {
          "footnotes": [
@@ -39,7 +39,7 @@
          "period": "M06",
          "periodName": "June",
          "value": "110.4",
-         "year": "2099"
+         "year": "2024"
         }
        ],
        "seriesID": "PCU483111483111"
@@ -53,11 +53,11 @@
    "headers": {
     "Content-Type": "application/json"
    },
-   "request": "/publicAPI/v2/timeseries/data/PCU483111483111?endyear=2099&startyear=2099",
+   "request": "/publicAPI/v2/timeseries/data/PCU483111483111?endyear=2024&startyear=2024",
    "status": 200
   }
  ],
- "note": "Authored fixture in the documented response shape; every value is fictional (not provider data) and dated in 2097-2099 so it cannot be mistaken for a published figure.",
+ "note": "Authored fixture in the documented response shape; every value is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
  "provider": "authored",
  "scenarios": [
   "authored-fixture",

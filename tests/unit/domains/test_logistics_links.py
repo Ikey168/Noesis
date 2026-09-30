@@ -74,7 +74,7 @@ def test_other_economics_series_link_by_country_code_with_the_comparability_chec
     conn, ports, store = _loaded()
     register_series(conn, SeriesRecord(
         series_id="worldbank:NE.EXP.GNFS.CD:DE", provider="worldbank", title="Exports of goods and services",
-        frequency="annual", as_of=h.day_ms("2099-03-01"), observations=[Observation("2097", 1.0)], unit="usd",
+        frequency="annual", as_of=h.day_ms("2024-03-01"), observations=[Observation("2022", 1.0)], unit="usd",
         geography="DE", source_url="https://api.worldbank.org/v2/"), domain="economics")
     result = ports.link_economic_series(h.NS, principal_id="svc", scopes=h.SCOPES)
     assert result["status"] == "linked"
