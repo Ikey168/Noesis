@@ -1,0 +1,1257 @@
+"""Education and research-institution statistics with release vintages: the ``science.education-statistics`` owner.
+
+Records (contract ``noesis-education-statistic-record-v1``, #2227 ED02) follow the vintage pattern of
+:mod:`src.kb.demographics` and :mod:`src.kb.demographics_comparability` (release, series, vintage, observation;
+release and retrieval clocks with basis labels; ``revision_of`` by release clock) in namespace-scoped ``edu_*``
+tables:
+
+* **release** - one acquired publication (an IPEDS data file, an ETER export, a UIS data version, an Education at a
+  Glance edition, a Eurostat dataset update) with its release clock, basis label and **release stage**
+  (``provisional``/``final`` for IPEDS). Re-acquiring an unchanged publication adds nothing.
+* **institution profile** - the name, location and identifiers a source publishes for an institution (IPEDS
+  directory, ETER); a changed profile is a new profile revision.
+* **series** - an *institution statistic* keyed by the source institution id (UNITID, ETER ID) or an *education
+  indicator* keyed by the published country or area code, with indicator code, concept, ISCED level, unit (currency
+  and scale as published), dimensions and frequency. The ROR id is attached only through a confirmed identity match
+  (:mod:`src.kb.education_identity`), never stored as a guess.
+* **vintage** - each release of a series is appended with the definition as published in that release; a revised
+  value never overwrites an earlier vintage (a final IPEDS release supersedes the provisional one without deleting
+  it), and a publication that changes values without a new release clock is refused (``vintage_conflict``).
+* **observation** - period, value text and exact decimal value, status and the publisher's own special code for a
+  value that is missing, not applicable, included elsewhere, confidential or suppressed (never zero), flags
+  verbatim.
+* **comparability note** - the publisher's qualifiers, footnotes, imputation, suppression, status and
+  break-in-series flags, quoted per vintage and period. Nothing is harmonised silently.
+
+No ranking, quality or composite score, harmonised or averaged value, currency conversion or derived ratio is ever
+stored. Links to Science and Funding records and the as-of query layer live at the end of this module (ED09, ED10).
+"""
+
+from __future__ import annotations
+
+import hashlib
+import json
+import time
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from datetime import date, datetime, timedelta, timezone
+from typing import Any
+
+from src.ingestion.education_sources import (
+    CONCEPTS,
+    EXCLUSIONS,
+    FORMATS,
+    LIVE_VERIFICATION,
+    NEVER_SENTENCE,
+    PROVIDER_CONTRACTS,
+    STATUSES,
+)
+
+CONTRACT = "noesis-education-statistic-record-v1"
+ANSWER_CONTRACT = "noesis-education-statistic-answer-v1"
+LINK_CONTRACT = "noesis-education-link-v1"
+READ_SCOPE = "knowledge:education:read"
+WRITE_SCOPE = "knowledge:education:write"
+REVIEW_SCOPE = "knowledge:education:review"
+DEFAULT_NAMESPACE = "global"
+BUNDLE = "science"
+FEATURE = "education-statistics"
+RECORD_TYPES = ("release", "institution_profile", "series", "vintage", "observation", "comparability_note")
+RECORD_KINDS = ("institution_statistic", "education_indicator")
+INSTITUTION_SCHEMES = ("ipeds-unitid", "eter-id")
+AREA_SCHEMES = ("uis-geo", "oecd-ref-area", "eurostat-geo")
+NOTE_KINDS = ("definition", "qualifier", "magnitude", "footnote", "status", "flag", "imputation", "suppression",
+              "special_code")
+# Keys that would carry a ranking, a score, a harmonised or derived number.
+FORBIDDEN_KEYS = frozenset(
+    {
+        "rank",
+        "ranking",
+        "league_table",
+        "score",
+        "quality_score",
+        "performance_score",
+        "composite_index",
+        "composite_score",
+        "harmonised_value",
+        "harmonized_value",
+        "averaged_value",
+        "combined_value",
+        "converted_value",
+        "per_student",
+        "per_staff",
+        "per_capita",
+    }
+)
+
+_DDL = """
+CREATE TABLE IF NOT EXISTS edu_releases (
+  namespace TEXT NOT NULL, release_id TEXT NOT NULL, provider TEXT NOT NULL, source_id TEXT, format TEXT NOT NULL,
+  document_json TEXT NOT NULL, published_on TEXT, published_at TEXT, release_basis TEXT NOT NULL,
+  release_stage TEXT NOT NULL, release_at_ms BIGINT NOT NULL, release_label TEXT, file_sha256 TEXT NOT NULL,
+  content_sha256 TEXT NOT NULL, item_count INTEGER NOT NULL, structure_json TEXT NOT NULL,
+  evidence_origin TEXT NOT NULL, url TEXT, sequence INTEGER NOT NULL, run_id TEXT NOT NULL, recorded_by TEXT,
+  retrieved_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, release_id)
+);
+CREATE TABLE IF NOT EXISTS edu_profiles (
+  namespace TEXT NOT NULL, profile_id TEXT NOT NULL, subject_scheme TEXT NOT NULL, subject_code TEXT NOT NULL,
+  release_id TEXT NOT NULL, release_at_ms BIGINT NOT NULL, reference_period TEXT, profile_json TEXT NOT NULL,
+  content_hash TEXT NOT NULL, revision INTEGER NOT NULL, PRIMARY KEY(namespace, profile_id)
+);
+CREATE TABLE IF NOT EXISTS edu_series (
+  namespace TEXT NOT NULL, series_id TEXT NOT NULL, provider TEXT NOT NULL, record_kind TEXT NOT NULL,
+  subject_scheme TEXT NOT NULL, subject_code TEXT NOT NULL, subject_json TEXT NOT NULL, country TEXT,
+  indicator_code TEXT NOT NULL, concept TEXT NOT NULL, indicator_label TEXT NOT NULL, isced_json TEXT,
+  unit_json TEXT NOT NULL, dimensions_json TEXT NOT NULL, frequency TEXT NOT NULL, first_release_id TEXT NOT NULL,
+  created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, series_id)
+);
+CREATE TABLE IF NOT EXISTS edu_vintages (
+  namespace TEXT NOT NULL, vintage_id TEXT NOT NULL, series_id TEXT NOT NULL, release_id TEXT NOT NULL,
+  release_at_ms BIGINT NOT NULL, release_at_basis TEXT NOT NULL, release_stage TEXT NOT NULL,
+  retrieved_at_ms BIGINT NOT NULL, definition_json TEXT NOT NULL, content_hash TEXT NOT NULL,
+  sequence INTEGER NOT NULL, created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, vintage_id)
+);
+CREATE TABLE IF NOT EXISTS edu_observations (
+  namespace TEXT NOT NULL, vintage_id TEXT NOT NULL, period TEXT NOT NULL, value_text TEXT, value TEXT,
+  status TEXT NOT NULL, special_code TEXT, flags_json TEXT NOT NULL, extra_json TEXT NOT NULL,
+  PRIMARY KEY(namespace, vintage_id, period)
+);
+CREATE TABLE IF NOT EXISTS edu_notes (
+  namespace TEXT NOT NULL, note_id TEXT NOT NULL, vintage_id TEXT NOT NULL, series_id TEXT NOT NULL,
+  release_id TEXT NOT NULL, period TEXT, kind TEXT NOT NULL, code TEXT, text TEXT NOT NULL,
+  PRIMARY KEY(namespace, note_id)
+);
+CREATE TABLE IF NOT EXISTS edu_release_members (
+  namespace TEXT NOT NULL, release_id TEXT NOT NULL, series_id TEXT NOT NULL, vintage_id TEXT NOT NULL,
+  PRIMARY KEY(namespace, release_id, series_id)
+);
+"""
+
+
+class EducationError(ValueError):
+    def __init__(self, code: str, message: str, **details: Any) -> None:
+        super().__init__(message)
+        self.code = code
+        self.details = details
+
+
+def canonical(value: Any) -> str:
+    return json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, default=str)
+
+
+def digest(value: Any) -> str:
+    return hashlib.sha256(canonical(value).encode()).hexdigest()
+
+
+def _load(value: Any, default: Any) -> Any:
+    return default if value in (None, "") else json.loads(value)
+
+
+def authorize(namespace: str, scopes: Iterable[str], required: str, *, write: bool = False) -> None:
+    scopes = set(scopes)
+    if "operator" in scopes:
+        return
+    needed = (
+        {f"namespace:{namespace}:write"}
+        if write
+        else {f"namespace:{namespace}:read", f"namespace:{namespace}:write"}
+    )
+    if required not in scopes or not needed & scopes:
+        raise EducationError("unauthorized", f"{required} and namespace access are required")
+
+
+def require_scope(scopes: Iterable[str], required: str) -> None:
+    scopes = set(scopes)
+    if "operator" not in scopes and required not in scopes:
+        raise EducationError("unauthorized", f"{required} is required for this part of the answer")
+
+
+def table_exists(conn: Any, table: str) -> bool:
+    return bool(conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name=?", [table]).fetchone())
+
+
+def forbidden_keys(value: Any, path: str = "$") -> list[str]:
+    """Keys anywhere in a value that would carry a ranking, a score or a harmonised or derived number."""
+    found = []
+    if isinstance(value, dict):
+        for key, item in value.items():
+            if str(key).casefold() in FORBIDDEN_KEYS:
+                found.append(f"{path}.{key}")
+            found += forbidden_keys(item, f"{path}.{key}")
+    elif isinstance(value, list):
+        for index, item in enumerate(value):
+            found += forbidden_keys(item, f"{path}[{index}]")
+    return found
+
+
+def release_ms(published_on: str | None, published_at: str | None, retrieved_ms: int) -> int:
+    """The release clock in epoch milliseconds (UTC); a date alone is its midnight; no date is the retrieval time."""
+    if published_at:
+        stamp = datetime.fromisoformat(str(published_at).replace("Z", "+00:00"))
+        if stamp.tzinfo is None:
+            stamp = stamp.replace(tzinfo=timezone.utc)
+        return int(stamp.timestamp() * 1000)
+    if published_on:
+        return int(
+            datetime.combine(date.fromisoformat(published_on), datetime.min.time(), tzinfo=timezone.utc).timestamp()
+            * 1000
+        )
+    return int(retrieved_ms)
+
+
+def iso_from_ms(value: int | None) -> str | None:
+    return None if value is None else datetime.fromtimestamp(int(value) / 1000, tz=timezone.utc).isoformat()
+
+
+def as_of_ms(value: Any) -> int | None:
+    """An as-of cutoff through the shared temporal parser (:func:`src.kb.temporal.parse_source_time`): epoch
+    milliseconds or ISO-8601; a date, month or year means the end of that period (UTC)."""
+    from src.kb.temporal import TemporalError, parse_source_time
+
+    if value is None or value == "":
+        return None
+    raw = int(value) if isinstance(value, str) and value.strip().isdigit() and len(value.strip()) > 4 else value
+    try:
+        millis, meta = parse_source_time(raw, field="as_of")
+    except TemporalError as exc:
+        raise EducationError("invalid_request", "as_of is epoch milliseconds or an ISO-8601 date or instant") from exc
+    if meta["precision"] in {"year", "month", "day"}:
+        start = datetime.fromtimestamp(millis / 1000, tz=timezone.utc)
+        if meta["precision"] == "day":
+            following = start + timedelta(days=1)
+        elif meta["precision"] == "month":
+            following = start.replace(year=start.year + (start.month == 12), month=start.month % 12 + 1)
+        else:
+            following = start.replace(year=start.year + 1)
+        millis = int(following.timestamp() * 1000) - 1
+    return millis
+
+
+def selected_features(conn: Any) -> list[str]:
+    try:
+        tables = {
+            r[0]
+            for r in conn.execute(
+                "SELECT table_name FROM information_schema.tables WHERE table_name IN "
+                "('composition_authority', 'composition_active', 'composition_generations', 'composition_plans')"
+            ).fetchall()
+        }
+        if len(tables) < 4:
+            return []
+        managed = conn.execute("SELECT authority FROM composition_authority WHERE bundle=?", [BUNDLE]).fetchone()
+        if not managed or managed[0] != "composition":
+            return []
+        row = conn.execute(
+            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
+            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
+        ).fetchone()
+        plan = json.loads(row[0]) if row else {}
+    except Exception:  # noqa: BLE001 - an unreadable plan never enables a feature
+        return []
+    return list((plan.get("features") or {}).get(BUNDLE) or [])
+
+
+def feature_enabled(conn: Any) -> bool:
+    """Whether the Science bundle's optional ``education-statistics`` feature is selected in the active plan."""
+    return FEATURE in selected_features(conn)
+
+
+def _check_item(item: Mapping[str, Any]) -> None:
+    if forbidden_keys(dict(item)):
+        raise EducationError("invalid_release", "published records carry no ranking, score or derived value")
+    kind = item.get("record_kind")
+    subject = dict(item.get("subject") or {})
+    if not subject.get("scheme") or not subject.get("code"):
+        raise EducationError("invalid_release", "a record states its subject scheme and code")
+    if kind == "institution_profile":
+        if subject["scheme"] not in INSTITUTION_SCHEMES:
+            raise EducationError("invalid_release", "a profile describes an institution")
+        return
+    if kind not in RECORD_KINDS:
+        raise EducationError("invalid_release", f"record kind is one of {RECORD_KINDS} or institution_profile")
+    expected = INSTITUTION_SCHEMES if kind == "institution_statistic" else AREA_SCHEMES
+    if subject["scheme"] not in expected:
+        raise EducationError("invalid_release", f"a {kind} is keyed by one of {expected}")
+    indicator = dict(item.get("indicator") or {})
+    if not indicator.get("code") or indicator.get("concept") not in CONCEPTS or not item.get("unit"):
+        raise EducationError("invalid_release", "a series states its indicator code, concept and unit")
+    for obs in item.get("observations") or []:
+        if obs.get("status") not in STATUSES:
+            raise EducationError("invalid_release", "each observation states its status")
+        if obs.get("status") != "reported" and obs.get("value") is not None:
+            raise EducationError("invalid_release", "a value that is not reported carries no number")
+    for note in item.get("notes") or []:
+        if note.get("kind") not in NOTE_KINDS or not str(note.get("text") or "").strip():
+            raise EducationError("invalid_release", "a comparability note has a kind and the publisher's text")
+
+
+class EducationStatisticsStore:
+    def __init__(self, conn: Any, *, initialize: bool = True, now: Callable[[], int] | None = None) -> None:
+        self.conn = conn
+        self.now = now or (lambda: int(time.time() * 1000))
+        if initialize:
+            conn.execute(_DDL)
+
+    def ready(self) -> bool:
+        return table_exists(self.conn, "edu_vintages")
+
+    # ------------------------------------------------------------------ writes
+
+    def _release(self, namespace, header, *, source_id, run_id, retrieved, recorded_by):
+        provider, fmt = str(header.get("provider") or ""), header.get("format")
+        if fmt not in FORMATS or FORMATS[fmt]["provider"] != provider:
+            raise EducationError("invalid_release", "release names a known provider and format")
+        document = dict(header.get("document") or {})
+        release_id = "edu-release:" + digest([namespace, provider, source_id, header["file_sha256"], document])[:24]
+        if self.conn.execute(
+            "SELECT 1 FROM edu_releases WHERE namespace=? AND release_id=?", [namespace, release_id]
+        ).fetchone():
+            return release_id, False
+        sequence = self.conn.execute(
+            "SELECT coalesce(max(sequence), 0) FROM edu_releases WHERE namespace=? AND provider=?",
+            [namespace, provider],
+        ).fetchone()[0]
+        origin = header.get("evidence_origin")
+        origin = origin if origin in {"fixture", "operator"} else "live"
+        self.conn.execute(
+            "INSERT INTO edu_releases VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                namespace,
+                release_id,
+                provider,
+                source_id,
+                fmt,
+                canonical(document),
+                header.get("published_on"),
+                header.get("published_at"),
+                str(header.get("release_basis") or "retrieval_time"),
+                str(header.get("release_stage") or "release"),
+                release_ms(header.get("published_on"), header.get("published_at"), retrieved),
+                header.get("release_label"),
+                header["file_sha256"],
+                header.get("content_sha256") or "",
+                int(header.get("item_count") or 0),
+                canonical(header.get("structure") or {}),
+                origin,
+                header.get("url"),
+                int(sequence) + 1,
+                run_id,
+                recorded_by,
+                retrieved,
+            ],
+        )
+        return release_id, True
+
+    def apply_release(
+        self,
+        namespace: str,
+        header: Mapping[str, Any],
+        items: Sequence[Mapping[str, Any]],
+        *,
+        run_id: str,
+        source_id: str | None,
+        retrieved_at_ms: int | None = None,
+        recorded_by: str | None = None,
+    ) -> dict[str, Any]:
+        """Record one publication: a vintage per stated series and a profile revision per changed profile;
+        idempotent by file and document."""
+        if int(header.get("item_count", -1)) != len(items):
+            raise EducationError("incomplete_release", "a release carries every item it states")
+        for item in items:
+            _check_item(item)
+        retrieved = int(retrieved_at_ms if retrieved_at_ms is not None else self.now())
+        counts = {"series": 0, "vintages": 0, "unchanged_vintages": 0, "profiles": 0, "notes": 0}
+        self.conn.execute("BEGIN")
+        try:
+            release_id, created = self._release(
+                namespace, header, source_id=source_id, run_id=run_id, retrieved=retrieved, recorded_by=recorded_by
+            )
+            if not created:
+                self.conn.execute("COMMIT")
+                return {"release_id": release_id, "status": "unchanged", **counts}
+            clock = release_ms(header.get("published_on"), header.get("published_at"), retrieved)
+            basis = str(header.get("release_basis") or "retrieval_time")
+            stage = str(header.get("release_stage") or "release")
+            vintage_ids, seen = [], set()
+            for item in items:
+                if item["record_kind"] == "institution_profile":
+                    counts["profiles"] += self._profile(namespace, item, release_id, clock)
+                    continue
+                series_id, new_series = self._series(namespace, header["provider"], item, release_id)
+                if series_id in seen:
+                    raise EducationError("invalid_release", "a release states the same series twice")
+                seen.add(series_id)
+                counts["series"] += int(new_series)
+                vintage_id, new_vintage, notes = self._vintage(
+                    namespace, series_id, item, release_id, clock, basis, stage, retrieved
+                )
+                vintage_ids.append(vintage_id)
+                counts["notes"] += notes
+                self.conn.execute(
+                    "INSERT INTO edu_release_members VALUES (?,?,?,?)", [namespace, release_id, series_id, vintage_id]
+                )
+                counts["vintages" if new_vintage else "unchanged_vintages"] += 1
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        return {
+            "release_id": release_id,
+            "status": "applied",
+            "published_on": header.get("published_on"),
+            "release_basis": basis,
+            "release_stage": stage,
+            "vintage_ids": vintage_ids,
+            **counts,
+        }
+
+    def _profile(self, namespace, item, release_id, clock) -> int:
+        subject = dict(item["subject"])
+        content_hash = digest(subject)
+        latest = self.conn.execute(
+            "SELECT content_hash, revision FROM edu_profiles WHERE namespace=? AND subject_scheme=? AND "
+            "subject_code=? ORDER BY release_at_ms DESC, revision DESC LIMIT 1",
+            [namespace, subject["scheme"], subject["code"]],
+        ).fetchone()
+        if latest and latest[0] == content_hash:
+            return 0
+        revision = 1 if latest is None else int(latest[1]) + 1
+        profile_id = "edu-profile:" + digest([namespace, subject["scheme"], subject["code"], release_id])[:24]
+        self.conn.execute(
+            "INSERT OR IGNORE INTO edu_profiles VALUES (?,?,?,?,?,?,?,?,?,?)",
+            [namespace, profile_id, subject["scheme"], subject["code"], release_id, clock,
+             item.get("reference_period"), canonical(subject), content_hash, revision],
+        )
+        return 1
+
+    @staticmethod
+    def series_key(provider: str, item: Mapping[str, Any]) -> list[Any]:
+        indicator = dict(item["indicator"])
+        return [
+            provider,
+            item["record_kind"],
+            [item["subject"]["scheme"], str(item["subject"]["code"])],
+            indicator["code"],
+            indicator["concept"],
+            item.get("isced"),
+            dict(item["unit"]),
+            dict(item.get("dimensions") or {}),
+            item.get("frequency") or "annual",
+        ]
+
+    def _series(self, namespace, provider, item, release_id):
+        series_id = "edu-series:" + digest([namespace, *self.series_key(provider, item)])[:24]
+        if self.conn.execute(
+            "SELECT 1 FROM edu_series WHERE namespace=? AND series_id=?", [namespace, series_id]
+        ).fetchone():
+            return series_id, False
+        subject = dict(item["subject"])
+        indicator = dict(item["indicator"])
+        self.conn.execute(
+            "INSERT INTO edu_series VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [
+                namespace,
+                series_id,
+                provider,
+                item["record_kind"],
+                subject["scheme"],
+                str(subject["code"]),
+                canonical(subject),
+                subject.get("country"),
+                indicator["code"],
+                indicator["concept"],
+                indicator.get("label") or indicator["code"],
+                None if item.get("isced") is None else canonical(item["isced"]),
+                canonical(dict(item["unit"])),
+                canonical(dict(item.get("dimensions") or {})),
+                item.get("frequency") or "annual",
+                release_id,
+                self.now(),
+            ],
+        )
+        return series_id, True
+
+    @staticmethod
+    def _content(item: Mapping[str, Any]) -> dict[str, Any]:
+        return {
+            "observations": [
+                {k: o.get(k) for k in ("period", "value_text", "value", "status", "special_code", "flags")}
+                for o in sorted(item.get("observations") or [], key=lambda o: o["period"])
+            ],
+            "notes": sorted(
+                ({k: n.get(k) for k in ("kind", "code", "text", "period")} for n in item.get("notes") or []),
+                key=canonical,
+            ),
+            "definition": dict(item["indicator"]),
+        }
+
+    def _vintage(self, namespace, series_id, item, release_id, clock, basis, stage, retrieved):
+        content = self._content(item)
+        content_hash = digest(content)
+        existing = self.conn.execute(
+            "SELECT vintage_id, content_hash FROM edu_vintages WHERE namespace=? AND series_id=? AND release_at_ms=? "
+            "ORDER BY sequence LIMIT 1",
+            [namespace, series_id, clock],
+        ).fetchone()
+        if existing:
+            if existing[1] != content_hash:
+                # Values changed without a new release clock: the stored vintage is kept and the publication refused.
+                raise EducationError(
+                    "vintage_conflict",
+                    "the publication changed values without a new release time; the stored vintage is kept",
+                    series_id=series_id,
+                )
+            return existing[0], False, 0
+        sequence = 1 + int(
+            self.conn.execute(
+                "SELECT coalesce(max(sequence), 0) FROM edu_vintages WHERE namespace=? AND series_id=?",
+                [namespace, series_id],
+            ).fetchone()[0]
+        )
+        vintage_id = "edu-vintage:" + digest([namespace, series_id, clock, content_hash])[:24]
+        self.conn.execute(
+            "INSERT INTO edu_vintages VALUES (?,?,?,?,?,?,?,?,?,?,?,?)",
+            [namespace, vintage_id, series_id, release_id, clock, basis, stage, retrieved,
+             canonical(dict(item["indicator"])), content_hash, sequence, self.now()],
+        )
+        for obs in item.get("observations") or []:
+            extra = {k: v for k, v in obs.items()
+                     if k not in {"period", "value_text", "value", "status", "special_code", "flags"}}
+            self.conn.execute(
+                "INSERT INTO edu_observations VALUES (?,?,?,?,?,?,?,?,?)",
+                [namespace, vintage_id, obs["period"], obs.get("value_text"), obs.get("value"), obs["status"],
+                 obs.get("special_code"), canonical(dict(obs.get("flags") or {})), canonical(extra)],
+            )
+        notes = 0
+        for note in item.get("notes") or []:
+            note_id = "edu-note:" + digest([namespace, vintage_id, note.get("period"), note["kind"], note.get("code"),
+                                            note["text"]])[:24]
+            self.conn.execute(
+                "INSERT OR IGNORE INTO edu_notes VALUES (?,?,?,?,?,?,?,?,?)",
+                [namespace, note_id, vintage_id, series_id, release_id, note.get("period"), note["kind"],
+                 note.get("code"), str(note["text"])],
+            )
+            notes += 1
+        return vintage_id, True, notes
+
+    # ------------------------------------------------------------------ reads
+
+    _RELEASE_KEYS = (
+        "release_id", "provider", "source_id", "format", "document", "published_on", "published_at", "release_basis",
+        "release_stage", "release_at_ms", "release_label", "file_sha256", "content_sha256", "item_count", "structure",
+        "evidence_origin", "url", "sequence", "run_id", "recorded_by", "retrieved_at_ms",
+    )
+
+    def release(self, namespace: str, release_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            f"SELECT {', '.join(k if k not in {'document', 'structure'} else k + '_json' for k in self._RELEASE_KEYS)}"
+            " FROM edu_releases WHERE namespace=? AND release_id=?",
+            [namespace, release_id],
+        ).fetchone()
+        if row is None:
+            raise EducationError("not_found", "release is not visible in this namespace")
+        view = dict(zip(self._RELEASE_KEYS, row))
+        view["document"] = _load(view["document"], {})
+        view["structure"] = _load(view["structure"], {})
+        return {"contract": CONTRACT, "record_type": "release", "namespace": namespace, **view}
+
+    def source_revision(self, namespace: str, release_id: str) -> dict[str, Any]:
+        release = self.release(namespace, release_id)
+        keys = ("release_id", "provider", "source_id", "file_sha256", "published_on", "published_at",
+                "release_basis", "release_stage", "release_at_ms", "release_label", "url", "evidence_origin",
+                "retrieved_at_ms")
+        return {k: release[k] for k in keys} | {
+            "document": release["document"].get("label"),
+            "attribution": PROVIDER_CONTRACTS[release["provider"]]["attribution"],
+            "live_verification": LIVE_VERIFICATION.get(release["provider"], {}).get("status"),
+        }
+
+    def releases(self, namespace: str, *, provider: str | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "edu_releases"):
+            return []
+        rows = self.conn.execute(
+            "SELECT release_id FROM edu_releases WHERE namespace=? AND (? IS NULL OR provider=?) "
+            "ORDER BY release_at_ms, sequence",
+            [namespace, provider, provider],
+        ).fetchall()
+        return [self.release(namespace, r[0]) for r in rows]
+
+    def profiles(self, namespace: str, scheme: str, code: str, *, as_of: int | None = None) -> list[dict[str, Any]]:
+        """Every profile revision of an institution (release order); the last one at the cutoff is current."""
+        if not table_exists(self.conn, "edu_profiles"):
+            return []
+        rows = self.conn.execute(
+            "SELECT profile_id, release_id, release_at_ms, reference_period, profile_json, revision FROM edu_profiles "
+            "WHERE namespace=? AND subject_scheme=? AND subject_code=? ORDER BY release_at_ms, revision",
+            [namespace, scheme, str(code)],
+        ).fetchall()
+        cutoff = as_of if as_of is not None else 2**62
+        return [
+            {"contract": CONTRACT, "record_type": "institution_profile", "profile_id": r[0], "revision": r[5],
+             "reference_period": r[3], "subject": json.loads(r[4]), "release_at": iso_from_ms(r[2]),
+             "source_revision": self.source_revision(namespace, r[1])}
+            for r in rows
+            if r[2] <= cutoff
+        ]
+
+    def institutions(self, namespace: str) -> list[dict[str, Any]]:
+        """The current profile of every institution with a profile (latest revision), else its bare subject."""
+        if not self.ready():
+            return []
+        found: dict[tuple[str, str], dict[str, Any]] = {}
+        for scheme, code, subject in self.conn.execute(
+            "SELECT subject_scheme, subject_code, subject_json FROM edu_series WHERE namespace=? AND "
+            "record_kind='institution_statistic' ORDER BY subject_scheme, subject_code",
+            [namespace],
+        ).fetchall():
+            found.setdefault((scheme, code), json.loads(subject))
+        if table_exists(self.conn, "edu_profiles"):
+            for scheme, code in self.conn.execute(
+                "SELECT DISTINCT subject_scheme, subject_code FROM edu_profiles WHERE namespace=?", [namespace]
+            ).fetchall():
+                profiles = self.profiles(namespace, scheme, code)
+                if profiles:
+                    found[(scheme, code)] = {**found.get((scheme, code), {}), **profiles[-1]["subject"]}
+        return [found[k] for k in sorted(found)]
+
+    _SERIES_COLUMNS = (
+        "series_id, provider, record_kind, subject_json, indicator_code, concept, indicator_label, isced_json, "
+        "unit_json, dimensions_json, frequency, first_release_id"
+    )
+
+    def _series_view(self, namespace: str, row: Sequence[Any]) -> dict[str, Any]:
+        (series_id, provider, kind, subject, code, concept, label, isced, unit, dimensions, frequency, first) = row
+        vintages = self.vintage_rows(namespace, series_id)
+        return {
+            "contract": CONTRACT,
+            "record_type": "series",
+            "namespace": namespace,
+            "series_id": series_id,
+            "provider": provider,
+            "record_kind": kind,
+            "subject": _load(subject, {}),
+            "indicator": {"code": code, "label": label, "concept": concept},
+            "isced": _load(isced, None),
+            "unit": _load(unit, {}),
+            "dimensions": _load(dimensions, {}),
+            "frequency": frequency,
+            "first_release_id": first,
+            "vintage_count": len(vintages),
+            "current_vintage_id": vintages[-1]["vintage_id"] if vintages else None,
+        }
+
+    def series(self, namespace: str, series_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            f"SELECT {self._SERIES_COLUMNS} FROM edu_series WHERE namespace=? AND series_id=?", [namespace, series_id]
+        ).fetchone()
+        if row is None:
+            raise EducationError("not_found", "series is not visible in this namespace")
+        return self._series_view(namespace, row)
+
+    def find_series(
+        self,
+        namespace: str,
+        *,
+        provider: str | None = None,
+        record_kind: str | None = None,
+        subjects: Iterable[tuple[str, str]] | None = None,
+        concept: str | None = None,
+        indicator: str | None = None,
+        limit: int = 1000,
+    ) -> list[dict[str, Any]]:
+        if not self.ready():
+            return []
+        rows = self.conn.execute(
+            f"SELECT {self._SERIES_COLUMNS}, subject_scheme, subject_code FROM edu_series WHERE namespace=? AND "
+            "(? IS NULL OR provider=?) AND (? IS NULL OR record_kind=?) AND (? IS NULL OR concept=?) AND "
+            "(? IS NULL OR indicator_code=?) ORDER BY concept, provider, subject_scheme, subject_code, indicator_code, "
+            "series_id",
+            [namespace, provider, provider, record_kind, record_kind, concept, concept, indicator, indicator],
+        ).fetchall()
+        wanted = None if subjects is None else {(str(s), str(c)) for s, c in subjects}
+        out = []
+        for row in rows:
+            if wanted is not None and (row[-2], row[-1]) not in wanted:
+                continue
+            out.append(self._series_view(namespace, row[:-2]))
+            if len(out) >= limit:
+                break
+        return out
+
+    def vintage_rows(self, namespace: str, series_id: str) -> list[dict[str, Any]]:
+        """Every vintage of a series in release-clock order, each with ``revision_of`` its predecessor."""
+        rows = self.conn.execute(
+            "SELECT vintage_id, release_id, release_at_ms, release_at_basis, release_stage, retrieved_at_ms, "
+            "definition_json, content_hash, sequence FROM edu_vintages WHERE namespace=? AND series_id=? "
+            "ORDER BY release_at_ms, sequence",
+            [namespace, series_id],
+        ).fetchall()
+        out, previous = [], None
+        for row in rows:
+            view = dict(zip(("vintage_id", "release_id", "release_at_ms", "release_at_basis", "release_stage",
+                             "retrieved_at_ms", "definition", "content_hash", "sequence"), row))
+            view["definition"] = _load(view["definition"], {})
+            view["series_id"] = series_id
+            view["release_at"] = iso_from_ms(view["release_at_ms"])
+            view["revision_of"] = previous["vintage_id"] if previous else None
+            view["values_changed"] = previous is None or previous["content_hash"] != view["content_hash"]
+            out.append(view)
+            previous = view
+        return out
+
+    def vintage(self, namespace: str, vintage_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT series_id FROM edu_vintages WHERE namespace=? AND vintage_id=?", [namespace, vintage_id]
+        ).fetchone()
+        if row is None:
+            raise EducationError("not_found", "vintage is not visible in this namespace")
+        view = next(v for v in self.vintage_rows(namespace, row[0]) if v["vintage_id"] == vintage_id)
+        return {"contract": CONTRACT, "record_type": "vintage", "namespace": namespace, **view,
+                "source_revision": self.source_revision(namespace, view["release_id"])}
+
+    def observations(self, namespace: str, vintage_id: str, *, period_from: str | None = None,
+                     period_to: str | None = None) -> list[dict[str, Any]]:
+        rows = self.conn.execute(
+            "SELECT period, value_text, value, status, special_code, flags_json, extra_json FROM edu_observations "
+            "WHERE namespace=? AND vintage_id=? ORDER BY period",
+            [namespace, vintage_id],
+        ).fetchall()
+        out = []
+        for period, value_text, value, status, special, flags, extra in rows:
+            if period_from and period < period_from:
+                continue
+            if period_to and period[: len(period_to)] > period_to:
+                continue
+            out.append({"record_type": "observation", "period": period, "value_text": value_text, "value": value,
+                        "status": status, "special_code": special, "flags": _load(flags, {}), **_load(extra, {})})
+        return out
+
+    def notes(self, namespace: str, vintage_id: str, *, period: str | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "edu_notes"):
+            return []
+        rows = self.conn.execute(
+            "SELECT note_id, series_id, release_id, period, kind, code, text FROM edu_notes WHERE namespace=? AND "
+            "vintage_id=? AND (? IS NULL OR period IS NULL OR period=?) ORDER BY period, kind, code, note_id",
+            [namespace, vintage_id, period, period],
+        ).fetchall()
+        return [
+            {"contract": CONTRACT, "record_type": "comparability_note", "note_id": r[0], "series_id": r[1],
+             "vintage_id": vintage_id, "release_id": r[2], "period": r[3], "kind": r[4], "code": r[5], "text": r[6],
+             "source": "publisher", "note": "quoted as published; nothing is harmonised"}
+            for r in rows
+        ]
+
+    def select_vintage(self, namespace: str, series_id: str, *, as_of: int | None = None
+                       ) -> tuple[dict[str, Any] | None, str | None]:
+        """The vintage released on or before the cutoff (release-cutoff semantics of the economic release store)."""
+        vintages = self.vintage_rows(namespace, series_id)
+        cutoff = as_of if as_of is not None else 2**62
+        eligible = [v for v in vintages if v["release_at_ms"] <= cutoff]
+        if eligible:
+            return eligible[-1], None
+        return None, "no_release_by_as_of" if vintages else "no_vintage"
+
+    def values(self, namespace: str, series_id: str, *, vintage_id: str | None = None, as_of: int | None = None,
+               period_from: str | None = None, period_to: str | None = None) -> dict[str, Any]:
+        series = self.series(namespace, series_id)
+        reason = None
+        if vintage_id:
+            vintage = next((v for v in self.vintage_rows(namespace, series_id) if v["vintage_id"] == vintage_id), None)
+            if vintage is None:
+                raise EducationError("not_found", "vintage does not belong to this series")
+        else:
+            vintage, reason = self.select_vintage(namespace, series_id, as_of=as_of)
+        if vintage is None:
+            return {"contract": ANSWER_CONTRACT, "series": series, "status": "unavailable", "reason": reason,
+                    "observations": []}
+        return {
+            "contract": ANSWER_CONTRACT,
+            "series": series,
+            "status": "available",
+            "vintage": {**vintage, "source_revision": self.source_revision(namespace, vintage["release_id"])},
+            "observations": self.observations(namespace, vintage["vintage_id"], period_from=period_from,
+                                              period_to=period_to),
+            "comparability_notes": self.notes(namespace, vintage["vintage_id"]),
+            "note": "values as published in this vintage; values that are not reported keep the publisher's code "
+            "and no number",
+        }
+
+    def latest_release_ms(self, namespace: str) -> int | None:
+        if not table_exists(self.conn, "edu_releases"):
+            return None
+        row = self.conn.execute("SELECT max(retrieved_at_ms) FROM edu_releases WHERE namespace=?",
+                                [namespace]).fetchone()
+        return None if row is None or row[0] is None else int(row[0])
+
+
+class EducationProjector:
+    """Source-pack runtime projector for ``noesis-education-statistic-record-v1`` pages (one release per page)."""
+
+    def __init__(self, conn: Any) -> None:
+        self.store = EducationStatisticsStore(conn)
+
+    @staticmethod
+    def _namespace(source: Mapping[str, Any]) -> str:
+        return str(dict(source.get("education_statistics") or {}).get("namespace") or DEFAULT_NAMESPACE)
+
+    def project_page(self, *, run_id, manifest, source, records, documents, page_receipt, principal_id):
+        del manifest, documents, page_receipt, principal_id
+        groups: dict[str, tuple[dict[str, Any], list[dict[str, Any]]]] = {}
+        for item in records:
+            header, body = dict(item.get("education_release") or {}), item.get("education_item")
+            if not header or not isinstance(body, Mapping):
+                raise EducationError("invalid_record", "page record is not an education release item")
+            groups.setdefault(header["file_sha256"] + canonical(header.get("document")), (header, []))[1].append(
+                dict(body))
+        namespace = self._namespace(source)
+        return [self.store.apply_release(namespace, header, items, run_id=run_id, source_id=source["source_id"])
+                for header, items in groups.values()]
+
+    def finish_source(self, *, run_id, manifest, source, status, principal_id):
+        del run_id, manifest, principal_id
+        row = self.store.conn.execute(
+            "SELECT release_id, published_on, release_stage FROM edu_releases WHERE namespace=? AND source_id=? "
+            "ORDER BY release_at_ms DESC, sequence DESC LIMIT 1",
+            [self._namespace(source), source["source_id"]],
+        ).fetchone()
+        return {"status": status, "latest_release_id": row[0] if row else None,
+                "latest_published_on": row[1] if row else None, "latest_release_stage": row[2] if row else None}
+
+
+def readiness(conn: Any) -> dict[str, Any]:
+    store = EducationStatisticsStore(conn, initialize=False)
+    ready = store.ready() and table_exists(conn, "edu_releases")
+    providers = {}
+    for provider, contract in PROVIDER_CONTRACTS.items():
+        releases = 0
+        if ready:
+            releases = int(conn.execute("SELECT count(*) FROM edu_releases WHERE provider=?", [provider]).fetchone()[0])
+        providers[provider] = {"delivers": contract["delivers"], "access_decision": contract["access_decision"],
+                               "live_verification": LIVE_VERIFICATION[provider]["status"], "releases": releases}
+    return {
+        "feature": FEATURE,
+        "selected": feature_enabled(conn),
+        "stores_ready": ready,
+        "providers": providers,
+        "exclusions": list(EXCLUSIONS),
+        "never": NEVER_SENTENCE,
+        "note": "offline fixture evidence and live evidence are reported per release (evidence_origin); no provider "
+        "is live until a dated run verifies it",
+    }
+
+
+
+# ---------------------------------------------------------------------- links to Science and Funding (ED09)
+
+LINK_TARGETS = {
+    # kind: (side, description)
+    "funding_opportunity": ("funding", "a Funding programme, call, directory entry or award record "
+                            "(src.kb.funding_opportunities, noesis-funding-record-v1)"),
+    "scholarly_work": ("science", "a scholarly work in the document store (source_type paper) with its "
+                       "affiliation metadata"),
+    "methodology_study": ("science", "a Science methodology study record (src.kb.methodology_provenance)"),
+}
+_LINK_DDL = """
+CREATE TABLE IF NOT EXISTS edu_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, side TEXT NOT NULL, target_kind TEXT NOT NULL,
+  subject_json TEXT NOT NULL, target_json TEXT NOT NULL, basis_json TEXT NOT NULL, citation_json TEXT NOT NULL,
+  target_status TEXT NOT NULL, state TEXT NOT NULL, history_json TEXT NOT NULL, created_by TEXT NOT NULL,
+  created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
+);
+"""
+LINK_NOTICE = (
+    "Linked by a confirmed ROR match or an identifier cited in the records only; the linked record is shown as held, "
+    "never recomputed, and no per-student or per-staff ratio is derived."
+)
+
+
+class EducationLinks:
+    """Institution statistics joined to Science and Funding records through the shared ROR identity and explicit
+    citations (no name or keyword joins)."""
+
+    def __init__(self, conn: Any, *, now=None, initialize: bool = True) -> None:
+        self.conn = conn
+        self.store = EducationStatisticsStore(conn, initialize=initialize, now=now)
+        self.now = self.store.now
+        if initialize:
+            conn.execute(_LINK_DDL)
+
+    def _record_text(self, kind: str, target: Mapping[str, Any]) -> tuple[str, str | None]:
+        """(status, the held record as text) of a cited target; ``provider_absent`` without its store."""
+        record_id = str(target["record_id"])
+        if kind == "funding_opportunity":
+            if not table_exists(self.conn, "funding_opportunity_revisions"):
+                return "provider_absent", None
+            row = self.conn.execute(
+                "SELECT r.content_json FROM funding_opportunities o JOIN funding_opportunity_revisions r ON "
+                "r.opportunity_id=o.opportunity_id AND r.revision=o.revision WHERE o.opportunity_id=? AND "
+                "o.namespace=?", [record_id, str(target.get("namespace") or DEFAULT_NAMESPACE)]).fetchone()
+        elif kind == "scholarly_work":
+            if not table_exists(self.conn, "documents"):
+                return "provider_absent", None
+            row = self.conn.execute(
+                "SELECT to_json(d) FROM documents d WHERE document_id=?", [record_id]).fetchone()
+        else:
+            if not table_exists(self.conn, "methodology_study_current"):
+                return "provider_absent", None
+            row = self.conn.execute(
+                "SELECT r.payload_json FROM methodology_study_current c JOIN methodology_study_revisions r ON "
+                "r.study_revision_id=c.study_revision_id WHERE c.study_id=? AND r.namespace=?",
+                [record_id, str(target.get("namespace") or DEFAULT_NAMESPACE)]).fetchone()
+        return ("target_missing", None) if row is None else ("resolved", str(row[0]))
+
+    def _subject_basis(self, namespace: str, subject: Mapping[str, Any], identifier: Mapping[str, Any]
+                       ) -> tuple[dict[str, Any], dict[str, Any]]:
+        from src.kb.education_identity import EducationIdentity, ror_url
+
+        identity = EducationIdentity(self.conn, initialize=False) if table_exists(
+            self.conn, "edu_identity_matches") else None
+        scheme, value = str(identifier.get("scheme") or ""), str(identifier.get("value") or "").strip()
+        if subject.get("ror"):
+            ror = ror_url(subject["ror"])
+            if scheme != "ror" or ror_url(value) != ror:
+                raise EducationError("citation_required", "a ROR-keyed link cites the same ROR id")
+            used = identity.institutions_for_ror(namespace, ror) if identity else {"subjects": [], "basis": []}
+            if not used["subjects"]:
+                raise EducationError("no_confirmed_match", "no exact or accepted ROR match ties an institution to "
+                                     "this ROR id; unreviewed candidates are never used")
+            return ({"ror": ror, "institutions": used["subjects"]},
+                    {"method": "confirmed-ror-match", "matches": [b["match_id"] for b in used["basis"]]})
+        key = {"scheme": str(subject.get("scheme") or ""), "code": str(subject.get("code") or "")}
+        if key["scheme"] not in INSTITUTION_SCHEMES or not key["code"]:
+            raise EducationError("invalid_request", "link a ROR id or a source institution (ipeds-unitid, eter-id)")
+        if scheme == key["scheme"] and value == key["code"]:
+            return key, {"method": "cited-source-identifier"}
+        if scheme == "ror" and identity is not None:
+            confirmed = identity.ror_for(namespace, key["scheme"], key["code"])
+            if confirmed["status"] == "confirmed" and confirmed["ror_id"] == ror_url(value):
+                return ({**key, "ror": confirmed["ror_id"]},
+                        {"method": "confirmed-ror-match", "matches": [b["match_id"] for b in confirmed["basis"]]})
+        raise EducationError("citation_required", "the cited identifier is neither the institution's source id nor "
+                             "its confirmed ROR id; names and keywords never link records")
+
+    def link(self, namespace: str, *, subject: Mapping[str, Any], target: Mapping[str, Any],
+             citation: Mapping[str, Any], principal_id: str, scopes: Iterable[str]) -> dict[str, Any]:
+        """Link an institution (by ROR id or source id) to a Science or Funding record whose citation names the
+        identifier; a held record must carry it. Idempotent."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        kind = str(dict(target).get("kind") or "")
+        if kind not in LINK_TARGETS or not dict(target).get("record_id"):
+            raise EducationError("invalid_request", f"a target names its kind ({sorted(LINK_TARGETS)}) and record id")
+        side = LINK_TARGETS[kind][0]
+        require_scope(scopes, "knowledge:funding:read" if side == "funding" else "knowledge:read")
+        citation = dict(citation or {})
+        identifier = dict(citation.get("identifier") or {})
+        if not str(citation.get("source") or "").strip() or not str(citation.get("locator") or "").strip() \
+                or not identifier.get("scheme") or not identifier.get("value"):
+            raise EducationError("citation_required", "a link cites its source, the locator and the identifier the "
+                                 "record states")
+        self.conn.execute(_LINK_DDL)
+        key, basis = self._subject_basis(namespace, dict(subject), identifier)
+        status, text = self._record_text(kind, target)
+        value = str(identifier["value"]).strip()
+        if status == "resolved":
+            needles = {value, value.rsplit("/", 1)[-1]} if identifier["scheme"] == "ror" else {value}
+            if not any(n and n in text for n in needles):
+                raise EducationError("identifier_not_in_record", "the held record does not state the cited identifier;"
+                                     " records are never joined by name or keyword")
+            basis = {**basis, "identifier_in_record": True, "record_sha256": digest(text)}
+        target_view = {"kind": kind, "side": side, "record_id": str(target["record_id"]),
+                       "namespace": str(dict(target).get("namespace") or DEFAULT_NAMESPACE)}
+        link_id = "edu-link:" + digest([namespace, key, target_view, identifier])[:24]
+        if not self.conn.execute("SELECT 1 FROM edu_links WHERE namespace=? AND link_id=?",
+                                 [namespace, link_id]).fetchone():
+            now = self.now()
+            self.conn.execute(
+                "INSERT INTO edu_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                [namespace, link_id, side, kind, canonical(key), canonical(target_view), canonical(basis),
+                 canonical({**citation, "identifier": identifier}), status, "active",
+                 canonical([{"state": "active", "by": principal_id, "at_ms": now}]), principal_id, now])
+        return self.link_view(namespace, link_id)
+
+    def link_view(self, namespace: str, link_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT link_id, side, target_kind, subject_json, target_json, basis_json, citation_json, target_status, "
+            "state, history_json, created_by, created_at_ms FROM edu_links WHERE namespace=? AND link_id=?",
+            [namespace, link_id]).fetchone()
+        if row is None:
+            raise EducationError("not_found", "link is not visible in this namespace")
+        return {"contract": LINK_CONTRACT, "namespace": namespace, "link_id": row[0], "side": row[1],
+                "target_kind": row[2], "subject": json.loads(row[3]), "target": json.loads(row[4]),
+                "basis": json.loads(row[5]), "citation": json.loads(row[6]), "target_status": row[7],
+                "state": row[8], "history": json.loads(row[9]), "created_by": row[10], "created_at_ms": row[11],
+                "notice": LINK_NOTICE}
+
+    def links(self, namespace: str, *, scopes: Iterable[str], ror: str | None = None,
+              subject: Mapping[str, Any] | None = None, side: str | None = None) -> list[dict[str, Any]]:
+        authorize(namespace, set(scopes), READ_SCOPE)
+        if not table_exists(self.conn, "edu_links"):
+            return []
+        rows = self.conn.execute(
+            "SELECT link_id FROM edu_links WHERE namespace=? AND state='active' AND (? IS NULL OR side=?) "
+            "ORDER BY side, target_kind, created_at_ms, link_id", [namespace, side, side]).fetchall()
+        out = []
+        for (link_id,) in rows:
+            view = self.link_view(namespace, link_id)
+            linked = view["subject"]
+            if ror is not None and linked.get("ror") != ror:
+                continue
+            if subject is not None and (linked.get("scheme"), linked.get("code")) != (
+                    subject.get("scheme"), str(subject.get("code"))):
+                continue
+            out.append(view)
+        return out
+
+    def withdraw(self, namespace, link_id, reason, *, principal_id, scopes):
+        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
+        if not str(reason or "").strip():
+            raise EducationError("invalid_decision", "a withdrawal needs a reason")
+        view = self.link_view(namespace, link_id)
+        if view["state"] != "active":
+            raise EducationError("invalid_state", "only an active link can be withdrawn")
+        history = view["history"] + [{"state": "withdrawn", "by": principal_id, "reason": reason, "at_ms": self.now()}]
+        self.conn.execute("UPDATE edu_links SET state='withdrawn', history_json=? WHERE namespace=? AND link_id=?",
+                          [canonical(history), namespace, link_id])
+        return self.link_view(namespace, link_id)
+
+
+
+# ---------------------------------------------------------------------- as-of answers (ED10)
+
+COUNTRY_ALIASES = {"EL": "GR", "UK": "GB"}
+
+
+def country_token(code: Any) -> str | None:
+    """A published country code as ISO 3166-1 alpha-2 through the dataset connectors' normaliser (alpha-3 mapped
+    where known; Eurostat EL and UK read as GR and GB); unknown codes pass through upper-cased."""
+    from src.ingestion.connectors.dataset.normalize import normalize_geography
+
+    token = normalize_geography(None if code is None else str(code))
+    return None if token is None else COUNTRY_ALIASES.get(token, token)
+
+
+class EducationQueries:
+    """Institution and country statistics as published by a date, with definitions, units, vintages, comparability
+    notes and citations; sources side by side, never merged, averaged, ranked or scored."""
+
+    def __init__(self, conn: Any, *, now=None) -> None:
+        self.conn = conn
+        self.store = EducationStatisticsStore(conn, initialize=False, now=now)
+
+    def _figure(self, namespace, series, vintage, observation, cutoff, history) -> dict[str, Any]:
+        revision = self.store.source_revision(namespace, vintage["release_id"])
+        period = observation["period"]
+        return {
+            "provider": series["provider"],
+            "series_id": series["series_id"],
+            "record_kind": series["record_kind"],
+            "subject": series["subject"],
+            "indicator": series["indicator"],
+            "definition": vintage["definition"],
+            "isced": series["isced"],
+            "unit": series["unit"],
+            "dimensions": series["dimensions"],
+            "period": period,
+            "value_text": observation["value_text"],
+            "value": observation["value"],
+            "status": observation["status"],
+            "special_code": observation["special_code"],
+            "flags": observation["flags"],
+            "comparability_notes": self.store.notes(namespace, vintage["vintage_id"], period=period),
+            "release": {
+                "vintage_id": vintage["vintage_id"],
+                "release_id": vintage["release_id"],
+                "release_at": vintage["release_at"],
+                "release_at_basis": vintage["release_at_basis"],
+                "release_stage": vintage["release_stage"],
+                "revision_of": vintage["revision_of"],
+                "retrieved_at": iso_from_ms(vintage["retrieved_at_ms"]),
+                "selected_as_of": iso_from_ms(cutoff) if cutoff is not None else "latest",
+            },
+            "vintages": [v for v in history if v["period"] == period],
+            "citation": {
+                "provider": revision["provider"],
+                "attribution": revision["attribution"],
+                "document": revision["document"],
+                "release_label": revision["release_label"],
+                "published_on": revision["published_on"],
+                "url": revision["url"],
+                "file_sha256": revision["file_sha256"],
+                "evidence_origin": revision["evidence_origin"],
+                "live_verification": revision["live_verification"],
+                "release_id": revision["release_id"],
+            },
+        }
+
+    def _history(self, namespace: str, series_id: str, cutoff: int | None) -> list[dict[str, Any]]:
+        """Every vintage's value per period (released by the cutoff), oldest first: all vintages of a value."""
+        out = []
+        for vintage in self.store.vintage_rows(namespace, series_id):
+            if cutoff is not None and vintage["release_at_ms"] > cutoff:
+                continue
+            for observation in self.store.observations(namespace, vintage["vintage_id"]):
+                out.append({"period": observation["period"], "vintage_id": vintage["vintage_id"],
+                            "release_at": vintage["release_at"], "release_stage": vintage["release_stage"],
+                            "value": observation["value"], "status": observation["status"],
+                            "special_code": observation["special_code"]})
+        return out
+
+    def _answer(self, namespace: str, series_list: list[dict[str, Any]], cutoff: int | None,
+                period_from: str | None, period_to: str | None) -> dict[str, Any]:
+        concepts: dict[str, dict[str, Any]] = {}
+        not_released, withheld, citations = [], [], {}
+        for series in series_list:
+            vintage, reason = self.store.select_vintage(namespace, series["series_id"], as_of=cutoff)
+            if vintage is None:
+                not_released.append({"series_id": series["series_id"], "provider": series["provider"],
+                                     "indicator": series["indicator"], "reason": reason})
+                continue
+            history = self._history(namespace, series["series_id"], cutoff)
+            group = concepts.setdefault(series["indicator"]["concept"], {"periods": {}, "providers": set()})
+            group["providers"].add(series["provider"])
+            for observation in self.store.observations(namespace, vintage["vintage_id"], period_from=period_from,
+                                                       period_to=period_to):
+                figure = self._figure(namespace, series, vintage, observation, cutoff, history)
+                group["periods"].setdefault(observation["period"], []).append(figure)
+                citations[figure["citation"]["release_id"]] = figure["citation"]
+                if figure["status"] != "reported":
+                    withheld.append({k: figure[k] for k in ("provider", "series_id", "period", "status",
+                                                            "special_code")} | {"indicator": series["indicator"]})
+        out = []
+        for concept in sorted(concepts):
+            group = concepts[concept]
+            periods = []
+            for period in sorted(group["periods"]):
+                figures = sorted(group["periods"][period], key=lambda f: (f["provider"], f["indicator"]["code"],
+                                                                          canonical(f["subject"])))
+                periods.append({"period": period, "figures": figures,
+                                "sources": sorted({f["provider"] for f in figures}),
+                                "side_by_side": len({f["provider"] for f in figures}) > 1})
+            out.append({"concept": concept, "providers": sorted(group["providers"]), "periods": periods,
+                        "note": "each source's value with its own definition, unit and vintage; values of different "
+                        "sources are never merged, averaged, harmonised or ranked"})
+        return {"concepts": out, "not_released_by_as_of": not_released, "withheld": withheld,
+                "citations": [citations[k] for k in sorted(citations)]}
+
+    def _envelope(self, query, cutoff, body, **extra) -> dict[str, Any]:
+        answered = any(p["figures"] for c in body["concepts"] for p in c["periods"])
+        return {
+            "contract": ANSWER_CONTRACT,
+            "query": query,
+            "as_of": iso_from_ms(cutoff) if cutoff is not None else "latest",
+            "status": "answered" if answered else "none_on_record",
+            **extra,
+            **body,
+            "never": NEVER_SENTENCE,
+            "exclusions": list(EXCLUSIONS),
+        }
+
+    def institution(self, namespace: str, *, scopes: Iterable[str], ror: str | None = None,
+                    scheme: str | None = None, code: str | None = None, as_of: Any = None,
+                    concept: str | None = None, indicator: str | None = None, period_from: str | None = None,
+                    period_to: str | None = None) -> dict[str, Any]:
+        """An institution's statistics as published by ``as_of`` (a ROR id through confirmed matches only, or a
+        source institution id), with its profiles, identity basis and linked Science and Funding records."""
+        from src.kb.education_identity import EducationIdentity, ror_url
+
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        cutoff = as_of_ms(as_of)
+        identity_ready = table_exists(self.conn, "edu_identity_matches")
+        identity = EducationIdentity(self.conn, initialize=False) if identity_ready else None
+        if ror:
+            ror = ror_url(ror)
+            resolved = identity.institutions_for_ror(namespace, ror) if identity else {
+                "ror_id": ror, "subjects": [], "basis": [], "not_used": [], "ror_changes": []}
+            subjects = [(s["scheme"], s["code"]) for s in resolved["subjects"]]
+            identity_view = {k: resolved[k] for k in ("ror_id", "basis", "not_used", "ror_changes")}
+        elif scheme and code:
+            if scheme not in INSTITUTION_SCHEMES:
+                raise EducationError("invalid_request", f"an institution is named by ROR or one of {INSTITUTION_SCHEMES}")
+            subjects = [(scheme, str(code))]
+            identity_view = identity.ror_for(namespace, scheme, str(code)) if identity else {
+                "ror_id": None, "status": "unmatched"}
+        else:
+            raise EducationError("invalid_request", "give a ROR id or a source institution scheme and code")
+        query = {"ror": ror, "scheme": scheme, "code": code, "concept": concept, "indicator": indicator}
+        series = self.store.find_series(namespace, record_kind="institution_statistic", subjects=subjects,
+                                        concept=concept, indicator=indicator) if subjects else []
+        body = self._answer(namespace, series, cutoff, period_from, period_to)
+        profiles = [p for s, c in subjects for p in self.store.profiles(namespace, s, c, as_of=cutoff)[-1:]]
+        links = []
+        if table_exists(self.conn, "edu_links"):
+            linker = EducationLinks(self.conn, initialize=False)
+            if ror:
+                links = linker.links(namespace, scopes={"operator"}, ror=ror)
+            for s, c in subjects:
+                links += linker.links(namespace, scopes={"operator"}, subject={"scheme": s, "code": c})
+        answer = self._envelope(query, cutoff, body, identity=identity_view,
+                                subjects=[{"scheme": s, "code": c} for s, c in subjects], profiles=profiles,
+                                linked_records=list({v["link_id"]: v for v in links}.values()))
+        if not subjects:
+            answer["reason"] = "no exact or accepted ROR match ties an institution to this ROR id"
+        elif answer["status"] == "none_on_record":
+            answer["reason"] = "no statistics are on record for this institution as of the date"
+        return answer
+
+    def country(self, namespace: str, *, scopes: Iterable[str], country: str, as_of: Any = None,
+                concept: str | None = None, indicator: str | None = None, isced: str | None = None,
+                period_from: str | None = None, period_to: str | None = None) -> dict[str, Any]:
+        """A country's education and R&D indicators as published by ``as_of``; each publisher's code for the country
+        (ISO alpha-3, alpha-2, Eurostat GEO) is matched through the shared normaliser."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        cutoff = as_of_ms(as_of)
+        token = country_token(country)
+        if not token:
+            raise EducationError("invalid_request", "give a country code")
+        series = [
+            s for s in self.store.find_series(namespace, record_kind="education_indicator", concept=concept,
+                                              indicator=indicator)
+            if country_token(s["subject"].get("country") or s["subject"]["code"]) == token
+            and (isced is None or (s["isced"] or {}).get("level") == isced)
+        ]
+        body = self._answer(namespace, series, cutoff, period_from, period_to)
+        answer = self._envelope({"country": country, "concept": concept, "indicator": indicator, "isced": isced},
+                                cutoff, body, country={"requested": country, "iso3166_alpha2": token,
+                                                       "published_codes": sorted({s["subject"]["code"]
+                                                                                  for s in series})})
+        if answer["status"] == "none_on_record":
+            answer["reason"] = "no indicator is on record for this country as of the date"
+        return answer
+
+    def value_vintages(self, namespace: str, series_id: str, period: str, *, scopes: Iterable[str]
+                       ) -> dict[str, Any]:
+        """Every vintage of one value, each cited."""
+        authorize(namespace, set(scopes), READ_SCOPE)
+        series = self.store.series(namespace, series_id)
+        rows = []
+        for vintage in self.store.vintage_rows(namespace, series_id):
+            found = [o for o in self.store.observations(namespace, vintage["vintage_id"]) if o["period"] == period]
+            if found:
+                rows.append({**found[0], "vintage_id": vintage["vintage_id"], "release_at": vintage["release_at"],
+                             "release_stage": vintage["release_stage"], "revision_of": vintage["revision_of"],
+                             "source_revision": self.store.source_revision(namespace, vintage["release_id"])})
+        return {"contract": ANSWER_CONTRACT, "series": series, "period": period, "vintages": rows,
+                "status": "answered" if rows else "none_on_record"}
+
+
+__all__ = [
+    "ANSWER_CONTRACT",
+    "CONTRACT",
+    "EducationError",
+    "EducationLinks",
+    "EducationQueries",
+    "EducationProjector",
+    "EducationStatisticsStore",
+    "FEATURE",
+    "LINK_TARGETS",
+    "READ_SCOPE",
+    "REVIEW_SCOPE",
+    "WRITE_SCOPE",
+    "as_of_ms",
+    "authorize",
+    "feature_enabled",
+    "forbidden_keys",
+    "readiness",
+]

@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1516,
+      "tool_count": 1533,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1128,6 +1128,7 @@
         "noesis-knowledge-engine.convert_quantitative_value",
         "noesis-knowledge-engine.correct_paper_family_relation",
         "noesis-knowledge-engine.correlate_knowledge_anomaly",
+        "noesis-knowledge-engine.country_education_statistics_as_of",
         "noesis-knowledge-engine.courts_justice_readiness",
         "noesis-knowledge-engine.courts_justice_source_contracts",
         "noesis-knowledge-engine.create_access_share_grant",
@@ -1145,6 +1146,7 @@
         "noesis-knowledge-engine.create_development_finance_monitor",
         "noesis-knowledge-engine.create_economic_comparison_report",
         "noesis-knowledge-engine.create_economic_release_snapshot",
+        "noesis-knowledge-engine.create_education_monitor",
         "noesis-knowledge-engine.create_election_monitor",
         "noesis-knowledge-engine.create_energy_monitor",
         "noesis-knowledge-engine.create_engineering_safety_monitor",
@@ -1253,6 +1255,10 @@
         "noesis-knowledge-engine.draft_funding_application",
         "noesis-knowledge-engine.draft_intake_practice_pack",
         "noesis-knowledge-engine.draft_procurement_bid",
+        "noesis-knowledge-engine.education_series_values",
+        "noesis-knowledge-engine.education_source_contracts",
+        "noesis-knowledge-engine.education_statistics_readiness",
+        "noesis-knowledge-engine.education_value_vintages",
         "noesis-knowledge-engine.election_constituency_place",
         "noesis-knowledge-engine.election_contest_dossier",
         "noesis-knowledge-engine.election_contest_results",
@@ -1535,6 +1541,7 @@
         "noesis-knowledge-engine.inspect_zotero_item",
         "noesis-knowledge-engine.install_source_pack",
         "noesis-knowledge-engine.instantiate_investigation_template",
+        "noesis-knowledge-engine.institution_statistics_as_of",
         "noesis-knowledge-engine.justice_statistics_for_place",
         "noesis-knowledge-engine.knowledge_engine_capabilities",
         "noesis-knowledge-engine.labour_comparability_notes",
@@ -1573,6 +1580,7 @@
         "noesis-knowledge-engine.link_cultural_research",
         "noesis-knowledge-engine.link_demographic_dossier",
         "noesis-knowledge-engine.link_demographic_references",
+        "noesis-knowledge-engine.link_education_record",
         "noesis-knowledge-engine.link_election_constituency_place",
         "noesis-knowledge-engine.link_energy_facility",
         "noesis-knowledge-engine.link_energy_records",
@@ -1622,6 +1630,9 @@
         "noesis-knowledge-engine.list_development_finance_identity_candidates",
         "noesis-knowledge-engine.list_dossier_declared_interests",
         "noesis-knowledge-engine.list_due_practice",
+        "noesis-knowledge-engine.list_education_identity_matches",
+        "noesis-knowledge-engine.list_education_links",
+        "noesis-knowledge-engine.list_education_series",
         "noesis-knowledge-engine.list_election_boundary_vintages",
         "noesis-knowledge-engine.list_election_contests",
         "noesis-knowledge-engine.list_election_identity_candidates",
@@ -1791,6 +1802,7 @@
         "noesis-knowledge-engine.poll_decision_condition_watch",
         "noesis-knowledge-engine.poll_demographic_monitor",
         "noesis-knowledge-engine.poll_development_finance_monitor",
+        "noesis-knowledge-engine.poll_education_monitor",
         "noesis-knowledge-engine.poll_election_monitor",
         "noesis-knowledge-engine.poll_energy_monitor",
         "noesis-knowledge-engine.poll_engineering_safety_monitor",
@@ -1876,6 +1888,7 @@
         "noesis-knowledge-engine.propose_cultural_matches",
         "noesis-knowledge-engine.propose_demographic_link_candidates",
         "noesis-knowledge-engine.propose_development_finance_identity_matches",
+        "noesis-knowledge-engine.propose_education_ror_matches",
         "noesis-knowledge-engine.propose_election_identity_matches",
         "noesis-knowledge-engine.propose_energy_identity_matches",
         "noesis-knowledge-engine.propose_environment_operator_links",
@@ -1955,6 +1968,7 @@
         "noesis-knowledge-engine.record_decision_evidence",
         "noesis-knowledge-engine.record_demographic_comparability",
         "noesis-knowledge-engine.record_development_finance_answer",
+        "noesis-knowledge-engine.record_education_ror_records",
         "noesis-knowledge-engine.record_election_assertion",
         "noesis-knowledge-engine.record_entity_identity_decision",
         "noesis-knowledge-engine.record_funding_workspace_outcome",
@@ -2116,6 +2130,7 @@
         "noesis-knowledge-engine.revert_demographic_comparability",
         "noesis-knowledge-engine.revert_demographic_link",
         "noesis-knowledge-engine.revert_development_finance_identity_match",
+        "noesis-knowledge-engine.revert_education_ror_match",
         "noesis-knowledge-engine.revert_election_identity_match",
         "noesis-knowledge-engine.revert_election_news_link",
         "noesis-knowledge-engine.revert_fisheries_identity",
@@ -2165,6 +2180,7 @@
         "noesis-knowledge-engine.review_demographic_resolution",
         "noesis-knowledge-engine.review_development_finance_identity_match",
         "noesis-knowledge-engine.review_development_finance_place",
+        "noesis-knowledge-engine.review_education_ror_match",
         "noesis-knowledge-engine.review_election_identity_match",
         "noesis-knowledge-engine.review_energy_identity_match",
         "noesis-knowledge-engine.review_environment_operator_link",
@@ -2253,6 +2269,7 @@
         "noesis-knowledge-engine.run_courts_justice_monitor",
         "noesis-knowledge-engine.run_demographic_monitor",
         "noesis-knowledge-engine.run_development_finance_monitor",
+        "noesis-knowledge-engine.run_education_monitor",
         "noesis-knowledge-engine.run_election_monitor",
         "noesis-knowledge-engine.run_energy_monitor",
         "noesis-knowledge-engine.run_engineering_safety_monitor",
@@ -2475,7 +2492,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1516
+      "visible_tool_count": 1533
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2486,11 +2503,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 143,
+      "available": 144,
       "degraded": 173,
-      "unauthorized": 1524
+      "unauthorized": 1540
     },
-    "tools": 1840
+    "tools": 1857
   },
   "tools": [
     {
@@ -30897,6 +30914,87 @@
     },
     {
       "cost_class": "low",
+      "description": "A country's education and R&D indicators (UIS, OECD EAG, Eurostat) as published by as_of: each source's\nvalue side by side with its definition, ISCED level, unit, vintage, notes and citation.\nExclusions: no rankings or quality scores, no merging or averaging of sources, no derived per-student\nratios.",
+      "id": "noesis-knowledge-engine.country_education_statistics_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "country": {
+            "type": "string"
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "isced": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "country"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "country_education_statistics_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Whether the courts / justice-statistics features are selected and what each provider has acquired.",
       "id": "noesis-knowledge-engine.courts_justice_readiness",
       "input_schema": {
@@ -31872,6 +31970,61 @@
       ],
       "required_scopes": [
         "knowledge:economic:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a ROR id, an institution, a country or an indicator: notices for new vintages, revised\nvalues and identity-match changes (record changes, never judgements).",
+      "id": "noesis-knowledge-engine.create_education_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_education_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -38221,6 +38374,156 @@
       "required_scopes": [
         "knowledge:procurement:write",
         "knowledge:reports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "One series' values in one vintage (or the vintage published by as_of), with its definition, status\ncodes and comparability notes; every vintage listed.\nExclusions: no rankings or quality scores, no merging or averaging of sources, no derived per-student\nratios.",
+      "id": "noesis-knowledge-engine.education_series_values",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "vintage_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "education_series_values",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (US IPEDS, ETER, UNESCO UIS, OECD Education at a Glance, Eurostat R&D):\nendpoints, formats, identifiers, licences, rate limits, release vintages and the bounded coverage.\nExclusions: no rankings or quality scores, no merging or averaging of sources, no derived per-student\nratios.",
+      "id": "noesis-knowledge-engine.education_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "education_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the Science education-statistics feature is selected, its stores and per-provider releases.",
+      "id": "noesis-knowledge-engine.education_statistics_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "education_statistics_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every published vintage of one value (provisional, final, revised), each with its source revision.",
+      "id": "noesis-knowledge-engine.education_value_vintages",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "period": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "period"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "education_value_vintages",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -51479,6 +51782,105 @@
     },
     {
       "cost_class": "low",
+      "description": "An institution's statistics as published by as_of - by ROR id (exact or accepted matches only) or by\nIPEDS UNITID / ETER ID - with definitions, units, vintages, comparability notes, citations, profiles,\nidentity basis, reported ROR changes and linked Science and Funding records; none_on_record when empty.\nExclusions: no rankings or quality scores, no merging or averaging of sources, no derived per-student\nratios.",
+      "id": "noesis-knowledge-engine.institution_statistics_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "code": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ror": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "institution_statistics_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Official crime and justice statistics for a place ('us-state:CA', 'fbi-ori:...', 'eurostat-geo:DE',\n'police-uk-neighbourhood:force/id' or a geospatial place_id) from each source side by side, with the\ndefinition, unit, flags, coverage notes and vintage in force at the date; gaps and suppressed values are\nexplicit. No rankings, neighbourhood safety ratings or risk scores.",
       "id": "noesis-knowledge-engine.justice_statistics_for_place",
       "input_schema": {
@@ -53257,6 +53659,54 @@
       "required_scopes": [
         "knowledge:demographics:write",
         "knowledge:legal:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Link an institution (ROR id through a confirmed match, or IPEDS/ETER id) to a Funding record, scholarly\nwork or methodology study whose citation states the identifier; no name or keyword joins.",
+      "id": "noesis-knowledge-engine.link_education_record",
+      "input_schema": {
+        "properties": {
+          "citation": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subject": {
+            "additionalProperties": true,
+            "type": "object"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "target",
+          "citation"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_education_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -55899,6 +56349,193 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "IPEDS/ETER-to-ROR matches (exact, candidate, accepted, rejected, reverted, unmatched) with basis and\nevidence; only exact and accepted matches answer ROR-keyed queries.",
+      "id": "noesis-knowledge-engine.list_education_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ror": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_education_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links from institutions to Science and Funding records with their basis and citation.",
+      "id": "noesis-knowledge-engine.list_education_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ror": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "side": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_education_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Institution-statistic and education-indicator series with subject, indicator, concept, ISCED level, unit\nand vintage count. No ranked, scored or harmonised series exist.",
+      "id": "noesis-knowledge-engine.list_education_series",
+      "input_schema": {
+        "properties": {
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "indicator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "record_kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_education_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -64483,6 +65120,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll an education monitor's events (new vintages, revised values, identity-match changes).",
+      "id": "noesis-knowledge-engine.poll_education_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_education_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll an elections monitor's events through the subscription delivery path.",
       "id": "noesis-knowledge-engine.poll_election_monitor",
       "input_schema": {
@@ -68401,6 +69076,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Offer every IPEDS and ETER institution to the held ROR records: published identifiers are exact, equal\nname and country are candidates for review; unmatched institutions stay addressable by source id.",
+      "id": "noesis-knowledge-engine.propose_education_ror_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_education_ror_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Propose party, candidate, poll-option and constituency candidates within one country; nothing merges.",
       "id": "noesis-knowledge-engine.propose_election_identity_matches",
       "input_schema": {
@@ -72055,6 +72763,68 @@
         "knowledge:funding:development-finance:write",
         "knowledge:funding:development-finance:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Keep ROR registry records as snapshots (given as ROR v2 JSON, or fetched by id through the ROR client);\nstatus changes and successors are reported.",
+      "id": "noesis-knowledge-engine.record_education_ror_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "items": {
+                  "additionalProperties": true,
+                  "type": "object"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "ror_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_education_ror_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -81670,6 +82440,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert an exact, accepted or rejected ROR match; it is not used until reviewed again.",
+      "id": "noesis-knowledge-engine.revert_education_ror_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_education_ror_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo an accepted or rejected decision; answers return to the unmatched source strings.",
       "id": "noesis-knowledge-engine.revert_election_identity_match",
       "input_schema": {
@@ -83809,6 +84620,51 @@
       "required_scopes": [
         "knowledge:funding:development-finance:read",
         "knowledge:geospatial:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a candidate ROR match with a reason (an entity identity decision).",
+      "id": "noesis-knowledge-engine.review_education_ror_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_education_ror_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -88269,6 +89125,51 @@
       ],
       "required_scopes": [
         "knowledge:funding:development-finance:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate an education monitor at a committed watermark; notices cite the release and the record ids.",
+      "id": "noesis-knowledge-engine.run_education_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_education_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:education:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

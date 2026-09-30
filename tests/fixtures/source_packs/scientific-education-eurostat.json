@@ -1,0 +1,25 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sectperf,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:RD_E_GERDTOT(1.0),01/03/99 23:00:00,A,MIO_EUR,HES,DE,2096,21000.5,b\nESTAT:RD_E_GERDTOT(1.0),01/03/99 23:00:00,A,MIO_EUR,HES,DE,2097,21900.2,\nESTAT:RD_E_GERDTOT(1.0),01/03/99 23:00:00,A,MIO_EUR,HES,FR,2096,12500,\nESTAT:RD_E_GERDTOT(1.0),01/03/99 23:00:00,A,MIO_EUR,HES,FR,2097,12800.4,p\n",
+   "headers": {},
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/rd_e_gerdtot/A.MIO_EUR.HES.DE+FR?endPeriod=2097&format=SDMX-CSV&startPeriod=2096",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,sectperf,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:RD_P_PERSSCI(1.0),15/03/99 23:00:00,A,FTE,HES,DE,2096,190000,\nESTAT:RD_P_PERSSCI(1.0),15/03/99 23:00:00,A,FTE,HES,FR,2096,,c\n",
+   "headers": {},
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/rd_p_perssci/A.FTE.HES.DE+FR?endPeriod=2096&format=SDMX-CSV&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional.",
+ "provider": "eurostat-rd",
+ "scenarios": [
+  "LAST UPDATE vintage",
+  "break flag b",
+  "provisional flag p",
+  "confidential flag c"
+ ]
+}

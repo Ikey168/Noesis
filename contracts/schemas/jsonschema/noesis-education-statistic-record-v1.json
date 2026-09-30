@@ -1,0 +1,116 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-education-statistic-record-v1",
+  "title": "Education statistic record: release, institution profile, institution statistic or education indicator series, vintage, observation or comparability note",
+  "description": "Every record carries its namespace and cites the source revision (an acquired release) it came from, with the release clock and the retrieval clock kept apart, each with its basis label and the release stage (IPEDS provisional or final, an ETER or UIS data release, an Education at a Glance edition, a Eurostat dataset update). An institution statistic is keyed by the source institution id (IPEDS UNITID, ETER ID) and carries the ROR id only when a confirmed identity match (identifier-based exact match or a reviewed candidate) states it; an education indicator is keyed by the published country or area code with the ISCED level and definition reference. Each release of a series is an appended vintage: a revised value adds a revision and earlier vintages stay queryable. Missing, not applicable, included-elsewhere, confidential and suppressed values keep the publisher's code and no value, never zero. Comparability notes quote the publisher's definitions, qualifiers, footnotes and break-in-series flags; nothing is harmonised, merged, averaged, converted, ranked or scored, and no per-student or per-staff ratio is derived.",
+  "type": "object",
+  "required": ["contract", "record_type"],
+  "definitions": {
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "subject": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["ipeds-unitid", "eter-id", "uis-geo", "oecd-ref-area", "eurostat-geo"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]},
+        "country": {"type": ["string", "null"]},
+        "city": {"type": ["string", "null"]},
+        "region": {"type": ["string", "null"]},
+        "national_id": {"type": ["string", "null"]},
+        "stated_ids": {"type": "object", "additionalProperties": {"type": "string"}}
+      }
+    },
+    "indicator": {
+      "type": "object",
+      "required": ["code", "label", "concept"],
+      "properties": {
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": "string"},
+        "concept": {"enum": ["enrolment", "graduates", "staff", "teachers", "finance", "education_expenditure", "rd_expenditure", "rd_personnel", "enrolment_ratio"]},
+        "definition": {"type": ["string", "null"]},
+        "definition_ref": {"type": ["string", "null"]},
+        "dataflow": {"type": ["string", "null"]}
+      }
+    },
+    "isced": {
+      "type": ["object", "null"],
+      "required": ["scheme", "level"],
+      "properties": {"scheme": {"const": "ISCED 2011"}, "level": {"type": "string"}, "label": {"type": ["string", "null"]}}
+    },
+    "unit": {
+      "type": "object",
+      "required": ["unit"],
+      "description": "The unit, currency and scale as published; values are never converted or rounded.",
+      "properties": {"unit": {"type": "string"}, "currency": {"type": "string"}, "scale": {"type": "string"}, "multiplier": {"type": "string"}, "published_code": {"type": "string"}}
+    },
+    "source_revision": {
+      "type": "object",
+      "required": ["release_id", "provider", "file_sha256", "published_on", "release_basis", "release_stage", "evidence_origin", "retrieved_at_ms"],
+      "properties": {
+        "release_id": {"type": "string"},
+        "provider": {"enum": ["ipeds", "eter", "unesco-uis", "oecd-eag", "eurostat-rd"]},
+        "source_id": {"type": ["string", "null"]},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "published_at": {"type": ["string", "null"]},
+        "release_basis": {"enum": ["declared_release", "uis_last_data_update", "provider_last_update", "retrieval_time"]},
+        "release_stage": {"enum": ["provisional", "final", "revised", "release", "edition", "update"]},
+        "release_label": {"type": ["string", "null"]},
+        "url": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "live", "operator"]},
+        "retrieved_at_ms": {"type": "integer"}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "required": ["period", "status"],
+      "properties": {
+        "period": {"type": "string"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"], "description": "exact decimal text as published; null unless the status is reported"},
+        "status": {"enum": ["reported", "missing", "not_applicable", "included_elsewhere", "confidential", "suppressed", "not_published"]},
+        "special_code": {"type": ["string", "null"], "description": "the publisher's own code for a value that is not reported (ETER m/a/x/c, IPEDS suppression code, OBS_STATUS, OBS_FLAG)"},
+        "flags": {"type": "object"}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-education-statistic-record-v1"},
+    "record_type": {"enum": ["release", "institution_profile", "series", "vintage", "observation", "comparability_note"]},
+    "record_kind": {"enum": ["institution_statistic", "education_indicator"]},
+    "namespace": {"type": "string"},
+    "release_id": {"type": "string"},
+    "series_id": {"type": "string"},
+    "vintage_id": {"type": "string"},
+    "provider": {"type": "string"},
+    "subject": {"$ref": "#/definitions/subject"},
+    "ror_id": {"type": ["string", "null"], "pattern": "^https://ror\\.org/0[0-9a-hj-km-np-tv-z]{6}[0-9]{2}$"},
+    "indicator": {"$ref": "#/definitions/indicator"},
+    "isced": {"$ref": "#/definitions/isced"},
+    "unit": {"$ref": "#/definitions/unit"},
+    "dimensions": {"type": "object"},
+    "frequency": {"type": "string"},
+    "release_at": {"type": ["string", "null"]},
+    "revision_of": {"type": ["string", "null"]},
+    "values_changed": {"type": "boolean"},
+    "source_revision": {"$ref": "#/definitions/source_revision"},
+    "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}},
+    "kind": {"enum": ["definition", "qualifier", "magnitude", "footnote", "status", "flag", "imputation", "suppression", "special_code"]},
+    "code": {"type": ["string", "null"]},
+    "text": {"type": "string"},
+    "period": {"type": ["string", "null"]}
+  },
+  "not": {
+    "anyOf": [
+      {"required": ["rank"]},
+      {"required": ["ranking"]},
+      {"required": ["score"]},
+      {"required": ["quality_score"]},
+      {"required": ["composite_index"]},
+      {"required": ["per_student"]},
+      {"required": ["harmonised_value"]}
+    ]
+  }
+}

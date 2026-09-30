@@ -95,6 +95,12 @@ MATRIX = {
     "Place to labour indicators":
         "tests/unit/domains/test_labour_acceptance.py::"
         "test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions_and_vintages",
+    # The Science education-statistics feature's offline journey (#2441) composes science (IPEDS, ETER, UIS),
+    # economics SDMX handling (OECD EAG, Eurostat R&D), ROR entity identity, Funding and document records,
+    # subscriptions and the source-pack runtime.
+    "Institution and country to education statistics":
+        "tests/unit/domains/test_education_statistics_acceptance.py::"
+        "test_ror_institution_and_country_to_cited_statistics_with_vintages_and_links",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

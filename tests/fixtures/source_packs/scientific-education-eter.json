@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "ETER_ID;BAS.NATID;BAS.INSTNAME.ENG;BAS.COUNTRY;GEO.CITY;BAS.REFYEAR;IDENT.ROR;IDENT.WIKIDATA;STUD.ISCED5-7.TOTAL;STAFF.ACAD.FTE;EXP.CURR.TOTAL\nDE0001;DE-HS-0001;Universitaet Beispielstadt;DE;Beispielstadt;2098;;Q999000001;32000;2100.5;450000000\nDE0002;DE-HS-0002;Musterhochschule;DE;Musterstadt;2098;https://ror.org/0zth03c45;;5400;c;m\nFR0001;FR-ES-0001;Universite Exemple;FR;Exempleville;2098;;;12000;900;150000000\nDE0001;DE-HS-0001;Universitaet Beispielstadt;DE;Beispielstadt;2097;;Q999000001;31500;2080;440000000\n",
+   "headers": {},
+   "request": "/data/eter-export-2098.csv",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional.",
+ "provider": "eter",
+ "scenarios": [
+  "special code c (confidential)",
+  "special code m (missing)",
+  "source-stated ROR",
+  "wikidata identifier",
+  "other reference year ignored"
+ ]
+}

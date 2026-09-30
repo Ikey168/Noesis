@@ -51,6 +51,14 @@
           "name": "noesis-cultural-object",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "science.education-statistics",
+        "provider": "science.education-statistics",
+        "contract": {
+          "name": "noesis-education-statistic-record",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -64,6 +72,10 @@
       },
       {
         "id": "science.cultural",
+        "version": "1.0.0"
+      },
+      {
+        "id": "science.education-statistics",
         "version": "1.0.0"
       }
     ],
@@ -86,6 +98,20 @@
             "boundary_collection": "alkis_bezirke:bezirksgrenzen"
           }
         }
+      },
+      {
+        "id": "science.education-statistics",
+        "description": "Education and research-institution statistics: an institution (ROR id or IPEDS/ETER id) or a country to published statistics with definitions, units, release vintages, comparability notes and linked Science and Funding records",
+        "vocabulary": {
+          "vintage": "a release of a publisher's statistics (IPEDS provisional or final, an ETER or UIS release, an EAG edition, a Eurostat update)",
+          "comparability note": "the publisher's own definition, qualifier, footnote or break-in-series flag, quoted",
+          "ROR match": "an exact identifier match or a reviewed candidate between a source institution and a ROR record"
+        },
+        "workflow_defaults": {
+          "as_of": "the vintage published on or before the requested date; every vintage of a value is listed",
+          "sources": "side by side with their definitions, never merged or averaged",
+          "identity": "exact or accepted ROR matches only"
+        }
       }
     ],
     "source_packs": [
@@ -96,8 +122,8 @@
       },
       {
         "pack_id": "primary-scientific-evidence",
-        "version": "1.1.0",
-        "range": "^1.1.0"
+        "version": "1.2.0",
+        "range": "^1.2.0"
       }
     ]
   },
@@ -117,6 +143,43 @@
           "capability": "geospatial.place-resolution",
           "contract": "noesis-geospatial-place",
           "range": "^1.0.0"
+        }
+      ]
+    },
+    {
+      "id": "education-statistics",
+      "default": false,
+      "description": "Institution statistics (US IPEDS by UNITID, ETER by ETER ID) and country education and R&D indicators (UNESCO UIS, OECD Education at a Glance and Eurostat R&D through the SDMX connector) with definitions, release vintages and comparability notes, matched to ROR through reviewable identity, linked to Science and Funding records by citation and monitored through subscriptions. No rankings, quality or composite scores and no derived ratios.",
+      "requires": [
+        {
+          "capability": "science.education-statistics",
+          "contract": "noesis-education-statistic-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "OECD and Eurostat indicators are acquired through the Economics SDMX handling and follow its release and vintage pattern"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "ROR matches (the src/ingestion/ror.py identity backbone) are reviewable entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "education monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "statistics are acquired through the source-pack runtime"
         }
       ]
     }

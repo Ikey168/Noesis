@@ -209,6 +209,11 @@ For the project overview and local setup, start with the
   labour indicators for a place, sector or occupation as of a release vintage, with definitions, seasonal
   adjustment, flags, comparability notes, reviewable place and classification mappings and monitors; no nowcast,
   forecast, blending or re-harmonisation; [source audit](development/labour-evidence/source-audit.md)
+- [Science education-statistics guide](guides/science-education-statistics.md) — US IPEDS and ETER institution
+  statistics and UNESCO UIS, OECD Education at a Glance and Eurostat R&D indicators with definitions, release
+  vintages and comparability notes, ROR-keyed reviewable identity, citation links to Science and Funding records
+  and monitors; no rankings, scores, merged values or derived ratios;
+  [source audit](development/education-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

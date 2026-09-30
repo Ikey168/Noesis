@@ -1,0 +1,55 @@
+{
+ "documents": {
+  "UIS tertiary enrolment ratio and expenditure, DEU, FRA and USA, 2096-2097": {
+   "end": "2097",
+   "geo_units": [
+    "DEU",
+    "FRA",
+    "USA"
+   ],
+   "indicators": [
+    "GER.5T8",
+    "XGDP.5T8"
+   ],
+   "label": "UIS tertiary enrolment ratio and expenditure, DEU, FRA and USA, 2096-2097",
+   "release": {
+    "label": "UIS data release 20990915 (declared; verify)",
+    "published_on": "2099-09-15",
+    "stage": "release"
+   },
+   "start": "2096",
+   "variables": {
+    "GER.5T8": {
+     "concept": "enrolment_ratio",
+     "isced": {
+      "level": "5T8"
+     },
+     "label": "Gross enrolment ratio for tertiary education, both sexes (%)",
+     "unit": {
+      "unit": "percent"
+     }
+    },
+    "XGDP.5T8": {
+     "concept": "education_expenditure",
+     "isced": {
+      "level": "5T8"
+     },
+     "label": "Government expenditure on tertiary education as a percentage of GDP (%)",
+     "unit": {
+      "unit": "percent_of_gdp"
+     }
+    }
+   },
+   "version": "20990915"
+  }
+ },
+ "native_pages": [
+  {
+   "body": "{\"hints\": [], \"indicatorMetadata\": [{\"definition\": \"Total enrolment in tertiary education, regardless of age, expressed as a percentage of the population in the five-year age group following secondary school leaving (fixture wording)\", \"indicatorCode\": \"GER.5T8\", \"lastDataUpdate\": \"2099-09-10T00:00:00Z\", \"name\": \"Gross enrolment ratio for tertiary education, both sexes (%)\"}, {\"definition\": \"General government expenditure on tertiary education expressed as a percentage of GDP (fixture wording)\", \"indicatorCode\": \"XGDP.5T8\", \"lastDataUpdate\": \"2099-09-10T00:00:00Z\", \"name\": \"Government expenditure on tertiary education as a percentage of GDP (%)\"}], \"records\": [{\"footnotes\": [\"Data refer to ISCED 2011 levels 5 to 8\"], \"geoUnit\": \"DEU\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 73.1, \"year\": 2096}, {\"geoUnit\": \"DEU\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 74.6, \"year\": 2097}, {\"geoUnit\": \"FRA\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": \"UIS_EST\", \"value\": 68.2, \"year\": 2096}, {\"geoUnit\": \"USA\", \"indicatorId\": \"GER.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 87.9, \"year\": 2096}, {\"geoUnit\": \"DEU\", \"indicatorId\": \"XGDP.5T8\", \"magnitude\": null, \"qualifier\": \"NAT_EST\", \"value\": 1.2, \"year\": 2096}, {\"geoUnit\": \"FRA\", \"indicatorId\": \"XGDP.5T8\", \"magnitude\": null, \"qualifier\": null, \"value\": 1.4, \"year\": 2096}]}",
+   "headers": {},
+   "request": "/api/public/data/indicators?end=2097&footnotes=true&geoUnit=DEU&geoUnit=FRA&geoUnit=USA&indicator=GER.5T8&indicator=XGDP.5T8&indicatorMetadata=true&start=2096&version=20990915",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional. A later UIS data version revises the DEU 2097 tertiary gross enrolment ratio."
+}

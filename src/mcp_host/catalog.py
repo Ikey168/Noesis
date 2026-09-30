@@ -399,6 +399,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_WRITES
     if name in WEB_ARCHIVE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.education_statistics import EDUCATION_WRITES
+    if name in EDUCATION_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
     if name in LEGISLATION_WRITES:
         return "write"
@@ -1088,6 +1091,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.labour import required_scopes as labour_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LABOUR_TOOLS:
         return labour_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.education_statistics import EDUCATION_TOOLS
+    from tools.knowledge_engine_mcp.education_statistics import required_scopes as education_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in EDUCATION_TOOLS:
+        return education_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
     from tools.knowledge_engine_mcp.legislation import required_scopes as legislation_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LEGISLATION_TOOLS:

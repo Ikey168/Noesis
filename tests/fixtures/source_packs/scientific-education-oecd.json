@@ -1,0 +1,17 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "DATAFLOW,REF_AREA,MEASURE,EDUCATION_LEV,UNIT_MEASURE,TIME_PERIOD,OBS_VALUE,OBS_STATUS,UNIT_MULT,COMMENT_OBS\nOECD.EDU.IMEP:DSD_EAG_UOE_FIN@DF_UOE_INDIC_FIN_GDP(1.0),DEU,EXP_INST_GDP,ISCED11_5T8,PT_B1GQ,2096,1.3,A,0,\nOECD.EDU.IMEP:DSD_EAG_UOE_FIN@DF_UOE_INDIC_FIN_GDP(1.0),FRA,EXP_INST_GDP,ISCED11_5T8,PT_B1GQ,2096,1.5,B,0,Break in series: expenditure methodology changed from 2096 (fixture note)\nOECD.EDU.IMEP:DSD_EAG_UOE_FIN@DF_UOE_INDIC_FIN_GDP(1.0),USA,EXP_INST_GDP,ISCED11_5T8,PT_B1GQ,2096,,M,0,\n",
+   "headers": {},
+   "request": "/public/rest/data/OECD.EDU.IMEP,DSD_EAG_UOE_FIN@DF_UOE_INDIC_FIN_GDP,1.0/DEU+FRA+USA.EXP_INST_GDP.ISCED11_5T8?endPeriod=2096&format=csvfile&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every institution, value and identifier is fictional.",
+ "provider": "oecd-eag",
+ "scenarios": [
+  "OBS_STATUS break with comment",
+  "missing value M"
+ ]
+}

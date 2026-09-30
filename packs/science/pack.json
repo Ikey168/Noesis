@@ -30,7 +30,13 @@
       "isabelle",
       "archive of formal proofs",
       "coq",
-      "msc"
+      "msc",
+      "ipeds",
+      "eter",
+      "unesco uis",
+      "education at a glance",
+      "eurostat r&d",
+      "ror"
     ],
     "claims": [
       "finding",
@@ -57,7 +63,10 @@
       "mathematical object",
       "integer sequence",
       "formal declaration",
-      "formal library"
+      "formal library",
+      "institution",
+      "university",
+      "education indicator"
     ]
   },
   "enrichers": [],
@@ -80,7 +89,12 @@
     "formal-proof-dependencies",
     "formal-revision-comparison",
     "math-source-objects",
-    "math-cross-source-links"
+    "math-cross-source-links",
+    "education-institution-statistics",
+    "education-indicator-vintages",
+    "education-ror-identity",
+    "education-citation-links",
+    "education-monitoring"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -91,7 +105,12 @@
     "cultural-object": "1.0.0",
     "math-record": "1.0.0",
     "formal-declaration": "1.0.0",
-    "math-link": "1.0.0"
+    "math-link": "1.0.0",
+    "education-statistic-record": "1.0.0",
+    "education-statistic-answer": "1.0.0",
+    "education-identity": "1.0.0",
+    "education-link": "1.0.0",
+    "education-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -104,7 +123,8 @@
       "noesis-cultural-research-link-v1",
       "noesis-math-record-v1",
       "noesis-formal-declaration-v1",
-      "noesis-math-link-v1"
+      "noesis-math-link-v1",
+      "noesis-education-statistic-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -118,7 +138,10 @@
       "integer_sequence",
       "formal_declaration",
       "formal_snapshot",
-      "math_object"
+      "math_object",
+      "institution_statistic",
+      "education_indicator",
+      "comparability_note"
     ],
     "relation_types": [
       "cites",
@@ -134,7 +157,9 @@
       "imports",
       "references_lexically",
       "formalizes_candidate",
-      "cites_identifier"
+      "cites_identifier",
+      "statistic_of",
+      "matched_to_ror"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -236,6 +261,9 @@
     "universal formula OCR",
     "proof translation between formal systems",
     "unrestricted repository mirroring",
-    "licensed MathSciNet access"
+    "licensed MathSciNet access",
+    "university rankings, league tables, quality or composite scores",
+    "merged, averaged or harmonised education statistics",
+    "derived per-student or per-staff ratios"
   ]
 }
