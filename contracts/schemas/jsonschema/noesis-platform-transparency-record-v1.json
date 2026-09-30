@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-platform-transparency-record-v1.json",
+  "title": "Platform transparency record as published by a platform or the DSA Transparency Database",
+  "description": "One acquired record (#2580): a DSA statement of reasons keyed by platform and statement uuid with the dump it was read from, a DSA daily dump release (platform, day, version and published SHA-1), a Meta Ad Library or Google political ad with the advertiser and funding entity as declared, delivery dates and spend and impression ranges exactly as published, an advertiser, a complete listing of a declared unit, or a takedown notice (record kind only; Lumen is not implemented). Each carries its provider, platform, revision stamp or order, the source's own as-of date, a clean HTTPS locator and its evidence origin. Under the SP01 data-minimisation decision no record carries a platform user or content identifier, the notifier identity, a free-text explanation or *_other field, creative text, a snapshot URL, a targeting, demographic or regional delivery breakdown, or any point estimate derived from a range.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "platform", "record_kind", "record_key", "unit_key", "advertiser_key", "dump_key", "native_revision", "revision_order", "effective_on", "source_as_of", "title", "locator", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-platform-transparency-record-v1"},
+    "format": {"enum": ["dsa-sor-daily-dump-csv", "meta-ads-archive-json", "google-political-ads-bigquery-json", null]},
+    "provider": {"enum": ["dsa-transparency-db", "meta-ad-library", "google-political-ads", "lumen"]},
+    "platform": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]*$"},
+    "record_kind": {"enum": ["statement-of-reasons", "dump-release", "ad", "advertiser", "listing", "takedown-notice"]},
+    "record_key": {"type": "string", "pattern": "^platform-transparency:[a-z-]+:[A-Za-z0-9:,._-]+$"},
+    "unit_key": {"type": ["string", "null"]},
+    "advertiser_key": {"type": ["string", "null"], "pattern": "^platform-transparency:(meta|google):advertiser:[A-Za-z0-9]+$"},
+    "dump_key": {"type": ["string", "null"], "pattern": "^platform-transparency:dsa:dump:[a-z0-9-]+:\\d{4}-\\d{2}-\\d{2}:(full|light)$"},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "effective_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "source_as_of": {"type": ["string", "null"]},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://(?!.*access_token)"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "minimisation": {
+      "type": "object",
+      "required": ["policy", "withheld"],
+      "properties": {
+        "policy": {"const": "platform-transparency-minimisation-v1"},
+        "withheld": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "fields": {
+      "type": "object",
+      "propertyNames": {"not": {"enum": ["platform_uid", "puid", "source_identity", "decision_facts", "illegal_content_explanation", "incompatible_content_explanation", "decision_visibility_other", "decision_monetary_other", "category_specification_other", "content_type_other", "territorial_scope", "ad_snapshot_url", "access_token", "ad_creative_bodies", "demographic_distribution", "delivery_by_region", "region_distribution", "estimated_audience_size", "age_targeting", "gender_targeting", "geo_targeting_included", "geo_targeting_excluded", "midpoint", "point_estimate", "estimated_spend", "estimated_impressions"]}},
+      "properties": {
+        "spend": {"type": ["object", "null"], "properties": {"lower_bound": {"type": ["string", "null"]}, "upper_bound": {"type": ["string", "null"]}, "as_published": {"type": "object"}}},
+        "impressions": {"type": ["object", "null"]},
+        "listing_state": {"enum": ["listed", "not-returned"]},
+        "automated_detection": {"type": ["string", "null"]},
+        "automated_decision": {"type": ["string", "null"]}
+      }
+    }
+  }
+}

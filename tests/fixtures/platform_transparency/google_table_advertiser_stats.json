@@ -1,0 +1,11 @@
+{
+ "kind": "bigquery#table",
+ "id": "bigquery-public-data:google_political_ads.advertiser_stats",
+ "tableReference": {
+  "projectId": "bigquery-public-data",
+  "datasetId": "google_political_ads",
+  "tableId": "advertiser_stats"
+ },
+ "lastModifiedTime": "4083955200000",
+ "type": "TABLE"
+}

@@ -72,6 +72,8 @@ def test_pack_manifest_records_the_capability_and_the_tracking_exclusion():
     assert pack["schema_versions"]["osint-movement-record"] == "1.0.0"
     assert any("real-time tracking" in e for e in pack["exclusions"])
     source_pack = json.loads((ROOT / "config/source_packs/osint.json").read_text())
-    assert source_pack["version"] == "1.1.0"
+    # 1.1.0 added the movement sources; later additive versions (1.2.0: platform transparency, #2580) keep the
+    # ^1.1.0 pin resolving.
+    assert tuple(int(p) for p in source_pack["version"].split(".")) >= (1, 1, 0)
     assert {s["connector"] for s in source_pack["sources"] if s["source_id"].startswith("movements-")} == {
         "osint-movements"}

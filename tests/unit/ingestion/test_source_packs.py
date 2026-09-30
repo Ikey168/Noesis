@@ -124,8 +124,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Corporate Ownership competition feature's EC, TAM, CMA, FTC and DOJ sources (#2217),
     # plus the OSINT movements feature's FAA, G-INFO, OpenSky, GFW port-visit, open AIS and UNCTAD sources (#2221),
     # plus the Cultural Collections media-metadata Open Library, MusicBrainz, Wikidata, DNB and LoC sources (#2225),
-    # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209).
-    assert sum(len(pack["sources"]) for pack in packs) == 298
+    # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209),
+    # plus the OSINT platform-transparency DSA dump, Meta Ad Library and Google political-ads sources (#2580).
+    assert sum(len(pack["sources"]) for pack in packs) == 301
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
