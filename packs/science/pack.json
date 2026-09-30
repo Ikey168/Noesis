@@ -2,7 +2,7 @@
   "pack_format": "noesis-pack-v1",
   "name": "science",
   "version": "1.2.0",
-  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
+  "description": "Primary scientific evidence: scholarly works from bounded scholarly APIs, study methodology records, paper families, public peer-review rounds, systematic reviews and preserved citations, and cultural primary sources (DDB, Europeana) linked to research works and places, with book, music and authority metadata (Open Library, MusicBrainz CC0 core data, Wikidata, DNB, Library of Congress) as their identity backbone; and mathematics: zbMATH Open literature, OEIS sequences and pinned formal-library declarations (Lean mathlib4, Isabelle AFP) with proof dependencies, revisions and reviewable cross-source links (acquired through config/source_packs/research.json).",
   "source_types": [
     "paper"
   ],
@@ -30,7 +30,14 @@
       "isabelle",
       "archive of formal proofs",
       "coq",
-      "msc"
+      "msc",
+      "open library",
+      "musicbrainz",
+      "wikidata",
+      "gnd",
+      "deutsche nationalbibliothek",
+      "library of congress",
+      "lcnaf"
     ],
     "claims": [
       "finding",
@@ -57,7 +64,15 @@
       "mathematical object",
       "integer sequence",
       "formal declaration",
-      "formal library"
+      "formal library",
+      "book",
+      "edition",
+      "recording",
+      "release",
+      "isbn",
+      "isrc",
+      "mbid",
+      "authority record"
     ]
   },
   "enrichers": [],
@@ -80,7 +95,11 @@
     "formal-proof-dependencies",
     "formal-revision-comparison",
     "math-source-objects",
-    "math-cross-source-links"
+    "math-cross-source-links",
+    "media-metadata-authority-records",
+    "media-revision-history-as-of",
+    "reviewable-media-identity",
+    "citation-only-media-links"
   ],
   "schema_versions": {
     "methodology-study": "1.0.0",
@@ -91,7 +110,8 @@
     "cultural-object": "1.0.0",
     "math-record": "1.0.0",
     "formal-declaration": "1.0.0",
-    "math-link": "1.0.0"
+    "math-link": "1.0.0",
+    "media-metadata-record": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -104,7 +124,8 @@
       "noesis-cultural-research-link-v1",
       "noesis-math-record-v1",
       "noesis-formal-declaration-v1",
-      "noesis-math-link-v1"
+      "noesis-math-link-v1",
+      "noesis-media-metadata-record-v1"
     ],
     "object_types": [
       "scholarly_work",
@@ -118,7 +139,13 @@
       "integer_sequence",
       "formal_declaration",
       "formal_snapshot",
-      "math_object"
+      "math_object",
+      "work",
+      "edition",
+      "recording",
+      "release",
+      "creator",
+      "authority_link"
     ],
     "relation_types": [
       "cites",
@@ -134,7 +161,11 @@
       "imports",
       "references_lexically",
       "formalizes_candidate",
-      "cites_identifier"
+      "cites_identifier",
+      "edition_of",
+      "recording_of",
+      "has_track",
+      "redirected_to"
     ]
   },
   "source_pack": "config/source_packs/scientific.json",
@@ -221,6 +252,26 @@
         "to_commit": "<newer commit>"
       },
       "semantics": "declarations added/removed/changed by statement hash; renames are candidates"
+    },
+    {
+      "intent": "Which work and authority records does this ISBN, MBID or QID identify on a date",
+      "tool": "resolve_media_identifier",
+      "arguments": {
+        "namespace": "global",
+        "identifier": "9783000000027",
+        "as_of": "2026-03-01"
+      },
+      "semantics": "exact identifier lookup: the identity, each authority record's source, revision and as-of time, identity matches used, redirects and merges; unknown or ambiguous identifiers are reported as such"
+    },
+    {
+      "intent": "Which works match this title and creator",
+      "tool": "search_media_titles",
+      "arguments": {
+        "namespace": "global",
+        "title": "The Glass Orchard",
+        "creator": "Mara Quell"
+      },
+      "semantics": "ranked candidates with title and name evidence, one per identity; never a single asserted answer and no popularity ranking"
     }
   ],
   "exclusions": [
@@ -236,6 +287,11 @@
     "universal formula OCR",
     "proof translation between formal systems",
     "unrestricted repository mirroring",
-    "licensed MathSciNet access"
+    "licensed MathSciNet access",
+    "full text, audio, cover images and other media content",
+    "popularity rankings of works or recordings",
+    "rights clearance determinations from catalogue notes",
+    "MusicBrainz supplementary (non-CC0) data",
+    "bulk provider mirrors"
   ]
 }

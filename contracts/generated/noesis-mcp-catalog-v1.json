@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1516,
+      "tool_count": 1533,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1005,6 +1005,7 @@
         "noesis-knowledge-engine.artifact_lineage",
         "noesis-knowledge-engine.assert_demographic_link",
         "noesis-knowledge-engine.assert_election_news_link",
+        "noesis-knowledge-engine.assert_media_link",
         "noesis-knowledge-engine.assess_authored_report_changes",
         "noesis-knowledge-engine.assess_epistemic_statement",
         "noesis-knowledge-engine.assess_evidence_freshness",
@@ -1172,6 +1173,7 @@
         "noesis-knowledge-engine.create_linguistics_monitor",
         "noesis-knowledge-engine.create_lobbying_monitor",
         "noesis-knowledge-engine.create_material_watch",
+        "noesis-knowledge-engine.create_media_metadata_monitor",
         "noesis-knowledge-engine.create_medicines_monitor",
         "noesis-knowledge-engine.create_package_monitor",
         "noesis-knowledge-engine.create_paper_family",
@@ -1319,6 +1321,7 @@
         "noesis-knowledge-engine.export_investigation_comparison",
         "noesis-knowledge-engine.export_legislative_dossier_changes",
         "noesis-knowledge-engine.export_lexeme_dossier",
+        "noesis-knowledge-engine.export_media_evidence_bundle",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
         "noesis-knowledge-engine.export_openreview_round_comparison",
         "noesis-knowledge-engine.export_ownership_dossier",
@@ -1586,6 +1589,8 @@
         "noesis-knowledge-engine.link_labour_citations",
         "noesis-knowledge-engine.link_legal_dossier",
         "noesis-knowledge-engine.link_lobbying_dossier",
+        "noesis-knowledge-engine.link_media_cultural_objects",
+        "noesis-knowledge-engine.link_media_news_entities",
         "noesis-knowledge-engine.link_medicine_evidence",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_safety_citations",
@@ -1670,6 +1675,7 @@
         "noesis-knowledge-engine.list_lobbying_identity_candidates",
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
+        "noesis-knowledge-engine.list_media_identity_matches",
         "noesis-knowledge-engine.list_medicine_identity_matches",
         "noesis-knowledge-engine.list_methodology_limitations",
         "noesis-knowledge-engine.list_official_meetings",
@@ -1746,6 +1752,9 @@
         "noesis-knowledge-engine.materials_source_contracts",
         "noesis-knowledge-engine.math_links",
         "noesis-knowledge-engine.math_source_contracts",
+        "noesis-knowledge-engine.media_authority_history",
+        "noesis-knowledge-engine.media_metadata_source_contracts",
+        "noesis-knowledge-engine.media_metadata_status",
         "noesis-knowledge-engine.medicine_label_as_of",
         "noesis-knowledge-engine.medicine_regulatory_timeline",
         "noesis-knowledge-engine.medicine_safety_communications",
@@ -1808,6 +1817,7 @@
         "noesis-knowledge-engine.poll_linguistics_monitor",
         "noesis-knowledge-engine.poll_lobbying_monitor",
         "noesis-knowledge-engine.poll_material_watch",
+        "noesis-knowledge-engine.poll_media_metadata_monitor",
         "noesis-knowledge-engine.poll_medicines_monitor",
         "noesis-knowledge-engine.poll_package_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
@@ -1906,6 +1916,7 @@
         "noesis-knowledge-engine.propose_lobbying_identity_matches",
         "noesis-knowledge-engine.propose_material_matches",
         "noesis-knowledge-engine.propose_math_links",
+        "noesis-knowledge-engine.propose_media_identity_matches",
         "noesis-knowledge-engine.propose_medicine_identities",
         "noesis-knowledge-engine.propose_oss_identity_link",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
@@ -2086,6 +2097,7 @@
         "noesis-knowledge-engine.resolve_hazard_places",
         "noesis-knowledge-engine.resolve_health_capacity_places",
         "noesis-knowledge-engine.resolve_justice_places",
+        "noesis-knowledge-engine.resolve_media_identifier",
         "noesis-knowledge-engine.resolve_research_package_closure",
         "noesis-knowledge-engine.resolve_review_inbox_task",
         "noesis-knowledge-engine.resolve_sanctions_legal_bases",
@@ -2128,6 +2140,7 @@
         "noesis-knowledge-engine.revert_lobbying_dossier_link",
         "noesis-knowledge-engine.revert_lobbying_identity_match",
         "noesis-knowledge-engine.revert_material_match",
+        "noesis-knowledge-engine.revert_media_identity_match",
         "noesis-knowledge-engine.revert_medicine_identity",
         "noesis-knowledge-engine.revert_oss_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
@@ -2195,6 +2208,8 @@
         "noesis-knowledge-engine.review_lobbying_identity_match",
         "noesis-knowledge-engine.review_material_match",
         "noesis-knowledge-engine.review_math_link",
+        "noesis-knowledge-engine.review_media_identity_match",
+        "noesis-knowledge-engine.review_media_link",
         "noesis-knowledge-engine.review_medicine_identity",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_oss_identity_match",
@@ -2273,6 +2288,7 @@
         "noesis-knowledge-engine.run_maintenance_drain",
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_material_watch",
+        "noesis-knowledge-engine.run_media_metadata_monitor",
         "noesis-knowledge-engine.run_medicines_monitor",
         "noesis-knowledge-engine.run_package_monitor",
         "noesis-knowledge-engine.run_persistent_research_loop",
@@ -2317,6 +2333,7 @@
         "noesis-knowledge-engine.search_intake_playbooks",
         "noesis-knowledge-engine.search_materials_by_property",
         "noesis-knowledge-engine.search_mathematics",
+        "noesis-knowledge-engine.search_media_titles",
         "noesis-knowledge-engine.search_methodology_studies",
         "noesis-knowledge-engine.search_multimodal_assets",
         "noesis-knowledge-engine.search_safety_recommendations",
@@ -2475,7 +2492,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1516
+      "visible_tool_count": 1533
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2486,11 +2503,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 143,
+      "available": 144,
       "degraded": 173,
-      "unauthorized": 1524
+      "unauthorized": 1540
     },
-    "tools": 1840
+    "tools": 1857
   },
   "tools": [
     {
@@ -23898,6 +23915,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "A reviewer's cited assertion that a cultural object or news entity refers to a media record\n(source:native_id or record ID).",
+      "id": "noesis-knowledge-engine.assert_media_link",
+      "input_schema": {
+        "properties": {
+          "evidence": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record": {
+            "type": "string"
+          },
+          "subject_id": {
+            "type": "string"
+          },
+          "subject_kind": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject_kind",
+          "subject_id",
+          "record",
+          "evidence"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "assert_media_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Poll committed evidence dependencies and persist a focused report-change assessment.",
       "id": "noesis-knowledge-engine.assess_authored_report_changes",
       "input_schema": {
@@ -33772,6 +33838,84 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch records or identifiers for authority revisions, redirects, merges, deprecations and new identifier\nassertions, as a knowledge subscription.",
+      "id": "noesis-knowledge-engine.create_media_metadata_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifiers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "records": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_media_metadata_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a medicine or substance for authorisation changes, label revisions and safety communications.",
       "id": "noesis-knowledge-engine.create_medicines_monitor",
       "input_schema": {
@@ -41428,6 +41572,94 @@
       ],
       "required_scopes": [
         "knowledge:linguistics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An identifier, title or creator answer as a noesis-evidence-bundle-v1 citing every authority record\nrevision and identity match used; unresolved, ambiguous and conflicting parts are omissions.",
+      "id": "noesis-knowledge-engine.export_media_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "creator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_media_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -53906,6 +54138,72 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link cultural objects to works and creators only through identifiers (creator authority IDs) or\nprovider relations (same_as) in the object record, citing both revisions; keyword overlap only creates a\ncandidate.",
+      "id": "noesis-knowledge-engine.link_media_cultural_objects",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_media_cultural_objects",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer authority records as reviewable candidates for News canonical entities (the optional\nmedia-metadata-news feature); only reviewed matches become links and no entity is re-labelled.",
+      "id": "noesis-knowledge-engine.link_media_news_entities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_media_news_entities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link regulatory records to trials and publications they cite, and to FAERS counts by reviewed identity.",
       "id": "noesis-knowledge-engine.link_medicine_evidence",
       "input_schema": {
@@ -58328,6 +58626,61 @@
     },
     {
       "cost_class": "low",
+      "description": "Identity matches and candidates (explicit identifier, shared identifier, similarity, canonical-entity)\nwith their evidence, review state and history; conflicting identifier claims are listed.",
+      "id": "noesis-knowledge-engine.list_media_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_media_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "RxNorm crosswalk records (kind, evidence, RxNorm release, review state and decisions).",
       "id": "noesis-knowledge-engine.list_medicine_identity_matches",
       "input_schema": {
@@ -62408,6 +62761,104 @@
     },
     {
       "cost_class": "low",
+      "description": "Every revision of one record (source:native_id or record ID) known at an ISO date, oldest first, with\nprovider revision markers, status changes (redirected, deprecated, deleted), redirects and any revision\nconflicts.",
+      "id": "noesis-knowledge-engine.media_authority_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "media_authority_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "MM01 access decisions for Open Library (API and named dump slices), MusicBrainz (CC0 core data only),\nWikidata, the Deutsche Nationalbibliothek and the Library of Congress: licence, rate limit, User-Agent,\nrevision semantics, bounded coverage, excluded sources and record classes, LIVE_VERIFICATION per source.\nNo full text, media content, popularity ranking or rights clearance determination is in scope.",
+      "id": "noesis-knowledge-engine.media_metadata_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "media_metadata_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Bundle status of the media-metadata sources in the scientific source pack: install and enablement,\nLIVE_VERIFICATION per source, the optional media-metadata and media-metadata-news features and records\nheld per source. Offline fixture evidence is never reported as live.",
+      "id": "noesis-knowledge-engine.media_metadata_status",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "media_metadata_status",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "The label revision in force on a date per label document: sections verbatim with locators (dosing\nsections are listed as omitted, never quoted).",
       "id": "noesis-knowledge-engine.medicine_label_as_of",
       "input_schema": {
@@ -65154,6 +65605,44 @@
       "required_scopes": [
         "knowledge:materials:read",
         "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a media metadata monitor's delivered events.",
+      "id": "noesis-knowledge-engine.poll_media_metadata_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_media_metadata_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:subscriptions:read",
+        "knowledge:cultural:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -69686,6 +70175,39 @@
       ],
       "required_scopes": [
         "knowledge:mathematics:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Explicit identifier statements (Wikidata P648/P227/P244/P434, Open Library identifiers, MusicBrainz URL\nrelations, MARC 024/010) become matches citing the asserting revision; title/creator/date similarity and\ncreator names against News canonical entities only propose scored candidates. Records are never merged\nand canonical entities are only read.",
+      "id": "noesis-knowledge-engine.propose_media_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_media_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -80366,6 +80888,65 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Exact lookup of an ISBN, ISRC, ISWC, MBID, Wikidata QID, GND, DNB IDN, LCCN/LCNAF or OLID: the\nwork/edition/recording identity with its authority records (source, revision, as-of time, licence),\nthe identity matches used, redirects and merges, and revision history as of an ISO date. Unknown,\ninvalid and ambiguous identifiers are reported as such; nothing is chosen for you.",
+      "id": "noesis-knowledge-engine.resolve_media_identifier",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "identifier": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "scheme": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "identifier"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "resolve_media_identifier",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Resolve deterministic dependency closure with redactions and omissions.",
       "id": "noesis-knowledge-engine.resolve_research_package_closure",
@@ -82157,6 +82738,47 @@
       ],
       "required_scopes": [
         "knowledge:ownership:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Undo a reviewed media identity decision (entity-history undo); the match becomes reviewable again.",
+      "id": "noesis-knowledge-engine.revert_media_identity_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_media_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -85244,6 +85866,96 @@
       ],
       "required_scopes": [
         "knowledge:mathematics:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or defer a media identity match with a reason; recorded as an entity-history decision\nand reversible. Conflicts stay visible after review.",
+      "id": "noesis-knowledge-engine.review_media_identity_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_media_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept (a reviewed assertion) or reject a candidate link between a cultural object or news entity and a\nmedia record.",
+      "id": "noesis-knowledge-engine.review_media_link",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "link_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "link_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_media_link",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -89227,6 +89939,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Evaluate a media metadata monitor at the committed state; each notification is dated and cites both\nrevisions. Replays emit nothing.",
+      "id": "noesis-knowledge-engine.run_media_metadata_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_media_metadata_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Evaluate a medicines monitor at a committed watermark; unchanged records deliver nothing.",
       "id": "noesis-knowledge-engine.run_medicines_monitor",
       "input_schema": {
@@ -91836,6 +92594,76 @@
       ],
       "required_scopes": [
         "knowledge:mathematics:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Title and/or creator lookup over acquired records: ranked candidates, one per identity, each with the\ntitle and name evidence that scored it; ties are flagged ambiguous. Not a single asserted answer and no\npopularity ranking.",
+      "id": "noesis-knowledge-engine.search_media_titles",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "creator": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "limit": {
+            "default": 10,
+            "type": "integer"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "title": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "search_media_titles",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:cultural:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",

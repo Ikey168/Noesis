@@ -1522,10 +1522,90 @@ class MediaMetadataQueries:
         return builder.build()
 
 
+# ------------------------------------------------------------------ feature and bundle status (MM11)
+
+
+def feature_enabled(conn: Any, feature: str = FEATURE) -> bool:
+    """Whether the Science bundle's optional ``media-metadata`` (or ``media-metadata-news``) feature is selected in
+    the active composition plan (default off)."""
+    try:
+        tables = {r[0] for r in conn.execute(
+            "SELECT table_name FROM information_schema.tables WHERE table_name IN "
+            "('composition_authority', 'composition_active', 'composition_generations', 'composition_plans')"
+        ).fetchall()}
+        if len(tables) < 4:
+            return False
+        managed = conn.execute("SELECT authority FROM composition_authority WHERE bundle='science'").fetchone()
+        if not managed or managed[0] != "composition":
+            return False
+        row = conn.execute(
+            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
+            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
+        ).fetchone()
+        plan = json.loads(row[0]) if row else {}
+    except Exception:  # noqa: BLE001 - an unreadable plan never enables a feature
+        return False
+    return feature in ((plan.get("features") or {}).get("science") or [])
+
+
+def bundle_status(conn: Any, *, secrets: Callable[[str], str | None] | None = None) -> dict[str, Any]:
+    """Per-source install, enablement and ``LIVE_VERIFICATION`` state of the media-metadata sources, the optional
+    features' selection and the records held; the live state is never inferred from fixtures."""
+    import os
+
+    from src.ingestion.media_metadata_sources import LIVE_VERIFICATION
+
+    lookup = secrets or (lambda name: os.environ.get(name))
+    try:
+        row = conn.execute(
+            "SELECT c.enabled, v.manifest_json FROM source_pack_current c JOIN source_pack_versions v "
+            "ON v.pack_id=c.pack_id AND v.version=c.version WHERE c.pack_id=?", [SOURCE_PACK]).fetchone()
+    except Exception:  # noqa: BLE001 - runtime tables absent until the first install
+        row = None
+    manifest = _load(row[1], {}) if row else {}
+    installed = {s["source_id"]: s for s in manifest.get("sources") or [] if s.get("connector") == "media-metadata"}
+    if not installed:
+        from src.ingestion.source_packs import validate_source_pack
+
+        pack = validate_source_pack(json.loads((Path(__file__).resolve().parents[2]
+                                                / "config/source_packs/scientific.json").read_text()))
+        configured = {s["source_id"]: s for s in pack["sources"] if s["connector"] == "media-metadata"}
+    else:
+        configured = installed
+    sources = []
+    for source_id, source in sorted(configured.items()):
+        provider = source["media_metadata"]["provider"]
+        blockers = []
+        if source_id not in installed:
+            blockers.append({"code": "source_not_installed", "severity": "blocking"})
+        elif not (row and row[0]):
+            blockers.append({"code": "pack_disabled", "severity": "blocking"})
+        ref = dict(source.get("auth") or {}).get("secret_ref")
+        if ref and not lookup(ref):
+            blockers.append({"code": "contact_missing", "secret_ref": ref, "severity": "advisory",
+                             "note": "the User-Agent carries no contact; set it before live runs"})
+        sources.append({"source_id": source_id, "provider": provider, "endpoint": source["endpoint"],
+                        "selection_size": len(source["media_metadata"]["selection"]),
+                        "LIVE_VERIFICATION": LIVE_VERIFICATION[provider]["status"],
+                        "declared_live_verification": source["media_metadata"].get("live_verification"),
+                        "fixture": "ready" if source_id in installed and row and row[0] else "blocked",
+                        "blockers": blockers})
+    counts = {}
+    if table_exists(conn, "media_records"):
+        counts = {r[0]: int(r[1]) for r in conn.execute(
+            "SELECT source, count(*) FROM media_records GROUP BY source ORDER BY source").fetchall()}
+    return {"pack_id": SOURCE_PACK, "features": {FEATURE: feature_enabled(conn, FEATURE),
+                                                 NEWS_FEATURE: feature_enabled(conn, NEWS_FEATURE)},
+            "sources": sources, "records_by_source": counts, "boundary": BOUNDARY,
+            "notice": "media metadata extends Cultural Collections in the Science pack; offline fixture evidence is "
+                      "reported separately from live evidence, and every source stays unverified-live until a dated "
+                      "live run"}
+
+
 __all__ = [
     "ANSWER_CONTRACT", "BOUNDARY", "CONTRACT", "FEATURE", "LINK_CONTRACT", "MATCH_CONTRACT", "MediaMetadataError",
     "MediaMetadataIdentity", "MediaMetadataLinks", "MediaMetadataProjector", "MediaMetadataQueries", "MediaMetadataStore",
-    "authority_reference", "level_of", "name_tokens", "NEWS_FEATURE", "READ_SCOPE", "RECORD_TYPES", "REVIEW_SCOPE",
+    "authority_reference", "bundle_status", "feature_enabled", "level_of", "name_tokens", "NEWS_FEATURE", "READ_SCOPE", "RECORD_TYPES", "REVIEW_SCOPE",
     "SCHEMES", "SOURCES", "WRITE_SCOPE", "detect_scheme", "isbn13_from_isbn10", "native_key", "normalize_identifier",
     "normalize_lccn", "record_id_for", "validate_statement",
 ]
