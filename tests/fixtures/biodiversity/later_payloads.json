@@ -1,0 +1,293 @@
+{
+ "description": "Authored offline fixture in the provider's documented response shape. Keys, identifiers, DOIs (10.5555 test prefix), coordinates, dates and Red List categories are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (BD13, #2533). A later acquisition of the same selections.",
+ "gbif": {
+  "/v1/occurrence/search?geometry=POLYGON%28%2813.08+52.33%2C13.76+52.33%2C13.76+52.68%2C13.08+52.68%2C13.08+52.33%29%29&limit=20&offset=0&taxonKey=5231190": {
+   "body": {
+    "offset": 0,
+    "limit": 20,
+    "endOfRecords": true,
+    "count": 3,
+    "results": [
+     {
+      "key": 4011001,
+      "occurrenceID": "urn:fixture:occ:4011001",
+      "datasetKey": "aaaa0001-0000-4000-8000-000000000001",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2026-05-03",
+      "taxonKey": 5231190,
+      "acceptedTaxonKey": 5231190,
+      "scientificName": "Passer domesticus (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [],
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "decimalLatitude": 52.52,
+      "decimalLongitude": 13.405,
+      "coordinateUncertaintyInMeters": 30.0
+     },
+     {
+      "key": 4011002,
+      "occurrenceID": "urn:fixture:occ:4011002",
+      "datasetKey": "aaaa0002-0000-4000-8000-000000000002",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2026-04-11",
+      "taxonKey": 5231190,
+      "acceptedTaxonKey": 5231190,
+      "scientificName": "Passer domesticus (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [],
+      "license": "http://creativecommons.org/publicdomain/zero/1.0/legalcode",
+      "modified": "2026-09-10T08:00:00.000+00:00",
+      "decimalLatitude": 52.517,
+      "decimalLongitude": 13.3889,
+      "coordinateUncertaintyInMeters": 2000.0
+     },
+     {
+      "key": 4011004,
+      "occurrenceID": "urn:fixture:occ:4011004",
+      "datasetKey": "aaaa0001-0000-4000-8000-000000000001",
+      "basisOfRecord": "HUMAN_OBSERVATION",
+      "eventDate": "2026-09-05",
+      "taxonKey": 5231190,
+      "acceptedTaxonKey": 5231190,
+      "scientificName": "Passer domesticus (Linnaeus, 1758)",
+      "countryCode": "DE",
+      "stateProvince": "Berlin",
+      "locality": "Berlin (fixture locality text)",
+      "issues": [],
+      "license": "http://creativecommons.org/licenses/by/4.0/legalcode",
+      "modified": "2026-06-02T08:00:00.000+00:00",
+      "decimalLatitude": 52.521,
+      "decimalLongitude": 13.41,
+      "coordinateUncertaintyInMeters": 15.0
+     }
+    ]
+   }
+  }
+ },
+ "iucn": {
+  "/api/v4/taxa/sis/12419": {
+   "body": {
+    "taxon": {
+     "sis_id": 12419,
+     "scientific_name": "Lutra lutra",
+     "authority": "(Linnaeus, 1758)"
+    },
+    "assessments": [
+     {
+      "assessment_id": 900004,
+      "sis_taxon_id": 12419,
+      "year_published": "2026",
+      "latest": true,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "VU",
+      "url": "https://www.iucnredlist.org/species/12419/900004",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     },
+     {
+      "assessment_id": 900003,
+      "sis_taxon_id": 12419,
+      "year_published": "2021",
+      "latest": false,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "NT",
+      "url": "https://www.iucnredlist.org/species/12419/900003",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     },
+     {
+      "assessment_id": 900002,
+      "sis_taxon_id": 12419,
+      "year_published": "2015",
+      "latest": false,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "NT",
+      "url": "https://www.iucnredlist.org/species/12419/900002",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     },
+     {
+      "assessment_id": 900001,
+      "sis_taxon_id": 12419,
+      "year_published": "1996",
+      "latest": false,
+      "possibly_extinct": false,
+      "possibly_extinct_in_the_wild": false,
+      "red_list_category_code": "VU",
+      "url": "https://www.iucnredlist.org/species/12419/900001",
+      "scopes": [
+       {
+        "description": {
+         "en": "Global"
+        },
+        "code": "1"
+       }
+      ]
+     }
+    ]
+   }
+  },
+  "/api/v4/assessment/900003": {
+   "body": {
+    "assessment_id": 900003,
+    "sis_taxon_id": 12419,
+    "year_published": "2021",
+    "latest": false,
+    "possibly_extinct": false,
+    "possibly_extinct_in_the_wild": false,
+    "red_list_category_code": "NT",
+    "url": "https://www.iucnredlist.org/species/12419/900003",
+    "scopes": [
+     {
+      "description": {
+       "en": "Global"
+      },
+      "code": "1"
+     }
+    ],
+    "assessment_date": "2020-10-15",
+    "criteria": null,
+    "red_list_category": {
+     "code": "NT",
+     "description": {
+      "en": "Near Threatened"
+     }
+    },
+    "citation": "Fixture Assessors. 2021. Lutra lutra. The IUCN Red List of Threatened Species 2021: e.T12419A900003. https://dx.doi.org/10.5555/iucn.fixture.900003",
+    "taxon": {
+     "sis_id": 12419,
+     "scientific_name": "Lutra lutra"
+    },
+    "documentation": {
+     "rationale": "Narrative rationale (withheld under the reference-only decision)."
+    },
+    "threats": [
+     {
+      "code": "1.1",
+      "description": {
+       "en": "Housing & urban areas"
+      }
+     }
+    ],
+    "habitats": [
+     {
+      "code": "5.1",
+      "description": {
+       "en": "Wetlands"
+      }
+     }
+    ],
+    "population_trend": {
+     "description": {
+      "en": "Decreasing"
+     }
+    },
+    "locations": [
+     {
+      "code": "DE",
+      "description": {
+       "en": "Germany"
+      }
+     }
+    ]
+   }
+  },
+  "/api/v4/assessment/900004": {
+   "body": {
+    "assessment_id": 900004,
+    "sis_taxon_id": 12419,
+    "year_published": "2026",
+    "latest": true,
+    "possibly_extinct": false,
+    "possibly_extinct_in_the_wild": false,
+    "red_list_category_code": "VU",
+    "url": "https://www.iucnredlist.org/species/12419/900004",
+    "scopes": [
+     {
+      "description": {
+       "en": "Global"
+      },
+      "code": "1"
+     }
+    ],
+    "assessment_date": "2026-03-01",
+    "criteria": "A2c",
+    "red_list_category": {
+     "code": "VU",
+     "description": {
+      "en": "Vulnerable"
+     }
+    },
+    "citation": "Fixture Assessors. 2026. Lutra lutra. The IUCN Red List of Threatened Species 2026: e.T12419A900004. https://dx.doi.org/10.5555/iucn.fixture.900004",
+    "taxon": {
+     "sis_id": 12419,
+     "scientific_name": "Lutra lutra"
+    },
+    "documentation": {
+     "rationale": "Narrative rationale (withheld under the reference-only decision)."
+    },
+    "threats": [
+     {
+      "code": "1.1",
+      "description": {
+       "en": "Housing & urban areas"
+      }
+     }
+    ],
+    "habitats": [
+     {
+      "code": "5.1",
+      "description": {
+       "en": "Wetlands"
+      }
+     }
+    ],
+    "population_trend": {
+     "description": {
+      "en": "Decreasing"
+     }
+    },
+    "locations": [
+     {
+      "code": "DE",
+      "description": {
+       "en": "Germany"
+      }
+     }
+    ],
+    "reason_for_change": {
+     "code": "genuine",
+     "description": {
+      "en": "Genuine change: population decline"
+     }
+    }
+   }
+  }
+ }
+}

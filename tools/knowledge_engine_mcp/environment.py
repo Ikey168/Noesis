@@ -7,6 +7,7 @@ output are never returned as observations.
 """
 
 from src.kb.environment_bundle import BUNDLE, readiness, require_enabled, set_enabled
+from tools.knowledge_engine_mcp import biodiversity as _biodiversity
 
 ENVIRONMENT_WRITES = {
     "set_climate_environment_bundle_enabled", "acquire_environment_source", "register_environment_schemas",
@@ -19,6 +20,9 @@ ENVIRONMENT_TOOLS = ENVIRONMENT_WRITES | {
     "inspect_environment_dossier", "replay_environment_dossier", "export_environment_dossier",
     "list_environment_operator_links", "inspect_environment_obligation_evidence", "poll_environment_monitor",
 }
+# The optional ``biodiversity`` feature's tools (#2220) register with this module (tools/.../biodiversity.py).
+ENVIRONMENT_WRITES = ENVIRONMENT_WRITES | _biodiversity.BIODIVERSITY_WRITES
+ENVIRONMENT_TOOLS = ENVIRONMENT_TOOLS | _biodiversity.BIODIVERSITY_TOOLS
 ENVIRONMENT_SCOPES = {
     "set_climate_environment_bundle_enabled": ["operator"],
     "acquire_environment_source": ["knowledge:environment:write", "knowledge:ingestion:execute"],
@@ -33,6 +37,8 @@ ENVIRONMENT_SCOPES = {
 def required_scopes(tool_name, mutability):
     if tool_name == "environment_provider_contracts":
         return []
+    if tool_name in _biodiversity.BIODIVERSITY_TOOLS:
+        return _biodiversity.required_scopes(tool_name, mutability)
     return ENVIRONMENT_SCOPES.get(
         tool_name, ["knowledge:environment:write" if mutability == "write" else "knowledge:environment:read"])
 
@@ -262,3 +268,5 @@ def register(mcp, safe, context):
         return gated(namespace, lambda conn: EnvironmentMonitor(conn, initialize=False).poll(
             subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor),
             also=("knowledge:subscriptions:read",))
+
+    _biodiversity.register(mcp, safe, context)

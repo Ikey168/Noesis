@@ -1,0 +1,378 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "environment.biodiversity",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.biodiversity_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "environment.biodiversity-records",
+      "contract": {
+        "name": "noesis-biodiversity-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "register-schemas",
+        "lookup-taxa",
+        "occurrences",
+        "status-history",
+        "link-records",
+        "list-links",
+        "export-bundle"
+      ],
+      "semantic_constraints": {
+        "records": "taxa per checklist release, provider taxon identities, occurrences, datasets and IUCN assessments are statements as published with source, revision and retrieval time; nothing is overwritten or deleted",
+        "sensitive_coordinates": "coordinates only at the precision the publisher released, with coordinateUncertaintyInMeters, dataGeneralizations, informationWithheld and issue flags kept; withheld coordinates stay withheld; generalised records link only to places at or above the stated precision; locality text is never geocoded",
+        "licences": "every occurrence carries its dataset licence (CC0, CC BY, CC BY-NC) and dataset citation/DOI; IUCN data stay at the reference-only tier and exports keep citation-level fields only",
+        "answers": "occurrences on record at a date with uncertain records reported apart; counts are record counts; 'no occurrence on record' and 'not assessed on record' are explicit",
+        "exclusions": "no species distribution modelling, no abundance or presence/absence estimation, no location more precise than published, no Noesis-derived threat status or trend"
+      }
+    },
+    {
+      "id": "environment.biodiversity-identity",
+      "contract": {
+        "name": "noesis-biodiversity-identity-match",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-identity",
+        "review-identity",
+        "undo-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "identity": "provider taxa (CoL ID, GBIF taxonKey, IUCN SIS id) connect only through reviewed proposals; cross-reference and name+authorship are deterministic, name-only and synonym candidates lower-evidence; split/lumped concepts surface as conflicts and are never resolved automatically; accepted matches record both checklist versions; unmatched taxa stay queryable by native key"
+      }
+    },
+    {
+      "id": "environment.biodiversity-monitoring",
+      "contract": {
+        "name": "noesis-biodiversity-notification",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "monitoring": "taxon, place and dataset watches on platform.subscriptions evaluated at complete source-pack watermarks; new, revised and removed occurrences, taxonomic status changes and new assessments cite prior and new revisions; unchanged data emits nothing"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.biodiversity_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.biodiversity_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_biodiversity_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "lookup-taxa",
+      "tool": "noesis-knowledge-engine.lookup_taxa",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "occurrences",
+      "tool": "noesis-knowledge-engine.occurrences_for_taxon_or_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "status-history",
+      "tool": "noesis-knowledge-engine.conservation_status_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-records",
+      "tool": "noesis-knowledge-engine.link_biodiversity_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "source revision + target"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:geospatial:write",
+        "knowledge:geospatial:calculate"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_biodiversity_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-bundle",
+      "tool": "noesis-knowledge-engine.export_biodiversity_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-identity",
+      "tool": "noesis-knowledge-engine.propose_taxon_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject pair"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_taxon_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:review"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "undo-identity",
+      "tool": "noesis-knowledge-engine.revert_taxon_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": false,
+        "receipt": "entity_identity_decisions"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_taxon_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_biodiversity_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_biodiversity_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "committed watermark"
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_biodiversity_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace",
+        "principal"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "biodiversity-record",
+      "store": "src.kb.biodiversity_store",
+      "tables": [
+        "biodiversity_records",
+        "biodiversity_revisions",
+        "biodiversity_snapshots",
+        "biodiversity_status_changes",
+        "biodiversity_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "biodiversity-identity-match",
+      "store": "src.kb.biodiversity_identity",
+      "tables": [
+        "biodiversity_identity_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "biodiversity-link",
+      "store": "src.kb.biodiversity_links",
+      "tables": [
+        "biodiversity_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "biodiversity_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "climate-environment-biodiversity",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

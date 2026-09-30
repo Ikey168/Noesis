@@ -951,7 +951,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1400,
+      "tool_count": 1416,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1036,6 +1036,8 @@
         "noesis-knowledge-engine.begin_research_snapshot",
         "noesis-knowledge-engine.beneficiary_dossier",
         "noesis-knowledge-engine.bill_dossier_as_of",
+        "noesis-knowledge-engine.biodiversity_readiness",
+        "noesis-knowledge-engine.biodiversity_source_contracts",
         "noesis-knowledge-engine.branch_hypothesis_workspace",
         "noesis-knowledge-engine.branch_research_project",
         "noesis-knowledge-engine.budget_line_dossier",
@@ -1116,6 +1118,7 @@
         "noesis-knowledge-engine.compare_trade_mirror",
         "noesis-knowledge-engine.configure_jev_task_rollout",
         "noesis-knowledge-engine.consent_problem_action",
+        "noesis-knowledge-engine.conservation_status_history",
         "noesis-knowledge-engine.control_list_entry_as_of",
         "noesis-knowledge-engine.convert_demographic_units",
         "noesis-knowledge-engine.convert_development_finance_amount",
@@ -1130,6 +1133,7 @@
         "noesis-knowledge-engine.create_authored_report",
         "noesis-knowledge-engine.create_bafin_notice_monitor",
         "noesis-knowledge-engine.create_binary_forecast",
+        "noesis-knowledge-engine.create_biodiversity_monitor",
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_clinical_monitor",
         "noesis-knowledge-engine.create_courts_justice_monitor",
@@ -1285,6 +1289,7 @@
         "noesis-knowledge-engine.explain_study_evidence_strength",
         "noesis-knowledge-engine.export_authored_report",
         "noesis-knowledge-engine.export_bill_evidence_bundle",
+        "noesis-knowledge-engine.export_biodiversity_bundle",
         "noesis-knowledge-engine.export_change_briefs",
         "noesis-knowledge-engine.export_clinical_evidence_bundle",
         "noesis-knowledge-engine.export_coverage_comparison",
@@ -1525,6 +1530,7 @@
         "noesis-knowledge-engine.link_astronomy_citations",
         "noesis-knowledge-engine.link_bill_enactment",
         "noesis-knowledge-engine.link_bill_lobbying",
+        "noesis-knowledge-engine.link_biodiversity_records",
         "noesis-knowledge-engine.link_budget_acts",
         "noesis-knowledge-engine.link_budget_districts",
         "noesis-knowledge-engine.link_budget_dossier",
@@ -1564,6 +1570,7 @@
         "noesis-knowledge-engine.list_bill_link_candidates",
         "noesis-knowledge-engine.list_bill_records",
         "noesis-knowledge-engine.list_bill_votes",
+        "noesis-knowledge-engine.list_biodiversity_links",
         "noesis-knowledge-engine.list_budget_lines",
         "noesis-knowledge-engine.list_change_briefs",
         "noesis-knowledge-engine.list_court_citation_links",
@@ -1644,6 +1651,7 @@
         "noesis-knowledge-engine.list_substance_links",
         "noesis-knowledge-engine.list_surveillance_resolutions",
         "noesis-knowledge-engine.list_surveillance_series",
+        "noesis-knowledge-engine.list_taxon_identity_matches",
         "noesis-knowledge-engine.list_trade_comparability_notes",
         "noesis-knowledge-engine.list_trade_concordances",
         "noesis-knowledge-engine.list_trade_identity_assertions",
@@ -1675,6 +1683,7 @@
         "noesis-knowledge-engine.lookup_sanctions_designation",
         "noesis-knowledge-engine.lookup_source_identity",
         "noesis-knowledge-engine.lookup_sponsor_bills",
+        "noesis-knowledge-engine.lookup_taxa",
         "noesis-knowledge-engine.maintenance_generation_lineage",
         "noesis-knowledge-engine.maintenance_health",
         "noesis-knowledge-engine.map_trade_product_code",
@@ -1694,6 +1703,7 @@
         "noesis-knowledge-engine.multilingual_search",
         "noesis-knowledge-engine.natural_hazards_bundle_status",
         "noesis-knowledge-engine.normalise_development_finance_activities",
+        "noesis-knowledge-engine.occurrences_for_taxon_or_place",
         "noesis-knowledge-engine.openreview_concern_review_target",
         "noesis-knowledge-engine.orbit_solution_as_of",
         "noesis-knowledge-engine.orbital_object_history",
@@ -1720,6 +1730,7 @@
         "noesis-knowledge-engine.poll_agrifood_monitor",
         "noesis-knowledge-engine.poll_astronomy_monitor",
         "noesis-knowledge-engine.poll_bafin_notice_monitor",
+        "noesis-knowledge-engine.poll_biodiversity_monitor",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
         "noesis-knowledge-engine.poll_courts_justice_monitor",
@@ -1846,6 +1857,7 @@
         "noesis-knowledge-engine.propose_sports_identity_matches",
         "noesis-knowledge-engine.propose_substance_identities",
         "noesis-knowledge-engine.propose_substance_identity_manual",
+        "noesis-knowledge-engine.propose_taxon_identity_matches",
         "noesis-knowledge-engine.propose_trade_area_matches",
         "noesis-knowledge-engine.propose_trade_product_matches",
         "noesis-knowledge-engine.propose_vulnerability_component_link",
@@ -1913,6 +1925,7 @@
         "noesis-knowledge-engine.register_access_view_policy",
         "noesis-knowledge-engine.register_agrifood_places",
         "noesis-knowledge-engine.register_anomaly_watch",
+        "noesis-knowledge-engine.register_biodiversity_schemas",
         "noesis-knowledge-engine.register_change_brief_policy",
         "noesis-knowledge-engine.register_citation_archive_policy",
         "noesis-knowledge-engine.register_dataset_catalog",
@@ -2051,6 +2064,7 @@
         "noesis-knowledge-engine.revert_sports_identity_match",
         "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_substance_identity",
+        "noesis-knowledge-engine.revert_taxon_identity_match",
         "noesis-knowledge-engine.revert_trade_identity_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
         "noesis-knowledge-engine.revert_weather_station_match",
@@ -2115,6 +2129,7 @@
         "noesis-knowledge-engine.review_study_field",
         "noesis-knowledge-engine.review_substance_identity",
         "noesis-knowledge-engine.review_surveillance_resolution",
+        "noesis-knowledge-engine.review_taxon_identity_match",
         "noesis-knowledge-engine.review_trade_comparability",
         "noesis-knowledge-engine.review_trade_identity_match",
         "noesis-knowledge-engine.review_translation",
@@ -2144,6 +2159,7 @@
         "noesis-knowledge-engine.run_anomaly_detector",
         "noesis-knowledge-engine.run_astronomy_monitor",
         "noesis-knowledge-engine.run_bafin_notice_monitor",
+        "noesis-knowledge-engine.run_biodiversity_monitor",
         "noesis-knowledge-engine.run_clinical_monitor",
         "noesis-knowledge-engine.run_courts_justice_monitor",
         "noesis-knowledge-engine.run_demographic_monitor",
@@ -2359,7 +2375,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1400
+      "visible_tool_count": 1416
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2370,11 +2386,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 138,
+      "available": 139,
       "degraded": 173,
-      "unauthorized": 1413
+      "unauthorized": 1428
     },
-    "tools": 1724
+    "tools": 1740
   },
   "tools": [
     {
@@ -25848,6 +25864,63 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Whether the optional biodiversity feature is selected, which stores exist and per-provider state.",
+      "id": "noesis-knowledge-engine.biodiversity_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "biodiversity_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "CoL, GBIF and IUCN access contracts, the IUCN reference-only licence decision, sensitive-species policy,\nbounded coverage and live state. No distribution modelling, abundance or de-generalised locations.",
+      "id": "noesis-knowledge-engine.biodiversity_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "biodiversity_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Branch a workspace while retaining stable hypothesis identities.",
       "id": "noesis-knowledge-engine.branch_hypothesis_workspace",
@@ -30196,6 +30269,54 @@
     },
     {
       "cost_class": "low",
+      "description": "Red List assessments in date order per scope with the assessor-designated current one, published\ncategory changes (never a trend) and the reference-only licence; 'not assessed on record' is not NE/DD.",
+      "id": "noesis-knowledge-engine.conservation_status_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "taxon": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "taxon"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "conservation_status_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "The annex edition applying on a date and the control code's passage in it, with every edition listed.\n\nSource text by edition only: no classification of goods, licensing determination or legal advice.",
       "id": "noesis-knowledge-engine.control_list_entry_as_of",
       "input_schema": {
@@ -30985,6 +31106,98 @@
       ],
       "required_scopes": [
         "knowledge:forecasts:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Watch taxa, places or datasets for new/changed/removed occurrences, status changes and new assessments.",
+      "id": "noesis-knowledge-engine.create_biodiversity_monitor",
+      "input_schema": {
+        "properties": {
+          "datasets": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "places": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "taxa": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_biodiversity_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read",
+        "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -39553,6 +39766,72 @@
         "knowledge:political:legislation:read",
         "knowledge:political:dossier:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "The biodiversity section of a Climate and Environment place or taxon bundle; IUCN rows reduced to\ncitation level for export.",
+      "id": "noesis-knowledge-engine.export_biodiversity_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "taxon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_biodiversity_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -50677,6 +50956,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link occurrences to places at their published precision (or by exact country code) and to datasets, and\ndatasets/assessments to papers by exact DOI; never geocodes locality text or de-generalises coordinates.",
+      "id": "noesis-knowledge-engine.link_biodiversity_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "place_ids": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_biodiversity_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:geospatial:write",
+        "knowledge:geospatial:calculate"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link plans to budget acts by an exact stated citation (CELEX, ELI, BGBl, GVBl); title overlap is only a\ncandidate; unmatched citations stay unresolved.",
       "id": "noesis-knowledge-engine.link_budget_acts",
       "input_schema": {
@@ -52726,6 +53054,61 @@
         "knowledge:political:legislation:read",
         "knowledge:political:dossier:read",
         "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Place, dataset and citation links, each with the source revision it came from.",
+      "id": "noesis-knowledge-engine.list_biodiversity_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_biodiversity_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -56933,6 +57316,61 @@
     },
     {
       "cost_class": "low",
+      "description": "Taxon identity proposals and decisions with basis, evidence class and conflicts.",
+      "id": "noesis-knowledge-engine.list_taxon_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_taxon_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Reviewable comparability notes between trade series (valuation basis, classification vintage, period,\npartner attribution); notes never merge series.",
       "id": "noesis-knowledge-engine.list_trade_comparability_notes",
       "input_schema": {
@@ -58750,6 +59188,43 @@
     },
     {
       "cost_class": "low",
+      "description": "Provider taxa for a scientific name, native key or provider:key: names, ranks, statuses and checklist\nversions as published, accepted/open identity matches and dated status changes between releases.",
+      "id": "noesis-knowledge-engine.lookup_taxa",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "lookup_taxa",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Trace a committed generation to pack, source runs, workflow, and artifacts.",
       "id": "noesis-knowledge-engine.maintenance_generation_lineage",
       "input_schema": {
@@ -59565,6 +60040,72 @@
       ],
       "required_scopes": [
         "knowledge:funding:development-finance:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Occurrence records on record at a date for a taxon and/or place, each citing occurrence, dataset, licence\nand retrieval time; uncertain records apart; counts are record counts, never abundance or presence/absence.",
+      "id": "noesis-knowledge-engine.occurrences_for_taxon_or_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "taxon": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "occurrences_for_taxon_or_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -60782,6 +61323,48 @@
       ],
       "required_scopes": [
         "market:bafin:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll biodiversity monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_biodiversity_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_biodiversity_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -66527,6 +67110,39 @@
     },
     {
       "cost_class": "medium",
+      "description": "Offer taxon identity candidates across CoL, GBIF and IUCN for review (none accepted); split/lump conflicts\nare surfaced, never resolved.",
+      "id": "noesis-knowledge-engine.propose_taxon_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_taxon_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Offer every reporter and partner code to Geospatial places by published code, stated ISO3 or ISO\nalpha-2 equivalence; special areas stay distinct; nothing is linked until reviewed.",
       "id": "noesis-knowledge-engine.propose_trade_area_matches",
       "input_schema": {
@@ -70576,6 +71192,40 @@
       ],
       "required_scopes": [
         "knowledge:anomalies:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Register noesis-biodiversity-record-v1 in the schema registry.",
+      "id": "noesis-knowledge-engine.register_biodiversity_schemas",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "register_biodiversity_schemas",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:write",
+        "knowledge:schema:register"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -78153,6 +78803,48 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed taxon identity decision (the entity identity decision is undone).",
+      "id": "noesis-knowledge-engine.revert_taxon_identity_match",
+      "input_schema": {
+        "properties": {
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_taxon_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:execute"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed match; the code is unmatched again.",
       "id": "noesis-knowledge-engine.revert_trade_identity_match",
       "input_schema": {
@@ -81221,6 +81913,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept or reject a taxon identity proposal with a reason; records reviewer, time and checklist versions.",
+      "id": "noesis-knowledge-engine.review_taxon_identity_match",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "match_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "match_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_taxon_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:review",
+        "knowledge:entity-history:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a proposed comparability note with a reason.",
       "id": "noesis-knowledge-engine.review_trade_comparability",
       "input_schema": {
@@ -82857,6 +83595,55 @@
       "required_scopes": [
         "market:bafin:read",
         "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a biodiversity monitor at a complete source-pack watermark; replays deliver nothing.",
+      "id": "noesis-knowledge-engine.run_biodiversity_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_biodiversity_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:environment:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

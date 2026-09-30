@@ -166,6 +166,11 @@ MATRIX = {
     "Provision or party to cited dockets; place to cited justice statistics":
         "tests/unit/domains/test_courts_justice_acceptance.py::"
         "test_provision_and_party_to_cited_dockets_and_place_to_cited_statistics",
+    # The Climate and Environment biodiversity feature's offline journey (#2531) composes its record owner with
+    # geospatial places and receipts, entity identity decisions, Science papers by DOI and subscriptions.
+    "Taxon or place to cited biodiversity records":
+        "tests/unit/domains/test_biodiversity_acceptance.py::"
+        "test_taxon_and_place_to_cited_occurrences_and_conservation_status_history",
 }
 
 

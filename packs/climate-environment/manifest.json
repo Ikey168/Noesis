@@ -52,11 +52,39 @@
           "name": "noesis-environment-monitor",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "environment.biodiversity-records",
+        "provider": "environment.biodiversity",
+        "contract": {
+          "name": "noesis-biodiversity-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "environment.biodiversity-identity",
+        "provider": "environment.biodiversity",
+        "contract": {
+          "name": "noesis-biodiversity-identity-match",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "environment.biodiversity-monitoring",
+        "provider": "environment.biodiversity",
+        "contract": {
+          "name": "noesis-biodiversity-notification",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
       {
         "id": "environment.core",
+        "version": "1.0.0"
+      },
+      {
+        "id": "environment.biodiversity",
         "version": "1.0.0"
       }
     ],
@@ -80,6 +108,21 @@
           "observation": "measured or reported value",
           "model": "model output incl. reanalysis",
           "forecast": "forecast with issue time"
+        }
+      },
+      {
+        "id": "environment.biodiversity",
+        "description": "Biodiversity: a taxon or place to cited occurrence records with dataset provenance, licence and coordinate uncertainty, and conservation assessments with their history",
+        "vocabulary": {
+          "occurrence": "one published record (gbifID) with its dataset, licence and precision as released",
+          "taxon": "a name usage in one checklist release; provider keys stay separate",
+          "generalised": "coordinates coarsened or withheld by the publisher; never refined",
+          "assessment": "one Red List assessment at citation level; the assessor designates the current one"
+        },
+        "workflow_defaults": {
+          "as_of": "records retrieved on or before the date",
+          "counts": "counts of records returned only; never abundance or presence/absence",
+          "never": "No distribution modelling, abundance estimation, de-generalised locations or Noesis-derived threat status."
         }
       }
     ]
@@ -184,5 +227,62 @@
     ],
     "replaces": "energy (retired example pack)"
   },
-  "content_hash": "sha256:cb94aadcaa23d47ea8439f8c7269112e2d6420b916616b93ea29a5ccbce5dcd2"
+  "optional_features": [
+    {
+      "id": "biodiversity",
+      "default": false,
+      "description": "Biodiversity occurrences and conservation status: Catalogue of Life names, synonyms and releases, GBIF species, occurrences with dataset provenance, licence, coordinate uncertainty and generalisation flags, and IUCN Red List assessment history at the reference-only licence tier; reviewable taxon identity, place and citation links, as-of answers and monitors. No distribution modelling, abundance estimation, locations beyond what publishers release or derived threat status.",
+      "requires": [
+        {
+          "capability": "environment.biodiversity-records",
+          "contract": "noesis-biodiversity-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.biodiversity-identity",
+          "contract": "noesis-biodiversity-identity-match",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "environment.biodiversity-monitoring",
+          "contract": "noesis-biodiversity-notification",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "occurrences link to places registered for exact codes or boundaries"
+        },
+        {
+          "capability": "geospatial.spatial-relation",
+          "contract": "noesis-spatial-relation",
+          "range": "^1.0.0",
+          "reason": "occurrence points are related to place boundaries with replayable receipts"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "taxon identity reviews and reverts are entity identity decisions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "CoL, GBIF and IUCN acquisition runs through the shared source runtime"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "biodiversity monitors are knowledge subscriptions"
+        }
+      ]
+    }
+  ],
+  "content_hash": "sha256:8c1fb3f2d2008db1a336a0e89d1644ace1b54d308c8e80abea9f7cc9383a64b8"
 }

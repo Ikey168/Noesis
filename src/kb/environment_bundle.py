@@ -62,6 +62,21 @@ BUNDLE = {
             "monitoring": {"reuses": ["SubscriptionStore (watermarks, events, outbox)",
                                       "maintenance orchestrator watermarks"],
                            "tools": ["create_environment_monitor", "run_environment_monitor", "poll_environment_monitor"]},
+            # The optional ``biodiversity`` feature (environment.biodiversity, default off; #2220).
+            "biodiversity": {
+                "feature": "biodiversity",
+                "source_pack": "packs/climate-environment/source_packs/climate-environment-biodiversity.json",
+                "reuses": ["SourcePackRuntime (biodiversity connector)", "GeospatialStore (places, contains receipts)",
+                           "canonical_entities and EntityHistoryStore (taxon identity decisions)",
+                           "DocumentStore papers (citations by DOI)", "SubscriptionStore (biodiversity monitors)",
+                           "SchemaRegistry"],
+                "tools": ["biodiversity_source_contracts", "biodiversity_readiness", "lookup_taxa",
+                          "occurrences_for_taxon_or_place", "conservation_status_history",
+                          "propose_taxon_identity_matches", "review_taxon_identity_match",
+                          "link_biodiversity_records", "export_biodiversity_bundle", "create_biodiversity_monitor",
+                          "run_biodiversity_monitor"],
+                "never": ["model species distributions", "estimate abundance or presence/absence",
+                          "de-generalise sensitive-species locations", "derive a threat status"]},
         },
     },
     "never": ["infer an attribution claim", "produce climate projections", "make compliance determinations",
@@ -175,3 +190,13 @@ def _composition_readiness(conn, scopes):
     mine = {b["capability"] for b in plan["bindings"] if BUNDLE_ID in b["consumers"]}
     assessment["operations"] = [o for o in assessment["operations"] if o["capability"] in mine]
     return {"composition": assessment}
+
+
+def biodiversity_section(conn, namespace, *, scopes, taxon=None, place_id=None, as_of=None):
+    """The optional biodiversity feature's part of a place or taxon bundle: occurrences as of a date and, for a
+    taxon, the conservation status history reduced to citation level for export (IUCN reference-only)."""
+
+    from src.kb.biodiversity_queries import bundle
+
+    require_enabled(conn, namespace)
+    return bundle(conn, namespace, scopes=scopes, taxon=taxon, place_id=place_id, as_of=as_of)

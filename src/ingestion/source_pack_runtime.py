@@ -358,6 +358,15 @@ def _court_justice_projector(conn: Any) -> Any:
 # Legal courts and justice-statistics features (#2218).
 PROJECTORS["noesis-court-justice-record-v1"] = _court_justice_projector
 
+
+def _biodiversity_projector(conn: Any) -> Any:
+    from src.kb.biodiversity_store import BiodiversityProjector
+
+    return BiodiversityProjector(conn)
+
+
+PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

@@ -257,6 +257,11 @@ For the project overview and local setup, start with the
   identity, citation-only links to climate-environment and market, as-of answers with revision history and
   monitors; no forecasting, dispatch modelling, emissions estimation or trading advice;
   [source audit](roadmaps/energy-systems-source-audit.md)
+- [Climate and Environment biodiversity guide](guides/climate-environment-biodiversity.md) — from a taxon or place to
+  cited GBIF occurrences with dataset provenance, licence, coordinate uncertainty and publisher generalisation,
+  Catalogue of Life names and releases, and IUCN conservation status history at citation level; reviewable taxon
+  identity, as-of answers and monitors; no distribution modelling, abundance or derived threat status;
+  [source audit](development/biodiversity-evidence/source-audit.md)
 - [Fisheries and Maritime Activity guide](guides/fisheries-maritime.md) — from a vessel, flag state, fishing area or
   species to cited ICCAT, WCPFC and IOTC authorisations with register snapshots, IUU listings and delistings (and the
   Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,
