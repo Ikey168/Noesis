@@ -2,35 +2,13 @@
 
 from __future__ import annotations
 
-from src.kb.campaign_finance_identity import CampaignFinanceIdentity
 from src.kb.campaign_finance_links import CampaignFinanceLinks
 from src.kb.campaign_finance_records import forbidden_keys
 from tests.unit import campaign_finance_harness as h
 
 
-def accepted_world(*, elections=True, lobbying=True, ownership=True):
-    conn = h.connection()
-    h.load_all(conn)
-    if ownership:
-        h.load_ownership(conn)
-    if lobbying:
-        h.load_lobbying(conn)
-    if elections:
-        h.load_elections(conn)
-    identity = CampaignFinanceIdentity(conn)
-    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES,
-                                ownership_namespace=h.OWN_NS if ownership else None)
-    for candidate in proposed["candidates"]:
-        records = " ".join(candidate["records"])
-        if "99003" in records or "donor-committee:C00999909" in records:
-            continue  # leave one county record and the unacquired conduit unreviewed
-        identity.review(h.NS, candidate["candidate_id"], "accept", "fixture review", principal_id="rev",
-                        scopes=h.REVIEW_SCOPES)
-    return conn
-
-
 def test_contest_links_point_at_filing_revisions_and_independent_expenditures():
-    conn = accepted_world()
+    conn = h.accepted_world()
     result = CampaignFinanceLinks(conn).link_contests(h.NS, principal_id="alice", scopes=h.SCOPES)
     assert result["status"] == "linked" and result["missing_targets"] == []
     us = [link for link in result["links"] if link["subject_key"] == "campaign-finance:fec:candidate:P99000001"]
@@ -55,7 +33,7 @@ def test_contest_links_point_at_filing_revisions_and_independent_expenditures():
 
 
 def test_lobbying_and_ownership_links_record_their_basis_and_register_revision():
-    conn = accepted_world()
+    conn = h.accepted_world()
     links = CampaignFinanceLinks(conn)
     lobbying = links.link_lobbying(h.NS, principal_id="alice", scopes=h.SCOPES)
     assert lobbying["status"] == "linked"
@@ -74,13 +52,13 @@ def test_lobbying_and_ownership_links_record_their_basis_and_register_revision()
 
 
 def test_missing_providers_and_targets_are_reported_not_dropped():
-    conn = accepted_world(elections=False, lobbying=False, ownership=False)
+    conn = h.accepted_world(elections=False, lobbying=False, ownership=False)
     links = CampaignFinanceLinks(conn)
     assert links.link_contests(h.NS, principal_id="a", scopes=h.SCOPES)["status"] == "elections_unavailable"
     assert links.link_lobbying(h.NS, principal_id="a", scopes=h.SCOPES)["status"] == "lobbying_unavailable"
     assert links.link_ownership(h.NS, h.OWN_NS, principal_id="a", scopes=h.SCOPES)["status"] == \
         "ownership_unavailable"
-    conn = accepted_world()
+    conn = h.accepted_world()
     # the accepted Companies House match points at a namespace that does not hold the record
     reported = CampaignFinanceLinks(conn).link_ownership(h.NS, "elsewhere", principal_id="a", scopes=h.SCOPES | {
         "namespace:elsewhere:read"})

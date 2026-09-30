@@ -183,7 +183,8 @@ MINIMISATION: dict[str, Any] = {
     "aggregated_as_published": "filing summary totals exactly as reported; never aggregated per person",
     "matching": "individual donors and payees are never matched, linked or expanded; they stay unmatched",
     "query_scope": "knowledge:political:campaign-finance:individual-items:read (in addition to the read scope) "
-    "to see minimised individual items; otherwise they are counted per filing version",
+    "to see minimised individual contributions; otherwise they are counted per filing version; natural-person "
+    "payees of expenditures are returned reduced to their kind (no name)",
     "retention": "retained with their filing version; no personal identifier is stored, so nothing personal "
     "remains to purge; no automatic expiry in the first coverage",
     "organisations": "committees, PACs, parties, companies, trade unions and other organisations are stored as "

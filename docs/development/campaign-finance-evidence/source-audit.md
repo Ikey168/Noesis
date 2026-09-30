@@ -160,12 +160,15 @@ where the research purpose does not need it":
 5. **Never matched.** Individual donors and payees are excluded from entity
    matching, identity proposals, affiliate expansion, lobbying and ownership
    links; they stay visible only as minimised, unmatched line items.
-6. **Who may query them.** Minimised individual line items are returned only
-   to principals holding `knowledge:political:campaign-finance:individual-items:read`
+6. **Who may query them.** Minimised individual *contributions* are returned
+   only to principals holding `knowledge:political:campaign-finance:individual-items:read`
    in addition to the read scope. Everyone else sees, per filing version, the
-   count of withheld individual items and the regulator's reference to the
-   published filing. Organisational donors and payees are returned with the
-   read scope.
+   count of withheld individual contributions and the regulator's reference to
+   the published filing. Expenditures and independent expenditures paid to a
+   natural person are returned with the payee reduced to its kind (no name,
+   nothing else about the person), because the spending committee's report,
+   not the payee, is their subject. Organisational donors and payees are
+   returned with the read scope.
 7. **Retention.** Minimised individual items are retained with the filing
    version they belong to and carry no personal identifier; there is nothing
    personal to purge. Should a regulator withdraw or redact an item, the next

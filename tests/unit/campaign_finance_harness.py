@@ -193,3 +193,35 @@ def load_elections(conn) -> None:
     item["elections"]["election"]["name"] = "UK Parliamentary General Election 2099"
     eh.apply(conn, "us", eh.US)
     eh.apply(conn, "gb", eh.UK, item=item)
+
+
+def accepted_world(*, elections: bool = True, lobbying: bool = True, ownership: bool = True, version: str = "v1"):
+    """Everything loaded and every proposed identity candidate accepted by a reviewer, except one county record of
+    the presidential candidates (99003) and the unacquired conduit, which stay unreviewed."""
+    from src.kb.campaign_finance_identity import CampaignFinanceIdentity
+
+    conn = connection()
+    load_all(conn)
+    if version == "v2":
+        load_all(conn, version="v2", run_id="run:v2")
+    if ownership:
+        load_ownership(conn)
+    if lobbying:
+        load_lobbying(conn)
+    if elections:
+        load_elections(conn)
+    identity = CampaignFinanceIdentity(conn)
+    proposed = identity.propose(NS, principal_id="alice", scopes=SCOPES,
+                                ownership_namespace=OWN_NS if ownership else None)
+    for candidate in proposed["candidates"]:
+        records = " ".join(candidate["records"])
+        if "99003" in records or "donor-committee:C00999909" in records:
+            continue
+        identity.review(NS, candidate["candidate_id"], "accept", "fixture review", principal_id="rev",
+                        scopes=REVIEW_SCOPES)
+    return conn
+
+
+def contest(conn, scheme: str, native_id: str) -> str:
+    return conn.execute("SELECT contest_id FROM election_contests WHERE unit_scheme=? AND unit_native_id=?",
+                        [scheme, native_id]).fetchone()[0]
