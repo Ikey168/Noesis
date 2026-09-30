@@ -77,6 +77,21 @@ BUNDLE = {
                           "run_biodiversity_monitor"],
                 "never": ["model species distributions", "estimate abundance or presence/absence",
                           "de-generalise sensitive-species locations", "derive a threat status"]},
+            # The optional water features (environment.water: water-pegelonline, water-usgs, water-eea-wise;
+            # default off; #2582).
+            "water": {
+                "features": ["water-pegelonline", "water-usgs", "water-eea-wise"],
+                "source_pack": "packs/climate-environment/source_packs/climate-environment-water.json",
+                "reuses": ["SourcePackRuntime (water connector)", "GeospatialStore (places, contains receipts)",
+                           "canonical_entities and EntityHistoryStore (station and water-body identity decisions)",
+                           "hazard, weather and infrastructure records (links by citation or shared identifier)",
+                           "SubscriptionStore (water monitors)", "SchemaRegistry"],
+                "tools": ["water_source_contracts", "water_readiness", "lookup_water_station", "water_value_at",
+                          "water_series", "water_for_place", "water_body_status_history",
+                          "propose_water_identity_matches", "review_water_identity_match", "link_water_records",
+                          "export_water_bundle", "create_water_monitor", "run_water_monitor"],
+                "never": ["forecast floods", "interpolate or fill gaps", "assess water-body status",
+                          "score flood risk"]},
         },
     },
     "never": ["infer an attribution claim", "produce climate projections", "make compliance determinations",
@@ -200,3 +215,13 @@ def biodiversity_section(conn, namespace, *, scopes, taxon=None, place_id=None, 
 
     require_enabled(conn, namespace)
     return bundle(conn, namespace, scopes=scopes, taxon=taxon, place_id=place_id, as_of=as_of)
+
+
+def water_section(conn, namespace, place_id, *, scopes, as_of=None):
+    """The optional water features' part of a place bundle: stations with latest values and water bodies with status
+    per reporting cycle as of a date, every item citing source, record revision and retrieval time."""
+
+    from src.kb.water_queries import bundle
+
+    require_enabled(conn, namespace)
+    return bundle(conn, namespace, place_id, scopes=scopes, as_of=as_of)
