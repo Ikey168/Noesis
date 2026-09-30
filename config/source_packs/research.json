@@ -1,6 +1,6 @@
 {
   "pack_id": "research-discovery",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "description": "Scholarly discovery, authorship, venue, identifier, and citation metadata.",
   "domains": [
     "research"
@@ -370,6 +370,267 @@
         "path": "tests/fixtures/source_packs/math-formal-afp.json",
         "sha256": "77997e79663e75801db73ce0aaed4a7d6a85bca7c973a1b892a93cee3a3534a1",
         "expected_output_hash": "3e9fdb8385aa97a1781d3fd2656d4645354e0b4bdac4b887f0078cf1a287af5f"
+      }
+    },
+    {
+      "source_id": "research-entities-ror",
+      "connector": "research-entities",
+      "endpoint": "https://zenodo.org",
+      "publisher": "Research Organization Registry (ROR) data dump releases on Zenodo",
+      "scope": "Declared ROR organisations (Exampla and Northwind placeholders until the RE14 live run) from the two most recent ROR data dump releases: names, types, status, relationships and successor links, external identifiers as published; each release is a vintage (operator must verify the Zenodo record, file and member names)",
+      "license": {
+        "id": "cc0-1.0",
+        "terms_url": "https://ror.org/about/faqs/",
+        "redistribution": "CC0 1.0 public-domain dedication; attribution to ROR appreciated"
+      },
+      "update_cadence": "a data dump release about monthly",
+      "temporal_semantics": "the declared release date is the vintage; admin.last_modified states the record's own change date; acquisition time recorded separately",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 200,
+        "max_bytes": 100000000,
+        "max_pages": 2
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-research-entity-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "research-entities:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 15552000
+      },
+      "research_entities": {
+        "namespace": "global",
+        "provider": "ror",
+        "format": "ror-dump-zip",
+        "minimisation": "research-entities-minimisation-v1",
+        "live_verification": "unverified-live",
+        "selection": {
+          "releases": [
+            {
+              "label": "v9.1",
+              "published_on": "2099-03-01",
+              "path": "/records/99999901/files/v9.1-2099-03-01-ror-data.zip",
+              "member": "v9.1-2099-03-01-ror-data.json"
+            },
+            {
+              "label": "v9.2",
+              "published_on": "2099-06-01",
+              "path": "/records/99999902/files/v9.2-2099-06-01-ror-data.zip",
+              "member": "v9.2-2099-06-01-ror-data.json"
+            }
+          ],
+          "ror_ids": [
+            "0zzexa101",
+            "0zzexa202",
+            "0zzexa505",
+            "0zznwd303",
+            "0zznwd404"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/research-entities-ror.json",
+        "sha256": "fe4fd34acbb1222a997f5eebf7212efe906087f88ae4cd9fa1329517fad0da15",
+        "expected_output_hash": "b371d7a15545ff9371219fc7bd494fbc464dfd2e110c96cd54967bd9b1634808"
+      }
+    },
+    {
+      "source_id": "research-entities-orcid",
+      "connector": "research-entities",
+      "endpoint": "https://pub.orcid.org/v3.0",
+      "publisher": "ORCID, Inc. (public API v3.0)",
+      "scope": "Public ORCID records of declared researchers (fictional placeholders until the RE14 live run): iD, public name, last-modified time, public employments and public works as asserted identifiers only; every other section is withheld under the RE01 minimisation decision",
+      "license": {
+        "id": "cc0-1.0",
+        "terms_url": "https://info.orcid.org/public-client-terms-of-service/",
+        "redistribution": "ORCID public data under CC0 (operator must confirm); the public API client terms apply; only minimised fields are stored or exported"
+      },
+      "update_cadence": "whenever a researcher or member updates a record",
+      "temporal_semantics": "history.last-modified-date dates each record version; a deactivated record is a withdrawn revision; acquisition time recorded separately",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "auth": {
+        "kind": "required-secret",
+        "secret_ref": "NOESIS_ORCID_PUBLIC_TOKEN"
+      },
+      "mapping": {
+        "target_schema": "noesis-research-entity-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "research-entities:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 15552000
+      },
+      "research_entities": {
+        "namespace": "global",
+        "provider": "orcid",
+        "format": "orcid-record-json",
+        "minimisation": "research-entities-minimisation-v1",
+        "live_verification": "unverified-live",
+        "selection": {
+          "orcids": [
+            "0000-0009-9999-0011",
+            "0000-0009-9999-002X",
+            "0000-0009-9999-0038"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/research-entities-orcid.json",
+        "sha256": "4bc35b05b2029c7f51b03b8fe07c686414274f19a7b1173e44ba1bde4e02e2b1",
+        "expected_output_hash": "1155038e85c318f612f2202ef524ba0345a73d8d201098e8783aad0868f1d88f"
+      }
+    },
+    {
+      "source_id": "research-entities-datacite",
+      "connector": "research-entities",
+      "endpoint": "https://api.datacite.org",
+      "publisher": "DataCite (REST API)",
+      "scope": "Declared dataset DOIs (fictional placeholders until the RE14 live run): metadata version, related identifiers and funding references as published; personal creators reduced to their ORCID iD and affiliation identifiers",
+      "license": {
+        "id": "cc0-1.0",
+        "terms_url": "https://support.datacite.org/docs/datacite-metadata-license",
+        "redistribution": "DataCite metadata under CC0 (operator must confirm); personal creators minimised"
+      },
+      "update_cadence": "whenever a data repository updates DOI metadata",
+      "temporal_semantics": "attributes.updated and metadataVersion date each metadata version; a DOI no longer served is an unavailable revision; acquisition time recorded separately",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 50,
+        "max_bytes": 2000000,
+        "max_pages": 50
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-research-entity-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "research-entities:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 15552000
+      },
+      "research_entities": {
+        "namespace": "global",
+        "provider": "datacite",
+        "format": "datacite-doi-json",
+        "minimisation": "research-entities-minimisation-v1",
+        "live_verification": "unverified-live",
+        "selection": {
+          "dois": [
+            "10.99999/exampla.ds.001",
+            "10.99999/exampla.ds.002"
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/research-entities-datacite.json",
+        "sha256": "522fe259baee634163d8a64e3a7b38f961299c91c01f6f85776fc90d9b9c1ab2",
+        "expected_output_hash": "05f1f0acb6cc6f07e7dcf18dd09110d99d5351839f3756924e83eeaaaa809dcf"
+      }
+    },
+    {
+      "source_id": "research-entities-cordis",
+      "connector": "research-entities",
+      "endpoint": "https://cordis.europa.eu",
+      "publisher": "European Commission, CORDIS open data exports",
+      "scope": "Declared Horizon Europe projects (fictional placeholders until the RE14 live run) from the CORDIS project export: programme, topics and calls, participants with PIC, role and contribution as published (EUR); street addresses and contact forms are not stored (operator must verify file and column names)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://cordis.europa.eu/about/legal",
+        "redistribution": "Commission reuse policy (Decision 2011/833/EU), CC BY 4.0 with attribution to CORDIS (operator must confirm)"
+      },
+      "update_cadence": "exports regenerated about monthly",
+      "temporal_semantics": "contentUpdateDate of the project and participant rows dates each project version; acquisition time recorded separately",
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 2592000
+      },
+      "budgets": {
+        "timeout_ms": 120000,
+        "max_results": 200,
+        "max_bytes": 100000000,
+        "max_pages": 2
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "mapping": {
+        "target_schema": "noesis-research-entity-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "research-entities:1.0.0"
+      ],
+      "operations": [
+        "selection"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 15552000
+      },
+      "research_entities": {
+        "namespace": "global",
+        "provider": "cordis",
+        "format": "cordis-projects-csv-zip",
+        "minimisation": "research-entities-minimisation-v1",
+        "live_verification": "unverified-live",
+        "selection": {
+          "programmes": [
+            {
+              "programme": "HORIZON",
+              "path": "/data/cordis-HORIZONprojects-csv.zip",
+              "project_ids": [
+                "101999001",
+                "101999002"
+              ]
+            }
+          ]
+        }
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/research-entities-cordis.json",
+        "sha256": "699eb6e6e07022ba8ff8bd553d5ef714ae90eb813e51e2e62de898f43b1bef4d",
+        "expected_output_hash": "063af1786056f9afdb3d45e0a056b2e4682ab68ccb7d16d7c657aa53ea4530f0"
       }
     }
   ]

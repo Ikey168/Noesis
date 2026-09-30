@@ -1,0 +1,75 @@
+{
+ "data": {
+  "id": "10.99999/exampla.ds.002",
+  "type": "dois",
+  "attributes": {
+   "doi": "10.99999/EXAMPLA.DS.002",
+   "identifiers": [],
+   "creators": [
+    {
+     "name": "Northwind Technical University",
+     "nameType": "Organizational",
+     "nameIdentifiers": [
+      {
+       "nameIdentifier": "https://ror.org/0zznwd404",
+       "nameIdentifierScheme": "ROR"
+      }
+     ],
+     "affiliation": []
+    }
+   ],
+   "titles": [
+    {
+     "title": "Northwind Wave Tank Measurements"
+    }
+   ],
+   "publisher": {
+    "name": "Northwind Data Station"
+   },
+   "publicationYear": 2099,
+   "types": {
+    "resourceTypeGeneral": "Dataset",
+    "resourceType": "Sensor measurements"
+   },
+   "contributors": [],
+   "relatedIdentifiers": [
+    {
+     "relationType": "IsSupplementTo",
+     "relatedIdentifier": "10.99998/exampla.paper.001",
+     "relatedIdentifierType": "DOI",
+     "resourceTypeGeneral": "JournalArticle"
+    }
+   ],
+   "fundingReferences": [
+    {
+     "funderName": "European Commission",
+     "funderIdentifier": "https://doi.org/10.13039/501100000780",
+     "funderIdentifierType": "Crossref Funder ID",
+     "awardNumber": "101999002",
+     "awardTitle": "Northwind Wave Energy"
+    }
+   ],
+   "version": "1",
+   "rightsList": [
+    {
+     "rights": "Creative Commons Zero v1.0 Universal",
+     "rightsIdentifier": "cc0-1.0"
+    }
+   ],
+   "url": "https://data.exampla-university.example/exampla.ds.002",
+   "metadataVersion": 0,
+   "state": "findable",
+   "created": "2098-11-01T08:00:00Z",
+   "registered": "2098-11-02T08:00:00Z",
+   "updated": "2099-04-01T09:30:00Z"
+  },
+  "relationships": {
+   "client": {
+    "data": {
+     "id": "fict.exampla",
+     "type": "clients"
+    }
+   }
+  }
+ }
+}

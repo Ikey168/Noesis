@@ -1,0 +1,361 @@
+[
+ {
+  "id": "https://ror.org/0zzexa101",
+  "names": [
+   {
+    "value": "Exampla University",
+    "types": [
+     "ror_display",
+     "label"
+    ],
+    "lang": "en"
+   },
+   {
+    "value": "Exampla Universität",
+    "types": [
+     "label"
+    ],
+    "lang": "de"
+   }
+  ],
+  "types": [
+   "education",
+   "funder"
+  ],
+  "status": "active",
+  "established": 1901,
+  "links": [
+   {
+    "type": "website",
+    "value": "https://www.exampla-university.example"
+   }
+  ],
+  "locations": [
+   {
+    "geonames_id": 9999901,
+    "geonames_details": {
+     "name": "Exampla City",
+     "country_code": "DE",
+     "country_name": "Germany",
+     "lat": 0.0,
+     "lng": 0.0
+    }
+   }
+  ],
+  "external_ids": [
+   {
+    "type": "isni",
+    "all": [
+     "0000 0004 9999 0101"
+    ],
+    "preferred": "0000 0004 9999 0101"
+   },
+   {
+    "type": "wikidata",
+    "all": [
+     "Q99999101"
+    ],
+    "preferred": "Q99999101"
+   },
+   {
+    "type": "grid",
+    "all": [
+     "grid.99999.01"
+    ],
+    "preferred": "grid.99999.01"
+   },
+   {
+    "type": "fundref",
+    "all": [
+     "100099999"
+    ],
+    "preferred": null
+   }
+  ],
+  "relationships": [
+   {
+    "type": "child",
+    "id": "https://ror.org/0zzexa202",
+    "label": "Exampla Institute of Marine Research"
+   },
+   {
+    "type": "related",
+    "id": "https://ror.org/0zzexa505",
+    "label": "Exampla University Hospital"
+   }
+  ],
+  "domains": [],
+  "admin": {
+   "created": {
+    "date": "2090-01-01",
+    "schema_version": "1.0"
+   },
+   "last_modified": {
+    "date": "2099-05-10",
+    "schema_version": "2.1"
+   }
+  }
+ },
+ {
+  "id": "https://ror.org/0zzexa202",
+  "names": [
+   {
+    "value": "Exampla Institute of Marine Research",
+    "types": [
+     "ror_display",
+     "label"
+    ],
+    "lang": "en"
+   }
+  ],
+  "types": [
+   "facility"
+  ],
+  "status": "active",
+  "established": null,
+  "links": [],
+  "locations": [
+   {
+    "geonames_id": 9999901,
+    "geonames_details": {
+     "name": "Exampla City",
+     "country_code": "DE",
+     "country_name": "Germany",
+     "lat": 0.0,
+     "lng": 0.0
+    }
+   }
+  ],
+  "external_ids": [],
+  "relationships": [
+   {
+    "type": "parent",
+    "id": "https://ror.org/0zzexa101",
+    "label": "Exampla University"
+   }
+  ],
+  "domains": [],
+  "admin": {
+   "created": {
+    "date": "2090-01-01",
+    "schema_version": "1.0"
+   },
+   "last_modified": {
+    "date": "2099-02-01",
+    "schema_version": "2.1"
+   }
+  }
+ },
+ {
+  "id": "https://ror.org/0zzexa505",
+  "names": [
+   {
+    "value": "Exampla University Hospital",
+    "types": [
+     "ror_display",
+     "label"
+    ],
+    "lang": "en"
+   }
+  ],
+  "types": [
+   "healthcare"
+  ],
+  "status": "active",
+  "established": null,
+  "links": [],
+  "locations": [
+   {
+    "geonames_id": 9999901,
+    "geonames_details": {
+     "name": "Exampla City",
+     "country_code": "DE",
+     "country_name": "Germany",
+     "lat": 0.0,
+     "lng": 0.0
+    }
+   }
+  ],
+  "external_ids": [],
+  "relationships": [
+   {
+    "type": "related",
+    "id": "https://ror.org/0zzexa101",
+    "label": "Exampla University"
+   }
+  ],
+  "domains": [],
+  "admin": {
+   "created": {
+    "date": "2090-01-01",
+    "schema_version": "1.0"
+   },
+   "last_modified": {
+    "date": "2099-02-01",
+    "schema_version": "2.1"
+   }
+  }
+ },
+ {
+  "id": "https://ror.org/0zznwd303",
+  "names": [
+   {
+    "value": "Northwind Polytechnic",
+    "types": [
+     "ror_display",
+     "label"
+    ],
+    "lang": "en"
+   }
+  ],
+  "types": [
+   "education"
+  ],
+  "status": "withdrawn",
+  "established": null,
+  "links": [
+   {
+    "type": "website",
+    "value": "https://www.northwind-poly.example"
+   }
+  ],
+  "locations": [
+   {
+    "geonames_id": 9999901,
+    "geonames_details": {
+     "name": "Northwind",
+     "country_code": "NL",
+     "country_name": "The Netherlands",
+     "lat": 0.0,
+     "lng": 0.0
+    }
+   }
+  ],
+  "external_ids": [
+   {
+    "type": "wikidata",
+    "all": [
+     "Q99999303"
+    ],
+    "preferred": "Q99999303"
+   }
+  ],
+  "relationships": [
+   {
+    "type": "successor",
+    "id": "https://ror.org/0zznwd404",
+    "label": "Northwind Technical University"
+   }
+  ],
+  "domains": [],
+  "admin": {
+   "created": {
+    "date": "2090-01-01",
+    "schema_version": "1.0"
+   },
+   "last_modified": {
+    "date": "2099-05-10",
+    "schema_version": "2.1"
+   }
+  }
+ },
+ {
+  "id": "https://ror.org/0zznwd404",
+  "names": [
+   {
+    "value": "Northwind Technical University",
+    "types": [
+     "ror_display",
+     "label"
+    ],
+    "lang": "en"
+   }
+  ],
+  "types": [
+   "education"
+  ],
+  "status": "active",
+  "established": 2099,
+  "links": [
+   {
+    "type": "website",
+    "value": "https://www.northwind-tech.example"
+   }
+  ],
+  "locations": [
+   {
+    "geonames_id": 9999901,
+    "geonames_details": {
+     "name": "Northwind",
+     "country_code": "NL",
+     "country_name": "The Netherlands",
+     "lat": 0.0,
+     "lng": 0.0
+    }
+   }
+  ],
+  "external_ids": [],
+  "relationships": [
+   {
+    "type": "predecessor",
+    "id": "https://ror.org/0zznwd303",
+    "label": "Northwind Polytechnic"
+   }
+  ],
+  "domains": [],
+  "admin": {
+   "created": {
+    "date": "2090-01-01",
+    "schema_version": "1.0"
+   },
+   "last_modified": {
+    "date": "2099-05-10",
+    "schema_version": "2.1"
+   }
+  }
+ },
+ {
+  "id": "https://ror.org/0zzzzz999",
+  "names": [
+   {
+    "value": "Unrelated Fictional Institute",
+    "types": [
+     "ror_display",
+     "label"
+    ],
+    "lang": "en"
+   }
+  ],
+  "types": [
+   "other"
+  ],
+  "status": "active",
+  "established": null,
+  "links": [],
+  "locations": [
+   {
+    "geonames_id": 9999901,
+    "geonames_details": {
+     "name": "Exampla City",
+     "country_code": "DE",
+     "country_name": "Germany",
+     "lat": 0.0,
+     "lng": 0.0
+    }
+   }
+  ],
+  "external_ids": [],
+  "relationships": [],
+  "domains": [],
+  "admin": {
+   "created": {
+    "date": "2090-01-01",
+    "schema_version": "1.0"
+   },
+   "last_modified": {
+    "date": "2099-02-01",
+    "schema_version": "2.1"
+   }
+  }
+ }
+]
