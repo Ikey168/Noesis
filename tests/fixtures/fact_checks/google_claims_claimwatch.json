@@ -1,0 +1,22 @@
+{
+ "claims": [
+  {
+   "text": "A photo shows a tidal turbine washed up on Example Beach.",
+   "claimant": "Social media users",
+   "claimDate": "2025-05-20T00:00:00Z",
+   "claimReview": [
+    {
+     "publisher": {
+      "name": "ClaimWatch Example",
+      "site": "claimwatch.example.com"
+     },
+     "url": "https://claimwatch.example.com/fact-check/turbine-photo",
+     "title": "Altered photo: no turbine washed up on Example Beach",
+     "reviewDate": "2025-05-22T00:00:00Z",
+     "textualRating": "Altered photo",
+     "languageCode": "en"
+    }
+   ]
+  }
+ ]
+}
