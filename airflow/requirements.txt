@@ -3,7 +3,7 @@
 # Keep application/model extras separate from the orchestrator environment.
 apache-airflow==3.3.1
 apache-airflow-providers-standard==1.17.0
-apache-airflow-providers-fab==3.8.0
+apache-airflow-providers-fab==3.9.0
 apache-airflow-providers-postgres==7.0.1
 apache-airflow-providers-apache-spark==6.3.1
 apache-airflow-providers-amazon==9.34.0
