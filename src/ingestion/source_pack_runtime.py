@@ -462,6 +462,16 @@ def _campaign_finance_projector(conn: Any) -> Any:
 # Political campaign-finance features (#2209).
 PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
 
+
+def _platform_transparency_projector(conn: Any) -> Any:
+    from src.kb.platform_transparency_records import PlatformTransparencyProjector
+
+    return PlatformTransparencyProjector(conn)
+
+
+# OSINT platform transparency feature (#2580).
+PROJECTORS["noesis-platform-transparency-record-v1"] = _platform_transparency_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

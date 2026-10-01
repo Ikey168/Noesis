@@ -51,8 +51,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Agriculture and Food Systems pack (#2213),
     # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223),
     # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229),
-    # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230).
-    assert len(packs) == 32
+    # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230),
+    # plus the OSINT platform-transparency features' osint-platform-transparency pack (#2580).
+    assert len(packs) == 33
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -124,8 +125,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Corporate Ownership competition feature's EC, TAM, CMA, FTC and DOJ sources (#2217),
     # plus the OSINT movements feature's FAA, G-INFO, OpenSky, GFW port-visit, open AIS and UNCTAD sources (#2221),
     # plus the Cultural Collections media-metadata Open Library, MusicBrainz, Wikidata, DNB and LoC sources (#2225),
-    # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209).
-    assert sum(len(pack["sources"]) for pack in packs) == 298
+    # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209),
+    # plus the OSINT platform-transparency features' DSA, Meta, Google and Lumen sources (#2580).
+    assert sum(len(pack["sources"]) for pack in packs) == 302
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
