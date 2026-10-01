@@ -18,7 +18,7 @@ def world():
 
 
 def test_places_are_proposed_by_published_identifier_and_unmatched_stay_visible(world):
-    conn, places = world
+    conn, _ = world
     identity = IncomeIdentity(conn)
     result = identity.propose_places(h.NS, principal_id="proposer", scopes=h.SCOPES)
     by_subject = {(a["subject"]["scheme"], a["subject"]["code"]): a for a in result["proposed"]}
