@@ -235,6 +235,11 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The Society bundle's income journey (#2643) composes society.income with the source-pack runtime adapters,
+    # geospatial places, entity identity, the Economics series storage and, by citation, demographics and labour.
+    "Country to cited poverty and inequality figures":
+        "tests/unit/domains/test_income_distribution_acceptance.py::"
+        "test_country_to_cited_poverty_and_inequality_figures_from_each_source",
 }
 
 

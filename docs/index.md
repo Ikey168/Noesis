@@ -319,6 +319,11 @@ For the project overview and local setup, start with the
   precision codes and release history, per place or crisis as of a date, with reviewable identity, citation links
   and monitors; no casualty estimation, merged counts, forecasts or personal data, ACLED not acquired (licence);
   [source audit](development/humanitarian-evidence/source-audit.md)
+- [Society income, poverty and inequality guide](guides/society-income-distribution.md) — from a country to
+  World Bank PIP, Eurostat EU-SILC and OECD IDD poverty and inequality figures side by side as of a release, with
+  definitions, PPP rounds, revision history and comparability notes, reviewable place identity, Demographics and
+  Labour links and monitors; no nowcasts, filled years, own poverty lines or blending;
+  [source audit](development/income-distribution-evidence/source-audit.md)
 - [Agriculture and Food Systems guide](guides/agrifood-series.md) — from a commodity and place to published
   production, yield, area, prices and food balances per source (FAOSTAT, NASS Quick Stats, FAS PSD, Eurostat, Agri-food
   portal) with flags verbatim, release vintages and as-of selection, reviewable commodity crosswalks, citation links to
