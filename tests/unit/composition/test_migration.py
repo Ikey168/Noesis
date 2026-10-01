@@ -84,6 +84,7 @@ PROJECTOR_OWNERS = {
     "noesis-lifesci-record-v1": "src.kb.lifesci_store",  # Science life-sciences reference data (#2652)
     "noesis-medical-device-record-v1": "src.kb.medical_devices_records",  # #2654
     "noesis-research-entity-record-v1": "src.kb.research_entities_records",
+    "noesis-income-distribution-record-v1": "src.kb.income_distribution_store",  # Society income (#2583)
 }
 
 

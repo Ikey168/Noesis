@@ -660,6 +660,7 @@ def test_six_domain_offline_execution(setup):
         "products",
         "research",
         "scientific",
+        "society",
         "sports",
         "technical",
         "weather",

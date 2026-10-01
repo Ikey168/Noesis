@@ -429,6 +429,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.research_entities import RESEARCH_ENTITIES_WRITES
     if name in RESEARCH_ENTITIES_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.society_income import INCOME_WRITES
+    if name in INCOME_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.energy import ENERGY_WRITES
     if name in ENERGY_WRITES:
         return "write"
@@ -1155,6 +1158,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.research_entities import required_scopes as research_entities_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in RESEARCH_ENTITIES_TOOLS:
         return research_entities_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.society_income import INCOME_TOOLS
+    from tools.knowledge_engine_mcp.society_income import required_scopes as income_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in INCOME_TOOLS:
+        return income_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.energy import ENERGY_TOOLS
     from tools.knowledge_engine_mcp.energy import required_scopes as energy_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in ENERGY_TOOLS:

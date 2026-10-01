@@ -218,6 +218,7 @@
     "procurement": {"domain": "governance-law"},
     "products": {"domain": "economy-markets"},
     "science": {"domain": "science-knowledge"},
+    "society": {"domain": "society-population"},
     "sports": {"domain": "culture-leisure"},
     "technology": {"domain": "technology"},
     "weather": {"domain": "earth-environment"}
@@ -337,6 +338,8 @@
     "science.paper-families": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
     "science.research-entities": {"subdomains": ["research-entities-data"], "shapes": ["registry-records"]},
     "science.systematic-reviews": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
+
+    "society.income": {"subdomains": ["income-poverty-inequality"], "shapes": ["statistical-series"]},
 
     "sports.football": {"subdomains": ["sports"], "shapes": ["events-notices"]},
     "sports.forecasts": {"subdomains": ["sports"], "shapes": ["events-notices"]},

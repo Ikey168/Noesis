@@ -1,0 +1,22 @@
+{
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,indic_il,unit,sex,age,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:ILC_LI02(1.0),10/06/98 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2094,16.1,\nESTAT:ILC_LI02(1.0),10/06/98 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2095,16.4,b\nESTAT:ILC_LI02(1.0),10/06/98 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2096,16.6,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/ilc_li02/A.LI_R_MD60.PC.T.TOTAL.DE?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,age,statinfo,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:ILC_DI12(1.0),10/06/98 11:00:00,A,TOTAL,GINI_HND,DE,2094,29.4,\nESTAT:ILC_DI12(1.0),10/06/98 11:00:00,A,TOTAL,GINI_HND,DE,2095,29.9,b\nESTAT:ILC_DI12(1.0),10/06/98 11:00:00,A,TOTAL,GINI_HND,DE,2096,30.1,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/ilc_di12/A.TOTAL.GINI_HND.DE?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,hhtyp,indic_il,currency,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:ILC_LI01(1.0),10/06/98 11:00:00,A,A1,LI_C_MD60,EUR,DE,2094,15210,\nESTAT:ILC_LI01(1.0),10/06/98 11:00:00,A,A1,LI_C_MD60,EUR,DE,2095,15630,b\nESTAT:ILC_LI01(1.0),10/06/98 11:00:00,A,A1,LI_C_MD60,EUR,DE,2096,:,c\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/ilc_li01/A.A1.LI_C_MD60.EUR.DE?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "first-release"
+ ]
+}

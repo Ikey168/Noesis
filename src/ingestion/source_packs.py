@@ -416,6 +416,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medical-devices"})
 # Science research entities: ROR dump releases, public ORCID records, DataCite DOIs and CORDIS projects (#2579).
 NATIVE_CONNECTOR_MODULES["research-entities"] = "src.ingestion.research_entities_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
+# Society bundle income, poverty and inequality: World Bank PIP, Eurostat EU-SILC and OECD IDD (#2583).
+NATIVE_CONNECTOR_MODULES["income-distribution"] = "src.ingestion.income_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
 
 
 def native_connector_module(connector: str) -> Any:

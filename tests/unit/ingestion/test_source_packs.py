@@ -52,8 +52,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223),
     # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229),
     # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230),
-    # plus the Economics extractives features' separate economic-extractives pack (#2653).
-    assert len(packs) == 33
+    # plus the Economics extractives features' separate economic-extractives pack (#2653),
+    # plus the Society bundle's society-income-distribution pack (#2583).
+    assert len(packs) == 34
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -79,6 +80,7 @@ def test_all_production_packs_validate_against_contract() -> None:
         "products",
         "research",
         "scientific",
+        "society",
         "sports",
         "technical",
         "weather",
@@ -132,8 +134,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Economics extractives features' EITI, USGS MCS and BGS World Mineral Statistics sources (#2653),
     # plus the Science life-sciences UniProt, NCBI Gene, NCBI Taxonomy, RCSB PDB and ChEMBL sources (#2652),
     # plus the Clinical Evidence medical-devices openFDA, AccessGUDID and EUDAMED sources (#2654),
-    # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579).
-    assert sum(len(pack["sources"]) for pack in packs) == 329
+    # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579),
+    # plus the Society income pack's PIP country, PIP regional, EU-SILC and OECD IDD sources (#2583).
+    assert sum(len(pack["sources"]) for pack in packs) == 333
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )
@@ -418,6 +421,7 @@ def test_secret_readiness_health_redaction_and_domain_coverage(conn) -> None:
         "products",
         "research",
         "scientific",
+        "society",
         "sports",
         "technical",
         "weather",

@@ -1,0 +1,192 @@
+{
+  "pack_format": "noesis-pack-composition-v1",
+  "id": "society",
+  "version": "0.1.0",
+  "description": "Society and population: from a country or region to cited income, poverty and inequality figures (World Bank PIP, Eurostat EU-SILC, OECD IDD) side by side with definitions, release vintages, PPP rounds and comparability notes, as of a date, over shared Geospatial, entity-identity, subscription and source-acquisition providers; Demographics denominators and Labour series linked by citation when present. Figures are quoted as each source released them; nothing is nowcast, filled, blended or re-harmonised.",
+  "contributes": {
+    "capabilities": [
+      {
+        "id": "society.income-series",
+        "provider": "society.income",
+        "contract": {
+          "name": "noesis-income-distribution-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "society.income-identity",
+        "provider": "society.income",
+        "contract": {
+          "name": "noesis-income-identity-assertion",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "society.income-links",
+        "provider": "society.income",
+        "contract": {
+          "name": "noesis-income-link",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "society.income-monitoring",
+        "provider": "society.income",
+        "contract": {
+          "name": "noesis-income-monitor",
+          "version": "1.0.0"
+        }
+      }
+    ],
+    "providers": [
+      {
+        "id": "society.income",
+        "version": "1.0.0"
+      }
+    ],
+    "source_packs": [
+      {
+        "pack_id": "society-income-distribution",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "society.income",
+        "description": "Place-centred income, poverty and inequality figures per source, as of a release",
+        "vocabulary": {
+          "vintage": "one release of a series with its release and retrieval clocks",
+          "PPP round": "the PPP base year a poverty line and monetary figures are stated in",
+          "welfare concept": "income or consumption as the source measures it",
+          "comparability_unknown": "two vintages with no stated or recorded note"
+        }
+      }
+    ]
+  },
+  "requires": [
+    {
+      "capability": "society.income-series",
+      "contract": "noesis-income-distribution-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "society.income-identity",
+      "contract": "noesis-income-identity-assertion",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "society.income-links",
+      "contract": "noesis-income-link",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "society.income-monitoring",
+      "contract": "noesis-income-monitor",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "countries and regions resolve to Geospatial places through reviewed matches; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.entity-identity",
+      "contract": "noesis-entity-identity-decision",
+      "range": "^1.0.0",
+      "reason": "place and related-indicator matches are reviewed, reversible identity decisions"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "monitors are knowledge subscriptions; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the society-income-distribution source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "pip",
+      "default": true,
+      "description": "World Bank Poverty and Inequality Platform coverage (country estimates and regional aggregates per release and PPP round); unverified-live",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the pip-country-estimates and pip-regional-aggregates entries of the society-income-distribution source pack"
+        }
+      ]
+    },
+    {
+      "id": "eu-silc",
+      "default": true,
+      "description": "Eurostat EU-SILC coverage (at-risk-of-poverty rates and thresholds, Gini) with flags and dataflow versions; unverified-live",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the eurostat-silc-income-poverty entries of the society-income-distribution source pack"
+        }
+      ]
+    },
+    {
+      "id": "oecd-idd",
+      "default": true,
+      "description": "OECD Income Distribution Database coverage per income definition and methodology; never mixed with EU-SILC; unverified-live",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the oecd-idd-income-distribution entries of the society-income-distribution source pack"
+        }
+      ]
+    }
+  ],
+  "compatibility_aliases": {
+    "society-population": "society"
+  },
+  "advisory": {
+    "exclusions": [
+      "nowcasting income, poverty or inequality figures",
+      "filling years a source did not publish",
+      "poverty lines of our own (only the lines a source publishes)",
+      "blending PIP, EU-SILC and OECD figures into one series",
+      "re-harmonising welfare concepts, equivalence scales or income definitions",
+      "deriving indicators (rates, ratios, shares or counts) that no source published",
+      "person-level or household-level microdata"
+    ],
+    "never": [
+      "nowcast or fill a year",
+      "set a poverty line of our own",
+      "blend or average figures across sources",
+      "re-harmonise welfare concepts or equivalence scales",
+      "store person- or household-level data"
+    ],
+    "query_examples": [
+      {
+        "intent": "Poverty headcount for this country as of a date",
+        "tool": "noesis-knowledge-engine.income_indicator_for_place",
+        "semantics": "each source's vintage released by the date, side by side; never combined"
+      },
+      {
+        "intent": "How did this series change across releases",
+        "tool": "noesis-knowledge-engine.income_series_history",
+        "semantics": "every vintage with changed periods, PPP revisions and comparability notes"
+      }
+    ]
+  },
+  "content_hash": "sha256:33155f8bb64ab8aace7a6c1eef31ef3461c6b6871680244f40541472fbbe2b14"
+}

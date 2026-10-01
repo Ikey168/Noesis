@@ -551,6 +551,16 @@ def _research_entities_projector(conn: Any) -> Any:
 # Science research-entities features (#2579).
 PROJECTORS["noesis-research-entity-record-v1"] = _research_entities_projector
 
+
+def _income_distribution_projector(conn: Any) -> Any:
+    from src.kb.income_distribution_store import IncomeDistributionProjector
+
+    return IncomeDistributionProjector(conn)
+
+
+# Society bundle, income, poverty and inequality (society.income, #2583).
+PROJECTORS["noesis-income-distribution-record-v1"] = _income_distribution_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -955,6 +955,27 @@
                 "dois": {"type": "array", "minItems": 1, "maxItems": 50, "items": {"type": "string", "pattern": "^10\\.\\d{4,9}/\\S+$"}},
                 "programmes": {"type": "array", "minItems": 1, "maxItems": 2, "items": {"type": "object", "required": ["programme", "path", "project_ids"], "properties": {"programme": {"enum": ["HORIZON", "H2020"]}, "path": {"type": "string", "pattern": "^/data/"}, "project_ids": {"type": "array", "minItems": 1, "maxItems": 200, "items": {"type": "string", "pattern": "^\\d{5,9}$"}}}, "additionalProperties": false}}
               }, "additionalProperties": false}
+            },
+            "additionalProperties": false
+          },
+          "income_distribution": {
+            "type": "object",
+            "description": "Declared income, poverty and inequality documents for the income-distribution connector (Society bundle, society.income, #2583): provider (World Bank PIP, Eurostat EU-SILC or OECD IDD), runtime format, namespace, live-verification status and the declared documents (a PIP endpoint with pinned country or region, poverty line, PPP version and release version, or an SDMX dataflow, series key and start period), each stating its welfare concept, equivalence scale, definition and the methodology references it cites (docs/development/income-distribution-evidence/source-audit.md).",
+            "required": ["provider", "format", "live_verification", "documents"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["pip", "eurostat-silc", "oecd-idd"]},
+              "format": {"enum": ["pip-json", "eurostat-silc-sdmx-csv", "oecd-idd-sdmx-csv"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "documents": {"type": "array", "minItems": 1, "maxItems": 12, "items": {
+                "type": "object",
+                "required": ["label", "welfare_concept", "equivalence_scale", "definition", "references"],
+                "properties": {
+                  "label": {"type": "string", "minLength": 1},
+                  "welfare_concept": {"enum": ["income", "consumption", "mixed"]},
+                  "equivalence_scale": {"enum": ["per-capita", "modified-oecd", "square-root"]}
+                }
+              }}
             },
             "additionalProperties": false
           },

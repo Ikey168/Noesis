@@ -280,6 +280,11 @@ MATRIX = {
     "Organisation or researcher to research-entity records":
         "tests/unit/domains/test_research_entities_acceptance.py::"
         "test_organisation_and_researcher_to_cited_registry_records_asserted_works_datasets_and_projects",
+    # The Society bundle's income journey (#2643) composes society.income with the source-pack runtime adapters,
+    # geospatial places, entity identity, the Economics series storage and, by citation, demographics and labour.
+    "Country to cited poverty and inequality figures":
+        "tests/unit/domains/test_income_distribution_acceptance.py::"
+        "test_country_to_cited_poverty_and_inequality_figures_from_each_source",
 }
 
 
