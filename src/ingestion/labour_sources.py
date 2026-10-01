@@ -353,7 +353,7 @@ def iso_day(value: Any) -> str | None:
 
 
 def normalise_period(period: str, frequency: str) -> str:
-    """SDMX and BLS period codes in the ``dataset-series-v1`` forms (``2099``, ``2099-Q1``, ``2099-01``)."""
+    """SDMX and BLS period codes in the ``dataset-series-v1`` forms (``2024``, ``2024-Q1``, ``2024-01``)."""
     raw = str(period).strip()
     match = re.fullmatch(r"(\d{4})-?M(\d{2})", raw)
     if match:

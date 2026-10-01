@@ -80,7 +80,7 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
     replay = SourcePackConformance(h.ROOT).offline({**manifest, "sources": labour})
     assert replay["valid"] and replay["coverage"]["verified"] == 4
 
-    # First releases (2099-12-01), then every source re-published (2100-01-01).
+    # First releases (2024-12-01), then every source re-published (2025-01-01).
     h.load_all(conn)
     monitor = LabourMonitor(conn, now=lambda: h.FIRST_RETRIEVAL + 1)
     ces_id = h.series_by_key(conn, "bls", "CES3000000001")["series_id"]
@@ -116,9 +116,9 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
 
     queries = LabourQueries(conn)
     before = queries.indicators(h.NS, place=places["de"], concept="unemployment_rate", scopes=h.READ_ONLY,
-                                as_of_ms=h.day_ms("2099-12-15"))
+                                as_of_ms=h.day_ms("2024-12-15"))
     after = queries.indicators(h.NS, place=places["de"], concept="unemployment_rate", scopes=h.READ_ONLY,
-                               as_of_ms=h.day_ms("2100-02-01"), history=True)
+                               as_of_ms=h.day_ms("2025-02-01"), history=True)
     # Side by side: every definition basis the sources publish for Germany, none merged.
     bases = {(r["provider"], r["definition_basis"], r["estimate_type"], r["seasonal_adjustment"])
              for r in after["results"]}
@@ -134,7 +134,7 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
     assert national_after["vintage"]["revision_of"] == national["vintage"]["vintage_id"]
     assert national_after["definition"]["content"]["references"][0]["identifier"] == "19th ICLS Resolution I (2013)"
     eurostat = next(r for r in after["results"] if r["provider"] == "eurostat-lfs")
-    assert eurostat["vintage"]["release_at"].startswith("2099-04-15")
+    assert eurostat["vintage"]["release_at"].startswith("2024-04-15")
     assert any(n["relation"] == "break_in_series" and n["periods"] == ["2098"] for n in eurostat["source_notes"])
     assert any(p["notes"] for p in after["comparability"])
     for result in after["results"]:
@@ -200,5 +200,5 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
     tools = asyncio.run(server.mcp.get_tools())
     answer = tools["labour_indicators_for_place"].fn(
         namespace="global", place={"scheme": "iso3166-1-alpha3", "code": "DEU"}, concept="unemployment_rate",
-        as_of_ms=h.day_ms("2100-02-01"))
+        as_of_ms=h.day_ms("2025-02-01"))
     assert answer["side_by_side"] is True and len(answer["results"]) == 4 and forbidden_keys(answer) == []

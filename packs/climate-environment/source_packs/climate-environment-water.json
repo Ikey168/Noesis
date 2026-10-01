@@ -1,0 +1,242 @@
+{
+  "pack_id": "climate-environment-water",
+  "version": "1.0.0",
+  "description": "Climate and Environment water and hydrology sources for the optional water features: PEGELONLINE stations, gauge zero and water-level/discharge measurements, USGS Water Data monitoring locations and values with approval status, and EEA WISE WFD water-body status per reporting cycle with published geometries. Every source is unverified-live until a dated run (#2647); GRDC is not implemented (terms); no forecasting, interpolation, gap filling, own status assessment or flood-risk scoring.",
+  "domains": [
+    "environment"
+  ],
+  "defaults": {
+    "connector": "water",
+    "update_cadence": "daily re-check of the explicit selection; PEGELONLINE publishes 15-minute raw values, USGS publishes continuous values that move from provisional to approved, EEA WISE publishes WFD status per reporting cycle",
+    "temporal_semantics": "observations keep the source's timestamp and unit as published with their quality state; stations keep gauge zero or vertical datum with the validity the source states; WFD status belongs to one reporting cycle; every distinct payload is an immutable revision by retrieval time and a declared record no longer served is a dated removal",
+    "mapping": {
+      "target_schema": "noesis-water-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "water-sources:1.0.0"
+    ],
+    "operations": [
+      "water"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 86400
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 604800
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 500,
+      "max_bytes": 2000000,
+      "max_pages": 20
+    },
+    "policy": {
+      "excluded": [
+        "flood forecasting",
+        "interpolation or gap filling",
+        "own water-body status assessments",
+        "flood-risk scoring"
+      ],
+      "values": "as published with their quality state; never resampled"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "pegelonline-stations-levels",
+      "endpoint": "https://www.pegelonline.wsv.de",
+      "publisher": "Wasserstrassen- und Schifffahrtsverwaltung des Bundes (WSV), PEGELONLINE",
+      "scope": "Two Elbe gauges with their time series, gauge zero (value and validFrom) and characteristic values, and one-day windows of water level and discharge measurements as published (unchecked raw values)",
+      "license": {
+        "id": "dl-de-zero-2.0",
+        "terms_url": "https://www.pegelonline.wsv.de/gast/nutzungsbedingungen",
+        "redistribution": "permitted under DL-DE Zero 2.0; Noesis cites PEGELONLINE (WSV) and the request"
+      },
+      "water": {
+        "provider": "pegelonline",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "two stations (Dresden, Meissen) on the Elbe; W and Q windows of at most 31 days (documented availability), one day in the fixture",
+        "selection": [
+          {
+            "kind": "station",
+            "uuid": "aaaaaaaa-0001-4000-8000-00000000d001",
+            "label": "DRESDEN (Elbe) with gauge zero and characteristic values"
+          },
+          {
+            "kind": "station",
+            "uuid": "aaaaaaaa-0002-4000-8000-00000000d002",
+            "label": "MEISSEN (Elbe)"
+          },
+          {
+            "kind": "measurements",
+            "uuid": "aaaaaaaa-0001-4000-8000-00000000d001",
+            "series": "W",
+            "start": "2026-09-20T00:00:00+02:00",
+            "end": "2026-09-21T00:00:00+02:00",
+            "label": "DRESDEN water level, one day"
+          },
+          {
+            "kind": "measurements",
+            "uuid": "aaaaaaaa-0001-4000-8000-00000000d001",
+            "series": "Q",
+            "start": "2026-09-20T00:00:00+02:00",
+            "end": "2026-09-21T00:00:00+02:00",
+            "label": "DRESDEN discharge, one day"
+          },
+          {
+            "kind": "measurements",
+            "uuid": "aaaaaaaa-0002-4000-8000-00000000d002",
+            "series": "W",
+            "start": "2026-09-20T00:00:00+02:00",
+            "end": "2026-09-21T00:00:00+02:00",
+            "label": "MEISSEN water level, one day"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/water-pegelonline.json",
+        "sha256": "e71a8c31bdce2c8d57bd851799b4c672474b75d4b08fc95ff5cb662143b006c2",
+        "expected_output_hash": "0049ad6be123e2573fada950f6e3ed71f2cc70e4c7ef9b0a1e8b120f9eddeedb"
+      }
+    },
+    {
+      "source_id": "usgs-water-data",
+      "endpoint": "https://api.waterdata.usgs.gov",
+      "publisher": "U.S. Geological Survey (USGS), Water Data APIs",
+      "scope": "One monitoring location with its vertical datum, bounded continuous discharge and gage-height windows and a daily mean window, each value with its approval status and qualifiers",
+      "license": {
+        "id": "us-public-domain",
+        "terms_url": "https://www.usgs.gov/information-policies-and-instructions/copyrights-and-credits",
+        "redistribution": "public domain; credit the U.S. Geological Survey; provisional data are subject to revision"
+      },
+      "auth": {
+        "kind": "optional-secret",
+        "secret_ref": "NOESIS_USGS_WATER_API_KEY"
+      },
+      "water": {
+        "provider": "usgs",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "USGS-01646500 (Potomac River at Little Falls); 00060 and 00065 windows of at most 31 days and 1000 values",
+        "selection": [
+          {
+            "kind": "monitoring-location",
+            "monitoring_location_id": "USGS-01646500",
+            "label": "Potomac River at Little Falls"
+          },
+          {
+            "kind": "continuous",
+            "monitoring_location_id": "USGS-01646500",
+            "parameter_code": "00060",
+            "limit": 20,
+            "start": "2026-09-20T12:00:00Z",
+            "end": "2026-09-20T13:00:00Z",
+            "label": "discharge, one hour"
+          },
+          {
+            "kind": "continuous",
+            "monitoring_location_id": "USGS-01646500",
+            "parameter_code": "00065",
+            "limit": 20,
+            "start": "2026-09-20T12:00:00Z",
+            "end": "2026-09-20T13:00:00Z",
+            "label": "gage height, one hour"
+          },
+          {
+            "kind": "daily",
+            "monitoring_location_id": "USGS-01646500",
+            "parameter_code": "00060",
+            "statistic_id": "00003",
+            "limit": 5,
+            "start": "2026-09-18T00:00:00Z",
+            "end": "2026-09-20T00:00:00Z",
+            "label": "daily mean discharge, two days"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/water-usgs.json",
+        "sha256": "ff411065b8e99a641d2672ad17156173f1d5749cef92bfb80d076cc484787058",
+        "expected_output_hash": "7266f905dbeda7100b48e99342b0067ad9c3a782d16780d89b72ff5aac401d0c"
+      }
+    },
+    {
+      "source_id": "eea-wise-wfd-status",
+      "endpoint": "https://discodata.eea.europa.eu",
+      "publisher": "European Environment Agency (EEA), WISE Water Framework Directive database",
+      "scope": "Surface water-body ecological and chemical status for two Elbe water bodies in the 2016 and 2022 reporting cycles, one row per code and cycle as published",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.eea.europa.eu/en/legal-notice",
+        "redistribution": "permitted with attribution to the EEA (CC BY 4.0)"
+      },
+      "water": {
+        "provider": "eea-wise",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "two water bodies, two reporting cycles, one pinned WISE table",
+        "selection": [
+          {
+            "kind": "status",
+            "codes": [
+              "DERW_DESN_FIX-0001",
+              "DERW_DESN_FIX-0002"
+            ],
+            "cycles": [
+              "2016",
+              "2022"
+            ],
+            "table": "[WISE_WFD].[latest].[SWB_SurfaceWaterBody]",
+            "label": "two Elbe water bodies near Dresden, 2nd and 3rd RBMP cycles"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/water-eea-wise-status.json",
+        "sha256": "176a94e13d07ec992222fee62dacdc0fa23e43eb421d76770d5dd1e0adbd24c9",
+        "expected_output_hash": "83948db30f0ad75783bc52c3d558ccf1513328b4c7495693a11eca90d9b987f0"
+      }
+    },
+    {
+      "source_id": "eea-wise-water-body-geometry",
+      "endpoint": "https://water.discomap.eea.europa.eu",
+      "publisher": "European Environment Agency (EEA), WISE WFD reference spatial datasets",
+      "scope": "Published geometries of the same two water bodies from one named reporting dataset vintage, used only to map water bodies to places",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.eea.europa.eu/en/legal-notice",
+        "redistribution": "permitted with attribution to the EEA (CC BY 4.0)"
+      },
+      "water": {
+        "provider": "eea-wise",
+        "namespace": "environment",
+        "live_verification": "unverified-live",
+        "coverage_decision": "two water bodies from the 2016 reference spatial dataset",
+        "selection": [
+          {
+            "kind": "geometry",
+            "codes": [
+              "DERW_DESN_FIX-0001",
+              "DERW_DESN_FIX-0002"
+            ],
+            "service": "WFD2016_SurfaceWaterBody",
+            "layer": "2",
+            "vintage": "WISE WFD 2016 reference spatial dataset",
+            "label": "published water-body geometries"
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/water-eea-wise-geometry.json",
+        "sha256": "c7f2dbd1924b85997dea7b4f5bb7d5dbaab5b2fd1dae8431d8932c0c17c00d9f",
+        "expected_output_hash": "f0959c0fa1030e3f5c6a867cccd241a02f868e07125b259423890d6c410e57da"
+      }
+    }
+  ]
+}

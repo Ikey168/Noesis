@@ -218,6 +218,8 @@ def test_existing_cellar_court_and_berlin_records_are_unaffected_and_the_schema_
     )
     for (record_json,) in rows:
         record = json.loads(record_json)
+        if record.get("contract") == "noesis-court-justice-record-v1":
+            continue  # court dockets (#2218) share legal_versions but follow their own record contract
         page = {
             "id": "x",
             "title": record["title"],

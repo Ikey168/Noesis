@@ -14,16 +14,45 @@ LEGAL_TOOLS = LEGAL_WRITES | {
 LEGAL_SCOPES = {"legal_source_contracts": [], "legal_retrieval_modes": []}
 
 # Court dockets and justice statistics (#2218): the courts and justice-statistics features' tools, registered here.
-from tools.knowledge_engine_mcp.courts_justice import (  # noqa: E402
+from tools.knowledge_engine_mcp.courts_justice import (
     COURTS_JUSTICE_SCOPES,
     COURTS_JUSTICE_TOOLS,
     COURTS_JUSTICE_WRITES,
 )
-from tools.knowledge_engine_mcp.courts_justice import register as register_courts_justice  # noqa: E402
+from tools.knowledge_engine_mcp.courts_justice import (
+    register as register_courts_justice,
+)
 
 LEGAL_WRITES = LEGAL_WRITES | COURTS_JUSTICE_WRITES
 LEGAL_TOOLS = LEGAL_TOOLS | COURTS_JUSTICE_TOOLS
 LEGAL_SCOPES = {**LEGAL_SCOPES, **COURTS_JUSTICE_SCOPES}
+
+# Treaties and treaty actions (#2581): the treaties-untc, treaties-eu and treaties-coe features' tools, registered here.
+from tools.knowledge_engine_mcp.treaties import (
+    TREATIES_SCOPES,
+    TREATIES_TOOLS,
+    TREATIES_WRITES,
+)
+from tools.knowledge_engine_mcp.treaties import (
+    register as register_treaties,
+)
+
+LEGAL_WRITES = LEGAL_WRITES | TREATIES_WRITES
+LEGAL_TOOLS = LEGAL_TOOLS | TREATIES_TOOLS
+LEGAL_SCOPES = {**LEGAL_SCOPES, **TREATIES_SCOPES}
+# Regulatory enforcement (#2651): the enforcement-sec/-fca/-epa/-edpb features' tools, registered here.
+from tools.knowledge_engine_mcp.enforcement import (
+    ENFORCEMENT_SCOPES,
+    ENFORCEMENT_TOOLS,
+    ENFORCEMENT_WRITES,
+)
+from tools.knowledge_engine_mcp.enforcement import (
+    register as register_enforcement,
+)
+
+LEGAL_WRITES = LEGAL_WRITES | ENFORCEMENT_WRITES
+LEGAL_TOOLS = LEGAL_TOOLS | ENFORCEMENT_TOOLS
+LEGAL_SCOPES = {**LEGAL_SCOPES, **ENFORCEMENT_SCOPES}
 
 
 def required_scopes(tool_name, mutability):
@@ -32,6 +61,8 @@ def required_scopes(tool_name, mutability):
 
 def register(mcp, safe, context):
     register_courts_justice(mcp, safe, context)
+    register_treaties(mcp, safe, context)
+    register_enforcement(mcp, safe, context)
 
     def who():
         return context()[0], context()[1]

@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe5yBmbihQEAAIYCAAALAAAAcHJvamVjdC5jc3ZtkNFu2zAMRd/7Ff6A2ZO1ZK7HJ8/OugBpEiQrsO1NkdlEmywFErOlf1/aTd0WKCGAFCRe3kPTgtLBu4cOIik6RSBDFvtLoEYRArp2yORJ2dpHAtS36lx7R8HsTmS8A4t7Zb+qaLjdH42O/Gdr9o4FAw7d90F1+N+Hv+vg91x3CJ2KhKFW1kI87YZ8f3KtcfutPiB/eGoHv/uDmsw/BM0z0dHdsWXJQTZoByznqPHmKhd5WZZC5DD7Wd2uF/MKtvOb5ayBb0b3PpVN8Ky6o8WYKEqiVkwqRXmdipwPSFZIc5l+4nIq+gA5ecrfV5v579UyyzNW39QpdxVp1dzA8wuMVcrv8Grk6D8hPFNCBx5tYuI8OyAfsM16D2XvQYokF19Ef+CCkouMq/Kj9qE1MRsZR1oJ69XiV1P9qKBerLZvaI/ePhDqgzM64Z2pftDkGVaUny+w1wPjh6mAYvqGVmYTeI9ww6sFGHYgJIslonztWsLFXVEUcLdsZvWi2rCxMV4Uh7h6BFBLAwQUAAAACAAAACHuL+B7FyYCAAAlBAAAEAAAAG9yZ2FuaXphdGlvbi5jc3Z9Ul+PmkAQf79PwWObnLJwZ5WbJwQ8SRCJYNM+7uF6boO7m2U4az99F9CeNNduJDPMjLO/Pygtf7AS4xBUn/mlluJ8BKlfqeA1RS6F6b5RTJvjC9Mg6JFBfZAa0zbLVxHQEvkbx3NxVqaFmjEEJWsM5I5BaRpQykagPoNosO6qr0xWsuy2X6761b1sN4kZFmhWLqQ+djkTuFU7iiw0D+iy/cfOINGyYsDKwIxo/tJ0uwTDaFhBibQKDBpgYrfeZ1QjL7nqr+6QszuHOJ7nEeJA9M1fZUnsg9cfUwqj93ybxl+jTR4XflRY8yjOszhK8sIPC9jO8wL2tKoZLKMcFrxsb6CVlXeCWE6/EuaM14qzqka6Q7Mc4NOEjMn9bEw+wwFR1U+2fTqdxo3go5fb4TH7SY/KcL5OsXLMGi0VNcHmYi/tfSN2XLyOjGZGodqWShmjzCbkrLbbnFb2RV9wieeNiDNyieWQJ9L+ABwjuZGXC4pSm5HuvEenj4C6+a9sD4aZ4z48Tr5MZ96l7VvLdRLG6bP1vJovr8WLZtkmAIBVUyPTB9rUTHTaDBTp+dM/OnzMwAV19VggPPaAh2EI34VsnXwP/eIdvguwiIMiXqd+YrXdIgqWaRz85fkim99YDh94O8CvZHX+h6UtlemIuIaNRbyPzZhOOvCXMOuo3E9IR+aW0XQ6NR9qGAWJv4nCKydTvKlamb8p4iDO/LSA4blVz2kLd78BUEsBAhQDFAAAAAgAAAAh7nIGZuKFAQAAhgIAAAsAAAAAAAAAAAAAAIABAAAAAHByb2plY3QuY3N2UEsBAhQDFAAAAAgAAAAh7i/gexcmAgAAJQQAABAAAAAAAAAAAAAAAIABrgEAAG9yZ2FuaXphdGlvbi5jc3ZQSwUGAAAAAAIAAgB3AAAAAgQAAAAA",
+   "headers": {},
+   "request": "/data/cordis-HORIZONprojects-csv.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every organisation, person, identifier and value is fictional.",
+ "provider": "cordis",
+ "scenarios": [
+  "declared project IDs only",
+  "participants with PIC and VAT",
+  "comma decimals",
+  "declared currency",
+  "declared ID not in the file"
+ ]
+}

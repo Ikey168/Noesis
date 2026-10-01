@@ -1,7 +1,7 @@
 {
   "pack_id": "legal-research",
-  "version": "1.4.0",
-  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores).",
+  "version": "1.5.0",
+  "description": "Bounded EU (CELLAR), German federal court (Rechtsprechung im Internet) and Berlin (gesetze.berlin.de) legal sources for cited legal research, plus the sanctions feature's lists (EU FSF, UN SC, OFAC SLS, UK Sanctions List) and the dual-use Regulation (EU) 2021/821 editions, plus the product-safety acts notices cite (Regulation (EU) 2023/988, Regulation (EC) No 178/2002), plus the federal-statutes feature's bounded statute set from gesetze-im-internet.de (observed versions), rechtsinformationen.bund.de (source-stated versions) and the digital Federal Law Gazette on recht.bund.de (amendment acts). Selected works, published decisions and full list files only; current law is never inferred and no list statement is a screening result, plus the courts feature's CourtListener dockets, docket entries and opinions (parties minimised; dispositions quoted) and the justice-statistics feature's FBI Crime Data Explorer, data.police.uk and Eurostat crime statistics with definitions and vintages (no rankings, safety ratings or risk scores)., plus the treaties provider's EU international agreements from CELLAR and Council of Europe Treaty Office charts and declarations (the UN Treaty Collection entry is declined pending written permission); treaty actions as published, no legal advice or inferred obligations; plus the enforcement provider's SEC litigation releases and administrative proceedings, FCA final notices, EPA ECHO enforcement cases and EDPB Article 60 final decisions (outcomes and admission wording as published, penalties never summed, natural persons pseudonymised; no risk or compliance scoring).",
   "domains": [
     "legal"
   ],
@@ -1088,6 +1088,453 @@
         "path": "tests/fixtures/source_packs/legal-justice-eurostat-crime-iccs.json",
         "sha256": "c4effb606c74d2a88d4ded8ba01a8dd25bf9fcfc9ca31052ea1d7ccf6a5fc84f",
         "expected_output_hash": "1dfcdda16ccbe9b83c58b81f1ad7456d93c9094b900985bfafac15fd65e0bbf4"
+      }
+    },
+    {
+      "source_id": "untc-multilateral-status",
+      "connector": "treaties",
+      "publisher": "United Nations, Office of Legal Affairs, Treaty Section (United Nations Treaty Collection)",
+      "endpoint": "https://treaties.un.org",
+      "scope": "Declined under the TR01 licence decision (written permission required for reuse and compilation of the online collection): no request is made and no record is stored; the entry keeps the treaties-untc feature's gap visible until an operator records an accepted decision",
+      "update_cadence": "not acquired (written permission required)",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "un-terms-of-use",
+        "terms_url": "https://www.un.org/en/about-us/terms-of-use",
+        "redistribution": "declined: the UN terms permit personal, non-commercial use without any right to redistribute or compile; reuse of the online UN Treaty Collection needs prior written permission (docs/development/treaties-evidence/source-audit.md#un-treaty-collection-licence-decision)"
+      },
+      "temporal_semantics": "the page's 'Status as at' stamp as the depositary revision; signature, consent and statement dates as published; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "treaties": {
+        "namespace": "global",
+        "provider": "untc",
+        "format": "untc-status-html",
+        "selection": {
+          "treaties": [
+            {
+              "mtdsg_no": "XXIX-99",
+              "chapter": 29
+            }
+          ]
+        },
+        "live_verification": "declined",
+        "licence_decision": {
+          "status": "declined",
+          "recorded": "2026-09-30",
+          "reference": "docs/development/treaties-evidence/source-audit.md#un-treaty-collection-licence-decision"
+        }
+      },
+      "mapping": {
+        "target_schema": "noesis-treaty-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "treaties-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 7776000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-treaties-untc-status.json",
+        "sha256": "bc2ddf38361aee1052e6b843e8de22ca6a77b5ffeee8e2b7692fa3ccfe9aa58e",
+        "expected_output_hash": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945"
+      }
+    },
+    {
+      "source_id": "cellar-eu-international-agreements",
+      "connector": "treaties",
+      "publisher": "Publications Office of the European Union (CELLAR)",
+      "endpoint": "https://publications.europa.eu/webapi/rdf/sparql",
+      "scope": "Declared EU international agreements (CELEX sector 2) with their language expressions, signature and entry-into-force dates as CELLAR states them and the EU acts CELLAR links to them (cited, not characterised); the Legal pack's CELLAR adapter query is reused",
+      "update_cadence": "continuous; new expressions and linked acts appear as published",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "eu-publications-reuse",
+        "terms_url": "https://eur-lex.europa.eu/content/legal-notice/legal-notice.html",
+        "redistribution": "reuse permitted with source acknowledgement under Commission Decision 2011/833/EU (operator must confirm per document); texts are linked, not stored"
+      },
+      "temporal_semantics": "signature and entry-into-force dates as CELLAR states them as valid time; no source revision stamp, so acquisition time dates each revision",
+      "budgets": {
+        "timeout_ms": 60000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 2
+      },
+      "treaties": {
+        "namespace": "global",
+        "provider": "cellar",
+        "format": "cellar-agreement-sparql",
+        "selection": {
+          "agreements": [
+            "22099A0101(01)"
+          ],
+          "languages": [
+            "ENG",
+            "FRA"
+          ],
+          "page_size": 100
+        },
+        "live_verification": "unverified-live",
+        "licence_decision": {
+          "status": "accepted",
+          "recorded": "2026-09-30",
+          "reference": "docs/development/treaties-evidence/source-audit.md#access-decisions"
+        }
+      },
+      "mapping": {
+        "target_schema": "noesis-treaty-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "treaties-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 7776000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-treaties-cellar-agreements.json",
+        "sha256": "1b47a0a1dc06dab328ed9052787711cc4e1999a31fa794ee61f72789aa788845",
+        "expected_output_hash": "f2d6e972f75cd71a354aab3f02c6eec419f83d306c61d648a8c1234133a6089c"
+      }
+    },
+    {
+      "source_id": "coe-treaty-office-charts",
+      "connector": "treaties",
+      "publisher": "Council of Europe Treaty Office",
+      "endpoint": "https://www.coe.int/en/web/conventions",
+      "scope": "Declared Council of Europe treaties (CETS/ETS): the chart of signatures and ratifications (every state and organisation listed) and the reservations, declarations, withdrawals and denunciations page, kept verbatim with their dates; texts linked, not stored",
+      "update_cadence": "as the Treaty Office publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "coe-website-terms",
+        "terms_url": "https://www.coe.int/en/web/portal/disclaimer",
+        "redistribution": "reproduction authorised for private, informational and educational use with the source acknowledged; commercial use needs prior permission (operator must confirm); only the printed CETS texts are authentic"
+      },
+      "temporal_semantics": "the chart's 'Status as of' date as the depositary revision; signature, ratification, entry-into-force and deposit dates as charted; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 200,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "treaties": {
+        "namespace": "global",
+        "provider": "coe-treaty-office",
+        "format": "coe-chart-html",
+        "selection": {
+          "treaties": [
+            {
+              "number": "990"
+            }
+          ]
+        },
+        "live_verification": "unverified-live",
+        "licence_decision": {
+          "status": "accepted",
+          "recorded": "2026-09-30",
+          "reference": "docs/development/treaties-evidence/source-audit.md#access-decisions"
+        }
+      },
+      "mapping": {
+        "target_schema": "noesis-treaty-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "treaties-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 7776000
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-treaties-coe-charts.json",
+        "sha256": "ce1f41de7373c87ececde86bd039e5d62599ed3b274da6686271d394c05cc818",
+        "expected_output_hash": "3cc9517e1129e38c337ae8d206e63e6bec08d984465ced0eaba88638b47a5aeb"
+      }
+    },
+    {
+      "source_id": "sec-litigation-releases",
+      "connector": "enforcement",
+      "publisher": "U.S. Securities and Exchange Commission (litigation releases)",
+      "endpoint": "https://www.sec.gov",
+      "scope": "Declared SEC litigation releases (civil actions in federal court): respondents as named (CIK where stated; natural persons pseudonymised), charges and outcomes as stated with the admission wording verbatim, sanctions as stated, related court cases as citations",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://www.sec.gov/privacy#dissemination",
+        "redistribution": "US government work, public domain; SEC fair-access policy (10 requests per second, declared User-Agent) applies to acquisition (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "release date as valid time; page modified time as the revision stamp; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "enforcement",
+        "provider": "us-sec",
+        "format": "sec-litigation-release-html",
+        "user_agent": "Noesis enforcement acquisition (operator contact declared at deployment)",
+        "selection": {
+          "releases": [
+            {
+              "release": "LR-99901"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-sec-litigation-releases.json",
+        "sha256": "4d537081c52eb018f77fe6ae58d15a3a6d254d1249991c5b05ea930d1c963ae8",
+        "expected_output_hash": "5f49f788ac7be4705323fcb402ce62ca9ce4c7bd52b13555ef6a51654725741b"
+      }
+    },
+    {
+      "source_id": "sec-administrative-proceedings",
+      "connector": "enforcement",
+      "publisher": "U.S. Securities and Exchange Commission (administrative proceedings)",
+      "endpoint": "https://www.sec.gov",
+      "scope": "Declared SEC administrative-proceeding releases keyed by release and file number: respondents as named, findings and sanctions as stated in the order with the admission wording verbatim",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://www.sec.gov/privacy#dissemination",
+        "redistribution": "US government work, public domain; SEC fair-access policy applies (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "order date as valid time; page modified time as the revision stamp; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "enforcement",
+        "provider": "us-sec",
+        "format": "sec-admin-proceeding-html",
+        "user_agent": "Noesis enforcement acquisition (operator contact declared at deployment)",
+        "selection": {
+          "proceedings": [
+            {
+              "release": "34-99902"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-sec-administrative-proceedings.json",
+        "sha256": "3506348b21de8de63ba76f3b2c67b86abb59518f8a97a94924d2642d2d0f1b5f",
+        "expected_output_hash": "16976ddf78b25869e1394038270f01e07e16268cde332ab805d7be4e51e9a827"
+      }
+    },
+    {
+      "source_id": "fca-final-notices",
+      "connector": "enforcement",
+      "publisher": "Financial Conduct Authority (final notices)",
+      "endpoint": "https://www.fca.org.uk",
+      "scope": "Declared FCA final notices (firms only; notices addressed only to individuals are withheld): FRN, rule breaches cited, penalty after and before the settlement discount as published, Upper Tribunal references",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "ogl-3.0-fca-copyright-notice",
+        "terms_url": "https://www.fca.org.uk/legal",
+        "redistribution": "Open Government Licence as stated in the FCA copyright notice; other re-use needs FCA permission (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "notice date as valid time; PDF digest as the revision stamp; acquisition time recorded separately",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "enforcement",
+        "provider": "uk-fca",
+        "format": "fca-final-notice-pdf",
+        "selection": {
+          "notices": [
+            {
+              "slug": "exampla-uk-limited-2099"
+            },
+            {
+              "slug": "northwind-payments-limited-2099"
+            },
+            {
+              "slug": "jordan-example-2099"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-fca-final-notices.json",
+        "sha256": "80cf1b5f556bfa010a0b2a9c52a4f58af2549064feff2d872533f3ab252af301",
+        "expected_output_hash": "79f5229937d6f8649d2dc6ff6e77dd4a77d21787b0a250dfc4059359fdc93f93"
+      }
+    },
+    {
+      "source_id": "epa-echo-cases",
+      "connector": "enforcement",
+      "publisher": "U.S. EPA Enforcement and Compliance History Online (case reports)",
+      "endpoint": "https://echodata.epa.gov",
+      "scope": "Declared EPA civil and criminal enforcement cases from the ECHO case REST services: statutes and sections, defendants as named, facilities with FRS registry ids and published coordinates, federal and state/local penalties, SEP cost, cost recovery and compliance action cost as separate published fields",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "us-government-work",
+        "terms_url": "https://echo.epa.gov/resources/general-info/echo-faq",
+        "redistribution": "US government work, public domain (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "filing and settlement dates as valid time; case LastUpdated (or digest) as the revision stamp",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "enforcement",
+        "provider": "us-epa-echo",
+        "format": "echo-case-report-json",
+        "selection": {
+          "cases": [
+            {
+              "case_number": "04-2099-0101",
+              "kind": "civil"
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-epa-echo-cases.json",
+        "sha256": "c7ef92afc92613ec4cbbfae44b2257539a53a5c87dfff2e6528baaf9e79ace78",
+        "expected_output_hash": "a64c97b6b51ce9ba5f683a78f1d1aff289ac05bc1bcd1bebe4cbfa76e51b9030"
+      }
+    },
+    {
+      "source_id": "edpb-art60-decisions",
+      "connector": "enforcement",
+      "publisher": "European Data Protection Board (register of Article 60 final decisions)",
+      "endpoint": "https://www.edpb.europa.eu",
+      "scope": "Declared EDPB Article 60 register entries: lead and concerned supervisory authorities, GDPR provisions, decisions and corrective measures as published, controller only where the register publishes one, fines as stated",
+      "update_cadence": "as the regulator publishes; bounded declared selection per run",
+      "auth": {
+        "kind": "none"
+      },
+      "license": {
+        "id": "edpb-reuse-with-acknowledgement",
+        "terms_url": "https://www.edpb.europa.eu/copyright_en",
+        "redistribution": "reuse authorised with acknowledgement of the source and without distorting the meaning (verify)"
+      },
+      "mapping": {
+        "target_schema": "noesis-enforcement-record-v1",
+        "version": "1.0.0"
+      },
+      "extractor_versions": [
+        "enforcement:1.0.0"
+      ],
+      "temporal_semantics": "final decision date as valid time; page modified time as the revision stamp",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 5000000,
+        "max_pages": 20
+      },
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "enforcement": {
+        "namespace": "enforcement",
+        "provider": "edpb",
+        "format": "edpb-art60-html",
+        "selection": {
+          "entries": [
+            {
+              "entry": 99901
+            },
+            {
+              "entry": 99902
+            }
+          ]
+        },
+        "live_verification": "unverified-live"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/legal-enforcement-edpb-art60-decisions.json",
+        "sha256": "68a0ba8c241169be9e39aef04008f70cfa509d1594f3ee8a571aad54bfbbebd3",
+        "expected_output_hash": "7971b498d9856aa70a8abcbf0e79464b5d0982568f1ae031c2cb52f9a47c4860"
       }
     }
   ]

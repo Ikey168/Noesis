@@ -1,0 +1,54 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-treaty-record-v1.json",
+  "title": "Treaty or treaty action as the depositary or publisher published it",
+  "description": "One acquired record of the Legal pack's treaties provider (#2581). A treaty record keeps the depositary, registration and catalogue identifiers (UNTC chapter and treaty number, UNTS registration number, CELEX and ELI, CETS/ETS number), the title as published, the adoption place and date and the entry-into-force conditions and date as published, footnotes verbatim with their anchors, CELLAR language expressions and the EU acts CELLAR links (as citations); a treaty-action record keeps the participant as published (a state, an international organisation or the EU, never a natural person), the action type and the source's label, the action, deposit and effective dates as published and the verbatim text of reservations, declarations, objections and withdrawals with their anchors. Every depositary update is a new revision. No record carries a natural-person field, an obligation, compliance or legal-effect assessment, or legal advice; treaty texts are linked, not stored.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "record_kind", "record_key", "treaty_key", "title", "locator", "depositary_revision", "depositary_date", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-treaty-record-v1"},
+    "format": {"enum": ["untc-status-html", "cellar-agreement-sparql", "coe-chart-html"]},
+    "provider": {"enum": ["untc", "cellar", "coe-treaty-office"]},
+    "record_kind": {"enum": ["treaty", "treaty-action"]},
+    "record_key": {"type": "string", "pattern": "^treaties:(treaty|action):(untc|cellar|coe):[A-Za-z0-9():._-]+(:[a-z0-9-]+){0,4}$"},
+    "treaty_key": {"type": "string", "pattern": "^treaties:treaty:(untc|cellar|coe):[A-Za-z0-9()._-]+$"},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "depositary_revision": {"type": ["string", "null"]},
+    "depositary_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "published_at": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "fields": {
+      "type": "object",
+      "properties": {
+        "identifiers": {
+          "type": "array",
+          "items": {"type": "object", "required": ["scheme", "value"], "properties": {"scheme": {"enum": ["untc-mtdsg", "untc-chapter", "unts-registration", "celex", "eli", "cellar-work", "cets"]}, "value": {"type": "string", "minLength": 1}}}
+        },
+        "text_policy": {"const": "linked, not stored"},
+        "participant": {
+          "type": "object",
+          "required": ["name_as_published", "key", "kind", "published_codes"],
+          "properties": {
+            "name_as_published": {"type": "string", "minLength": 1},
+            "key": {"type": "string", "pattern": "^treaties:participant:(untc|cellar|coe):[a-z0-9-]+$"},
+            "kind": {"enum": ["state", "international-organisation", "regional-economic-integration-organisation"]},
+            "published_codes": {"type": "array", "items": {"type": "object", "required": ["scheme", "value"]}}
+          }
+        },
+        "action_type": {"enum": ["signature", "definitive-signature", "ratification", "acceptance", "approval", "accession", "succession", "formal-confirmation", "reservation", "declaration", "declaration-or-reservation", "objection", "withdrawal", "denunciation", "entry-into-force", "communication"]},
+        "action_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "deposit_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "effective_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "text": {"type": ["string", "null"]},
+        "objected": {"type": ["object", "null"], "properties": {"anchor": {"type": "string"}, "action_key": {"type": ["string", "null"]}, "basis": {"type": "string"}}}
+      },
+      "not": {"anyOf": [{"required": ["signatory"]}, {"required": ["signatory_name"]}, {"required": ["representative"]}, {"required": ["representative_name"]}, {"required": ["person"]}, {"required": ["contact"]}, {"required": ["email"]}, {"required": ["address"]}, {"required": ["obligations"]}, {"required": ["compliance"]}, {"required": ["legal_effect"]}, {"required": ["legal_advice"]}, {"required": ["treaty_text"]}]}
+    }
+  },
+  "allOf": [
+    {"if": {"properties": {"record_kind": {"const": "treaty-action"}}}, "then": {"properties": {"fields": {"required": ["participant", "action_type", "action_date", "deposit_date", "effective_date", "text"]}}}},
+    {"if": {"properties": {"record_kind": {"const": "treaty"}}}, "then": {"properties": {"fields": {"required": ["identifiers", "title_as_published", "text_policy", "action_keys"]}}}}
+  ],
+  "not": {"anyOf": [{"required": ["obligations"]}, {"required": ["compliance"]}, {"required": ["legal_effect"]}, {"required": ["legal_advice"]}]}
+}

@@ -1,0 +1,111 @@
+{
+  "description": "Composition view of the Society bundle: what it requires from its own and shared providers, its optional features and what it excludes. packs/society/manifest.json is the authoritative native manifest; tests/unit/composition/test_society_income_composition.py asserts this file stays equal to it.",
+  "requires": [
+    {
+      "capability": "society.income",
+      "contract": "noesis-income-distribution-record",
+      "range": "^1.0.0",
+      "reason": "the bundle's own entry points use these operations"
+    },
+    {
+      "capability": "economics.knowledge",
+      "contract": "noesis-economic-knowledge",
+      "range": "^1.0.0",
+      "reason": "income values and vintages live in the Economics series storage"
+    },
+    {
+      "capability": "geospatial.place-resolution",
+      "contract": "noesis-geospatial-place",
+      "range": "^1.0.0",
+      "reason": "ISO, NUTS and World Bank region codes resolve to places through reviewable mappings"
+    },
+    {
+      "capability": "platform.subscriptions",
+      "contract": "noesis-knowledge-subscription",
+      "range": "^1.0.0",
+      "reason": "income monitors are knowledge subscriptions; shared provider reused, never duplicated"
+    },
+    {
+      "capability": "platform.source-acquisition",
+      "contract": "noesis-source-acquisition",
+      "range": "^1.0.0",
+      "reason": "sources, licences and budgets are declared in the society-statistics source pack"
+    }
+  ],
+  "optional_features": [
+    {
+      "id": "pip",
+      "default": true,
+      "description": "World Bank Poverty and Inequality Platform country estimates and regional aggregates at stated poverty lines and PPP rounds, each PIP release and PPP round a separate vintage (source worldbank-pip-poverty-inequality); deselecting it leaves EU-SILC and OECD answers unchanged",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the worldbank-pip-poverty-inequality source of the society-statistics pack"
+        }
+      ]
+    },
+    {
+      "id": "eu-silc",
+      "default": true,
+      "description": "Eurostat EU-SILC at-risk-of-poverty rates, thresholds and Gini through the SDMX connector (source eurostat-eu-silc-income); deselecting it leaves PIP and OECD answers unchanged",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the eurostat-eu-silc-income source of the society-statistics pack"
+        }
+      ]
+    },
+    {
+      "id": "oecd-idd",
+      "default": true,
+      "description": "OECD Income Distribution Database indicators per methodology and income definition through the SDMX connector (source oecd-income-distribution-database); never mixed with EU-SILC values",
+      "requires": [
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the oecd-income-distribution-database source of the society-statistics pack"
+        }
+      ]
+    },
+    {
+      "id": "demographics-links",
+      "default": false,
+      "description": "Link income series to the Demographics denominators their sources name (economics.demographics); when not selected or absent the links are reported as feature_not_selected or provider_absent, and income answers are unchanged",
+      "requires": [
+        {
+          "capability": "economics.demographics",
+          "contract": "noesis-demographic-series",
+          "range": "^1.0.0",
+          "reason": "denominators linked by citation or shared identifier"
+        }
+      ]
+    },
+    {
+      "id": "labour-links",
+      "default": false,
+      "description": "Link income series to Labour indicators of the same place and period (economics.labour); when not selected or absent the links are reported as feature_not_selected or provider_absent, and income answers are unchanged",
+      "requires": [
+        {
+          "capability": "economics.labour",
+          "contract": "noesis-labour-statistics-record",
+          "range": "^1.0.0",
+          "reason": "labour indicators linked by shared identifier or accepted place matches"
+        }
+      ]
+    }
+  ],
+  "exclusions": [
+    "nowcasting poverty or inequality",
+    "filling years a source did not publish",
+    "setting or applying poverty lines no source published",
+    "blending PIP, EU-SILC and OECD figures into one series",
+    "re-harmonising welfare concepts, equivalence scales or PPP rounds",
+    "deriving indicators (rates, shares or ratios) that no source published",
+    "person- or household-level microdata"
+  ]
+}

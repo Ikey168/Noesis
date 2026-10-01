@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Chart of signatures and ratifications (authored fixture)</title></head>\n<body>\n <!-- Authored in the documented layout of a Treaty Office chart; every treaty, date and text is fictional. -->\n <div id=\"status-as-of\">Status as of 30/09/2099</div>\n <h1 id=\"treaty-title\">Framework Convention on Example Data Governance</h1>\n <p id=\"treaty-reference\">CETS No. 990</p>\n <table id=\"treaty-details\">\n  <tr><td>Opening of the treaty</td><td>Place: Strasbourg</td><td>Date: 05/09/2098</td></tr>\n  <tr><td>Entry into Force</td><td>Conditions: 3 Ratifications including 2 member States.</td><td>Date: 01/03/2099</td></tr>\n </table>\n <h3>Members of the Council of Europe</h3>\n <table class=\"chart\">\n   <tr><th>States</th><th>Signature</th><th>Ratification</th><th>Entry into Force</th><th>Notes</th><th>R.</th><th>D.</th><th>A.</th><th>T.</th><th>C.</th><th>O.</th></tr>\n   <tr><td>France</td><td>05/09/2098</td><td>15/11/2098</td><td>01/03/2099</td><td></td><td>X</td><td></td><td></td><td></td><td></td><td></td></tr>\n   <tr><td>Germany</td><td>05/09/2098</td><td>20/12/2098</td><td>01/04/2099</td><td></td><td></td><td>X</td><td></td><td></td><td></td><td></td></tr>\n </table>\n <h3>Non-members of the Council of Europe</h3>\n <table class=\"chart\">\n   <tr><th>States</th><th>Signature</th><th>Ratification</th><th>Entry into Force</th><th>Notes</th><th>R.</th><th>D.</th><th>A.</th><th>T.</th><th>C.</th><th>O.</th></tr>\n   <tr><td>Examplestan</td><td></td><td>10/01/2099</td><td>01/05/2099</td><td>a</td><td></td><td></td><td></td><td></td><td></td><td></td></tr>\n </table>\n <h3>International Organisations</h3>\n <table class=\"chart\">\n   <tr><th>States</th><th>Signature</th><th>Ratification</th><th>Entry into Force</th><th>Notes</th><th>R.</th><th>D.</th><th>A.</th><th>T.</th><th>C.</th><th>O.</th></tr>\n   <tr><td>European Union</td><td>05/09/2098</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>\n </table>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "text/html; charset=utf-8"
+   },
+   "request": "/en/web/conventions/full-list?module=signatures-by-treaty&treatynum=990",
+   "status": 200
+  },
+  {
+   "body": "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Reservations and Declarations (authored fixture)</title></head>\n<body>\n <!-- Authored in the documented layout of a Treaty Office declarations page; every text is fictional. -->\n <div class=\"declaration\" id=\"coe-990-decl-1\">\n  <p class=\"declaration-kind\">Reservation contained in the instrument of ratification deposited on 15 November 2098 - Or. Fr.</p>\n  <p class=\"declaration-state\">France</p>\n  <p class=\"declaration-period\">Period covered: 01/03/2099 -</p>\n  <p class=\"declaration-articles\">Articles concerned : 12</p>\n  <div class=\"declaration-text\"><p>In accordance with article 25 of the Convention, France reserves the right not to apply article 12 to archival records held before the entry into force of the Convention.</p></div>\n </div>\n <div class=\"declaration\" id=\"coe-990-decl-2\">\n  <p class=\"declaration-kind\">Declaration contained in the instrument of ratification deposited on 20 December 2098 - Or. Engl.</p>\n  <p class=\"declaration-state\">Germany</p>\n  <p class=\"declaration-period\">Period covered: 01/04/2099 -</p>\n  <p class=\"declaration-articles\">Articles concerned : 5</p>\n  <div class=\"declaration-text\"><p>Germany designates the Federal Office for Example Records as the authority referred to in article 5.</p></div>\n </div>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "text/html; charset=utf-8"
+   },
+   "request": "/en/web/conventions/full-list?module=declarations-by-treaty&treatynum=990",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented page or result shape (verify live); every treaty, date, participant action and text is fictional placeholder data (2098-2100).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-treaties"
+ ]
+}

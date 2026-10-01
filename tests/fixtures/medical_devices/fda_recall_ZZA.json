@@ -1,0 +1,43 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)",
+  "last_updated": "2099-07-01",
+  "license": "https://open.fda.gov/license/",
+  "results": {
+   "limit": 100,
+   "skip": 0,
+   "total": 1
+  },
+  "terms": "https://open.fda.gov/terms/"
+ },
+ "results": [
+  {
+   "action": "Firm sent an urgent notice to customers.",
+   "additional_info_contact": "Pat Placeholder 555-0100",
+   "address_1": "1 EXAMPLE WAY",
+   "cfres_id": "999901",
+   "city": "EXAMPLETON",
+   "code_info": "Serial numbers EP100-0001 to EP100-0500",
+   "country": "United States",
+   "distribution_pattern": "US nationwide",
+   "event_date_initiated": "2099-02-01",
+   "event_date_posted": "2099-03-01",
+   "firm_fei_number": "9999901",
+   "k_numbers": [
+    "K999901"
+   ],
+   "pma_numbers": [],
+   "postal_code": "99999",
+   "product_code": "ZZA",
+   "product_description": "EXAMPLEPUMP infusion pump, model EP-100",
+   "product_quantity": "500",
+   "product_res_number": "Z-9901-2099",
+   "reason_for_recall": "Software may stop an infusion without an alarm (fictional).",
+   "recall_status": "Open, Classified",
+   "recalling_firm": "EXAMPLE MEDICAL DEVICES INC",
+   "res_event_number": "99901",
+   "root_cause_description": "Software design",
+   "state": "EX"
+  }
+ ]
+}

@@ -1,0 +1,37 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"claims\": [\n  {\n   \"text\": \"Tidal turbines in Example Bay killed 4,000 seals last year.\",\n   \"claimant\": \"Mayor Alex Example\",\n   \"claimDate\": \"2025-03-02T00:00:00Z\",\n   \"claimReview\": [\n    {\n     \"publisher\": {\n      \"name\": \"Example Fact Check\",\n      \"site\": \"factcheck.example.org\"\n     },\n     \"url\": \"https://factcheck.example.org/2025/03/tidal-turbines-seals/\",\n     \"title\": \"No, tidal turbines did not kill 4,000 seals\",\n     \"reviewDate\": \"2025-03-10T00:00:00Z\",\n     \"textualRating\": \"False\",\n     \"languageCode\": \"en\"\n    },\n    {\n     \"publisher\": {\n      \"name\": \"Verifica Example\",\n      \"site\": \"verifica.example.net\"\n     },\n     \"url\": \"https://verifica.example.net/checks/seals-turbines\",\n     \"title\": \"Seal deaths and the Example Bay turbines: what the counts show\",\n     \"reviewDate\": \"2025-03-12T09:00:00Z\",\n     \"textualRating\": \"Misleading\",\n     \"languageCode\": \"en\"\n    }\n   ]\n  }\n ],\n \"nextPageToken\": \"page-2-token\"\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1alpha1/claims:search?languageCode=en&maxAgeDays=365&pageSize=50&query=tidal+turbine",
+   "status": 200
+  },
+  {
+   "body": "{\n \"claims\": [\n  {\n   \"text\": \"The Example Bay tidal array supplies half of the region's electricity.\",\n   \"claimant\": \"Example Energy Council\",\n   \"claimDate\": \"2025-04-01T00:00:00Z\",\n   \"claimReview\": [\n    {\n     \"publisher\": {\n      \"name\": \"Example Fact Check\",\n      \"site\": \"factcheck.example.org\"\n     },\n     \"url\": \"https://factcheck.example.org/2025/04/tidal-array-half/\",\n     \"title\": \"Does the tidal array supply half the region's power?\",\n     \"reviewDate\": \"2025-04-05T00:00:00Z\",\n     \"textualRating\": \"Half true\",\n     \"languageCode\": \"en\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1alpha1/claims:search?languageCode=en&maxAgeDays=365&pageSize=50&pageToken=page-2-token&query=tidal+turbine",
+   "status": 200
+  },
+  {
+   "body": "{\n \"claims\": [\n  {\n   \"text\": \"A photo shows a tidal turbine washed up on Example Beach.\",\n   \"claimant\": \"Social media users\",\n   \"claimDate\": \"2025-05-20T00:00:00Z\",\n   \"claimReview\": [\n    {\n     \"publisher\": {\n      \"name\": \"ClaimWatch Example\",\n      \"site\": \"claimwatch.example.com\"\n     },\n     \"url\": \"https://claimwatch.example.com/fact-check/turbine-photo\",\n     \"title\": \"Altered photo: no turbine washed up on Example Beach\",\n     \"reviewDate\": \"2025-05-22T00:00:00Z\",\n     \"textualRating\": \"Altered photo\",\n     \"languageCode\": \"en\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v1alpha1/claims:search?maxAgeDays=365&pageSize=50&reviewPublisherSiteFilter=claimwatch.example.com",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape; every publisher, site, claimant and claim is fictional, and placeholder reviewer names, images and job titles are discarded by the parser (FC01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-publishers",
+  "ratings-verbatim",
+  "minimised-personal-fields"
+ ]
+}

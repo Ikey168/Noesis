@@ -200,11 +200,26 @@ For the project overview and local setup, start with the
   donations and spending, answered as reported totals per filing version as of a date, affiliate donations and contest
   filings with reviewable identity and monitors; individual donors minimised; no influence scoring or dark-money
   inference; [source audit and minimisation decision](development/campaign-finance-evidence/source-audit.md)
+- [News fact-checks guide](guides/news-fact-checks.md) — ClaimReview fact-checks from the Google Fact Check
+  Tools API and the Data Commons feed and IFCN signatory status history: a claim, claimant or news article to
+  cited fact-checks as of a date with ratings as published side by side, reviewable claimant, claim and
+  publisher matches, citation links and monitors; no truth verdict or rating normalisation;
+  [source audit and minimisation decision](development/fact-checks-evidence/source-audit.md)
 - [Legal courts and justice guide](guides/legal-courts-justice.md) — CourtListener dockets, docket entries and
   opinions on the Legal work model and FBI CDE, data.police.uk and Eurostat crime statistics: provision, court or
   party to cited dockets with quoted dispositions, place to cited statistics with definitions, vintages and
   comparability notes; no personal profiles, risk scores, safety ratings or rankings;
   [source audit](development/courts-justice-evidence/source-audit.md)
+- [Legal treaties guide](guides/legal-treaties.md) — treaties and treaty actions from EU international agreements
+  in CELLAR and Council of Europe Treaty Office charts (the UN Treaty Collection is declined pending written
+  permission): a treaty and participant to the cited action chain as of a date with depositary revisions,
+  reservations and objections verbatim, reviewable participant identity and monitors; no legal advice or inferred
+  obligations; [source audit](development/treaties-evidence/source-audit.md)
+- [Legal regulatory enforcement guide](guides/legal-enforcement.md) — SEC litigation releases and administrative
+  proceedings, FCA final notices, EPA ECHO cases and EDPB Article 60 decisions: company or group to cited actions
+  as of a date with outcomes, settlement wording, penalties and appeals as published, actions by authority or legal
+  basis with penalties never summed; natural persons pseudonymised; no risk or compliance scoring;
+  [source audit and minimisation decision](development/enforcement-evidence/source-audit.md)
 - [Economics public finance guide](guides/economics-public-finance.md) — budget plans, supplementary budgets and
   outturn vintages in each source's own hierarchy, beneficiary payments with reviewable identity, audit findings
   without verdicts, acts and dossiers linked by citation and basis-aware comparisons;
@@ -226,15 +241,37 @@ For the project overview and local setup, start with the
   classification vintages and WITS/UNSD concordances, reviewable area and product identity, sanctions and ownership
   links by citation and monitors; no estimation, nowcast, reconciliation or evasion inference;
   [source audit](development/trade-evidence/source-audit.md)
+- [Economics extractives guide](guides/economics-extractives.md) — EITI summary data, USGS Mineral Commodity
+  Summaries and BGS World Mineral Statistics: a company group or a country to cited extractive payments per
+  report version (government- and company-reported figures with EITI's discrepancies) and commodity
+  production and reserves per source and vintage, reviewable identity, cross-pack links and monitors; no
+  reconciliation, reserve estimates, risk scoring or forecasts;
+  [source audit](development/extractives-evidence/source-audit.md)
 - [Economics labour-statistics guide](guides/economics-labour-statistics.md) — ILOSTAT, OECD, Eurostat LFS and BLS
   labour indicators for a place, sector or occupation as of a release vintage, with definitions, seasonal
   adjustment, flags, comparability notes, reviewable place and classification mappings and monitors; no nowcast,
   forecast, blending or re-harmonisation; [source audit](development/labour-evidence/source-audit.md)
+- [Society income, poverty and inequality guide](guides/society-income-poverty-inequality.md) — the new `society`
+  bundle's World Bank PIP, Eurostat EU-SILC and OECD IDD figures for a place as of a release vintage, side by side
+  with welfare concept, equivalence scale, poverty line and PPP round, PPP revisions as vintages, reviewable place
+  and related-indicator identity, Demographics and Labour links, cited evidence bundles and monitors; no nowcast,
+  filled year, own poverty line, blending or person-level data;
+  [source audit](development/income-distribution-evidence/source-audit.md)
 - [Science education-statistics guide](guides/science-education-statistics.md) — US IPEDS and ETER institution
   statistics and UNESCO UIS, OECD Education at a Glance and Eurostat R&D indicators with definitions, release
   vintages and comparability notes, ROR-keyed reviewable identity, citation links to Science and Funding records
   and monitors; no rankings, scores, merged values or derived ratios;
   [source audit](development/education-evidence/source-audit.md)
+- [Science research-entities guide](guides/science-research-entities.md) — ROR organisations per data-dump
+  release, minimised public ORCID records, DataCite dataset metadata and CORDIS projects with participants, each
+  cited with source, record revision and as-of time; reviewable organisation identity, links to Scholarly, Funding
+  and Ownership records and monitors; no researcher rankings or metrics and no author matching by name;
+  [source audit](development/research-entities-evidence/source-audit.md)
+- [Science life-sciences guide](guides/science-life-sciences.md) — UniProt entries with entry and sequence
+  versions per release, NCBI Gene and Taxonomy, RCSB PDB structures with revision history and ChEMBL targets,
+  compounds and activities per release, with reviewable cross-source identity, citation links to Chemicals,
+  Biodiversity, Clinical medicines and literature and monitors; no biological inference, activity prediction,
+  converted values or person names; [source audit](development/life-sciences-evidence/source-audit.md)
 - [Economics shipping and logistics guide](guides/economics-shipping-logistics.md) — UN/LOCODE port records per
   release, UNCTADstat and Eurostat maritime series and openly licensed freight indices as of a vintage, reviewable
   port identity, trade-flow joins by shared code or citation and monitors; no freight-rate forecast or derived index;
@@ -251,6 +288,11 @@ For the project overview and local setup, start with the
   workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics and Eurostat with definitions,
   definition breaks, comparability notes and vintages, place resolution, surveillance co-display and monitors;
   [source audit](roadmaps/clinical-health-capacity-source-audit.md)
+- [Clinical Evidence medical devices guide](guides/clinical-medical-devices.md) — openFDA 510(k) clearances, PMA
+  approvals with supplements, classifications, recalls and MAUDE report counts with caveats, AccessGUDID device
+  identifiers and EUDAMED public actors, devices and certificates as revisions; a device's regulatory history as
+  of a date, reviewable identity across registries, citation links and monitors; no safety-signal detection or
+  clinical advice; [source audit and minimisation decision](development/medical-devices-evidence/source-audit.md)
 - [Products pack guide: safety notices and recalls](guides/products-pack.md#safety-notices-and-recalls) — EU Safety
   Gate alerts, CPSC and NHTSA recalls and RASFF notifications with every revision, verbatim hazard, affected
   identification and corrective action, reviewable matches to Products identities on GTIN, brand and model,
@@ -309,6 +351,11 @@ For the project overview and local setup, start with the
   Catalogue of Life names and releases, and IUCN conservation status history at citation level; reviewable taxon
   identity, as-of answers and monitors; no distribution modelling, abundance or derived threat status;
   [source audit](development/biodiversity-evidence/source-audit.md)
+- [Climate and Environment water guide](guides/climate-environment-water.md) — from a place, river or station to
+  cited PEGELONLINE and USGS water levels and discharge with quality state (provisional or approved), gauge zero and
+  datum vintages, and EEA WISE water-body status per reporting cycle; reviewable place matches, cross-pack links,
+  as-of answers and monitors; no forecasting, gap filling, own status assessment or flood-risk scoring;
+  [source audit](development/water-evidence/source-audit.md)
 - [Fisheries and Maritime Activity guide](guides/fisheries-maritime.md) — from a vessel, flag state, fishing area or
   species to cited ICCAT, WCPFC and IOTC authorisations with register snapshots, IUU listings and delistings (and the
   Combined IUU Vessel List citing them), GFW apparent fishing-effort aggregates and FAO FishStat catch per release,
@@ -350,6 +397,11 @@ For the project overview and local setup, start with the
   feature: FAA and G-INFO registry revisions, bounded OpenSky and open AIS samples with receiver-coverage caveats,
   GFW port visits, derived calls, reviewable identity and sanctions citations for one named aircraft or vessel and
   window; no real-time tracking or mirroring; [access decision](security/osint-movements-access.md)
+- [Platform transparency guide](guides/osint-platform-transparency.md) — the OSINT pack's optional platform-transparency
+  features: DSA statements of reasons with dump versions, Meta and Google political ads with spend and impression
+  ranges as published, reviewable advertiser identity, election, campaign-finance and lobbying links and monitors;
+  no user-level profiling, coordination inference or point estimates; Lumen not implemented;
+  [source audit and minimisation decision](development/platform-transparency-evidence/source-audit.md)
 
 ## Subsystems
 

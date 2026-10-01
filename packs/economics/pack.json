@@ -8,8 +8,8 @@
   "panels": [],
   "planner_keywords": {
     "trend": ["indicator", "observation", "revision", "vintage"],
-    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "employment", "unemployment rate", "labour force", "wages", "hours worked", "job vacancies", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index"],
-    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "ilostat", "oecd labour statistics", "eurostat lfs", "bls", "un/locode", "unctadstat", "eurostat maritime transport"]
+    "claims": ["release", "filing", "policy", "economy", "budget", "outturn", "supplementary budget", "audit finding", "population", "migration", "asylum application", "asylum decision", "displacement", "trade flow", "exports", "imports", "mirror statistics", "trade asymmetry", "employment", "unemployment rate", "labour force", "wages", "hours worked", "job vacancies", "port calls", "container throughput", "liner shipping connectivity", "merchant fleet", "freight index", "extractive payments", "mineral production", "mineral reserves", "royalties", "eiti report"],
+    "sources": ["bundeshaushalt", "financial transparency system", "government finance statistics", "eurostat migration", "unhcr refugee data finder", "iom dtm", "genesis", "statistik berlin-brandenburg", "un comtrade", "eurostat comext", "wits concordance", "ilostat", "oecd labour statistics", "eurostat lfs", "bls", "un/locode", "unctadstat", "eurostat maritime transport", "eiti", "usgs mineral commodity summaries", "bgs world mineral statistics"]
   },
   "enrichers": [
     {
@@ -61,7 +61,13 @@
     "logistics-port-identity",
     "logistics-trade-links",
     "logistics-freight-index-licences",
-    "logistics-monitoring"
+    "logistics-monitoring",
+    "extractives-eiti-report-revisions",
+    "extractives-payments-side-by-side",
+    "extractives-commodity-vintages",
+    "extractives-reviewable-identity",
+    "extractives-cross-pack-links",
+    "extractives-monitoring"
   ],
   "schema_versions": {
     "dataset-series": "1.0.0",
@@ -90,7 +96,12 @@
     "logistics-answer": "1.0.0",
     "logistics-port-match": "1.0.0",
     "logistics-link": "1.0.0",
-    "logistics-notification": "1.0.0"
+    "logistics-notification": "1.0.0",
+    "extractives-record": "1.0.0",
+    "extractives-answer": "1.0.0",
+    "extractives-identity": "1.0.0",
+    "extractives-link": "1.0.0",
+    "extractives-notification": "1.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -101,14 +112,16 @@
       "budget_figure", "beneficiary_payment", "audit_finding", "demographic_series",
       "definition_revision", "geography_level", "series_break", "comparability_note", "trade_series",
       "trade_vintage", "classification_concordance", "trade_identity_assertion", "labour_series",
-      "labour_definition", "labour_vintage", "port", "logistics_series", "port_match"
+      "labour_definition", "labour_vintage", "port", "logistics_series", "port_match",
+      "eiti_report", "extractive_payment", "payment_discrepancy", "commodity_series", "extractive_project"
     ],
     "relation_types": [
       "applies_to", "associated_with", "challenges", "issued_by", "measures",
       "observation_of", "released_by", "reported_by", "revision_of", "supports", "figure_of_line",
       "line_in_plan", "paid_to", "cites_line", "enacted_by", "debated_in", "defined_by",
       "reported_under", "referenced_in", "comparable_with", "resolved_to", "mirror_of",
-      "maps_to", "cited_by_measure", "denominator_of", "located_at_port", "matched_to_unlocode"
+      "maps_to", "cited_by_measure", "denominator_of", "located_at_port", "matched_to_unlocode",
+      "revenue_recorded_as", "traded_as", "balance_series", "located_at_asset"
     ]
   },
   "exclusions": [
@@ -129,6 +142,12 @@
     "filled labour-statistics periods",
     "freight-rate forecasts",
     "commercial freight indices without a redistribution licence",
-    "derived, rebased or interpolated indices and routes inferred from port totals"
+    "derived, rebased or interpolated indices and routes inferred from port totals",
+    "reconciliation of payment discrepancies beyond those EITI reports",
+    "own reserve estimates",
+    "corruption or governance risk scoring",
+    "commodity price forecasts",
+    "currency conversion or sums across EITI reports",
+    "blended USGS and BGS series"
   ]
 }

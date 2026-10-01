@@ -103,9 +103,10 @@ def main() -> int:
         and len(generations) == len(manifests)
         and domains
         == [
-            "astronomy", "clinical", "corporate-ownership", "economic", "engineering-safety", "geospatial", "legal",
-            "linguistics", "market", "materials", "onchain", "osint", "oss-ecosystems", "political", "procurement",
-            "products", "research", "scientific", "sports", "technical", "weather",
+            "agrifood", "astronomy", "chemicals", "clinical", "corporate-ownership", "economic", "energy",
+            "engineering-safety", "fisheries", "geospatial", "humanitarian", "legal", "linguistics", "market",
+            "materials", "natural-hazards", "onchain", "osint", "oss-ecosystems", "political", "procurement",
+            "products", "research", "scientific", "society", "sports", "technical", "weather",
         ]
         and statuses == {"complete", "partial"}
         and all(item["matched"] for item in replays)

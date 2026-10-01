@@ -1,0 +1,165 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "society.income",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.income_distribution_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "society.income",
+      "contract": {
+        "name": "noesis-income-distribution-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "list-series",
+        "indicator-for-place",
+        "series-history",
+        "comparability-notes",
+        "identity-assertions",
+        "links",
+        "poll-monitor",
+        "evidence-bundle"
+      ],
+      "semantic_constraints": {
+        "series": "an income series is keyed by source, indicator, welfare concept (income or consumption), equivalence scale, poverty line and its PPP base year, reference-year basis, survey, coverage, methodology, area and unit; World Bank PIP, Eurostat EU-SILC and OECD IDD figures are never one series; values live in the Economics series storage (economic_vintages, dataset_observations)",
+        "definitions": "each series cites its definition revision (income definition, equivalence scale, poverty line, methodology version, notes and the references the source states); a changed definition is a new revision",
+        "vintages": "each release that changes a series is an appended vintage with release and retrieval clocks, revision_of and the recorded changes (new, revised and removed periods, PPP revision, definition or version change, withdrawal); a PPP revision that restates past values is a new vintage, never an overwrite; each PIP release is its own vintage; as-of answers select the vintage released by the date",
+        "comparability": "sources are returned side by side, grouped by concept, welfare concept, equivalence scale, poverty line, PPP base year and reference-year basis; groups are never combined; unnoted pairs are comparability_unknown",
+        "identity": "places match through reviewed mappings by ISO, NUTS and World Bank region codes before names; the same indicator across sources is recorded as related, never merged; unmatched codes stay visible",
+        "links": "methodology documents, Demographics denominators and Labour indicators link by citation, shared identifier or accepted match, pointing at specific record revisions; missing providers and targets are reported",
+        "minimisation": "aggregate published statistics only; no person- or household-level field is stored or returned",
+        "exclusions": "no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD figures into one series, no re-harmonisation of welfare concepts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_income_series",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "indicator-for-place",
+      "tool": "noesis-knowledge-engine.income_indicator_for_place",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.income_series_history",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.income_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "identity-assertions",
+      "tool": "noesis-knowledge-engine.list_income_identity_assertions",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_income_links",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_income_monitor",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read", "knowledge:subscriptions:read"],
+      "required_context": []
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_income_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "vintages",
+      "required_scopes": ["knowledge:income:read"],
+      "required_context": ["namespace"]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "income-distribution-record",
+      "store": "src.kb.income_distribution_store",
+      "tables": [
+        "income_releases",
+        "income_series",
+        "income_definitions",
+        "income_vintages",
+        "income_observations",
+        "income_release_members",
+        "income_comparability"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "income-identity-assertion",
+      "store": "src.kb.income_distribution_identity",
+      "tables": ["income_identity_assertions"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "income-link",
+      "store": "src.kb.income_distribution_links",
+      "tables": ["income_links"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "income-refresh-receipt",
+      "store": "src.kb.income_distribution_monitoring",
+      "tables": ["income_refresh_receipts"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "income_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "society-statistics",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

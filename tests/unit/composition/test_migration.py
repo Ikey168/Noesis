@@ -9,7 +9,10 @@ import duckdb
 import pytest
 
 from src.composition.adapter import adapt_all, bundle_id
-from src.composition.contracts import validate_composition_manifest, validate_provider_set
+from src.composition.contracts import (
+    validate_composition_manifest,
+    validate_provider_set,
+)
 from src.composition.lifecycle import CompositionCoordinator, registry_name
 from src.composition.shadow import SHADOW_REPORT, provider_descriptors
 from src.domains import pack_install
@@ -52,6 +55,8 @@ PROJECTOR_OWNERS = {
     "noesis-weather-record-v1": "src.kb.weather_store",
     "noesis-trade-flow-record-v1": "src.kb.trade_flows",
     "noesis-labour-statistics-record-v1": "src.kb.labour_statistics",
+    "noesis-income-distribution-record-v1": "src.kb.income_distribution_store",
+    "noesis-extractives-record-v1": "src.kb.extractives_store",
     "noesis-education-statistic-record-v1": "src.kb.education_statistics",
     "noesis-energy-record-v1": "src.kb.energy_store",
     "noesis-humanitarian-record-v1": "src.kb.humanitarian_store",
@@ -69,13 +74,21 @@ PROJECTOR_OWNERS = {
     "noesis-fisheries-record-v1": "src.kb.fisheries_store",
     "noesis-agrifood-record-v1": "src.kb.agrifood_store",
     "noesis-court-justice-record-v1": "src.kb.legal_dockets",
+    "noesis-treaty-record-v1": "src.kb.treaties_store",  # #2581
     "noesis-biodiversity-record-v1": "src.kb.biodiversity_store",
+    "noesis-water-record-v1": "src.kb.water_store",
     "noesis-food-composition-record-v1": "src.kb.food_composition",
     "noesis-real-estate-record-v1": "src.kb.real_estate",
     "noesis-logistics-record-v1": "src.kb.logistics_series",
     "noesis-competition-record-v1": "src.kb.competition",  # #2217
     "noesis-media-metadata-record-v1": "src.kb.media_metadata",  # Cultural Collections media metadata (#2225)
     "noesis-campaign-finance-record-v1": "src.kb.campaign_finance_records",
+    "noesis-fact-check-record-v1": "src.kb.fact_checks_records",  # News fact-checks (#2659)
+    "noesis-medical-device-record-v1": "src.kb.medical_devices_records",  # #2654
+    "noesis-enforcement-record-v1": "src.kb.enforcement",  # Legal regulatory enforcement (#2651)
+    "noesis-research-entity-record-v1": "src.kb.research_entities_records",  # Science research entities (#2579)
+    "noesis-lifesci-record-v1": "src.kb.lifesci_store",  # Science life-sciences reference records (#2652)
+    "noesis-platform-transparency-record-v1": "src.kb.platform_transparency_records",  # #2580
 }
 
 

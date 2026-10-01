@@ -81,6 +81,11 @@ def test_distributable_pack_validates_installs_and_round_trips():
             "source-pack": "1.2.0", "lobbying-record": "1.0.0", "lobbying-answer": "1.0.0",
             "lobbying-dossier-link": "1.0.0", "lobbying-notification": "1.0.0",
             "election-record": "1.0.0", "election-answer": "1.0.0", "election-notification": "1.0.0",
+            # The optional legislation (#2208) and campaign-finance (#2209) features' contracts.
+            "legislation-record": "1.0.0", "legislation-answer": "1.0.0", "legislation-link": "1.0.0",
+            "legislation-notification": "1.0.0", "campaign-finance-record": "1.0.0",
+            "campaign-finance-answer": "1.0.0", "campaign-finance-link": "1.0.0",
+            "campaign-finance-notification": "1.0.0",
         }
         assert "political-research-queries" in receipt["capabilities"]
     finally:

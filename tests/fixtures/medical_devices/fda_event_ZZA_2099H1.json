@@ -1,0 +1,180 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)",
+  "last_updated": "2099-07-01",
+  "license": "https://open.fda.gov/license/",
+  "results": {
+   "limit": 100,
+   "skip": 0,
+   "total": 3
+  },
+  "terms": "https://open.fda.gov/terms/"
+ },
+ "results": [
+  {
+   "adverse_event_flag": "N",
+   "date_of_event": "20990115",
+   "date_received": "20990115",
+   "date_report": "20990115",
+   "device": [
+    {
+     "brand_name": "EXAMPLEPUMP",
+     "catalog_number": "EP-100-US",
+     "device_availability": "No",
+     "device_report_product_code": "ZZA",
+     "device_sequence_number": "1",
+     "generic_name": "INFUSION PUMP",
+     "manufacturer_d_address_1": "1 EXAMPLE WAY",
+     "manufacturer_d_name": "EXAMPLE MEDICAL DEVICES INC",
+     "manufacturer_d_zip_code": "99999",
+     "model_number": "EP-100",
+     "udi_di": "00899999000011"
+    }
+   ],
+   "event_type": "Malfunction",
+   "initial_report_to_fda": "Unknown",
+   "manufacturer_contact_area_code": "555",
+   "manufacturer_contact_f_name": "PAT",
+   "manufacturer_contact_l_name": "PLACEHOLDER",
+   "manufacturer_contact_phone_number": "0100",
+   "mdr_report_key": "99000001",
+   "mdr_text": [
+    {
+     "text": "Device stopped during use; no further details (fictional).",
+     "text_type_code": "Description of Event or Problem"
+    }
+   ],
+   "patient": [
+    {
+     "patient_age": "77 YR",
+     "patient_problems": [
+      "No Known Impact Or Consequence To Patient"
+     ],
+     "patient_sequence_number": "1",
+     "patient_sex": "Female",
+     "patient_weight": "70"
+    }
+   ],
+   "product_problem_flag": "Y",
+   "product_problems": [
+    "Infusion or Flow Problem"
+   ],
+   "report_number": "9999901-2099-00001",
+   "report_source_code": "Manufacturer report",
+   "reporter_occupation_code": "NURSE",
+   "type_of_report": [
+    "Initial submission"
+   ]
+  },
+  {
+   "adverse_event_flag": "N",
+   "date_of_event": "20990320",
+   "date_received": "20990320",
+   "date_report": "20990320",
+   "device": [
+    {
+     "brand_name": "EXAMPLEPUMP",
+     "catalog_number": "EP-100-US",
+     "device_availability": "No",
+     "device_report_product_code": "ZZA",
+     "device_sequence_number": "1",
+     "generic_name": "INFUSION PUMP",
+     "manufacturer_d_address_1": "1 EXAMPLE WAY",
+     "manufacturer_d_name": "EXAMPLE MEDICAL DEVICES INC",
+     "manufacturer_d_zip_code": "99999",
+     "model_number": "EP-100",
+     "udi_di": null
+    }
+   ],
+   "event_type": "Malfunction",
+   "initial_report_to_fda": "Unknown",
+   "manufacturer_contact_area_code": "555",
+   "manufacturer_contact_f_name": "PAT",
+   "manufacturer_contact_l_name": "PLACEHOLDER",
+   "manufacturer_contact_phone_number": "0100",
+   "mdr_report_key": "99000002",
+   "mdr_text": [
+    {
+     "text": "Device stopped during use; no further details (fictional).",
+     "text_type_code": "Description of Event or Problem"
+    }
+   ],
+   "patient": [
+    {
+     "patient_age": "77 YR",
+     "patient_problems": [
+      "No Known Impact Or Consequence To Patient"
+     ],
+     "patient_sequence_number": "1",
+     "patient_sex": "Female",
+     "patient_weight": "70"
+    }
+   ],
+   "product_problem_flag": "Y",
+   "product_problems": [
+    "Infusion or Flow Problem"
+   ],
+   "report_number": "9999901-2099-00002",
+   "report_source_code": "Manufacturer report",
+   "reporter_occupation_code": "NURSE",
+   "type_of_report": [
+    "Initial submission"
+   ]
+  },
+  {
+   "adverse_event_flag": "Y",
+   "date_of_event": "20990502",
+   "date_received": "20990502",
+   "date_report": "20990502",
+   "device": [
+    {
+     "brand_name": "EXAMPLEPUMP",
+     "catalog_number": "EP-100-US",
+     "device_availability": "No",
+     "device_report_product_code": "ZZA",
+     "device_sequence_number": "1",
+     "generic_name": "INFUSION PUMP",
+     "manufacturer_d_address_1": "1 EXAMPLE WAY",
+     "manufacturer_d_name": "EXAMPLE MEDICAL DEVICES INC",
+     "manufacturer_d_zip_code": "99999",
+     "model_number": "EP-100",
+     "udi_di": "00899999000011"
+    }
+   ],
+   "event_type": "Injury",
+   "initial_report_to_fda": "Unknown",
+   "manufacturer_contact_area_code": "555",
+   "manufacturer_contact_f_name": "PAT",
+   "manufacturer_contact_l_name": "PLACEHOLDER",
+   "manufacturer_contact_phone_number": "0100",
+   "mdr_report_key": "99000003",
+   "mdr_text": [
+    {
+     "text": "Delayed infusion reported; outcome not stated (fictional).",
+     "text_type_code": "Description of Event or Problem"
+    }
+   ],
+   "patient": [
+    {
+     "patient_age": "77 YR",
+     "patient_problems": [
+      "No Known Impact Or Consequence To Patient"
+     ],
+     "patient_sequence_number": "1",
+     "patient_sex": "Female",
+     "patient_weight": "70"
+    }
+   ],
+   "product_problem_flag": "Y",
+   "product_problems": [
+    "Infusion or Flow Problem"
+   ],
+   "report_number": "9999901-2099-00003",
+   "report_source_code": "Manufacturer report",
+   "reporter_occupation_code": "NURSE",
+   "type_of_report": [
+    "Initial submission"
+   ]
+  }
+ ]
+}

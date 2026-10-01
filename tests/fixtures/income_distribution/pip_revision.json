@@ -1,0 +1,170 @@
+{
+ "note": "authored in the provider's documented shape; every value is fictional (not live coverage); PIP release 20991120_2017_02_02_PROD restates the 2017-PPP estimates after a PPP revision",
+ "documents": [
+  {
+   "label": "PIP country estimates, Germany, survey years, 2.15 PPP$ (2017 PPP), release 20991120_2017_02_02_PROD",
+   "path": "pip",
+   "params": {
+    "country": "DEU",
+    "year": "all",
+    "povline": "2.15",
+    "fill_gaps": "false",
+    "ppp_version": "2017",
+    "version": "20991120_2017_02_02_PROD"
+   },
+   "indicators": [
+    "headcount",
+    "gini",
+    "median",
+    "decile10"
+   ],
+   "welfare_concept": "income",
+   "equivalence_scale": {
+    "code": "per-capita",
+    "label": "per-capita welfare, no equivalence scale (verify)"
+   },
+   "reference_year_basis": "survey-year",
+   "survey": "as stated per value (survey_acronym)",
+   "coverage": "PIP country estimate",
+   "area": {
+    "scheme": "iso3166-1-alpha3"
+   },
+   "definition": {
+    "income_definition": "PIP welfare aggregate: household per-capita income or consumption as the underlying survey measures it, stated per value as welfare_type (verify against the PIP methodology handbook)",
+    "source_text": "Estimates at the stated international poverty line in PPP dollars per person per day of the stated PPP round",
+    "methodology_notes": [
+     "Income and consumption estimates are not comparable and are never converted into each other (PIP methodology handbook)"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "https://datanalytics.worldbank.org/PIP-Methodology/",
+     "relation": "documented_in",
+     "locator": "Poverty and Inequality Platform Methodology Handbook (verify)"
+    },
+    {
+     "kind": "api",
+     "scheme": "url",
+     "identifier": "https://pip.worldbank.org/api",
+     "relation": "served_by"
+    }
+   ]
+  },
+  {
+   "label": "PIP country estimates, Indonesia, reference years (lineup), 2.15 PPP$ (2017 PPP), release 20991120_2017_02_02_PROD",
+   "path": "pip",
+   "params": {
+    "country": "IDN",
+    "year": "all",
+    "povline": "2.15",
+    "fill_gaps": "true",
+    "ppp_version": "2017",
+    "version": "20991120_2017_02_02_PROD"
+   },
+   "indicators": [
+    "headcount",
+    "poverty_gap"
+   ],
+   "welfare_concept": "consumption",
+   "equivalence_scale": {
+    "code": "per-capita",
+    "label": "per-capita welfare, no equivalence scale (verify)"
+   },
+   "reference_year_basis": "lineup-year",
+   "survey": "as stated per value (survey_acronym)",
+   "coverage": "PIP country estimate, interpolated or extrapolated to reference years as PIP labels them",
+   "area": {
+    "scheme": "iso3166-1-alpha3"
+   },
+   "definition": {
+    "income_definition": "PIP welfare aggregate: household per-capita income or consumption as the underlying survey measures it, stated per value as welfare_type (verify against the PIP methodology handbook)",
+    "source_text": "Estimates at the stated international poverty line in PPP dollars per person per day of the stated PPP round",
+    "methodology_notes": [
+     "Income and consumption estimates are not comparable and are never converted into each other (PIP methodology handbook)"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "https://datanalytics.worldbank.org/PIP-Methodology/",
+     "relation": "documented_in",
+     "locator": "Poverty and Inequality Platform Methodology Handbook (verify)"
+    },
+    {
+     "kind": "api",
+     "scheme": "url",
+     "identifier": "https://pip.worldbank.org/api",
+     "relation": "served_by"
+    }
+   ]
+  },
+  {
+   "label": "PIP regional aggregate, Sub-Saharan Africa, reference years, 2.15 PPP$ (2017 PPP), release 20991120_2017_02_02_PROD",
+   "path": "pip-grp",
+   "params": {
+    "country": "SSF",
+    "year": "all",
+    "povline": "2.15",
+    "group_by": "wb",
+    "ppp_version": "2017",
+    "version": "20991120_2017_02_02_PROD"
+   },
+   "indicators": [
+    "headcount"
+   ],
+   "welfare_concept": "mixed-aggregate",
+   "equivalence_scale": {
+    "code": "per-capita",
+    "label": "per-capita welfare, no equivalence scale (verify)"
+   },
+   "reference_year_basis": "lineup-year",
+   "survey": "PIP regional aggregate",
+   "coverage": "PIP regional aggregate (World Bank region)",
+   "area": {
+    "scheme": "wb-region"
+   },
+   "definition": {
+    "income_definition": "PIP welfare aggregate: household per-capita income or consumption as the underlying survey measures it, stated per value as welfare_type (verify against the PIP methodology handbook)",
+    "source_text": "Population-weighted regional aggregate of PIP reference-year estimates, as PIP computes it",
+    "methodology_notes": [
+     "Income and consumption estimates are not comparable and are never converted into each other (PIP methodology handbook)"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "https://datanalytics.worldbank.org/PIP-Methodology/",
+     "relation": "documented_in",
+     "locator": "Poverty and Inequality Platform Methodology Handbook (verify)"
+    },
+    {
+     "kind": "api",
+     "scheme": "url",
+     "identifier": "https://pip.worldbank.org/api",
+     "relation": "served_by"
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/pip/v1/pip?country=DEU&fill_gaps=false&format=json&povline=2.15&ppp_version=2017&version=20991120_2017_02_02_PROD&year=all",
+   "status": 200,
+   "body": "[{\"country_code\": \"DEU\", \"country_name\": \"Germany\", \"region_code\": \"ECA\", \"reporting_year\": 2096, \"reporting_level\": \"national\", \"survey_acronym\": \"EU-SILC\", \"survey_coverage\": \"national\", \"survey_year\": 2096, \"welfare_type\": \"income\", \"survey_comparability\": 3, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"survey\", \"is_interpolated\": false, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"0.7610\", \"cpi\": 1.0, \"headcount\": 0.0022, \"gini\": 0.317, \"median\": 47.8, \"decile10\": 0.2311}, {\"country_code\": \"DEU\", \"country_name\": \"Germany\", \"region_code\": \"ECA\", \"reporting_year\": 2097, \"reporting_level\": \"national\", \"survey_acronym\": \"EU-SILC\", \"survey_coverage\": \"national\", \"survey_year\": 2097, \"welfare_type\": \"income\", \"survey_comparability\": 3, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"survey\", \"is_interpolated\": false, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"0.7610\", \"cpi\": 1.0, \"headcount\": 0.002, \"gini\": 0.319, \"median\": 48.71, \"decile10\": 0.232}, {\"country_code\": \"DEU\", \"country_name\": \"Germany\", \"region_code\": \"ECA\", \"reporting_year\": 2098, \"reporting_level\": \"national\", \"survey_acronym\": \"EU-SILC\", \"survey_coverage\": \"national\", \"survey_year\": 2098, \"welfare_type\": \"income\", \"survey_comparability\": 4, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"survey\", \"is_interpolated\": false, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"0.7610\", \"cpi\": 1.0, \"headcount\": 0.0019, \"gini\": 0.324, \"median\": 49.75, \"decile10\": 0.2342}, {\"country_code\": \"DEU\", \"country_name\": \"Germany\", \"region_code\": \"ECA\", \"reporting_year\": 2099, \"reporting_level\": \"national\", \"survey_acronym\": \"EU-SILC\", \"survey_coverage\": \"national\", \"survey_year\": 2099, \"welfare_type\": \"income\", \"survey_comparability\": 4, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"survey\", \"is_interpolated\": false, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"0.7610\", \"cpi\": 1.0, \"headcount\": 0.0018, \"gini\": 0.322, \"median\": 50.4, \"decile10\": 0.2335}]"
+  },
+  {
+   "request": "/pip/v1/pip?country=IDN&fill_gaps=true&format=json&povline=2.15&ppp_version=2017&version=20991120_2017_02_02_PROD&year=all",
+   "status": 200,
+   "body": "[{\"country_code\": \"IDN\", \"country_name\": \"Indonesia\", \"region_code\": \"EAP\", \"reporting_year\": 2096, \"reporting_level\": \"national\", \"survey_acronym\": \"SUSENAS\", \"survey_coverage\": \"national\", \"survey_year\": 2096, \"welfare_type\": \"consumption\", \"survey_comparability\": 2, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"interpolation\", \"is_interpolated\": true, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"4754.1\", \"cpi\": 1.0, \"headcount\": 0.0412, \"poverty_gap\": 0.0061}, {\"country_code\": \"IDN\", \"country_name\": \"Indonesia\", \"region_code\": \"EAP\", \"reporting_year\": 2097, \"reporting_level\": \"national\", \"survey_acronym\": \"SUSENAS\", \"survey_coverage\": \"national\", \"survey_year\": 2097, \"welfare_type\": \"consumption\", \"survey_comparability\": 2, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"survey\", \"is_interpolated\": false, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"4754.1\", \"cpi\": 1.0, \"headcount\": 0.0385, \"poverty_gap\": 0.0057}, {\"country_code\": \"IDN\", \"country_name\": \"Indonesia\", \"region_code\": \"EAP\", \"reporting_year\": 2098, \"reporting_level\": \"national\", \"survey_acronym\": \"SUSENAS\", \"survey_coverage\": \"national\", \"survey_year\": 2098, \"welfare_type\": \"consumption\", \"survey_comparability\": 2, \"comparable_spell\": \"2096 - 2098\", \"estimation_type\": \"extrapolation\", \"is_interpolated\": true, \"distribution_type\": \"micro\", \"poverty_line\": 2.15, \"ppp\": \"4754.1\", \"cpi\": 1.0, \"headcount\": 0.0361, \"poverty_gap\": 0.0052}]"
+  },
+  {
+   "request": "/pip/v1/pip-grp?country=SSF&format=json&group_by=wb&povline=2.15&ppp_version=2017&version=20991120_2017_02_02_PROD&year=all",
+   "status": 200,
+   "body": "[{\"region_code\": \"SSF\", \"region_name\": \"Sub-Saharan Africa\", \"reporting_year\": 2096, \"poverty_line\": 2.15, \"headcount\": 0.3712, \"reporting_pop\": 1210.5}, {\"region_code\": \"SSF\", \"region_name\": \"Sub-Saharan Africa\", \"reporting_year\": 2097, \"poverty_line\": 2.15, \"headcount\": 0.3655, \"reporting_pop\": 1239.8}, {\"region_code\": \"SSF\", \"region_name\": \"Sub-Saharan Africa\", \"reporting_year\": 2098, \"poverty_line\": 2.15, \"headcount\": 0.3601, \"reporting_pop\": 1269.4}]"
+  }
+ ]
+}

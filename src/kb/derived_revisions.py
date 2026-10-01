@@ -230,14 +230,16 @@ def maintenance_observations(
 ) -> list[dict[str, Any]]:
     """Turn changed workflow inputs into independently supported objects."""
 
+    # A batch can carry several revisions of one document (ordered by
+    # revision); derived objects follow the latest, so every observation of a
+    # document cites the revision whose content it was built from.
+    latest = {str(document["document_id"]): document for document in documents}
     revisions = {
-        str(document["document_id"]): str(
-            document.get("_revision_id") or _digest(document)
-        )
-        for document in documents
+        document_id: str(document.get("_revision_id") or _digest(document))
+        for document_id, document in latest.items()
     }
     observations: list[dict[str, Any]] = []
-    for document in sorted(documents, key=lambda item: str(item["document_id"])):
+    for document in sorted(latest.values(), key=lambda item: str(item["document_id"])):
         document_id = str(document["document_id"])
         revision_id = revisions[document_id]
         metadata = dict(document.get("metadata") or {})

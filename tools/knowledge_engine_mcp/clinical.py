@@ -9,6 +9,14 @@ or treatment, or asserts a grade without its inputs.
 """
 
 from src.kb.clinical_bundle import BUNDLE, readiness, require_enabled, set_enabled
+from tools.knowledge_engine_mcp.medical_devices import (
+    MEDICAL_DEVICES_SCOPES,
+    MEDICAL_DEVICES_TOOLS,
+    MEDICAL_DEVICES_WRITES,
+)
+from tools.knowledge_engine_mcp.medical_devices import (
+    register as register_medical_devices,
+)
 
 CLINICAL_WRITES = {
     "set_clinical_bundle_enabled", "import_prospero_registration", "link_clinical_publications",
@@ -58,13 +66,17 @@ HEALTH_CAPACITY_TOOLS = HEALTH_CAPACITY_WRITES | {
     "health_capacity_definition_history", "health_capacity_comparability", "health_capacity_beside_surveillance",
     "health_capacity_series_links", "poll_health_capacity_monitor",
 }
-CLINICAL_WRITES = CLINICAL_WRITES | SURVEILLANCE_WRITES | MEDICINES_WRITES | HEALTH_CAPACITY_WRITES
+# The optional ``medical-devices-fda`` / ``-gudid`` / ``-eudamed`` features' entry points (#2654, provider
+# clinical.devices): regulatory history as of a date, adverse-event report counts with caveats, reviewable identity,
+# links and monitors, registered from tools/knowledge_engine_mcp/medical_devices.py.
+CLINICAL_WRITES = (CLINICAL_WRITES | SURVEILLANCE_WRITES | MEDICINES_WRITES | HEALTH_CAPACITY_WRITES
+                   | MEDICAL_DEVICES_WRITES)
 CLINICAL_TOOLS = CLINICAL_WRITES | {
     "clinical_bundle_status", "clinical_provider_contracts", "lookup_clinical_trial", "clinical_trial_history",
     "clinical_coverage_gaps", "clinical_outcome_switching", "expand_clinical_question",
     "inspect_clinical_evidence_map", "clinical_strength_view", "export_clinical_evidence_bundle",
     "poll_clinical_monitor",
-} | SURVEILLANCE_TOOLS | MEDICINES_TOOLS | HEALTH_CAPACITY_TOOLS
+} | SURVEILLANCE_TOOLS | MEDICINES_TOOLS | HEALTH_CAPACITY_TOOLS | MEDICAL_DEVICES_TOOLS
 READ = "knowledge:clinical:read"
 WRITE = "knowledge:clinical:write"
 REVIEW = "knowledge:clinical:review"
@@ -163,6 +175,8 @@ def required_scopes(tool_name, mutability):
         return MEDICINES_SCOPES[tool_name]
     if tool_name in HEALTH_CAPACITY_SCOPES:
         return HEALTH_CAPACITY_SCOPES[tool_name]
+    if tool_name in MEDICAL_DEVICES_SCOPES:
+        return MEDICAL_DEVICES_SCOPES[tool_name]
     return CLINICAL_SCOPES.get(tool_name, ["knowledge:clinical:write" if mutability == "write"
                                            else "knowledge:clinical:read"])
 
@@ -364,6 +378,7 @@ def register(mcp, safe, context):
     register_surveillance(mcp, gated, who)
     register_medicines(mcp, gated, who)
     register_health_capacity(mcp, gated, who)
+    register_medical_devices(mcp, safe, context)
 
 
 def register_surveillance(mcp, gated, who):

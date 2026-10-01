@@ -1,0 +1,58 @@
+{
+ "data": [
+  {
+   "id": "990000000000201",
+   "page_id": "100000000000002",
+   "page_name": "Example Holdings",
+   "bylines": "Example Holdings Ltd",
+   "ad_creation_time": "2099-04-01",
+   "ad_delivery_start_time": "2099-04-01",
+   "currency": "GBP",
+   "spend": {
+    "lower_bound": "0",
+    "upper_bound": "99"
+   },
+   "impressions": {
+    "lower_bound": "1000000"
+   },
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "languages": [
+    "en"
+   ]
+  },
+  {
+   "id": "990000000000301",
+   "page_id": "100000000000003",
+   "page_name": "Example Public Affairs",
+   "bylines": "Example Public Affairs Ltd",
+   "ad_creation_time": "2099-04-15",
+   "ad_delivery_start_time": "2099-04-15",
+   "ad_delivery_stop_time": "2099-04-30",
+   "currency": "GBP",
+   "spend": {
+    "lower_bound": "200",
+    "upper_bound": "299"
+   },
+   "impressions": {
+    "lower_bound": "10000",
+    "upper_bound": "14999"
+   },
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "languages": [
+    "en"
+   ]
+  }
+ ],
+ "paging": {
+  "cursors": {
+   "before": "QkVGT1JFMg",
+   "after": "QUZURVIy"
+  }
+ }
+}

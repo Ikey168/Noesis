@@ -1,0 +1,226 @@
+{
+ "kind": "bigquery#queryResponse",
+ "schema": {
+  "fields": [
+   {
+    "name": "ad_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "ad_url",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "ad_type",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "regions",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "advertiser_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "advertiser_name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "date_range_start",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "date_range_end",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "num_of_days",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "impressions",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "first_served_timestamp",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "last_served_timestamp",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "spend_range_min_usd",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "spend_range_max_usd",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   }
+  ]
+ },
+ "jobReference": {
+  "projectId": "example-billing-project",
+  "jobId": "job_fixture_cr_01",
+  "location": "US"
+ },
+ "totalRows": "3",
+ "rows": [
+  {
+   "f": [
+    {
+     "v": "CR00000000000000000101"
+    },
+    {
+     "v": "https://adstransparency.google.com/advertiser/AR00000000000000000001/creative/CR00000000000000000101"
+    },
+    {
+     "v": "VIDEO"
+    },
+    {
+     "v": "US"
+    },
+    {
+     "v": "AR00000000000000000001"
+    },
+    {
+     "v": "FUTURE EXAMPLES ACTION FUND"
+    },
+    {
+     "v": "2099-09-01"
+    },
+    {
+     "v": "2099-10-15"
+    },
+    {
+     "v": "45"
+    },
+    {
+     "v": "10k-100k"
+    },
+    {
+     "v": "2099-09-01 08:00:00 UTC"
+    },
+    {
+     "v": "2099-10-15 20:00:00 UTC"
+    },
+    {
+     "v": "1000"
+    },
+    {
+     "v": "50000"
+    }
+   ]
+  },
+  {
+   "f": [
+    {
+     "v": "CR00000000000000000102"
+    },
+    {
+     "v": "https://adstransparency.google.com/advertiser/AR00000000000000000001/creative/CR00000000000000000102"
+    },
+    {
+     "v": "TEXT"
+    },
+    {
+     "v": "US"
+    },
+    {
+     "v": "AR00000000000000000001"
+    },
+    {
+     "v": "FUTURE EXAMPLES ACTION FUND"
+    },
+    {
+     "v": "2099-10-01"
+    },
+    {
+     "v": "2099-11-02"
+    },
+    {
+     "v": "33"
+    },
+    {
+     "v": "100k-1M"
+    },
+    {
+     "v": "2099-10-01 08:00:00 UTC"
+    },
+    {
+     "v": "2099-11-02 20:00:00 UTC"
+    },
+    {
+     "v": "1000"
+    },
+    {
+     "v": "50000"
+    }
+   ]
+  },
+  {
+   "f": [
+    {
+     "v": "CR00000000000000000103"
+    },
+    {
+     "v": "https://adstransparency.google.com/advertiser/AR00000000000000000001/creative/CR00000000000000000103"
+    },
+    {
+     "v": "TEXT"
+    },
+    {
+     "v": "US"
+    },
+    {
+     "v": "AR00000000000000000001"
+    },
+    {
+     "v": "FUTURE EXAMPLES ACTION FUND"
+    },
+    {
+     "v": "2099-10-20"
+    },
+    {
+     "v": "2099-10-30"
+    },
+    {
+     "v": "11"
+    },
+    {
+     "v": "≤ 10k"
+    },
+    {
+     "v": "2099-10-20 08:00:00 UTC"
+    },
+    {
+     "v": "2099-10-30 20:00:00 UTC"
+    },
+    {
+     "v": "0"
+    },
+    {
+     "v": "100"
+    }
+   ]
+  }
+ ],
+ "totalBytesProcessed": "0",
+ "jobComplete": true,
+ "cacheHit": false
+}

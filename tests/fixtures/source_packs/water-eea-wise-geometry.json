@@ -1,0 +1,64 @@
+{
+ "description": "EEA WISE map service water-body geometries (GeoJSON). Authored offline fixture in the provider's documented response shape. Station UUIDs and numbers, water-body codes, coordinates, values and status labels are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (WA13, #2647).",
+ "scenarios": [
+  "one geometry through Dresden",
+  "one outside"
+ ],
+ "native_pages": [
+  {
+   "request": "/arcgis/rest/services/WISE_WFD/WFD2016_SurfaceWaterBody/MapServer/2/query?f=geojson&outFields=euSurfaceWaterBodyCode%2CsurfaceWaterBodyName%2CsurfaceWaterBodyCategory&outSR=4326&returnGeometry=true&where=euSurfaceWaterBodyCode+IN+%28%27DERW_DESN_FIX-0001%27%2C+%27DERW_DESN_FIX-0002%27%29",
+   "status": 200,
+   "body": {
+    "type": "FeatureCollection",
+    "features": [
+     {
+      "type": "Feature",
+      "geometry": {
+       "type": "LineString",
+       "coordinates": [
+        [
+         13.62,
+         51.0
+        ],
+        [
+         13.74,
+         51.06
+        ],
+        [
+         13.9,
+         51.1
+        ]
+       ]
+      },
+      "properties": {
+       "euSurfaceWaterBodyCode": "DERW_DESN_FIX-0001",
+       "surfaceWaterBodyName": "Elbe-3 (fixture)",
+       "surfaceWaterBodyCategory": "RW"
+      }
+     },
+     {
+      "type": "Feature",
+      "geometry": {
+       "type": "LineString",
+       "coordinates": [
+        [
+         13.3,
+         51.2
+        ],
+        [
+         13.45,
+         51.18
+        ]
+       ]
+      },
+      "properties": {
+       "euSurfaceWaterBodyCode": "DERW_DESN_FIX-0002",
+       "surfaceWaterBodyName": "Weisseritz (fixture)",
+       "surfaceWaterBodyCategory": "RW"
+      }
+     }
+    ]
+   }
+  }
+ ]
+}

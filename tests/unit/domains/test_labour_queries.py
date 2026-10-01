@@ -31,7 +31,7 @@ def reviewed():
 def test_a_place_returns_every_source_side_by_side_with_definitions_and_vintages(reviewed):
     conn, places = reviewed
     answer = LabourQueries(conn).indicators(h.NS, place=places["de"], concept="unemployment_rate",
-                                            scopes=h.READ_ONLY, as_of_ms=h.day_ms("2099-12-15"))
+                                            scopes=h.READ_ONLY, as_of_ms=h.day_ms("2024-12-15"))
     by = {(r["provider"], r["estimate_type"], r["seasonal_adjustment"]): r for r in answer["results"]}
     assert set(by) == {("ilostat", "national-reported", "NSA"), ("ilostat", "ilo-modelled", "NSA"),
                        ("oecd", "harmonised", "SA"), ("oecd", "harmonised", "NSA"), ("eurostat-lfs", "survey", "NSA")}
@@ -49,7 +49,7 @@ def test_a_place_returns_every_source_side_by_side_with_definitions_and_vintages
     assert {v["period"] for v in eurostat["values"]} == {"2097", "2098"}
     assert any(n["relation"] == "break_in_series" for n in eurostat["source_notes"])
     later = LabourQueries(conn).indicators(h.NS, place=places["de"], concept="unemployment_rate",
-                                           scopes=h.READ_ONLY, as_of_ms=h.day_ms("2100-02-01"), history=True)
+                                           scopes=h.READ_ONLY, as_of_ms=h.day_ms("2025-02-01"), history=True)
     ilo_later = next(r for r in later["results"] if r["estimate_type"] == "national-reported")
     assert {v["period"]: v["value"] for v in ilo_later["values"]}["2098"] == "3.0"
     assert len(ilo_later["revision_history"]) == 2 and ilo_later["revision_history"][1]["revision_of"]

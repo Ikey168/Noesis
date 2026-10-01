@@ -95,7 +95,7 @@ def test_every_surveillance_source_has_a_documented_contract_and_access_decision
 
 def test_the_pack_declares_the_surveillance_sources_with_pinned_fixtures_that_replay():
     manifest = validate_source_pack(json.loads(h.PACK.read_text()))
-    assert manifest["version"] == "0.1.3"  # 0.1.1 sources unchanged; 0.1.2 medicines (#2214), 0.1.3 capacity (#2215)
+    assert manifest["version"] == "0.1.4"  # 0.1.1 sources unchanged; 0.1.2-0.1.4 medicines, capacity, devices
     surveillance = [s for s in manifest["sources"] if s["connector"] == "surveillance"]
     assert {s["source_id"] for s in surveillance} == set(h.SOURCES.values())
     assert all(

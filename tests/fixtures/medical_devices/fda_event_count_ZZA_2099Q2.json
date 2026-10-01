@@ -1,0 +1,27 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)",
+  "last_updated": "2099-07-01",
+  "license": "https://open.fda.gov/license/",
+  "results": {
+   "limit": 100,
+   "skip": 0,
+   "total": 3
+  },
+  "terms": "https://open.fda.gov/terms/"
+ },
+ "results": [
+  {
+   "count": 9,
+   "term": "Malfunction"
+  },
+  {
+   "count": 2,
+   "term": "Injury"
+  },
+  {
+   "count": 1,
+   "term": "No answer provided"
+  }
+ ]
+}

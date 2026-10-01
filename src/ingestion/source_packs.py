@@ -270,6 +270,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medicines"})
 # connector restricted to capacity documents.
 NATIVE_CONNECTOR_MODULES["health-capacity"] = "src.ingestion.health_capacity_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"health-capacity"})
+# Clinical Evidence medical devices (openFDA device endpoints, AccessGUDID, EUDAMED public modules; #2654).
+NATIVE_CONNECTOR_MODULES["medical-devices"] = "src.ingestion.medical_devices_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medical-devices"})
 
 # Products safety notices and recalls (EU Safety Gate, CPSC, NHTSA, RASFF; #1916).
 NATIVE_CONNECTOR_MODULES.update({
@@ -352,6 +355,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"humanitarian"})
 # Climate and Environment biodiversity: Catalogue of Life, GBIF and IUCN Red List (reference-only) (#2220).
 NATIVE_CONNECTOR_MODULES["biodiversity"] = "src.ingestion.biodiversity_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"biodiversity"})
+# Climate and Environment water and hydrology: PEGELONLINE, USGS Water Data APIs and EEA WISE WFD (#2582).
+NATIVE_CONNECTOR_MODULES["water"] = "src.ingestion.water_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"water"})
 # Geospatial real estate: HM Land Registry PPD and UK HPI, French DVF and Eurostat HPI (#2228).
 NATIVE_CONNECTOR_MODULES["real-estate"] = "src.ingestion.real_estate_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"real-estate"})
@@ -364,6 +370,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"agrifood"})
 # Legal court dockets and justice statistics: CourtListener, FBI CDE, data.police.uk and Eurostat crime (#2218).
 NATIVE_CONNECTOR_MODULES["courts-justice"] = "src.ingestion.courts_justice_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"courts-justice"})
+# Legal treaties and treaty actions: UN Treaty Collection (gated), CELLAR agreements, Council of Europe (#2581).
+NATIVE_CONNECTOR_MODULES["treaties"] = "src.ingestion.treaties_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"treaties"})
 # Economics labour statistics: ILOSTAT, OECD and Eurostat LFS through SDMX, US BLS Public Data API (#2219).
 NATIVE_CONNECTOR_MODULES["labour-statistics"] = "src.ingestion.labour_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"labour-statistics"})
@@ -391,6 +400,27 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 # Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
 NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
+# News fact-checks: Google Fact Check Tools, Data Commons ClaimReview feed and IFCN signatories (#2659).
+NATIVE_CONNECTOR_MODULES["fact-checks"] = "src.ingestion.fact_checks_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"fact-checks"})
+# Legal regulatory enforcement: SEC releases, FCA final notices, EPA ECHO cases, EDPB Article 60 register (#2651).
+NATIVE_CONNECTOR_MODULES["enforcement"] = "src.ingestion.enforcement_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"enforcement"})
+# Society income, poverty and inequality: World Bank PIP, Eurostat EU-SILC and OECD IDD through SDMX (#2583).
+NATIVE_CONNECTOR_MODULES["income-distribution"] = "src.ingestion.income_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
+# Science research entities: ROR data-dump releases, minimised public ORCID records, DataCite and CORDIS (#2579).
+NATIVE_CONNECTOR_MODULES["research-entities"] = "src.ingestion.research_entities_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
+# Science life-science reference data: UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL (#2652).
+NATIVE_CONNECTOR_MODULES["life-sciences"] = "src.ingestion.lifesci_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
+# OSINT platform transparency: DSA statements of reasons, Meta Ad Library, Google political ads (#2580).
+NATIVE_CONNECTOR_MODULES["platform-transparency"] = "src.ingestion.platform_transparency_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"})
+# Economics extractives: EITI summary data, USGS Mineral Commodity Summaries, BGS World Mineral Statistics (#2653).
+NATIVE_CONNECTOR_MODULES["extractives"] = "src.ingestion.extractives_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"extractives"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -60,7 +60,7 @@ def test_every_source_has_an_access_decision_merged_into_the_clinical_contracts(
 
 def test_sources_are_entries_of_the_existing_pack_with_pinned_fixtures_that_replay():
     pack = next(p for p in load_source_packs(ROOT / "config/source_packs") if p["pack_id"] == "clinical-evidence")
-    assert pack["version"] == "0.1.3"  # 0.1.3 adds the health-capacity sources (#2215)
+    assert pack["version"] == "0.1.4"  # 0.1.3 health capacity (#2215), 0.1.4 medical devices (#2654)
     added = [s for s in pack["sources"] if s["mapping"]["target_schema"] == MEDICINES_SCHEMA]
     assert {s["source_id"] for s in added} == {"medicines-ema-epar", "medicines-drugsfda-submissions",
                                                "medicines-dailymed-spl", "medicines-fda-dsc"}

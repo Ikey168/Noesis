@@ -218,6 +218,7 @@
     "procurement": {"domain": "governance-law"},
     "products": {"domain": "economy-markets"},
     "science": {"domain": "science-knowledge"},
+    "society": {"domain": "society-population"},
     "sports": {"domain": "culture-leisure"},
     "technology": {"domain": "technology"},
     "weather": {"domain": "earth-environment"}
@@ -235,9 +236,11 @@
 
     "environment.biodiversity": {"subdomains": ["biodiversity"], "shapes": ["observations", "registry-records"]},
     "environment.core": {"subdomains": ["climate-emissions-air"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
+    "environment.water": {"subdomains": ["water-hydrology"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]},
 
     "clinical.core": {"subdomains": ["clinical-evidence-trials"], "shapes": ["versioned-documents"]},
     "clinical.health-capacity": {"subdomains": ["health-systems"], "shapes": ["statistical-series"]},
+    "clinical.devices": {"subdomains": ["medical-devices"], "shapes": ["registry-records", "events-notices"]},
     "clinical.medicines": {"subdomains": ["medicines-regulation"], "shapes": ["registry-records", "versioned-documents"]},
     "clinical.surveillance": {"subdomains": ["disease-surveillance"], "shapes": ["statistical-series"]},
 
@@ -246,6 +249,7 @@
 
     "economics.core": {"subdomains": ["macroeconomy-prices"], "shapes": ["statistical-series", "versioned-documents"]},
     "economics.demographics": {"domain": "society-population", "subdomains": ["population-migration"], "shapes": ["statistical-series"]},
+    "economics.extractives": {"subdomains": ["extractives-natural-resources"], "shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
     "economics.labour": {"domain": "society-population", "subdomains": ["labour-employment"], "shapes": ["statistical-series"]},
     "economics.logistics": {"subdomains": ["logistics"], "shapes": ["statistical-series"], "themes": ["transport-mobility"]},
     "economics.public-finance": {"subdomains": ["public-finance"], "shapes": ["statistical-series"]},
@@ -274,9 +278,11 @@
 
     "legal.core": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
     "legal.courts": {"subdomains": ["courts-case-law"], "shapes": ["versioned-documents", "events-notices"]},
+    "legal.enforcement": {"subdomains": ["regulatory-enforcement"], "shapes": ["events-notices", "versioned-documents"]},
     "legal.federal-statutes": {"subdomains": ["legislation-regulation"], "shapes": ["versioned-documents"]},
     "legal.justice-statistics": {"domain": "society-population", "subdomains": ["crime-justice-statistics"], "shapes": ["statistical-series"]},
     "legal.sanctions": {"subdomains": ["sanctions-export-controls"], "shapes": ["registry-records"], "themes": ["security-defence"]},
+    "legal.treaties": {"subdomains": ["treaties-international-law"], "shapes": ["versioned-documents", "events-notices"]},
 
     "linguistics.languoids": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},
     "linguistics.lexicon": {"subdomains": ["linguistics"], "shapes": ["registry-records"]},
@@ -294,11 +300,13 @@
     "hazards.core": {"subdomains": ["natural-hazards"], "shapes": ["events-notices"], "themes": ["climate"]},
 
     "news.core": {"subdomains": ["news-media"], "shapes": ["versioned-documents"]},
+    "news.fact-checks": {"subdomains": ["fact-checks"], "shapes": ["versioned-documents", "registry-records"]},
 
     "onchain.core": {"subdomains": ["digital-assets"], "shapes": ["observations"]},
 
     "osint.core": {"subdomains": ["osint-verification"], "shapes": ["versioned-documents"]},
     "osint.movements": {"subdomains": ["movements-tracking"], "shapes": ["registry-records", "observations"], "themes": ["transport-mobility", "security-defence"]},
+    "osint.platform-transparency": {"subdomains": ["social-platforms"], "shapes": ["events-notices", "registry-records"], "themes": ["security-defence"]},
 
     "oss.archive": {"subdomains": ["open-source-ecosystems"], "shapes": ["versioned-documents"]},
     "oss.dependency-graphs": {"subdomains": ["open-source-ecosystems"], "shapes": ["registry-records"]},
@@ -323,12 +331,16 @@
 
     "science.cultural": {"domain": "culture-leisure", "subdomains": ["cultural-heritage"], "shapes": ["registry-records"]},
     "science.education-statistics": {"domain": "society-population", "subdomains": ["education"], "shapes": ["statistical-series"]},
+    "science.life-sciences": {"subdomains": ["life-sciences-reference"], "shapes": ["registry-records", "observations"]},
     "science.literature": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
     "science.mathematics": {"subdomains": ["mathematics"], "shapes": ["versioned-documents", "registry-records"]},
     "science.media-metadata": {"domain": "culture-leisure", "subdomains": ["books-music-metadata"], "shapes": ["registry-records"]},
     "science.methodology": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
     "science.paper-families": {"subdomains": ["scholarly-literature"], "shapes": ["versioned-documents"]},
+    "science.research-entities": {"subdomains": ["research-entities-data"], "shapes": ["registry-records"]},
     "science.systematic-reviews": {"subdomains": ["research-methods-reviews"], "shapes": ["versioned-documents"]},
+
+    "society.income": {"subdomains": ["income-poverty-inequality"], "shapes": ["statistical-series"]},
 
     "sports.football": {"subdomains": ["sports"], "shapes": ["events-notices"]},
     "sports.forecasts": {"subdomains": ["sports"], "shapes": ["events-notices"]},

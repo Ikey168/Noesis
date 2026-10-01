@@ -1,0 +1,69 @@
+{
+ "data": [
+  {
+   "id": "990000000000101",
+   "page_id": "100000000000001",
+   "page_name": "Example Party",
+   "bylines": "Example Party",
+   "ad_creation_time": "2099-03-10",
+   "ad_delivery_start_time": "2099-03-10",
+   "ad_delivery_stop_time": "2099-04-10",
+   "currency": "GBP",
+   "spend": {
+    "lower_bound": "100",
+    "upper_bound": "199"
+   },
+   "impressions": {
+    "lower_bound": "5000",
+    "upper_bound": "9999"
+   },
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "languages": [
+    "en"
+   ]
+  },
+  {
+   "id": "990000000000102",
+   "page_id": "100000000000001",
+   "page_name": "Example Party",
+   "bylines": "Example Party",
+   "ad_creation_time": "2099-04-20",
+   "ad_delivery_start_time": "2099-04-20",
+   "ad_delivery_stop_time": "2099-05-06",
+   "currency": "GBP",
+   "spend": {
+    "lower_bound": "1000",
+    "upper_bound": "1499"
+   },
+   "impressions": {
+    "lower_bound": "40000",
+    "upper_bound": "44999"
+   },
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "languages": [
+    "en"
+   ],
+   "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=990000000000102&access_token=FIXTURE",
+   "demographic_distribution": [
+    {
+     "age": "25-34",
+     "gender": "unknown",
+     "percentage": "0.5"
+    }
+   ]
+  }
+ ],
+ "paging": {
+  "cursors": {
+   "before": "QkVGT1JF",
+   "after": "QUZURVIx"
+  },
+  "next": "https://graph.facebook.com/v14.0/ads_archive?after=QUZURVIx"
+ }
+}

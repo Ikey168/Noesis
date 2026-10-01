@@ -8,7 +8,10 @@ from pathlib import Path
 import pytest
 
 from src.composition.adapter import adapt_all
-from src.composition.contracts import validate_composition_manifest, validate_provider_descriptor
+from src.composition.contracts import (
+    validate_composition_manifest,
+    validate_provider_descriptor,
+)
 from src.composition.resolver import resolve
 from src.composition.shadow import provider_descriptors
 from src.domains import registry as domain_registry
@@ -64,7 +67,10 @@ def test_descriptors_declare_capabilities_constraints_stores_and_the_source_pack
 def test_the_bundle_resolves_with_both_features_off_by_default():
     composition = json.loads((ROOT / "packs/legal/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
-    assert set(features) == {"sanctions", "federal-statutes", "courts", "justice-statistics"}
+    # The treaties (#2581) and enforcement (#2651) providers' features sit beside them.
+    assert set(features) == {"sanctions", "federal-statutes", "courts", "justice-statistics",
+                             "treaties-untc", "treaties-eu", "treaties-coe", "enforcement-sec",
+                             "enforcement-fca", "enforcement-epa", "enforcement-edpb"}
     assert features["courts"]["default"] is False and features["justice-statistics"]["default"] is False
     assert validate_composition_manifest(adapt_all()["legal"]) == []
     plan = legal_plan()
@@ -84,7 +90,7 @@ def test_selecting_the_features_binds_their_providers_and_consumed_ones():
     assert "legal.justice-statistics" not in bound(courts)
     stats = legal_plan(["justice-statistics"])
     assert {"legal.justice-statistics", "geospatial.core"} <= bound(stats)
-    assert {"pack_id": "legal-research", "version": "1.4.0", "range": "^1.1.0"} in stats["source_packs"]
+    assert {"pack_id": "legal-research", "version": "1.5.0", "range": "^1.1.0"} in stats["source_packs"]
     both = legal_plan(["courts", "justice-statistics", "sanctions", "federal-statutes"])
     assert sorted(both["features"]["legal"]) == ["courts", "federal-statutes", "justice-statistics", "sanctions"]
 

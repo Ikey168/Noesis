@@ -67,11 +67,11 @@ def test_indicator_records_carry_every_declared_dimension(loaded):
 def test_prior_vintages_stay_queryable_and_as_of_selects_by_release_clock(loaded):
     store = LabourStore(loaded)
     series = h.series_by_key(loaded, "eurostat-lfs", "A.PC.T.Y15-74.TOTAL.DE")
-    march = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-04-01"))
-    april = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-05-01"))
+    march = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-04-01"))
+    april = store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-05-01"))
     assert {o["period"]: o["value"] for o in march["observations"]} == {"2097": "3.2", "2098": "3.0"}
     assert {o["period"]: o["value"] for o in april["observations"]} == {"2097": "3.2", "2098": "3.1", "2099": "2.9"}
-    assert store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2099-01-01"))["reason"] == \
+    assert store.values(h.NS, series["series_id"], as_of_ms=h.day_ms("2024-01-01"))["reason"] == \
         "no_release_by_as_of"
     changes = april["vintage"]["changes"]
     assert changes["new_periods"] == ["2099"] and [r["period"] for r in changes["revised"]] == ["2098"]

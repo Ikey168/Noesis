@@ -590,8 +590,9 @@ def test_schedules_reject_overlap_and_report_runtime_coverage(setup):
         dns_resolver=lambda _: ["8.8.8.8"],
     )
     coverage = runtime.runtime_coverage()
+    # 14 research-domain sources: the research-entities features added ROR, ORCID, DataCite and CORDIS (#2579).
     assert coverage["domains"]["research"] == {
-        "configured": 10,
+        "configured": 14,
         "ready": 1,
         "attempted": 1,
         "completed": 1,
@@ -660,6 +661,7 @@ def test_six_domain_offline_execution(setup):
         "products",
         "research",
         "scientific",
+        "society",
         "sports",
         "technical",
         "weather",

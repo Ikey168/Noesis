@@ -1,0 +1,30 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. (Authored fixture wording.)",
+  "last_updated": "2099-07-01",
+  "license": "https://open.fda.gov/license/",
+  "results": {
+   "limit": 100,
+   "skip": 0,
+   "total": 1
+  },
+  "terms": "https://open.fda.gov/terms/"
+ },
+ "results": [
+  {
+   "definition": "",
+   "device_class": "3",
+   "device_name": "Heart Valve, Replacement (fictional product code)",
+   "gmp_exempt_flag": "N",
+   "implant_flag": "Y",
+   "life_sustain_support_flag": "Y",
+   "medical_specialty": "CV",
+   "medical_specialty_description": "Cardiovascular",
+   "product_code": "ZZB",
+   "regulation_number": "870.3925",
+   "review_panel": "CV",
+   "submission_type_id": "2",
+   "third_party_flag": "N"
+  }
+ ]
+}

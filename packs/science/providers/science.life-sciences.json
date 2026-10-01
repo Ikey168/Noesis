@@ -1,0 +1,319 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "science.life-sciences",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.lifesci_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "science.life-sciences",
+      "contract": {
+        "name": "noesis-lifesci-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "lifesci-source-contracts",
+        "lifesci-readiness",
+        "entry-as-of",
+        "target-activities",
+        "export-lifesci-evidence-bundle",
+        "list-lifesci-identity-matches",
+        "list-lifesci-links",
+        "register-lifesci-schemas",
+        "propose-lifesci-identity-matches",
+        "review-lifesci-identity-match",
+        "revert-lifesci-identity-match",
+        "link-lifesci-records",
+        "create-lifesci-monitor",
+        "run-lifesci-monitor",
+        "poll-lifesci-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "UniProtKB entries (accession, reviewed/unreviewed label as UniProt states it, entry and sequence version, release) and UniSave versions, NCBI genes (Gene ID) and taxa (Tax ID, rank and lineage as published), experimental RCSB PDB entries (PDB ID, methods, resolution, revision history, entity-to-UniProt mappings as stated) and ChEMBL targets, compounds, activities and documents keyed by ChEMBL ID and release; each with source, record revision and as-of time",
+        "revisions": "immutable revisions; a release is a revision; merged, demerged, deleted, replaced, discontinued, merged-taxon and obsolete records are obsoleted revisions naming their successors; activities absent from a later complete release page get a removed revision; nothing is deleted",
+        "values": "activity type, relation, value and unit kept as published strings (published and ChEMBL-standardised side by side) with data-validity comments; never converted, compared or aggregated across assays or assay types",
+        "identity": "published cross-references first (UniProt to PDB, GeneID and ChEMBL targets; PDB entity, gene and target component accessions), ChEMBL compound to Chemicals substance by standard InChIKey and NCBI taxon to Biodiversity taxon by published Tax ID; exact names only for taxa without an identifier; every match proposed, reviewed, accepted, rejected or reverted with method, evidence and confidence; nothing merged; unmatched records listed",
+        "links": "Chemicals substances and Biodiversity occurrences through accepted matches only, Clinical medicines whose regulatory records name the ChEMBL ID, and papers by exact DOI or PubMed ID; links point at record revisions; absent packs are reported, never required",
+        "minimisation": "no person names or contact details: author, depositor and submitter fields are dropped at acquisition, rejected at write and absent from every answer",
+        "exclusions": "no biological or clinical inference, no activity prediction, no sequence analysis beyond storage, no conversion or aggregation of values, no redistribution beyond each source's licence, no computed structure models"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "lifesci-source-contracts",
+      "tool": "noesis-knowledge-engine.lifesci_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "lifesci-readiness",
+      "tool": "noesis-knowledge-engine.lifesci_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "entry-as-of",
+      "tool": "noesis-knowledge-engine.lifesci_entry_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "target-activities",
+      "tool": "noesis-knowledge-engine.lifesci_target_activities",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-lifesci-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_lifesci_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-lifesci-identity-matches",
+      "tool": "noesis-knowledge-engine.list_lifesci_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-lifesci-links",
+      "tool": "noesis-knowledge-engine.list_lifesci_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "register-lifesci-schemas",
+      "tool": "noesis-knowledge-engine.register_lifesci_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name and version"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "propose-lifesci-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_lifesci_identity_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "current life-sciences revisions"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-lifesci-identity-match",
+      "tool": "noesis-knowledge-engine.review_lifesci_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and review sequence"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:review",
+        "knowledge:entity-history:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-lifesci-identity-match",
+      "tool": "noesis-knowledge-engine.revert_lifesci_identity_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "match_id and review sequence"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:review",
+        "knowledge:entity-history:execute"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-lifesci-records",
+      "tool": "noesis-knowledge-engine.link_lifesci_records",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "record revision, target kind, target id and revision"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-lifesci-monitor",
+      "tool": "noesis-knowledge-engine.create_lifesci_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-lifesci-monitor",
+      "tool": "noesis-knowledge-engine.run_lifesci_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription and committed watermark"
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "poll-lifesci-monitor",
+      "tool": "noesis-knowledge-engine.poll_lifesci_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "lifesci-revisions",
+      "required_scopes": [
+        "knowledge:lifesci:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "lifesci-record",
+      "store": "src.kb.lifesci_store",
+      "tables": [
+        "lifesci_records",
+        "lifesci_revisions",
+        "lifesci_snapshots",
+        "lifesci_source_runs"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "lifesci-identity-match",
+      "store": "src.kb.lifesci_identity",
+      "tables": [
+        "lifesci_identity_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "lifesci-link",
+      "store": "src.kb.lifesci_links",
+      "tables": [
+        "lifesci_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "lifesci-revisions",
+      "kind": "table-exists",
+      "target": "lifesci_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "primary-scientific-evidence",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

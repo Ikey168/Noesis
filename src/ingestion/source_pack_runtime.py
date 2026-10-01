@@ -268,6 +268,12 @@ def _labour_projector(conn: Any) -> Any:
     from src.kb.labour_statistics import LabourProjector
 
     return LabourProjector(conn)
+
+
+def _extractives_projector(conn: Any) -> Any:
+    from src.kb.extractives_store import ExtractivesProjector
+
+    return ExtractivesProjector(conn)
 def _legislation_projector(conn: Any) -> Any:
     from src.kb.legislation import LegislationProjector
 
@@ -335,6 +341,7 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-weather-record-v1": _weather_projector,
     "noesis-trade-flow-record-v1": _trade_flow_projector,
     "noesis-labour-statistics-record-v1": _labour_projector,
+    "noesis-extractives-record-v1": _extractives_projector,
     "noesis-education-statistic-record-v1": _education_projector,
     "noesis-energy-record-v1": _energy_projector,
     "noesis-humanitarian-record-v1": _humanitarian_projector,
@@ -385,6 +392,16 @@ def _court_justice_projector(conn: Any) -> Any:
 PROJECTORS["noesis-court-justice-record-v1"] = _court_justice_projector
 
 
+def _treaty_projector(conn: Any) -> Any:
+    from src.kb.treaties_store import TreatiesProjector
+
+    return TreatiesProjector(conn)
+
+
+# Legal treaties provider: treaties and treaty actions with depositary revisions (#2581).
+PROJECTORS["noesis-treaty-record-v1"] = _treaty_projector
+
+
 def _biodiversity_projector(conn: Any) -> Any:
     from src.kb.biodiversity_store import BiodiversityProjector
 
@@ -392,6 +409,16 @@ def _biodiversity_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-biodiversity-record-v1"] = _biodiversity_projector
+
+
+def _water_projector(conn: Any) -> Any:
+    from src.kb.water_store import WaterProjector
+
+    return WaterProjector(conn)
+
+
+# Climate and Environment water and hydrology (#2582).
+PROJECTORS["noesis-water-record-v1"] = _water_projector
 
 
 def _food_composition_projector(conn: Any) -> Any:
@@ -461,6 +488,76 @@ def _campaign_finance_projector(conn: Any) -> Any:
 
 # Political campaign-finance features (#2209).
 PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
+
+
+def _fact_checks_projector(conn: Any) -> Any:
+    from src.kb.fact_checks_records import FactChecksProjector
+
+    return FactChecksProjector(conn)
+
+
+# News fact-checks provider: ClaimReview records and IFCN signatory status (#2659).
+PROJECTORS["noesis-fact-check-record-v1"] = _fact_checks_projector
+
+
+def _medical_devices_projector(conn: Any) -> Any:
+    from src.kb.medical_devices_records import MedicalDevicesProjector
+
+    return MedicalDevicesProjector(conn)
+
+
+# Clinical Evidence medical-devices features (#2654).
+PROJECTORS["noesis-medical-device-record-v1"] = _medical_devices_projector
+
+
+def _enforcement_projector(conn: Any) -> Any:
+    from src.kb.enforcement import EnforcementProjector
+
+    return EnforcementProjector(conn)
+
+
+# Legal regulatory enforcement provider (#2651).
+PROJECTORS["noesis-enforcement-record-v1"] = _enforcement_projector
+
+
+def _income_distribution_projector(conn: Any) -> Any:
+    from src.kb.income_distribution_store import IncomeProjector
+
+    return IncomeProjector(conn)
+
+
+# Society income, poverty and inequality provider (#2583).
+PROJECTORS["noesis-income-distribution-record-v1"] = _income_distribution_projector
+
+
+def _research_entities_projector(conn: Any) -> Any:
+    from src.kb.research_entities_records import ResearchEntitiesProjector
+
+    return ResearchEntitiesProjector(conn)
+
+
+# Science research-entities features: ROR, ORCID, DataCite and CORDIS registry records (#2579).
+PROJECTORS["noesis-research-entity-record-v1"] = _research_entities_projector
+
+
+def _lifesci_projector(conn: Any) -> Any:
+    from src.kb.lifesci_store import LifeSciProjector
+
+    return LifeSciProjector(conn)
+
+
+# Science life-science reference records (#2652).
+PROJECTORS["noesis-lifesci-record-v1"] = _lifesci_projector
+
+
+def _platform_transparency_projector(conn: Any) -> Any:
+    from src.kb.platform_transparency_records import PlatformTransparencyProjector
+
+    return PlatformTransparencyProjector(conn)
+
+
+# OSINT platform-transparency features (#2580).
+PROJECTORS["noesis-platform-transparency-record-v1"] = _platform_transparency_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

@@ -1,0 +1,327 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "news.fact-checks",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.fact_checks_records",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "news.fact-checks",
+      "contract": {
+        "name": "noesis-fact-check-record",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "fact-checks-for-claim",
+        "fact-checks-for-claimant",
+        "fact-checks-citing-url",
+        "fact-check-history",
+        "publisher-status-as-of",
+        "export-evidence-bundle",
+        "list-matches",
+        "list-links",
+        "propose-matches",
+        "review-match",
+        "revert-match",
+        "link-records",
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "ClaimReview fact-checks from the Google Fact Check Tools API and the Data Commons ClaimReview feed, keyed by publisher site and review URL, and IFCN signatories with status history, each with source, record revision and as-of time",
+        "ratings": "ratings are the publisher's text and any numeric value with the publisher's own scale, verbatim; conflicting ratings are shown side by side, never merged, averaged or normalised",
+        "revisions": "a publisher's update, a status change and a removal by the source are revisions, never deletions; each release of the Data Commons feed is a vintage",
+        "matching": "claimant, claim and publisher matches are reviewable, reversible assertions with method, evidence and confidence; nothing is merged or auto-accepted and a claim reaches fact-checks only through an accepted match",
+        "links": "news-article links by citation (wa-canon-v1 URL rules) and argument-claim, OSINT-corroboration and claim-timeline links through accepted matches, each pointing at specific revisions; absent providers and targets are reported",
+        "minimisation": "the FC01 decision: natural-person review authors, images, job titles and other personal attributes are never stored; claimant queries, matches and monitors need knowledge:news:fact-checks:claimant:read",
+        "exclusions": "no truth verdicts by Noesis, no rating normalisation presented as the publisher's, no automatic claim matching without review, no scraping beyond each publisher's terms",
+        "features": "fact-checks-google, fact-checks-datacommons and fact-checks-ifcn are separate optional features of the News bundle, default off"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "fact-checks-for-claim",
+      "tool": "noesis-knowledge-engine.fact_checks_for_claim",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "fact-checks-for-claimant",
+      "tool": "noesis-knowledge-engine.fact_checks_for_claimant",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:claimant:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "fact-checks-citing-url",
+      "tool": "noesis-knowledge-engine.fact_checks_citing_url",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "fact-check-history",
+      "tool": "noesis-knowledge-engine.fact_check_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "publisher-status-as-of",
+      "tool": "noesis-knowledge-engine.fact_checks_publisher_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "export-evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_fact_checks_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-matches",
+      "tool": "noesis-knowledge-engine.list_fact_check_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
+      "tool": "noesis-knowledge-engine.list_fact_check_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-matches",
+      "tool": "noesis-knowledge-engine.propose_fact_check_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-match",
+      "tool": "noesis-knowledge-engine.review_fact_check_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-match",
+      "tool": "noesis-knowledge-engine.revert_fact_check_match",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-records",
+      "tool": "noesis-knowledge-engine.link_fact_checks",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:news:fact-checks:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_fact_checks_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_fact_checks_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_fact_checks_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:news:fact-checks:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "fact-check-record",
+      "store": "src.kb.fact_checks_records",
+      "tables": [
+        "fact_check_records",
+        "fact_check_revisions",
+        "fact_check_urls",
+        "fact_check_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "fact-check-match",
+      "store": "src.kb.fact_checks_identity",
+      "tables": [
+        "fact_check_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "fact-check-link",
+      "store": "src.kb.fact_checks_links",
+      "tables": [
+        "fact_check_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "records",
+      "kind": "table-exists",
+      "target": "fact_check_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "bounded-public-osint",
+      "version": "1.2.0",
+      "range": "^1.2.0"
+    }
+  ]
+}

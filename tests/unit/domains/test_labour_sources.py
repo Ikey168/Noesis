@@ -37,7 +37,7 @@ def test_every_provider_has_an_audited_contract_and_a_live_verification_entry():
 
 def test_the_pinned_fixtures_replay_offline_through_the_real_adapter():
     manifest = h.manifest()
-    assert manifest["version"] == "1.6.0"
+    assert manifest["version"] == "1.7.0"  # 1.7.0 adds the extractives sources (#2653); ours unchanged
     labour = [s for s in manifest["sources"] if s["connector"] == "labour-statistics"]
     assert {s["source_id"] for s in labour} == set(h.SOURCES.values())
     replay = SourcePackConformance(h.ROOT).offline({**manifest, "sources": labour})
@@ -80,7 +80,7 @@ def test_eurostat_flags_are_verbatim_and_confidential_cells_carry_no_value():
     assert berlin["2097"]["status"] == "confidential" and berlin["2097"]["value"] is None
     assert berlin["2098"]["flags"] == {"OBS_FLAG": "u"} and berlin["2098"]["value"] == "5.4"
     release = records[0]["labour_release"]
-    assert release["release_basis"] == "provider_last_update" and release["published_on"] == "2099-03-20"
+    assert release["release_basis"] == "provider_last_update" and release["published_on"] == "2024-03-20"
     esms = records[0]["labour_item"]["references"][0]
     assert esms["identifier"] == "lfsa_esms"
 

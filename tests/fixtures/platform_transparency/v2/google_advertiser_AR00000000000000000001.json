@@ -1,0 +1,78 @@
+{
+ "kind": "bigquery#queryResponse",
+ "schema": {
+  "fields": [
+   {
+    "name": "advertiser_id",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "advertiser_name",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "public_ids_list",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "regions",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "elections",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "total_creatives",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   },
+   {
+    "name": "spend_usd",
+    "type": "STRING",
+    "mode": "NULLABLE"
+   }
+  ]
+ },
+ "jobReference": {
+  "projectId": "example-billing-project",
+  "jobId": "job_fixture_adv_01_v2",
+  "location": "US"
+ },
+ "totalRows": "1",
+ "rows": [
+  {
+   "f": [
+    {
+     "v": "AR00000000000000000001"
+    },
+    {
+     "v": "FUTURE EXAMPLES ACTION FUND"
+    },
+    {
+     "v": "C00999903"
+    },
+    {
+     "v": "US"
+    },
+    {
+     "v": "US-Federal"
+    },
+    {
+     "v": "2"
+    },
+    {
+     "v": "5300"
+    }
+   ]
+  }
+ ],
+ "totalBytesProcessed": "0",
+ "jobComplete": true,
+ "cacheHit": false
+}

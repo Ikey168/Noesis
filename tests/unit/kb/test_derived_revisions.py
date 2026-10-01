@@ -252,6 +252,29 @@ def test_incremental_materializers_and_workflow_observation_adapter():
     conn.close()
 
 
+def test_maintenance_observations_follow_the_latest_revision_of_a_document():
+    # A drain batch lists every changed revision of a document, oldest first.
+    documents = [
+        {"document_id": "d1", "_revision_id": "document-revision:4", "title": "Kebab (revision 4)", "content": "old"},
+        {"document_id": "d1", "_revision_id": "document-revision:7", "title": "Kebab (revision 7)", "content": "new"},
+    ]
+    observations = maintenance_observations(documents, {"outputs": []})
+    assert {item["source_revision_id"] for item in observations} == {"document-revision:7"}
+    index = next(item for item in observations if item["object_type"] == "index")
+    assert index["content"]["title"] == "Kebab (revision 7)"
+    conn = duckdb.connect(":memory:")
+    store = DerivedRevisionStore(conn, fixture_mode=True)
+    receipt = store.apply_generation(
+        NAMESPACE,
+        1,
+        observations,
+        [change("d1", "document-revision:4"), change("d1", "document-revision:7", "updated")],
+        now_ms=50,
+    )
+    assert receipt["generation"] == 1
+    conn.close()
+
+
 def test_public_contract_schemas_validate_store_receipts():
     conn = duckdb.connect(":memory:")
     store = DerivedRevisionStore(conn, fixture_mode=True)

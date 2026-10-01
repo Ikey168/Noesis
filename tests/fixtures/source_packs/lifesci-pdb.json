@@ -1,0 +1,243 @@
+{
+ "authored": true,
+ "captured": null,
+ "note": "Authored, not captured: SYNTHETIC records in the provider's documented response shape. Identifiers, names, sequences and values are fictional; person fields are placeholders present only to prove they are dropped; unverified-live (#2721).",
+ "provider": "pdb",
+ "scenarios": [
+  "an X-ray entry with its revision history, resolution as published and an entity mapped to UniProt",
+  "an EM entry that supersedes an obsolete entry",
+  "the obsolete entry from the removed holdings naming its successor",
+  "the audit author list is dropped"
+ ],
+ "native_pages": [
+  {
+   "request": "/rest/v1/core/entry/9ZZ2",
+   "body": {
+    "rcsb_id": "9ZZ2",
+    "struct": {
+     "title": "Fictional kinase A in complex with fictinib"
+    },
+    "exptl": [
+     {
+      "method": "X-RAY DIFFRACTION"
+     }
+    ],
+    "rcsb_entry_info": {
+     "resolution_combined": [
+      2.1
+     ],
+     "experimental_method": "X-Ray Diffraction"
+    },
+    "rcsb_accession_info": {
+     "deposit_date": "2098-11-20T00:00:00+0000",
+     "initial_release_date": "2099-01-05T00:00:00+0000",
+     "revision_date": "2099-02-01T00:00:00+0000",
+     "major_revision": 1,
+     "minor_revision": 1,
+     "status_code": "REL"
+    },
+    "pdbx_audit_revision_history": [
+     {
+      "ordinal": 1,
+      "major_revision": 1,
+      "minor_revision": 0,
+      "revision_date": "2099-01-05T00:00:00+0000",
+      "data_content_type": "Structure model"
+     },
+     {
+      "ordinal": 2,
+      "major_revision": 1,
+      "minor_revision": 1,
+      "revision_date": "2099-02-01T00:00:00+0000",
+      "data_content_type": "Structure model"
+     }
+    ],
+    "pdbx_audit_revision_details": [
+     {
+      "ordinal": 1,
+      "revision_ordinal": 1,
+      "type": "Initial release",
+      "data_content_type": "Structure model"
+     },
+     {
+      "ordinal": 2,
+      "revision_ordinal": 2,
+      "type": "Data collection",
+      "data_content_type": "Structure model"
+     }
+    ],
+    "audit_author": [
+     {
+      "name": "Placeholder, A.",
+      "pdbx_ordinal": 1
+     }
+    ],
+    "rcsb_primary_citation": {
+     "title": "Structure of Fictional kinase A in complex with fictinib (fictional)",
+     "journal_abbrev": "Fict. Struct.",
+     "year": 2099,
+     "pdbx_database_id_DOI": "10.5555/fict.lifesci.pdb.9zz2",
+     "pdbx_database_id_PubMed": 99990012,
+     "rcsb_authors": [
+      "Placeholder, A."
+     ]
+    },
+    "rcsb_entry_container_identifiers": {
+     "entry_id": "9ZZ2",
+     "polymer_entity_ids": [
+      "1"
+     ]
+    }
+   }
+  },
+  {
+   "request": "/rest/v1/core/polymer_entity/9ZZ2/1",
+   "body": {
+    "rcsb_id": "9ZZ2_1",
+    "rcsb_polymer_entity": {
+     "pdbx_description": "Fictional kinase A"
+    },
+    "rcsb_polymer_entity_container_identifiers": {
+     "entry_id": "9ZZ2",
+     "entity_id": "1",
+     "uniprot_ids": [
+      "P0DZZ1"
+     ],
+     "reference_sequence_identifiers": [
+      {
+       "database_name": "UniProt",
+       "database_accession": "P0DZZ1"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "request": "/rest/v1/core/entry/9ZZ3",
+   "body": {
+    "rcsb_id": "9ZZ3",
+    "struct": {
+     "title": "Fictional kinase A dimer"
+    },
+    "exptl": [
+     {
+      "method": "ELECTRON MICROSCOPY"
+     }
+    ],
+    "rcsb_entry_info": {
+     "resolution_combined": [
+      3.4
+     ],
+     "experimental_method": "Electron Microscopy"
+    },
+    "rcsb_accession_info": {
+     "deposit_date": "2098-11-20T00:00:00+0000",
+     "initial_release_date": "2099-01-12T00:00:00+0000",
+     "revision_date": "2099-01-12T00:00:00+0000",
+     "major_revision": 1,
+     "minor_revision": 0,
+     "status_code": "REL"
+    },
+    "pdbx_audit_revision_history": [
+     {
+      "ordinal": 1,
+      "major_revision": 1,
+      "minor_revision": 0,
+      "revision_date": "2099-01-12T00:00:00+0000",
+      "data_content_type": "Structure model"
+     }
+    ],
+    "pdbx_audit_revision_details": [
+     {
+      "ordinal": 1,
+      "revision_ordinal": 1,
+      "type": "Initial release",
+      "data_content_type": "Structure model"
+     }
+    ],
+    "audit_author": [
+     {
+      "name": "Placeholder, A.",
+      "pdbx_ordinal": 1
+     }
+    ],
+    "rcsb_primary_citation": {
+     "title": "Structure of Fictional kinase A dimer (fictional)",
+     "journal_abbrev": "Fict. Struct.",
+     "year": 2099,
+     "pdbx_database_id_DOI": "10.5555/fict.lifesci.pdb.9zz3",
+     "pdbx_database_id_PubMed": 99990012,
+     "rcsb_authors": [
+      "Placeholder, A."
+     ]
+    },
+    "rcsb_entry_container_identifiers": {
+     "entry_id": "9ZZ3",
+     "polymer_entity_ids": [
+      "1",
+      "2"
+     ]
+    },
+    "pdbx_database_PDB_obs_spr": [
+     {
+      "id": "SPRSDE",
+      "pdb_id": "9ZZ3",
+      "replace_pdb_id": "9ZZ1",
+      "date": "2099-01-12T00:00:00+0000"
+     }
+    ]
+   }
+  },
+  {
+   "request": "/rest/v1/core/polymer_entity/9ZZ3/1",
+   "body": {
+    "rcsb_id": "9ZZ3_1",
+    "rcsb_polymer_entity": {
+     "pdbx_description": "Fictional kinase A"
+    },
+    "rcsb_polymer_entity_container_identifiers": {
+     "entry_id": "9ZZ3",
+     "entity_id": "1",
+     "uniprot_ids": [
+      "P0DZZ1"
+     ],
+     "reference_sequence_identifiers": [
+      {
+       "database_name": "UniProt",
+       "database_accession": "P0DZZ1"
+      }
+     ]
+    }
+   }
+  },
+  {
+   "request": "/rest/v1/core/polymer_entity/9ZZ3/2",
+   "body": {
+    "rcsb_id": "9ZZ3_2",
+    "rcsb_polymer_entity": {
+     "pdbx_description": "Fictional nanobody"
+    },
+    "rcsb_polymer_entity_container_identifiers": {
+     "entry_id": "9ZZ3",
+     "entity_id": "2",
+     "uniprot_ids": [],
+     "reference_sequence_identifiers": []
+    }
+   }
+  },
+  {
+   "request": "/rest/v1/holdings/removed/9ZZ1",
+   "body": {
+    "rcsb_id": "9ZZ1",
+    "rcsb_repository_holdings_removed": {
+     "status_code": "OBS",
+     "remove_date": "2099-01-12T00:00:00+0000",
+     "id_codes_replaced_by": [
+      "9ZZ3"
+     ],
+     "title": "Fictional kinase A dimer (superseded)"
+    }
+   }
+  }
+ ]
+}

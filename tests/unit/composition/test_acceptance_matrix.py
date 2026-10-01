@@ -68,6 +68,12 @@ MATRIX = {
     "Place to health-system capacity indicators":
         "tests/unit/domains/test_health_capacity_acceptance.py::"
         "test_place_to_cited_capacity_indicators_with_definitions_notes_breaks_and_vintages",
+    # The Clinical Evidence medical-devices features' offline journey (#2718) composes their record owner with the
+    # source-pack runtime, the ownership identity state machine, Product safety, the clinical record store and
+    # subscriptions.
+    "Device or manufacturer to cited regulatory history":
+        "tests/unit/domains/test_medical_devices_acceptance.py::"
+        "test_device_and_manufacturer_to_cited_regulatory_history_with_revisions_identity_links_and_counts",
     # The Products safety feature's offline journey (#2030) composes products, technology (standards), legal
     # (works), news, entity identity, subscriptions and the source-pack runtime.
     "Product to safety-notice dossier":
@@ -100,12 +106,36 @@ MATRIX = {
     "Place to labour indicators":
         "tests/unit/domains/test_labour_acceptance.py::"
         "test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions_and_vintages",
+    # The Society bundle's society.income offline journey (#2643) composes society (PIP, EU-SILC and OECD IDD in the
+    # Economics series storage), geospatial place resolution, Demographics and Labour links, subscriptions and the
+    # source-pack runtime.
+    "Country to poverty and inequality figures":
+        "tests/unit/domains/test_income_distribution_acceptance.py::"
+        "test_country_to_cited_poverty_and_inequality_figures_from_each_source_side_by_side",
+    # The Economics extractives features' offline journey (#2713) composes economics (EITI, USGS MCS and BGS WMS in the
+    # Economics series storage), Corporate Ownership identity and group expansion, trade, public-finance and
+    # infrastructure links, subscriptions and the source-pack runtime.
+    "Company to extractive payments":
+        "tests/unit/domains/test_extractives_acceptance.py::"
+        "test_company_and_country_to_cited_extractive_payments_and_production_with_revisions",
     # The Science education-statistics feature's offline journey (#2441) composes science (IPEDS, ETER, UIS),
     # economics SDMX handling (OECD EAG, Eurostat R&D), ROR entity identity, Funding and document records,
     # subscriptions and the source-pack runtime.
     "Institution and country to education statistics":
         "tests/unit/domains/test_education_statistics_acceptance.py::"
         "test_ror_institution_and_country_to_cited_statistics_with_vintages_and_links",
+    # The Science research-entities features' offline journey (#2644) composes the research-entity record owner,
+    # reviewable entity and ownership identity, Scholarly, Funding and Ownership records, subscriptions and the
+    # source-pack runtime.
+    "Organisation and researcher to research records":
+        "tests/unit/domains/test_research_entities_acceptance.py::"
+        "test_organisation_and_researcher_to_cited_registry_records_works_datasets_and_projects",
+    # The Science life-sciences features' offline journey (#2716) composes science (UniProt, NCBI, RCSB PDB,
+    # ChEMBL), Chemicals substances, Biodiversity occurrences, Clinical medicines, literature documents, entity
+    # identity, subscriptions and the source-pack runtime.
+    "Protein to cited reference records and bioactivity":
+        "tests/unit/domains/test_lifesci_acceptance.py::"
+        "test_protein_to_cited_reference_records_structures_and_published_bioactivity",
     # The Economics logistics feature's offline journey (#2551) composes economics (UN/LOCODE, UNCTADstat, Eurostat
     # maritime, the BLS freight index, trade-flow joins), geospatial places, subscriptions and the source-pack runtime.
     "Port to logistics series":
@@ -215,11 +245,22 @@ MATRIX = {
     "Provision or party to cited dockets; place to cited justice statistics":
         "tests/unit/domains/test_courts_justice_acceptance.py::"
         "test_provision_and_party_to_cited_dockets_and_place_to_cited_statistics",
+    # The Legal treaties provider's offline journey (#2640) composes the source-pack runtime (CELLAR adapter reuse),
+    # reviewable identity with entity history, geospatial places, cross-pack links and subscriptions.
+    "Treaty or state to cited treaty actions":
+        "tests/unit/domains/test_treaties_acceptance.py::"
+        "test_treaty_and_state_to_cited_actions_with_revisions_identity_and_links",
     # The Climate and Environment biodiversity feature's offline journey (#2531) composes its record owner with
     # geospatial places and receipts, entity identity decisions, Science papers by DOI and subscriptions.
     "Taxon or place to cited biodiversity records":
         "tests/unit/domains/test_biodiversity_acceptance.py::"
         "test_taxon_and_place_to_cited_occurrences_and_conservation_status_history",
+    # The Climate and Environment water features' offline journey (#2642) composes the environment.water record
+    # owner with geospatial places, entity identity decisions, hazard and infrastructure records by citation or
+    # shared identifier, and subscriptions.
+    "Place to cited water levels, discharge and water-body status":
+        "tests/unit/domains/test_water_acceptance.py::"
+        "test_place_to_gauging_stations_cited_observations_and_water_body_status_history",
     # The Geospatial real-estate feature's offline journey (#2516) composes its record owner with the WFS path,
     # geospatial places and receipts, entity identity decisions, legal works and subscriptions.
     "Place or parcel to cited real-estate transactions":
@@ -235,6 +276,23 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The News fact-checks provider's offline journey (#2719) composes its record owner with the source-pack
+    # runtime, news documents and argument claims, entity and source identity, claim timelines, web archives and
+    # subscriptions.
+    "Claim or news article to cited fact-checks":
+        "tests/unit/domains/test_fact_checks_acceptance.py::"
+        "test_claim_and_article_to_cited_fact_checks_with_revisions_reviewable_matches_and_ratings_as_published",
+    # The Legal enforcement provider's offline journey (#2715) composes its record owner with the source-pack
+    # runtime, ownership identity and graph, Legal works by citation, subscriptions and evidence bundles.
+    "Company to cited enforcement actions with outcome and appeal history":
+        "tests/unit/domains/test_enforcement_acceptance.py::"
+        "test_company_to_cited_enforcement_actions_with_outcome_and_appeal_history",
+    # The OSINT platform-transparency features' offline journey (#2646) composes the record owner with the
+    # source-pack runtime, ownership identity, source identity, the campaign-finance, elections and lobbying
+    # features and subscriptions.
+    "Advertiser or election to cited political ads; platform to cited moderation statements":
+        "tests/unit/domains/test_platform_transparency_acceptance.py::"
+        "test_advertiser_and_election_to_cited_political_ads_and_platform_to_cited_moderation_statements",
 }
 
 
