@@ -1000,7 +1000,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in ENVIRONMENT_TOOLS:
         return environment_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.substances import SUBSTANCE_TOOLS
-    from tools.knowledge_engine_mcp.substances import required_scopes as substance_scopes
+    from tools.knowledge_engine_mcp.substances import (
+        required_scopes as substance_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in SUBSTANCE_TOOLS:
         return substance_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.fisheries import FISHERIES_TOOLS
@@ -1094,7 +1096,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in HOUSING_TOOLS:
         return housing_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.real_estate import REAL_ESTATE_TOOLS
-    from tools.knowledge_engine_mcp.real_estate import required_scopes as real_estate_scopes
+    from tools.knowledge_engine_mcp.real_estate import (
+        required_scopes as real_estate_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in REAL_ESTATE_TOOLS:
         return real_estate_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.development_finance import DEVELOPMENT_FINANCE_TOOLS
@@ -1120,7 +1124,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in OSS_TOOLS:
         return oss_ecosystem_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_TOOLS
-    from tools.knowledge_engine_mcp.web_archives import required_scopes as web_archive_scopes
+    from tools.knowledge_engine_mcp.web_archives import (
+        required_scopes as web_archive_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in WEB_ARCHIVE_TOOLS:
         return web_archive_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.trade import TRADE_TOOLS
@@ -1139,7 +1145,9 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in EXTRACTIVES_TOOLS:
         return extractives_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.education_statistics import EDUCATION_TOOLS
-    from tools.knowledge_engine_mcp.education_statistics import required_scopes as education_scopes
+    from tools.knowledge_engine_mcp.education_statistics import (
+        required_scopes as education_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in EDUCATION_TOOLS:
         return education_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.lifesci import LIFESCI_TOOLS
@@ -1151,11 +1159,15 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in LOGISTICS_TOOLS:
         return logistics_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
-    from tools.knowledge_engine_mcp.legislation import required_scopes as legislation_scopes
+    from tools.knowledge_engine_mcp.legislation import (
+        required_scopes as legislation_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in LEGISLATION_TOOLS:
         return legislation_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.campaign_finance import CAMPAIGN_FINANCE_TOOLS
-    from tools.knowledge_engine_mcp.campaign_finance import required_scopes as campaign_finance_scopes
+    from tools.knowledge_engine_mcp.campaign_finance import (
+        required_scopes as campaign_finance_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in CAMPAIGN_FINANCE_TOOLS:
         return campaign_finance_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.fact_checks import FACT_CHECK_TOOLS
@@ -1191,11 +1203,15 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     if server_stem == "knowledge_engine_mcp" and tool_name in ENERGY_TOOLS:
         return energy_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.humanitarian import HUMANITARIAN_TOOLS
-    from tools.knowledge_engine_mcp.humanitarian import required_scopes as humanitarian_scopes
+    from tools.knowledge_engine_mcp.humanitarian import (
+        required_scopes as humanitarian_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in HUMANITARIAN_TOOLS:
         return humanitarian_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.infrastructure import INFRASTRUCTURE_TOOLS
-    from tools.knowledge_engine_mcp.infrastructure import required_scopes as infrastructure_scopes
+    from tools.knowledge_engine_mcp.infrastructure import (
+        required_scopes as infrastructure_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in INFRASTRUCTURE_TOOLS:
         return infrastructure_scopes(tool_name, mutability)
     if server_stem == "knowledge_engine_mcp" and tool_name in {
