@@ -31,7 +31,7 @@ def reviewed():
 def test_a_place_returns_every_source_side_by_side_with_definitions_and_vintages(reviewed):
     conn, places = reviewed
     answer = LabourQueries(conn).indicators(h.NS, place=places["de"], concept="unemployment_rate",
-                                            scopes=h.READ_ONLY, as_of_ms=h.day_ms("2099-12-15"))
+                                            scopes=h.READ_ONLY, as_of_ms=h.day_ms("2024-12-15"))
     by = {(r["provider"], r["estimate_type"], r["seasonal_adjustment"]): r for r in answer["results"]}
     assert set(by) == {("ilostat", "national-reported", "NSA"), ("ilostat", "ilo-modelled", "NSA"),
                        ("oecd", "harmonised", "SA"), ("oecd", "harmonised", "NSA"), ("eurostat-lfs", "survey", "NSA")}
@@ -44,14 +44,14 @@ def test_a_place_returns_every_source_side_by_side_with_definitions_and_vintages
             assert value["seasonal_adjustment"] in {"NSA", "SA"} and "flags" in value
     # The as-of date selects the vintage current then; the later revision is not visible yet.
     ilo = {v["period"]: v["value"] for v in by[("ilostat", "national-reported", "NSA")]["values"]}
-    assert ilo["2098"] == "3.1"
+    assert ilo["2023"] == "3.1"
     eurostat = by[("eurostat-lfs", "survey", "NSA")]
-    assert {v["period"] for v in eurostat["values"]} == {"2097", "2098"}
+    assert {v["period"] for v in eurostat["values"]} == {"2022", "2023"}
     assert any(n["relation"] == "break_in_series" for n in eurostat["source_notes"])
     later = LabourQueries(conn).indicators(h.NS, place=places["de"], concept="unemployment_rate",
-                                           scopes=h.READ_ONLY, as_of_ms=h.day_ms("2100-02-01"), history=True)
+                                           scopes=h.READ_ONLY, as_of_ms=h.day_ms("2025-02-01"), history=True)
     ilo_later = next(r for r in later["results"] if r["estimate_type"] == "national-reported")
-    assert {v["period"]: v["value"] for v in ilo_later["values"]}["2098"] == "3.0"
+    assert {v["period"]: v["value"] for v in ilo_later["values"]}["2023"] == "3.0"
     assert len(ilo_later["revision_history"]) == 2 and ilo_later["revision_history"][1]["revision_of"]
     # Pairs are compared by their recorded attributes, never blended.
     pair = next(p for p in answer["comparability"]
@@ -67,14 +67,14 @@ def test_gaps_withheld_values_and_unmapped_codes_are_explicit(reviewed):
     queries = LabourQueries(conn)
     berlin = queries.indicators(h.NS, place=places["be"], scopes=h.READ_ONLY)
     (series,) = berlin["results"]
-    assert series["gaps"]["withheld_periods"] == [{"period": "2097", "status": "confidential",
+    assert series["gaps"]["withheld_periods"] == [{"period": "2022", "status": "confidential",
                                                    "flags": {"OBS_FLAG": "c"}}]
     jolts = queries.indicators(h.NS, place={"scheme": "iso3166-1-alpha2", "code": "US"}, concept="job_vacancies",
                                scopes=h.READ_ONLY)
     (openings,) = jolts["results"]
     assert openings["gaps"]["withheld_periods"][0]["status"] == "not_published"
-    assert openings["gaps"]["latest_published_period"] == "2099-02"
-    assert missing_periods(["2099-01", "2099-04"], "monthly") == ["2099-02", "2099-03"]
+    assert openings["gaps"]["latest_published_period"] == "2024-02"
+    assert missing_periods(["2024-01", "2024-04"], "monthly") == ["2024-02", "2024-03"]
     # A code nobody mapped stays queryable natively and a place with pending mappings lists them.
     native = queries.indicators(h.NS, place={"scheme": "bls-laus-area", "code": "ST0600000000000"},
                                 scopes=h.READ_ONLY)

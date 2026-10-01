@@ -35,8 +35,8 @@ SOURCES = {
     "bls": "bls-public-data-api",
 }
 # Retrieval clocks (epoch ms) for the first acquisitions and the re-publications.
-FIRST_RETRIEVAL = 4_099_766_400_000  # 2099-12-01
-SECOND_RETRIEVAL = 4_102_444_800_000  # 2100-01-01
+FIRST_RETRIEVAL = 1_733_011_200_000  # 2024-12-01
+SECOND_RETRIEVAL = 1_735_689_600_000  # 2025-01-01
 
 
 def connection():
