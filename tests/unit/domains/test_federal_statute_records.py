@@ -8,6 +8,7 @@ import json
 import jsonschema
 import pytest
 
+from src.kb.courts_justice import RECORD_CONTRACT as COURT_JUSTICE_RECORD_CONTRACT
 from src.kb.legal import LegalError, LegalStore
 from src.kb.legal_federal import FederalStatutes
 from src.kb.schema_registry import READ_SCOPE as SCHEMA_READ
@@ -210,14 +211,28 @@ def test_existing_cellar_court_and_berlin_records_are_unaffected_and_the_schema_
         SchemaRegistry.compare_content(old["content"], new["content"])["classification"]
         != "breaking"
     )
-    rows = conn.execute("SELECT record_json FROM legal_versions").fetchall()
-    assert rows
+    # CourtListener dockets and opinions share legal_versions but carry their own
+    # noesis-court-justice-record-v1 contract; the legal-record schema governs the rest.
+    records = [
+        json.loads(record_json)
+        for (record_json,) in conn.execute(
+            "SELECT record_json FROM legal_versions"
+        ).fetchall()
+    ]
+    legal_records = [
+        r for r in records if r.get("contract") != COURT_JUSTICE_RECORD_CONTRACT
+    ]
+    assert legal_records
+    assert all(
+        r["provider"] == "courtlistener"
+        for r in records
+        if r.get("contract") == COURT_JUSTICE_RECORD_CONTRACT
+    )
     old_validator, new_validator = (
         jsonschema.Draft7Validator(old["content"]),
         jsonschema.Draft7Validator(new["content"]),
     )
-    for (record_json,) in rows:
-        record = json.loads(record_json)
+    for record in legal_records:
         page = {
             "id": "x",
             "title": record["title"],
