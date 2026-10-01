@@ -350,6 +350,12 @@ For the project overview and local setup, start with the
   feature: FAA and G-INFO registry revisions, bounded OpenSky and open AIS samples with receiver-coverage caveats,
   GFW port visits, derived calls, reviewable identity and sanctions citations for one named aircraft or vessel and
   window; no real-time tracking or mirroring; [access decision](security/osint-movements-access.md)
+- [Platform transparency guide](guides/osint-platform-transparency.md) — the OSINT pack's optional
+  platform-transparency features: DSA statements of reasons, Meta and Google political ads and Lumen takedown
+  notices (gated), answered as political ads by advertiser or election with ranges as published and moderation
+  counts over stored statements with the dump versions stated; reviewable advertiser identity, cross-pack links
+  and monitors; no profiling, coordination inference or point estimates;
+  [source audit and minimisation decision](development/platform-transparency-evidence/source-audit.md)
 
 ## Subsystems
 

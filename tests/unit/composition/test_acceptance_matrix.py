@@ -235,6 +235,11 @@ MATRIX = {
     "Committee or organisation to cited campaign-finance filings":
         "tests/unit/domains/test_campaign_finance_acceptance.py::"
         "test_committee_and_organisation_to_cited_filings_with_amendment_history_and_reviewable_donor_matches",
+    # The OSINT platform-transparency features' offline journey (#2646) composes its record owner with the
+    # source-pack runtime, ownership identity, campaign finance, lobbying, elections and subscriptions.
+    "Advertiser or election to cited political ads; platform to cited moderation statements":
+        "tests/unit/domains/test_platform_transparency_acceptance.py::"
+        "test_advertiser_and_election_to_cited_political_ads_and_platform_to_cited_moderation_statements",
 }
 
 
