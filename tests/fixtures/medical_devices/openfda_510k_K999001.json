@@ -1,0 +1,37 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2025-06-30",
+  "results": {
+   "skip": 0,
+   "limit": 1,
+   "total": 1
+  }
+ },
+ "results": [
+  {
+   "k_number": "K999001",
+   "applicant": "Exampla Medical Devices Inc.",
+   "contact": "Jane Fictional",
+   "address_1": "1 Example Way",
+   "address_2": "Suite 100",
+   "city": "Springfield",
+   "state": "MA",
+   "zip_code": "01999",
+   "country_code": "US",
+   "device_name": "Exampla FlowSense Infusion Pump",
+   "product_code": "ZXA",
+   "decision_code": "SESE",
+   "decision_description": "Substantially Equivalent",
+   "decision_date": "2021-03-15",
+   "date_received": "2020-11-02",
+   "clearance_type": "Traditional",
+   "advisory_committee_description": "General Hospital",
+   "statement_or_summary": "Summary",
+   "third_party_flag": "N",
+   "expedited_review_flag": "N"
+  }
+ ]
+}

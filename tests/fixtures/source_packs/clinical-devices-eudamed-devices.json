@@ -1,0 +1,17 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"content\": [\n  {\n   \"basicUdi\": \"0899999EXFLOWSENSEZ7\",\n   \"manufacturerSrn\": \"US-MF-000099902\",\n   \"authorisedRepresentativeSrn\": \"DE-AR-000099903\",\n   \"deviceName\": \"Exampla FlowSense Infusion Pump\",\n   \"deviceModel\": \"FS-100\",\n   \"riskClass\": \"Class IIb\",\n   \"applicableLegislation\": \"MDR\",\n   \"udiDis\": [\n    {\n     \"primaryDi\": \"00899999000011\",\n     \"deviceStatus\": \"On the EU market\",\n     \"tradeName\": \"Exampla FlowSense\"\n    }\n   ],\n   \"certificateNumbers\": [\n    \"EX-9999-0001\"\n   ],\n   \"versionNumber\": \"1\",\n   \"lastUpdateDate\": \"2022-02-01\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/tools/eudamed/api/devices/basicUdiData?basicUdi=0899999EXFLOWSENSEZ7",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

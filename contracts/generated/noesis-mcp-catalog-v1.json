@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1732,
+      "tool_count": 1747,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1209,6 +1209,7 @@
         "noesis-knowledge-engine.create_logistics_monitor",
         "noesis-knowledge-engine.create_material_watch",
         "noesis-knowledge-engine.create_media_metadata_monitor",
+        "noesis-knowledge-engine.create_medical_device_monitor",
         "noesis-knowledge-engine.create_medicines_monitor",
         "noesis-knowledge-engine.create_package_monitor",
         "noesis-knowledge-engine.create_paper_family",
@@ -1374,6 +1375,7 @@
         "noesis-knowledge-engine.export_lexeme_dossier",
         "noesis-knowledge-engine.export_lifesci_evidence_bundle",
         "noesis-knowledge-engine.export_media_evidence_bundle",
+        "noesis-knowledge-engine.export_medical_device_evidence_bundle",
         "noesis-knowledge-engine.export_modulo_intake_handoff",
         "noesis-knowledge-engine.export_openreview_round_comparison",
         "noesis-knowledge-engine.export_ownership_dossier",
@@ -1677,6 +1679,7 @@
         "noesis-knowledge-engine.link_logistics_trade_flows",
         "noesis-knowledge-engine.link_media_cultural_objects",
         "noesis-knowledge-engine.link_media_news_entities",
+        "noesis-knowledge-engine.link_medical_device_records",
         "noesis-knowledge-engine.link_medicine_evidence",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_real_estate_records",
@@ -1786,6 +1789,8 @@
         "noesis-knowledge-engine.list_maintenance_due_work",
         "noesis-knowledge-engine.list_maintenance_jobs",
         "noesis-knowledge-engine.list_media_identity_matches",
+        "noesis-knowledge-engine.list_medical_device_identity_candidates",
+        "noesis-knowledge-engine.list_medical_device_links",
         "noesis-knowledge-engine.list_medicine_identity_matches",
         "noesis-knowledge-engine.list_methodology_limitations",
         "noesis-knowledge-engine.list_official_meetings",
@@ -1881,6 +1886,11 @@
         "noesis-knowledge-engine.media_authority_history",
         "noesis-knowledge-engine.media_metadata_source_contracts",
         "noesis-knowledge-engine.media_metadata_status",
+        "noesis-knowledge-engine.medical_device_adverse_event_counts",
+        "noesis-knowledge-engine.medical_device_record_history",
+        "noesis-knowledge-engine.medical_device_regulatory_history",
+        "noesis-knowledge-engine.medical_device_source_contracts",
+        "noesis-knowledge-engine.medical_devices_readiness",
         "noesis-knowledge-engine.medicine_label_as_of",
         "noesis-knowledge-engine.medicine_regulatory_timeline",
         "noesis-knowledge-engine.medicine_safety_communications",
@@ -1953,6 +1963,7 @@
         "noesis-knowledge-engine.poll_logistics_monitor",
         "noesis-knowledge-engine.poll_material_watch",
         "noesis-knowledge-engine.poll_media_metadata_monitor",
+        "noesis-knowledge-engine.poll_medical_device_monitor",
         "noesis-knowledge-engine.poll_medicines_monitor",
         "noesis-knowledge-engine.poll_package_monitor",
         "noesis-knowledge-engine.poll_procurement_monitor",
@@ -2066,6 +2077,7 @@
         "noesis-knowledge-engine.propose_material_matches",
         "noesis-knowledge-engine.propose_math_links",
         "noesis-knowledge-engine.propose_media_identity_matches",
+        "noesis-knowledge-engine.propose_medical_device_identities",
         "noesis-knowledge-engine.propose_medicine_identities",
         "noesis-knowledge-engine.propose_oss_identity_link",
         "noesis-knowledge-engine.propose_ownership_identity_matches",
@@ -2316,6 +2328,7 @@
         "noesis-knowledge-engine.revert_logistics_port_match",
         "noesis-knowledge-engine.revert_material_match",
         "noesis-knowledge-engine.revert_media_identity_match",
+        "noesis-knowledge-engine.revert_medical_device_identity",
         "noesis-knowledge-engine.revert_medicine_identity",
         "noesis-knowledge-engine.revert_oss_identity_match",
         "noesis-knowledge-engine.revert_ownership_identity_match",
@@ -2397,6 +2410,7 @@
         "noesis-knowledge-engine.review_math_link",
         "noesis-knowledge-engine.review_media_identity_match",
         "noesis-knowledge-engine.review_media_link",
+        "noesis-knowledge-engine.review_medical_device_identity",
         "noesis-knowledge-engine.review_medicine_identity",
         "noesis-knowledge-engine.review_multilingual_alias",
         "noesis-knowledge-engine.review_oss_identity_match",
@@ -2487,6 +2501,7 @@
         "noesis-knowledge-engine.run_maintenance_once",
         "noesis-knowledge-engine.run_material_watch",
         "noesis-knowledge-engine.run_media_metadata_monitor",
+        "noesis-knowledge-engine.run_medical_device_monitor",
         "noesis-knowledge-engine.run_medicines_monitor",
         "noesis-knowledge-engine.run_package_monitor",
         "noesis-knowledge-engine.run_persistent_research_loop",
@@ -2705,7 +2720,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1732
+      "visible_tool_count": 1747
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2716,11 +2731,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 155,
+      "available": 156,
       "degraded": 174,
-      "unauthorized": 1741
+      "unauthorized": 1755
     },
-    "tools": 2070
+    "tools": 2085
   },
   "tools": [
     {
@@ -35881,6 +35896,64 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a device, a manufacturer or a product code for new clearances, approvals, supplements,\nrecalls, recall status changes and certificate status changes (platform subscriptions; no new scheduler).",
+      "id": "noesis-knowledge-engine.create_medical_device_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_medical_device_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Watch a medicine or substance for authorisation changes, label revisions and safety communications.",
       "id": "noesis-knowledge-engine.create_medicines_monitor",
       "input_schema": {
@@ -44621,6 +44694,69 @@
       ],
       "required_scopes": [
         "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "An evidence bundle of the regulatory history (and report counts with a window): every item cites its\nsource, record revision and as-of time; caveats, gaps and exclusions included; narratives never exported.",
+      "id": "noesis-knowledge-engine.export_medical_device_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "received_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "received_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_medical_device_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -58710,6 +58846,55 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link recalls to Product safety notices by recall number, combination products to Medicines records by\napplication number, devices to trial registrations naming their identifiers and manufacturers to ownership\nentities by accepted match; every link names its basis and record revisions; missing packs are reported.",
+      "id": "noesis-knowledge-engine.link_medical_device_records",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "safety_namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_medical_device_records",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link regulatory records to trials and publications they cite, and to FAERS counts by reviewed identity.",
       "id": "noesis-knowledge-engine.link_medicine_evidence",
       "input_schema": {
@@ -64550,6 +64735,116 @@
     },
     {
       "cost_class": "low",
+      "description": "Reviewable device and manufacturer identity candidates (method, evidence, confidence, state) and the\nsubjects that stay unmatched.",
+      "id": "noesis-knowledge-engine.list_medical_device_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "subject_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_medical_device_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Cross-pack links with basis, record revisions and status (linked, target-missing, provider-missing).",
+      "id": "noesis-knowledge-engine.list_medical_device_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "status": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_medical_device_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "RxNorm crosswalk records (kind, evidence, RxNorm release, review state and decisions).",
       "id": "noesis-knowledge-engine.list_medicine_identity_matches",
       "input_schema": {
@@ -69508,6 +69803,184 @@
     },
     {
       "cost_class": "low",
+      "description": "MAUDE adverse-event report counts per event type and period as published, beside the reports on record,\nwith FDA's caveats, the query window and source revisions. Counts are reports - never rates, incidence or\ncausal events; no signal detection.",
+      "id": "noesis-knowledge-engine.medical_device_adverse_event_counts",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "received_from": {
+            "type": "string"
+          },
+          "received_to": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "received_from",
+          "received_to"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medical_device_adverse_event_counts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every revision of one device, clearance, approval, supplement, recall, report or certificate record with\nsource, revision and as-of time; removals and corrections are revisions. Narratives need the narrative\nscope.",
+      "id": "noesis-knowledge-engine.medical_device_record_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medical_device_record_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "A device (K/P number, DI, Basic UDI-DI) or FDA product code to its clearances, approvals, supplements,\nrecalls and EU certificates as of a date, each citing its record revision; US and EU side by side;\nunavailable EUDAMED modules and missing providers stated. No safety verdict or clinical advice.",
+      "id": "noesis-knowledge-engine.medical_device_regulatory_history",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subject": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subject",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medical_device_regulatory_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Access decisions, licences, rate limits, revision models, EUDAMED module availability, the MD01\nminimisation decision, bounded coverage and LIVE_VERIFICATION for openFDA, AccessGUDID and EUDAMED.",
+      "id": "noesis-knowledge-engine.medical_device_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medical_device_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which device features are selected, records per provider, live-verification state and EUDAMED gaps.",
+      "id": "noesis-knowledge-engine.medical_devices_readiness",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "default": "clinical",
+            "type": "string"
+          }
+        },
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "medical_devices_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "The label revision in force on a date per label document: sections verbatim with locators (dosing\nsections are listed as omitted, never quoted).",
       "id": "noesis-knowledge-engine.medicine_label_as_of",
       "input_schema": {
@@ -72688,6 +73161,48 @@
       "required_scopes": [
         "knowledge:subscriptions:read",
         "knowledge:cultural:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Poll a medical-device monitor's delivered events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_medical_device_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_medical_device_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -77807,6 +78322,62 @@
       ],
       "required_scopes": [
         "knowledge:cultural:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose device matches across FDA, GUDID and EUDAMED by UDI-DI and premarket numbers (product codes as\nlow evidence), manufacturers against ownership entities (identifiers first, names as low evidence) and\nGUDID DIs against Products GTINs; nothing is accepted or merged automatically.",
+      "id": "noesis-knowledge-engine.propose_medical_device_identities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "products_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_medical_device_identities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
+        "knowledge:clinical:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -91604,6 +92175,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed device or manufacturer identity decision; decisions are kept.",
+      "id": "noesis-knowledge-engine.revert_medical_device_identity",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_medical_device_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Undo the latest review decision of a medicine identity match; decisions are kept.",
       "id": "noesis-knowledge-engine.revert_medicine_identity",
       "input_schema": {
@@ -95310,6 +95922,51 @@
       ],
       "required_scopes": [
         "knowledge:cultural:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject an identity candidate with a reason (an entity identity decision with reviewer and\ntime; records are never merged).",
+      "id": "noesis-knowledge-engine.review_medical_device_identity",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_medical_device_identity",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -99817,6 +100474,56 @@
       ],
       "required_scopes": [
         "knowledge:cultural:read",
+        "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a medical-device monitor at a committed watermark; each notice cites the new and previous record\nrevision and states what changed; unchanged records deliver nothing.",
+      "id": "noesis-knowledge-engine.run_medical_device_monitor",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_medical_device_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:clinical:read",
         "knowledge:subscriptions:read",
         "knowledge:subscriptions:write"
       ],

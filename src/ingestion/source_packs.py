@@ -410,6 +410,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"extractives"})
 # Science life-sciences reference data: UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL (#2652).
 NATIVE_CONNECTOR_MODULES["life-sciences"] = "src.ingestion.lifesci_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
+# Clinical Evidence medical devices: openFDA device endpoints, AccessGUDID and EUDAMED public modules (#2654).
+NATIVE_CONNECTOR_MODULES["medical-devices"] = "src.ingestion.medical_devices_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medical-devices"})
 
 
 def native_connector_module(connector: str) -> Any:

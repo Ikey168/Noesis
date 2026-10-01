@@ -65,6 +65,17 @@ CLINICAL_TOOLS = CLINICAL_WRITES | {
     "inspect_clinical_evidence_map", "clinical_strength_view", "export_clinical_evidence_bundle",
     "poll_clinical_monitor",
 } | SURVEILLANCE_TOOLS | MEDICINES_TOOLS | HEALTH_CAPACITY_TOOLS
+# The clinical.devices provider's entry points (#2654): medical devices records, regulatory history as of a date,
+# adverse-event report counts with caveats, identity review, cross-pack links and monitors
+# (tools/knowledge_engine_mcp/medical_devices.py). Every answer carries the provider's boundary.
+from tools.knowledge_engine_mcp.medical_devices import (
+    DEVICE_SCOPES,
+    DEVICE_TOOLS,
+    DEVICE_WRITES,
+)
+
+CLINICAL_WRITES = CLINICAL_WRITES | DEVICE_WRITES
+CLINICAL_TOOLS = CLINICAL_TOOLS | DEVICE_TOOLS
 READ = "knowledge:clinical:read"
 WRITE = "knowledge:clinical:write"
 REVIEW = "knowledge:clinical:review"
@@ -163,6 +174,8 @@ def required_scopes(tool_name, mutability):
         return MEDICINES_SCOPES[tool_name]
     if tool_name in HEALTH_CAPACITY_SCOPES:
         return HEALTH_CAPACITY_SCOPES[tool_name]
+    if tool_name in DEVICE_SCOPES:
+        return DEVICE_SCOPES[tool_name]
     return CLINICAL_SCOPES.get(tool_name, ["knowledge:clinical:write" if mutability == "write"
                                            else "knowledge:clinical:read"])
 
@@ -364,6 +377,11 @@ def register(mcp, safe, context):
     register_surveillance(mcp, gated, who)
     register_medicines(mcp, gated, who)
     register_health_capacity(mcp, gated, who)
+    from tools.knowledge_engine_mcp.medical_devices import (
+        register as register_medical_devices,
+    )
+
+    register_medical_devices(mcp, gated, who)
 
 
 def register_surveillance(mcp, gated, who):

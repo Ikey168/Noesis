@@ -1,0 +1,28 @@
+{
+ "content": [
+  {
+   "srn": "DE-MF-000099901",
+   "name": "Northwind Medtech GmbH",
+   "abbreviatedName": "Northwind",
+   "actorType": "Manufacturer",
+   "countryIso2Code": "DE",
+   "city": "Hamburg",
+   "actorStatus": "Active",
+   "versionNumber": "1",
+   "lastUpdateDate": "2023-11-15",
+   "contactPersons": [
+    {
+     "firstName": "Max",
+     "lastName": "Fictional",
+     "email": "x@example.invalid"
+    }
+   ],
+   "prrcs": [
+    {
+     "firstName": "Erika",
+     "lastName": "Fictional"
+    }
+   ]
+  }
+ ]
+}

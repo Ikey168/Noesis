@@ -40,7 +40,7 @@ class Env(sh.Env):
     def __init__(self, path: str | None = None) -> None:
         super().__init__(path)
         self.web = Web()
-        self.version = [0, 1, 3]
+        self.version = [0, 1, 4]  # 0.1.4 is the medical-devices release (#2654)
 
     def acquire(self, run_key: str, keys=None) -> dict[str, Any]:
         from src.ingestion.surveillance_sources import FIXTURE_SECRET

@@ -1,0 +1,28 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2025-06-30",
+  "results": {
+   "skip": 0,
+   "limit": 1,
+   "total": 1
+  }
+ },
+ "results": [
+  {
+   "product_code": "ZXA",
+   "device_name": "Pump, Infusion (fictional)",
+   "device_class": "2",
+   "regulation_number": "880.9999",
+   "medical_specialty_description": "General Hospital",
+   "review_panel": "HO",
+   "submission_type_id": "1",
+   "implant_flag": "N",
+   "life_sustain_support_flag": "N",
+   "gmp_exempt_flag": "N",
+   "definition": "A fictional device type used in Noesis fixtures."
+  }
+ ]
+}

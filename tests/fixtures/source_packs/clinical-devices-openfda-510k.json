@@ -1,0 +1,33 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\n  \"terms\": \"https://open.fda.gov/terms/\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"last_updated\": \"2025-06-30\",\n  \"results\": {\n   \"skip\": 0,\n   \"limit\": 1,\n   \"total\": 1\n  }\n },\n \"results\": [\n  {\n   \"k_number\": \"K999001\",\n   \"applicant\": \"Exampla Medical Devices Inc.\",\n   \"contact\": \"Jane Fictional\",\n   \"address_1\": \"1 Example Way\",\n   \"address_2\": \"Suite 100\",\n   \"city\": \"Springfield\",\n   \"state\": \"MA\",\n   \"zip_code\": \"01999\",\n   \"country_code\": \"US\",\n   \"device_name\": \"Exampla FlowSense Infusion Pump\",\n   \"product_code\": \"ZXA\",\n   \"decision_code\": \"SESE\",\n   \"decision_description\": \"Substantially Equivalent\",\n   \"decision_date\": \"2021-03-15\",\n   \"date_received\": \"2020-11-02\",\n   \"clearance_type\": \"Traditional\",\n   \"advisory_committee_description\": \"General Hospital\",\n   \"statement_or_summary\": \"Summary\",\n   \"third_party_flag\": \"N\",\n   \"expedited_review_flag\": \"N\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/510k.json?limit=1&search=k_number%3A%22K999001%22",
+   "status": 200
+  },
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\n  \"terms\": \"https://open.fda.gov/terms/\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"last_updated\": \"2025-06-30\",\n  \"results\": {\n   \"skip\": 0,\n   \"limit\": 1,\n   \"total\": 1\n  }\n },\n \"results\": [\n  {\n   \"k_number\": \"K999002\",\n   \"applicant\": \"Exampla Medical Devices Inc.\",\n   \"contact\": \"Jane Fictional\",\n   \"address_1\": \"1 Example Way\",\n   \"address_2\": \"Suite 100\",\n   \"city\": \"Springfield\",\n   \"state\": \"MA\",\n   \"zip_code\": \"01999\",\n   \"country_code\": \"US\",\n   \"device_name\": \"Exampla FlowSense 2 Infusion Pump\",\n   \"product_code\": \"ZXA\",\n   \"decision_code\": \"SESE\",\n   \"decision_description\": \"Substantially Equivalent\",\n   \"decision_date\": \"2023-06-20\",\n   \"date_received\": \"2023-01-09\",\n   \"clearance_type\": \"Traditional\",\n   \"advisory_committee_description\": \"General Hospital\",\n   \"statement_or_summary\": \"Summary\",\n   \"third_party_flag\": \"N\",\n   \"expedited_review_flag\": \"N\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/510k.json?limit=1&search=k_number%3A%22K999002%22",
+   "status": 200
+  },
+  {
+   "body": "{\n \"error\": {\n  \"code\": \"NOT_FOUND\",\n  \"message\": \"No matches found!\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/510k.json?limit=1&search=k_number%3A%22K999404%22",
+   "status": 404
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

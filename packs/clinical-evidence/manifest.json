@@ -124,6 +124,30 @@
           "name": "noesis-health-capacity-monitor",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "clinical.devices-records",
+        "provider": "clinical.devices",
+        "contract": {
+          "name": "noesis-medical-device-record",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.devices-identity",
+        "provider": "clinical.devices",
+        "contract": {
+          "name": "noesis-medical-device-identity",
+          "version": "1.0.0"
+        }
+      },
+      {
+        "id": "clinical.devices-monitoring",
+        "provider": "clinical.devices",
+        "contract": {
+          "name": "noesis-medical-device-monitor",
+          "version": "1.0.0"
+        }
       }
     ],
     "providers": [
@@ -141,6 +165,10 @@
       },
       {
         "id": "clinical.health-capacity",
+        "version": "1.0.0"
+      },
+      {
+        "id": "clinical.devices",
         "version": "1.0.0"
       }
     ],
@@ -208,6 +236,23 @@
           "as_of": "the vintage released at or before the requested date per series",
           "sources": "side by side; nothing blended, averaged or preferred; places never ranked",
           "never": "Published health-system capacity indicators (beds, workforce, expenditure by financing scheme) as each source released them, with definitions, flags and vintages, sources side by side: no ranking, performance or quality score, no harmonised, adjusted or re-estimated value and no combined metric."
+        }
+      },
+      {
+        "id": "clinical.devices-regulatory-history",
+        "description": "Medical device regulatory history: a device (K or P number, DI, Basic UDI-DI) or FDA product code to its clearances, approvals with supplements, recalls and EU certificates as of a date, each citing its record revision, US and EU side by side, with reviewable identity across FDA, GUDID and EUDAMED and MAUDE report counts with FDA's caveats",
+        "vocabulary": {
+          "clearance": "a 510(k) decision keyed by K number, with decision code and date as published",
+          "approval": "a PMA keyed by P number; each supplement is its own record keyed by P number and supplement number",
+          "recall": "a device recall keyed by recall number; class and status changes are revisions as published",
+          "adverse-event report": "a MAUDE report keyed by report number; a report is not a finding that the device caused the event",
+          "report count": "the number of reports FDA received as published for a product code and window; never a rate or incidence",
+          "identity match": "a reviewed match by UDI-DI, premarket number or DUNS/SRN with method, evidence and confidence"
+        },
+        "workflow_defaults": {
+          "as_of": "the revision each source had published by the requested date; event dates as published",
+          "sources": "FDA and EUDAMED side by side; nothing merged; unavailable EUDAMED modules stated",
+          "never": "Medical device records are kept as each regulator published them. Nothing here detects safety signals, infers causality from adverse-event reports or gives clinical advice, and no patient data beyond what regulators publish is stored."
         }
       }
     ]
@@ -421,7 +466,82 @@
           "reason": "country and region codes resolve to Geospatial places by the published code"
         }
       ]
+    },
+    {
+      "id": "medical-devices-fda",
+      "default": false,
+      "description": "Medical devices from FDA: openFDA 510(k), PMA with supplements, classification, recall and MAUDE records (reports with FDA's caveats, never incidence) as versioned records, regulatory history as of a date, report counts, reviewable identity, citation links and monitors. No safety-signal detection, causality or clinical advice.",
+      "requires": [
+        {
+          "capability": "clinical.devices-records",
+          "contract": "noesis-medical-device-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.devices-identity",
+          "contract": "noesis-medical-device-identity",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.devices-monitoring",
+          "contract": "noesis-medical-device-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        }
+      ]
+    },
+    {
+      "id": "medical-devices-gudid",
+      "default": false,
+      "description": "Medical device identifiers from AccessGUDID: primary and package DIs, product codes and premarket submission numbers as versioned records, matched to FDA and EUDAMED records and Products GTINs through reviewable identity. No safety-signal detection or clinical advice.",
+      "requires": [
+        {
+          "capability": "clinical.devices-records",
+          "contract": "noesis-medical-device-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.devices-identity",
+          "contract": "noesis-medical-device-identity",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.devices-monitoring",
+          "contract": "noesis-medical-device-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        }
+      ]
+    },
+    {
+      "id": "medical-devices-eudamed",
+      "default": false,
+      "description": "Medical devices from the EUDAMED public modules: actors by SRN, devices by Basic UDI-DI and notified-body certificates with status revisions; unavailable modules (vigilance, clinical investigations, market surveillance) stay explicit gaps. No safety-signal detection or clinical advice.",
+      "requires": [
+        {
+          "capability": "clinical.devices-records",
+          "contract": "noesis-medical-device-record",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.devices-identity",
+          "contract": "noesis-medical-device-identity",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "clinical.devices-monitoring",
+          "contract": "noesis-medical-device-monitor",
+          "range": "^1.0.0",
+          "reason": "the feature's own entry points use these operations"
+        }
+      ]
     }
   ],
-  "content_hash": "sha256:092a541763439eaa92e9d654d85ba6d934f12e79f2bdf2ff6de13b1d9b3255d6"
+  "content_hash": "sha256:34f53fac79778cc128cdacac02dc78da7b821453571b614bc6060e25d005742b"
 }

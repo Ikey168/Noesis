@@ -1,0 +1,62 @@
+{
+ "gudid": {
+  "device": {
+   "publicVersionNumber": "3",
+   "publicVersionDate": "2024-09-01",
+   "publicVersionStatus": "Update",
+   "deviceRecordStatus": "Published",
+   "devicePublishDate": "2021-04-01",
+   "brandName": "Exampla CardioPace",
+   "versionModelNumber": "CP-7",
+   "catalogNumber": "CP-7-US",
+   "companyName": "EXAMPLA MEDICAL DEVICES INC.",
+   "dunsNumber": "999000111",
+   "deviceDescription": "Exampla CardioPace (fictional Noesis fixture)",
+   "deviceCommDistributionStatus": "In Commercial Distribution",
+   "identifiers": {
+    "identifier": [
+     {
+      "deviceId": "00899999000028",
+      "deviceIdType": "Primary",
+      "deviceIdIssuingAgency": "GS1"
+     }
+    ]
+   },
+   "productCodes": {
+    "fdaProductCode": [
+     {
+      "productCode": "ZXB",
+      "productCodeName": "Electrode, Pacemaker, Permanent (fictional)"
+     }
+    ]
+   },
+   "premarketSubmissions": {
+    "premarketSubmission": [
+     {
+      "submissionNumber": "P999001",
+      "supplementNumber": "S001"
+     },
+     {
+      "submissionNumber": "NDA999001",
+      "supplementNumber": null
+     }
+    ]
+   },
+   "gmdnTerms": {
+    "gmdn": [
+     {
+      "gmdnPTName": "Implantable pacemaker lead"
+     }
+    ]
+   },
+   "contacts": {
+    "customerContact": [
+     {
+      "phone": "+1(555)0100",
+      "email": "support@example.invalid"
+     }
+    ]
+   }
+  }
+ }
+}

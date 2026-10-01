@@ -269,6 +269,12 @@ MATRIX = {
     "Protein to cited reference records and bioactivity":
         "tests/unit/domains/test_lifesci_acceptance.py::"
         "test_protein_to_cited_reference_records_structures_and_published_bioactivity",
+    # The Clinical Evidence clinical.devices provider's offline journey (#2718) composes its record owner with the
+    # source-pack runtime, entity-history identity, ownership, Product safety, Medicines and trial links and
+    # subscriptions.
+    "Device or manufacturer to cited clearances, recalls and report counts":
+        "tests/unit/domains/test_medical_devices_acceptance.py::"
+        "test_device_and_manufacturer_to_cited_clearances_recalls_and_report_counts_with_caveats",
 }
 
 

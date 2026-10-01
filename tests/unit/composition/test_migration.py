@@ -82,6 +82,7 @@ PROJECTOR_OWNERS = {
     "noesis-enforcement-record-v1": "src.kb.enforcement",  # #2651
     "noesis-extractives-record-v1": "src.kb.extractives_store",  # Economics extractives (#2653)
     "noesis-lifesci-record-v1": "src.kb.lifesci_store",  # Science life-sciences reference data (#2652)
+    "noesis-medical-device-record-v1": "src.kb.medical_devices_records",  # #2654
 }
 
 
