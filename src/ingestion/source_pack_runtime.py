@@ -368,6 +368,8 @@ def _fisheries_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-fisheries-record-v1"] = _fisheries_projector
+
+
 def _agrifood_projector(conn: Any) -> Any:
     from src.kb.agrifood_store import AgrifoodProjector
 
@@ -375,6 +377,8 @@ def _agrifood_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-agrifood-record-v1"] = _agrifood_projector
+
+
 def _court_justice_projector(conn: Any) -> Any:
     from src.kb.courts_justice import CourtsJusticeProjector
 
@@ -429,6 +433,8 @@ def _astronomy_registration_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
+
+
 def _real_estate_projector(conn: Any) -> Any:
     from src.kb.real_estate import RealEstateProjector
 
@@ -436,6 +442,8 @@ def _real_estate_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-real-estate-record-v1"] = _real_estate_projector
+
+
 def _logistics_projector(conn: Any) -> Any:
     from src.kb.logistics_series import LogisticsProjector
 
@@ -454,6 +462,8 @@ def _extractives_projector(conn: Any) -> Any:
 
 # Economics extractives provider (#2653).
 PROJECTORS["noesis-extractives-record-v1"] = _extractives_projector
+
+
 def _competition_projector(conn: Any) -> Any:
     from src.kb.competition import CompetitionProjector
 
@@ -500,6 +510,8 @@ def _fact_check_projector(conn: Any) -> Any:
 
 # News fact-checks provider (#2659).
 PROJECTORS["noesis-fact-check-record-v1"] = _fact_check_projector
+
+
 def _enforcement_projector(conn: Any) -> Any:
     from src.kb.enforcement import EnforcementProjector
 
@@ -508,6 +520,16 @@ def _enforcement_projector(conn: Any) -> Any:
 
 # Legal regulatory enforcement features (#2651).
 PROJECTORS["noesis-enforcement-record-v1"] = _enforcement_projector
+
+
+def _lifesci_projector(conn: Any) -> Any:
+    from src.kb.lifesci_store import LifeSciProjector
+
+    return LifeSciProjector(conn)
+
+
+# Science life-sciences reference records (#2652).
+PROJECTORS["noesis-lifesci-record-v1"] = _lifesci_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

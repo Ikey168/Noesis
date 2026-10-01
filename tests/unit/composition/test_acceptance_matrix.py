@@ -263,6 +263,12 @@ MATRIX = {
     "Company to cited regulatory enforcement actions":
         "tests/unit/domains/test_enforcement_acceptance.py::"
         "test_company_to_cited_enforcement_actions_with_outcome_and_appeal_history",
+    # The Science life-sciences provider's offline journey (#2716) composes its record owner (UniProt, NCBI Gene and
+    # Taxonomy, RCSB PDB, ChEMBL) with entity identity, Chemicals, Clinical, Biodiversity and document records,
+    # subscriptions and the source-pack runtime.
+    "Protein to cited reference records and bioactivity":
+        "tests/unit/domains/test_lifesci_acceptance.py::"
+        "test_protein_to_cited_reference_records_structures_and_published_bioactivity",
 }
 
 

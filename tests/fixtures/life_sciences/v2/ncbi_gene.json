@@ -1,0 +1,31 @@
+{
+ "life_sciences": {
+  "documents": [
+   {
+    "gene_ids": [
+     "990000101",
+     "990000102",
+     "990000103"
+    ],
+    "label": "Genes cross-referenced by the bounded proteins"
+   }
+  ],
+  "live_verification": "unverified-live",
+  "namespace": "global",
+  "provider": "ncbi-gene",
+  "release": {
+   "label": "2099-03-15",
+   "published_on": "2099-03-15"
+  }
+ },
+ "native_pages": [
+  {
+   "body": "{\"header\": {\"type\": \"esummary\", \"version\": \"0.3\"}, \"result\": {\"990000101\": {\"chromosome\": \"3\", \"currentid\": \"\", \"description\": \"exampla kinase 1\", \"maplocation\": \"3q1.1\", \"name\": \"exk1\", \"organism\": {\"commonname\": \"\", \"scientificname\": \"Exampla fictiva\", \"taxid\": 99000001}, \"otheraliases\": \"EXK1, exk1a\", \"status\": \"\", \"uid\": \"990000101\"}, \"990000102\": {\"chromosome\": \"3\", \"currentid\": \"\", \"description\": \"northwind transporter 1\", \"maplocation\": \"3q1.1\", \"name\": \"nwp1\", \"organism\": {\"commonname\": \"\", \"scientificname\": \"Northwindia borealis\", \"taxid\": 99000100}, \"otheraliases\": \"NWP1, nwp1a\", \"status\": \"\", \"uid\": \"990000102\"}, \"990000103\": {\"chromosome\": \"3\", \"currentid\": \"990000101\", \"description\": \"exampla kinase 2\", \"maplocation\": \"3q1.1\", \"name\": \"exk2\", \"organism\": {\"commonname\": \"\", \"scientificname\": \"Exampla fictiva\", \"taxid\": 99000001}, \"otheraliases\": \"EXK2, exk2a\", \"status\": \"1\", \"uid\": \"990000103\"}, \"uids\": [\"990000101\", \"990000102\", \"990000103\"]}}",
+   "headers": {},
+   "request": "/entrez/eutils/esummary.fcgi?db=gene&id=990000101%2C990000102%2C990000103&retmode=json",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every accession, organism, compound, value, identifier and title is fictional. Author and depositor fields are present only to prove they are dropped.",
+ "provider": "ncbi-gene"
+}

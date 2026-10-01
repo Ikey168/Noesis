@@ -248,6 +248,11 @@ For the project overview and local setup, start with the
   vintages and comparability notes, ROR-keyed reviewable identity, citation links to Science and Funding records
   and monitors; no rankings, scores, merged values or derived ratios;
   [source audit](development/education-evidence/source-audit.md)
+- [Science life-sciences guide](guides/science-life-sciences.md) — UniProtKB proteins, NCBI Gene and Taxonomy,
+  RCSB PDB structures and ChEMBL targets, compounds and published activities with entry versions, release
+  membership, cross-reference graphs, reviewable cross-source identity, links to Chemicals, Clinical, Biodiversity
+  and literature, and monitors; no inference, prediction or personal names;
+  [source audit](development/life-sciences-evidence/source-audit.md)
 - [Economics shipping and logistics guide](guides/economics-shipping-logistics.md) — UN/LOCODE port records per
   release, UNCTADstat and Eurostat maritime series and openly licensed freight indices as of a vintage, reviewable
   port identity, trade-flow joins by shared code or citation and monitors; no freight-rate forecast or derived index;

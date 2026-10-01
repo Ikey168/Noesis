@@ -81,6 +81,7 @@ PROJECTOR_OWNERS = {
     "noesis-fact-check-record-v1": "src.kb.fact_checks_records",
     "noesis-enforcement-record-v1": "src.kb.enforcement",  # #2651
     "noesis-extractives-record-v1": "src.kb.extractives_store",  # Economics extractives (#2653)
+    "noesis-lifesci-record-v1": "src.kb.lifesci_store",  # Science life-sciences reference data (#2652)
 }
 
 

@@ -129,8 +129,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Legal treaties features' UNTC, CELLAR agreement and Council of Europe sources (#2581),
     # plus the News fact-checks features' Google Fact Check Tools, Data Commons ClaimReview and IFCN sources (#2659),
     # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB Art. 60 sources (#2651),
-    # plus the Economics extractives features' EITI, USGS MCS and BGS World Mineral Statistics sources (#2653).
-    assert sum(len(pack["sources"]) for pack in packs) == 311
+    # plus the Economics extractives features' EITI, USGS MCS and BGS World Mineral Statistics sources (#2653),
+    # plus the Science life-sciences UniProt, NCBI Gene, NCBI Taxonomy, RCSB PDB and ChEMBL sources (#2652).
+    assert sum(len(pack["sources"]) for pack in packs) == 316
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

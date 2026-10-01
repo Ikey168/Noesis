@@ -407,6 +407,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"enforcement"})
 # Economics extractives: EITI summary data, USGS Mineral Commodity Summaries and BGS World Mineral Statistics (#2653).
 NATIVE_CONNECTOR_MODULES["extractives"] = "src.ingestion.extractives_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"extractives"})
+# Science life-sciences reference data: UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL (#2652).
+NATIVE_CONNECTOR_MODULES["life-sciences"] = "src.ingestion.lifesci_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
 
 
 def native_connector_module(connector: str) -> Any:

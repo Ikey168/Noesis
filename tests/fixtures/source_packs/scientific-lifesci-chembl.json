@@ -1,0 +1,55 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\"activities\": 4, \"chembl_db_version\": \"CHEMBL_99\", \"chembl_release_date\": \"2099-01-20\", \"status\": \"UP\"}",
+   "headers": {},
+   "request": "/chembl/api/data/status.json",
+   "status": 200
+  },
+  {
+   "body": "{\"cross_references\": [{\"xref_id\": \"X9EXA1\", \"xref_src\": \"UniProt\"}], \"organism\": \"Exampla fictiva\", \"pref_name\": \"Exampla kinase 1\", \"species_group_flag\": false, \"target_chembl_id\": \"CHEMBL9900001\", \"target_components\": [{\"accession\": \"X9EXA1\", \"component_description\": \"Exampla kinase 1\", \"component_id\": 99001, \"component_type\": \"PROTEIN\", \"relationship\": \"SINGLE PROTEIN\"}], \"target_type\": \"SINGLE PROTEIN\", \"tax_id\": 99000001}",
+   "headers": {},
+   "request": "/chembl/api/data/target/CHEMBL9900001.json",
+   "status": 200
+  },
+  {
+   "body": "{\"max_phase\": null, \"molecule_chembl_id\": \"CHEMBL9900101\", \"molecule_properties\": {\"alogp\": \"-0.20\", \"full_mwt\": \"59.07\"}, \"molecule_structures\": {\"canonical_smiles\": \"CC(=O)N\", \"standard_inchi\": \"InChI=1S/fictional/CHEMBL9900101\", \"standard_inchi_key\": \"EXAMPLAKINASEA-UHFFFAOYSA-N\"}, \"molecule_type\": \"Small molecule\", \"pref_name\": \"EXAMPLINIB\"}",
+   "headers": {},
+   "request": "/chembl/api/data/molecule/CHEMBL9900101.json",
+   "status": 200
+  },
+  {
+   "body": "{\"max_phase\": null, \"molecule_chembl_id\": \"CHEMBL9900102\", \"molecule_properties\": {\"alogp\": \"-0.20\", \"full_mwt\": \"59.07\"}, \"molecule_structures\": {\"canonical_smiles\": \"CC(=O)N\", \"standard_inchi\": \"InChI=1S/fictional/CHEMBL9900102\", \"standard_inchi_key\": \"NORTHWINDCMPDB-UHFFFAOYSA-N\"}, \"molecule_type\": \"Small molecule\", \"pref_name\": \"NORTHWINDOL\"}",
+   "headers": {},
+   "request": "/chembl/api/data/molecule/CHEMBL9900102.json",
+   "status": 200
+  },
+  {
+   "body": "{\"activities\": [{\"activity_comment\": null, \"activity_id\": 990000301, \"assay_chembl_id\": \"CHEMBL9900401\", \"assay_description\": \"Fictional IC50 assay CHEMBL9900401\", \"assay_type\": \"B\", \"data_validity_comment\": null, \"document_chembl_id\": \"CHEMBL9900201\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900101\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \"=\", \"standard_flag\": 1, \"standard_relation\": \"=\", \"standard_type\": \"IC50\", \"standard_units\": \"nM\", \"standard_value\": \"12.5\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"IC50\", \"units\": \"nM\", \"value\": \"12.5\"}, {\"activity_comment\": null, \"activity_id\": 990000302, \"assay_chembl_id\": \"CHEMBL9900402\", \"assay_description\": \"Fictional Ki assay CHEMBL9900402\", \"assay_type\": \"B\", \"data_validity_comment\": null, \"document_chembl_id\": \"CHEMBL9900201\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900102\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \">\", \"standard_flag\": 1, \"standard_relation\": \">\", \"standard_type\": \"Ki\", \"standard_units\": \"nM\", \"standard_value\": \"10000\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"Ki\", \"units\": \"nM\", \"value\": \"10000\"}, {\"activity_comment\": null, \"activity_id\": 990000303, \"assay_chembl_id\": \"CHEMBL9900403\", \"assay_description\": \"Fictional Inhibition assay CHEMBL9900403\", \"assay_type\": \"F\", \"data_validity_comment\": \"Outside typical range\", \"document_chembl_id\": \"CHEMBL9900202\", \"document_year\": 2099, \"ligand_efficiency\": {\"bei\": \"20.1\"}, \"molecule_chembl_id\": \"CHEMBL9900101\", \"pchembl_value\": \"7.90\", \"potential_duplicate\": 0, \"relation\": \"=\", \"standard_flag\": 1, \"standard_relation\": \"=\", \"standard_type\": \"Inhibition\", \"standard_units\": \"%\", \"standard_value\": \"45\", \"target_chembl_id\": \"CHEMBL9900001\", \"type\": \"Inhibition\", \"units\": \"%\", \"value\": \"45\"}], \"page_meta\": {\"limit\": 50, \"next\": null, \"offset\": 0, \"total_count\": 3}}",
+   "headers": {},
+   "request": "/chembl/api/data/activity.json?limit=50&offset=0&target_chembl_id=CHEMBL9900001",
+   "status": 200
+  },
+  {
+   "body": "{\"abstract\": \"Fictional abstract (not stored).\", \"authors\": \"Quell M, Fictive A\", \"doc_type\": \"PUBLICATION\", \"document_chembl_id\": \"CHEMBL9900201\", \"doi\": \"10.99999/exampla.2099.001\", \"first_page\": \"1\", \"journal\": \"J. Fict. Chem.\", \"pubmed_id\": 99000001, \"title\": \"Exampla kinase inhibitors (fictional)\", \"volume\": \"1\", \"year\": 2099}",
+   "headers": {},
+   "request": "/chembl/api/data/document/CHEMBL9900201.json",
+   "status": 200
+  },
+  {
+   "body": "{\"abstract\": \"Fictional abstract (not stored).\", \"authors\": \"Quell M, Fictive A\", \"doc_type\": \"PUBLICATION\", \"document_chembl_id\": \"CHEMBL9900202\", \"doi\": \"10.99999/northwind.2099.003\", \"first_page\": \"1\", \"journal\": \"J. Fict. Chem.\", \"pubmed_id\": null, \"title\": \"Northwind screening set (fictional)\", \"volume\": \"1\", \"year\": 2099}",
+   "headers": {},
+   "request": "/chembl/api/data/document/CHEMBL9900202.json",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every accession, organism, compound, value, identifier and title is fictional. Author and depositor fields are present only to prove they are dropped.",
+ "provider": "chembl",
+ "scenarios": [
+  "release check",
+  "activity relation, unit and validity comment",
+  "document citation",
+  "authors and pchembl dropped"
+ ]
+}

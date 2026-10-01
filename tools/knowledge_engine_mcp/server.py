@@ -9380,6 +9380,11 @@ from tools.knowledge_engine_mcp.education_statistics import (  # noqa: E402 - re
 )
 
 register_education_statistics_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.life_sciences import (  # noqa: E402 - registration order
+    register as register_life_sciences_tools,
+)
+
+register_life_sciences_tools(mcp, _intake_safe, _intake_context)
 from tools.knowledge_engine_mcp.legislation import (
     register as register_legislation_tools,
 )
