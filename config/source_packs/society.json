@@ -63,7 +63,7 @@
        "povline": "2.15",
        "fill_gaps": "false",
        "ppp_version": "2017",
-       "version": "20990401_2017_01_02_PROD"
+       "version": "20260801_2017_01_02_PROD"
       },
       "indicators": [
        "headcount",
@@ -114,7 +114,7 @@
        "povline": "2.15",
        "fill_gaps": "true",
        "ppp_version": "2017",
-       "version": "20990401_2017_01_02_PROD"
+       "version": "20260801_2017_01_02_PROD"
       },
       "indicators": [
        "headcount",
@@ -163,7 +163,7 @@
        "povline": "2.15",
        "group_by": "wb",
        "ppp_version": "2017",
-       "version": "20990401_2017_01_02_PROD"
+       "version": "20260801_2017_01_02_PROD"
       },
       "indicators": [
        "headcount"
@@ -206,8 +206,8 @@
    },
    "fixture": {
     "path": "tests/fixtures/source_packs/society-income-pip.json",
-    "sha256": "29e217989114cdc1e84b106a24e900fd1ae5a580bfdd0490111a189a30755df0",
-    "expected_output_hash": "61aad13d5be146f5794eef3d6237d23e785be8691e6808f13d2907ae45ba0729"
+    "sha256": "e7637876f1cbf1f2a110372822919b5790d63fda57e6813b37b5badda348446b",
+    "expected_output_hash": "a73f5a4a1079ea1a187a9db974ddac429ada6f17b739fa1d99e3d17a7e2e7390"
    }
   },
   {

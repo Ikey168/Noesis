@@ -37,7 +37,7 @@ def test_as_of_answers_select_the_vintage_released_by_the_date(env):
     assert {v["period"]: v["value"] for v in silc_before["values"]}["2098"] == "14.4"
     assert {v["period"]: v["value"] for v in silc_after["values"]}["2098"] == "14.3"
     assert silc_after["vintage"]["revision_of"] == silc_before["vintage"]["vintage_id"]
-    # PIP released its first estimates on 2099-04-01; the OECD response was only retrieved on 2099-12-01.
+    # PIP released its first estimates on 2026-08-01; the OECD response was only retrieved on 2099-12-01.
     assert {r["provider"] for r in before["results"]} == {"eu-silc"}
     assert {r["provider"] for r in middle["results"]} == {"pip", "eu-silc"}
     assert before["unavailable_by_as_of"] and before["unavailable_by_as_of"][0]["reason"] == "no_release_by_as_of"

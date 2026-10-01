@@ -5,7 +5,7 @@ Three providers are recorded under an access contract (:data:`PROVIDER_CONTRACTS
 
 * **World Bank PIP** (``pip``, format ``pip-json``) - the Poverty and Inequality Platform API (``/pip`` country
   estimates, ``/pip-grp`` regional aggregates), JSON. A document names one country or region, one poverty line and
-  the PPP round (``ppp_version``) and pins the PIP release (``version``, e.g. ``20990401_2017_01_02_PROD``). Each PIP
+  the PPP round (``ppp_version``) and pins the PIP release (``version``, e.g. ``20260801_2017_01_02_PROD``). Each PIP
   release and each PPP round is a separate vintage; the welfare type (income or consumption), the survey year, the
   survey acronym and PIP's own estimation label (survey-year estimate or interpolated/extrapolated reference-year
   "lineup" estimate) are stored per value exactly as PIP labels them.

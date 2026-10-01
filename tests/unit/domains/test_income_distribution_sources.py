@@ -58,11 +58,11 @@ def test_pip_values_carry_welfare_type_survey_year_and_estimation_labels_per_val
 def test_pip_release_version_dates_the_release_and_names_the_ppp_round():
     assert pip_version("20991120_2017_02_02_PROD")["ppp_revision"] == "02"
     header = h.fetch("pip")[0][0]["income_release"]
-    assert header["release_basis"] == "pip_release_version" and header["published_on"] == "2099-04-01"
+    assert header["release_basis"] == "pip_release_version" and header["published_on"] == "2026-08-01"
     assert header["structure"]["release_version"]["ppp_version"] == "2017"
     source = h.source("pip")
     bad = json.loads(json.dumps(source))
-    bad["income_distribution"]["documents"][0]["params"]["version"] = "20990401_2021_01_01_PROD"
+    bad["income_distribution"]["documents"][0]["params"]["version"] = "20260801_2021_01_01_PROD"
     with pytest.raises(SourcePackError):
         income_declaration(bad)
 
