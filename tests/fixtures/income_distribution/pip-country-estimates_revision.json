@@ -1,0 +1,154 @@
+{
+ "documents": [
+  {
+   "definition": {
+    "methodology_notes": [
+     "Line-up (interpolated and extrapolated) reference-year estimates are labelled by estimation_type (PIP methodology handbook, verify)"
+    ],
+    "source_text": "Share of the population living below the international poverty line, per-capita household welfare (income or consumption as the survey measures it)",
+    "threshold": "$2.15 a day per person at 2017 purchasing power parities"
+   },
+   "endpoint": "pip",
+   "equivalence_scale": "per-capita",
+   "label": "PIP country estimates, Germany, $2.15 line, 2017 PPP (release 20990320_2017_02_02_PROD)",
+   "measures": [
+    "headcount",
+    "poverty_gap",
+    "gini",
+    "mean",
+    "median",
+    "decile10"
+   ],
+   "params": {
+    "country": "DEU",
+    "fill_gaps": "true",
+    "povline": "2.15",
+    "ppp_version": "2017",
+    "release_version": "20990320_2017_02_02_PROD",
+    "reporting_level": "national"
+   },
+   "poverty_line": {
+    "amount": "2.15",
+    "basis": "absolute-ppp",
+    "label": "International poverty line ($2.15, 2017 PPP)"
+   },
+   "references": [
+    {
+     "identifier": "pip-methodology-handbook",
+     "kind": "methodology",
+     "relation": "documented_in",
+     "scheme": "url",
+     "url": "https://datanalytics.worldbank.org/PIP-Methodology/"
+    },
+    {
+     "identifier": "pip-api",
+     "kind": "documentation",
+     "relation": "documented_in",
+     "scheme": "url",
+     "url": "https://pip.worldbank.org/api"
+    }
+   ],
+   "welfare_concept": "income"
+  }
+ ],
+ "native_pages": [
+  {
+   "body": [
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.248",
+     "distribution_type": "micro",
+     "estimation_type": "survey",
+     "gini": "0.312",
+     "headcount": "0.0022",
+     "is_interpolated": false,
+     "mean": "60.9",
+     "median": "52.8",
+     "poverty_gap": "0.0006",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2094,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 1,
+     "survey_coverage": "national",
+     "survey_year": 2094,
+     "welfare_type": "income"
+    },
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.249",
+     "distribution_type": "micro",
+     "estimation_type": "interpolation",
+     "gini": "0.314",
+     "headcount": "0.0020",
+     "is_interpolated": true,
+     "mean": "61.4",
+     "median": "53.1",
+     "poverty_gap": "0.0006",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2095,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 1,
+     "survey_coverage": "national",
+     "survey_year": null,
+     "welfare_type": "income"
+    },
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.246",
+     "distribution_type": "micro",
+     "estimation_type": "survey",
+     "gini": "0.309",
+     "headcount": "0.0019",
+     "is_interpolated": false,
+     "mean": "62.2",
+     "median": "53.9",
+     "poverty_gap": "0.0005",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2096,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 2,
+     "survey_coverage": "national",
+     "survey_year": 2096,
+     "welfare_type": "income"
+    },
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.245",
+     "distribution_type": "micro",
+     "estimation_type": "extrapolation",
+     "gini": "0.308",
+     "headcount": "0.0018",
+     "is_interpolated": true,
+     "mean": "63.0",
+     "median": "54.6",
+     "poverty_gap": "0.0005",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2097,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 2,
+     "survey_coverage": "national",
+     "survey_year": null,
+     "welfare_type": "income"
+    }
+   ],
+   "request": "/pip/v1/pip?country=DEU&fill_gaps=true&format=json&povline=2.15&ppp_version=2017&release_version=20990320_2017_02_02_PROD&reporting_level=national&year=all",
+   "status": 200
+  }
+ ]
+}

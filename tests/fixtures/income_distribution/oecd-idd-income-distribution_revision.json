@@ -1,0 +1,87 @@
+{
+ "documents": [
+  {
+   "area_labels": {
+    "DEU": "Germany"
+   },
+   "definition": {
+    "methodology_notes": [
+     "Income definition of the 2012 terms of reference (METH2012); series under the previous definition are a different series",
+     "Breaks in series are flagged OBS_STATUS B"
+    ],
+    "source_text": "OECD Income Distribution Database: disposable household income equivalised with the square root of household size"
+   },
+   "dimensions": {
+    "area": "REF_AREA",
+    "coverage": [
+     "AGE"
+    ],
+    "definition": "DEFINITION",
+    "methodology": "METHODOLOGY"
+   },
+   "equivalence_scale": "square-root",
+   "flow": "OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,1.0",
+   "income_definition": "disposable household income, OECD IDD terms of reference",
+   "key": "DEU.A.INC_DISP_GINI+PR_INC_DISP._T.METH2012.D_CUR._Z+PL_50",
+   "label": "OECD IDD Gini and relative poverty rate (50 % of median), Germany, income definition 2012",
+   "measure_dimension": {
+    "codes": {
+     "INC_DISP_GINI": {
+      "concept": "gini",
+      "label": "Gini (disposable income, post taxes and transfers)",
+      "unit": {
+       "code": "0_TO_1",
+       "label": "Gini coefficient (0-1)"
+      }
+     },
+     "PR_INC_DISP": {
+      "concept": "poverty_headcount",
+      "label": "Poverty rate after taxes and transfers",
+      "unit": {
+       "code": "0_TO_1",
+       "label": "share of population (0-1)"
+      }
+     }
+    },
+    "dimension": "MEASURE"
+   },
+   "methodology": "METH2012",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "poverty_line_dimension": {
+    "codes": {
+     "PL_50": {
+      "amount": "50",
+      "basis": "relative-median",
+      "label": "50 % of median equivalised disposable income",
+      "unit": "percent of median equivalised disposable income"
+     }
+    },
+    "dimension": "POVERTY_LINE"
+   },
+   "references": [
+    {
+     "identifier": "oecd-idd-terms-of-reference",
+     "kind": "methodology",
+     "relation": "documented_in",
+     "scheme": "url",
+     "url": "https://www.oecd.org/els/soc/IDD-ToR.pdf"
+    }
+   ],
+   "release": {
+    "label": "IDD update 2099-06",
+    "published_on": "2099-06-01"
+   },
+   "underlying_survey": "national source as listed in the IDD metadata (verify); recorded as a note only, never matched to EU-SILC values",
+   "welfare_concept": "income"
+  }
+ ],
+ "native_pages": [
+  {
+   "body": "DATAFLOW,REF_AREA,FREQ,MEASURE,AGE,METHODOLOGY,DEFINITION,POVERTY_LINE,TIME_PERIOD,OBS_VALUE,OBS_STATUS,UNIT_MULT\nOECD.WISE.INE:DSD_WISE_IDD@DF_IDD(1.0),DEU,A,INC_DISP_GINI,_T,METH2012,D_CUR,_Z,2094,0.296,A,0\nOECD.WISE.INE:DSD_WISE_IDD@DF_IDD(1.0),DEU,A,INC_DISP_GINI,_T,METH2012,D_CUR,_Z,2095,0.301,B,0\nOECD.WISE.INE:DSD_WISE_IDD@DF_IDD(1.0),DEU,A,INC_DISP_GINI,_T,METH2012,D_CUR,_Z,2096,0.299,A,0\n",
+   "request": "/public/rest/data/OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,1.0/DEU.A.INC_DISP_GINI+PR_INC_DISP._T.METH2012.D_CUR._Z+PL_50?format=csvfile&startPeriod=2094",
+   "status": 200
+  }
+ ]
+}

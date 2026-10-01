@@ -1,0 +1,40 @@
+{
+ "native_pages": [
+  {
+   "body": [
+    {
+     "headcount": "0.0121",
+     "mean": "24.1",
+     "pop_in_poverty": 5100000,
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "region_name": "Europe and Central Asia",
+     "reporting_year": 2094
+    },
+    {
+     "headcount": "0.0117",
+     "mean": "24.6",
+     "pop_in_poverty": 5100000,
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "region_name": "Europe and Central Asia",
+     "reporting_year": 2095
+    },
+    {
+     "headcount": "0.0112",
+     "mean": "25.0",
+     "pop_in_poverty": 5100000,
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "region_name": "Europe and Central Asia",
+     "reporting_year": 2096
+    }
+   ],
+   "request": "/pip/v1/pip-grp?country=ECA&format=json&group_by=wb&povline=2.15&ppp_version=2017&release_version=20980915_2017_01_02_PROD&year=all",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "first-release"
+ ]
+}

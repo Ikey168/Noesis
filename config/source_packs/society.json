@@ -1,0 +1,541 @@
+{
+  "pack_id": "society-income-distribution",
+  "version": "1.0.0",
+  "description": "Society bundle, society.income provider: World Bank PIP country and regional estimates, Eurostat EU-SILC income, poverty and inequality datasets and the OECD Income Distribution Database, for one bounded selection (Germany and the Europe and Central Asia aggregate). Values are quoted as each source released them with definitions, release vintages and flags; no nowcasting, no filled years, no own poverty lines, no blending or re-harmonisation. Audit: docs/development/income-distribution-evidence/source-audit.md.",
+  "domains": [
+    "society"
+  ],
+  "defaults": {
+    "connector": "income-distribution",
+    "temporal_semantics": "the source's release clock (PIP release_version date, Eurostat LAST UPDATE, a declared OECD release date, else the retrieval time, labelled) dates each vintage; the reference year is the period; survey year and income reference year are kept per value; vintages appended, never overwritten",
+    "update_cadence": "PIP: two to three releases a year; EU-SILC: continuous dataset updates; OECD IDD: about twice a year",
+    "mapping": {
+      "target_schema": "noesis-income-distribution-record-v1",
+      "version": "1.0.0"
+    },
+    "extractor_versions": [
+      "income-distribution:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 50,
+      "max_bytes": 2000000,
+      "max_pages": 4
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 31536000
+    },
+    "operations": [
+      "release"
+    ],
+    "policy": {
+      "personal_data": "never; aggregate statistics only, microdata excluded",
+      "values": "as published per source and release; never blended, filled, nowcast or re-harmonised",
+      "poverty_lines": "only the lines a source publishes"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "pip-country-estimates",
+      "endpoint": "https://api.worldbank.org/pip/v1",
+      "publisher": "World Bank, Poverty and Inequality Platform (PIP)",
+      "scope": "PIP country estimates for Germany (DEU) at the international poverty line of the 2017 and 2021 PPP rounds, each document pinned to one release_version; survey-year and line-up estimates labelled as PIP labels them",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets",
+        "redistribution": "attribution-required; cite PIP and the release version (verify)"
+      },
+      "income_distribution": {
+        "namespace": "global",
+        "provider": "pip",
+        "format": "pip-json",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "PIP country estimates, Germany, $2.15 line, 2017 PPP (release 20980915_2017_01_02_PROD)",
+            "endpoint": "pip",
+            "measures": [
+              "headcount",
+              "poverty_gap",
+              "gini",
+              "mean",
+              "median",
+              "decile10"
+            ],
+            "params": {
+              "country": "DEU",
+              "povline": "2.15",
+              "ppp_version": "2017",
+              "release_version": "20980915_2017_01_02_PROD",
+              "fill_gaps": "true",
+              "reporting_level": "national"
+            },
+            "welfare_concept": "income",
+            "equivalence_scale": "per-capita",
+            "poverty_line": {
+              "basis": "absolute-ppp",
+              "amount": "2.15",
+              "label": "International poverty line ($2.15, 2017 PPP)"
+            },
+            "definition": {
+              "source_text": "Share of the population living below the international poverty line, per-capita household welfare (income or consumption as the survey measures it)",
+              "threshold": "$2.15 a day per person at 2017 purchasing power parities",
+              "methodology_notes": [
+                "Line-up (interpolated and extrapolated) reference-year estimates are labelled by estimation_type (PIP methodology handbook, verify)"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "pip-methodology-handbook",
+                "url": "https://datanalytics.worldbank.org/PIP-Methodology/",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "documentation",
+                "scheme": "url",
+                "identifier": "pip-api",
+                "url": "https://pip.worldbank.org/api",
+                "relation": "documented_in"
+              }
+            ]
+          },
+          {
+            "label": "PIP country estimates, Germany, $3.00 line, 2021 PPP (release 20980915_2021_01_02_PROD)",
+            "endpoint": "pip",
+            "measures": [
+              "headcount",
+              "gini"
+            ],
+            "params": {
+              "country": "DEU",
+              "povline": "3.00",
+              "ppp_version": "2021",
+              "release_version": "20980915_2021_01_02_PROD",
+              "fill_gaps": "false",
+              "reporting_level": "national"
+            },
+            "welfare_concept": "income",
+            "equivalence_scale": "per-capita",
+            "poverty_line": {
+              "basis": "absolute-ppp",
+              "amount": "3.00",
+              "label": "International poverty line ($3.00, 2021 PPP)"
+            },
+            "definition": {
+              "source_text": "Share of the population living below the international poverty line, per-capita household welfare (income or consumption as the survey measures it)",
+              "threshold": "$3.00 a day per person at 2021 purchasing power parities",
+              "methodology_notes": [
+                "Line-up (interpolated and extrapolated) reference-year estimates are labelled by estimation_type (PIP methodology handbook, verify)"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "pip-methodology-handbook",
+                "url": "https://datanalytics.worldbank.org/PIP-Methodology/",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "documentation",
+                "scheme": "url",
+                "identifier": "pip-api",
+                "url": "https://pip.worldbank.org/api",
+                "relation": "documented_in"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-pip-country-estimates.json",
+        "sha256": "dfa25f3ace56c6ca1d0114e7392b41dbf115b4823f860ad1a406059e93f1f0ee",
+        "expected_output_hash": "0f3a2e89d6005b3f64c987851590a93d10e107e2fb3d484307ffc9011f3efffc"
+      }
+    },
+    {
+      "source_id": "pip-regional-aggregates",
+      "endpoint": "https://api.worldbank.org/pip/v1",
+      "publisher": "World Bank, Poverty and Inequality Platform (PIP)",
+      "scope": "PIP regional line-up aggregate for Europe and Central Asia (ECA) at the international poverty line of the 2017 PPP round, pinned to one release_version",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.worldbank.org/en/about/legal/terms-of-use-for-datasets",
+        "redistribution": "attribution-required; cite PIP and the release version (verify)"
+      },
+      "income_distribution": {
+        "namespace": "global",
+        "provider": "pip",
+        "format": "pip-json",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "PIP regional aggregate, Europe and Central Asia, $2.15 line, 2017 PPP (release 20980915_2017_01_02_PROD)",
+            "endpoint": "pip-grp",
+            "measures": [
+              "headcount",
+              "mean"
+            ],
+            "params": {
+              "country": "ECA",
+              "povline": "2.15",
+              "ppp_version": "2017",
+              "release_version": "20980915_2017_01_02_PROD"
+            },
+            "welfare_concept": "mixed",
+            "equivalence_scale": "per-capita",
+            "poverty_line": {
+              "basis": "absolute-ppp",
+              "amount": "2.15",
+              "label": "International poverty line ($2.15, 2017 PPP)"
+            },
+            "definition": {
+              "source_text": "Regional line-up aggregate of country estimates (income and consumption surveys combined as PIP aggregates them)",
+              "threshold": "$2.15 a day per person at 2017 purchasing power parities"
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "pip-methodology-handbook",
+                "url": "https://datanalytics.worldbank.org/PIP-Methodology/",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "documentation",
+                "scheme": "url",
+                "identifier": "pip-api",
+                "url": "https://pip.worldbank.org/api",
+                "relation": "documented_in"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-pip-regional-aggregates.json",
+        "sha256": "ab2d35d9931ab486a1f2ef0c6b44f7af563c041b9182e68e6bca0ed0baa592c2",
+        "expected_output_hash": "6067f725a25db4e8c344357d96f32c310b235261879a4733d3c2fd28eaccf1b6"
+      }
+    },
+    {
+      "source_id": "eurostat-silc-income-poverty",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "publisher": "Eurostat (EU statistics on income and living conditions, EU-SILC)",
+      "scope": "EU-SILC country figures for Germany (DE): at-risk-of-poverty rate at 60 % of median (ilc_li02), Gini coefficient (ilc_di12) and the at-risk-of-poverty threshold for a single person (ilc_li01), from a declared start period, OBS_FLAG letters verbatim (operator must verify dataset codes and key order)",
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required"
+      },
+      "income_distribution": {
+        "namespace": "global",
+        "provider": "eurostat-silc",
+        "format": "eurostat-silc-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "EU-SILC at-risk-of-poverty rate, 60 % of median, total population, Germany (ilc_li02)",
+            "flow": "ilc_li02",
+            "key": "A.LI_R_MD60.PC.T.TOTAL.DE",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "indicator": {
+              "code": "ilc_li02",
+              "concept": "poverty_headcount",
+              "measure": "LI_R_MD60",
+              "label": "At-risk-of-poverty rate (cut-off point: 60 % of median equivalised income after social transfers)"
+            },
+            "welfare_concept": "income",
+            "equivalence_scale": "modified-oecd",
+            "poverty_line": {
+              "basis": "relative-median",
+              "amount": "60",
+              "unit": "percent of national median equivalised disposable income",
+              "label": "60 % of median equivalised disposable income after social transfers"
+            },
+            "unit": {
+              "code": "PC",
+              "label": "percent of total population"
+            },
+            "dimensions": {
+              "area": "geo",
+              "coverage": [
+                "sex",
+                "age"
+              ]
+            },
+            "area_labels": {
+              "DE": "Germany"
+            },
+            "income_reference": {
+              "offset_years": -1,
+              "exceptions": {
+                "IE": 0
+              },
+              "basis": "EU-SILC: the income reference period is the calendar year before the survey year, except Ireland (12 months before the interview); ESMS ilc_esms (verify)"
+            },
+            "definition": {
+              "source_text": "Share of persons with an equivalised disposable income (after social transfers) below the at-risk-of-poverty threshold",
+              "threshold": "60 % of the national median equivalised disposable income after social transfers",
+              "methodology_notes": [
+                "Equivalence scale: modified OECD (1.0 first adult, 0.5 other persons aged 14+, 0.3 children under 14)",
+                "Breaks in series are flagged b (ESMS, verify)"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "ilc_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "standard",
+                "scheme": "celex",
+                "identifier": "32019R1700",
+                "relation": "defined_by",
+                "locator": "Regulation (EU) 2019/1700 (IESS)"
+              }
+            ]
+          },
+          {
+            "label": "EU-SILC Gini coefficient of equivalised disposable income, Germany (ilc_di12)",
+            "flow": "ilc_di12",
+            "key": "A.TOTAL.GINI_HND.DE",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "indicator": {
+              "code": "ilc_di12",
+              "concept": "gini",
+              "measure": "GINI_HND",
+              "label": "Gini coefficient of equivalised disposable income"
+            },
+            "welfare_concept": "income",
+            "equivalence_scale": "modified-oecd",
+            "unit": {
+              "code": "GINI_HND",
+              "label": "Gini coefficient (0-100)"
+            },
+            "dimensions": {
+              "area": "geo",
+              "coverage": [
+                "age"
+              ]
+            },
+            "area_labels": {
+              "DE": "Germany"
+            },
+            "income_reference": {
+              "offset_years": -1,
+              "exceptions": {
+                "IE": 0
+              },
+              "basis": "EU-SILC: the income reference period is the calendar year before the survey year, except Ireland (12 months before the interview); ESMS ilc_esms (verify)"
+            },
+            "definition": {
+              "source_text": "Gini coefficient of equivalised disposable income (EU-SILC)",
+              "methodology_notes": [
+                "Equivalence scale: modified OECD"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "ilc_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "standard",
+                "scheme": "celex",
+                "identifier": "32019R1700",
+                "relation": "defined_by",
+                "locator": "Regulation (EU) 2019/1700 (IESS)"
+              }
+            ]
+          },
+          {
+            "label": "EU-SILC at-risk-of-poverty threshold, single person, euro, Germany (ilc_li01)",
+            "flow": "ilc_li01",
+            "key": "A.A1.LI_C_MD60.EUR.DE",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "indicator": {
+              "code": "ilc_li01",
+              "concept": "poverty_threshold",
+              "measure": "LI_C_MD60",
+              "label": "At-risk-of-poverty threshold (60 % of median), single person"
+            },
+            "welfare_concept": "income",
+            "equivalence_scale": "modified-oecd",
+            "unit": {
+              "code": "EUR",
+              "label": "euro per year"
+            },
+            "dimensions": {
+              "area": "geo",
+              "coverage": [
+                "hhtyp",
+                "currency"
+              ]
+            },
+            "area_labels": {
+              "DE": "Germany"
+            },
+            "income_reference": {
+              "offset_years": -1,
+              "exceptions": {
+                "IE": 0
+              },
+              "basis": "EU-SILC: the income reference period is the calendar year before the survey year, except Ireland (12 months before the interview); ESMS ilc_esms (verify)"
+            },
+            "definition": {
+              "source_text": "At-risk-of-poverty threshold in euro for a single-person household",
+              "threshold": "60 % of the national median equivalised disposable income after social transfers",
+              "methodology_notes": [
+                "Equivalence scale: modified OECD"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "ilc_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "standard",
+                "scheme": "celex",
+                "identifier": "32019R1700",
+                "relation": "defined_by",
+                "locator": "Regulation (EU) 2019/1700 (IESS)"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-eurostat-silc-income-poverty.json",
+        "sha256": "6900c3b6703c78e3c1ff762df03431e6ffaf61d95f6007c505df999f6e22dc5d",
+        "expected_output_hash": "f9d2615132b1d8154b56026058ad9e9efc8d775c4d1d5a58dfae475f0f73b113"
+      }
+    },
+    {
+      "source_id": "oecd-idd-income-distribution",
+      "endpoint": "https://sdmx.oecd.org/public/rest/data",
+      "publisher": "OECD (Income Distribution Database)",
+      "scope": "OECD IDD Gini of disposable income and the relative poverty rate at 50 % of median for Germany (DEU) under the current income definition and the 2012 methodology, from a declared start period (operator must verify the dataflow id, version and dimension order)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+        "redistribution": "attribution-required (verify)"
+      },
+      "income_distribution": {
+        "namespace": "global",
+        "provider": "oecd-idd",
+        "format": "oecd-idd-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "OECD IDD Gini and relative poverty rate (50 % of median), Germany, income definition 2012",
+            "flow": "OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,1.0",
+            "key": "DEU.A.INC_DISP_GINI+PR_INC_DISP._T.METH2012.D_CUR._Z+PL_50",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "measure_dimension": {
+              "dimension": "MEASURE",
+              "codes": {
+                "INC_DISP_GINI": {
+                  "concept": "gini",
+                  "label": "Gini (disposable income, post taxes and transfers)",
+                  "unit": {
+                    "code": "0_TO_1",
+                    "label": "Gini coefficient (0-1)"
+                  }
+                },
+                "PR_INC_DISP": {
+                  "concept": "poverty_headcount",
+                  "label": "Poverty rate after taxes and transfers",
+                  "unit": {
+                    "code": "0_TO_1",
+                    "label": "share of population (0-1)"
+                  }
+                }
+              }
+            },
+            "poverty_line_dimension": {
+              "dimension": "POVERTY_LINE",
+              "codes": {
+                "PL_50": {
+                  "basis": "relative-median",
+                  "amount": "50",
+                  "unit": "percent of median equivalised disposable income",
+                  "label": "50 % of median equivalised disposable income"
+                }
+              }
+            },
+            "dimensions": {
+              "area": "REF_AREA",
+              "coverage": [
+                "AGE"
+              ],
+              "methodology": "METHODOLOGY",
+              "definition": "DEFINITION"
+            },
+            "area_labels": {
+              "DEU": "Germany"
+            },
+            "welfare_concept": "income",
+            "equivalence_scale": "square-root",
+            "income_definition": "disposable household income, OECD IDD terms of reference",
+            "methodology": "METH2012",
+            "underlying_survey": "national source as listed in the IDD metadata (verify); recorded as a note only, never matched to EU-SILC values",
+            "release": {
+              "published_on": "2098-11-02",
+              "label": "IDD update 2098-11"
+            },
+            "definition": {
+              "source_text": "OECD Income Distribution Database: disposable household income equivalised with the square root of household size",
+              "methodology_notes": [
+                "Income definition of the 2012 terms of reference (METH2012); series under the previous definition are a different series",
+                "Breaks in series are flagged OBS_STATUS B"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "oecd-idd-terms-of-reference",
+                "url": "https://www.oecd.org/els/soc/IDD-ToR.pdf",
+                "relation": "documented_in"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-oecd-idd-income-distribution.json",
+        "sha256": "bb0e56435ba35f1b780c0db68a34168451b66965521c9138d106b56dae43b9f7",
+        "expected_output_hash": "9efa75f866df2b5ed11f70058c94ff59e17bef67060057f278613358de8a621f"
+      }
+    }
+  ]
+}

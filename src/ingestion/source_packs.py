@@ -391,6 +391,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"media-metadata"})
 # Political campaign finance: OpenFEC committees, filings and schedules, UK Electoral Commission exports (#2209).
 NATIVE_CONNECTOR_MODULES["campaign-finance"] = "src.ingestion.campaign_finance_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"campaign-finance"})
+# Society bundle income, poverty and inequality: World Bank PIP, Eurostat EU-SILC and OECD IDD (#2583).
+NATIVE_CONNECTOR_MODULES["income-distribution"] = "src.ingestion.income_distribution_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
 
 
 def native_connector_module(connector: str) -> Any:
