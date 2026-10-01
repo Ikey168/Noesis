@@ -1,0 +1,4 @@
+id;acronym;status;title;startDate;endDate;totalCost;ecMaxContribution;legalBasis;topics;ecSignatureDate;frameworkProgramme;masterCall;subCall;fundingScheme;objective;contentUpdateDate;rcn;grantDoi
+101999001;EXAMPLAR;SIGNED;Exampla Coastal Resilience;2095-01-01;2099-12-31;2500000;2000000;HORIZON.2.6;HORIZON-CL6-2094-EXAMPLE-01;2094-11-15;HORIZON;HORIZON-CL6-2094-EXAMPLE;HORIZON-CL6-2094-EXAMPLE;HORIZON-RIA;Fictional objective text about coastal resilience.;2099-01-20 10:00:00;999001;10.3030/101999001
+101999002;NORTHWAVE;CLOSED;Northwind Wave Energy;2093-03-01;2097-02-28;900000;750000,5;HORIZON.2.5;HORIZON-CL5-2092-EXAMPLE-02;2093-01-10;HORIZON;HORIZON-CL5-2092-EXAMPLE;HORIZON-CL5-2092-EXAMPLE;HORIZON-RIA;Fictional objective text about wave energy.;2098-06-01 08:00:00;999002;10.3030/101999002
+101999099;UNDECLARED;SIGNED;An undeclared fictional project;2096-01-01;2098-12-31;100;100;;HORIZON-X;;HORIZON;;;;;2098-01-01 00:00:00;;

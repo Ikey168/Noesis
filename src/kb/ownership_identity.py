@@ -57,7 +57,7 @@ FOREIGN_KEY_PREFIXES = ("sanctions:", "lobbying:", "elections:", "public-finance
                         "bafin:", "engineering-safety:", "materials:", "sports:", "legislation:", "courts:",
                         "infrastructure:", "space-registration:", "insurance:",
                         "competition:", "movements:", "campaign-finance:", "treaties:",
-                        "enforcement:", "extractives:")
+                        "enforcement:", "extractives:", "research-entities:")
 PRIMARY_SCHEME = {"gleif": "lei", "companies-house": "gb-coh", "sec-edgar": "sec-cik"}
 STATES = ("proposed", "accepted", "rejected", "reverted")
 _DDL = """

@@ -1,0 +1,508 @@
+{
+ "orcid-identifier": {
+  "uri": "https://orcid.org/0000-0009-9999-0011",
+  "path": "0000-0009-9999-0011",
+  "host": "orcid.org"
+ },
+ "preferences": {
+  "locale": "en"
+ },
+ "history": {
+  "creation-method": "MEMBER-REFERRED",
+  "submission-date": {
+   "value": 3786912000000
+  },
+  "last-modified-date": {
+   "value": 4074742800000
+  },
+  "claimed": true,
+  "verified-email": true
+ },
+ "person": {
+  "last-modified-date": {
+   "value": 4074742800000
+  },
+  "name": {
+   "given-names": {
+    "value": "Ada"
+   },
+   "family-name": {
+    "value": "Exampla"
+   },
+   "credit-name": {
+    "value": "A. Exampla"
+   },
+   "visibility": "PUBLIC",
+   "path": "0000-0009-9999-0011"
+  },
+  "other-names": {
+   "other-name": [
+    {
+     "content": "A. Exampla-Alias",
+     "visibility": "PUBLIC"
+    }
+   ],
+   "path": "/0000-0009-9999-0011/other-names"
+  },
+  "biography": {
+   "content": "Fictional biography text that must never be stored.",
+   "visibility": "PUBLIC",
+   "path": "/0000-0009-9999-0011/biography"
+  },
+  "researcher-urls": {
+   "researcher-url": [
+    {
+     "url": {
+      "value": "https://ada.example"
+     },
+     "url-name": "Homepage"
+    }
+   ],
+   "path": "/0000-0009-9999-0011/researcher-urls"
+  },
+  "emails": {
+   "email": [
+    {
+     "email": "ada@exampla-university.example",
+     "visibility": "PUBLIC"
+    }
+   ],
+   "path": "/0000-0009-9999-0011/email"
+  },
+  "addresses": {
+   "address": [
+    {
+     "country": {
+      "value": "DE"
+     },
+     "visibility": "PUBLIC"
+    }
+   ],
+   "path": "/0000-0009-9999-0011/address"
+  },
+  "keywords": {
+   "keyword": [
+    {
+     "content": "fictional-keyword",
+     "visibility": "PUBLIC"
+    }
+   ],
+   "path": "/0000-0009-9999-0011/keywords"
+  },
+  "external-identifiers": {
+   "external-identifier": [
+    {
+     "external-id-type": "Scopus Author ID",
+     "external-id-value": "SCOPUS-PLACEHOLDER-77"
+    }
+   ],
+   "path": "/0000-0009-9999-0011/external-identifiers"
+  },
+  "path": "/0000-0009-9999-0011/person"
+ },
+ "activities-summary": {
+  "last-modified-date": {
+   "value": 4074742800000
+  },
+  "educations": {
+   "affiliation-group": [
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "summaries": [
+      {
+       "education-summary": {
+        "put-code": 9001,
+        "organization": {
+         "name": "Exampla Grammar School",
+         "address": {
+          "city": "Exampla City",
+          "country": "DE"
+         }
+        },
+        "visibility": "PUBLIC"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "employments": {
+   "affiliation-group": [
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "summaries": [
+      {
+       "employment-summary": {
+        "put-code": 1101,
+        "created-date": {
+         "value": 4070908800000
+        },
+        "last-modified-date": {
+         "value": 4070908800000
+        },
+        "source": {
+         "source-orcid": {
+          "uri": "https://orcid.org/0000-0009-9999-0011",
+          "path": "0000-0009-9999-0011",
+          "host": "orcid.org"
+         },
+         "source-client-id": null,
+         "source-name": {
+          "value": "PERSONAL NAME OF SOURCE"
+         }
+        },
+        "department-name": "Marine Biology",
+        "role-title": "Professor",
+        "start-date": {
+         "year": {
+          "value": "2090"
+         },
+         "month": {
+          "value": "01"
+         }
+        },
+        "end-date": null,
+        "organization": {
+         "name": "Exampla University",
+         "address": {
+          "city": "Exampla City",
+          "region": null,
+          "country": "DE"
+         },
+         "disambiguated-organization": {
+          "disambiguated-organization-identifier": "https://ror.org/0zzexa101",
+          "disambiguation-source": "ROR"
+         }
+        },
+        "url": null,
+        "external-ids": null,
+        "display-index": "0",
+        "visibility": "PUBLIC",
+        "path": "/employment/1101"
+       }
+      }
+     ]
+    },
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "summaries": [
+      {
+       "employment-summary": {
+        "put-code": 1102,
+        "created-date": {
+         "value": 4070908800000
+        },
+        "last-modified-date": {
+         "value": 4070908800000
+        },
+        "source": {
+         "source-orcid": null,
+         "source-client-id": {
+          "uri": "https://orcid.org/client/APP-9999999999999901",
+          "path": "APP-9999999999999901",
+          "host": "orcid.org"
+         },
+         "source-name": {
+          "value": "Northwind Polytechnic research information system (fictional)"
+         }
+        },
+        "department-name": "Coastal Engineering",
+        "role-title": "Lecturer",
+        "start-date": {
+         "year": {
+          "value": "2085"
+         },
+         "month": {
+          "value": "09"
+         }
+        },
+        "end-date": {
+         "year": {
+          "value": "2089"
+         },
+         "month": {
+          "value": "12"
+         }
+        },
+        "organization": {
+         "name": "Northwind Polytechnic",
+         "address": {
+          "city": "Northwind",
+          "region": null,
+          "country": "NL"
+         },
+         "disambiguated-organization": {
+          "disambiguated-organization-identifier": "https://ror.org/0zznwd303",
+          "disambiguation-source": "ROR"
+         }
+        },
+        "url": null,
+        "external-ids": null,
+        "display-index": "0",
+        "visibility": "PUBLIC",
+        "path": "/employment/1102"
+       }
+      }
+     ]
+    },
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "summaries": [
+      {
+       "employment-summary": {
+        "put-code": 1103,
+        "created-date": {
+         "value": 4070908800000
+        },
+        "last-modified-date": {
+         "value": 4070908800000
+        },
+        "source": {
+         "source-orcid": {
+          "uri": "https://orcid.org/0000-0009-9999-0011",
+          "path": "0000-0009-9999-0011",
+          "host": "orcid.org"
+         },
+         "source-client-id": null,
+         "source-name": {
+          "value": "PERSONAL NAME OF SOURCE"
+         }
+        },
+        "department-name": null,
+        "role-title": null,
+        "start-date": {
+         "year": {
+          "value": "2080"
+         }
+        },
+        "end-date": {
+         "year": {
+          "value": "2084"
+         }
+        },
+        "organization": {
+         "name": "Hidden Fictional Employer",
+         "address": {
+          "city": "Nowhere",
+          "region": null,
+          "country": "DE"
+         },
+         "disambiguated-organization": null
+        },
+        "url": null,
+        "external-ids": null,
+        "display-index": "0",
+        "visibility": "PRIVATE",
+        "path": "/employment/1103"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "fundings": {
+   "group": []
+  },
+  "peer-reviews": {
+   "group": []
+  },
+  "works": {
+   "group": [
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "work-summary": [
+      {
+       "put-code": 2201,
+       "created-date": {
+        "value": 4070908800000
+       },
+       "last-modified-date": {
+        "value": 4070908800000
+       },
+       "source": {
+        "source-orcid": {
+         "uri": "https://orcid.org/0000-0009-9999-0011",
+         "path": "0000-0009-9999-0011",
+         "host": "orcid.org"
+        },
+        "source-client-id": null,
+        "source-name": {
+         "value": "PERSONAL NAME OF SOURCE"
+        }
+       },
+       "title": {
+        "title": {
+         "value": "Coastal resilience in Exampla Bay"
+        },
+        "subtitle": null
+       },
+       "external-ids": {
+        "external-id": [
+         {
+          "external-id-type": "doi",
+          "external-id-value": "10.99998/EXAMPLA.PAPER.001",
+          "external-id-normalized": {
+           "value": "10.99998/exampla.paper.001",
+           "transient": true
+          },
+          "external-id-url": {
+           "value": "https://doi.org/10.99998/exampla.paper.001"
+          },
+          "external-id-relationship": "self"
+         }
+        ]
+       },
+       "type": "journal-article",
+       "publication-date": {
+        "year": {
+         "value": "2098"
+        }
+       },
+       "journal-title": null,
+       "visibility": "PUBLIC",
+       "path": "/work/2201",
+       "display-index": "0"
+      }
+     ]
+    },
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "work-summary": [
+      {
+       "put-code": 2202,
+       "created-date": {
+        "value": 4070908800000
+       },
+       "last-modified-date": {
+        "value": 4070908800000
+       },
+       "source": {
+        "source-orcid": null,
+        "source-client-id": {
+         "uri": "https://orcid.org/client/APP-9999999999999902",
+         "path": "APP-9999999999999902",
+         "host": "orcid.org"
+        },
+        "source-name": {
+         "value": "DataCite (fictional member client)"
+        }
+       },
+       "title": {
+        "title": {
+         "value": "Exampla Coastal Sensor Dataset"
+        },
+        "subtitle": null
+       },
+       "external-ids": {
+        "external-id": [
+         {
+          "external-id-type": "doi",
+          "external-id-value": "10.99999/EXAMPLA.DS.001",
+          "external-id-normalized": {
+           "value": "10.99999/exampla.ds.001",
+           "transient": true
+          },
+          "external-id-url": {
+           "value": "https://doi.org/10.99999/exampla.ds.001"
+          },
+          "external-id-relationship": "self"
+         }
+        ]
+       },
+       "type": "data-set",
+       "publication-date": {
+        "year": {
+         "value": "2098"
+        }
+       },
+       "journal-title": null,
+       "visibility": "PUBLIC",
+       "path": "/work/2202",
+       "display-index": "0"
+      }
+     ]
+    },
+    {
+     "last-modified-date": {
+      "value": 4074742800000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "work-summary": [
+      {
+       "put-code": 2203,
+       "created-date": {
+        "value": 4070908800000
+       },
+       "last-modified-date": {
+        "value": 4070908800000
+       },
+       "source": {
+        "source-orcid": {
+         "uri": "https://orcid.org/0000-0009-9999-0011",
+         "path": "0000-0009-9999-0011",
+         "host": "orcid.org"
+        },
+        "source-client-id": null,
+        "source-name": {
+         "value": "PERSONAL NAME OF SOURCE"
+        }
+       },
+       "title": {
+        "title": {
+         "value": "Private fictional draft"
+        },
+        "subtitle": null
+       },
+       "external-ids": {
+        "external-id": []
+       },
+       "type": "working-paper",
+       "publication-date": {
+        "year": {
+         "value": "2099"
+        }
+       },
+       "journal-title": null,
+       "visibility": "PRIVATE",
+       "path": "/work/2203",
+       "display-index": "0"
+      }
+     ]
+    }
+   ]
+  }
+ },
+ "path": "/0000-0009-9999-0011"
+}

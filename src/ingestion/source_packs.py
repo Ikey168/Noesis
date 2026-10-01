@@ -413,6 +413,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"life-sciences"})
 # Clinical Evidence medical devices: openFDA device endpoints, AccessGUDID and EUDAMED public modules (#2654).
 NATIVE_CONNECTOR_MODULES["medical-devices"] = "src.ingestion.medical_devices_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"medical-devices"})
+# Science research entities: ROR dump releases, public ORCID records, DataCite DOIs and CORDIS projects (#2579).
+NATIVE_CONNECTOR_MODULES["research-entities"] = "src.ingestion.research_entities_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
 
 
 def native_connector_module(connector: str) -> Any:

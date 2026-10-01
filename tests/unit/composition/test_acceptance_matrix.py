@@ -275,6 +275,11 @@ MATRIX = {
     "Device or manufacturer to cited clearances, recalls and report counts":
         "tests/unit/domains/test_medical_devices_acceptance.py::"
         "test_device_and_manufacturer_to_cited_clearances_recalls_and_report_counts_with_caveats",
+    # The Science research-entities features' offline journey (#2644) composes the record owner with the source-pack
+    # runtime, ownership identity, Scholarly literature and Funding records and subscriptions.
+    "Organisation or researcher to research-entity records":
+        "tests/unit/domains/test_research_entities_acceptance.py::"
+        "test_organisation_and_researcher_to_cited_registry_records_asserted_works_datasets_and_projects",
 }
 
 

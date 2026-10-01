@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1747,
+      "tool_count": 1764,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1222,6 +1222,7 @@
         "noesis-knowledge-engine.create_public_finance_monitor",
         "noesis-knowledge-engine.create_real_estate_monitor",
         "noesis-knowledge-engine.create_research_decision",
+        "noesis-knowledge-engine.create_research_entities_monitor",
         "noesis-knowledge-engine.create_research_package_manifest",
         "noesis-knowledge-engine.create_research_project",
         "noesis-knowledge-engine.create_retention_checkpoint",
@@ -1246,6 +1247,7 @@
         "noesis-knowledge-engine.cultural_readiness",
         "noesis-knowledge-engine.cultural_rights_policy",
         "noesis-knowledge-engine.cultural_source_contracts",
+        "noesis-knowledge-engine.datasets_for_paper",
         "noesis-knowledge-engine.decide_authored_report_edit",
         "noesis-knowledge-engine.decide_exploration_suggestion",
         "noesis-knowledge-engine.decide_intake_feed_item",
@@ -1385,6 +1387,7 @@
         "noesis-knowledge-engine.export_procurement_bid_draft",
         "noesis-knowledge-engine.export_research_analysis",
         "noesis-knowledge-engine.export_research_analysis_package",
+        "noesis-knowledge-engine.export_research_entities_evidence_bundle",
         "noesis-knowledge-engine.export_research_recipe_run",
         "noesis-knowledge-engine.export_review_annotation_dataset",
         "noesis-knowledge-engine.export_space_registration_evidence",
@@ -1683,6 +1686,7 @@
         "noesis-knowledge-engine.link_medicine_evidence",
         "noesis-knowledge-engine.link_product_notice_citations",
         "noesis-knowledge-engine.link_real_estate_records",
+        "noesis-knowledge-engine.link_research_entities",
         "noesis-knowledge-engine.link_safety_citations",
         "noesis-knowledge-engine.link_space_registration_citations",
         "noesis-knowledge-engine.link_sports_venue_place",
@@ -1806,6 +1810,8 @@
         "noesis-knowledge-engine.list_real_estate_vintages",
         "noesis-knowledge-engine.list_registrant_declarations",
         "noesis-knowledge-engine.list_research_analysis_runs",
+        "noesis-knowledge-engine.list_research_entity_identity_candidates",
+        "noesis-knowledge-engine.list_research_entity_links",
         "noesis-knowledge-engine.list_research_gap_tasks",
         "noesis-knowledge-engine.list_research_gaps",
         "noesis-knowledge-engine.list_research_projects",
@@ -1905,6 +1911,7 @@
         "noesis-knowledge-engine.openreview_concern_review_target",
         "noesis-knowledge-engine.orbit_solution_as_of",
         "noesis-knowledge-engine.orbital_object_history",
+        "noesis-knowledge-engine.organisation_lineage_projects_datasets",
         "noesis-knowledge-engine.oss_ecosystems_readiness",
         "noesis-knowledge-engine.oss_source_contracts",
         "noesis-knowledge-engine.ownership_bundle_status",
@@ -1970,6 +1977,7 @@
         "noesis-knowledge-engine.poll_product_notice_monitor",
         "noesis-knowledge-engine.poll_public_finance_monitor",
         "noesis-knowledge-engine.poll_real_estate_monitor",
+        "noesis-knowledge-engine.poll_research_entities_monitor",
         "noesis-knowledge-engine.poll_sanctions_monitor",
         "noesis-knowledge-engine.poll_space_registration_monitor",
         "noesis-knowledge-engine.poll_sports_monitor",
@@ -2091,6 +2099,7 @@
         "noesis-knowledge-engine.propose_publisher_organisation_matches",
         "noesis-knowledge-engine.propose_real_estate_matches",
         "noesis-knowledge-engine.propose_repository_package_matches",
+        "noesis-knowledge-engine.propose_research_entity_identity_matches",
         "noesis-knowledge-engine.propose_safety_subject_matches",
         "noesis-knowledge-engine.propose_sanctions_identity_link",
         "noesis-knowledge-engine.propose_sanctions_identity_matches",
@@ -2260,8 +2269,13 @@
         "noesis-knowledge-engine.replay_tabular_ingestion",
         "noesis-knowledge-engine.replay_weather_verification",
         "noesis-knowledge-engine.request_save_page_now",
+        "noesis-knowledge-engine.research_entities_readiness",
+        "noesis-knowledge-engine.research_entities_source_contracts",
+        "noesis-knowledge-engine.research_entity_as_of",
+        "noesis-knowledge-engine.research_entity_record",
         "noesis-knowledge-engine.research_snapshot_health",
         "noesis-knowledge-engine.research_snapshot_pins",
+        "noesis-knowledge-engine.researcher_asserted_works_as_of",
         "noesis-knowledge-engine.reserve_research_project_budget",
         "noesis-knowledge-engine.resolve_agrifood_commodity",
         "noesis-knowledge-engine.resolve_agrifood_place",
@@ -2337,6 +2351,7 @@
         "noesis-knowledge-engine.revert_public_finance_identity_match",
         "noesis-knowledge-engine.revert_public_finance_link",
         "noesis-knowledge-engine.revert_real_estate_match",
+        "noesis-knowledge-engine.revert_research_entity_identity_match",
         "noesis-knowledge-engine.revert_safety_subject_match",
         "noesis-knowledge-engine.revert_sanctions_identity_match",
         "noesis-knowledge-engine.revert_space_registration_citation",
@@ -2426,6 +2441,7 @@
         "noesis-knowledge-engine.review_quality_override",
         "noesis-knowledge-engine.review_real_estate_match",
         "noesis-knowledge-engine.review_research_claim_independence",
+        "noesis-knowledge-engine.review_research_entity_identity_match",
         "noesis-knowledge-engine.review_safety_subject_match",
         "noesis-knowledge-engine.review_sanctions_identity_match",
         "noesis-knowledge-engine.review_space_registration_party",
@@ -2510,6 +2526,7 @@
         "noesis-knowledge-engine.run_public_finance_monitor",
         "noesis-knowledge-engine.run_real_estate_monitor",
         "noesis-knowledge-engine.run_reference_workflow",
+        "noesis-knowledge-engine.run_research_entities_monitor",
         "noesis-knowledge-engine.run_research_recipe",
         "noesis-knowledge-engine.run_sanctions_monitor",
         "noesis-knowledge-engine.run_source_pack_execution",
@@ -2720,7 +2737,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1747
+      "visible_tool_count": 1764
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2731,11 +2748,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 156,
+      "available": 157,
       "degraded": 174,
-      "unauthorized": 1755
+      "unauthorized": 1771
     },
-    "tools": 2085
+    "tools": 2102
   },
   "tools": [
     {
@@ -36733,6 +36750,52 @@
     },
     {
       "cost_class": "medium",
+      "description": "Watch an organisation (ROR id), a researcher (ORCID iD; researcher scope) or a CORDIS project\n(PROGRAMME:id) for registry changes, new asserted works and new datasets.",
+      "id": "noesis-knowledge-engine.create_research_entities_monitor",
+      "input_schema": {
+        "properties": {
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "watch": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "watch",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_research_entities_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Create a canonical, immutable portable research-package manifest.",
       "id": "noesis-knowledge-engine.create_research_package_manifest",
       "input_schema": {
@@ -38232,6 +38295,43 @@
       "required_scopes": [],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Datasets whose DataCite metadata relates a paper DOI, with the relation type as published.",
+      "id": "noesis-knowledge-engine.datasets_for_paper",
+      "input_schema": {
+        "properties": {
+          "doi": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "doi"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "datasets_for_paper",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
@@ -45167,6 +45267,58 @@
         "knowledge:analysis:read",
         "knowledge:dataset:read",
         "knowledge:packages:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "An evidence bundle for a researcher, organisation or paper answer (query: researcher | organisation |\npaper): assertions each citing the record revision, source, as-of time and observation time behind them.",
+      "id": "noesis-knowledge-engine.export_research_entities_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "key": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "query": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "query",
+          "key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_research_entities_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -59039,6 +59191,51 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link researchers and datasets to literature papers by DOI, projects to Funding records by topic or call id,\ndatasets to projects by award number and organisations to ownership entities by accepted match; absent\nproviders and missing targets are reported, never dropped. No inferred collaboration or influence links.",
+      "id": "noesis-knowledge-engine.link_research_entities",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_research_entities",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:science:research-entities:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link cited AD and recommendation numbers to records here, and (when their namespaces are named) recall\ncampaigns to Products safety notices, standards to catalogue editions and CFR/EU acts to Legal works, all\nby exact identifier and revision-aware. Unresolved citations keep their text. Idempotent.",
       "id": "noesis-knowledge-engine.link_safety_citations",
       "input_schema": {
@@ -65698,6 +65895,117 @@
     },
     {
       "cost_class": "medium",
+      "description": "Identity candidates and decisions for ROR organisations and CORDIS participants with method, evidence and\nconfidence, and the unmatched subjects. Researchers are never candidates.",
+      "id": "noesis-knowledge-engine.list_research_entity_identity_candidates",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_research_entity_identity_candidates",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:ownership:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Citation, shared-identifier and accepted-match links with the record revisions they point at and their\nbasis; missing providers and targets are listed. A link is not evidence of authorship or collaboration.",
+      "id": "noesis-knowledge-engine.list_research_entity_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "source_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "target_key": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_research_entity_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "List generated research tasks and their current execution status.",
       "id": "noesis-knowledge-engine.list_research_gap_tasks",
       "input_schema": {
@@ -70660,6 +70968,54 @@
     },
     {
       "cost_class": "low",
+      "description": "An organisation's ROR relationships and successors as published in the release in force, its CORDIS\nprojects through accepted participant matches with contributions as published (per currency, never summed\nacross currencies), linked datasets and ownership matches, citing each record version. No ranking.",
+      "id": "noesis-knowledge-engine.organisation_lineage_projects_datasets",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "ror": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "ror"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "organisation_lineage_projects_datasets",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Bundle selection, optional features and ready/fixture-only/unavailable per source; live kept separate.",
       "id": "noesis-knowledge-engine.oss_ecosystems_readiness",
       "input_schema": {
@@ -73438,6 +73794,44 @@
       ],
       "required_scopes": [
         "knowledge:housing:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Delivered research-entities monitor events after a cursor.",
+      "id": "noesis-knowledge-engine.poll_research_entities_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_research_entities_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
         "knowledge:subscriptions:read"
       ],
       "server": "noesis-knowledge-engine",
@@ -78941,6 +79335,52 @@
       "required_scopes": [
         "knowledge:oss:read",
         "knowledge:oss:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose reviewable matches of ROR organisations and CORDIS participants to each other and to Corporate\nOwnership entities by published identifiers first (ROR/ISNI/Wikidata/GRID/FundRef, VAT, website host) and\nnames only as low evidence; nothing is merged or accepted automatically and researchers are never proposed.",
+      "id": "noesis-knowledge-engine.propose_research_entity_identity_matches",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "ownership_namespace": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_research_entity_identity_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -89228,6 +89668,134 @@
     },
     {
       "cost_class": "medium",
+      "description": "Which research-entities features (ROR, ORCID, DataCite, CORDIS) are selected, records per registry, and\nwhether the ORCID source is degraded without its client token.",
+      "id": "noesis-knowledge-engine.research_entities_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "research_entities_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Per-registry endpoints, authentication and key handling (the ORCID public-API token), licences, rate limits,\nrevision and removal models, bounded coverage, LIVE_VERIFICATION status and the researcher data-minimisation\ndecision for ROR, ORCID, DataCite and CORDIS (and the not-implemented OpenAIRE Graph).",
+      "id": "noesis-knowledge-engine.research_entities_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "research_entities_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "The revision of one registry record in force at a date (the latest whose source time is on or before it),\nwith its citation; not_yet_published or none_on_record otherwise.",
+      "id": "noesis-knowledge-engine.research_entity_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key",
+          "as_of"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "research_entity_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "The current revision and every revision of one registry record (ROR organisation, ORCID researcher, DataCite\ndataset or CORDIS project) with source, revision, as-of time and citation. Researcher records only with the\nresearcher scope and only with minimised fields. No ranking or metric.",
+      "id": "noesis-knowledge-engine.research_entity_record",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "record_key": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "record_key"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "research_entity_record",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Return session and active retention-pin counts.",
       "id": "noesis-knowledge-engine.research_snapshot_health",
       "input_schema": {
@@ -89280,6 +89848,55 @@
       ],
       "required_scopes": [
         "knowledge:snapshot:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "A researcher's employments and works as asserted in the public ORCID record version in force at a date,\neach labelled ORCID-asserted (never verified authorship), with the record version cited. Only the public\nfields allowed by the minimisation decision; needs the researcher scope. No ranking or metric.",
+      "id": "noesis-knowledge-engine.researcher_asserted_works_as_of",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "orcid": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "orcid"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "researcher_asserted_works_as_of",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:science:research-entities:researchers:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -92536,6 +93153,48 @@
       "required_scopes": [
         "knowledge:housing:review",
         "knowledge:entity-history:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Revert an accepted or rejected research-entities identity decision; records stay intact.",
+      "id": "noesis-knowledge-engine.revert_research_entity_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_research_entity_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -96707,6 +97366,52 @@
         "knowledge:intake:read",
         "knowledge:intake:review",
         "knowledge:projects:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a research-entities identity candidate as an entity identity decision.",
+      "id": "noesis-knowledge-engine.review_research_entity_identity_match",
+      "input_schema": {
+        "properties": {
+          "candidate_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "candidate_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_research_entity_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -100911,6 +101616,51 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "available",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a research-entities monitor at a committed watermark; notices cite the new and previous record\nrevision, state what changed and carry minimised fields only.",
+      "id": "noesis-knowledge-engine.run_research_entities_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_research_entities_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
       "version": "1"
     },
     {
