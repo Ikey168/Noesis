@@ -1,0 +1,312 @@
+{
+ "pack_id": "osint-platform-transparency",
+ "version": "1.0.0",
+ "description": "Platform transparency records for the Osint pack's optional platform-transparency features (#2580): EU DSA Transparency Database statements of reasons, Meta Ad Library and Google political ads, and Lumen takedown notices under researcher access. Records as published with source, record revision and as-of time; spend and impression ranges never converted to point estimates. Audit: docs/development/platform-transparency-evidence/source-audit.md. Every source is unverified-live until a dated run; Lumen is gated (researcher access not granted).",
+ "domains": [
+  "osint"
+ ],
+ "sources": [
+  {
+   "connector": "platform-transparency",
+   "mapping": {
+    "target_schema": "noesis-platform-transparency-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "platform-transparency:1.0.0"
+   ],
+   "operations": [
+    "selection"
+   ],
+   "schedule": {
+    "kind": "interval",
+    "interval_s": 604800
+   },
+   "health": {
+    "required": false,
+    "max_staleness_s": 2592000
+   },
+   "update_cadence": "on explicit selection only; nothing is polled in the background",
+   "source_id": "dsa-sor-dumps",
+   "endpoint": "https://dsa-sor-data-dumps.s3.eu-central-1.amazonaws.com",
+   "publisher": "European Commission, DSA Transparency Database",
+   "scope": "declared (platform, day) light daily dumps of Article 24(5) DSA statements of reasons; rows of other platforms are never stored; free text, content ids and notifier identity dropped (SP01)",
+   "license": {
+    "id": "ec-reuse-cc-by-4.0",
+    "terms_url": "https://transparency.dsa.ec.europa.eu/page/terms-of-use",
+    "redistribution": "Commission reuse policy, CC BY 4.0 with attribution to the DSA Transparency Database (operator must verify the database terms)"
+   },
+   "temporal_semantics": "application date and creation time of each statement as published; the dump day and file digest are the dump version; a republished dump is a new revision",
+   "budgets": {
+    "timeout_ms": 60000,
+    "max_results": 5100,
+    "max_bytes": 50000000,
+    "max_pages": 20
+   },
+   "auth": {
+    "kind": "none"
+   },
+   "platform_transparency": {
+    "namespace": "global",
+    "provider": "dsa-transparency-database",
+    "format": "dsa-sor-dump-csv",
+    "minimisation": "platform-transparency-minimisation-v1",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/platform-transparency-evidence/source-audit.md#decisions",
+    "coverage_decision": "two synthetic platforms, three platform-days",
+    "selection": {
+     "units": [
+      {
+       "platform": "exampla-social",
+       "date": "2099-05-01",
+       "variant": "light"
+      },
+      {
+       "platform": "exampla-social",
+       "date": "2099-05-02",
+       "variant": "light"
+      },
+      {
+       "platform": "northwind-video",
+       "date": "2099-05-01",
+       "variant": "light"
+      }
+     ]
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/osint-platform-transparency-dsa-sor-dumps.json",
+    "sha256": "68b7575c72d7af7e4235c6a9dc1b1eced7b95d5ca776034bc7caba47faab5748",
+    "expected_output_hash": "0389be983c7e23add2cebb685023ff26e8fd2aed30d0c052d0d3ea5a879c79ca"
+   }
+  },
+  {
+   "connector": "platform-transparency",
+   "mapping": {
+    "target_schema": "noesis-platform-transparency-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "platform-transparency:1.0.0"
+   ],
+   "operations": [
+    "selection"
+   ],
+   "schedule": {
+    "kind": "interval",
+    "interval_s": 604800
+   },
+   "health": {
+    "required": false,
+    "max_staleness_s": 2592000
+   },
+   "update_cadence": "on explicit selection only; nothing is polled in the background",
+   "source_id": "meta-ad-library-political",
+   "endpoint": "https://graph.facebook.com/v21.0",
+   "publisher": "Meta Platforms, Ad Library API",
+   "scope": "political and issue ads of declared pages, reached countries and delivery windows; advertiser, funding entity (bylines), delivery times, spend and impression ranges and currency as published; creative text and audience distributions dropped (SP01)",
+   "license": {
+    "id": "meta-ad-library-api-terms",
+    "terms_url": "https://www.facebook.com/ads/library/api/",
+    "redistribution": "research and transparency use under the Meta Platform Terms; no sale, advertising use or profiling; cite the Ad Library (operator must verify)"
+   },
+   "temporal_semantics": "delivery start and stop times as published; each acquisition is an observation and a changed or no-longer-returned ad is a new revision",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 600,
+    "max_bytes": 5000000,
+    "max_pages": 20
+   },
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_META_AD_LIBRARY_TOKEN"
+   },
+   "platform_transparency": {
+    "namespace": "global",
+    "provider": "meta-ad-library",
+    "format": "meta-ad-library-json",
+    "minimisation": "platform-transparency-minimisation-v1",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/platform-transparency-evidence/source-audit.md#decisions",
+    "coverage_decision": "three synthetic pages (organisation, action fund, person-named page) in two countries",
+    "selection": {
+     "units": [
+      {
+       "page_id": "999000001",
+       "countries": [
+        "GB"
+       ],
+       "delivery_date_min": "2099-04-01",
+       "delivery_date_max": "2099-05-07",
+       "election_id": "gb-general:2099-05-07"
+      },
+      {
+       "page_id": "999000002",
+       "countries": [
+        "US"
+       ],
+       "delivery_date_min": "2099-09-01",
+       "delivery_date_max": "2099-11-03",
+       "election_id": "us-us-president:2099"
+      },
+      {
+       "page_id": "999000003",
+       "countries": [
+        "GB"
+       ],
+       "delivery_date_min": "2099-04-01",
+       "delivery_date_max": "2099-05-07"
+      }
+     ]
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/osint-platform-transparency-meta-ad-library-political.json",
+    "sha256": "86f85f8feb2822bd1a538d3f094a754dc9869268a4a70f58f3c621eb7336977a",
+    "expected_output_hash": "1dfb4979a2c66ed802cc3ce95fa78103f97c18fcdb0f0026611653e8796a856f"
+   }
+  },
+  {
+   "connector": "platform-transparency",
+   "mapping": {
+    "target_schema": "noesis-platform-transparency-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "platform-transparency:1.0.0"
+   ],
+   "operations": [
+    "selection"
+   ],
+   "schedule": {
+    "kind": "interval",
+    "interval_s": 604800
+   },
+   "health": {
+    "required": false,
+    "max_staleness_s": 2592000
+   },
+   "update_cadence": "on explicit selection only; nothing is polled in the background",
+   "source_id": "google-political-ads",
+   "endpoint": "https://storage.googleapis.com",
+   "publisher": "Google, Political Advertising Transparency Report",
+   "scope": "advertiser and creative statistics of the declared advertiser ids from the political ads bundle; spend ranges and impression buckets exactly as published; the bundle refresh time on every record; other advertisers never stored",
+   "license": {
+    "id": "google-transparency-report-terms",
+    "terms_url": "https://adstransparency.google.com/political",
+    "redistribution": "reuse with attribution to the Google Political Advertising Transparency Report (operator must verify)"
+   },
+   "temporal_semantics": "date ranges and served timestamps as published; the bundle's data refresh time is the source as-of time; a changed or no-longer-listed ad is a new revision",
+   "budgets": {
+    "timeout_ms": 120000,
+    "max_results": 2100,
+    "max_bytes": 100000000,
+    "max_pages": 1
+   },
+   "auth": {
+    "kind": "none"
+   },
+   "platform_transparency": {
+    "namespace": "global",
+    "provider": "google-political-ads",
+    "format": "google-political-ads-bundle",
+    "minimisation": "platform-transparency-minimisation-v1",
+    "live_verification": "unverified-live",
+    "decision": "docs/development/platform-transparency-evidence/source-audit.md#decisions",
+    "coverage_decision": "four synthetic advertiser ids (one absent from the bundle) and two election-label mappings",
+    "selection": {
+     "units": [
+      {
+       "advertisers": [
+        "AR10000000000000000001",
+        "AR10000000000000000002",
+        "AR10000000000000000003",
+        "AR10000000000000000004"
+       ],
+       "elections": [
+        {
+         "label_as_published": "US Federal",
+         "election_id": "us-us-president:2099"
+        },
+        {
+         "label_as_published": "UK Parliamentary General Election 2099",
+         "election_id": "gb-general:2099-05-07"
+        }
+       ]
+      }
+     ]
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/osint-platform-transparency-google-political-ads.json",
+    "sha256": "195dca1bb44357321919851ee9775fa69305308717f99da8f1a4ebfaf20029b3",
+    "expected_output_hash": "0a4a5da3950b2641ed3ef964a7d4e16323504352d8917d2d31c5393ec9232225"
+   }
+  },
+  {
+   "connector": "platform-transparency",
+   "mapping": {
+    "target_schema": "noesis-platform-transparency-record-v1",
+    "version": "1.0.0"
+   },
+   "extractor_versions": [
+    "platform-transparency:1.0.0"
+   ],
+   "operations": [
+    "selection"
+   ],
+   "schedule": {
+    "kind": "interval",
+    "interval_s": 604800
+   },
+   "health": {
+    "required": false,
+    "max_staleness_s": 2592000
+   },
+   "update_cadence": "on explicit selection only; nothing is polled in the background",
+   "source_id": "lumen-notices",
+   "endpoint": "https://lumendatabase.org",
+   "publisher": "Lumen (Berkman Klein Center for Internet & Society)",
+   "scope": "takedown notices for one declared recipient platform and window under researcher access; metadata permitted by the access terms with Lumen's redactions preserved; notice bodies, works and URLs never stored",
+   "license": {
+    "id": "lumen-researcher-terms",
+    "terms_url": "https://lumendatabase.org/pages/researchers",
+    "redistribution": "researcher access only; notice metadata as permitted, no republication of notice bodies or URLs (operator must verify the granted terms)"
+   },
+   "temporal_semantics": "date sent and date received as published; a changed or no-longer-returned notice is a new revision",
+   "budgets": {
+    "timeout_ms": 30000,
+    "max_results": 250,
+    "max_bytes": 5000000,
+    "max_pages": 20
+   },
+   "auth": {
+    "kind": "required-secret",
+    "secret_ref": "NOESIS_LUMEN_API_TOKEN"
+   },
+   "platform_transparency": {
+    "namespace": "global",
+    "provider": "lumen",
+    "format": "lumen-notices-json",
+    "minimisation": "platform-transparency-minimisation-v1",
+    "live_verification": "gated-not-granted",
+    "decision": "docs/development/platform-transparency-evidence/source-audit.md#decisions",
+    "coverage_decision": "one synthetic recipient platform for one month; researcher access not granted to this deployment",
+    "selection": {
+     "units": [
+      {
+       "recipient": "Exampla Social",
+       "from": "2099-05-01",
+       "to": "2099-05-31"
+      }
+     ]
+    }
+   },
+   "fixture": {
+    "path": "tests/fixtures/source_packs/osint-platform-transparency-lumen-notices.json",
+    "sha256": "c1cf6f462898d418742d143916ede7362a51c21fed24c1636044df1cb96e3fed",
+    "expected_output_hash": "04fe2cfff01027c639db358a6977cd91e5040ba6cd47b5cf4c27590257a4d2a9"
+   }
+  }
+ ]
+}

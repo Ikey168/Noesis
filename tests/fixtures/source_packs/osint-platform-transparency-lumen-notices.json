@@ -1,0 +1,123 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "meta": {
+     "current_page": 1,
+     "next_page": null,
+     "total_entries": 3,
+     "total_pages": 1
+    },
+    "notices": [
+     {
+      "action_taken": "Yes",
+      "body": "Placeholder notice body with contact details of the sender",
+      "date_received": "2099-05-03T10:00:00Z",
+      "date_sent": "2099-05-03T09:00:00Z",
+      "id": 99000001,
+      "jurisdictions": [
+       "US"
+      ],
+      "principal_name": "Northwind Records Ltd",
+      "recipient_name": "Exampla Social",
+      "sender_address": "1 Placeholder Street",
+      "sender_name": "Northwind Records Ltd",
+      "title": "DMCA (Copyright) Complaint to Exampla Social",
+      "topics": [
+       "Copyright"
+      ],
+      "type": "DMCA",
+      "works": [
+       {
+        "copyrighted_urls": [
+         {
+          "url": "https://northwind.example/track"
+         }
+        ],
+        "description": "Placeholder work",
+        "infringing_urls": [
+         {
+          "url": "https://exampla.example/post/0"
+         },
+         {
+          "url": "https://exampla.example/post/1"
+         },
+         {
+          "url": "https://exampla.example/post/2"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "action_taken": "Yes",
+      "body": "Placeholder notice body with contact details of the sender",
+      "date_received": "2099-05-09T10:00:00Z",
+      "date_sent": "2099-05-09T09:00:00Z",
+      "id": 99000002,
+      "jurisdictions": [
+       "US"
+      ],
+      "principal_name": "[Private]",
+      "recipient_name": "Exampla Social",
+      "sender_address": "1 Placeholder Street",
+      "sender_name": "[Private]",
+      "title": "Complaint to Exampla Social [REDACTED]",
+      "topics": [
+       "Defamation"
+      ],
+      "type": "Defamation",
+      "works": [
+       {
+        "copyrighted_urls": [
+         {
+          "url": "https://northwind.example/track"
+         }
+        ],
+        "description": "Placeholder work",
+        "infringing_urls": [
+         {
+          "url": "https://exampla.example/post/0"
+         }
+        ]
+       }
+      ]
+     },
+     {
+      "action_taken": "Yes",
+      "body": "Placeholder notice body with contact details of the sender",
+      "date_received": "2099-05-20T10:00:00Z",
+      "date_sent": "2099-05-20T09:00:00Z",
+      "id": 99000003,
+      "jurisdictions": [
+       "US"
+      ],
+      "principal_name": "Example District Court",
+      "recipient_name": "Exampla Social",
+      "sender_address": "1 Placeholder Street",
+      "sender_name": "Example District Court",
+      "title": "Court order to Exampla Social",
+      "topics": [
+       "Court Orders"
+      ],
+      "type": "CourtOrder",
+      "works": []
+     }
+    ]
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/notices/search.json?date_received_facet=2099-05-01..2099-05-31&page=1&per_page=50&recipient_name=Exampla+Social&sort_by=date_received+asc",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape; every platform, page, advertiser, funding entity, notice and statement is fictional, and placeholder personal text is discarded by the parser (SP01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-free-text"
+ ]
+}

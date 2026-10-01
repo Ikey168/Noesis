@@ -285,6 +285,11 @@ MATRIX = {
     "Country to cited poverty and inequality figures":
         "tests/unit/domains/test_income_distribution_acceptance.py::"
         "test_country_to_cited_poverty_and_inequality_figures_from_each_source",
+    # The OSINT platform-transparency features' offline journey (#2646) composes its record owner with the
+    # source-pack runtime, ownership identity, campaign finance, lobbying, elections and subscriptions.
+    "Advertiser or election to cited political ads; platform to cited moderation statements":
+        "tests/unit/domains/test_platform_transparency_acceptance.py::"
+        "test_advertiser_and_election_to_cited_political_ads_and_platform_to_cited_moderation_statements",
 }
 
 

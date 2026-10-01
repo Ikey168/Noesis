@@ -1,12 +1,13 @@
 # Domain coverage program
 
-Status: planned, 2026-09-30. Decision:
+Status: wave 1 covered offline, 2026-10-01; waves 2 and 3 planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
 The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md)
 are divided into 89 subdomains. A subdomain is **covered** when at least one
-classified provider names it. Today 56 are covered and 33 are gaps. This
+classified provider names it. The program started with 56 covered and 33
+gaps. Wave 1 is now covered offline, so 66 are covered and 23 are gaps. This
 program fills every gap, one track per subdomain.
 
 ## How coverage is counted
@@ -71,7 +72,8 @@ providers stay where they are; their ids are preserved.
 | `games` | Culture and leisure | `culture.games` (new bundle) | Wikidata; MobyGames API; IGDB (platform terms) | media metadata | 3 |
 | `archives-genealogy` | Culture and leisure | `culture.archives` (new bundle) | Archives Portal Europe; Archivportal-D; US National Archives catalog API | cultural heritage, legal | 3 |
 | `religion-belief` | Culture and leisure | `culture.religion` (new bundle) | Census religion tables; Pew Research religious composition data; ARDA | demographics | 3 |
-| `social-platforms` | Information and investigation | `osint.platform-transparency` | EU DSA Transparency Database; Meta Ad Library API; Google Ads Transparency Center; Lumen (research access) | OSINT, news, elections | 1 |
 | `media-outlets-ownership` | Information and investigation | `news.outlets` | Media Ownership Monitor; MAVISE; KEK media database | news, ownership | 2 |
 
-Wave 1 has 10 tracks, wave 2 has 14 and wave 3 has 9.
+Wave 1 had 10 tracks; all ten now have fixture-tested providers, so their rows
+are gone. Their live coverage is still open, in each track's "Validate live
+coverage" issue. Wave 2 has 14 tracks and wave 3 has 9.

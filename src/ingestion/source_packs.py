@@ -419,6 +419,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"research-entities"})
 # Society bundle income, poverty and inequality: World Bank PIP, Eurostat EU-SILC and OECD IDD (#2583).
 NATIVE_CONNECTOR_MODULES["income-distribution"] = "src.ingestion.income_distribution_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
+# OSINT platform transparency: DSA statements of reasons, Meta and Google political ads, Lumen (#2580).
+NATIVE_CONNECTOR_MODULES["platform-transparency"] = "src.ingestion.platform_transparency_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"})
 
 
 def native_connector_module(connector: str) -> Any:

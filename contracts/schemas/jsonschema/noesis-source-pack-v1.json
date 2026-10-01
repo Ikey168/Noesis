@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "platform-transparency", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "sports-results", "substances", "surveillance", "ted", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -976,6 +976,36 @@
                   "equivalence_scale": {"enum": ["per-capita", "modified-oecd", "square-root"]}
                 }
               }}
+            },
+            "additionalProperties": false
+          },
+          "platform_transparency": {
+            "type": "object",
+            "description": "One bounded platform-transparency selection for the platform-transparency connector (#2580): provider (DSA Transparency Database dumps, Meta Ad Library, Google political ads bundle, Lumen under researcher access), documented format, namespace, LIVE_VERIFICATION status, the SP01 minimisation policy and 1-20 declared units (a platform and day; a page, reached countries and delivery window; advertiser ids with election-label mappings; a recipient and date window).",
+            "required": ["provider", "format", "selection", "live_verification", "minimisation"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["dsa-transparency-database", "meta-ad-library", "google-political-ads", "lumen"]},
+              "format": {"enum": ["dsa-sor-dump-csv", "meta-ad-library-json", "google-political-ads-bundle", "lumen-notices-json"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "gated-not-granted"]},
+              "minimisation": {"const": "platform-transparency-minimisation-v1"},
+              "decision": {"type": "string", "pattern": "^docs/development/platform-transparency-evidence/source-audit\\.md#"},
+              "coverage_decision": {"type": "string"},
+              "selection": {"type": "object", "required": ["units"], "properties": {"units": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "object", "properties": {
+                "label": {"type": "string"},
+                "platform": {"type": "string", "minLength": 1},
+                "date": {"type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+                "variant": {"enum": ["light", "full"]},
+                "page_id": {"type": "string", "pattern": "^\\d{1,20}$"},
+                "countries": {"type": "array", "minItems": 1, "maxItems": 10, "items": {"type": "string", "pattern": "^[A-Z]{2}$"}},
+                "delivery_date_min": {"type": "string"}, "delivery_date_max": {"type": "string"},
+                "election_id": {"type": "string"},
+                "advertisers": {"type": "array", "minItems": 1, "maxItems": 20, "items": {"type": "string", "pattern": "^AR\\d{6,24}$"}},
+                "region": {"type": "string"},
+                "elections": {"type": "array", "items": {"type": "object", "required": ["label_as_published", "election_id"], "properties": {"label_as_published": {"type": "string"}, "election_id": {"type": "string"}}, "additionalProperties": false}},
+                "recipient": {"type": "string", "minLength": 1},
+                "from": {"type": "string"}, "to": {"type": "string"}
+              }, "additionalProperties": false}}}, "additionalProperties": false}
             },
             "additionalProperties": false
           },

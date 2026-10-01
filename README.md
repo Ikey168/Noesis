@@ -16,7 +16,7 @@ It runs on one machine with an embedded DuckDB warehouse. It needs no Docker,
 cloud account, API key, or model download to start.
 
 > Noesis began as **NeuroNews**, a news-analytics pipeline. It has since become
-> a general knowledge engine. News is now one of 30 domain packs. Deprecated
+> a general knowledge engine. News is now one of 31 domain packs. Deprecated
 > `NEURONEWS_*` names still work (see [Configuration](#configuration)).
 
 ---
@@ -176,7 +176,7 @@ The taxonomy has two more axes:
 
 Coverage is measured, not claimed. [ADR-005](docs/architecture/decisions/ADR-005-domain-coverage-program.md)
 splits the nine domains into 89 subdomains, and each provider names the ones
-it covers. Today 56 are covered by fixture-tested providers. The other 33 are
+it covers. Today 66 are covered by fixture-tested providers. The other 23 are
 gaps, scheduled in the
 [domain coverage program](docs/roadmaps/domain-coverage-program.md). Offline
 coverage and live coverage are reported separately.
@@ -532,11 +532,11 @@ In short:
 | Phase 8 | Every subsystem became an MCP tool server |
 | Phase 9 | Agent-provisioned, namespaced knowledge graphs, and an audited agent host |
 | Phase 10 | Beyond news: the [knowledge-engine pivot](docs/architecture/knowledge-engine-pivot.md) to generic documents, the research pack, and the OSINT surface |
-| Since | Knowledge Engine 1.0, intake modes, [pack and workflow composition](docs/architecture/pack-workflow-composition.md), and 30 domain packs classified by ADR-004 |
+| Since | Knowledge Engine 1.0, intake modes, [pack and workflow composition](docs/architecture/pack-workflow-composition.md), and 31 domain packs classified by ADR-004 |
 
 **Open work:**
 
-- Closing the 33 subdomain gaps in the domain coverage program.
+- Closing the 23 subdomain gaps in the domain coverage program.
 - A two-annotator human gold set, and a stance model trained on it.
 - Live-provider and human acceptance for many pack guides.
 - End-to-end Modulo journeys for several intake modes.

@@ -1,0 +1,101 @@
+{
+ "data": [
+  {
+   "id": "880000000000011",
+   "page_id": "999000002",
+   "page_name": "Future Examples Action Fund",
+   "bylines": "FUTURE EXAMPLES ACTION FUND",
+   "ad_creation_time": "2099-09-01",
+   "ad_delivery_start_time": "2099-09-01",
+   "ad_delivery_stop_time": "2099-10-31",
+   "spend": {
+    "lower_bound": "10000",
+    "upper_bound": "14999"
+   },
+   "impressions": {
+    "lower_bound": "1000000"
+   },
+   "currency": "USD",
+   "estimated_audience_size": {
+    "lower_bound": "10000",
+    "upper_bound": "50000"
+   },
+   "languages": [
+    "en"
+   ],
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000011&access_token=FIXTURE-TOKEN-NOT-REAL",
+   "ad_creative_bodies": [
+    "Placeholder creative text that names a private person PAT PLACEHOLDER"
+   ],
+   "demographic_distribution": [
+    {
+     "age": "25-34",
+     "gender": "female",
+     "percentage": "0.4"
+    }
+   ],
+   "delivery_by_region": [
+    {
+     "region": "Exampleshire",
+     "percentage": "1"
+    }
+   ]
+  },
+  {
+   "id": "880000000000012",
+   "page_id": "999000002",
+   "page_name": "Future Examples Action Fund",
+   "bylines": "FUTURE EXAMPLES ACTION FUND",
+   "ad_creation_time": "2099-10-01",
+   "ad_delivery_start_time": "2099-10-01",
+   "ad_delivery_stop_time": "2099-11-02",
+   "spend": {
+    "lower_bound": "5000",
+    "upper_bound": "9999"
+   },
+   "impressions": {
+    "lower_bound": "500000",
+    "upper_bound": "599999"
+   },
+   "currency": "USD",
+   "estimated_audience_size": {
+    "lower_bound": "10000",
+    "upper_bound": "50000"
+   },
+   "languages": [
+    "en"
+   ],
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000012&access_token=FIXTURE-TOKEN-NOT-REAL",
+   "ad_creative_bodies": [
+    "Placeholder creative text that names a private person PAT PLACEHOLDER"
+   ],
+   "demographic_distribution": [
+    {
+     "age": "25-34",
+     "gender": "female",
+     "percentage": "0.4"
+    }
+   ],
+   "delivery_by_region": [
+    {
+     "region": "Exampleshire",
+     "percentage": "1"
+    }
+   ]
+  }
+ ],
+ "paging": {
+  "cursors": {
+   "before": "B0",
+   "after": "END"
+  }
+ }
+}

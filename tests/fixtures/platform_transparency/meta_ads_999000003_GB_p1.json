@@ -1,0 +1,56 @@
+{
+ "data": [
+  {
+   "id": "880000000000021",
+   "page_id": "999000003",
+   "page_name": "Jordan Sample",
+   "bylines": "Jordan Sample",
+   "ad_creation_time": "2099-04-20",
+   "ad_delivery_start_time": "2099-04-20",
+   "ad_delivery_stop_time": "2099-05-06",
+   "spend": {
+    "lower_bound": "0",
+    "upper_bound": "99"
+   },
+   "impressions": {
+    "lower_bound": "1000",
+    "upper_bound": "4999"
+   },
+   "currency": "GBP",
+   "estimated_audience_size": {
+    "lower_bound": "10000",
+    "upper_bound": "50000"
+   },
+   "languages": [
+    "en"
+   ],
+   "publisher_platforms": [
+    "facebook",
+    "instagram"
+   ],
+   "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000021&access_token=FIXTURE-TOKEN-NOT-REAL",
+   "ad_creative_bodies": [
+    "Placeholder creative text that names a private person PAT PLACEHOLDER"
+   ],
+   "demographic_distribution": [
+    {
+     "age": "25-34",
+     "gender": "female",
+     "percentage": "0.4"
+    }
+   ],
+   "delivery_by_region": [
+    {
+     "region": "Exampleshire",
+     "percentage": "1"
+    }
+   ]
+  }
+ ],
+ "paging": {
+  "cursors": {
+   "before": "B0",
+   "after": "END"
+  }
+ }
+}
