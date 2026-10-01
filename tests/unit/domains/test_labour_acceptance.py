@@ -129,13 +129,13 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
     national = {r["estimate_type"]: r for r in before["results"] if r["provider"] == "ilostat"}["national-reported"]
     national_after = {r["estimate_type"]: r for r in after["results"] if r["provider"] == "ilostat"}[
         "national-reported"]
-    assert {v["period"]: v["value"] for v in national["values"]}["2023"] == "3.1"
-    assert {v["period"]: v["value"] for v in national_after["values"]}["2023"] == "3.0"
+    assert {v["period"]: v["value"] for v in national["values"]}["2098"] == "3.1"
+    assert {v["period"]: v["value"] for v in national_after["values"]}["2098"] == "3.0"
     assert national_after["vintage"]["revision_of"] == national["vintage"]["vintage_id"]
     assert national_after["definition"]["content"]["references"][0]["identifier"] == "19th ICLS Resolution I (2013)"
     eurostat = next(r for r in after["results"] if r["provider"] == "eurostat-lfs")
     assert eurostat["vintage"]["release_at"].startswith("2024-04-15")
-    assert any(n["relation"] == "break_in_series" and n["periods"] == ["2023"] for n in eurostat["source_notes"])
+    assert any(n["relation"] == "break_in_series" and n["periods"] == ["2098"] for n in eurostat["source_notes"])
     assert any(p["notes"] for p in after["comparability"])
     for result in after["results"]:
         for value in result["values"]:
@@ -155,7 +155,7 @@ def test_place_sector_and_occupation_to_cited_labour_indicators_with_definitions
     assert relations == {"ilostat": "exact", "eurostat-lfs": "exact", "bls": "partial"}
     ces = next(r for r in manufacturing["results"] if r["provider"] == "bls")
     assert ces["revision_history"][-1]["changes"]["benchmark_revision"] is True
-    assert {v["period"]: v["value"] for v in ces["values"]}["2023-10"] == "12880"
+    assert {v["period"]: v["value"] for v in ces["values"]}["2098-10"] == "12880"
     professionals = queries.indicators(h.NS, occupation={"scheme": "ISCO", "version": "08", "code": "2"},
                                        scopes=h.READ_ONLY)
     assert {r["provider"] for r in professionals["results"]} == {"ilostat", "eurostat-lfs", "bls"}

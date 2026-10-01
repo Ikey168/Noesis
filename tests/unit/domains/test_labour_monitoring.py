@@ -36,8 +36,8 @@ def test_each_event_type_is_emitted_once_with_before_and_after_vintages():
     benchmark = next(n for n in ces_run["notifications"] if n["kind"] == "benchmark_revision")
     assert benchmark["previous_vintage_id"] and benchmark["vintage_id"] != benchmark["previous_vintage_id"]
     revised = {r["period"]: r for r in benchmark["detail"]["revised"]}
-    assert revised["2024-02"]["before"]["footnotes"] == [{"code": "P", "text": "preliminary"}]
-    assert revised["2024-02"]["after"]["footnotes"] == [] and "2023-10" in benchmark["detail"]["basis"]
+    assert revised["2099-02"]["before"]["footnotes"] == [{"code": "P", "text": "preliminary"}]
+    assert revised["2099-02"]["after"]["footnotes"] == [] and "2098-10" in benchmark["detail"]["basis"]
     place_run = later.run(watch_place["subscription_id"], principal_id="alice", scopes=h.SCOPES)
     assert kinds(place_run) == ["revised_value"]
     assert place_run["notifications"][0]["series"]["native_key"].startswith("DEU.A.UNE_DEAP")
