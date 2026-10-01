@@ -53,7 +53,6 @@ providers stay where they are; their ids are preserved.
 | `regulatory-enforcement` | Governance and law | `legal.enforcement` | SEC enforcement actions; FCA final notices; EPA ECHO; data-protection authority decisions | ownership, competition, market | 1 |
 | `government-transparency` | Governance and law | `political.transparency` | Bundestag DIP (questions, printed papers); UK Parliament written questions API; FragDenStaat | legislation, public finance | 2 |
 | `defence-security` | Governance and law | `political.defence` | SIPRI military expenditure and arms transfers (terms restrict redistribution); UN Register of Conventional Arms; NATO defence expenditure reports | sanctions, humanitarian | 3 |
-| `income-poverty-inequality` | Society and population | `society.income` (new bundle) | World Bank Poverty and Inequality Platform; Eurostat EU-SILC; OECD Income Distribution Database | demographics, labour | 1 |
 | `social-protection` | Society and population | `society.social-protection` (new bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
 | `public-opinion-wellbeing` | Society and population | `society.public-opinion` (new bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
 | `civil-society` | Society and population | `society.civil-society` (new bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
