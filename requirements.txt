@@ -84,7 +84,7 @@ duckdb>=1.0.0,<2.0.0
 # tools/*_mcp stdio servers from the API process. Optional at runtime: the
 # host reports itself unavailable when this is missing.
 mcp>=1.28.1
-fastmcp>=2.0,<3.0
+fastmcp>=2.0,<5.0
 
 # Article-extraction cascade (#877) — both optional; src/ingestion/extract.py
 # degrades trafilatura -> readability-lxml -> bs4 heuristic without them
