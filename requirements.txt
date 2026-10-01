@@ -75,7 +75,7 @@ tenacity>=8.2.3
 psycopg2-binary>=2.9.12
 
 # UMAP for topic modeling (nlp/kubernetes/ai_processor.py)
-umap-learn>=0.5.0
+umap-learn>=0.5.12
 
 # Local analytics warehouse (Snowflake alternative for local dev)
 duckdb>=1.0.0,<2.0.0
