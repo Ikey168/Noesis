@@ -1,98 +1,132 @@
-# Science life-sciences guide
+# Science: life-science reference data
 
-The `science.life-sciences` provider of the Science bundle returns the
-reference records biological databases published for a protein, gene,
-structure, taxon or compound, each with its source, release or entry version
-and as-of time: UniProtKB entries (UniProt), genes and taxa (NCBI Gene and
-Taxonomy), experimental structures (RCSB PDB) and targets, compounds and
-published activities (ChEMBL). It fills the `life-sciences-reference`
-subdomain of the [domain coverage program](../roadmaps/domain-coverage-program.md)
-(tracker #2652). Coverage is **offline** (fixture-tested) until the live
-validation issue (#2721) records a dated run in
-[`docs/development/life-sciences-evidence/`](../development/life-sciences-evidence/README.md).
+The `science.life-sciences` provider of the Science bundle takes a protein, gene,
+structure, taxon or compound to the reference records the biological databases
+published: UniProtKB proteins, NCBI Gene and NCBI Taxonomy records, RCSB PDB
+structures, and ChEMBL targets, compounds, activities and documents. Every record
+carries its source, native accession, source release, version marker and as-of
+time, with its cross-references exactly as published. It covers the
+`life-sciences-reference` subdomain of the domain coverage program (ADR-005).
 
-## What it never does
+**Coverage status: offline only.** Every source is `unverified-live`. The
+behaviour below is proven against synthetic fixtures
+(`tests/unit/domains/test_lifesci_acceptance.py`). No bounded live run has been
+recorded yet (LS14, #2721); live evidence will be kept in
+[`docs/development/life-sciences-evidence/`](../development/life-sciences-evidence/README.md),
+separate from offline evidence.
 
-No biological or clinical inference, no activity prediction, no sequence
-analysis beyond storage, no conversion or aggregation of activity values
-across assays or assay types, no redistribution beyond each source's licence
-and no person names (author, depositor and submitter fields are dropped at
-acquisition; see the [source audit](../development/life-sciences-evidence/source-audit.md)).
-Every answering tool declares these exclusions and refuses to return a
-predicted, converted or personal field.
+## What it will not do
 
-## Enabling
+- No biological or clinical inference, no drug-target, indication or disease
+  claim, and no activity prediction, scoring or ranking.
+- No conversion, normalisation or aggregation of activity values across assays;
+  ChEMBL's derived `pchembl_value` is not stored.
+- No sequence analysis beyond storage. A sequence is kept with the length and
+  checksums the source publishes.
+- No personal names. Citation authors, PDB depositors and ChEMBL document authors
+  are dropped at acquisition, refused at write time and stripped from every tool
+  output.
+- No redistribution beyond each source's licence: UniProt CC BY 4.0, NCBI public
+  domain, PDB CC0 1.0 and ChEMBL CC BY-SA 3.0, all to be re-verified live. See the
+  [source audit](../development/life-sciences-evidence/source-audit.md).
 
-Each source is its own optional Science feature, default off:
-`life-sciences-uniprot`, `life-sciences-ncbi`, `life-sciences-pdb` and
-`life-sciences-chembl`. Each binds entity identity, subscriptions and the
-source-pack runtime. Chemicals, Biodiversity and Clinical medicines are never
-required: when installed, links reach them; when absent, `link_lifesci_records`
-reports them as missing.
+## Enable it
 
-Acquisition runs through the source-pack tools on `primary-scientific-evidence`
-(sources `uniprot-proteins`, `ncbi-genes-taxonomy`, `rcsb-pdb-structures`,
-`chembl-bioactivity`) after accepting each source's licence. The optional NCBI
-API key is the `NOESIS_NCBI_API_KEY` secret and travels only in the `api-key`
-header. Selections are explicit and bounded (see the audit).
+The Science bundle has one optional feature per source, and all are off by
+default: `life-sciences-uniprot`, `life-sciences-ncbi`, `life-sciences-pdb` and
+`life-sciences-chembl`. Each feature binds entity identity, subscriptions and the
+source-pack runtime. Chemicals, Clinical Evidence and Biodiversity are not
+required. When one of them is not composed, its links are reported as
+`provider_absent`.
 
-## Records and revisions
+The sources live in `config/source_packs/scientific.json`
+(`primary-scientific-evidence` 1.2.0) under the `life-sciences` connector:
 
-- A UniProt entry keeps its accession, reviewed/unreviewed label as UniProt
-  states it, entry and sequence versions and the release it was read in; the
-  UniSave history names the version in force at each release. A merged,
-  demerged or deleted accession is an `obsoleted` revision naming its
-  successors.
-- An NCBI gene keeps its Gene ID and status (replaced genes name the current
-  Gene ID); a taxon keeps its Tax ID, rank and lineage as published (merged Tax
-  IDs name the node they were merged into).
-- A PDB entry keeps its revision history, methods and resolution as published
-  and each polymer entity's UniProt mapping as the PDB states it; an obsolete
-  entry names the entries that supersede it.
-- ChEMBL records are keyed by ChEMBL ID and release. Activities keep the
-  published and ChEMBL-standardised type, relation, value and unit as strings,
-  with data-validity and activity comments, and cite their document.
+| Source id | Provider | What a document declares |
+| --- | --- | --- |
+| `uniprot-lifesci-proteins` | UniProtKB | up to 20 accessions |
+| `ncbi-gene-lifesci` | NCBI Gene | up to 20 Gene IDs |
+| `ncbi-taxonomy-lifesci` | NCBI Taxonomy | up to 20 Tax IDs |
+| `rcsb-pdb-lifesci-structures` | RCSB PDB | one entry with its polymer entities, or a removed-entries list |
+| `chembl-lifesci-bioactivity` | ChEMBL | a target, molecules, activities (capped at 200 per target) or documents; the declared release is checked against `status.json` |
 
-Records are immutable revisions; a removal or correction by the source is a
-new revision, never a deletion.
+NCBI accepts an optional API key, `NOESIS_NCBI_API_KEY`. It is sent only as the
+`api_key` parameter and never appears in a URL, receipt or record.
 
-## Journey: protein to cited reference records
+## Records and versions
 
-1. `propose_lifesci_identity_matches` offers matches from published
-   cross-references first (UniProt to PDB, GeneID and ChEMBL targets), ChEMBL
-   compounds to Chemicals substances by InChIKey and NCBI taxa to Biodiversity
-   taxa by published Tax ID (exact names only when no identifier connects
-   taxa, at low confidence). Nothing is accepted or merged; unmatched records
-   are listed.
-2. `review_lifesci_identity_match` accepts or rejects with a reason (an entity
-   identity decision); `revert_lifesci_identity_match` undoes it.
-3. `link_lifesci_records` links record revisions to Chemicals substances and
-   Biodiversity occurrences (accepted matches only), Clinical medicines whose
-   regulatory records name the ChEMBL ID, and papers citing the same DOI or
-   PubMed ID.
-4. `lifesci_entry_as_of(namespace, identifier, release=..., as_of=...)` returns
-   the entry version in force, obsolete identifiers resolved to successors with
-   the history shown, and the cross-reference graph labelled by the asserting
-   source with identity states and links; every entry version is cited.
-5. `lifesci_target_activities(namespace, target, release=...)` lists the
-   compounds and activities ChEMBL published for the target in a release, each
-   citing its activity and document; removed activities are listed apart.
-6. `export_lifesci_evidence_bundle` turns either answer into a
-   `noesis-evidence-bundle-v1` citing every revision with source, release and
-   as-of time.
-7. `create_lifesci_monitor` / `run_lifesci_monitor` / `poll_lifesci_monitor`
-   watch accessions, targets or taxa and notify new, revised, obsoleted, added
-   and removed records once, citing prior and new revisions; unchanged
-   republications emit nothing.
+- **Versions.** UniProt entries keep their entry and sequence versions, and PDB
+  entries their `major.minor` revision and full revision history. NCBI and
+  ChEMBL publish no marker, so a changed record gets a new revision keyed by its
+  content digest.
+- **Release membership.** A record seen unchanged in a later release keeps one
+  revision and gains that release. The answer "as of" a release is the revision
+  in force at that release.
+- **Status changes are revisions.** Merged, demerged and deleted UniProt entries,
+  replaced or discontinued genes, merged Tax IDs and obsolete PDB entries become
+  revisions that name the successors the source gives. Nothing is deleted. The
+  same marker arriving with different content is recorded as a conflict.
 
-A subject with no records answers `not_on_record`: a statement about the
-bounded, acquired selection, not about the source.
+## Ask
 
-## Evidence
+| Question | Tool |
+| --- | --- |
+| This protein as of UniProt `2099_01`, with its structures, gene and targets | `lifesci_entry_as_of(namespace, accession="X9EXA1", release="2099_01")` |
+| A merged or obsolete accession | `lifesci_entry_as_of(namespace, accession="X9EXA2")` resolves to the successors and shows the history |
+| Compounds with published activity against a target | `lifesci_compounds_for_target(namespace, target="CHEMBL9900001" or a UniProt accession, release="CHEMBL_99")` |
+| An evidence bundle for either answer | `export_lifesci_evidence_bundle` |
+| Source terms, bounded coverage and the minimisation decision | `lifesci_source_contracts` |
 
-Offline: `tests/unit/domains/test_lifesci_*.py` (journey:
-`test_lifesci_acceptance.py`) and
-`tests/unit/composition/test_science_life_sciences_composition.py`, with
-synthetic fixtures under `tests/fixtures/source_packs/lifesci-*.json` and
-`tests/fixtures/lifesci/` (rebuilt by `python -m tests.unit.lifesci_fixture_builder`).
-Live: none yet.
+In an entry's cross-reference graph, each cross-reference is labelled with the
+source that asserts it. The graph shows the entry's own cross-references, the
+cross-references other sources publish that name the entry, identity matches with
+their review state, and cross-pack links. The answer to a target query groups
+activities by assay type and activity type, side by side. Each activity keeps its
+relation, value, unit and data-validity comment as ChEMBL published them, and
+cites the activity and its document. If a subject has no records, the answer is
+`none_on_record`, which is not evidence that the source has none.
+
+## Identity and links
+
+`propose_lifesci_matches` proposes identity matches in this order:
+
+1. Published cross-references (UniProt to PDB, GeneID and ChEMBL; PDB entities
+   and ChEMBL target components to UniProt).
+2. InChIKey assertions between ChEMBL compounds and Chemicals substances.
+3. NCBI Tax IDs that Biodiversity taxon identities publish.
+4. Exact scientific names, only as low-confidence candidates when no identifier
+   connects the records.
+
+Every match is proposed and nothing is accepted or merged automatically.
+`review_lifesci_match` and `revert_lifesci_match` record entity-history
+decisions. `list_lifesci_unmatched` keeps unmatched records visible.
+
+`link_lifesci_records` links records to other packs:
+
+| Linked records | Basis |
+| --- | --- |
+| Compounds to Chemicals substances | accepted InChIKey match |
+| Compounds to medicinal products | the product states the compound's ChEMBL ID or InChIKey |
+| Targets and proteins to medicines records | the medicines record cites the accession |
+| Taxa to Biodiversity occurrences | accepted match |
+| Entries to scholarly documents | DOI citation |
+
+Each link names both revisions. A cited target that is not held is kept as
+`target_missing`.
+
+## Monitor
+
+`create_lifesci_monitor` watches one accession, target or NCBI taxon through a
+knowledge subscription; there is no new scheduler. `run_lifesci_monitor` emits
+these notices:
+
+- `new_entry`
+- `entry_revised`, with the changed fields
+- `entry_obsoleted`, with the successors
+- `new_activity`
+- `activity_revised`
+
+Each notice cites the new and previous revisions. A release that changes nothing
+emits nothing, and a restart replays without duplicates. `LifeSciMonitor.refresh`
+re-reads a source within its page budget, idempotently. It writes one receipt per
+run and waits when the provider answers with Retry-After.

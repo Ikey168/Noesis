@@ -77,19 +77,19 @@
         }
       },
       {
-        "id": "science.research-entities",
-        "provider": "science.research-entities",
-        "contract": {
-          "name": "noesis-research-entity-record",
-          "version": "1.0.0"
-        }
-      },
-      {
         "id": "science.life-sciences",
         "provider": "science.life-sciences",
         "contract": {
           "name": "noesis-lifesci-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
+        }
+      },
+      {
+        "id": "science.research-entities",
+        "provider": "science.research-entities",
+        "contract": {
+          "name": "noesis-research-entity-record",
+          "version": "2.0.0"
         }
       }
     ],
@@ -115,11 +115,11 @@
         "version": "1.0.0"
       },
       {
-        "id": "science.research-entities",
+        "id": "science.life-sciences",
         "version": "1.0.0"
       },
       {
-        "id": "science.life-sciences",
+        "id": "science.research-entities",
         "version": "1.0.0"
       }
     ],
@@ -158,17 +158,31 @@
         }
       },
       {
-        "id": "science.research-entities",
-        "description": "Researchers, institutions, projects and datasets: an organisation (ROR ID), researcher (ORCID iD), project (CORDIS) or dataset (DOI) to the registry records as published, with source, record revision and as-of time",
+        "id": "science.life-sciences",
+        "description": "Life-science reference data: a protein, gene, structure, taxon or compound to the reference records UniProt, NCBI Gene and Taxonomy, RCSB PDB and ChEMBL published, with versions, cross-references, published bioactivity and reviewable cross-source identity",
         "vocabulary": {
-          "record revision": "one immutable version of a registry record (a ROR release, an ORCID last-modified time, a DataCite metadata version, a CORDIS content update)",
-          "asserted work": "a work identifier a researcher lists in the public ORCID record; an assertion, not verified authorship",
-          "accepted match": "a reviewed identity decision between a ROR organisation and a CORDIS participant or an ownership entity"
+          "entry version": "a source's own version marker (UniProt entry version, PDB major.minor revision) or a content digest where the source publishes none",
+          "release": "the source release a record was observed in (UniProt YYYY_NN, ChEMBL CHEMBL_NN, a declared NCBI or PDB release)",
+          "cross-reference": "an identifier a source publishes for another database, labelled with the source that asserts it"
         },
         "workflow_defaults": {
-          "as_of": "the revision in force at the requested date; every revision is listed and cited",
-          "identity": "accepted matches only; researchers are never matched",
-          "personal_data": "public ORCID fields of the minimisation decision only, with the researchers scope"
+          "as_of": "the version in force at the requested release or date; merged or obsolete accessions resolved to successors",
+          "bioactivity": "published values side by side by assay and activity type, never converted or aggregated",
+          "identity": "published identifiers first; only accepted matches carry links"
+        }
+      },
+      {
+        "id": "science.research-entities",
+        "description": "Research entities: an organisation (ROR id) or a researcher (ORCID iD) to cited registry records, ORCID-asserted works and affiliations, related datasets (DataCite) and project participation (CORDIS), each with source, record revision and as-of time",
+        "vocabulary": {
+          "release": "a ROR data dump release; each is a vintage of the organisation records",
+          "ORCID-asserted": "stated in a researcher's public ORCID record; never verified authorship or affiliation",
+          "participation": "a CORDIS participant row reached through an accepted identity match"
+        },
+        "workflow_defaults": {
+          "as_of": "the record revision in force on the requested date; every revision is listed",
+          "identity": "published identifiers before names; accepted matches only",
+          "researchers": "minimised public ORCID fields only, with the researcher scope"
         }
       }
     ],
@@ -176,7 +190,7 @@
       {
         "pack_id": "research-discovery",
         "version": "1.5.0",
-        "range": "^1.4.0"
+        "range": "^1.5.0"
       },
       {
         "pack_id": "primary-scientific-evidence",
@@ -310,250 +324,250 @@
       ]
     },
     {
-      "id": "research-entities-ror",
-      "default": false,
-      "description": "ROR organisations per data-dump release: names, types, status (active, inactive, withdrawn), relationships, successors and external identifiers as published, with immutable revisions and as-of answers; lineage, projects and datasets of an organisation.",
-      "requires": [
-        {
-          "capability": "science.research-entities",
-          "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
-          "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "research-entities monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
-        }
-      ]
-    },
-    {
-      "id": "research-entities-orcid",
-      "default": false,
-      "description": "Public ORCID records of a bounded set of researchers, reduced to the fields of the data-minimisation decision: employments and works as ORCID-asserted identifiers as of a date. No rankings or metrics, no affiliation inferred from co-authorship and no author matching by name.",
-      "requires": [
-        {
-          "capability": "science.research-entities",
-          "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
-          "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "research-entities monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
-        }
-      ]
-    },
-    {
-      "id": "research-entities-datacite",
-      "default": false,
-      "description": "DataCite dataset metadata versions with related identifiers as published and creators minimised; datasets related to a paper by DOI.",
-      "requires": [
-        {
-          "capability": "science.research-entities",
-          "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
-          "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "research-entities monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
-        }
-      ]
-    },
-    {
-      "id": "research-entities-cordis",
-      "default": false,
-      "description": "CORDIS projects keyed by project ID and programme with participants (PIC, VAT number, role) and contributions with currency as published, matched to ROR organisations through reviewable identity; contributions are never summed across currencies.",
-      "requires": [
-        {
-          "capability": "science.research-entities",
-          "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
-          "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "organisation and participant matches are reviewable entity identity decisions; researchers are never matched"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "research-entities monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "registry records are acquired through the source-pack runtime (research-discovery)"
-        }
-      ]
-    },
-    {
       "id": "life-sciences-uniprot",
       "default": false,
-      "description": "Life-science reference data (uniprot): UniProtKB entries by accession (reviewed and unreviewed as UniProt labels them) with entry and sequence versions per release, the UniSave version history, cross-references and literature; merged, demerged and deleted accessions kept with their successors. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "description": "UniProtKB protein entries for a declared bounded accession set: entry and sequence versions, reviewed/unreviewed label, cross-references and citations, inactive (merged, demerged, deleted) entries kept with successors. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
       "requires": [
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
           "capability": "platform.entity-identity",
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
-          "reason": "cross-source identity reviews are entity-history decisions"
+          "reason": "identity reviews and source successions are entity-history decisions"
         },
         {
           "capability": "platform.subscriptions",
           "contract": "noesis-knowledge-subscription",
           "range": "^1.0.0",
-          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+          "reason": "life-science monitors are knowledge subscriptions"
         },
         {
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+          "reason": "records are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "life-sciences-ncbi",
       "default": false,
-      "description": "Life-science reference data (ncbi): NCBI Gene records by Gene ID and NCBI Taxonomy nodes by Tax ID with lineage as published; replaced, discontinued and merged identifiers kept with their successors; the optional API key stays in a request header. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "description": "NCBI Gene and NCBI Taxonomy records for declared Gene and Tax IDs: status with successors, rank, parent and lineage as published per release; optional NCBI API key. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
       "requires": [
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
           "capability": "platform.entity-identity",
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
-          "reason": "cross-source identity reviews are entity-history decisions"
+          "reason": "identity reviews and source successions are entity-history decisions"
         },
         {
           "capability": "platform.subscriptions",
           "contract": "noesis-knowledge-subscription",
           "range": "^1.0.0",
-          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+          "reason": "life-science monitors are knowledge subscriptions"
         },
         {
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+          "reason": "records are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "life-sciences-pdb",
       "default": false,
-      "description": "Life-science reference data (pdb): Experimental RCSB PDB entries by PDB ID with revision history, methods and resolution as published and entity-to-UniProt mappings as the PDB states them; obsolete and superseding entries kept; computed structure models excluded. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "description": "RCSB PDB entries linked to the bounded proteins: experimental method, resolution, revision history, entity-to-UniProt mappings and obsolete entries with superseding IDs. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
       "requires": [
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
           "capability": "platform.entity-identity",
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
-          "reason": "cross-source identity reviews are entity-history decisions"
+          "reason": "identity reviews and source successions are entity-history decisions"
         },
         {
           "capability": "platform.subscriptions",
           "contract": "noesis-knowledge-subscription",
           "range": "^1.0.0",
-          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+          "reason": "life-science monitors are knowledge subscriptions"
         },
         {
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+          "reason": "records are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "life-sciences-chembl",
       "default": false,
-      "description": "Life-science reference data (chembl): ChEMBL targets, compounds, activities and cited documents per release with values, relations, units and data-validity comments as published, never converted or aggregated; compounds may match Chemicals substances by InChIKey (reviewed) and targets link to Clinical medicines that name them when those packs are installed. No biological or clinical inference, activity prediction, sequence analysis beyond storage or person names.",
+      "description": "ChEMBL targets, compounds, activities and documents for declared targets per ChEMBL release: activity values with relation, unit and data-validity comment as published, each citing its document. Chemicals, Clinical and Biodiversity links are optional and reported as provider_absent when those packs are not composed. No biological or clinical inference, no activity prediction, no sequence analysis beyond storage and no personal names.",
       "requires": [
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
           "capability": "platform.entity-identity",
           "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
-          "reason": "cross-source identity reviews are entity-history decisions"
+          "reason": "identity reviews and source successions are entity-history decisions"
         },
         {
           "capability": "platform.subscriptions",
           "contract": "noesis-knowledge-subscription",
           "range": "^1.0.0",
-          "reason": "accession, target and taxon monitors are knowledge subscriptions"
+          "reason": "life-science monitors are knowledge subscriptions"
         },
         {
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "the source runs through the source-pack runtime with budgets and receipts"
+          "reason": "records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-ror",
+      "default": false,
+      "description": "ROR organisations per data dump release (names, status, relationships and successors, external identifiers), matched to CORDIS participants and Corporate Ownership entities through reviewable identity and monitored through subscriptions.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-orcid",
+      "default": false,
+      "description": "Public ORCID researcher records minimised under the RE01 decision (public name, employments and works as asserted identifiers), linked to papers by asserted DOI only; needs the NOESIS_ORCID_PUBLIC_TOKEN client token and reports itself degraded without it. No rankings, metrics or name disambiguation.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-datacite",
+      "default": false,
+      "description": "DataCite dataset metadata versions with related identifiers and funding references as published, linked to papers, organisations and projects by identifier.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "research-entities-cordis",
+      "default": false,
+      "description": "CORDIS projects with participants (PIC, role) and contributions with currency as published, linked to Funding & grants records by topic or call id and to organisations through accepted matches; never summed across currencies.",
+      "requires": [
+        {
+          "capability": "science.research-entities",
+          "contract": "noesis-research-entity-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "organisation and participant matches are reviewable entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "research-entities monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "registry records are acquired through the source-pack runtime"
         }
       ]
     }

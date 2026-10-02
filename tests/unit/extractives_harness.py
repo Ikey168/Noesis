@@ -1,13 +1,15 @@
 """Shared offline harness for the Economics extractives tests (#2653): pinned fixtures through the real adapter.
 
-Every EITI, USGS and BGS response is authored in the documented shape with fictional values; the ownership side
-reuses the Corporate Ownership fixtures (the Exampla group). Offline evidence only, never live coverage.
+Every file under ``tests/fixtures/extractives`` and ``tests/fixtures/source_packs/economic-extractives-*`` is
+authored in the documented shape as known to the author for fictional companies, projects and figures (the Exampla
+and Northwind groups of the ownership fixtures); nothing here is live coverage. Responses go through
+:class:`ExtractivesAdapter` (the connector the runtime compiles) and :class:`ExtractivesProjector`.
 """
 
 from __future__ import annotations
 
+import copy
 import json
-from datetime import UTC
 from pathlib import Path
 from typing import Any
 
@@ -19,36 +21,49 @@ from src.kb.extractives_store import ExtractivesProjector
 
 ROOT = Path(__file__).resolve().parents[2]
 FIXTURES = ROOT / "tests/fixtures/extractives"
+PACK_PATH = ROOT / "config/source_packs/economic-extractives.json"
 NS = "global"
 OWN_NS = "ownership"
-INFRA_NS = "infra"
 SCOPES = {
-    "knowledge:extractives:read",
-    "knowledge:extractives:write",
-    "knowledge:extractives:review",
-    "knowledge:ownership:read",
-    "knowledge:ownership:write",
-    "knowledge:ownership:review",
-    "knowledge:infrastructure:read",
-    "knowledge:subscriptions:read",
-    "knowledge:subscriptions:write",
-    "namespace:global:read",
-    "namespace:global:write",
-    "namespace:ownership:read",
+    "knowledge:extractives:read", "knowledge:extractives:write", "knowledge:extractives:review",
+    "knowledge:ownership:read", "knowledge:trade:read", "knowledge:energy:read", "knowledge:economic:public-finance:read",
+    "knowledge:infrastructure:read", "knowledge:subscriptions:read", "knowledge:subscriptions:write",
+    "namespace:global:read", "namespace:global:write", f"namespace:{OWN_NS}:read", "namespace:energy:read",
+    "namespace:infra:read",
 }
+SCOPES |= {"knowledge:ownership:write"}
+REVIEW_SCOPES = SCOPES | {"knowledge:ownership:review"}
 READ_ONLY = {"knowledge:extractives:read", "namespace:global:read"}
-SOURCES = {
-    "eiti": "eiti-summary-data",
-    "usgs": "usgs-mineral-commodity-summaries",
-    "bgs": "bgs-world-mineral-statistics",
-}
-# Which declared documents make the first publication round; the rest arrive later.
-FIRST = {"eiti": slice(0, 2), "usgs": slice(0, 1), "bgs": slice(0, 2)}
-LATER = {"usgs": slice(1, 2), "bgs": slice(2, 3)}
-FIRST_RETRIEVAL = 1_748_736_000_000  # 2025-06-01
-SECOND_RETRIEVAL = 1_764_547_200_000  # 2025-12-01
+SOURCES = {"eiti": "eiti-summary-data", "usgs": "usgs-mineral-commodity-summaries",
+           "bgs": "bgs-world-mineral-statistics"}
+REVISIONS = {"eiti": "eiti_nl_2021_version_2.json", "usgs": "usgs_mcs2025_copper.json",
+             "bgs": "bgs_wms_2019-2023_copper.json"}
+FIRST_RETRIEVAL = 1_733_011_200_000  # 2024-12-01
+SECOND_RETRIEVAL = 1_743_465_600_000  # 2025-04-01
+NL_REPORT = "extractives:eiti:report:NL:2021-01-01_2021-12-31"
+DE_REPORT = "extractives:eiti:report:DE:2021-01-01_2021-12-31"
+INT_COMPANY = "extractives:eiti:company:NL:2021-01-01_2021-12-31:nl-kvk:99990003"
+NORTHWIND = "extractives:eiti:company:NL:2021-01-01_2021-12-31:nl-kvk:99990077"
+HOLD_COMPANY = "extractives:eiti:company:DE:2021-01-01_2021-12-31:gb-coh:09990001"
+UK_COMPANY = "extractives:eiti:company:DE:2021-01-01_2021-12-31:name:exampla-uk-limited"
+CIT_PAYMENT = "extractives:eiti:payment:NL:2021-01-01_2021-12-31:nl-kvk:99990003:1112e1:corporate-income-tax:p1"
+NW_PAYMENT = "extractives:eiti:payment:NL:2021-01-01_2021-12-31:nl-kvk:99990077:1112e1:corporate-income-tax"
 HOLD_ENTITY = "gleif:lei:213800EXAMPLAHOLDS95"
 INT_ENTITY = "gleif:lei:724500EXAMPLAINTBV75"
+# A published commodity-to-HS correspondence (authored in the shape of the HS headings BGS states for its trade
+# statistics; the table must be verified against the BGS methodology before live use).
+CONCORDANCE = {
+    "label": "BGS World Mineral Statistics: HS headings used for trade statistics (authored fixture; verify)",
+    "publisher": "British Geological Survey",
+    "citation": {"url": "https://www.bgs.ac.uk/mineralsuk/statistics/world-mineral-statistics/",
+                 "published_on": "2024-03-15", "locator": "trade statistics methodology, commodity table"},
+    "rows": [
+        {"commodity": "copper", "hs_code": "2603", "hs_edition": "HS2022", "label": "Copper ores and concentrates",
+         "mapping_type": "1:n", "note": "ores and concentrates heading; metal content statistics are not HS goods"},
+        {"commodity": "crude-petroleum", "hs_code": "2709", "hs_edition": "HS2022",
+         "label": "Petroleum oils and oils obtained from bituminous minerals, crude", "mapping_type": "1:1"},
+    ],
+}
 
 
 def connection():
@@ -56,25 +71,25 @@ def connection():
 
 
 def manifest() -> dict[str, Any]:
-    return validate_source_pack(json.loads((ROOT / "config/source_packs/economic.json").read_text()))
+    return validate_source_pack(json.loads(PACK_PATH.read_text()))
 
 
-def source(name: str, documents: slice | None = None) -> dict[str, Any]:
-    item = next(s for s in manifest()["sources"] if s["source_id"] == SOURCES[name])
-    if documents is not None:
-        item = json.loads(json.dumps(item))
-        item["extractives"]["documents"] = item["extractives"]["documents"][documents]
+def source(name: str, *, revision: bool = False) -> dict[str, Any]:
+    item = copy.deepcopy(next(s for s in manifest()["sources"] if s["source_id"] == SOURCES[name]))
+    if revision:
+        item["extractives"]["documents"] = [json.loads((FIXTURES / REVISIONS[name]).read_text())["document"]]
     return item
 
 
 def pages(name: str, revision: bool = False) -> list[dict[str, Any]]:
     if revision:
-        return json.loads((FIXTURES / f"{name}_revision.json").read_text())["native_pages"]
+        return json.loads((FIXTURES / REVISIONS[name]).read_text())["native_pages"]
     return json.loads((ROOT / source(name)["fixture"]["path"]).read_text())["native_pages"]
 
 
-def fetch(item: dict[str, Any], native_pages: list[dict[str, Any]]) -> list[list[dict[str, Any]]]:
-    adapter = ExtractivesAdapter(item, transport=fixture_transport(native_pages))
+def fetch(name: str, *, revision: bool = False, transport=None) -> list[list[dict[str, Any]]]:
+    item = source(name, revision=revision)
+    adapter = ExtractivesAdapter(item, transport=transport or fixture_transport(pages(name, revision)))
     out, cursor = [], None
     while True:
         page = adapter.fetch_page({"operation": "release", "parameters": {}, "limit": item["budgets"]["max_results"]},
@@ -85,157 +100,110 @@ def fetch(item: dict[str, Any], native_pages: list[dict[str, Any]]) -> list[list
             return out
 
 
-def apply(conn, name: str, *, documents: slice | None = None, revision: bool = False,
-          retrieved_at_ms: int | None = None) -> list[dict[str, Any]]:
-    """Project every page of a source (one release per page), as the runtime would."""
-    item = source(name, documents)
-    if revision:
-        item = source(name, slice(1, 2))
+def apply(conn, name: str, *, revision: bool = False, retrieved_at_ms: int | None = None) -> list[dict[str, Any]]:
+    """Project every page of a source into the store (one release per page), as the runtime would."""
+    item = source(name, revision=revision)
     projector = ExtractivesProjector(conn)
     if retrieved_at_ms is not None:
         projector.store.now = lambda: retrieved_at_ms
     results = []
-    for records in fetch(item, pages(name, revision)):
+    for records in fetch(name, revision=revision):
         results += projector.project_page(run_id=f"run:{name}:{'rev' if revision else 'first'}", manifest=None,
                                           source=item, records=records, documents=None, page_receipt=None,
                                           principal_id="svc")
     return results
 
 
-def load_first(conn) -> None:
-    for name, documents in FIRST.items():
-        apply(conn, name, documents=documents, retrieved_at_ms=FIRST_RETRIEVAL)
-
-
-def load_later(conn) -> None:
-    for name, documents in LATER.items():
-        apply(conn, name, documents=documents, retrieved_at_ms=SECOND_RETRIEVAL)
-    apply(conn, "eiti", revision=True, retrieved_at_ms=SECOND_RETRIEVAL)
-
-
-def load_all(conn) -> None:
-    load_first(conn)
-    load_later(conn)
+def load_all(conn, *, revisions: bool = False) -> None:
+    for name in ("eiti", "usgs", "bgs"):
+        apply(conn, name, retrieved_at_ms=FIRST_RETRIEVAL)
+    if revisions:
+        for name in ("eiti", "usgs", "bgs"):
+            apply(conn, name, revision=True, retrieved_at_ms=SECOND_RETRIEVAL)
 
 
 def day_ms(day: str) -> int:
-    from datetime import date, datetime
+    from src.kb.extractives_records import day_ms as to_ms
 
-    return int(datetime.combine(date.fromisoformat(day), datetime.min.time(), tzinfo=UTC).timestamp() * 1000)
-
-
-def import_concordances(conn) -> list[dict[str, Any]]:
-    from src.kb.extractives_identity import ExtractivesIdentity
-
-    tables = json.loads((FIXTURES / "concordances.json").read_text())["tables"]
-    identity = ExtractivesIdentity(conn)
-    return [identity.import_concordance(NS, table, principal_id="op", scopes=SCOPES) for table in tables]
+    return to_ms(day)
 
 
 def ownership(conn) -> None:
-    """The Corporate Ownership fixtures (Exampla group) in the ownership namespace, reviewed."""
-    from tests.unit.competition_harness import ownership as load_ownership
+    """The Corporate Ownership fixtures (Exampla group) in the ownership namespace, reviewed (competition harness)."""
+    from tests.unit import competition_harness as ch
 
-    load_ownership(conn)
-
-
-def review_all(identity, assertions, *, reason: str = "published identifier or cited table checked") -> None:
-    for assertion in assertions:
-        if assertion["state"] == "proposed":
-            identity.review(NS, assertion["assertion_id"], "accept", reason, principal_id="reviewer", scopes=SCOPES)
+    ch.ownership(conn)
 
 
-def reviewed(conn, *, ownership_store: bool = True, infrastructure: bool = True) -> dict[str, Any]:
-    """Everything acquired, then reviewed: identifier company candidates accepted and name-only ones rejected,
-    commodity, country and project proposals accepted."""
+def seed_trade(conn) -> dict[str, str]:
+    """Trade series for HS 2603 (Comtrade, Germany) and CN 26030000 (Comext, Germany), authored from the trade
+    fixtures' shapes with the product changed; fictional values, applied through the trade store."""
+    from src.kb.trade_flows import TradeFlowStore
+    from tests.unit import trade_harness as th
+
+    store = TradeFlowStore(conn)
+    out = {}
+    for name, product, label in (("comtrade", "260300", "Copper ores and concentrates (fixture label)"),
+                                 ("comext", "26030000", "Copper ores and concentrates (fixture label)")):
+        records = th.fetch(name)[0]
+        item = copy.deepcopy(next(r["trade_item"] for r in records
+                                  if r["trade_item"]["reporter"]["code"] in ("276", "DE")))
+        item["product"] = {"code": product, "label": label}
+        header = copy.deepcopy(records[0]["trade_release"])
+        header.update({"item_count": 1, "file_sha256": "f" * 63 + ("1" if name == "comtrade" else "2"),
+                       "content_sha256": "e" * 64, "document": {"label": f"authored {name} copper ores fixture"}})
+        result = store.apply_release(NS, header, [item], run_id=f"fixture:{name}:copper", source_id=f"fixture-{name}",
+                                     retrieved_at_ms=FIRST_RETRIEVAL)
+        (series_id,) = [r[0] for r in conn.execute(
+            "SELECT series_id FROM trade_release_members WHERE namespace=? AND release_id=?",
+            [NS, result["release_id"]]).fetchall()]
+        out[name] = series_id
+    return out
+
+
+def seed_infrastructure(conn) -> str:
+    """One GEM mine asset carrying the published identifier the D-EITI project states (authored, fictional)."""
+    from src.kb.infrastructure_assets import InfrastructureStore, record
+
+    value = record("gem", "gem:global-mine-tracker", "M9001", "mine", name="Exampla Kupfer Mine (fixture)",
+                   source_url="https://globalenergymonitor.org/projects/global-mine-tracker/",
+                   attribution="Global Energy Monitor (fixture)",
+                   licence={"id": "cc-by-4.0", "terms_url": "https://creativecommons.org/licenses/by/4.0/"},
+                   release={"key": "gmt-2024-06", "released_at": "2024-06-30", "basis": "declared_release"},
+                   retrieved_at="2024-12-01T00:00:00Z", country="DE",
+                   identifiers=[{"scheme": "gem-mine-id", "value": "M9001"}])
+    InfrastructureStore(conn).apply("infra", [value], run_id="fixture:infra", principal_id="svc",
+                                    scopes={"operator"})
+    return conn.execute("SELECT asset_id FROM infra_assets WHERE namespace='infra'").fetchone()[0]
+
+
+def reviewed(conn, *, revisions: bool = False) -> dict[str, Any]:
+    """Ownership reviewed, extractives loaded, company candidates reviewed against the Exampla group.
+
+    A reviewer accepts the exact-identifier candidates (published KvK and Companies House numbers), rejects the
+    name-only candidate pointing at the same-name decoy and leaves the other name-only candidates pending, so
+    Exampla UK Limited (no identifier in the report) and Northwind Offshore stay unmatched.
+    """
     from src.kb.extractives_identity import ExtractivesIdentity
 
-    load_all(conn)
-    if ownership_store:
-        ownership(conn)
-    import_concordances(conn)
-    assets = seed_infrastructure(conn) if infrastructure else {}
+    ownership(conn)
+    load_all(conn, revisions=revisions)
     identity = ExtractivesIdentity(conn)
     proposed = identity.propose_companies(NS, ownership_namespace=OWN_NS, principal_id="analyst", scopes=SCOPES)
     for view in proposed["candidates"]:
-        ok = view["method"] == "exact-identifier"
-        identity.review_company(NS, view["candidate_id"], "accept" if ok else "reject",
-                                "published identifier agrees" if ok else "a name alone is not an identity",
-                                principal_id="reviewer", scopes=SCOPES)
-    review_all(identity, identity.propose_commodities(NS, principal_id="analyst", scopes=SCOPES)["assertions"])
-    review_all(identity, identity.propose_countries(NS, principal_id="analyst", scopes=SCOPES)["assertions"])
-    projects = identity.propose_projects(NS, infra_namespace=INFRA_NS, principal_id="analyst", scopes=SCOPES)
-    review_all(identity, projects["assertions"], reason="published identifier or coordinates checked")
-    return {"identity": identity, "assets": assets}
+        if view["method"] == "exact-identifier":
+            identity.review_company(NS, view["candidate_id"], "accept", "published register number agrees",
+                                    principal_id="reviewer", scopes=REVIEW_SCOPES)
+        elif "decoy" in view["ownership_key"]:
+            identity.review_company(NS, view["candidate_id"], "reject", "a different register entity",
+                                    principal_id="reviewer", scopes=REVIEW_SCOPES)
+    return {"identity": identity, "proposed": proposed}
 
 
-def seed_infrastructure(conn) -> dict[str, str]:
-    """Two fictional GEM mine assets: one sharing the project's published id, one at a project's coordinates."""
-    from src.kb.infrastructure_assets import InfrastructureStore, asset_id, record
+class Clock:
+    def __init__(self, start: int = 1_760_000_000_000) -> None:
+        self.value = start
 
-    store = InfrastructureStore(conn)
-    common = {"source_url": "https://globalenergymonitor.org/projects/global-mining-tracker/",
-              "attribution": "Global Energy Monitor (fixture)",
-              "licence": {"id": "cc-by-4.0", "terms_url": "https://creativecommons.org/licenses/by/4.0/"},
-              "release": {"key": "fixture-2025-01", "released_at": "2025-01-15", "basis": "declared_release"},
-              "retrieved_at": "2025-02-01T00:00:00Z", "country": "PE",
-              "geometry_receipt": {"crs_published": "EPSG:4326", "precision_m": 11.132,
-                                   "precision_basis": "coordinates published to 4 decimal places"}}
-    records = [
-        record("gem", "global-mining-tracker-fixture", "M-FIX-1", "mine", name="Cerro Ejemplo mine (fixture)",
-               identifiers=[{"scheme": "gem-mine-id", "value": "M-FIX-1"}],
-               geometry={"type": "Point", "coordinates": [-70.1234, -15.5678]}, **common),
-        record("gem", "global-mining-tracker-fixture", "M-FIX-2", "mine", name="North pit (fixture)",
-               identifiers=[{"scheme": "gem-mine-id", "value": "M-FIX-2"}],
-               geometry={"type": "Point", "coordinates": [-71.5, -16.25]}, **{
-                   **common, "geometry_receipt": {"crs_published": "EPSG:4326", "precision_m": 1113.2,
-                                                  "precision_basis": "coordinates published to 2 decimal places"}}),
-    ]
-    store.apply(INFRA_NS, records, run_id="fixture", principal_id="op",
-                scopes={"knowledge:infrastructure:write", "knowledge:infrastructure:read",
-                        f"namespace:{INFRA_NS}:write"})
-    return {n: asset_id(INFRA_NS, "gem", "global-mining-tracker-fixture", n) for n in ("M-FIX-1", "M-FIX-2")}
-
-
-def seed_trade(conn, namespace: str = "global") -> str:
-    """One Economics trade series of HS 260300 (test data standing in for an acquired Comtrade series)."""
-    from src.kb.trade_flows import TradeFlowStore
-
-    TradeFlowStore(conn)
-    series_id = "tf-series:fixture-per-chn-260300"
-    conn.execute("INSERT INTO trade_series VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                 [namespace, series_id, "un-comtrade", "m49", "604", "{}", "m49", "156", "{}", "X", "export", None,
-                  "260300", "Copper ores and concentrates", "HS", "HS2022", None, "annual", "FOB", "reported",
-                  "reporter", "{}", "value", "{}", "{}", "tf-release:fixture", 1])
-    conn.execute("INSERT INTO trade_vintages VALUES (?,?,?,?,?,?,?,?,?,?)",
-                 [namespace, "tf-vintage:fixture-1", series_id, "tf-release:fixture", 1, "declared_release", 1, "x",
-                  1, 1])
-    return series_id
-
-
-def seed_energy(conn, namespace: str = "global") -> str:
-    """The Energy series the BGS crude-petroleum document names (test data standing in for an acquired series)."""
-    from src.kb.energy_store import EnergyStore
-
-    EnergyStore(conn)
-    series_id = "energy-series:fixture-per-crude"
-    conn.execute("INSERT INTO energy_series VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                 [series_id, namespace, "balance", "eia", "international", "INTL.FIXTURE.PER.CRUDE.A", "country",
-                  "iso3166-1-alpha3", "PER", None, "{}", "TBPD", 1])
-    conn.execute("INSERT INTO energy_vintages VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                 ["energy-vintage:fixture-per-crude-1", series_id, namespace, 1, "fixture", "declared_release", 1, 1,
-                  1, "final", "x", "x", "{}", None, None, 1])
-    return series_id
-
-
-def seed_public_finance(conn, namespace: str = "global") -> str:
-    """A budget revenue line whose key the Peru report cites (test data standing in for an acquired line)."""
-    from src.kb.public_finance import PublicFinanceStore
-
-    PublicFinanceStore(conn)
-    line_id = "pf-line:fixture-pe-royalties"
-    conn.execute("INSERT INTO public_finance_lines VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                 [namespace, line_id, "fixture", "pe-siaf-ingresos", json.dumps({"code": "1.3.1.1.1"}),
-                  json.dumps({"code": "Regalias mineras"}), "revenue", None, "pe-siaf-ingresos:1.3.1.1.1",
-                  "pf-release:fixture", 1])
-    return line_id
+    def __call__(self) -> int:
+        self.value += 1000
+        return self.value

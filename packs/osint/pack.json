@@ -12,17 +12,14 @@
   "panels": [],
   "planner_keywords": {
     "sources": [
-      "ad library",
       "admiralty",
       "archive",
       "certificate",
       "certificate transparency",
       "crt.sh",
-      "dsa transparency database",
       "gdelt",
       "keyframe",
       "origin",
-      "political ads",
       "provenance",
       "rdap",
       "recycled video",
@@ -31,7 +28,6 @@
       "registrar",
       "reliability",
       "reverse image",
-      "statement of reasons",
       "wayback"
     ],
     "claims": [
@@ -77,7 +73,7 @@
     "review-gated-chronolocation",
     "review-gated-reference-imagery",
     "bounded-aircraft-and-vessel-movements",
-    "platform-transparency-records-and-political-ad-libraries"
+    "platform-transparency-statements-and-political-ads"
   ],
   "schema_versions": {
     "source-identity": "1.0.0",
@@ -88,7 +84,7 @@
     "source-relationship": "1.0.0",
     "osint-corroboration": "1.1.0",
     "osint-movement-record": "1.0.0",
-    "platform-transparency-record": "1.0.0"
+    "platform-transparency-record": "2.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",
@@ -190,26 +186,6 @@
       "tool": "image_reuse_findings",
       "arguments": {},
       "semantics": "perceptual-hash near-duplicates across documents, video frames cited by document and offset; flags recycling, not fakery"
-    },
-    {
-      "intent": "Which political ads did this advertiser run",
-      "tool": "platform_transparency_ads_by_advertiser",
-      "arguments": {
-        "namespace": "<namespace>",
-        "advertiser": "<page id, advertiser id or FEC committee id>"
-      },
-      "semantics": "ads with delivery dates and spend and impression ranges exactly as published, each ad revision cited; removed ads with their removal revision; committees reached only through accepted identity decisions; never a midpoint or point estimate"
-    },
-    {
-      "intent": "What moderation decisions did this platform publish in a period",
-      "tool": "platform_transparency_moderation_statements",
-      "arguments": {
-        "namespace": "<namespace>",
-        "platform": "<platform slug>",
-        "start": "<date>",
-        "end": "<date>"
-      },
-      "semantics": "counts of stored DSA statements of reasons by decision type, ground and category with automated flags as published, the stored window and the dump versions cited; not the platform's totals"
     }
   ],
   "exclusions": [
@@ -224,8 +200,8 @@
     "person-keyed identifier pivoting (e-mail, username, handle, IP address)",
     "screening or compliance determinations",
     "real-time tracking, continuous ADS-B or AIS mirroring, area-wide movement queries or movement alerts",
-    "user-level profiling of platform users or ad viewers",
-    "inference of coordinated behaviour from ad or moderation records",
-    "conversion of spend or impression ranges into point estimates"
+    "user-level profiling from platform transparency data",
+    "inference of coordinated behaviour from ads or moderation statements",
+    "conversion of ad spend or impression ranges into point estimates"
   ]
 }

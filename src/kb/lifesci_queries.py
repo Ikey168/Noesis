@@ -1,488 +1,340 @@
-"""As-of answers: an entry at a release with its cross-reference graph, and published activity against a target.
+"""Life-science answers: an entry as of a release with its cross-reference graph, and compounds with published
+activity against a target (#2652, LS09 #2696, LS10 #2701).
 
-LS09 (#2696) and LS10 (#2701) over the life-science records:
+* :meth:`LifeSciQueries.entry` takes an accession (``X9EXA1``, ``9EXA``, ``CHEMBL...``, ``source:native``) and an
+  optional release label and/or date. It returns the entry version in force then, every earlier and later version
+  with its release, and - for an obsolete, merged, replaced or deleted accession - the successor chain resolved to
+  the successors' versions in force, with the history shown. The cross-reference graph lists the entry's own
+  published cross-references (labelled with the source that asserts them and resolved to acquired records where
+  possible), the cross-references other sources publish that name this entry, the accepted and proposed identity
+  matches and the cross-pack links. Every entry version used is cited.
+* :meth:`LifeSciQueries.compounds_for_target` takes a ChEMBL target ID (or a UniProt accession, resolved through the
+  target components ChEMBL publishes) and a ChEMBL release and lists every activity as ChEMBL published it for that
+  release, grouped by assay type and activity type side by side: the published and standard type, relation, value
+  and unit, the data-validity comment, the compound (with its InChIKey) and the source document. Values are never
+  converted, normalised, averaged or aggregated across assays, and nothing is ranked.
 
-* :func:`entry_as_of` - given an accession (or a Gene ID, Tax ID, PDB ID or
-  ChEMBL ID), the revision in force at a published release or on record at a
-  date. Obsolete, merged, replaced and superseded identifiers are resolved to
-  the successors their source names, with every step of the history shown; a
-  UniProt secondary accession resolves to the entry that lists it. The UniSave
-  version history answers which entry and sequence version was in force at a
-  release even when that version was never acquired in full (reported as such).
-  Cross-references are labelled with the source whose record asserts them
-  (outgoing and incoming), with the reviewed identity state of each pair and
-  the cross-pack links of the record. Every entry version used is cited.
-* :func:`target_activities` - given a ChEMBL target (or a UniProt accession a
-  ChEMBL target component names), the compounds and activities ChEMBL
-  published for one release: published and ChEMBL-standardised type, relation,
-  value and unit as strings, data-validity and activity comments, each row
-  citing its activity revision and document. Values are never converted,
-  compared or aggregated across assays or assay types.
-* :func:`export_bundle` - either answer as a ``noesis-evidence-bundle-v1``
-  citing every item with source, record revision and as-of time.
-
-No answer infers function, interactions, disease relevance or activity, and no
-answer carries a person name (the LS01 minimisation decision).
+A subject with no records is ``none_on_record``; that is never evidence of absence in the source. No biological or
+clinical inference and no activity prediction is made. :meth:`LifeSciQueries.export_bundle` turns an answer into an
+evidence bundle whose every item cites source, record revision and as-of time.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-from datetime import UTC, datetime
+import re
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
 from src.kb.lifesci_records import (
-    ACCESSION,
-    ACTIVITY_ANSWER_CONTRACT,
-    ENTRY_ANSWER_CONTRACT,
-    MINIMISATION,
-    NEVER_SENTENCE,
+    ANSWER_CONTRACT,
+    BUNDLE_CONTRACT,
+    EXCLUSIONS,
+    INACTIVE,
     READ_SCOPE,
-    SUBJECT_PREFIX,
+    SOURCES,
+    XREF_TARGETS,
     LifeSciError,
     authorize,
+    detect_reference,
     digest,
-    forbidden_keys,
-    release_order,
+    minimised,
+    table_exists,
 )
-from src.kb.lifesci_store import LifeSciStore
+from src.kb.lifesci_store import LifeSciStore, as_of_day, iso_from_ms
 
-ENTRY_TYPES = ("protein", "gene", "taxon", "structure", "target", "compound")
-XREF_PREFIX = {"pdb": "pdb", "geneid": "ncbigene", "chembl": "chembl-target", "uniprotkb/swiss-prot": "uniprot",
-               "uniprotkb/trembl": "uniprot", "uniprot": "uniprot"}
-MAX_HOPS = 5
-
-
-def as_of_ms(value: Any) -> int | None:
-    if value is None or isinstance(value, int):
-        return value
-    text = str(value)
-    if len(text) == 10:
-        text += "T23:59:59.999+00:00"
-    return int(datetime.fromisoformat(text).timestamp() * 1000)
-
-
-def _date(ms: int | None) -> str | None:
-    return None if ms is None else datetime.fromtimestamp(ms / 1000, tz=UTC).date().isoformat()
-
-
-def cite(record: Mapping[str, Any], revision: Mapping[str, Any]) -> dict[str, Any]:
-    statement = revision["statement"]
-    return {"record_id": record["record_id"], "revision_id": revision["revision_id"],
-            "revision_no": revision["revision_no"], "provider": record["provider"],
-            "record_type": record["record_type"], "record_key": record["record_key"], "release": revision["release"],
-            "event": revision["event"], "url": statement["source"]["url"],
-            "api_url": statement["source"].get("api_url"), "licence": statement["source"].get("licence"),
-            "attribution": statement["source"].get("attribution"), "retrieved_at_ms": revision["observed_at_ms"],
-            "retrieved_on": revision["retrieved_on"], "evidence_origin": revision["evidence_origin"]}
-
-
-def successors(record_type: str, published: Mapping[str, Any]) -> list[str]:
-    """Subject keys the source names as successors of an obsolete record."""
-    if record_type == "protein":
-        return [f"uniprot:{a}" for a in (published.get("inactive_reason") or {}).get("successors") or []]
-    if record_type == "gene" and published.get("replaced_by"):
-        return [f"ncbigene:{published['replaced_by']}"]
-    if record_type == "taxon" and published.get("merged_into"):
-        return [f"ncbitaxon:{published['merged_into']}"]
-    if record_type == "structure":
-        return [f"pdb:{p}" for p in published.get("superseded_by") or []]
-    return []
-
-
-def assertions(record_type: str, published: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Cross-references one record publishes: (database, id, field) and the covered subject key when known."""
-    out: list[dict[str, Any]] = []
-
-    def add(database: str, value: Any, field: str) -> None:
-        prefix = XREF_PREFIX.get(str(database).casefold())
-        out.append({"database": database, "id": str(value), "field": field,
-                    "subject_key": f"{prefix}:{value}" if prefix else None})
-
-    if record_type == "protein":
-        for ref in published.get("cross_references") or []:
-            add(ref["database"], ref["id"], "cross_references")
-        taxon = (published.get("organism") or {}).get("taxon_id")
-        if taxon:
-            out.append({"database": "NCBI Taxonomy", "id": str(taxon), "field": "organism.taxon_id",
-                        "subject_key": f"ncbitaxon:{taxon}"})
-    elif record_type == "gene":
-        for ref in published.get("cross_references") or []:
-            add(ref["database"], ref["id"], "cross_references")
-        out.append({"database": "NCBI Taxonomy", "id": published["tax_id"], "field": "tax_id",
-                    "subject_key": f"ncbitaxon:{published['tax_id']}"})
-    elif record_type == "structure":
-        for entity in published.get("entities") or []:
-            for accession in entity["uniprot_accessions"]:
-                add("UniProt", accession, f"entities[{entity['entity_id']}].uniprot_accessions")
-    elif record_type == "target":
-        for component in published.get("components") or []:
-            if component.get("accession"):
-                add("UniProt", component["accession"], "components.accession")
-        if published.get("tax_id"):
-            out.append({"database": "NCBI Taxonomy", "id": str(published["tax_id"]), "field": "tax_id",
-                        "subject_key": f"ncbitaxon:{published['tax_id']}"})
-    elif record_type == "compound" and published.get("standard_inchikey"):
-        out.append({"database": "InChIKey", "id": published["standard_inchikey"], "field": "standard_inchikey",
-                    "subject_key": None})
-    return out
+# Databases other sources use to name a record of each (source, record type).
+NAMED_BY = {}
+for _database, _target in XREF_TARGETS.items():
+    NAMED_BY.setdefault(_target, set()).add(_database)
+NONE_NOTE = ("no record of this subject is held for the requested release or date; this is not evidence that the "
+             "source has none")
 
 
 class LifeSciQueries:
-    def __init__(self, conn: Any) -> None:
-        from src.kb.lifesci_identity import LifeSciIdentity
-        from src.kb.lifesci_links import LifeSciLinks
-
+    def __init__(self, conn: Any, *, now: Callable[[], int] | None = None) -> None:
         self.conn = conn
-        self.store = LifeSciStore(conn, initialize=False)
-        self.identity = LifeSciIdentity(conn, initialize=False)
-        self.links = LifeSciLinks(conn, initialize=False)
+        self.store = LifeSciStore(conn, initialize=False, now=now)
 
-    # ------------------------------------------------------------------ resolution
+    # ------------------------------------------------------------------ helpers
 
-    def _by_subject(self, namespace: str) -> dict[str, dict[str, Any]]:
-        return {r["subject_key"]: r for r in self.store.records(namespace) if r["record_type"] in ENTRY_TYPES}
+    def _cite(self, namespace, revision, release, as_of) -> dict[str, Any]:
+        return self.store.citation(namespace, revision, as_of=as_of, release=release)
 
-    def _find(self, namespace: str, query: str) -> tuple[str, list[str]]:
-        text = str(query or "").strip()
-        if not text:
-            raise LifeSciError("invalid_request", "give an accession, Gene ID, Tax ID, PDB ID or ChEMBL ID")
-        subjects = self._by_subject(namespace)
-        if text in subjects:
-            return "subject_key", [text]
-        keys = sorted(k for k, r in subjects.items() if r["record_key"] in {text, text.upper()})
-        if keys:
-            return "native_key", keys
-        if ACCESSION.fullmatch(text.upper()):
-            listing = []
-            for key, record in subjects.items():
-                if record["record_type"] != "protein":
-                    continue
-                revision = self.store.current(namespace, record["record_id"])
-                if text.upper() in (revision["statement"]["as_published"].get("secondary_accessions") or []):
-                    listing.append(key)
-            if listing:
-                return "secondary_accession", sorted(listing)
-        return "not_found", []
+    def _release_for(self, source: str, release: str | None) -> str | None:
+        """A release label only applies to the source that uses it (UniProt 2099_01, ChEMBL CHEMBL_99)."""
+        if not release:
+            return None
+        text = str(release)
+        if text.upper().startswith("CHEMBL"):
+            return text if source == "chembl" else None
+        if re.fullmatch(r"\d{4}_\d{2}", text):
+            return text if source == "uniprot" else None
+        if re.fullmatch(r"\d{4}-\d{2}-\d{2}", text):
+            return text if source in {"ncbi-gene", "ncbi-taxonomy", "rcsb-pdb"} else None
+        return text
 
-    def _revision(self, namespace, record, *, release, as_of):
-        if release is not None and record["provider"] in {"uniprot", "chembl"}:
-            return self.store.at_release(namespace, record["record_id"], release, as_of_ms=as_of), "release"
-        return self.store.current(namespace, record["record_id"], as_of_ms=as_of), "retrieval"
+    def _version(self, namespace, record_id, release, as_of) -> dict[str, Any] | None:
+        head = self.store.record(namespace, record_id)
+        return self.store.in_force(namespace, record_id, release=self._release_for(head["source"], release),
+                                   as_of=as_of)
+
+    def _history(self, namespace, record_id, release, as_of) -> list[dict[str, Any]]:
+        out = []
+        for revision in self.store.revisions(namespace, record_id):
+            releases = [m["release_label"] for m in self.store.memberships(namespace, record_id)
+                        if m["revision_id"] == revision["revision_id"]]
+            out.append({"revision_id": revision["revision_id"], "version_marker": revision["marker"],
+                        "version_basis": revision["basis"], "version_date": revision["version_date"],
+                        "status": revision["status"], "successors": revision["successors"],
+                        "first_release": revision["release_label"], "releases": releases,
+                        "citation": self._cite(namespace, revision, release, as_of)})
+        return out
+
+    def _resolve(self, namespace: str, reference: str) -> tuple[list[str], list[tuple[str, str]]]:
+        candidates = detect_reference(reference)
+        if str(reference).startswith("lifesci-record:"):
+            return self.store.resolve(namespace, reference), candidates
+        found = []
+        for source, native in candidates:
+            found += self.store.find(namespace, source, native)
+        return found, candidates
 
     # ------------------------------------------------------------------ LS09
 
-    def entry_as_of(self, namespace: str, query: str, *, scopes: Iterable[str], release: str | None = None,
-                    as_of: Any = None) -> dict[str, Any]:
+    def entry(self, namespace: str, reference: str, *, scopes: Iterable[str], release: str | None = None,
+              as_of: Any = None) -> dict[str, Any]:
+        scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        self.store.require_ready()
-        at = as_of_ms(as_of)
-        interpreted, keys = self._find(namespace, query)
-        subjects = self._by_subject(namespace)
-        base = {"contract": ENTRY_ANSWER_CONTRACT, "namespace": namespace, "query": query,
-                "interpreted_as": interpreted, "release": release, "as_of": _date(at),
-                "as_of_basis": ("the revision published in the named release (or the latest earlier one) and "
-                                "retrieved by the date" if release else
-                                "the latest revision retrieved on or before the date"),
-                "boundary": NEVER_SENTENCE, "minimisation": MINIMISATION["decision"]}
-        if not keys:
-            return {**base, "status": "not_on_record", "entries": [], "resolution": [], "citations": [],
-                    "unknowns": [{"kind": "not_on_record", "reason": f"{query!r} is not in the acquired, bounded "
-                                  "selection; this is not a statement about the source"}]}
-        resolution: list[dict[str, Any]] = []
-        if interpreted == "secondary_accession":
-            resolution.append({"from": query, "to": keys, "reason": "secondary accession listed by the entry",
-                               "asserted_by": "uniprot"})
-        entries, citations, unknowns = [], [], []
-        frontier, seen = list(keys), set()
-        hops = 0
-        while frontier and hops <= MAX_HOPS:
-            hops += 1
-            nxt = []
-            for key in frontier:
-                if key in seen:
-                    continue
-                seen.add(key)
-                record = subjects.get(key)
-                if record is None:
-                    unknowns.append({"kind": "successor_not_acquired", "subject_key": key,
-                                     "reason": "the source names this successor; it is not in the acquired selection"})
-                    continue
-                revision, basis = self._revision(namespace, record, release=release, as_of=at)
-                if revision is None:
-                    versions, in_force = (self._versions(namespace, record["record_key"], release)
-                                          if record["record_type"] == "protein" and release else ([], None))
-                    if in_force:
-                        entries.append({"subject_key": key, "record_type": "protein", "provider": "uniprot",
-                                        "record_key": record["record_key"], "event": "version-only",
-                                        "selected_by": "unisave-history", "version_in_force": in_force,
-                                        "unisave_versions": versions,
-                                        "note": "UniSave names the entry and sequence version in force at this "
-                                                "release; the full entry at that version was not acquired"})
-                        citations.append(in_force["citation"])
-                        unknowns.append({"kind": "full_entry_not_acquired", "subject_key": key,
-                                         "reason": f"entry version {in_force['entry_version']} is known from UniSave "
-                                                   "only"})
-                        continue
-                    unknowns.append({"kind": "no_revision_at", "subject_key": key,
-                                     "reason": "no revision of this record was published by the release or retrieved "
-                                               "by the date"})
-                    continue
-                published = revision["statement"]["as_published"]
-                follow = successors(record["record_type"], published) if revision["event"] == "obsoleted" else []
-                if follow:
-                    resolution.append({"from": key, "to": follow, "reason": revision["statement"]["effective"].get(
-                        "date_basis") or "obsoleted by the source", "asserted_by": record["provider"],
-                        "revision_id": revision["revision_id"], "release": revision["release"]})
-                    nxt += follow
-                entries.append(self._entry(namespace, record, revision, basis, subjects, release=release, at=at))
-                citations.append(cite(record, revision))
-            frontier = nxt
-        current = [e for e in entries if e["event"] in {"published", "version-only"}]
-        status = ("answered" if current else "obsolete_without_held_successor" if entries
-                  else "not_published_by_release_or_date")
-        answer = {**base, "status": status,
-                  "entries": entries, "resolution": resolution, "citations": citations, "unknowns": unknowns}
-        leaks = forbidden_keys(answer)
-        if leaks:
-            raise LifeSciError("boundary", f"answer carries excluded fields: {leaks}")
-        return answer
+        day = as_of_day(as_of)
+        base = {"contract": ANSWER_CONTRACT, "kind": "entry", "namespace": namespace, "reference": reference,
+                "release": release, "as_of": day, "exclusions": list(EXCLUSIONS)}
+        if not self.store.ready():
+            return {**base, "status": "none_on_record", "note": NONE_NOTE}
+        found, candidates = self._resolve(namespace, reference)
+        if not candidates and not found:
+            raise LifeSciError("invalid_reference", "name a UniProt accession, PDB ID, ChEMBL ID, NCBI Gene/Tax ID "
+                                                    f"(source:id for numeric ids; sources {SOURCES}) or a record id")
+        if not found:
+            return {**base, "status": "none_on_record", "candidates": [f"{s}:{n}" for s, n in candidates],
+                    "note": NONE_NOTE}
+        if len(found) > 1:
+            return {**base, "status": "ambiguous",
+                    "records": [self.store.record(namespace, r) for r in found],
+                    "note": "the identifier names records of several sources; ask with source:id"}
+        (record_id,) = found
+        head = self.store.record(namespace, record_id)
+        version = self._version(namespace, record_id, release, day)
+        if version is None:
+            return {**base, "status": "none_on_record", "record": head,
+                    "history": self._history(namespace, record_id, release, day),
+                    "note": "the record was first published after the requested release or date"}
+        statement = self.store.statement(namespace, version["revision_id"])
+        entry = {"record": head, "version": {"revision_id": version["revision_id"], "marker": version["marker"],
+                                             "basis": version["basis"], "status": version["status"],
+                                             "release": version["release_label"]},
+                 "label": statement["label"], "attributes": statement["attributes"],
+                 "citations": statement["citations"], "licence": statement["licence"],
+                 "citation": self._cite(namespace, version, release, day)}
+        successors = self._successors(namespace, head, version, release, day)
+        return minimised({
+            **base, "status": "answered", "entry": entry,
+            "history": self._history(namespace, record_id, release, day),
+            "releases": self.store.releases(namespace, record_id),
+            "resolved_to": successors,
+            "xref_graph": self._graph(namespace, head, version, release, day, scopes),
+            "note": "the version in force at the requested release or date; merged or obsolete accessions are "
+                    "resolved to their successors with the history shown",
+        })
 
-    def _versions(self, namespace, accession, release):
-        rows = []
-        for record in self.store.records(namespace, record_type="entry_version"):
-            if not record["record_key"].startswith(accession + ":"):
+    def _successors(self, namespace, head, version, release, day, depth: int = 0) -> list[dict[str, Any]]:
+        if version["status"] not in INACTIVE or not version["successors"] or depth > 5:
+            return []
+        out = []
+        for successor in version["successors"]:
+            ids = self.store.find(namespace, head["source"], successor, head["record_type"])
+            if not ids:
+                out.append({"source": head["source"], "native_id": successor, "status": "not_acquired",
+                            "via": {"from": head["native_id"], "kind": version["status"],
+                                    "revision_id": version["revision_id"]}})
                 continue
-            revision = self.store.current(namespace, record["record_id"])
-            published = revision["statement"]["as_published"]
-            rows.append({**{k: published.get(k) for k in ("entry_version", "sequence_version", "database",
-                                                          "first_release", "last_release", "first_release_date",
-                                                          "last_release_date")},
-                         "citation": cite(record, revision)})
-        rows.sort(key=lambda r: r["entry_version"])
-        in_force = None
-        if release:
-            wanted = release_order(release)
-            in_force = next((r for r in rows if release_order(r["first_release"]) <= wanted
-                             <= release_order(r["last_release"])), None)
-        return rows, in_force
+            succ_version = self._version(namespace, ids[0], release, day)
+            if succ_version is None:
+                out.append({"record_id": ids[0], "native_id": successor, "status": "none_on_record"})
+                continue
+            succ_head = self.store.record(namespace, ids[0])
+            out.append({"record_id": ids[0], "native_id": successor, "status": succ_version["status"],
+                        "version_marker": succ_version["marker"],
+                        "via": {"from": head["native_id"], "kind": version["status"],
+                                "revision_id": version["revision_id"]},
+                        "citation": self._cite(namespace, succ_version, release, day),
+                        "then": self._successors(namespace, succ_head, succ_version, release, day, depth + 1)})
+        return out
 
-    def _entry(self, namespace, record, revision, basis, subjects, *, release, at) -> dict[str, Any]:
-        published = revision["statement"]["as_published"]
-        kind = record["record_type"]
-        entry: dict[str, Any] = {
-            "subject_key": record["subject_key"], "record_type": kind, "provider": record["provider"],
-            "record_key": record["record_key"], "name": record["subject_name"], "event": revision["event"],
-            "selected_by": basis, "revision_id": revision["revision_id"], "release": revision["release"],
-            "as_published": published, "citation": cite(record, revision),
-            "history": [{"revision_no": r["revision_no"], "revision_id": r["revision_id"], "release": r["release"],
-                         "event": r["event"], "retrieved_on": r["retrieved_on"],
-                         **({"entry_version": r["statement"]["as_published"].get("entry_version"),
-                             "sequence_version": r["statement"]["as_published"].get("sequence_version")}
-                            if kind == "protein" else {}),
-                         **({"revision": r["statement"]["as_published"].get("revision")} if kind == "structure"
-                            else {})}
-                        for r in self.store.revisions(namespace, record["record_id"], as_of_ms=at)],
-        }
-        if kind == "protein":
-            entry["label"] = "reviewed (Swiss-Prot)" if published.get("reviewed") else (
-                "unreviewed (TrEMBL)" if published.get("reviewed") is False else published["entry_type"])
-            versions, in_force = self._versions(namespace, record["record_key"], release)
-            entry["unisave_versions"] = versions
-            if release:
-                entry["version_in_force"] = in_force or {"status": "not in the acquired UniSave history"}
-                if in_force and published.get("entry_version") not in (None, in_force["entry_version"]):
-                    entry["version_in_force"] = {**in_force, "note": "UniSave names this version for the release; "
-                                                 "the held full entry is a different version, shown as acquired"}
-        if kind == "structure":
-            entry["structure_note"] = "experimental method and resolution as published; no model quality judgement"
-        entry["cross_references"] = self._graph(namespace, record, published, subjects)
-        entry["links"] = [{k: link[k] for k in ("target_kind", "target_id", "target_revision", "relation", "basis",
-                                                "revision_id")}
-                          for link in self.links.links(namespace, scopes={"operator"}, record_id=record["record_id"])]
-        return entry
-
-    def _graph(self, namespace, record, published, subjects) -> dict[str, Any]:
+    def _graph(self, namespace, head, version, release, day, scopes) -> dict[str, Any]:
         outgoing = []
-        matches = {frozenset((m["left_key"], m["right_key"])): m
-                   for m in self.identity.matches(namespace, scopes={"operator"}, subject_key=record["subject_key"])}
-        for ref in assertions(record["record_type"], published):
-            key = ref["subject_key"]
-            target = subjects.get(key) if key else None
-            current = self.store.current(namespace, target["record_id"]) if target else None
-            match = matches.get(frozenset((record["subject_key"], key))) if key else None
-            outgoing.append({**ref, "asserted_by": record["provider"], "held": target is not None,
-                             "target_revision_id": current["revision_id"] if current else None,
-                             "identity": {"match_id": match["match_id"], "state": match["state"],
-                                          "method": match["method"], "confidence": match["confidence"]}
-                             if match else None})
+        for xref in self.store.xrefs(namespace, version["revision_id"]):
+            target = XREF_TARGETS.get(xref["database"])
+            item = {**xref, "asserted_by": head["source"], "asserting_revision_id": version["revision_id"]}
+            if target:
+                ids = self.store.find(namespace, target[0], xref["id"], target[1])
+                other = self._version(namespace, ids[0], release, day) if ids else None
+                item["resolved"] = ({"record_id": ids[0], "citation": self._cite(namespace, other, release, day)}
+                                    if other else None)
+                item["resolution"] = "acquired" if other else "not_acquired"
+            else:
+                item["resolution"] = "external"
+            outgoing.append(item)
         incoming = []
-        for key, other in subjects.items():
-            if key == record["subject_key"]:
+        databases = NAMED_BY.get((head["source"], head["record_type"]), set())
+        for row in self.store.xrefs_naming(namespace, databases, head["native_id"]):
+            if row["record_id"] == head["record_id"]:
                 continue
-            revision = self.store.current(namespace, other["record_id"])
-            for ref in assertions(other["record_type"], revision["statement"]["as_published"]):
-                if ref["subject_key"] == record["subject_key"]:
-                    match = matches.get(frozenset((record["subject_key"], key)))
-                    incoming.append({"subject_key": key, "record_type": other["record_type"],
-                                     "asserted_by": other["provider"], "field": ref["field"],
-                                     "revision_id": revision["revision_id"], "release": revision["release"],
-                                     "identity": {"match_id": match["match_id"], "state": match["state"],
-                                                  "method": match["method"]} if match else None})
-        others = [{"match_id": m["match_id"], "with": m["right_key"] if m["left_key"] == record["subject_key"]
-                   else m["left_key"], "state": m["state"], "method": m["method"], "confidence": m["confidence"]}
-                  for pair, m in sorted(matches.items(), key=lambda i: i[1]["match_id"])
-                  if not any(o["identity"] and o["identity"]["match_id"] == m["match_id"] for o in outgoing + incoming)]
-        return {"outgoing": outgoing, "incoming": sorted(incoming, key=lambda i: i["subject_key"]),
-                "other_identity_matches": others,
-                "labelling": "each cross-reference names the source whose record asserts it; identity states are "
-                             "reviewer decisions, never automatic merges"}
+            other_head = self.store.record(namespace, row["record_id"])
+            in_force = self._version(namespace, row["record_id"], release, day)
+            if in_force is None or in_force["revision_id"] != row["revision_id"]:
+                continue  # only the version in force at the requested release asserts
+            incoming.append({"record_id": row["record_id"], "source": other_head["source"],
+                             "record_type": other_head["record_type"], "native_id": other_head["native_id"],
+                             "database": row["database"], "relation": row["relation"],
+                             "asserted_by": other_head["source"],
+                             "citation": self._cite(namespace, in_force, release, day)})
+        identity, links = [], []
+        if table_exists(self.conn, "lifesci_matches"):
+            from src.kb.lifesci_identity import LifeSciIdentity
+
+            identity = [{k: m[k] for k in ("match_id", "left_id", "right_kind", "right_id", "method", "confidence",
+                                            "state", "decision_id")}
+                        for m in LifeSciIdentity(self.conn, initialize=False).matches(
+                            namespace, scopes=scopes, record_id=head["record_id"])]
+        if table_exists(self.conn, "lifesci_links"):
+            from src.kb.lifesci_links import LifeSciLinks
+
+            links = LifeSciLinks(self.conn, initialize=False).links(namespace, scopes=scopes,
+                                                                     record_id=head["record_id"])
+        return {"outgoing": outgoing, "incoming": incoming, "identity_matches": identity, "links": links,
+                "note": "each cross-reference is labelled with the source that asserts it; identity matches are "
+                        "reviewable and only accepted ones carry links"}
 
     # ------------------------------------------------------------------ LS10
 
-    def target_activities(self, namespace: str, target: str, *, scopes: Iterable[str], release: str | None = None,
-                          as_of: Any = None) -> dict[str, Any]:
+    def compounds_for_target(self, namespace: str, target: str, *, scopes: Iterable[str],
+                             release: str | None = None) -> dict[str, Any]:
+        scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        self.store.require_ready()
-        at = as_of_ms(as_of)
-        text = str(target or "").strip()
-        targets = [r for r in self.store.records(namespace, record_type="target") if r["record_key"] == text.upper()]
-        via = "chembl_id"
-        if not targets and ACCESSION.fullmatch(text.upper()):
-            via = "published target component accession"
-            for record in self.store.records(namespace, record_type="target"):
-                revision = self.store.current(namespace, record["record_id"], as_of_ms=at)
-                if revision and text.upper() in {c.get("accession") for c in
-                                                 revision["statement"]["as_published"].get("components") or []}:
-                    targets.append(record)
-        base = {"contract": ACTIVITY_ANSWER_CONTRACT, "namespace": namespace, "query": target, "resolved_via": via,
-                "as_of": _date(at), "boundary": NEVER_SENTENCE,
-                "values_policy": "values, relations and units exactly as ChEMBL published them (published and "
-                                 "ChEMBL-standardised side by side); never converted, compared or aggregated across "
-                                 "assays or assay types"}
+        base = {"contract": ANSWER_CONTRACT, "kind": "compounds_for_target", "namespace": namespace,
+                "target": target, "release": release, "exclusions": list(EXCLUSIONS)}
+        targets, basis = self._targets(namespace, target, release)
         if not targets:
-            return {**base, "status": "not_on_record", "release": release, "targets": [], "activities": [],
-                    "removed_in_release": [], "citations": [],
-                    "unknowns": [{"kind": "not_on_record", "reason": f"no ChEMBL target on record for {target!r}"}]}
-        keys = {r["record_key"] for r in targets}
-        activities = [r for r in self.store.records(namespace, record_type="activity")]
-        releases = sorted({rev["release"] for r in activities for rev in self.store.revisions(
-            namespace, r["record_id"], as_of_ms=at)
-            if rev["statement"]["as_published"]["target_chembl_id"] in keys and rev["release"]}, key=release_order)
-        chosen = release or (releases[-1] if releases else None)
-        rows, removed, citations = [], [], []
-        target_rows = []
-        for record in targets:
-            revision = self.store.at_release(namespace, record["record_id"], chosen, as_of_ms=at) if chosen else None
-            if revision:
-                target_rows.append({"target_chembl_id": record["record_key"],
-                                    **{k: revision["statement"]["as_published"].get(k) for k in (
-                                        "pref_name", "target_type", "organism", "tax_id", "components")},
-                                    "citation": cite(record, revision)})
-                citations.append(cite(record, revision))
-        compounds, documents = {}, {}
-        for record in activities:
-            revision = self.store.at_release(namespace, record["record_id"], chosen, as_of_ms=at) if chosen else None
-            if revision is None:
-                continue
-            published = revision["statement"]["as_published"]
-            if published["target_chembl_id"] not in keys:
-                continue
-            if revision["event"] == "removed":
-                removed.append({"activity_id": published["activity_id"], "citation": cite(record, revision),
-                                "basis": revision["statement"]["effective"]["date_basis"]})
-                citations.append(cite(record, revision))
-                continue
-            compound = self._related(namespace, "compound", published["molecule_chembl_id"], chosen, at, compounds)
-            document = self._related(namespace, "document", published["document_chembl_id"], chosen, at, documents)
-            rows.append({
-                "activity_id": published["activity_id"],
-                "compound": {"molecule_chembl_id": published["molecule_chembl_id"], **(
-                    {k: compound["published"].get(k) for k in ("pref_name", "standard_inchikey")}
-                    if compound else {"status": "compound record not on record"})},
-                "assay": {"assay_chembl_id": published["assay_chembl_id"], "assay_type": published.get("assay_type"),
-                          "description": published.get("assay_description")},
-                "published": published.get("published"),
-                "standard": {**(published.get("standard") or {}), "label": "standardised by ChEMBL as published"},
-                "data_validity_comment": published.get("data_validity_comment"),
-                "data_validity_description": published.get("data_validity_description"),
-                "activity_comment": published.get("activity_comment"),
-                "document": ({"document_chembl_id": published["document_chembl_id"],
-                              **{k: document["published"].get(k) for k in ("doi", "pubmed_id", "title", "journal",
-                                                                           "year")},
-                              "citation": document["citation"]} if document else
-                             {"document_chembl_id": published["document_chembl_id"],
-                              "status": "document record not on record", **(published.get("document_citation") or {})}),
-                "citation": cite(record, revision)})
-            citations.append(cite(record, revision))
-            for item in (compound, document):
-                if item:
-                    citations.append(item["citation"])
-        rows.sort(key=lambda r: (str(r["assay"]["assay_type"]), str((r["published"] or {}).get("type")),
-                                 r["compound"]["molecule_chembl_id"], r["activity_id"]))
-        unique = {c["revision_id"]: c for c in citations}
-        answer = {**base, "status": "answered" if rows else "no_published_activity_on_record", "release": chosen,
-                  "releases_on_record": releases, "targets": target_rows, "activities": rows,
-                  "activity_types": sorted({str((r["published"] or {}).get("type")) for r in rows}),
-                  "aggregation": "none", "removed_in_release": removed, "citations": list(unique.values()),
-                  "unknowns": [] if rows else [{"kind": "no_activity", "reason": f"no activity on record for the "
-                                                f"target in release {chosen}"}]}
-        leaks = forbidden_keys(answer)
-        if leaks:
-            raise LifeSciError("boundary", f"answer carries excluded fields: {leaks}")
-        return answer
+            return {**base, "status": "none_on_record", "note": NONE_NOTE}
+        groups: dict[tuple[str, str], list[dict[str, Any]]] = {}
+        target_views = []
+        for target_id, target_version in targets:
+            target_views.append({"record_id": target_id, "native_id": self.store.record(namespace,
+                                                                                          target_id)["native_id"],
+                                 "citation": self._cite(namespace, target_version, release, None)})
+            chembl_id = self.store.record(namespace, target_id)["native_id"]
+            for row in self.store.xrefs_naming(namespace, {"ChEMBL"}, chembl_id):
+                head = self.store.record(namespace, row["record_id"])
+                if head["record_type"] != "activity":
+                    continue
+                version = self._version(namespace, row["record_id"], release, None)
+                if version is None or version["revision_id"] != row["revision_id"]:
+                    continue
+                attributes = self.store.statement(namespace, version["revision_id"])["attributes"]
+                item = {
+                    "activity_id": attributes["activity_id"], "assay_chembl_id": attributes["assay_chembl_id"],
+                    "assay_type": attributes["assay_type"], "assay_description": attributes["assay_description"],
+                    "published": attributes["published"], "standard": attributes["standard"],
+                    "data_validity_comment": attributes["data_validity_comment"],
+                    "activity_comment": attributes["activity_comment"],
+                    "compound": self._related(namespace, "compound", attributes["molecule_chembl_id"], release),
+                    "document": self._related(namespace, "document", attributes["document_chembl_id"], release),
+                    "citation": self._cite(namespace, version, release, None),
+                }
+                key = (str(attributes["assay_type"]), str(attributes["standard"]["type"]
+                                                          or attributes["published"]["type"]))
+                groups.setdefault(key, []).append(item)
+        if not groups:
+            return {**base, "status": "none_on_record", "targets": target_views, "target_basis": basis,
+                    "note": "no activity against this target is held for the requested release; " + NONE_NOTE}
+        return minimised({
+            **base, "status": "answered", "targets": target_views, "target_basis": basis,
+            "groups": [{"assay_type": assay_type, "activity_type": activity_type,
+                        "activities": sorted(items, key=lambda i: str(i["activity_id"]))}
+                       for (assay_type, activity_type), items in sorted(groups.items())],
+            "note": "activities as ChEMBL published them for the release, grouped side by side by assay type and "
+                    "activity type; values, relations and units are never converted or aggregated, validity "
+                    "comments are shown, and nothing is ranked or predicted",
+        })
 
-    def _related(self, namespace, record_type, key, release, at, cache):
-        if key not in cache:
-            record = self.store.find(namespace, record_type, key)
-            revision = self.store.at_release(namespace, record["record_id"], release, as_of_ms=at) if record else None
-            cache[key] = ({"published": revision["statement"]["as_published"], "citation": cite(record, revision)}
-                          if revision else None)
-        return cache[key]
+    def _related(self, namespace, record_type, native_id, release) -> dict[str, Any]:
+        ids = self.store.find(namespace, "chembl", native_id, record_type)
+        version = self._version(namespace, ids[0], release, None) if ids else None
+        if version is None:
+            return {"native_id": native_id, "status": "not_acquired"}
+        statement = self.store.statement(namespace, version["revision_id"])
+        view = {"native_id": native_id, "record_id": ids[0], "label": statement["label"],
+                "citation": self._cite(namespace, version, release, None)}
+        if record_type == "compound":
+            view["standard_inchi_key"] = dict(statement["attributes"].get("structures") or {}).get(
+                "standard_inchi_key")
+        else:
+            view["cites"] = statement["citations"]
+        return view
 
+    def _targets(self, namespace, target, release) -> tuple[list[tuple[str, dict]], str]:
+        candidates = detect_reference(target)
+        out = []
+        for source, native in candidates:
+            if source == "chembl":
+                for record_id in self.store.find(namespace, "chembl", native, "target"):
+                    version = self._version(namespace, record_id, release, None)
+                    if version is not None:
+                        out.append((record_id, version))
+                return out, "chembl-target-id"
+            if source == "uniprot":
+                for row in self.store.xrefs_naming(namespace, {"UniProt"}, native):
+                    head = self.store.record(namespace, row["record_id"])
+                    if head["record_type"] != "target":
+                        continue
+                    version = self._version(namespace, row["record_id"], release, None)
+                    if version is not None and version["revision_id"] == row["revision_id"]:
+                        out.append((row["record_id"], version))
+                return out, "chembl-target-component (the UniProt accession as ChEMBL publishes it)"
+        if not candidates:
+            raise LifeSciError("invalid_reference", "name a ChEMBL target ID or a UniProt accession")
+        return out, "unsupported"
 
-# ------------------------------------------------------------------ export
+    # ------------------------------------------------------------------ evidence bundle
 
+    def export_bundle(self, answer: Mapping[str, Any], *, created_at_ms: int | None = None) -> dict[str, Any]:
+        """Every cited item of an answer with source, record revision and as-of time."""
+        citations: dict[str, dict[str, Any]] = {}
 
-def export_bundle(answer: Mapping[str, Any], *, created_at_ms: int | None = None) -> dict[str, Any]:
-    """A noesis-evidence-bundle-v1 citing every record revision (source, revision, release, as-of time) used."""
-    from src.evidence_bundle.builder import EvidenceBundleBuilder
+        def walk(value: Any) -> None:
+            if isinstance(value, Mapping):
+                cite = value.get("citation")
+                if isinstance(cite, Mapping) and cite.get("revision_id"):
+                    citations[cite["revision_id"]] = dict(cite)
+                for item in value.values():
+                    walk(item)
+            elif isinstance(value, list):
+                for item in value:
+                    walk(item)
 
-    builder = EvidenceBundleBuilder("answer", {"operation": "life-sciences", "contract": answer["contract"],
-                                               "query": answer["query"], "release": answer.get("release")},
-                                    created_at_ms=created_at_ms, as_of_ms=as_of_ms(answer.get("as_of")))
-    refs = []
-    for citation in answer.get("citations") or []:
-        object_id = f"lifesci-revision:{citation['revision_id']}"
-        builder.add_object("evidence", {
-            "kind": "lifesci-record-revision",
-            "locator": {"cited": True, "record_id": citation["record_id"], "revision_id": citation["revision_id"]},
-            "source": citation["provider"], "record_type": citation["record_type"],
-            "record_key": citation["record_key"], "revision_no": citation["revision_no"],
-            "release": citation["release"], "event": citation["event"],
-            "as_of": {"retrieved_at_ms": citation["retrieved_at_ms"], "retrieved_on": citation["retrieved_on"]},
-            "licence": citation.get("licence"), "attribution": citation.get("attribution"), "url": citation["url"],
-            "evidence_origin": citation.get("evidence_origin")}, object_id=object_id)
-        refs.append(object_id)
-        builder.add_external_reference(f"record:{citation['record_id']}:{citation['revision_no']}", citation["url"],
-                                       required=False)
-    for entry in answer.get("entries") or []:
-        graph = entry.get("cross_references") or {}
-        for item in list(graph.get("outgoing") or []) + list(graph.get("incoming") or []):
-            identity = item.get("identity")
-            if identity:
-                object_id = f"lifesci-match:{identity['match_id']}"
-                builder.add_object("evidence", {"kind": "lifesci-identity-match", "locator": {
-                    "cited": True, "match_id": identity["match_id"]}, "state": identity["state"],
-                    "method": identity["method"]}, object_id=object_id)
-                refs.append(object_id)
-    for unknown in answer.get("unknowns") or []:
-        builder.add_omission(f"{unknown['kind']}: {unknown.get('reason') or ''}".strip())
-    root = {k: answer.get(k) for k in ("contract", "query", "status", "release", "as_of", "boundary")}
-    builder.add_object("answer", {"kind": "life-sciences", **root},
-                       object_id=f"lifesci-answer:{digest([root, sorted(set(refs))])[:24]}",
-                       references=sorted(set(refs)), root=True)
-    return builder.build()
+        walk(answer)
+        items = [{"source": c["source"], "record_type": c["record_type"], "native_id": c["native_id"],
+                  "record_revision": c["revision_id"], "version_marker": c["version_marker"],
+                  "release": c["release"], "released_on": c["released_on"], "retrieved_at": c["retrieved_at"],
+                  "as_of": c["as_of"], "url": c["url"], "licence": c["licence"],
+                  "evidence_origin": c["evidence_origin"]} for _, c in sorted(citations.items())]
+        created = iso_from_ms(created_at_ms if created_at_ms is not None else self.store.now())
+        return {"contract": BUNDLE_CONTRACT, "bundle_id": "lifesci-bundle:" + digest([answer.get("kind"),
+                                                                                       items])[:24],
+                "answer_kind": answer.get("kind"), "status": answer.get("status"), "created_at": created,
+                "items": items, "exclusions": list(EXCLUSIONS),
+                "note": "each item cites its source, record revision and as-of time; redistribution follows each "
+                        "source's licence"}
 
 
-__all__ = ["SUBJECT_PREFIX", "LifeSciQueries", "as_of_ms", "assertions", "cite", "export_bundle", "successors"]
+__all__ = ["LifeSciQueries"]

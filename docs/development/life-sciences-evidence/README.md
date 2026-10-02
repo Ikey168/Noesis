@@ -7,4 +7,4 @@ dated live checks only. Offline fixture evidence lives in
 
 | Run | Result |
 | --- | --- |
-| none yet | No dated live run exists. UniProt (`rest.uniprot.org`), NCBI Datasets v2 (`api.ncbi.nlm.nih.gov`), the RCSB PDB Data API (`data.rcsb.org`) and the ChEMBL web services (`www.ebi.ac.uk/chembl/api/data`) stay `unverified-live` until a bounded live check (LS14, #2721) records, per declared selection, the dated counts, the release or revision read (UniProt `X-UniProt-Release`, ChEMBL `chembl_db_version`, PDB major.minor revision), response hashes and failure codes here, and confirms every field marked *verify* in the audit. |
+| none yet | No dated live run exists. UniProtKB, NCBI Gene, NCBI Taxonomy, RCSB PDB and ChEMBL stay `unverified-live` until a bounded live check (LS14, #2721) records dated counts per declared document, release stamps, response hashes and failure codes here. |

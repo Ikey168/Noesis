@@ -1,313 +1,285 @@
-"""Science research-entities features' entry points: ROR organisations, minimised public ORCID researchers, DataCite
-datasets and CORDIS projects as of a date, reviewable organisation identity, links to other packs and monitors.
+"""Science research-entities entry points: ROR organisations, public ORCID researchers, DataCite datasets and CORDIS
+projects with revisions and as-of answers, reviewable identity, cross-pack links and monitors.
 
-Acquisition runs through the shared source-pack tools (pack ``research-discovery``: sources ``ror-organisations``,
-``orcid-public-records``, ``datacite-research-datasets`` and ``cordis-horizon-projects``). Every answer cites each
-record with its source, record revision and as-of time.
+Acquisition runs through the shared source-pack tools (pack ``research-discovery`` 1.5.0: ``research-entities-ror``,
+``research-entities-orcid``, ``research-entities-datacite``, ``research-entities-cordis``). ROR, ORCID, DataCite and
+CORDIS coverage are the separate optional features ``research-entities-ror``, ``research-entities-orcid``,
+``research-entities-datacite`` and ``research-entities-cordis``; literature, funding and ownership links degrade to
+``provider_absent`` / ``target_missing`` when those providers are absent. Every answer cites each item with its source,
+record revision, as-of time and observation time.
 
-Exclusions (declared by every answering tool and enforced on its output): no researcher rankings or metrics, no
-affiliation inferred from co-authorship, no author matching by name, and no personal data beyond the public ORCID
-fields of the data-minimisation decision; researcher records need the researchers scope.
+Exclusions: no researcher rankings or metrics, no inference of affiliation from co-authorship, no author
+disambiguation by name, and no personal data beyond the public ORCID fields allowed by the RE01 minimisation decision:
+researcher records and researcher-derived answers need ``knowledge:science:research-entities:researchers:read``.
 """
 
-READ = "knowledge:research-entities:read"
-WRITE = "knowledge:research-entities:write"
-REVIEW = "knowledge:research-entities:review"
-RESEARCHERS = "knowledge:research-entities:researchers"
-SUBSCRIPTIONS_READ = "knowledge:subscriptions:read"
-SUBSCRIPTIONS_WRITE = "knowledge:subscriptions:write"
-EXCLUSIONS_NOTE = (
-    "Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching "
-    "by name, minimised personal data only."
-)
-
-RESEARCH_ENTITY_WRITES = {
-    "propose_research_entity_matches",
-    "review_research_entity_match",
-    "revert_research_entity_match",
-    "build_research_entity_links",
+RESEARCH_ENTITIES_WRITES = {
+    "propose_research_entity_identity_matches",
+    "review_research_entity_identity_match",
+    "revert_research_entity_identity_match",
+    "link_research_entities",
     "create_research_entities_monitor",
     "run_research_entities_monitor",
 }
-RESEARCH_ENTITY_READS = {
+RESEARCH_ENTITIES_READS = {
     "research_entities_source_contracts",
     "research_entities_readiness",
-    "research_organisation_as_of",
-    "researcher_assertions_as_of",
-    "research_datasets_for_paper",
-    "research_record_history",
-    "list_research_entity_matches",
-    "list_research_entity_links",
+    "research_entity_record",
+    "research_entity_as_of",
+    "researcher_asserted_works_as_of",
+    "organisation_lineage_projects_datasets",
+    "datasets_for_paper",
     "export_research_entities_evidence_bundle",
+    "list_research_entity_identity_candidates",
+    "list_research_entity_links",
     "poll_research_entities_monitor",
 }
-RESEARCH_ENTITY_TOOLS = RESEARCH_ENTITY_WRITES | RESEARCH_ENTITY_READS
-RESEARCH_ENTITY_SCOPES = {
+RESEARCH_ENTITIES_TOOLS = RESEARCH_ENTITIES_WRITES | RESEARCH_ENTITIES_READS
+READ = "knowledge:science:research-entities:read"
+WRITE = "knowledge:science:research-entities:write"
+RESEARCHERS = "knowledge:science:research-entities:researchers:read"
+OWNERSHIP_READ = "knowledge:ownership:read"
+# Every scope each tool always reads or writes. The researcher scope is conditional for record, link and organisation
+# reads (without it researcher records are withheld and counted); it is always required for researcher answers.
+RESEARCH_ENTITIES_SCOPES = {
     "research_entities_source_contracts": [],
     "research_entities_readiness": [READ],
-    "research_organisation_as_of": [READ],
-    "researcher_assertions_as_of": [READ, RESEARCHERS],
-    "research_datasets_for_paper": [READ],
-    "research_record_history": [READ],
-    "list_research_entity_matches": [READ],
-    "list_research_entity_links": [READ],
+    "research_entity_record": [READ],
+    "research_entity_as_of": [READ],
+    "researcher_asserted_works_as_of": [READ, RESEARCHERS],
+    "organisation_lineage_projects_datasets": [READ],
+    "datasets_for_paper": [READ],
     "export_research_entities_evidence_bundle": [READ],
-    "poll_research_entities_monitor": [READ, SUBSCRIPTIONS_READ],
-    "propose_research_entity_matches": [WRITE],
-    "review_research_entity_match": [REVIEW],
-    "revert_research_entity_match": [REVIEW],
-    "build_research_entity_links": [WRITE],
-    "create_research_entities_monitor": [READ, SUBSCRIPTIONS_WRITE],
-    "run_research_entities_monitor": [READ, SUBSCRIPTIONS_WRITE],
+    "list_research_entity_identity_candidates": [READ, OWNERSHIP_READ],
+    "list_research_entity_links": [READ],
+    "poll_research_entities_monitor": [READ, "knowledge:subscriptions:read"],
+    "propose_research_entity_identity_matches": [READ, OWNERSHIP_READ, "knowledge:ownership:write"],
+    "review_research_entity_identity_match": [OWNERSHIP_READ, "knowledge:ownership:review"],
+    "revert_research_entity_identity_match": [OWNERSHIP_READ, "knowledge:ownership:review"],
+    "link_research_entities": [READ, WRITE],
+    "create_research_entities_monitor": [READ, "knowledge:subscriptions:write"],
+    "run_research_entities_monitor": [READ, "knowledge:subscriptions:write"],
 }
+EXCLUSIONS_NOTE = ("No researcher ranking or metric, no affiliation inferred from co-authorship, no author "
+                   "disambiguation by name; researchers are minimised (RE01).")
 
 
 def required_scopes(tool_name, mutability):
-    return RESEARCH_ENTITY_SCOPES.get(tool_name, [WRITE if mutability == "write" else READ])
-
-
-def _require(scopes, *required):
-    from src.kb.research_entities_records import ResearchEntitiesError
-
-    missing = [s for s in required if s not in scopes and "operator" not in scopes]
-    if missing:
-        raise ResearchEntitiesError("unauthorized", f"{', '.join(missing)} required")
-
-
-def _mask(value, allowed):
-    """ORCID iDs of dataset creators are shown only to callers who may read researcher records."""
-    if isinstance(value, dict):
-        out = {k: _mask(v, allowed) for k, v in value.items()}
-        if not allowed and "orcid" in out and "affiliation_identifiers" in out:
-            out["orcid"], out["orcid_withheld"] = None, bool(value.get("orcid"))
-        return out
-    if isinstance(value, list):
-        return [_mask(v, allowed) for v in value]
-    return value
-
-
-def _declared(answer, scopes):
-    """Declare the exclusions and enforce them and the minimisation decision on the output."""
-    from src.ingestion.research_entities_sources import EXCLUSIONS
-    from src.kb.research_entities_records import (
-        ResearchEntitiesError,
-        forbidden_keys,
-        may_read_researchers,
-    )
-
-    if not isinstance(answer, dict):
-        return answer
-    if forbidden_keys(answer):
-        raise ResearchEntitiesError("forbidden_field", "an answer carried a ranking, metric or inferred field")
-    return {**_mask(answer, may_read_researchers(scopes)), "exclusions": list(EXCLUSIONS)}
+    return RESEARCH_ENTITIES_SCOPES.get(tool_name, [WRITE if mutability == "write" else READ])
 
 
 def register(mcp, safe, context):
     def who():
         return context()[0], context()[1]
 
-    def run_tool(tool, operation, *, write=False):
-        """Checks every declared scope, runs the operation and declares the exclusions on the answer."""
-        scopes = RESEARCH_ENTITY_SCOPES[tool]
+    def queries(conn):
+        from src.kb.research_entities_queries import ResearchEntityQueries
 
-        def run(conn):
-            _require(who()[1], *scopes)
-            return _declared(operation(conn), who()[1])
+        return ResearchEntityQueries(conn)
 
-        return safe(run, write=write, required_scope=scopes[0] if scopes else None)
+    def checked(answer):
+        from src.kb.research_entities_records import ResearchEntityError, forbidden_keys
+
+        if forbidden_keys(answer):
+            raise ResearchEntityError("exclusion_violation", "an answer carries a ranking or metric key")
+        return answer
 
     @mcp.tool()
     def research_entities_source_contracts() -> dict:
-        """Per-source access decisions (ROR data dump, ORCID Public API, DataCite REST API, CORDIS bulk files):
-        endpoints, authentication, licences, rate limits, revision models, bounded coverage, the data-minimisation
-        decision and the sources recorded as not implemented.
-        Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching
-        by name, minimised personal data only."""
+        """Per-registry endpoints, authentication and key handling (the ORCID public-API token), licences, rate limits,
+        revision and removal models, bounded coverage, LIVE_VERIFICATION status and the researcher data-minimisation
+        decision for ROR, ORCID, DataCite and CORDIS (and the not-implemented OpenAIRE Graph)."""
         from src.ingestion.research_entities_sources import (
             BOUNDED_COVERAGE,
             EXCLUSIONS,
             LIVE_VERIFICATION,
             MINIMISATION,
-            NEVER_SENTENCE,
-            NOT_IMPLEMENTED,
             PROVIDER_CONTRACTS,
+            REVIEW_BOUNDARY,
         )
 
         return {"contracts": PROVIDER_CONTRACTS, "live_verification": LIVE_VERIFICATION,
                 "bounded_coverage": BOUNDED_COVERAGE, "minimisation": MINIMISATION,
-                "not_implemented": NOT_IMPLEMENTED, "never": NEVER_SENTENCE, "exclusions": list(EXCLUSIONS)}
+                "review_boundary": REVIEW_BOUNDARY, "exclusions": list(EXCLUSIONS)}
 
     @mcp.tool()
     def research_entities_readiness() -> dict:
-        """Which research-entities features (ROR, ORCID, DataCite, CORDIS) are selected, their stores, releases,
-        records and live-verification status per provider."""
+        """Which research-entities features (ROR, ORCID, DataCite, CORDIS) are selected, records per registry, and
+        whether the ORCID source is degraded without its client token."""
         from src.kb.research_entities_records import readiness
 
-        return run_tool("research_entities_readiness", readiness)
+        return safe(lambda conn: readiness(conn), required_scope=READ)
 
     @mcp.tool()
-    def research_organisation_as_of(namespace: str, ror: str, as_of: str | None = None) -> dict:
-        """A ROR organisation as in the release in force at as_of: names, types, status, relationships as
-        published, lineage along predecessors and successors, CORDIS projects of accepted participants
-        (contributions per currency, never summed across currencies), DataCite datasets stating it as an
-        affiliation, ownership links and identity state; every record version cited; none_on_record when not held.
-        Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching
-        by name, minimised personal data only."""
-        from src.kb.research_entities_queries import ResearchEntitiesQueries
+    def research_entity_record(namespace: str, record_key: str) -> dict:
+        """The current revision and every revision of one registry record (ROR organisation, ORCID researcher, DataCite
+        dataset or CORDIS project) with source, revision, as-of time and citation. Researcher records only with the
+        researcher scope and only with minimised fields. No ranking or metric."""
+        from src.kb.research_entities_records import ResearchEntityStore
 
-        return run_tool("research_organisation_as_of", lambda conn: ResearchEntitiesQueries(conn).organisation(
-            namespace, ror, scopes=who()[1], as_of=as_of))
+        def run(conn):
+            store = ResearchEntityStore(conn, initialize=False)
+            history = store.history(namespace, record_key, scopes=who()[1])
+            current = store.records(namespace, scopes=who()[1], record_keys=[record_key])
+            if not history:
+                withheld = record_key.startswith("research-entities:orcid:") and store.withheld_researchers(
+                    namespace, scopes=who()[1])
+                return {"status": "withheld" if withheld else "none_on_record", "record_key": record_key}
+            return checked({"status": "answered", "record_key": record_key, "current": current[0] if current else None,
+                            "revisions": history})
 
-    @mcp.tool()
-    def researcher_assertions_as_of(namespace: str, orcid: str, as_of: str | None = None) -> dict:
-        """Employments and works asserted in the public ORCID record version in force at as_of, each labelled
-        ORCID-asserted (never verified authorship), only minimisation-allowed fields, the record version cited,
-        linked papers by asserted DOI and datasets naming the iD. Needs the researchers scope.
-        Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching
-        by name, minimised personal data only."""
-        from src.kb.research_entities_queries import ResearchEntitiesQueries
-
-        return run_tool("researcher_assertions_as_of", lambda conn: ResearchEntitiesQueries(conn).researcher(
-            namespace, orcid, scopes=who()[1], as_of=as_of))
+        return safe(run, required_scope=READ)
 
     @mcp.tool()
-    def research_datasets_for_paper(namespace: str, doi: str, as_of: str | None = None) -> dict:
-        """DataCite datasets whose related identifiers name a paper DOI, with the relation type as published and
-        each metadata version cited.
-        Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching
-        by name, minimised personal data only."""
-        from src.kb.research_entities_queries import ResearchEntitiesQueries
+    def research_entity_as_of(namespace: str, record_key: str, as_of: str) -> dict:
+        """The revision of one registry record in force at a date (the latest whose source time is on or before it),
+        with its citation; not_yet_published or none_on_record otherwise."""
+        from src.kb.research_entities_records import ResearchEntityStore
 
-        return run_tool("research_datasets_for_paper", lambda conn: ResearchEntitiesQueries(conn).datasets_for_paper(
-            namespace, doi, scopes=who()[1], as_of=as_of))
+        def run(conn):
+            revision = ResearchEntityStore(conn, initialize=False).as_of(namespace, record_key, as_of,
+                                                                         scopes=who()[1])
+            if revision is None:
+                return {"status": "none_on_record", "record_key": record_key, "as_of": as_of}
+            return checked({"status": "answered", "record_key": record_key, "as_of": as_of, "revision": revision})
 
-    @mcp.tool()
-    def research_record_history(namespace: str, kind: str, identifier: str, programme: str | None = None) -> dict:
-        """Every revision of one organisation, researcher (researchers scope), dataset or project, oldest first,
-        including corrections and removals by the source, each cited with its release.
-        Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching
-        by name, minimised personal data only."""
-        from src.kb.research_entities_queries import ResearchEntitiesQueries
-
-        return run_tool("research_record_history", lambda conn: ResearchEntitiesQueries(conn).record_history(
-            namespace, kind, identifier, scopes=who()[1], programme=programme))
+        return safe(run, required_scope=READ)
 
     @mcp.tool()
-    def list_research_entity_matches(namespace: str, state: str | None = None, ror: str | None = None,
-                                     pic: str | None = None) -> dict:
-        """ROR-participant and ownership identity matches with method, evidence, confidence and state (proposed,
-        accepted, rejected, reverted), and the organisations and participants still unmatched. Researchers are
-        never matched."""
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
+    def researcher_asserted_works_as_of(namespace: str, orcid: str, as_of: str | None = None) -> dict:
+        """A researcher's employments and works as asserted in the public ORCID record version in force at a date,
+        each labelled ORCID-asserted (never verified authorship), with the record version cited. Only the public
+        fields allowed by the minimisation decision; needs the researcher scope. No ranking or metric."""
+        return safe(lambda conn: checked(queries(conn).researcher(namespace, orcid, scopes=who()[1], as_of=as_of)),
+                    required_scope=RESEARCHERS)
+
+    @mcp.tool()
+    def organisation_lineage_projects_datasets(namespace: str, ror: str, as_of: str | None = None) -> dict:
+        """An organisation's ROR relationships and successors as published in the release in force, its CORDIS
+        projects through accepted participant matches with contributions as published (per currency, never summed
+        across currencies), linked datasets and ownership matches, citing each record version. No ranking."""
+        return safe(lambda conn: checked(queries(conn).organisation(namespace, ror, scopes=who()[1], as_of=as_of)),
+                    required_scope=READ)
+
+    @mcp.tool()
+    def datasets_for_paper(namespace: str, doi: str) -> dict:
+        """Datasets whose DataCite metadata relates a paper DOI, with the relation type as published."""
+        return safe(lambda conn: queries(conn).datasets_for_paper(namespace, doi, scopes=who()[1]),
+                    required_scope=READ)
+
+    @mcp.tool()
+    def export_research_entities_evidence_bundle(namespace: str, query: str, key: str, as_of: str | None = None
+                                                 ) -> dict:
+        """An evidence bundle for a researcher, organisation or paper answer (query: researcher | organisation |
+        paper): assertions each citing the record revision, source, as-of time and observation time behind them."""
+        def run(conn):
+            ask = queries(conn)
+            if query == "researcher":
+                answer = ask.researcher(namespace, key, scopes=who()[1], as_of=as_of)
+            elif query == "organisation":
+                answer = ask.organisation(namespace, key, scopes=who()[1], as_of=as_of)
+            elif query == "paper":
+                answer = ask.datasets_for_paper(namespace, key, scopes=who()[1])
+            else:
+                return {"ok": False, "error": {"code": "invalid_request",
+                                               "message": "query is researcher, organisation or paper"}}
+            return checked({"status": answer["status"], "query": query, "key": key, "as_of": as_of,
+                            "evidence_bundle": ask.evidence_bundle(answer), "exclusions": answer["exclusions"]})
+
+        return safe(run, required_scope=READ)
+
+    @mcp.tool()
+    def list_research_entity_identity_candidates(namespace: str, record_key: str | None = None) -> dict:
+        """Identity candidates and decisions for ROR organisations and CORDIS participants with method, evidence and
+        confidence, and the unmatched subjects. Researchers are never candidates."""
+        from src.kb.research_entities_identity import ResearchEntityIdentity
         from src.kb.research_entities_records import authorize
 
-        def op(conn):
+        def run(conn):
             authorize(namespace, who()[1], READ)
-            identity = ResearchEntitiesIdentity(conn, initialize=False)
-            return {"matches": identity.matches(namespace, scopes=who()[1], state=state, ror=ror, pic=pic),
-                    "unmatched": identity.unmatched(namespace, scopes=who()[1])}
+            identity = ResearchEntityIdentity(conn, initialize=False)
+            return {"candidates": identity.candidates(namespace, scopes=who()[1], subject_key=record_key),
+                    "unmatched": identity.unmatched(namespace, scopes=who()[1]),
+                    "conflicts": identity.conflicts(namespace, scopes=who()[1])}
 
-        return run_tool("list_research_entity_matches", op)
-
-    @mcp.tool()
-    def list_research_entity_links(namespace: str, target_kind: str | None = None) -> dict:
-        """Links to Scholarly-literature works, Funding records and ownership entities with their basis (asserted
-        or published identifier, accepted match), both revisions and the target status (resolved, target_missing,
-        provider_absent)."""
-        from src.kb.research_entities_links import ResearchEntitiesLinks
-
-        return run_tool("list_research_entity_links", lambda conn: {"links": ResearchEntitiesLinks(
-            conn, initialize=False).links(namespace, scopes=who()[1], target_kind=target_kind)})
+        return safe(run, required_scope=READ)
 
     @mcp.tool()
-    def export_research_entities_evidence_bundle(namespace: str, kind: str, identifier: str,
-                                                 as_of: str | None = None) -> dict:
-        """A noesis-evidence-bundle-v1 for an organisation (ror), researcher (orcid; researchers scope) or paper
-        (doi) answer: every record revision cited with source, revision and as-of time; unresolved parts are
-        omissions.
-        Exclusions: no researcher rankings or metrics, no affiliation inferred from co-authorship, no author matching
-        by name, minimised personal data only."""
-        from src.kb.research_entities_queries import ResearchEntitiesQueries
-        from src.kb.research_entities_records import ResearchEntitiesError
+    def list_research_entity_links(namespace: str, kind: str | None = None, source_key: str | None = None,
+                                   target_key: str | None = None) -> dict:
+        """Citation, shared-identifier and accepted-match links with the record revisions they point at and their
+        basis; missing providers and targets are listed. A link is not evidence of authorship or collaboration."""
+        from src.kb.research_entities_links import ResearchEntityLinks
 
-        def op(conn):
-            queries = ResearchEntitiesQueries(conn)
-            if kind == "ror":
-                answer = queries.organisation(namespace, identifier, scopes=who()[1], as_of=as_of)
-            elif kind == "orcid":
-                answer = queries.researcher(namespace, identifier, scopes=who()[1], as_of=as_of)
-            elif kind == "doi":
-                answer = queries.datasets_for_paper(namespace, identifier, scopes=who()[1], as_of=as_of)
-            else:
-                raise ResearchEntitiesError("invalid_request", "kind is ror, orcid or doi")
-            return {"bundle": queries.export_bundle(answer), "answer_status": answer["status"]}
-
-        return run_tool("export_research_entities_evidence_bundle", op)
+        return safe(lambda conn: {"links": ResearchEntityLinks(conn, initialize=False).links(
+            namespace, scopes=who()[1], kind=kind, source_key=source_key, target_key=target_key)},
+            required_scope=READ)
 
     @mcp.tool()
-    def poll_research_entities_monitor(subscription_id: str, cursor: str = "") -> dict:
-        """Poll a research-entities monitor's events (new records, registry changes, new asserted works, new
-        datasets, new projects)."""
-        from src.kb.research_entities_monitoring import ResearchEntitiesMonitor
+    def propose_research_entity_identity_matches(namespace: str, ownership_namespace: str | None = None) -> dict:
+        """Propose reviewable matches of ROR organisations and CORDIS participants to each other and to Corporate
+        Ownership entities by published identifiers first (ROR/ISNI/Wikidata/GRID/FundRef, VAT, website host) and
+        names only as low evidence; nothing is merged or accepted automatically and researchers are never proposed."""
+        from src.kb.research_entities_identity import ResearchEntityIdentity
 
-        return run_tool("poll_research_entities_monitor", lambda conn: ResearchEntitiesMonitor(
-            conn, initialize=False).poll(subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))
-
-    # ------------------------------------------------------------------ writes
-
-    @mcp.tool()
-    def propose_research_entity_matches(namespace: str, ownership_namespace: str | None = None) -> dict:
-        """Propose ROR-participant matches (website domain or name in the same country) and, with an ownership
-        namespace, ownership matches (published identifiers first, then name and jurisdiction); nothing is
-        accepted or merged, researchers are never matched."""
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
-
-        return run_tool("propose_research_entity_matches", lambda conn: ResearchEntitiesIdentity(conn).propose(
-            namespace, principal_id=who()[0], scopes=who()[1], ownership_namespace=ownership_namespace), write=True)
+        return safe(lambda conn: ResearchEntityIdentity(conn).propose(
+            namespace, principal_id=who()[0], scopes=who()[1], ownership_namespace=ownership_namespace),
+            write=True, required_scope="knowledge:ownership:write")
 
     @mcp.tool()
-    def review_research_entity_match(namespace: str, match_id: str, decision: str, reason: str) -> dict:
-        """Accept or reject a proposed match with a reason (an entity identity decision, never a merge)."""
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
+    def review_research_entity_identity_match(namespace: str, candidate_id: str, decision: str, reason: str) -> dict:
+        """Accept or reject a research-entities identity candidate as an entity identity decision."""
+        from src.kb.research_entities_identity import ResearchEntityIdentity
 
-        return run_tool("review_research_entity_match", lambda conn: ResearchEntitiesIdentity(conn).review(
-            namespace, match_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True)
-
-    @mcp.tool()
-    def revert_research_entity_match(namespace: str, match_id: str, reason: str) -> dict:
-        """Revert an accepted or rejected match; it is not used until reviewed again."""
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
-
-        return run_tool("revert_research_entity_match", lambda conn: ResearchEntitiesIdentity(conn).revert(
-            namespace, match_id, reason, principal_id=who()[0], scopes=who()[1]), write=True)
+        return safe(lambda conn: ResearchEntityIdentity(conn).review(
+            namespace, candidate_id, decision, reason, principal_id=who()[0], scopes=who()[1]),
+            write=True, required_scope="knowledge:ownership:review")
 
     @mcp.tool()
-    def build_research_entity_links(namespace: str, ownership_namespace: str | None = None) -> dict:
-        """Link researchers (asserted DOIs) and datasets (related identifiers) to Scholarly works, projects to
-        Funding records and organisations to ownership entities (accepted matches only); missing providers and
-        targets are reported. No collaboration or influence links."""
-        from src.kb.research_entities_links import ResearchEntitiesLinks
+    def revert_research_entity_identity_match(namespace: str, candidate_id: str, reason: str) -> dict:
+        """Revert an accepted or rejected research-entities identity decision; records stay intact."""
+        from src.kb.research_entities_identity import ResearchEntityIdentity
 
-        return run_tool("build_research_entity_links", lambda conn: ResearchEntitiesLinks(conn).build(
-            namespace, principal_id=who()[0], scopes=who()[1], ownership_namespace=ownership_namespace), write=True)
+        return safe(lambda conn: ResearchEntityIdentity(conn).revert(
+            namespace, candidate_id, reason, principal_id=who()[0], scopes=who()[1]),
+            write=True, required_scope="knowledge:ownership:review")
 
     @mcp.tool()
-    def create_research_entities_monitor(namespace: str, request_key: str, watch: dict,
-                                         delivery: dict | None = None) -> dict:
-        """Subscribe to an organisation (ror), researcher (orcid; researchers scope), project (project with
-        programme) or dataset (doi): notices of registry changes, new asserted works, new datasets and projects
-        (record changes, never assessments)."""
-        from src.kb.research_entities_monitoring import ResearchEntitiesMonitor
+    def link_research_entities(namespace: str, ownership_namespace: str | None = None) -> dict:
+        """Link researchers and datasets to literature papers by DOI, projects to Funding records by topic or call id,
+        datasets to projects by award number and organisations to ownership entities by accepted match; absent
+        providers and missing targets are reported, never dropped. No inferred collaboration or influence links."""
+        from src.kb.research_entities_links import ResearchEntityLinks
 
-        return run_tool("create_research_entities_monitor", lambda conn: ResearchEntitiesMonitor(conn).create(
-            namespace, request_key, watch=watch, principal_id=who()[0], scopes=who()[1], delivery=delivery),
-            write=True)
+        return safe(lambda conn: ResearchEntityLinks(conn).link(
+            namespace, principal_id=who()[0], scopes=who()[1], ownership_namespace=ownership_namespace),
+            write=True, required_scope=WRITE)
+
+    @mcp.tool()
+    def create_research_entities_monitor(namespace: str, request_key: str, watch: str, key: str) -> dict:
+        """Watch an organisation (ROR id), a researcher (ORCID iD; researcher scope) or a CORDIS project
+        (PROGRAMME:id) for registry changes, new asserted works and new datasets."""
+        from src.kb.research_entities_monitoring import ResearchEntityMonitor
+
+        return safe(lambda conn: ResearchEntityMonitor(conn).create(
+            namespace, request_key, watch=watch, key=key, principal_id=who()[0], scopes=who()[1]),
+            write=True, required_scope="knowledge:subscriptions:write")
 
     @mcp.tool()
     def run_research_entities_monitor(subscription_id: str, watermark: int | None = None) -> dict:
-        """Evaluate a research-entities monitor at a committed watermark; notices cite the new or revised record
-        revision and state what changed."""
-        from src.kb.research_entities_monitoring import ResearchEntitiesMonitor
+        """Evaluate a research-entities monitor at a committed watermark; notices cite the new and previous record
+        revision, state what changed and carry minimised fields only."""
+        from src.kb.research_entities_monitoring import ResearchEntityMonitor
 
-        return run_tool("run_research_entities_monitor", lambda conn: ResearchEntitiesMonitor(conn).run(
-            subscription_id, watermark, principal_id=who()[0], scopes=who()[1]), write=True)
+        return safe(lambda conn: ResearchEntityMonitor(conn).run(
+            subscription_id, watermark, principal_id=who()[0], scopes=who()[1]),
+            write=True, required_scope="knowledge:subscriptions:write")
+
+    @mcp.tool()
+    def poll_research_entities_monitor(subscription_id: str, cursor: str = "") -> dict:
+        """Delivered research-entities monitor events after a cursor."""
+        from src.kb.research_entities_monitoring import ResearchEntityMonitor
+
+        return safe(lambda conn: ResearchEntityMonitor(conn, initialize=False).poll(
+            subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor),
+            required_scope="knowledge:subscriptions:read")

@@ -1,30 +1,41 @@
-"""Links from enforcement records to other packs by citation, shared identifier or accepted match (#2651, EN08).
+"""Enforcement records linked to other packs by exact citation, shared identifier or accepted match (#2651, EN08).
 
-Every link records its **basis** and points at a specific **revision** on
-both sides where the target store keeps revisions:
+Citations are parsed exactly from the text a regulator published (an action's
+legal bases, charges and related references, an appeal's court docket) - never
+by topic or name similarity:
 
-* ``citation`` - legal bases and related references parsed exactly from the
-  text the regulator published (:func:`parse_references`): the US Code (the
-  courts feature's parser) and the named US Acts at their fixed codification
-  (Securities Act, Securities Exchange Act, Advisers Act, Investment Company
-  Act, Clean Air Act, EPCRA, Clean Water Act, RCRA, ...), UK Acts
-  (Financial Services and Markets Act 2000), GDPR articles cited in the
-  Article 60 register, FCA Handbook provisions and Principles (kept as
-  unresolved references - no provider holds the Handbook), Commission
-  competition case numbers (the Corporate Ownership competition feature) and
-  court docket numbers of related court cases and appeals (the Legal courts
-  feature);
-* ``shared_identifier`` - a CIK the regulator published for a respondent,
-  equal to a Market issuer alias (the Market filings of that issuer are
-  listed by accession);
-* ``accepted_match`` - an accepted EN07 identity decision from a respondent
-  to an ownership entity (never a proposed one).
+* **US securities statutes** ``Section 17(a) of the Securities Act of 1933``,
+  ``Section 10(b) of the Securities Exchange Act of 1934``, ``Section 206(2)
+  of the Investment Advisers Act`` at their fixed 15 U.S.C. codification,
+  **SEC rules** ``Rule 10b-5`` (17 C.F.R. § 240.10b-5) and US Code / CFR
+  citations (the courts feature's parser);
+* **US environmental statutes** named by ECHO (Clean Air Act, Clean Water Act,
+  RCRA, SDWA, CERCLA, TSCA, FIFRA, EPCRA) at their codification;
+* **FCA Handbook** provisions (``SYSC 6.1.1R``, ``PRIN 2.1.1R``), the
+  numbered Principles for Businesses and sections of FSMA 2000;
+* **GDPR articles** (``Article 5(1)(f)``, in an EDPB register entry or with
+  "GDPR"), and EU acts, UK Acts, OJ references and competition case numbers
+  through the competition feature's parser
+  (:func:`src.kb.competition_citations.parse_references`).
 
-A target that no acquired record carries stays ``unresolved`` with its source
-text; a provider that is not installed makes the link
-``provider_unavailable``; nothing is dropped. No causal relation between an
-action and a market event is inferred and the citing relationship is never
-characterised.
+:class:`EnforcementLinks` then links every current record revision to:
+
+* **Legal works** (``legal.works``) by exact identifier - basis ``citation``;
+* **competition cases** (``ownership.competition``) by a cited case number -
+  basis ``citation``;
+* **court dockets** (``legal.courts``) by a cited docket number of the action
+  or of an appeal - basis ``citation``;
+* **market filings** by CIK: SEC EDGAR filer records that carry the CIK a
+  respondent publishes - basis ``shared_identifier``;
+* **ownership entities** through an accepted EN07 match - basis
+  ``accepted_match``.
+
+Every link names the citing record revision and the target revision where one
+exists. A missing provider (no Legal, courts, competition or ownership store)
+is reported as ``provider_unavailable``; a missing target as ``unresolved``;
+both keep the source text and are re-resolved on later runs. Nothing is
+linked by inference: no causal link between an action and market events is
+drawn.
 """
 
 from __future__ import annotations
@@ -45,94 +56,138 @@ from src.kb.enforcement import (
 from src.kb.enforcement_records import canonical, digest
 
 LINK_CONTRACT = "noesis-enforcement-link-v1"
-BASES = ("citation", "shared_identifier", "accepted_match", "published_coordinates")
-# Named Acts at their fixed codification (title, first section); a named section of one is an exact reference.
-US_ACTS = {
-    "securities act": ("15", "77a"), "securities exchange act": ("15", "78a"), "exchange act": ("15", "78a"),
-    "investment advisers act": ("15", "80b-1"), "advisers act": ("15", "80b-1"),
-    "investment company act": ("15", "80a-1"),
-    "caa": ("42", "7401"), "clean air act": ("42", "7401"), "cwa": ("33", "1251"), "clean water act": ("33", "1251"),
-    "rcra": ("42", "6901"), "epcra": ("42", "11001"), "cercla": ("42", "9601"), "sdwa": ("42", "300f"),
-    "tsca": ("15", "2601"), "fifra": ("7", "136"),
+# Fixed 15 U.S.C. codification of the sections SEC actions cite most; other sections stay unresolved statutes.
+SECURITIES_SECTIONS = {
+    "securities": {"5": "77e", "11": "77k", "12": "77l", "17": "77q"},
+    "exchange": {"9": "78i", "10": "78j", "13": "78m", "14": "78n", "15": "78o", "16": "78p", "20": "78t",
+                 "21": "78u", "30a": "78dd-1"},
+    "advisers": {"203": "80b-3", "204": "80b-4", "206": "80b-6", "207": "80b-7"},
+    "company": {"17": "80a-17", "34": "80a-33"},
 }
-UK_ACTS = {"Financial Services and Markets Act 2000": "ukpga/2000/8",
-           "Money Laundering Regulations 2017": "uksi/2017/692"}
+_SEC_ACT = re.compile(r"Sections?\s+(\d+[A-Za-z]?)((?:\([a-z0-9]+\))*)\s+of\s+the\s+(Securities\s+Act(?:\s+of\s+1933)?|"
+                      r"(?:Securities\s+)?Exchange\s+Act(?:\s+of\s+1934)?|(?:Investment\s+)?Advisers\s+Act(?:\s+of\s+"
+                      r"1940)?|Investment\s+Company\s+Act(?:\s+of\s+1940)?)")
+_SEC_RULE = re.compile(r"\bRules?\s+(\d{1,2}[a-z]{0,2}\d?-\d{1,2}[a-z]?)((?:\([a-z0-9]+\))*)")
+ENVIRONMENTAL_ACTS = {
+    "Clean Air Act": ("42", "7401"), "Clean Water Act": ("33", "1251"),
+    "Resource Conservation and Recovery Act": ("42", "6901"), "Safe Drinking Water Act": ("42", "300f"),
+    "CERCLA": ("42", "9601"), "Toxic Substances Control Act": ("15", "2601"),
+    "Federal Insecticide, Fungicide, and Rodenticide Act": ("7", "136"),
+    "Emergency Planning and Community Right-to-Know Act": ("42", "11001"),
+}
+_ENV_ACT = re.compile("(" + "|".join(re.escape(name) for name in ENVIRONMENTAL_ACTS) + r")(?:\s+(?:Section|§)\s*"
+                      r"([\w().-]+))?")
+_FCA_RULE = re.compile(r"\b(PRIN|SYSC|COBS|MAR|SUP|DEPP|CASS|COCON|APER|ICOBS|MCOB|CONC|DISP|PERG|FIT|BCOBS)\s+"
+                       r"(\d+(?:\.\d+){1,3})([RGED])?\b")
+_PRINCIPLE = re.compile(r"\bPrinciples?\s+(\d{1,2})\b(?:\s+of\s+the\s+Authority's\s+Principles\s+for\s+Businesses)?")
+_FSMA = re.compile(r"\bsection\s+(\d+[A-Z]?)\s+of\s+the\s+(?:Act|Financial\s+Services\s+and\s+Markets\s+Act\s+2000)")
+_GDPR = re.compile(r"\bArticles?\s+(\d{1,2})((?:\(\d+\))?(?:\([a-z]\))?)(\s+(?:of\s+the\s+)?(?:GDPR|General\s+Data\s+"
+                   r"Protection\s+Regulation))?")
+_DOCKET = re.compile(r"^\s*(\d{1,2}:\d{2}-[a-z]{2}-\d{3,6})")
 GDPR_CELEX = "32016R0679"
-_US_ACT = re.compile(r"(Securities Exchange Act|Securities Act|Exchange Act|Investment Advisers Act|Advisers Act|"
-                     r"Investment Company Act|Clean Air Act|Clean Water Act)", re.IGNORECASE)
-_ECHO_LAW = re.compile(r"^(CAA|CWA|RCRA|EPCRA|CERCLA|SDWA|TSCA|FIFRA)\b")
-_GDPR = re.compile(r"^Article\s+(\d{1,2})\b")
-_HANDBOOK = re.compile(r"^(Principle\s+\d{1,2}|(?:SYSC|COBS|MAR|PRIN|DEPP|SUP|CONC|ICOBS|MCOB|CASS|DISP|APER|COCON|FIT|"
-                       r"GEN|MLR)\s+\d+(?:\.\d+)*[RGED]?)$")
 
 
-def _uk_forms(ident: str) -> list[str]:
-    _kind, year, number = ident.split("/")
-    return [ident, f"http://www.legislation.gov.uk/{ident}", f"https://www.legislation.gov.uk/{ident}",
-            f"{year} c. {number}"]
+def _norm_docket(value: Any) -> str:
+    match = _DOCKET.match(str(value or ""))
+    return match.group(1) if match else re.sub(r"\s+", "", str(value or "")).lower()
 
 
-def parse_references(text: Any, *, authority: str | None = None) -> list[dict[str, Any]]:
-    """Exact statute, regulation, rule and case references in one published legal basis or reference text."""
-    from src.kb.competition_citations import parse_references as competition_references
+def parse_legal_bases(text: Any, *, context: str | None = None) -> list[dict[str, Any]]:
+    """Exact statute, rule, Handbook, GDPR, EU-act and case references with their offsets, in text order."""
+    text = str(text or "")
+    found: list[dict[str, Any]] = []
+
+    def add(kind: str, match: re.Match, key: str, forms: list[str], **extra: Any) -> None:
+        found.append({"kind": kind, "raw": match.group(0).strip(), "start": match.start(), "end": match.end(),
+                      "key": key, "forms": forms, **extra})
+
+    for match in _SEC_ACT.finditer(text):
+        act = match.group(3).lower()
+        family = ("advisers" if "advisers" in act else "company" if "company" in act else
+                  "exchange" if "exchange" in act else "securities")
+        section = SECURITIES_SECTIONS[family].get(match.group(1).lower())
+        provision = f"{match.group(1)}{match.group(2)}"
+        if section:
+            add("statute", match, f"usc:15:{section}", [f"usc:15:{section}", "usc:15"],
+                provision=f"15 U.S.C. § {section}{match.group(2)}", act_provision=provision)
+        else:
+            add("statute", match, f"us-securities-act:{family}:{match.group(1).lower()}", [], provision=provision)
+    for match in _SEC_RULE.finditer(text):
+        add("regulation", match, f"cfr:17:240.{match.group(1)}", [f"cfr:17:240.{match.group(1)}", "cfr:17"],
+            provision=f"17 C.F.R. § 240.{match.group(1)}{match.group(2)}")
     from src.kb.legal_court_citations import parse_us_citations
 
-    text = str(text or "").strip()
-    found: list[dict[str, Any]] = []
     for item in parse_us_citations(text):
-        if item["kind"] == "statute":
-            found.append({"kind": "statute", "raw": item["raw"], "key": item["key"],
-                          "forms": [item["key"], f"usc:{item['title']}"], "provision": item["provision"]})
-    if not found:
-        act = _US_ACT.search(text) or _ECHO_LAW.search(text)
-        if act:
-            title, section = US_ACTS[act.group(1).lower()]
-            found.append({"kind": "statute", "raw": text, "key": f"usc:{title}:{section}",
-                          "forms": [f"usc:{title}:{section}", f"usc:{title}"],
-                          "provision": f"{act.group(1)} as codified at {title} U.S.C. § {section} et seq."})
-    for name, ident in UK_ACTS.items():
-        if name in text:
-            found.append({"kind": "statute", "raw": name, "key": f"uk:{ident}", "forms": _uk_forms(ident),
-                          "provision": name})
-    if authority and authority.startswith("eu-sa-"):
-        match = _GDPR.match(text)
-        if match:
-            found.append({"kind": "regulation_article", "raw": text, "key": f"celex:{GDPR_CELEX}",
-                          "forms": [GDPR_CELEX, f"CELEX:{GDPR_CELEX}"],
-                          "provision": f"Article {match.group(1)} GDPR"})
-    if _HANDBOOK.match(text):
-        found.append({"kind": "handbook_provision", "raw": text, "key": f"fca-handbook:{text}", "forms": [],
-                      "provision": text})
-    for item in competition_references(text):
-        if item["kind"] == "case":
-            found.append({"kind": "competition_case", "raw": item["raw"], "key": item["key"], "forms": item["forms"],
-                          "authority": item.get("authority"), "case_number": item.get("case_number")})
-    unique: dict[str, dict[str, Any]] = {}
+        if item["kind"] in {"statute", "regulation"}:
+            found.append({"kind": item["kind"], "raw": item["raw"], "start": item["start"], "end": item["end"],
+                          "key": item["key"], "forms": [item["key"], item["key"].rsplit(":", 1)[0]],
+                          "provision": item["normalized"]})
+    for match in _ENV_ACT.finditer(text):
+        title, section = ENVIRONMENTAL_ACTS[match.group(1)]
+        add("statute", match, f"us-act:{match.group(1).lower().replace(' ', '-')}" +
+            (f":{match.group(2)}" if match.group(2) else ""), [f"usc:{title}:{section}", f"usc:{title}"],
+            provision=f"{match.group(1)}" + (f" § {match.group(2)}" if match.group(2) else ""),
+            codified_at=f"{title} U.S.C. § {section} et seq.")
+    for match in _FCA_RULE.finditer(text):
+        rule = f"{match.group(1)} {match.group(2)}{match.group(3) or ''}"
+        add("rule", match, f"fca-handbook:{rule}", [f"fca-handbook:{rule}"], provision=rule)
+    for match in _PRINCIPLE.finditer(text):
+        add("rule", match, f"fca-handbook:PRIN 2.1.1R:principle-{match.group(1)}",
+            ["fca-handbook:PRIN 2.1.1R", "fca-handbook:PRIN"],
+            provision=f"Principle {match.group(1)} (PRIN 2.1.1R)")
+    for match in _FSMA.finditer(text):
+        add("statute", match, f"uk:ukpga/2000/8:s{match.group(1)}", ["ukpga/2000/8",
+                                                                       "http://www.legislation.gov.uk/ukpga/2000/8"],
+            provision=f"Financial Services and Markets Act 2000, section {match.group(1)}")
+    if context == "gdpr" or "GDPR" in text or "General Data Protection Regulation" in text:
+        for match in _GDPR.finditer(text):
+            if context != "gdpr" and not match.group(3):
+                continue
+            add("legal_act", match, f"celex:{GDPR_CELEX}:art{match.group(1)}", [GDPR_CELEX, f"CELEX:{GDPR_CELEX}"],
+                celex=GDPR_CELEX, provision=f"Article {match.group(1)}{match.group(2)} GDPR")
+    from src.kb.competition_citations import parse_references
+
+    for item in parse_references(text):
+        if any(f["start"] <= item["start"] < f["end"] for f in found):
+            continue
+        if item["kind"] == "treaty_article" or (item["kind"] == "statute" and item["key"].startswith("usc:")):
+            continue  # TFEU articles are not enforcement bases here; US Code is parsed above
+        found.append(item)
+    unique: dict[tuple[int, str], dict[str, Any]] = {}
     for item in found:
-        unique.setdefault(item["key"], item)
-    return list(unique.values())
-
-
-def basis_keys(action: dict[str, Any]) -> set[str]:
-    """The exact reference keys of an action's published legal bases (used by the authority/basis queries)."""
-    return {c["key"] for text in action.get("legal_bases") or [] for c in parse_references(
-        text, authority=action.get("authority"))}
+        unique.setdefault((item["start"], item["key"]), item)
+    return sorted(unique.values(), key=lambda c: (c["start"], c["kind"]))
 
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS enforcement_links (
   link_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, citing_record_key TEXT NOT NULL, citing_kind TEXT NOT NULL,
-  citing_revision_id TEXT NOT NULL, field TEXT NOT NULL, raw TEXT NOT NULL, target_kind TEXT NOT NULL,
-  target_key TEXT NOT NULL, target_revision_id TEXT, status TEXT NOT NULL, basis TEXT NOT NULL,
-  evidence_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL
+  citing_revision_id TEXT NOT NULL, field TEXT NOT NULL, raw TEXT NOT NULL, target_pack TEXT NOT NULL,
+  target_kind TEXT NOT NULL, target_key TEXT NOT NULL, status TEXT NOT NULL, target_record TEXT,
+  target_revision TEXT, basis TEXT NOT NULL, detail TEXT NOT NULL, evidence_json TEXT NOT NULL,
+  created_at_ms BIGINT NOT NULL
 );
 """
-_COLUMNS = ("link_id", "citing_record_key", "citing_kind", "citing_revision_id", "field", "raw", "target_kind",
-            "target_key", "target_revision_id", "status", "basis", "evidence_json")
+_COLUMNS = ("link_id", "citing_record_key", "citing_kind", "citing_revision_id", "field", "raw", "target_pack",
+            "target_kind", "target_key", "status", "target_record", "target_revision", "basis", "detail",
+            "evidence_json")
+
+
+def record_citations(body: dict[str, Any]) -> list[tuple[str, dict[str, Any]]]:
+    """(field, citation) pairs an enforcement record states, parsed exactly."""
+    out: list[tuple[str, dict[str, Any]]] = []
+    context = "gdpr" if body.get("source", {}).get("provider") == "edpb-art60" else None
+    for field in ("legal_bases", "charges_as_published", "related_references"):
+        for text in body.get(field) or []:
+            out += [(field, c) for c in parse_legal_bases(text, context=context)]
+    unique: dict[tuple[str, str], tuple[str, dict[str, Any]]] = {}
+    for field, item in out:
+        unique.setdefault(("legal" if field != "related_references" else field, item["key"]), (field, item))
+    return list(unique.values())
 
 
 class EnforcementLinks:
-    """Link actions and respondents to Legal works, competition cases, court dockets, Market issuers and entities."""
+    """Link enforcement records to Legal works, competition cases, court dockets, filings and ownership entities."""
 
     def __init__(self, conn: Any, *, initialize: bool = True, now: Any = None) -> None:
         self.conn = conn
@@ -140,13 +195,13 @@ class EnforcementLinks:
         if initialize:
             conn.execute(_DDL)
 
-    # ------------------------------------------------------------- resolution
+    # ------------------------------------------------------------ resolvers
 
     def _legal(self, legal_namespace: str, citation: dict[str, Any], scopes) -> dict[str, Any]:
-        if not citation["forms"]:
-            return {"status": "unresolved", "basis_note": "no Legal provider holds this rulebook; kept as source text"}
         if not table_exists(self.conn, "legal_works"):
-            return {"status": "provider_unavailable", "basis_note": "no Legal store in this deployment"}
+            return {"status": "provider_unavailable", "detail": "no Legal store (legal.works) in this deployment"}
+        if not citation.get("forms"):
+            return {"status": "unresolved", "detail": "no fixed codification is recorded for this reference"}
         from src.kb.legal import LegalError, LegalStore
 
         legal = LegalStore(self.conn, initialize=False)
@@ -157,185 +212,201 @@ class EnforcementLinks:
                 answer = legal.lookup(legal_namespace, scopes=legal_scopes, identifier=form)
             except LegalError:
                 continue
-            tried.append({"form": form, "status": answer["status"]})
+            tried.append(form)
             works = sorted({w["work_id"] for w in answer["works"]})
             if len(works) == 1:
-                return {"status": "resolved", "target_key": works[0], "basis_note": f"exact identifier {form}",
-                        "tried": tried}
+                return {"status": "resolved", "target_record": works[0], "detail": f"exact identifier {form}",
+                        "evidence": {"tried": tried}}
             if works:
-                return {"status": "ambiguous", "basis_note": f"several Legal works carry {form}", "works": works,
-                        "tried": tried}
-        return {"status": "unresolved", "basis_note": "no acquired Legal work carries this reference", "tried": tried}
+                return {"status": "ambiguous", "detail": f"several Legal works carry {form}",
+                        "evidence": {"works": works, "tried": tried}}
+        return {"status": "unresolved", "detail": "no acquired Legal work carries this reference",
+                "evidence": {"tried": tried}}
 
     def _competition(self, competition_namespace: str, citation: dict[str, Any]) -> dict[str, Any]:
         if citation.get("authority") != "ec":
-            return {"status": "unresolved", "basis_note": "exact case reference of an authority not acquired"}
+            return {"status": "unresolved", "detail": "exact case reference of an authority whose cases are not "
+                                                      "keyed by this reference"}
         if not table_exists(self.conn, "ownership_records"):
-            return {"status": "provider_unavailable", "basis_note": "the competition feature's store is absent"}
-        key = f"competition:case:ec:{citation['case_number']}"
-        row = self.conn.execute(
-            "SELECT v.revision_id FROM ownership_records r JOIN ownership_record_revisions v ON "
-            "v.namespace=r.namespace AND v.record_id=r.record_id AND v.revision=r.current_revision WHERE "
-            "r.namespace=? AND r.record_key=?", [competition_namespace, key]).fetchone()
-        if row:
-            return {"status": "resolved", "target_key": key, "target_revision_id": row[0],
-                    "basis_note": "exact case number"}
-        return {"status": "unresolved", "basis_note": "the cited case is not acquired"}
+            return {"status": "provider_unavailable", "detail": "no competition store (ownership.competition)"}
+        from src.kb.competition import CompetitionStore
+        from src.kb.competition_records import case_key
 
-    def _docket(self, docket: dict[str, Any]) -> dict[str, Any]:
+        key = case_key("ec", citation["case_number"])
+        view = CompetitionStore(self.conn, initialize=False).by_key(competition_namespace, key)
+        if view is None:
+            return {"status": "unresolved", "detail": "the cited case is not acquired"}
+        return {"status": "resolved", "target_record": key, "target_revision": view["revision_id"],
+                "detail": "exact case number"}
+
+    def _docket(self, courts_namespace: str, docket_number: str) -> dict[str, Any]:
         if not table_exists(self.conn, "legal_docket_revisions"):
-            return {"status": "provider_unavailable", "basis_note": "the Legal courts feature's store is absent"}
-        rows = self.conn.execute(
-            "SELECT record_key, revision_id, court_id FROM legal_docket_revisions WHERE docket_number=? "
-            "ORDER BY revision_no DESC", [docket["docket_number"]]).fetchall()
-        keys = sorted({r[0] for r in rows})
-        if len(keys) == 1:
-            return {"status": "resolved", "target_key": keys[0], "target_revision_id": rows[0][1],
-                    "basis_note": "exact docket number", "court_id": rows[0][2]}
-        if keys:
-            return {"status": "ambiguous", "basis_note": "several dockets carry this number", "dockets": keys}
-        return {"status": "unresolved", "basis_note": "no acquired docket carries this number"}
+            return {"status": "provider_unavailable", "detail": "no court docket store (legal.courts feature)"}
+        wanted = _norm_docket(docket_number)
+        rows = self.conn.execute("SELECT record_key, revision_id, docket_number FROM legal_docket_revisions WHERE "
+                                 "namespace=? ORDER BY record_key, revision_no", [courts_namespace]).fetchall()
+        latest: dict[str, tuple[str, str]] = {}
+        for key, revision_id, number in rows:
+            if _norm_docket(number) == wanted:
+                latest[key] = (revision_id, number)
+        if len(latest) == 1:
+            key, (revision_id, _) = next(iter(latest.items()))
+            return {"status": "resolved", "target_record": key, "target_revision": revision_id,
+                    "detail": "exact docket number"}
+        if latest:
+            return {"status": "ambiguous", "detail": "several dockets carry this number (different courts)",
+                    "evidence": {"dockets": sorted(latest)}}
+        return {"status": "unresolved", "detail": "the cited docket is not acquired"}
 
-    def _market(self, cik: str) -> dict[str, Any]:
-        if not table_exists(self.conn, "market_instrument_alias_assertions"):
-            return {"status": "provider_unavailable", "basis_note": "the Market instruments store is absent"}
-        normalized = re.sub(r"\D", "", cik).zfill(10)
-        rows = self.conn.execute(
-            "SELECT DISTINCT object_id, revision_id FROM market_instrument_alias_assertions WHERE scheme='cik' AND "
-            "normalized_value=? AND object_type='issuer' ORDER BY revision_id", [normalized]).fetchall()
-        issuers = sorted({r[0] for r in rows})
-        if len(issuers) != 1:
-            return {"status": "ambiguous" if issuers else "unresolved",
-                    "basis_note": "several Market issuers carry this CIK" if issuers else
-                    "no Market issuer carries this CIK", "issuers": issuers}
-        filings = []
-        if table_exists(self.conn, "market_financial_fact_revisions"):
-            filings = [r[0] for r in self.conn.execute(
-                "SELECT DISTINCT filing_accession FROM market_financial_fact_revisions WHERE issuer_id=? "
-                "ORDER BY 1", [issuers[0]]).fetchall()]
-        return {"status": "resolved", "target_key": issuers[0], "target_revision_id": rows[-1][1],
-                "basis_note": "the CIK the regulator published equals the Market issuer alias",
-                "filings": filings}
+    def _filings(self, ownership_namespace: str, cik: str, scopes) -> dict[str, Any]:
+        if not table_exists(self.conn, "ownership_records"):
+            return {"status": "provider_unavailable", "detail": "no market filing records (SEC EDGAR filers) acquired"}
+        from src.kb.ownership_store import OwnershipError, OwnershipStore
+        from src.kb.ownership_store import authorize as ownership_authorize
 
-    # ------------------------------------------------------------------ link
+        try:
+            ownership_authorize(ownership_namespace, set(scopes), "knowledge:ownership:read")
+        except OwnershipError:
+            return {"status": "provider_unavailable", "detail": "no read access to the ownership namespace"}
+        answer = OwnershipStore(self.conn, initialize=False).lookup(ownership_namespace, "sec-cik", cik,
+                                                                    principal_id=None, scopes={"operator"})
+        filers = [m for m in answer["matches"] if m["record"]["source"]["provider"] == "sec-edgar"]
+        if len(filers) == 1:
+            return {"status": "resolved", "target_record": filers[0]["record"]["record_key"],
+                    "target_revision": filers[0]["revision_id"], "detail": f"shared identifier CIK {cik}"}
+        if filers:
+            return {"status": "ambiguous", "detail": "several filer records carry this CIK",
+                    "evidence": {"records": [f["record"]["record_key"] for f in filers]}}
+        return {"status": "unresolved", "detail": "no SEC EDGAR filer record carries this CIK"}
 
-    def _insert(self, namespace: str, view: dict[str, Any], field: str, raw: str, target_kind: str, key: str,
-                basis: str, resolved: dict[str, Any]) -> int:
+    # ---------------------------------------------------------------- write
+
+    def _insert(self, namespace, view, field, raw, target_pack, target_kind, target_key, basis, resolved) -> int:
         body = view["record"]
-        link_id = "enforcement-link:" + digest([namespace, view["revision_id"], field, target_kind, key])[:24]
+        link_id = "enforcement-link:" + digest([namespace, view["revision_id"], field, target_pack, target_key])[:24]
         if self.conn.execute("SELECT 1 FROM enforcement_links WHERE link_id=?", [link_id]).fetchone():
             return 0
-        evidence = {k: v for k, v in resolved.items() if k not in {"status", "target_key", "target_revision_id"}}
-        self.conn.execute("INSERT INTO enforcement_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                          [link_id, namespace, body["record_key"], body["kind"], view["revision_id"], field, raw,
-                           target_kind, resolved.get("target_key") or key, resolved.get("target_revision_id"),
-                           resolved["status"], basis, canonical(evidence), self.now()])
+        self.conn.execute(
+            "INSERT INTO enforcement_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [link_id, namespace, body["record_key"], body["kind"], view["revision_id"], field, raw, target_pack,
+             target_kind, target_key, resolved["status"], resolved.get("target_record"),
+             resolved.get("target_revision"), basis, resolved["detail"], canonical(resolved.get("evidence") or {}),
+             self.now()])
         return 1
 
-    def link(self, namespace: str, *, legal_namespace: str = "global", competition_namespace: str = "competition",
-             ownership_namespace: str | None = None, scopes: Iterable[str]) -> dict[str, Any]:
-        """Parse every current action and respondent; idempotent per citing revision; re-resolves open links."""
+    def link(self, namespace: str, *, scopes: Iterable[str], legal_namespace: str = "global",
+             competition_namespace: str = "competition", courts_namespace: str = "global",
+             ownership_namespace: str | None = "ownership") -> dict[str, Any]:
+        """Link every current record revision; idempotent per citing revision, and re-resolves open links."""
+        scopes = set(scopes)
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
         store = EnforcementStore(self.conn, initialize=False)
         created = 0
-        for view in store.views(namespace, ("enforcement_action",)):
+        for view in store.views(namespace, ("enforcement_action", "appeal", "respondent")):
             body = view["record"]
-            for field in ("legal_bases", "related_references"):
-                for text in body.get(field) or []:
-                    for citation in parse_references(text, authority=body["authority"]):
-                        if citation["kind"] == "competition_case":
-                            resolved = self._competition(competition_namespace, citation)
-                            target_kind = "competition_case"
-                        else:
-                            resolved = self._legal(legal_namespace, citation, scopes)
-                            target_kind = "legal_work"
-                        resolved["provision"] = citation.get("provision")
-                        created += self._insert(namespace, view, field, text, target_kind, citation["key"],
-                                                "citation", resolved)
-            for docket in body.get("court_cases") or []:
-                created += self._insert(namespace, view, "court_cases", docket["docket_number"], "court_docket",
-                                        f"docket:{docket['docket_number']}", "citation",
-                                        {**self._docket(docket), "court_as_published": docket.get("court")})
-            for facility in body.get("facilities") or []:
-                if facility.get("frs_registry_id"):
-                    created += self._insert(
-                        namespace, view, "facilities", facility["frs_registry_id"], "facility",
-                        f"frs:{facility['frs_registry_id']}", "shared_identifier",
-                        {"status": "unresolved", "basis_note": "FRS registry id as published; places are reached "
-                                                               "only through it or the published coordinates",
-                         "latitude_as_published": facility.get("latitude_as_published"),
-                         "longitude_as_published": facility.get("longitude_as_published")})
-        for view in store.views(namespace, ("appeal",)):
-            if view["record"].get("reference"):
-                created += self._insert(namespace, view, "reference", view["record"]["reference"], "court_docket",
-                                        f"docket:{view['record']['reference']}", "citation",
-                                        self._docket({"docket_number": view["record"]["reference"]}))
-        for view in store.views(namespace, ("respondent",)):
-            for identifier in view["record"].get("identifiers") or []:
-                if identifier["scheme"] == "sec-cik":
-                    created += self._insert(namespace, view, "identifiers", identifier["value"], "market_issuer",
-                                            f"cik:{identifier['value']}", "shared_identifier",
-                                            self._market(identifier["value"]))
-        created += self._accepted(namespace, store, ownership_namespace, scopes)
-        # Targets acquired after a link was made resolve now (exact identity only).
-        for link_id, target_kind, raw, key, citing in self.conn.execute(
-                "SELECT link_id, target_kind, raw, target_key, citing_record_key FROM enforcement_links WHERE "
-                "namespace=? AND status IN ('unresolved', 'provider_unavailable')", [namespace]).fetchall():
-            resolved = None
-            if target_kind == "court_docket":
-                resolved = self._docket({"docket_number": raw})
-            elif target_kind == "market_issuer":
-                resolved = self._market(raw)
-            elif target_kind in {"legal_work", "competition_case"}:
-                action = store.by_key(namespace, citing)
-                authority = action["record"].get("authority") if action else None
-                parsed = [c for c in parse_references(raw, authority=authority) if c["key"] == key]
-                if parsed:
-                    resolved = (self._competition(competition_namespace, parsed[0]) if target_kind ==
-                                "competition_case" else self._legal(legal_namespace, parsed[0], scopes))
-            if resolved and resolved["status"] == "resolved":
-                self.conn.execute("UPDATE enforcement_links SET status='resolved', target_key=?, "
-                                  "target_revision_id=? WHERE link_id=?",
-                                  [resolved.get("target_key") or key, resolved.get("target_revision_id"), link_id])
-        return {"created": created, "links": self.links(namespace)}
+            if body["kind"] == "enforcement_action":
+                for field, citation in record_citations(body):
+                    if citation["kind"] == "case":
+                        resolved = self._competition(competition_namespace, citation)
+                        created += self._insert(namespace, view, field, citation["raw"], "ownership.competition",
+                                                "competition_case", citation["key"], "citation", resolved)
+                    elif citation["kind"] != "oj":
+                        resolved = self._legal(legal_namespace, citation, scopes)
+                        resolved.setdefault("evidence", {})["provision"] = citation.get("provision")
+                        created += self._insert(namespace, view, field, citation["raw"], "legal.works", "legal_work",
+                                                citation["key"], "citation", resolved)
+                for case in body.get("court_cases") or []:
+                    resolved = self._docket(courts_namespace, case["docket_number"])
+                    created += self._insert(namespace, view, "court_cases", case["docket_number"], "legal.courts",
+                                            "court_docket", f"docket:{_norm_docket(case['docket_number'])}",
+                                            "citation", resolved)
+            elif body["kind"] == "appeal" and (body.get("court_docket") or {}).get("docket_number"):
+                number = body["court_docket"]["docket_number"]
+                created += self._insert(namespace, view, "court_docket", number, "legal.courts", "court_docket",
+                                        f"docket:{_norm_docket(number)}", "citation",
+                                        self._docket(courts_namespace, number))
+            elif body["kind"] == "respondent" and ownership_namespace:
+                for identifier in body.get("identifiers") or []:
+                    if identifier.get("scheme") == "sec-cik":
+                        created += self._insert(namespace, view, "identifiers", identifier["value"], "market.filings",
+                                                "sec_filer", f"sec-cik:{identifier['value'].lstrip('0')}",
+                                                "shared_identifier",
+                                                self._filings(ownership_namespace, identifier["value"], scopes))
+        if ownership_namespace:
+            created += self._accepted(namespace, store, scopes)
+        created += self._reresolve(namespace, scopes, legal_namespace=legal_namespace,
+                                   competition_namespace=competition_namespace, courts_namespace=courts_namespace,
+                                   ownership_namespace=ownership_namespace)
+        return {"created": created, **self.list_links(namespace, scopes=scopes)}
 
-    def _accepted(self, namespace: str, store: EnforcementStore, ownership_namespace: str | None, scopes) -> int:
-        if not table_exists(self.conn, "ownership_identity_candidates"):
-            return 0
+    def _accepted(self, namespace: str, store: EnforcementStore, scopes: set[str]) -> int:
+        """One link per accepted EN07 match, pointing at the respondent revision and the identity decision."""
         from src.kb.enforcement_identity import EnforcementIdentity
 
         created = 0
-        identity = EnforcementIdentity(self.conn, initialize=False)
-        for match in identity.all_accepted(namespace, scopes=scopes):
-            view = store.by_key(namespace, match["subject_key"])
+        for candidate in EnforcementIdentity(self.conn, initialize=False).candidates(namespace, scopes=scopes):
+            if candidate["state"] != "accepted":
+                continue
+            view = store.by_key(namespace, candidate["subject_key"])
             if view is None:
                 continue
-            target_revision = None
-            if ownership_namespace and table_exists(self.conn, "ownership_records"):
-                row = self.conn.execute(
-                    "SELECT v.revision_id FROM ownership_records r JOIN ownership_record_revisions v ON "
-                    "v.namespace=r.namespace AND v.record_id=r.record_id AND v.revision=r.current_revision WHERE "
-                    "r.namespace=? AND r.record_key=?", [ownership_namespace, match["ownership_key"]]).fetchone()
-                target_revision = row[0] if row else None
-            created += self._insert(namespace, view, "identity", match["ownership_key"], "ownership_entity",
-                                    match["ownership_key"], "accepted_match",
-                                    {"status": "resolved", "target_key": match["ownership_key"],
-                                     "target_revision_id": target_revision, "candidate_id": match["candidate_id"],
-                                     "decision_id": match["decision_id"], "method": match["method"],
-                                     "low_evidence": match["low_evidence"], "reviewer": match["reviewer"]})
+            created += self._insert(namespace, view, "identity", candidate["subject_key"], "ownership.core",
+                                    "ownership_entity", candidate["ownership_key"], "accepted_match",
+                                    {"status": "resolved", "target_record": candidate["ownership_key"],
+                                     "target_revision": candidate["decision_id"],
+                                     "detail": f"accepted {candidate['method']} match by {candidate['reviewer']}",
+                                     "evidence": {"candidate_id": candidate["candidate_id"],
+                                                  "low_evidence": candidate["low_evidence"]}})
+        # A reverted or rejected match no longer links: its link is marked withdrawn, never deleted.
+        accepted = {c["candidate_id"] for c in EnforcementIdentity(self.conn, initialize=False).candidates(
+            namespace, scopes=scopes) if c["state"] == "accepted"}
+        for link_id, evidence in self.conn.execute(
+                "SELECT link_id, evidence_json FROM enforcement_links WHERE namespace=? AND basis='accepted_match' "
+                "AND status='resolved'", [namespace]).fetchall():
+            if json.loads(evidence).get("candidate_id") not in accepted:
+                self.conn.execute("UPDATE enforcement_links SET status='withdrawn', detail='the identity match was "
+                                  "reverted or rejected' WHERE link_id=?", [link_id])
         return created
 
-    # ------------------------------------------------------------------ reads
+    def _reresolve(self, namespace: str, scopes: set[str], **namespaces: Any) -> int:
+        """Targets acquired (or providers installed) after a link was made resolve now; exact identity only."""
+        changed = 0
+        for link_id, raw, target_pack, target_key, status in self.conn.execute(
+                "SELECT link_id, raw, target_pack, target_key, status FROM enforcement_links WHERE namespace=? AND "
+                "status IN ('unresolved', 'provider_unavailable')", [namespace]).fetchall():
+            if target_pack == "legal.courts":
+                resolved = self._docket(namespaces["courts_namespace"], raw)
+            elif target_pack == "market.filings":
+                if not namespaces["ownership_namespace"]:
+                    continue
+                resolved = self._filings(namespaces["ownership_namespace"], raw, scopes)
+            else:
+                parsed = [c for c in parse_legal_bases(raw, context="gdpr") if c["key"] == target_key]
+                if not parsed:
+                    continue
+                resolved = (self._competition(namespaces["competition_namespace"], parsed[0])
+                            if target_pack == "ownership.competition" else
+                            self._legal(namespaces["legal_namespace"], parsed[0], scopes))
+            if resolved["status"] != status:
+                # Resolved now, or the provider is installed and the target is still missing (unresolved).
+                self.conn.execute("UPDATE enforcement_links SET status=?, target_record=?, target_revision=?, "
+                                  "detail=? WHERE link_id=?", [resolved["status"], resolved.get("target_record"),
+                                                               resolved.get("target_revision"), resolved["detail"],
+                                                               link_id])
+                changed += resolved["status"] == "resolved"
+        return changed
+
+    # ----------------------------------------------------------------- read
 
     def links(self, namespace: str, *, status: str | None = None, citing_record_key: str | None = None,
-              target_kind: str | None = None) -> list[dict[str, Any]]:
+              target_pack: str | None = None) -> list[dict[str, Any]]:
         if not table_exists(self.conn, "enforcement_links"):
             return []
         rows = self.conn.execute(
             f"SELECT {', '.join(_COLUMNS)} FROM enforcement_links WHERE namespace=? AND (? IS NULL OR status=?) AND "
-            "(? IS NULL OR citing_record_key=?) AND (? IS NULL OR target_kind=?) "
-            "ORDER BY citing_record_key, citing_revision_id, link_id",
-            [namespace, status, status, citing_record_key, citing_record_key, target_kind, target_kind]).fetchall()
+            "(? IS NULL OR citing_record_key=?) AND (? IS NULL OR target_pack=?) ORDER BY citing_record_key, "
+            "citing_revision_id, link_id",
+            [namespace, status, status, citing_record_key, citing_record_key, target_pack, target_pack]).fetchall()
         out = []
         for row in rows:
             item = dict(zip(_COLUMNS, row))
@@ -343,11 +414,14 @@ class EnforcementLinks:
             out.append({"contract": LINK_CONTRACT, **item})
         return out
 
-    def list_links(self, namespace: str, *, scopes, status: str | None = None,
-                   citing_record_key: str | None = None, target_kind: str | None = None) -> dict[str, Any]:
+    def list_links(self, namespace: str, *, scopes: Iterable[str], status: str | None = None,
+                   citing_record_key: str | None = None) -> dict[str, Any]:
         authorize(namespace, scopes, READ_SCOPE)
-        links = self.links(namespace, status=status, citing_record_key=citing_record_key, target_kind=target_kind)
-        return {"links": links, "not_resolved": [link for link in links if link["status"] != "resolved"],
-                "notice": "links by exact citation, published identifier or accepted identity match only; missing "
-                          "providers and targets are reported, nothing is linked by topic or name similarity and no "
-                          "causal relation to a market event is inferred"}
+        links = self.links(namespace, status=status, citing_record_key=citing_record_key)
+        return {"links": links,
+                "unresolved": [link for link in links if link["status"] in {"unresolved", "ambiguous"}],
+                "providers_unavailable": sorted({link["target_pack"] for link in links
+                                                 if link["status"] == "provider_unavailable"}),
+                "notice": "links by exact citation, shared published identifier or accepted identity match only; "
+                          "missing providers and targets are reported, never dropped; no causal link between an "
+                          "action and market events is drawn"}

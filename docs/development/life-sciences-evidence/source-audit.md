@@ -1,200 +1,113 @@
-# Life sciences: source contract audit and bounded coverage (LS01, #2656)
+# Life sciences: source audit and bounded provider coverage (LS01)
 
-Parent: #2652 (wave 1 of the domain coverage program, #2578; subdomain
-`life-sciences-reference`). This audit records, per source, the endpoints,
-authentication and key handling, licence and redistribution terms, rate
-limits, and how updates, corrections and removals are identified; the
-data-minimisation decision; and the bounded first coverage of the four
-`life-sciences` sources in `config/source_packs/scientific.json`
-(`primary-scientific-evidence` 1.2.0). The machine-readable copy of each
-decision is `PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `LIVE_VERIFICATION` and
-`NOT_IMPLEMENTED` in `src/ingestion/lifesci_sources.py` and `MINIMISATION` in
-`src/kb/lifesci_records.py` (served by the `lifesci_source_contracts` MCP tool).
+Tracking: #2652 · delivery issue #2656 · recorded 2026-09-30.
 
-Nothing here was verified against a live endpoint. Every source is
-`unverified-live`; items marked *verify* must be checked by the live validation
-issue (LS14, #2721) and recorded in [`README.md`](README.md). Offline evidence
-(synthetic fixtures) is kept in the tests and never recorded here.
+This audit sets out, per source, what the Science bundle's `science.life-sciences`
+provider may acquire, how, and on what terms. **The terms, endpoints and rate
+limits below were not re-verified live**: the providers' documentation and terms
+pages (uniprot.org, ncbi.nlm.nih.gov, rcsb.org, ebi.ac.uk) were unreachable from
+the authoring runtime (egress blocked), so this audit is written from the tracker's
+source references and the providers' published documentation as the author knows
+it. Every item marked _verify_ must be checked against the live documentation, the
+live terms and a real response before the first dated live run (LS14, #2721). No
+provider is `live` until that run exists.
 
-## How the terms were read (2026-09-30)
+The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`LIVE_VERIFICATION`, `BOUNDED_COVERAGE` and `PERSONAL_DATA_DECISION` in
+`src/ingestion/lifesci_sources.py`; the MCP tool `lifesci_source_contracts`
+returns them, and each source entry in `config/source_packs/scientific.json`
+(pack `primary-scientific-evidence` 1.2.0) carries its
+`life_sciences.live_verification` status. Coverage is recorded against the
+existing Science pack; no new pack is created.
 
-The audit environment's egress proxy blocked every official page named below
-(`www.uniprot.org`, `www.ncbi.nlm.nih.gov`, `www.rcsb.org`,
-`chembl.gitbook.io`); none could be fetched directly. Terms were read from
-search-result extracts of the official pages returned by a web search on
-2026-09-30. Each point below says which. A point with no extract is marked
-**unverified** and must be confirmed from the page itself before the live run.
+These non-goals apply to every source: no biological or clinical inference, no
+activity prediction, scoring or ranking, no conversion, normalisation or
+aggregation of activity values across assays, no sequence analysis beyond storage
+(a sequence is kept with the length and checksums the source publishes; nothing is
+computed from it), and no redistribution beyond each source's licence.
 
-| Page | URL | Read on 2026-09-30 |
+## Access decisions
+
+| Source | Delivers | Decision (`LIVE_VERIFICATION`) | Reason |
+| --- | --- | --- | --- |
+| UniProtKB (rest.uniprot.org) | protein entries by accession | `unverified-live` | Public REST API without authentication. Entry JSON field names (`entryAudit`, `uniProtKBCrossReferences`, `inactiveReason`) and the `X-UniProt-Release` / `X-UniProt-Release-Date` headers are _verify_ |
+| NCBI Gene (eutils.ncbi.nlm.nih.gov) | gene summaries by Gene ID | `unverified-live` | Public E-utilities; optional API key. The `esummary` JSON fields `status` and `currentid` are _verify_ |
+| NCBI Taxonomy (eutils.ncbi.nlm.nih.gov) | taxa by Tax ID with lineage | `unverified-live` | Public E-utilities `efetch` XML; `AkaTaxIds` behaviour for merged IDs is _verify_ |
+| RCSB PDB (data.rcsb.org) | structure entries by PDB ID | `unverified-live` | Public Data API without authentication; `rcsb_accession_info`, `pdbx_audit_revision_history`, polymer entity identifiers and the `holdings/removed` response are _verify_ |
+| ChEMBL (www.ebi.ac.uk/chembl) | targets, compounds, activities, documents | `unverified-live` | Public web services without authentication; `status.json`, `activity.json` `page_meta` and field names are _verify_ |
+
+No source was judged unimplementable: every licence allows the intended use
+(storage of bounded reference records with attribution), so no "not implemented"
+provider contract is needed.
+
+## Per-source contract
+
+| Source | Endpoints | Authentication and keys | Licence and redistribution | Rate limits and bounds |
+| --- | --- | --- | --- | --- |
+| UniProtKB | `GET https://rest.uniprot.org/uniprotkb/{accession}.json` | none | CC BY 4.0, attribution to the UniProt Consortium (_verify_); redistribution with attribution | no published hard limit, fair use (_verify_); one request per declared accession, at most 20 per document |
+| NCBI Gene | `GET .../entrez/eutils/esummary.fcgi?db=gene&id={ids}&retmode=json` | none; optional `NOESIS_NCBI_API_KEY`, sent only as the `api_key` parameter and never written to a URL, receipt or record | NCBI molecular data are not subject to copyright (US government work); some submitted data may carry third-party rights (_verify_) | 3 requests/s without a key, 10 with one (_verify_); one request per document of at most 20 IDs |
+| NCBI Taxonomy | `GET .../entrez/eutils/efetch.fcgi?db=taxonomy&id={ids}&retmode=xml` | as NCBI Gene | public domain (_verify_) | as NCBI Gene |
+| RCSB PDB | `GET https://data.rcsb.org/rest/v1/core/entry/{id}`, `.../core/polymer_entity/{id}/{n}`, `.../holdings/removed/{id}` | none | CC0 1.0 under the wwPDB usage policy (_verify_) | no published hard limit (_verify_); one entry request plus one per declared polymer entity (at most 20) |
+| ChEMBL | `GET https://www.ebi.ac.uk/chembl/api/data/{status,target/{id},molecule/{id},activity,document/{id}}.json` | none | CC BY-SA 3.0, attribution to ChEMBL (_verify_); share-alike applies to redistributed ChEMBL data | no published hard limit (_verify_); at most 200 activities per target document, and a larger total is refused rather than truncated |
+
+## Updates, corrections and removals
+
+| Source | Version marker | Release | Corrections and removals |
+| --- | --- | --- | --- |
+| UniProtKB | `entryAudit.entryVersion` (and `sequenceVersion`) | `X-UniProt-Release` (`YYYY_NN`), about every eight weeks | a correction is a new entry version; an inactive entry (`MERGED`, `DEMERGED`, `DELETED`) is a revision naming `mergeDemergeTo` successors |
+| NCBI Gene | none published in the summary: content digest | operator-declared release date, else retrieval date (labelled) | `status` 1 (secondary) names `currentid`; `status` 2 is discontinued; both are revisions |
+| NCBI Taxonomy | none published: content digest | operator-declared release date, else retrieval date | a merged Tax ID (answered under another taxon's `AkaTaxIds`) is a `merged` revision naming the survivor; a Tax ID NCBI does not return is reported in the receipt, never recorded as deleted |
+| RCSB PDB | `major_revision.minor_revision`, with the full `pdbx_audit_revision_history` | weekly release (declared) | remediations are new revisions; obsolete entries are revisions naming `id_codes_replaced_by` |
+| ChEMBL | content digest per record | `chembl_db_version` (`CHEMBL_NN`) from `status.json`, checked against the declared release | a changed value or `data_validity_comment` in a later release is a new revision; records absent from a later release are not deleted |
+
+## Data minimisation
+
+The sources publish personal names: UniProt reference author lists and submission
+names, PDB `audit_author`, primary-citation authors and depositor names, and ChEMBL
+document authors. Decision:
+
+- **Stored:** accessions, versions, names of genes, proteins, taxa, targets and
+  compounds, citation identifiers (PubMed ID, DOI, ChEMBL document ID) and titles.
+- **Excluded:** every author, depositor, submitter, contact and ORCID field, and
+  ChEMBL abstracts. The adapters drop them before a statement is built.
+- **Enforcement:** `validate_statement` refuses any statement carrying a personal
+  field anywhere (`personal_data`), and every MCP tool strips them again from its
+  output.
+- **Retention:** nothing personal is retained, so no retention period applies. Raw
+  responses are not stored; only their SHA-256 digests are kept in receipts.
+- **Who may query:** records carry no personal data; reads need
+  `knowledge:lifesci:read` and namespace access.
+
+## Bounded coverage
+
+| Source | Entities | Releases and caps |
 | --- | --- | --- |
-| UniProt licence and disclaimer | https://www.uniprot.org/help/license | search-result extract only (page blocked) |
-| UniProt REST API documentation | https://www.uniprot.org/help/api, https://rest.uniprot.org/ | not fetched (blocked); endpoint shapes unverified |
-| UniProt "link to old versions" (UniSave) | https://www.uniprot.org/help/link_old_versions | search-result extract only |
-| NCBI Datasets v2 API and API keys | https://www.ncbi.nlm.nih.gov/datasets/docs/v2/api/, https://www.ncbi.nlm.nih.gov/datasets/docs/v2/api/api-keys/ | search-result extract only |
-| NCBI Website and Data Usage Policies | https://www.ncbi.nlm.nih.gov/home/about/policies/ | search-result extract only |
-| RCSB PDB Usage Policies | https://www.rcsb.org/pages/usage-policy | search-result extract only |
-| RCSB PDB Data API | https://data.rcsb.org/ | not fetched (blocked); endpoint shapes unverified |
-| ChEMBL interface documentation (About, licence) | https://chembl.gitbook.io/chembl-interface-documentation/about | search-result extract only |
-| ChEMBL web services | https://www.ebi.ac.uk/chembl/api/data/docs | not fetched (blocked); endpoint shapes unverified |
+| UniProtKB | a declared accession set anchored on target proteins of one organism (a pinned proteome slice or query result), at most 20 per document | the two most recent releases |
+| NCBI Gene | Gene IDs the declared proteins cross-reference (`GeneID`) | at most 20 per document |
+| NCBI Taxonomy | organisms of the declared proteins and their parents | at most 20 per document |
+| RCSB PDB | entries the declared proteins cross-reference, with their polymer entities | at most 20 entities per entry |
+| ChEMBL | targets whose components are the declared proteins, their activities, and the compounds and documents those activities name | at most 200 activities per target; the two most recent releases |
 
-## Scope boundary (all sources)
+Full proteomes, sequence similarity searches, computed molecular properties
+(ChEMBL `molecule_properties`, `pchembl_value`), clinical development phase
+(`max_phase`, which belongs to Clinical Evidence) and any prediction are out of
+scope. The live verification (LS14) uses exactly this coverage. No record set
+implies complete coverage of any provider.
 
-- No biological or clinical inference: no function, interaction, pathway,
-  disease or drug-target claim is derived; a link records an identifier, an
-  accepted match or a citation, never a relationship Noesis inferred.
-- No activity prediction, no binding, toxicity or druggability score.
-- No sequence analysis beyond storage: sequences are stored as published
-  (value, length, mass, checksums) and never aligned, compared or annotated.
-- Activity values are kept as the published strings (ChEMBL's published and
-  standardised type, relation, value and unit side by side) and are never
-  converted, compared or aggregated across assays or assay types. pChEMBL and
-  computed molecule properties are not stored.
-- No redistribution beyond each source's licence (below); no bulk mirrors.
-- Computed structure models (AlphaFold, ModelArchive) are out of scope; only
-  experimental PDB entries are acquired.
+## Identity and links
 
-## Data minimisation (personal data)
+Cross-source identity uses the cross-references the sources publish first
+(UniProt to PDB, GeneID and ChEMBL; PDB entity to UniProt; ChEMBL target component
+to UniProt). ChEMBL compounds meet Chemicals substances by standard InChIKey and
+NCBI taxa meet Biodiversity taxa by a published NCBI Tax ID, both as reviewable
+assertions; an exact scientific name is only a low-confidence candidate
+(`src/kb/lifesci_identity.py`, LS07). Links to Chemicals, Clinical, Biodiversity
+and literature rest on a citation, a shared identifier or an accepted match
+(`src/kb/lifesci_links.py`, LS08).
 
-The reference records are not about people, but four sources carry person
-names beside them:
+## Gap against the existing stores
 
-| Source | Personal data present | Decision |
-| --- | --- | --- |
-| UniProt | reference author lists; submission names | dropped at acquisition |
-| RCSB PDB | `audit_author`, citation authors (`rcsb_authors`) | dropped at acquisition |
-| ChEMBL | document `authors` | dropped at acquisition |
-| NCBI Gene and Taxonomy | none in the selected fields (nomenclature authorities are organisations; taxonomic authority strings such as "Fictor 2090" are nomenclature, kept as published) | nothing to drop |
-
-- **Stored:** literature is cited by DOI, PubMed ID, title, journal and year
-  only.
-- **Excluded:** every author, depositor, submitter, curator, contact, e-mail
-  and ORCID field (`PERSONAL_KEYS`). Adapters drop them and list them in each
-  page receipt (`personal_fields_dropped`); `statement()` rejects them with
-  `personal_field` at write time; the MCP tools refuse to return an answer that
-  carries one. Nothing is redacted in place.
-- **Retention:** records are immutable revisions of reference data; since no
-  personal data is stored, no personal-data retention period applies.
-- **Who may query:** every principal with `knowledge:lifesci:read` and
-  namespace access; there is nothing personal to restrict further.
-
-## UniProt (`uniprot-proteins`, provider `uniprot`)
-
-- **Endpoints:** `GET https://rest.uniprot.org/uniprotkb/{accession}?format=json`
-  (entry) and `GET https://rest.uniprot.org/unisave/{accession}?format=json`
-  (entry-version history). UniSave is confirmed by the extract of "How do I
-  link to a specific version of a UniProtKB entry?" and by indexed
-  `rest.uniprot.org/unisave/{accession}?format=txt&versions=N` URLs; the JSON
-  field names (`results`, `entryVersion`, `sequenceVersion`, `firstRelease`,
-  `lastRelease`) are *verify*. The release header `X-UniProt-Release` and
-  `X-UniProt-Release-Date` are *verify*.
-- **Authentication:** none; open access with no login (third-party summary of
-  the API paper; the official API page could not be read — unverified).
-- **Licence:** CC BY 4.0 (extract of https://www.uniprot.org/help/license:
-  "UniProt content is distributed under the Creative Commons Attribution (CC BY
-  4.0) License"). **Redistribution:** permitted with attribution to the UniProt
-  Consortium, citing accession, entry version and release.
-- **Rate limits:** no official limit could be read (**unverified**); a
-  third-party summary states no hard published limit. The selection is at most
-  20 accessions per run, one request each plus one history request.
-- **Updates, corrections, removals:** entry version and sequence version
-  (UniProt's own counters) per entry; each UniProt release read is a revision.
-  An entry that leaves UniProtKB is returned as `entryType: "Inactive"` with
-  `inactiveReason.inactiveReasonType` MERGED, DEMERGED or DELETED and
-  `mergeDemergeTo` successors (*verify*); it is stored as an `obsoleted`
-  revision naming its successors, and queries resolve it to them. Secondary
-  accessions listed by an entry resolve to that entry.
-- **Reviewed/unreviewed:** labelled as UniProt labels them (`entryType`
-  "UniProtKB reviewed (Swiss-Prot)" / "UniProtKB unreviewed (TrEMBL)").
-- **Not stored:** comments, features and keywords (annotation text is out of
-  the bounded scope; reported as `excluded_fields_dropped`).
-
-## NCBI Gene and Taxonomy (`ncbi-genes-taxonomy`, provider `ncbi`)
-
-- **Endpoints:** `GET https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/{gene_id}`
-  and `GET https://api.ncbi.nlm.nih.gov/datasets/v2/taxonomy/taxon/{tax_id}`
-  (base URL confirmed by the API-keys page extract; report field names
-  `reports[].gene`, `swiss_prot_accessions`, `taxonomy.classification`,
-  `parents` are *verify*).
-- **Authentication and key handling:** optional NCBI API key, held as the
-  `NOESIS_NCBI_API_KEY` secret reference and sent only in the `api-key` request
-  header (extract of the API-keys page: "pass your API key as a header ... the
-  `api-key` header"). It never appears in a manifest, URL, receipt or record;
-  a response echoing it is refused.
-- **Rate limits:** 5 requests per second without a key, 10 with a key (extract
-  of the Datasets API-keys page). Selections stay far below: four requests per
-  run.
-- **Licence:** "NCBI places no restrictions on the use or distribution of the
-  data contained in molecular databases"; submitters may claim rights in
-  portions and NCBI cannot grant unrestricted permission (extract of the NCBI
-  Website and Data Usage Policies). **Redistribution:** the stored identity,
-  status and lineage fields are redistributed with the Gene ID or Tax ID; the
-  operator confirms before bulk redistribution.
-- **Updates, corrections, removals:** the reports carry no release label, so
-  every change of published content is a revision dated by retrieval.
-  Replaced and discontinued Gene IDs and merged Tax IDs are `obsoleted`
-  revisions naming the current ID; how Datasets reports them (a gene warning
-  with `replaced_id`, a taxonomy report answering a merged query with the
-  current node) is *verify*.
-
-## RCSB PDB (`rcsb-pdb-structures`, provider `pdb`)
-
-- **Endpoints:** `GET https://data.rcsb.org/rest/v1/core/entry/{pdb_id}`,
-  `GET https://data.rcsb.org/rest/v1/core/polymer_entity/{pdb_id}/{entity_id}`
-  (at most 10 per entry) and `GET https://data.rcsb.org/rest/v1/holdings/removed/{pdb_id}`
-  for obsolete entries (paths and field names *verify*).
-- **Authentication:** none.
-- **Licence:** "data files contained in the PDB archive are available under
-  the CC0 1.0 Universal (CC0 1.0) Public Domain Dedication. All data provided
-  by RCSB PDB programmatic APIs are available under the same license"; users
-  are encouraged to attribute the original authors (extract of the RCSB PDB
-  Usage Policies). **Redistribution:** permitted; attribution is given by the
-  PDB ID and primary citation (DOI, PubMed ID), not by storing author names.
-- **Rate limits:** none could be read (**unverified**); at most 11 requests per
-  entry, three entries per run.
-- **Updates, corrections, removals:** the entry's major.minor revision and
-  `pdbx_audit_revision_history` are stored as published; each PDB revision is a
-  record revision. An obsolete entry is an `obsoleted` revision from the
-  removed holdings with its removal date and `id_codes_replaced_by`; the
-  superseding entry keeps `pdbx_database_PDB_obs_spr` (SPRSDE).
-- **Stored as published:** experimental methods, `resolution_combined`, and
-  each polymer entity's UniProt accessions as the PDB states them (entity
-  container identifiers).
-
-## ChEMBL (`chembl-bioactivity`, provider `chembl`)
-
-- **Endpoints:** `GET https://www.ebi.ac.uk/chembl/api/data/status.json`
-  (release), `/target/{id}.json`, `/molecule/{id}.json`,
-  `/activity.json?target_chembl_id&limit&offset=0` (one page, limit at most
-  100) and `/document/{id}.json` for the documents a page cites (at most 10)
-  (field names *verify*).
-- **Authentication:** none.
-- **Licence:** Creative Commons Attribution-Share Alike 3.0 Unported, allowing
-  use, redistribution and adaptation with attribution and share-alike; ChEMBL
-  notes that compound property calculations from commercial software carry
-  their own terms (extract of the ChEMBL interface documentation, About and
-  FAQ). **Redistribution:** with attribution to ChEMBL and the release;
-  adaptations share-alike. Computed properties are not stored.
-- **Rate limits:** none could be read (**unverified**); five pages plus at most
-  10 document requests per run.
-- **Updates, corrections, removals:** numbered releases (`chembl_db_version`);
-  every record is keyed by ChEMBL ID and release and each release is a
-  revision. `data_validity_comment` and `data_validity_description` are ChEMBL's
-  own flags on suspect values and are shown with every value. An activity
-  absent from the next *complete* page of the same target selection gets a
-  dated `removed` revision; a truncated page never removes anything.
-
-## Sources recorded as not implemented
-
-None. Every candidate source's terms allow the intended bounded, cited use.
-
-## Bounded first coverage
-
-| Source | Selection | Justification |
-| --- | --- | --- |
-| UniProt | one reviewed entry with its UniSave history, one unreviewed entry and one merged accession (fixture); live: at most 20 declared accessions | versions, labels, obsolescence and cross-references in one small set |
-| NCBI | the genes and organisms those entries name, one replaced Gene ID and one merged Tax ID | successor handling and lineage |
-| RCSB PDB | experimental entries the proteins cross-reference (at most 10 entities each) and one obsolete entry with its successor | revision history and supersession |
-| ChEMBL | the proteins' ChEMBL targets, one activity page of at most 100 records per target, the compounds named and the documents cited, for one named release | published activity per release, far below any limit |
-
-Places and periods do not apply; the period is the release read. Every
-selection is explicit in the source pack; there is no crawl or search.
+No existing store keeps accession-keyed reference entries with source release
+membership and version markers, so the records get namespace-scoped `lifesci_*`
+tables (`src/kb/lifesci_store.py`) in the registry-record shape, owned by the new
+`science.life-sciences` provider of the existing Science pack.

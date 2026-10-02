@@ -1,94 +1,91 @@
-"""Treaty participants and treaties matched across sources through reviewable identity (#2610)."""
+"""Participants and treaties matched across sources through reviewable identity (#2610, TR06)."""
 
 from __future__ import annotations
 
 import pytest
 
-from src.kb.treaties_identity import TreatiesIdentity
-from src.kb.treaties_records import TreatiesError
+from src.kb.ownership_store import OwnershipError
+from src.kb.treaties_identity import TreatiesIdentity, place_key
 from tests.unit import treaties_harness as h
 
 
-@pytest.fixture()
-def env():
+@pytest.fixture
+def world():
     conn = h.connection()
+    clock = h.Clock()
     h.load_all(conn)
     places = h.seed_places(conn)
-    identity = TreatiesIdentity(conn, now=h.Clock())
-    yield conn, places, identity
+    identity = TreatiesIdentity(conn, now=clock)
+    result = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, geo_namespace=h.NS)
+    yield conn, identity, places, result
     conn.close()
 
 
-def test_candidates_carry_method_evidence_and_confidence_and_nothing_is_accepted(env):
-    _conn, places, identity = env
-    result = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    places_by_subject = {c["subject"]: c for c in result["candidates"] if c["kind"] == "participant-place"}
-    germany = places_by_subject["treaties:participant:coe:germany"]
-    assert germany["target"] == f"place:{places['DE']}" and germany["method"] == "exact-name-coded-place"
-    assert germany["confidence"] == 0.5 and germany["state"] == "proposed"
-    assert germany["evidence"]["place"]["codes"] == {"iso3166-1-alpha2": "DE", "iso3166-1-alpha3": "DEU"}
-    assert all(c["state"] == "proposed" for c in result["candidates"])
-    (treaty,) = [c for c in result["candidates"] if c["kind"] == "treaty"]
-    assert (treaty["subject"], treaty["target"]) == (h.CELLAR_TREATY, h.COE_TREATY)
-    assert treaty["method"] == "published-cross-reference"
-    assert treaty["evidence"]["cross_references"][0]["as_written"] == "CETS No. 990"
-    again = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    assert again["created"] == []  # idempotent
+def by_pair(result, left, right):
+    return next(c for c in result["candidates"] if set(c["records"]) == {left, right})
 
 
-def test_unmatched_participants_and_treaties_stay_visible(env):
-    _conn, _places, identity = env
-    result = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    unmatched = {u["subject"] for u in result["unmatched"]}
-    assert "treaties:participant:untc:examplestan" in unmatched  # the fixture place carries no ISO code
-    assert "treaties:participant:coe:european-union" in unmatched
-    assert h.UNTC_TREATY in unmatched  # no other source publishes a shared identifier
+def test_published_codes_come_before_names_and_nothing_is_accepted(world):
+    _, identity, places, result = world
+    assert {c["state"] for c in result["candidates"]} == {"proposed"}
+    code = by_pair(result, "treaties:eu-cellar:participant:xea", place_key(places["XEA"]))
+    assert code["basis"] == "exact-identifier" and code["method"] == "iso3166-code"
+    assert code["evidence"][0]["scheme"] == "iso3166-1-alpha3" and code["evidence"][0]["value"] == "XEA"
+    named = by_pair(result, "treaties:untc:participant:exampland", place_key(places["XEA"]))
+    assert named["basis"] == "name-jurisdiction" and named["method"] == "name-as-published"
+    assert named["confidence"] < code["confidence"]
+    # a participant with a published code is never paired by name
+    assert not [c for c in result["candidates"] if "treaties:eu-cellar:participant:xea" in c["records"]
+                and c["method"] == "name-as-published"]
+    cross = by_pair(result, "treaties:untc:participant:southland", "treaties:coe:participant:southland")
+    assert cross["method"] == "name-as-published"
+    eu = by_pair(result, "treaties:untc:participant:european-union", "treaties:eu-cellar:participant:eu")
+    assert eu["method"] == "eu-designation"
+    assert not [c for c in result["candidates"] if "treaties:eu-cellar:participant:eu" in c["records"]
+                and any(r.startswith("geospatial:") for r in c["records"])]
+    treaty = by_pair(result, h.EU, h.COE)
+    assert treaty["basis"] == "cross-referenced-identifier" and treaty["method"] == "published-cross-reference"
+    assert treaty["evidence"][0]["scheme"] == "cets" and treaty["evidence"][0]["value"] == "999"
+    assert not [c for c in result["candidates"] if h.UNTC in c["records"]]  # no cross-reference, no candidate
+    again = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, geo_namespace=h.NS)
+    assert again["proposed"] == []  # idempotent
 
 
-def test_published_codes_come_before_names(env):
-    conn, _places, identity = env
-    conn.execute("UPDATE treaty_action_revisions SET record_json=replace(record_json, "
-                 "'\"published_codes\":[]', '\"published_codes\":[{\"scheme\":\"op-country\",\"value\":\"FRA\"}]') "
-                 "WHERE participant_key='treaties:participant:coe:france'")
-    result = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    france = next(c for c in result["candidates"] if c["subject"] == "treaties:participant:coe:france")
-    assert france["method"] == "published-code" and france["confidence"] == 0.95
-    assert france["evidence"]["codes_compared"] == ["iso3166-1-alpha3:FRA"]
-
-
-def test_review_accept_reject_and_revert_are_entity_history_decisions(env):
-    conn, _places, identity = env
-    result = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    germany = next(c for c in result["candidates"] if c["subject"] == "treaties:participant:untc:germany")
-    with pytest.raises(TreatiesError):
-        identity.review(h.NS, germany["candidate_id"], "accept", "ok", principal_id="bob", scopes=h.SCOPES)
-    accepted = identity.review(h.NS, germany["candidate_id"], "accept", "ISO code on the place", principal_id="bob",
+def test_review_accept_reject_and_revert_are_entity_identity_decisions(world):
+    conn, identity, places, result = world
+    named = by_pair(result, "treaties:untc:participant:exampland", place_key(places["XEA"]))
+    with pytest.raises(OwnershipError):
+        identity.review(h.NS, named["candidate_id"], "accept", "names agree", principal_id="reviewer",
+                        scopes=h.SCOPES)  # no review scope
+    accepted = identity.review(h.NS, named["candidate_id"], "accept", "UNTC lists Exampland; the place is Exampland",
+                               principal_id="reviewer", scopes=h.REVIEW_SCOPES)
+    assert accepted["state"] == "accepted" and accepted["decision_id"] and accepted["reviewer"] == "reviewer"
+    decisions = conn.execute("SELECT count(*) FROM entity_identity_decisions").fetchone()[0]
+    assert decisions >= 1
+    code = by_pair(result, "treaties:eu-cellar:participant:xea", place_key(places["XEA"]))
+    identity.review(h.NS, code["candidate_id"], "accept", "published ISO code", principal_id="reviewer",
+                    scopes=h.REVIEW_SCOPES)
+    reached = {e["record_key"] for e in identity.equivalents(h.NS, "treaties:untc:participant:exampland",
+                                                             scopes=h.SCOPES)}
+    assert reached == {"treaties:eu-cellar:participant:xea"}  # through the shared, accepted place
+    reverted = identity.revert(h.NS, named["candidate_id"], "reviewer withdrew the decision",
+                               principal_id="reviewer", scopes=h.REVIEW_SCOPES)
+    assert reverted["state"] == "reverted" and [s["state"] for s in reverted["history"]][-2:] == ["accepted",
+                                                                                                  "reverted"]
+    assert identity.equivalents(h.NS, "treaties:untc:participant:exampland", scopes=h.SCOPES) == []
+    cross = by_pair(result, "treaties:untc:participant:southland", "treaties:coe:participant:southland")
+    rejected = identity.review(h.NS, cross["candidate_id"], "reject", "not verified", principal_id="reviewer",
                                scopes=h.REVIEW_SCOPES)
-    assert accepted["state"] == "accepted" and accepted["reviewer"] == "bob" and accepted["decision_id"]
-    decision = conn.execute("SELECT decision_type FROM entity_identity_decisions WHERE decision_id=?",
-                            [accepted["decision_id"]]).fetchone()
-    assert decision == ("match",)
-    assert [p["participant_key"] for p in identity.participants_for_place(h.NS, "iso3166:DE")] == [
-        "treaties:participant:untc:germany"]
-    reverted = identity.revert(h.NS, germany["candidate_id"], "wrong place revision", principal_id="bob",
-                               scopes=h.REVIEW_SCOPES)
-    assert reverted["state"] == "reverted" and identity.participants_for_place(h.NS, "iso3166:DE") == []
-    assert [s["state"] for s in reverted["history"]] == ["proposed", "accepted", "reverted"]
-    treaty = next(c for c in result["candidates"] if c["kind"] == "treaty")
-    rejected = identity.review(h.NS, treaty["candidate_id"], "reject", "different instrument", principal_id="bob",
-                               scopes=h.REVIEW_SCOPES)
-    assert rejected["state"] == "rejected" and identity.related_treaties(h.NS, h.COE_TREATY) == []
+    assert rejected["state"] == "rejected"
 
 
-def test_a_name_alone_is_never_accepted(env):
-    conn, _places, identity = env
-    conn.execute("CREATE TABLE IF NOT EXISTS canonical_entities (canonical_id TEXT, preferred_name TEXT, "
-                 "entity_type TEXT)")
-    conn.execute("INSERT INTO canonical_entities VALUES ('ent-eu', 'European Union', 'organization')")
-    result = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    entity = next(c for c in result["candidates"] if c["kind"] == "participant-entity")
-    assert entity["method"] == "name-only" and entity["confidence"] == 0.1
-    with pytest.raises(TreatiesError) as error:
-        identity.review(h.NS, entity["candidate_id"], "accept", "same name", principal_id="bob",
-                        scopes=h.REVIEW_SCOPES)
-    assert error.value.code == "insufficient_evidence"
+def test_unmatched_records_stay_visible_and_absent_places_are_reported(world):
+    _, identity, _, _ = world
+    unmatched = identity.unmatched(h.NS, scopes=h.SCOPES)
+    assert "treaties:untc:participant:oldland" in {p["record_key"] for p in unmatched["participants"]}
+    assert h.UNTC in {t["record_key"] for t in unmatched["treaties"]}
+    fresh = h.connection()
+    h.load_all(fresh)
+    report = TreatiesIdentity(fresh).propose(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    assert {"provider": "geospatial.core", "reason": "no geospatial namespace given"} in report["unavailable"]
+    fresh.close()

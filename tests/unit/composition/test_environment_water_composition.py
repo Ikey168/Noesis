@@ -1,4 +1,5 @@
-"""The ``environment.water`` provider and the Climate and Environment bundle's optional water features (#2582, WA11)."""
+"""The Climate and Environment bundle's optional water features and the ``environment.water`` provider (#2582, WA11
+#2638)."""
 
 from __future__ import annotations
 
@@ -19,9 +20,11 @@ from src.composition.shadow import provider_descriptors
 from src.domains import registry as domain_registry
 from tests.unit.composition.test_migration import _migrated
 from tools.knowledge_engine_mcp.water import (
-    WATER_FEATURES,
+    FEATURES,
     WATER_TOOLS,
+    WATER_WRITES,
     readiness,
+    required_scopes,
     selected_features,
 )
 
@@ -54,56 +57,69 @@ def bound(plan):
     return {b["provider"] for b in plan["bindings"] if "climate-environment" in b["consumers"]}
 
 
-def test_descriptor_declares_capabilities_constraints_stores_probe_and_source_pack():
+def test_descriptor_declares_capabilities_constraints_scopes_stores_and_source_pack():
     descriptor = next(d for d in provider_descriptors() if d["id"] == "environment.water")
     assert validate_provider_descriptor(descriptor) == []
     assert {c["id"] for c in descriptor["capabilities"]} == {
         "environment.water-records", "environment.water-identity", "environment.water-monitoring"}
     constraints = descriptor["capabilities"][0]["semantic_constraints"]
-    assert {"observations", "assessments", "minimisation", "exclusions"} <= set(constraints)
-    assert "no flood forecasting" in constraints["exclusions"] and "gap filling" in constraints["exclusions"]
+    assert {"quality", "missing", "minimisation", "exclusions", "links"} <= set(constraints)
+    assert "flood-risk" in constraints["exclusions"] and "interpolation" in constraints["exclusions"]
     assert descriptor["source_packs"] == [PACK]
     owned = {s["record_type"] for s in descriptor["stores"]}
-    others = {s["record_type"] for d in provider_descriptors() if d["id"] != "environment.water"
-              for s in d["stores"]}
+    others = {s["record_type"] for d in provider_descriptors() if d["id"] != "environment.water" for s in d["stores"]}
     assert not owned & others
     assert {o["tool"].split(".", 1)[1] for o in descriptor["operations"]} == WATER_TOOLS
+    for operation in descriptor["operations"]:
+        name = operation["tool"].split(".", 1)[1]
+        mutability = "write" if name in WATER_WRITES else "read"
+        assert operation["required_scopes"] == required_scopes(name, mutability), name
+    catalog = json.loads((ROOT / "contracts/generated/noesis-mcp-catalog-v1.json").read_text())
+    listed = {t["name"]: t for t in catalog["tools"] if t["name"] in WATER_TOOLS}
+    assert set(listed) == WATER_TOOLS
+    assert all(listed[n]["mutability"] == ("write" if n in WATER_WRITES else "read") for n in listed)
 
 
-def test_three_optional_features_off_by_default_leave_the_bundle_unchanged():
+def test_sources_are_separate_optional_features_off_by_default_and_links_are_never_required():
     manifest = json.loads((ROOT / "packs/climate-environment/manifest.json").read_text())
     assert validate_composition_manifest(manifest) == []
     features = {f["id"]: f for f in manifest["optional_features"]}
-    assert set(WATER_FEATURES.values()) <= set(features)
-    assert {features[f]["default"] for f in WATER_FEATURES.values()} == {False}
-    assert not any(r["capability"].startswith("environment.water") for r in manifest["requires"])
-    for feature in WATER_FEATURES.values():
+    assert set(FEATURES.values()) <= set(features)
+    for feature in FEATURES.values():
+        assert features[feature]["default"] is False
         required = {r["capability"] for r in features[feature]["requires"]}
-        assert not required & {"hazards.events", "weather.observations", "infrastructure.assets"}
+        assert not {c for c in required if c.startswith(("hazards.", "weather.", "geospatial.infrastructure"))}
+    assert not any(r["capability"].startswith("environment.water") for r in manifest["requires"])
     off = plan_for()
     assert "environment.water" not in bound(off) and PACK not in off["source_packs"]
-    for feature in WATER_FEATURES.values():
+    for feature in FEATURES.values():
         assert {"pack": "climate-environment", "feature": feature, "reason": "not selected"} in off["omissions"]
-    on = plan_for(["water-usgs"])
-    assert "environment.water" in bound(on) and on["source_packs"] == off["source_packs"]
-    assert bound(off) <= bound(on) and "platform.entity-identity" in bound(on)
-    view = CompositionView(on, provider_descriptors(), adapt_all().values())
+    for chosen in (["water-pegelonline"], ["water-usgs"], ["water-eea-wise"], sorted(FEATURES.values())):
+        on = plan_for(chosen)
+        assert "environment.water" in bound(on) and on["source_packs"] == off["source_packs"]
+        assert bound(off) <= bound(on) and "platform.entity-identity" in bound(on)
+        assert sorted(on["features"]["climate-environment"]) == sorted(chosen)
+    view = CompositionView(plan_for(["water-usgs"]), provider_descriptors(), adapt_all().values())
     assert view.tools["noesis-knowledge-engine.water_value_at"].provider == "environment.water"
     assert not list(ROOT.glob("packs/*water*"))  # no new pack
-    assert (ROOT / "packs/climate-environment/providers/environment.water.json").exists()
 
 
 def test_feature_selection_follows_the_active_composition_and_readiness_reports_it():
-    state = readiness(duckdb.connect(":memory:"), "environment")
-    assert {f["selected"] for f in state["features"].values()} == {False}
-    assert state["not_implemented"]["grdc"]["decision"] == "not implemented"
-    assert state["linked_providers"]["natural-hazards"]["status"] == "unavailable"
+    empty = readiness(duckdb.connect(":memory:"), "environment")
+    assert empty["features"] == {f: False for f in FEATURES.values()}
+    assert empty["links"]["hazards"]["status"] == "unavailable"  # degrades, never fails
     conn, coordinator, bundles, _ = _migrated()
-    assert selected_features(conn) == set()
-    coordinator.select("climate-environment", bundles["climate-environment"]["version"],
-                       features=["water-pegelonline", "water-eea-wise"])
-    assert coordinator.activate("climate-environment-water-on")["status"] == "published"
-    assert selected_features(conn) == {"water-pegelonline", "water-eea-wise"}
+    assert selected_features(conn) == []
+    coordinator.select("climate-environment", bundles["climate-environment"]["version"], features=["water-usgs"])
+    assert coordinator.activate("climate-environment-water-usgs-on")["status"] == "published"
+    assert selected_features(conn) == ["water-usgs"]
     coordinator.select("climate-environment", bundles["climate-environment"]["version"], features=[])
     coordinator.activate("climate-environment-water-off")
-    assert selected_features(conn) == set()
+    assert selected_features(conn) == []
+
+
+def test_taxonomy_classifies_the_provider_and_the_gap_row_is_gone():
+    taxonomy = json.loads((ROOT / "packs/taxonomy.json").read_text())
+    assert taxonomy["providers"]["environment.water"] == {
+        "subdomains": ["water-hydrology"], "shapes": ["observations", "statistical-series"], "themes": ["climate"]}
+    assert "| `water-hydrology` |" not in (ROOT / "docs/roadmaps/domain-coverage-program.md").read_text()

@@ -1,0 +1,124 @@
+{
+ "native_pages": [
+  {
+   "body": [
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.248",
+     "distribution_type": "micro",
+     "estimation_type": "survey",
+     "gini": "0.312",
+     "headcount": "0.0021",
+     "is_interpolated": false,
+     "mean": "61.4",
+     "median": "53.2",
+     "poverty_gap": "0.0006",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2094,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 1,
+     "survey_coverage": "national",
+     "survey_year": 2094,
+     "welfare_type": "income"
+    },
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.249",
+     "distribution_type": "micro",
+     "estimation_type": "interpolation",
+     "gini": "0.314",
+     "headcount": "0.0020",
+     "is_interpolated": true,
+     "mean": "61.9",
+     "median": "53.6",
+     "poverty_gap": "0.0006",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2095,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 1,
+     "survey_coverage": "national",
+     "survey_year": null,
+     "welfare_type": "income"
+    },
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "decile10": "0.246",
+     "distribution_type": "micro",
+     "estimation_type": "survey",
+     "gini": "0.309",
+     "headcount": "0.0019",
+     "is_interpolated": false,
+     "mean": "62.8",
+     "median": "54.4",
+     "poverty_gap": "0.0005",
+     "poverty_line": 2.15,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_pop": 83100000,
+     "reporting_year": 2096,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 2,
+     "survey_coverage": "national",
+     "survey_year": 2096,
+     "welfare_type": "income"
+    }
+   ],
+   "request": "/pip/v1/pip?country=DEU&fill_gaps=true&format=json&povline=2.15&ppp_version=2017&release_version=20980915_2017_01_02_PROD&reporting_level=national&year=all",
+   "status": 200
+  },
+  {
+   "body": [
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "distribution_type": "micro",
+     "estimation_type": "survey",
+     "gini": "0.313",
+     "headcount": "0.0031",
+     "is_interpolated": false,
+     "poverty_line": 3.0,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_year": 2094,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 1,
+     "survey_coverage": "national",
+     "survey_year": 2094,
+     "welfare_type": "income"
+    },
+    {
+     "country_code": "DEU",
+     "country_name": "Germany",
+     "distribution_type": "micro",
+     "estimation_type": "survey",
+     "gini": "0.310",
+     "headcount": "0.0028",
+     "is_interpolated": false,
+     "poverty_line": 3.0,
+     "region_code": "ECA",
+     "reporting_level": "national",
+     "reporting_year": 2096,
+     "survey_acronym": "SILC-FX",
+     "survey_comparability": 2,
+     "survey_coverage": "national",
+     "survey_year": 2096,
+     "welfare_type": "income"
+    }
+   ],
+   "request": "/pip/v1/pip?country=DEU&fill_gaps=false&format=json&povline=3.00&ppp_version=2021&release_version=20980915_2021_01_02_PROD&reporting_level=national&year=all",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "first-release"
+ ]
+}

@@ -1,27 +1,28 @@
 {
- "description": "PEGELONLINE REST API v2 stations and measurements. Authored offline fixture in the provider's documented response shape. Station UUIDs and numbers, water-body codes, coordinates, values and status labels are ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (WA13, #2647).",
+ "description": "PEGELONLINE REST API v2 stations and measurements. Authored offline fixture in the provider's documented response shape. Stations, identifiers, codes, coordinates, values and statuses are FICTIONAL and ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (WA13, #2647).",
  "scenarios": [
-  "gauge zero with validFrom",
-  "characteristic values",
-  "a missing 15-minute value",
-  "a station without discharge"
+  "two stations on one water",
+  "gauge zero with validity",
+  "characteristic values MW and MHW",
+  "a 15-minute value not published (gap)",
+  "water level and discharge"
  ],
  "native_pages": [
   {
-   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0001-4000-8000-00000000d001.json?includeCharacteristicValues=true&includeTimeseries=true",
+   "request": "/webservices/rest-api/v2/stations/aaaa1111-0000-4000-8000-00000000e001.json?includeCharacteristicValues=true&includeTimeseries=true",
    "status": 200,
    "body": {
-    "uuid": "aaaaaaaa-0001-4000-8000-00000000d001",
-    "number": "990001",
-    "shortname": "DRESDEN",
-    "longname": "DRESDEN",
-    "km": 55.6,
-    "agency": "DRESDEN",
-    "longitude": 13.738,
-    "latitude": 51.054,
+    "uuid": "aaaa1111-0000-4000-8000-00000000e001",
+    "number": "59990001",
+    "shortname": "EXAMPLA",
+    "longname": "EXAMPLA",
+    "km": 12.3,
+    "agency": "WSA EXAMPLA (FIXTURE)",
+    "longitude": 13.4,
+    "latitude": 52.52,
     "water": {
-     "shortname": "ELBE",
-     "longname": "ELBE"
+     "shortname": "NORDFLUSS",
+     "longname": "NORDFLUSS"
     },
     "timeseries": [
      {
@@ -31,33 +32,33 @@
       "equidistance": 15,
       "gaugeZero": {
        "unit": "m. ü. NHN",
-       "value": 102.73,
+       "value": 30.12,
        "validFrom": "2019-11-01"
       },
       "characteristicValues": [
        {
-        "shortname": "MNW",
-        "longname": "Mittleres Niedrigwasser",
+        "shortname": "MW",
+        "longname": "Mittelwasser",
         "unit": "cm",
-        "value": 90,
+        "value": 320,
         "validFrom": "2021-01-01",
-        "timespanStart": "2006-11-01",
-        "timespanEnd": "2016-10-31"
+        "timespanStart": "2010-11-01",
+        "timespanEnd": "2020-10-31"
        },
        {
         "shortname": "MHW",
         "longname": "Mittleres Hochwasser",
         "unit": "cm",
-        "value": 480,
+        "value": 520,
         "validFrom": "2021-01-01",
-        "timespanStart": "2006-11-01",
-        "timespanEnd": "2016-10-31"
+        "timespanStart": "2010-11-01",
+        "timespanEnd": "2020-10-31"
        }
       ]
      },
      {
       "shortname": "Q",
-      "longname": "ABFLUSS_ROHDATEN",
+      "longname": "ABFLUSS ROHDATEN",
       "unit": "m3/s",
       "equidistance": 15
      }
@@ -65,20 +66,72 @@
    }
   },
   {
-   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0002-4000-8000-00000000d002.json?includeCharacteristicValues=true&includeTimeseries=true",
+   "request": "/webservices/rest-api/v2/stations/aaaa1111-0000-4000-8000-00000000e001/W/measurements.json?end=2026-09-20T02%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
+   "status": 200,
+   "body": [
+    {
+     "timestamp": "2026-09-20T00:00:00+02:00",
+     "value": 512.0
+    },
+    {
+     "timestamp": "2026-09-20T00:15:00+02:00",
+     "value": 515.0
+    },
+    {
+     "timestamp": "2026-09-20T00:30:00+02:00",
+     "value": 519.0
+    },
+    {
+     "timestamp": "2026-09-20T01:00:00+02:00",
+     "value": 524.0
+    },
+    {
+     "timestamp": "2026-09-20T01:15:00+02:00",
+     "value": 530.0
+    },
+    {
+     "timestamp": "2026-09-20T01:30:00+02:00",
+     "value": 541.0
+    }
+   ]
+  },
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaa1111-0000-4000-8000-00000000e001/Q/measurements.json?end=2026-09-20T02%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
+   "status": 200,
+   "body": [
+    {
+     "timestamp": "2026-09-20T00:00:00+02:00",
+     "value": 145.2
+    },
+    {
+     "timestamp": "2026-09-20T00:15:00+02:00",
+     "value": 146.0
+    },
+    {
+     "timestamp": "2026-09-20T00:30:00+02:00",
+     "value": 147.1
+    },
+    {
+     "timestamp": "2026-09-20T01:00:00+02:00",
+     "value": 149.9
+    }
+   ]
+  },
+  {
+   "request": "/webservices/rest-api/v2/stations/aaaa1111-0000-4000-8000-00000000e002.json?includeCharacteristicValues=true&includeTimeseries=true",
    "status": 200,
    "body": {
-    "uuid": "aaaaaaaa-0002-4000-8000-00000000d002",
-    "number": "990002",
-    "shortname": "MEISSEN",
-    "longname": "MEISSEN",
-    "km": 82.2,
-    "agency": "DRESDEN",
-    "longitude": 13.475,
-    "latitude": 51.164,
+    "uuid": "aaaa1111-0000-4000-8000-00000000e002",
+    "number": "59990002",
+    "shortname": "NORTHWIND BRÜCKE",
+    "longname": "NORTHWIND BRÜCKE",
+    "km": 47.8,
+    "agency": "WSA EXAMPLA (FIXTURE)",
+    "longitude": 13.6,
+    "latitude": 52.4,
     "water": {
-     "shortname": "ELBE",
-     "longname": "ELBE"
+     "shortname": "NORDFLUSS",
+     "longname": "NORDFLUSS"
     },
     "timeseries": [
      {
@@ -88,27 +141,27 @@
       "equidistance": 15,
       "gaugeZero": {
        "unit": "m. ü. NHN",
-       "value": 97.52,
-       "validFrom": "2015-11-01"
+       "value": 28.5,
+       "validFrom": "2020-04-01"
       },
       "characteristicValues": [
        {
-        "shortname": "MNW",
-        "longname": "Mittleres Niedrigwasser",
+        "shortname": "MW",
+        "longname": "Mittelwasser",
         "unit": "cm",
-        "value": 90,
+        "value": 320,
         "validFrom": "2021-01-01",
-        "timespanStart": "2006-11-01",
-        "timespanEnd": "2016-10-31"
+        "timespanStart": "2010-11-01",
+        "timespanEnd": "2020-10-31"
        },
        {
         "shortname": "MHW",
         "longname": "Mittleres Hochwasser",
         "unit": "cm",
-        "value": 480,
+        "value": 520,
         "validFrom": "2021-01-01",
-        "timespanStart": "2006-11-01",
-        "timespanEnd": "2016-10-31"
+        "timespanStart": "2010-11-01",
+        "timespanEnd": "2020-10-31"
        }
       ]
      }
@@ -116,52 +169,20 @@
    }
   },
   {
-   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0001-4000-8000-00000000d001/W/measurements.json?end=2026-09-21T00%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
+   "request": "/webservices/rest-api/v2/stations/aaaa1111-0000-4000-8000-00000000e002/W/measurements.json?end=2026-09-20T02%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
    "status": 200,
    "body": [
     {
      "timestamp": "2026-09-20T00:00:00+02:00",
-     "value": 212.0
+     "value": 402.0
     },
     {
      "timestamp": "2026-09-20T00:15:00+02:00",
-     "value": 213.0
+     "value": 403.0
     },
     {
      "timestamp": "2026-09-20T00:30:00+02:00",
-     "value": 215.0
-    },
-    {
-     "timestamp": "2026-09-20T01:00:00+02:00",
-     "value": 216.0
-    }
-   ]
-  },
-  {
-   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0001-4000-8000-00000000d001/Q/measurements.json?end=2026-09-21T00%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
-   "status": 200,
-   "body": [
-    {
-     "timestamp": "2026-09-20T00:00:00+02:00",
-     "value": 180.5
-    },
-    {
-     "timestamp": "2026-09-20T00:15:00+02:00",
-     "value": 181.2
-    }
-   ]
-  },
-  {
-   "request": "/webservices/rest-api/v2/stations/aaaaaaaa-0002-4000-8000-00000000d002/W/measurements.json?end=2026-09-21T00%3A00%3A00%2B02%3A00&start=2026-09-20T00%3A00%3A00%2B02%3A00",
-   "status": 200,
-   "body": [
-    {
-     "timestamp": "2026-09-20T00:00:00+02:00",
-     "value": 198.0
-    },
-    {
-     "timestamp": "2026-09-20T00:15:00+02:00",
-     "value": 199.0
+     "value": 404.0
     }
    ]
   }

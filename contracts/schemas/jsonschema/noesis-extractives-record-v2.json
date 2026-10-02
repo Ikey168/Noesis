@@ -1,0 +1,78 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-extractives-record-v2.json",
+  "title": "noesis-extractives-record-v2",
+  "description": "Economics extractives records (#2653): EITI report, government agency, revenue stream, company, project and company payment revisions per report version, and commodity series (production, reserves, imports, exports) keyed by source, commodity, statistic, unit and country whose values are vintages in the Economics series storage. Every record carries its source, record revision and as-of time. Personal fields are never stored (EX01 minimisation decision).",
+  "type": "object",
+  "required": ["contract", "record_type", "namespace"],
+  "properties": {
+    "contract": {"const": "noesis-extractives-record-v2"},
+    "namespace": {"type": "string", "minLength": 1},
+    "record_type": {"enum": ["eiti_report", "government_agency", "revenue_stream", "company", "project", "company_payment", "commodity_series"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "commodity_series"}}},
+      "then": {
+        "required": ["series_id", "provider", "source_series_id", "commodity", "statistic", "unit", "frequency", "country", "licence", "first_release_id", "vintage_count", "economic_series"],
+        "properties": {
+          "series_id": {"type": "string", "pattern": "^extractives-series:"},
+          "provider": {"enum": ["usgs-mcs", "bgs-wms"]},
+          "source_series_id": {"type": "string", "minLength": 1},
+          "commodity": {"type": "object", "required": ["code", "label", "definition"], "properties": {
+            "code": {"type": "string", "minLength": 1}, "label": {"type": "string"},
+            "definition": {"type": "object", "required": ["reference"]}
+          }},
+          "statistic": {"enum": ["production", "reserves", "imports", "exports"]},
+          "unit": {"type": "string", "minLength": 1},
+          "frequency": {"const": "annual"},
+          "country": {"type": "object", "required": ["name", "aggregate", "code_basis"], "properties": {
+            "name": {"type": "string"}, "aggregate": {"type": "boolean"},
+            "iso2": {"type": ["string", "null"], "pattern": "^[A-Z]{2}$"}, "m49": {"type": ["string", "null"]},
+            "code_basis": {"type": "string"}
+          }},
+          "licence": {"type": "object", "required": ["id", "attribution"]},
+          "vintage_count": {"type": "integer", "minimum": 0},
+          "economic_series": {"type": "object", "required": ["domain", "series_id", "store"]}
+        }
+      },
+      "else": {
+        "required": ["record_key", "revision", "revision_id", "state", "report_key", "release_id", "report_version", "as_of", "observed_at", "record"],
+        "properties": {
+          "record_key": {"type": "string", "pattern": "^extractives:eiti:"},
+          "revision": {"type": "integer", "minimum": 1},
+          "revision_id": {"type": "string", "pattern": "^extractives-revision:"},
+          "revision_of": {"type": ["string", "null"]},
+          "state": {"enum": ["active", "removed"]},
+          "report_key": {"type": "string", "pattern": "^extractives:eiti:report:[A-Z]{2}:"},
+          "release_id": {"type": "string", "pattern": "^extractives-release:"},
+          "report_version": {"type": ["string", "null"]},
+          "as_of": {"type": "string"},
+          "observed_at": {"type": "string"},
+          "record": {
+            "type": "object",
+            "required": ["record_type", "record_key"],
+            "not": {"anyOf": [
+              {"required": ["contact"]}, {"required": ["email"]}, {"required": ["phone"]},
+              {"required": ["beneficial_owners"]}, {"required": ["contact_person"]}
+            ]},
+            "properties": {
+              "company_reported": {"$ref": "#/definitions/amount"},
+              "government_reported": {"$ref": "#/definitions/amount"}
+            }
+          }
+        }
+      }
+    }
+  ],
+  "definitions": {
+    "amount": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["value_text", "value", "currency"], "properties": {
+          "value_text": {"type": "string"}, "value": {"type": ["string", "null"]}, "currency": {"type": ["string", "null"]}
+        }}
+      ]
+    }
+  }
+}

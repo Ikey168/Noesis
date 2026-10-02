@@ -1,111 +1,125 @@
-"""Fact-checks of a claim or claimant as of a date and fact-checks citing a news article (#2698, #2703, FC08-FC09)."""
+"""Fact-checks of a claim or claimant as of a date, and fact-checks that cite a news article (#2698, #2703)."""
 
 from __future__ import annotations
 
+import json
+
 import pytest
 
-from src.kb.citation_preservation import CAPTURE_SCOPE, CitationPreservationStore
 from src.kb.fact_checks_queries import FactCheckQueries
 from src.kb.fact_checks_records import FactCheckError, forbidden_keys
 from tests.unit import fact_checks_harness as h
 
 
+@pytest.fixture(scope="module")
+def ask():
+    return FactCheckQueries(h.accepted_world())
+
+
 def ratings(answer):
-    return {(r["publisher_site"], r["source_id"]): r["textual_rating"]
-            for group in answer["ratings_side_by_side"] for r in group["ratings_as_published"]}
+    return {f["publisher"]["domain"]: [s["rating_as_published"]["text"] for s in f["as_published_by_source"]]
+            for f in answer["fact_checks"]}
 
 
-def test_claim_answers_use_accepted_matches_only_and_show_conflicting_ratings_side_by_side():
-    conn = h.accepted_world()
-    ask = FactCheckQueries(conn)
-    answer = ask.for_claim(h.NS, scopes=h.SCOPES, claim_id="claim-seals", as_of="2025-12-31")
-    assert answer["status"] == "answered" and answer["matching"].startswith("accepted claim matches only")
-    assert len(answer["fact_checks"]) == 2
-    (group,) = answer["ratings_side_by_side"]
-    assert group["distinct_textual_ratings"] == ["False", "Misleading"]
-    assert group["publishers"] == ["factcheck.example.org", "verifica.example.net"]
-    datacommons = next(r for r in group["ratings_as_published"] if r["publisher_site"] == "verifica.example.net"
-                       and r["source_id"] == h.DATACOMMONS)
-    assert (datacommons["rating_value"], datacommons["worst_rating"], datacommons["best_rating"]) == (2, 1, 7)
-    assert "not a reviewed claim match" in group["grouping_basis"]
+def test_a_claim_reaches_its_fact_checks_through_accepted_matches_with_ratings_verbatim(ask):
+    answer = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-widgets", as_of="2099-08-31")
+    assert answer["status"] == "answered" and forbidden_keys(answer) == []
+    assert ratings(answer) == {"factdesk.example": ["False", "False (updated with the company's statement)"],
+                               "northwind-verify.example": ["Mostly accurate"]}
+    factdesk = next(f for f in answer["fact_checks"] if f["publisher"]["domain"] == "factdesk.example")
+    scale = factdesk["as_published_by_source"][0]["rating_as_published"]
+    assert scale["scale_as_published"] == "1 on a scale from 1 to 5" and scale["value"] == "1"
+    assert {s["source_id"] for s in factdesk["as_published_by_source"]} == {h.GOOGLE, h.DATACOMMONS}
     for item in answer["fact_checks"]:
-        assert all(a["citation"]["revision_id"] for a in item["source_assertions"])
-        assert item["basis"]["kind"] == "accepted-match"
-    assert forbidden_keys(answer) == []
-    # the lexical candidate for claim-array is never answered
-    lexical = ask.for_claim(h.NS, scopes=h.SCOPES, claim_id="claim-array")
-    assert lexical["status"] == "none_on_record" and lexical["unreviewed_candidates"][0]["method"] == \
-        "lexical-overlap"
+        for entry in item["as_published_by_source"]:
+            assert entry["citation"]["revision_id"] and entry["citation"]["observed_at"]
+    assert answer["identity"]["accepted"] and all(a["decision_id"] for a in answer["identity"]["accepted"])
+    assert "Noesis issues no verdict" in answer["notice"]
 
 
-def test_as_of_answers_follow_each_publishers_revisions_and_status_at_review_time():
-    conn = h.accepted_world(version="v2")
-    ask = FactCheckQueries(conn)
-    early = ask.for_claim(h.NS, scopes=h.SCOPES, claim_id="claim-seals", as_of="2025-04-01")
-    late = ask.for_claim(h.NS, scopes=h.SCOPES, claim_id="claim-seals", as_of="2025-12-31")
-    assert ratings(early)[("factcheck.example.org", h.GOOGLE)] == "False"
-    assert ratings(late)[("factcheck.example.org", h.GOOGLE)] == "Mostly false"
-    assert ask.for_claim(h.NS, scopes=h.SCOPES, claim_id="claim-seals", as_of="2025-03-01")["status"] == \
-        "none_on_record"
-    verifica = next(i for i in late["fact_checks"] if i["publisher"]["site"] == "verifica.example.net")
-    (status,) = verifica["publisher_status_at_review"]["signatories"]
-    assert status["status_as_published"] == "Under renewal"  # in effect on 2025-03-12, before the 2025-08-15 change
-    assert status["citation"]["record_key"] == "fact-checks:ifcn:verifica-example"
-    assert verifica["publisher"]["name_as_published"] == "Verifica Example"
+def test_conflicting_ratings_are_shown_side_by_side_and_never_reconciled(ask):
+    answer = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-widgets")
+    (group,) = answer["side_by_side"]["groups"]
+    assert group["rating_texts_differ"] is True
+    assert {p["publisher"] for p in group["publishers"]} == {"Exampla Fact Desk", "Northwind Verify"}
+    assert "no rating is normalised" in answer["side_by_side"]["basis"]
 
 
-def test_text_search_is_labelled_a_search_and_claimant_queries_need_the_claimant_scope():
-    conn = h.accepted_world()
-    ask = FactCheckQueries(conn)
-    search = ask.for_claim(h.NS, scopes=h.SCOPES, text="killed 4,000 seals")
-    assert search["status"] == "answered" and search["fact_checks"][0]["basis"]["kind"] == "text-search"
-    with pytest.raises(FactCheckError) as refused:
-        ask.for_claimant(h.NS, "Mayor Alex Example", scopes=h.SCOPES)
-    assert refused.value.code == "unauthorized"
-    named = ask.for_claimant(h.NS, "Mayor Alex Example", scopes=h.REVIEW_SCOPES)
-    by_entity = ask.for_claimant(h.NS, "ent-alex-example", scopes=h.REVIEW_SCOPES)
-    assert {i["record_key"] for i in named["fact_checks"]} == {i["record_key"] for i in by_entity["fact_checks"]}
-    assert len(named["fact_checks"]) == 2
-    nobody = ask.for_claimant(h.NS, "Nobody Example", scopes=h.REVIEW_SCOPES)
-    assert nobody["status"] == "none_on_record" and nobody["fact_checks"] == []
+def test_as_of_selects_the_review_revision_in_force_and_the_publisher_status_at_review_time(ask):
+    early = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-widgets", as_of="2099-06-05")
+    assert ratings(early) == {"factdesk.example": ["False", "False"], "northwind-verify.example": ["Mostly accurate"]}
+    before = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-widgets", as_of="2099-06-03")
+    assert set(ratings(before)) == {"factdesk.example"}
+    northwind = next(f for f in early["fact_checks"] if f["publisher"]["domain"] == "northwind-verify.example")
+    assert northwind["publisher_status_at_review"]["status"] == "expired"  # as known now
+    known_then = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-widgets", as_of="2099-06-05",
+                                           known_at="2099-07-31")
+    then = next(f for f in known_then["fact_checks"] if f["publisher"]["domain"] == "northwind-verify.example")
+    assert then["publisher_status_at_review"]["status"] == "verified"
+    assert then["publisher_status_at_review"]["citation"]["revision_no"] == 1
 
 
-def test_citing_answers_use_the_stated_url_rules_and_archived_captures():
-    conn = h.accepted_world()
-    CitationPreservationStore(conn).record_capture(h.NS, {
-        "archive_id": "internet-archive", "archive_kind": "memento-archive", "resolver": "timetravel",
-        "uri_r": h.APPEARANCE, "uri_m": "https://web.archive.org/web/20250301120000/" + h.APPEARANCE,
-        "memento_datetime": "Sat, 01 Mar 2025 12:00:00 GMT", "status": 200, "mimetype": "text/html", "digests": [],
-        "receipt": {"request_id": "req-1", "adapter": "test", "evidence_origin": "fixture"}},
-        principal_id="curator", scopes={CAPTURE_SCOPE})
-    ask = FactCheckQueries(conn)
-    answer = ask.citing(h.NS, scopes=h.SCOPES, url="http://www." + h.APPEARANCE[len("https://"):] + "/?utm_source=x")
-    assert answer["url_matching"]["version"] == "wa-canon-v1"
-    (given,) = answer["url_matching"]["input"].values()
-    assert set(given["rules_applied"]) >= {"scheme-equivalence", "strip-www", "drop-tracking-parameters"}
-    assert len(answer["fact_checks"]) == 2
-    roles = {a["cites_as"][0] for i in answer["fact_checks"] for a in i["source_assertions"]}
-    assert roles == {"appearance"}
-    assert {a["source_id"] for i in answer["fact_checks"] for a in i["source_assertions"]} == {h.DATACOMMONS}
-    assert answer["archived_captures"]["status"] == "answered"
-    assert answer["archived_captures"]["captures"][0]["uri_m"].startswith("https://web.archive.org/web/2025")
-    by_document = ask.citing(h.NS, scopes=h.SCOPES, document_id="doc-seals")
-    assert {i["record_key"] for i in by_document["fact_checks"]} == {i["record_key"] for i in answer["fact_checks"]}
-    without_scope = ask.citing(h.NS, scopes=h.SCOPES - {"knowledge:citation:read"}, url=h.APPEARANCE)
-    assert without_scope["archived_captures"]["status"] == "unavailable"
-    nothing = ask.citing(h.NS, scopes=h.SCOPES, url="https://news.example.com/unrelated")
-    assert nothing["status"] == "none_on_record"
+def test_claimants_by_accepted_identifier_or_by_name_as_published(ask):
+    by_entity = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claimant="ent-wikidata-q99999901")
+    assert [f["publisher"]["domain"] for f in by_entity["fact_checks"]] == ["factdesk.example"]
+    assert by_entity["identity"]["unreviewed_candidates_not_used"]  # the name-only candidate is not used
+    by_name = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claimant="Robin Sample")
+    assert "not an identity match" in by_name["subject"]["basis"]
+    assert {f["publisher"]["domain"] for f in by_name["fact_checks"]} == {"factdesk.example",
+                                                                         "northwind-verify.example"}
 
 
-def test_evidence_bundle_cites_every_fact_check_revision_and_quotes_ratings():
-    conn = h.accepted_world()
-    ask = FactCheckQueries(conn)
-    answer = ask.for_claim(h.NS, scopes=h.SCOPES, claim_id="claim-seals", as_of="2025-12-31")
+def test_a_subject_with_no_records_is_none_on_record(ask):
+    assert ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-unknown")["status"] == "none_on_record"
+    assert ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claimant="Nobody Anywhere")["status"] == "none_on_record"
+    with pytest.raises(FactCheckError):
+        ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES)
+
+
+def test_fact_checks_citing_an_article_use_the_stated_url_rule_and_archived_captures(ask):
+    answer = ask.citing(h.NS, scopes=h.SCOPES, url="http://news.example/2099/05/31/widget-exports/#comments")
+    rule = answer["subject"]["url_rule"]
+    assert rule["rules"] == "wa-canon-v1" and rule["canonical_url"] == h.NEWS_ARTICLE
+    assert set(rule["applied"]) == {"scheme-equivalence", "strip-trailing-slash", "drop-fragment"}
+    assert rule["rule_text"]
+    (item,) = answer["fact_checks"]
+    assert item["cites_target_as"][0]["match"] == "canonical-url"
+    assert item["cites_target_as"][0]["cited_as_published"].startswith("https://www.news.example/")
+    assert item["archived_captures"]["status"] == "answered"
+    assert item["archived_captures"]["closest"]["archive_id"] == "internet-archive"
+    by_document = ask.citing(h.NS, scopes=h.SCOPES, document_id="doc-widgets")
+    assert [f["record_key"] for f in by_document["fact_checks"]] == [item["record_key"]]
+    assert item["as_published_by_source"][0]["citation"]["revision_id"]
+
+
+def test_social_appearances_match_only_a_supplied_url_and_never_expose_it(ask):
+    answer = ask.citing(h.NS, scopes=h.SCOPES, url=h.SOCIAL_POST)
+    (item,) = answer["fact_checks"]
+    assert {c["match"] for c in item["cites_target_as"]} == {"url-digest"}
+    assert {c["role"] for c in item["cites_target_as"]} == {"appearance", "first_appearance"}
+    assert "robinsample_fake" not in json.dumps(answer["fact_checks"])
+    assert ask.citing(h.NS, scopes=h.SCOPES, url="https://news.example/none")["status"] == "none_on_record"
+
+
+def test_evidence_bundle_cites_every_item_with_source_revision_and_as_of_time(ask):
+    answer = ask.for_claim_or_claimant(h.NS, scopes=h.SCOPES, claim_id="claim-widgets")
     bundle = ask.evidence_bundle(answer)
-    revisions = {a["citation"]["revision_id"] for i in answer["fact_checks"] for a in i["source_assertions"]}
-    assert {b["id"] for b in bundle["bibliography"]} == revisions
-    assertions = bundle["sections"][0]["assertions"]
-    assert all(a["citations"] and a["dependencies"][0]["revision"] in revisions for a in assertions)
-    assert any("“Misleading” (2 on the publisher's scale 1-7)" in a["text"] for a in assertions)
+    cited = {c for a in bundle["sections"][0]["assertions"] for c in a["citations"]}
+    assert cited == {b["id"] for b in bundle["bibliography"]}
     assert all("observed" in b["text"] and "source" in b["text"] for b in bundle["bibliography"])
-    assert bundle["exclusions"][0] == "truth verdicts by Noesis"
+    assert any("IFCN status" in a["text"] for a in bundle["sections"][0]["assertions"])
+    assert "no truth verdicts by Noesis" in bundle["exclusions"]
+
+
+def test_missing_providers_degrade_gracefully():
+    conn = h.world(news=False, sources=False)
+    bare = FactCheckQueries(conn)
+    answer = bare.citing(h.NS, scopes=h.SCOPES, url=h.NEWS_ARTICLE)
+    assert answer["fact_checks"][0]["archived_captures"]["status"] == "unavailable"
+    with pytest.raises(FactCheckError) as refused:
+        bare.citing(h.NS, scopes=h.SCOPES, document_id="doc-widgets")
+    assert refused.value.code == "provider_absent"
+    only_reviews = h.connection()
+    h.apply(only_reviews, h.GOOGLE)
+    answer = FactCheckQueries(only_reviews).for_claim_or_claimant(h.NS, scopes=h.SCOPES, claimant="Robin Sample")
+    assert answer["fact_checks"][0]["publisher_status_at_review"]["status"] == "unavailable"

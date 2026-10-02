@@ -1,126 +1,128 @@
-"""Income series records: keys, revision chains, PPP revisions, withdrawals and as-of lookup (#2583, IP02)."""
+"""IP02 (#2592): income series records, immutable vintages, removals as revisions and as-of lookup."""
 
 from __future__ import annotations
 
-import copy
+import json
 
 import pytest
 
-from src.kb.income_distribution_records import IncomeError, series_key
-from src.kb.income_distribution_store import IncomeStore, readiness
+from src.kb.income_distribution_records import IncomeError, check_item
 from tests.unit import income_distribution_harness as h
 
 
-@pytest.fixture(scope="module")
-def conn():
+@pytest.fixture()
+def loaded():
     conn = h.connection()
     h.load_all(conn, revisions=True)
     return conn
 
 
-def test_series_are_keyed_by_source_welfare_scale_line_ppp_basis_survey_and_coverage(conn):
-    store = IncomeStore(conn)
-    series = store.find_series(h.NS)
-    assert len({s["series_id"] for s in series}) == len(series) == 17
-    item = h.fetch("pip")[0][0]["income_item"]
-    other = copy.deepcopy(item)
-    for field, value in (("welfare_concept", "consumption"), ("ppp_base_year", "2021"), ("survey", "HBS"),
-                         ("coverage", "urban"), ("reference_year_basis", "lineup-year")):
-        changed = {**copy.deepcopy(item), field: value}
-        assert series_key(changed) != series_key(item), field
-    other["poverty_line"] = {**other["poverty_line"], "value": "3.00"} if other["poverty_line"] else {
-        "kind": "absolute", "value": "3.00", "unit": "PPP$", "ppp_base_year": "2021"}
-    assert series_key(other) != series_key(item)
-    # Values live in the Economics series storage.
-    assert conn.execute("SELECT count(*) FROM economic_vintages WHERE series_id LIKE 'inc-series:%'").fetchone()[0]
+def _headcount() -> dict:
+    record = next(r for r in h.fetch("pip")[0] if r["income_item"]["native_key"].endswith("headcount"))
+    return json.loads(json.dumps(record))
 
 
-def test_a_ppp_revision_is_a_new_vintage_and_the_earlier_one_stays(conn):
-    store = IncomeStore(conn)
-    median = h.series_where(conn, "pip", concept="median_welfare")
-    first, second = store.vintage_rows(h.NS, median["series_id"])
-    assert second["revision_of"] == first["vintage_id"]
-    assert second["changes"]["ppp_revision"] is True and second["changes"]["restated_periods"] == [
-        "2096", "2097", "2098"]
-    assert second["release_version"] == "20991120_2017_02_02_PROD"
-    before = {o["period"]: o["value"] for o in store.observations(h.NS, first["vintage_id"])}
-    after = {o["period"]: o["value"] for o in store.observations(h.NS, second["vintage_id"])}
-    assert before["2096"] == "48.12" and after["2096"] == "47.8" and "2099" in after
-    assert conn.execute("SELECT count(*) FROM dataset_observations WHERE series_id=?",
-                        [median["series_id"]]).fetchone()[0] == 7
+def test_series_are_keyed_by_source_welfare_scale_line_ppp_place_and_coverage(loaded):
+    store = h.store(loaded)
+    head_2017 = h.series(loaded, "pip", "pip:DEU:national:income:headcount", ppp=2017)
+    head_2021 = h.series(loaded, "pip", "pip:DEU:national:income:headcount", ppp=2021)
+    assert head_2017["series_id"] != head_2021["series_id"]
+    assert head_2017["key"]["poverty_line"] == {"basis": "absolute-ppp", "amount": "2.15",
+                                                "unit": "2017 PPP dollars per person per day",
+                                                "label": "International poverty line ($2.15, 2017 PPP)",
+                                                "ppp_base_year": 2017}
+    assert head_2021["key"]["poverty_line"]["ppp_base_year"] == 2021
+    silc = h.series(loaded, "eurostat-silc", "LI_R_MD60")
+    assert silc["key"]["equivalence_scale"] == "modified-oecd" and silc["key"]["survey"] == "EU-SILC"
+    assert silc["key"]["poverty_line"]["basis"] == "relative-median"
+    oecd = h.series(loaded, "oecd-idd", "INC_DISP_GINI")
+    assert oecd["key"]["methodology"] == "METH2012" and "D_CUR" in oecd["key"]["income_definition"]
+    region = h.series(loaded, "pip", "pip-grp:ECA:regional:mixed:headcount")
+    assert region["key"]["welfare_concept"] == "mixed" and region["area"]["scheme"] == "wb-region"
+    # Values also live in the Economics series storage, domain society.
+    vintage = store.vintage_rows(h.NS, silc["series_id"])[0]
+    assert loaded.execute("SELECT count(*) FROM economic_vintages WHERE domain='society' AND series_id=?",
+                          [silc["series_id"]]).fetchone()[0] == 2
+    numeric = {o["period"]: o["numeric_value"] for o in store.observations(h.NS, vintage["vintage_id"])}
+    assert numeric["2094"] == pytest.approx(16.1)
 
 
-def test_as_of_lookup_selects_the_vintage_released_by_the_date(conn):
-    store = IncomeStore(conn)
-    arop = h.series_where(conn, "eu-silc", native_key="A.LI_R_MD60.PC.T.TOTAL.DE")
-    early, reason = store.select_vintage(h.NS, arop["series_id"], as_of_ms=h.day_ms("2026-01-01"))
-    assert early is None and reason == "no_release_by_as_of"
-    mid, _ = store.select_vintage(h.NS, arop["series_id"], as_of_ms=h.day_ms("2026-07-01"))
-    late, _ = store.select_vintage(h.NS, arop["series_id"], as_of_ms=h.day_ms("2100-02-01"))
-    assert mid["release_at"].startswith("2026-06-15") and late["release_at"].startswith("2026-09-20")
-    assert late["changes"]["revised"][0]["period"] == "2098" and late["changes"]["new_periods"] == ["2099"]
+def test_each_release_is_an_appended_vintage_and_a_ppp_revision_never_overwrites(loaded):
+    store = h.store(loaded)
+    head = h.series(loaded, "pip", "pip:DEU:national:income:headcount", ppp=2017)
+    first, second = store.vintage_rows(h.NS, head["series_id"])
+    assert first["release_label"] == "20980915_2017_01_02_PROD" and second["release_label"] == "20990320_2017_02_02_PROD"
+    assert second["previous_vintage_id"] == first["vintage_id"]
+    assert second["changes"]["ppp_revision"] == {"before": {"base_year": 2017, "revision": "01_02"},
+                                                 "after": {"base_year": 2017, "revision": "02_02"}}
+    assert second["changes"]["new_periods"] == ["2097"]
+    assert [r["period"] for r in second["changes"]["revised"]] == ["2094"]
+    old = {o["period"]: o["value"] for o in store.observations(h.NS, first["vintage_id"])}
+    new = {o["period"]: o["value"] for o in store.observations(h.NS, second["vintage_id"])}
+    assert old["2094"] == "0.0021" and new["2094"] == "0.0022"  # the earlier vintage is untouched
 
 
-def test_removals_by_the_source_are_revisions_never_deletions(conn):
-    store = IncomeStore(conn)
-    austria = h.series_where(conn, "eu-silc", native_key="A.GINI_HND.TOTAL.AT")
-    published, withdrawn = store.vintage_rows(h.NS, austria["series_id"])
-    assert withdrawn["status"] == "withdrawn" and withdrawn["changes"]["withdrawn"] is True
-    assert withdrawn["changes"]["removed_periods"] == ["2096", "2097"]
-    assert [o["period"] for o in store.observations(h.NS, published["vintage_id"])] == ["2096", "2097"]
+def test_as_of_lookup_selects_the_vintage_released_by_the_date(loaded):
+    store = h.store(loaded)
+    head = h.series(loaded, "pip", "pip:DEU:national:income:headcount", ppp=2017)
+    before = store.values(h.NS, head["series_id"], as_of_ms=h.day_ms("2098-01-01"))
+    assert before["status"] == "unavailable" and before["reason"] == "no_release_by_as_of"
+    mid = store.values(h.NS, head["series_id"], as_of_ms=h.day_ms("2099-01-01"))
+    assert mid["vintage"]["release_label"] == "20980915_2017_01_02_PROD"
+    assert mid["citation"]["as_of"] == "2098-09-15T00:00:00Z" and mid["citation"]["retrieved_at"]
+    latest = store.values(h.NS, head["series_id"])
+    assert latest["vintage"]["release_label"] == "20990320_2017_02_02_PROD"
 
 
-def test_reacquisition_and_unchanged_republication_add_nothing(conn):
-    releases = len(IncomeStore(conn).releases(h.NS))
-    vintages = conn.execute("SELECT count(*) FROM income_vintages").fetchone()[0]
-    h.load_all(conn, revisions=True)
-    assert len(IncomeStore(conn).releases(h.NS)) == releases
-    assert conn.execute("SELECT count(*) FROM income_vintages").fetchone()[0] == vintages
-    austria = h.series_where(conn, "eu-silc", native_key="A.LI_R_MD60.PC.T.TOTAL.AT")
-    assert austria["vintage_count"] == 1  # the later LAST UPDATE restated nothing for Austria
+def test_a_removal_by_the_source_is_a_vintage_never_a_deletion(loaded):
+    store = h.store(loaded)
+    rate = h.series(loaded, "oecd-idd", "PR_INC_DISP")
+    published, removed = store.vintage_rows(h.NS, rate["series_id"])
+    assert removed["status"] == "removed" and "removed_by_source" in removed["changes"]
+    assert store.values(h.NS, rate["series_id"])["status"] == "removed_by_source"
+    earlier = store.values(h.NS, rate["series_id"], as_of_ms=h.day_ms("2099-01-01"))
+    assert earlier["status"] == "available" and earlier["vintage"]["vintage_id"] == published["vintage_id"]
 
 
-def test_minimisation_and_no_derived_values_are_enforced_at_write_time():
+def test_reacquisition_is_idempotent_and_an_unchanged_republication_adds_no_vintage(loaded):
+    before = loaded.execute("SELECT count(*) FROM income_vintages").fetchone()[0]
+    results = h.apply(loaded, "silc", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
+    assert {r["status"] for r in results} == {"unchanged"}
+    assert loaded.execute("SELECT count(*) FROM income_vintages").fetchone()[0] == before
+    gini = h.series(loaded, "eurostat-silc", "GINI_HND")
+    assert len(h.store(loaded).vintage_rows(h.NS, gini["series_id"])) == 1
+
+
+def test_minimisation_and_exclusions_are_enforced_at_write_time():
     conn = h.connection()
-    store = IncomeStore(conn)
-    header = dict(h.fetch("eusilc")[0][0]["income_release"])
-    item = copy.deepcopy(h.fetch("eusilc")[0][0]["income_item"])
-    header["item_count"] = 1
-    personal = copy.deepcopy(item)
-    personal["observations"][0]["attributes"]["respondent_id"] = "R-1"
-    with pytest.raises(IncomeError) as refused:
-        store.apply_release(h.NS, header, [personal], run_id="r", source_id="s", retrieved_at_ms=h.FIRST_RETRIEVAL)
-    assert refused.value.code == "personal_data_refused"
-    filled = copy.deepcopy(item)
+    record = _headcount()
+    item = record["income_item"]
+    check_item(item)
+    leaky = json.loads(json.dumps(item))
+    leaky["observations"][0]["attributes"]["household_id"] = "HH-1"
+    with pytest.raises(IncomeError) as caught:
+        check_item(leaky)
+    assert caught.value.code == "personal_data"
+    filled = json.loads(json.dumps(item))
     filled["observations"][0]["gap_filled"] = True
+    with pytest.raises(IncomeError) as caught:
+        check_item(filled)
+    assert caught.value.code == "derived_value"
+    no_line = json.loads(json.dumps(item))
+    no_line["poverty_line"] = None
     with pytest.raises(IncomeError):
-        store.apply_release(h.NS, header, [filled], run_id="r", source_id="s", retrieved_at_ms=h.FIRST_RETRIEVAL)
-    assert store.find_series(h.NS) == []
+        check_item(no_line)
+    header = record["income_release"]
+    result = h.store(conn).apply_release(h.NS, header, [leaky], source_id="x", run_id="r", principal_id="svc",
+                                         scopes=h.SCOPES, retrieved_at_ms=h.FIRST_RETRIEVAL)
+    assert result["rejected"][0]["code"] == "personal_data" and result["vintages"] == 0
 
 
-def test_changed_values_without_a_new_release_clock_are_refused():
+def test_writes_and_reads_need_scopes():
     conn = h.connection()
-    store = IncomeStore(conn)
-    record = h.fetch("eusilc")[0][0]
-    header, item = dict(record["income_release"]), copy.deepcopy(record["income_item"])
-    header["item_count"] = 1
-    store.apply_release(h.NS, header, [item], run_id="r", source_id="s", retrieved_at_ms=h.FIRST_RETRIEVAL)
-    item["observations"][0]["value"] = item["observations"][0]["value_text"] = "99.9"
-    header["file_sha256"] = "f" * 64
-    with pytest.raises(IncomeError) as conflict:
-        store.apply_release(h.NS, header, [item], run_id="r2", source_id="s", retrieved_at_ms=h.SECOND_RETRIEVAL)
-    assert conflict.value.code == "vintage_conflict"
-    live = {**header, "evidence_origin": "live", "file_sha256": "e" * 64, "published_on": "2100-06-01",
-            "published_at": None}
-    with pytest.raises(IncomeError) as future:
-        store.apply_release(h.NS, live, [item], run_id="r3", source_id="s", retrieved_at_ms=h.SECOND_RETRIEVAL)
-    assert "after its retrieval" in str(future.value)
-
-
-def test_readiness_reports_features_live_state_and_minimisation(conn):
-    report = readiness(conn)
-    assert report["stores_ready"] and report["providers"]["pip"]["releases"] == 6
-    assert {p["live_verification"] for p in report["providers"].values()} == {"unverified-live"}
-    assert {p["live_releases"] for p in report["providers"].values()} == {0}
-    assert report["providers"]["eu-silc"]["feature_state"] == "unmanaged"
-    assert report["minimisation"]["who_may_query"]
+    header = h.fetch("pip")[0][0]["income_release"]
+    item = h.fetch("pip")[0][0]["income_item"]
+    with pytest.raises(IncomeError) as caught:
+        h.store(conn).apply_release(h.NS, header, [item], source_id="x", run_id="r", principal_id="svc",
+                                    scopes=h.READ_ONLY)
+    assert caught.value.code == "unauthorized"

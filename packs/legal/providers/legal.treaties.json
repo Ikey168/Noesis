@@ -3,7 +3,7 @@
   "id": "legal.treaties",
   "version": "1.0.0",
   "implementation": {
-    "name": "src.kb.treaties_store",
+    "name": "src.kb.treaties_records",
     "version": "1.0.0",
     "server": "noesis-knowledge-engine"
   },
@@ -12,16 +12,16 @@
       "id": "legal.treaties",
       "contract": {
         "name": "noesis-treaty-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
         "treaties-source-contracts",
         "treaties-readiness",
-        "lookup-treaties",
+        "lookup-treaty",
+        "treaty-record-history",
         "treaty-status-as-of",
         "participant-treaty-actions",
         "treaty-reservations-and-objections",
-        "treaty-revision-history",
         "export-treaty-evidence-bundle",
         "list-treaty-identity-candidates",
         "propose-treaty-matches",
@@ -34,14 +34,13 @@
         "poll-treaties-monitor"
       ],
       "semantic_constraints": {
-        "records": "treaties and treaty actions (signature, consent to be bound, accession, succession, reservation, declaration, objection, withdrawal, denunciation, entry into force) as the depositary or publisher published them; every depositary update, correction or removal is a new revision with the source's revision stamp, never an overwrite or deletion",
-        "sources": "UN Treaty Collection (declined pending written permission; the adapter fetches nothing), EU international agreements from CELLAR through the Legal CELLAR adapter, Council of Europe Treaty Office charts and declarations; each is a separate optional feature",
-        "verbatim": "reservations, declarations, objections and footnotes are quoted verbatim with their source anchors; an objection is linked to a reservation only where the source links it",
-        "as_of": "as-of answers select actions by the action and effective dates as published; pending and unclear items are returned as such with the source text; each item cites its revision",
-        "identity": "participants match places by published ISO 3166-1 codes first, then the exact name of a coded place, through reviewable, reversible candidates; treaties match across sources through published cross-references only; nothing is merged or auto-accepted",
-        "links": "EU acts, sanctions legal bases and trade reporters are linked by citation, shared identifier or accepted match only; missing providers and targets are reported",
-        "minimisation": "no natural-person field (signatory, representative, contact) is stored or returned; treaty texts are linked, not stored",
-        "exclusions": "no legal advice, no inference of obligations or compliance, no interpretation of the legal effect of reservations, no treaty-text redistribution beyond what each source licenses"
+        "records": "treaties, language expressions, participants, treaty actions and statements exactly as the UN Treaty Collection, CELLAR and the Council of Europe Treaty Office publish them; every record carries its source, record revision and as-of time; depositary corrections are new revisions and rows a source no longer shows are removed-by-source revisions, never deletions",
+        "as_of": "a participant's status at a date is selected by the action, deposit and effective dates as published; pending and unclear statuses are returned with the source text and answers cite the depositary revision; nothing is inferred",
+        "statements": "reservations, declarations, objections and notes are kept verbatim with their anchors, linked to the action and to the objected reservation only where the source links them",
+        "minimisation": "TR01: no natural person is a field, a key, a match or a monitor target; contact details in declarations are withheld at ingestion and any personal field is refused at write time",
+        "identity": "participants match places and each other through reviewable, reversible candidates (published ISO codes before names); treaties match across sources through published cross-references only; nothing is merged or auto-accepted",
+        "links": "Legal works, sanctions legal bases and Trade flows reporters are linked by citation, shared identifier or accepted match only, pointing at record revisions; missing providers and targets are reported",
+        "exclusions": "no legal advice, no inference of obligations or compliance, no interpretation of the legal effect of reservations, no treaty-text redistribution beyond what each source licenses (texts are linked)"
       }
     }
   ],
@@ -71,8 +70,23 @@
       "required_context": []
     },
     {
-      "id": "lookup-treaties",
-      "tool": "noesis-knowledge-engine.lookup_treaties",
+      "id": "lookup-treaty",
+      "tool": "noesis-knowledge-engine.lookup_treaty",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "treaties",
+      "required_scopes": [
+        "knowledge:legal:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "treaty-record-history",
+      "tool": "noesis-knowledge-engine.treaty_record_history",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
@@ -94,7 +108,8 @@
       },
       "readiness_probe": "treaties",
       "required_scopes": [
-        "knowledge:legal:read"
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -109,7 +124,8 @@
       },
       "readiness_probe": "treaties",
       "required_scopes": [
-        "knowledge:legal:read"
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -131,21 +147,6 @@
       ]
     },
     {
-      "id": "treaty-revision-history",
-      "tool": "noesis-knowledge-engine.treaty_revision_history",
-      "side_effect": "read-only",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "treaties",
-      "required_scopes": [
-        "knowledge:legal:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
       "id": "export-treaty-evidence-bundle",
       "tool": "noesis-knowledge-engine.export_treaty_evidence_bundle",
       "side_effect": "read-only",
@@ -154,7 +155,8 @@
       },
       "readiness_probe": "treaties",
       "required_scopes": [
-        "knowledge:legal:read"
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -169,7 +171,8 @@
       },
       "readiness_probe": "treaties",
       "required_scopes": [
-        "knowledge:legal:read"
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -185,7 +188,8 @@
       "readiness_probe": "treaties",
       "required_scopes": [
         "knowledge:legal:read",
-        "knowledge:legal:write",
+        "knowledge:ownership:read",
+        "knowledge:ownership:write",
         "knowledge:geospatial:read"
       ],
       "required_context": [
@@ -201,8 +205,8 @@
       },
       "readiness_probe": "treaties",
       "required_scopes": [
-        "knowledge:legal:read",
-        "knowledge:legal:review"
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "required_context": [
         "namespace"
@@ -217,8 +221,8 @@
       },
       "readiness_probe": "treaties",
       "required_scopes": [
-        "knowledge:legal:read",
-        "knowledge:legal:review"
+        "knowledge:ownership:read",
+        "knowledge:ownership:review"
       ],
       "required_context": [
         "namespace"
@@ -234,7 +238,8 @@
       "readiness_probe": "treaties",
       "required_scopes": [
         "knowledge:legal:read",
-        "knowledge:legal:write"
+        "knowledge:legal:write",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -303,20 +308,11 @@
   "stores": [
     {
       "record_type": "treaty-record",
-      "store": "src.kb.treaties_store",
+      "store": "src.kb.treaties_records",
       "tables": [
+        "treaty_records",
         "treaty_revisions",
-        "treaty_action_revisions",
         "treaty_receipts"
-      ],
-      "revision_addressable": true,
-      "namespace_scoped": true
-    },
-    {
-      "record_type": "treaty-identity-candidate",
-      "store": "src.kb.treaties_identity",
-      "tables": [
-        "treaty_identity_assertions"
       ],
       "revision_addressable": true,
       "namespace_scoped": true

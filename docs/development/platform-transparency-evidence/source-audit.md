@@ -1,221 +1,186 @@
-# Platform transparency: source-contract audit, data minimisation and bounded coverage (SP01)
+# Platform transparency source audit (SP01, #2585)
 
-Tracking: #2580 · delivery issue #2585 · recorded 2026-09-30.
+Status: audited 2026-09-30 for the OSINT pack's `osint.platform-transparency`
+provider (tracker #2580, subdomain `social-platforms`, ADR-005). Machine-readable
+copy: `PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `MINIMISATION`,
+`EXCLUDED_SOURCES` and `LIVE_VERIFICATION` in
+`src/ingestion/platform_transparency_sources.py`, served by the
+`platform_transparency_source_contracts` MCP tool.
 
-This audit sets out, per source, what the OSINT pack's platform-transparency
-features (`platform-transparency-dsa`, `platform-transparency-meta`,
-`platform-transparency-google`, `platform-transparency-lumen`) may acquire,
-how, on what terms, and how personal data is minimised. It was written from a
-runtime whose egress proxy blocks most official pages. Everything below says
-which page it was read from and when; **every point marked _unverified_ could
-not be read from an official page and must be checked against the live
-documentation, the live terms and a real response before the first dated live
-run (SP14, #2650). No source is `verified-live` until that run exists.**
+**Terms were not re-verified live.** The source pages
+(`transparency.dsa.ec.europa.eu`, `www.facebook.com/ads/library/api`,
+`adstransparency.google.com`, `lumendatabase.org`) were blocked by this
+runtime's egress proxy on 2026-09-30. This audit is written from the tracker's
+references and the providers' published documentation as known without
+network access. Every endpoint, field name, value vocabulary and licence term
+marked *verify* must be checked by an operator before the dated live run of
+SP14 (#2650). No source is `verified-live`.
 
-The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
-`LIVE_VERIFICATION`, `BOUNDED_COVERAGE` and `MINIMISATION` in
-`src/ingestion/platform_transparency_sources.py`. Each source entry in
-`config/source_packs/osint.json` (`bounded-public-osint` 1.2.0) states
-`platform_transparency.live_verification: unverified-live`, and the MCP tool
-`platform_transparency_source_contracts` returns the same decisions.
+## Decisions
 
-Non-goals for every source: no user-level profiling, no collection of private
-content, no inference of coordinated behaviour and no conversion of spend or
-impression ranges into point estimates. The OSINT review gate
-(`docs/security/osint-review-gate.md`) is followed: nothing here adds a
-gated capability, `narrative_coordination` is never applied to these records,
-and no tool takes a person, handle, e-mail or IP as input.
+| Source (`source_id`) | Provider | Access decision | Live status |
+| --- | --- | --- | --- |
+| `dsa-sor-dumps` | EU DSA Transparency Database | implemented: declared daily light dumps | `unverified-live` |
+| `meta-ad-library-political` | Meta Ad Library API | implemented: declared pages, countries and windows, token required | `unverified-live` |
+| `google-political-ads` | Google political ads transparency bundle | implemented: declared advertiser ids | `unverified-live` |
+| `lumen-notices` | Lumen | implemented as a **gated** connector; researcher access not granted to this deployment | `gated-not-granted` |
 
-## Pages read
+Documented, not acquired: the Meta Ad Library *Report* (aggregates per
+advertiser and region; the per-ad API answers the bounded questions), the
+Google BigQuery dataset `bigquery-public-data.google_political_ads` (needs a
+billed Google Cloud project; same data as the bundle), the TikTok ad library
+research API (application-gated, terms forbid redistribution) and an X ads
+repository (no stable machine access).
 
-| Page | Read on | Result |
+Lumen is the one source whose terms make the intended use conditional:
+researcher access is granted by Lumen on application, and this deployment has
+none. Its connector is implemented and fixture-tested so an operator holding a
+researcher token can run it, but without `NOESIS_LUMEN_API_TOKEN` a run fails
+with `authentication_failed`, readiness reports the provider as `unavailable`
+with the reason, and **live Lumen coverage is not implemented** until access is
+granted. The `social-platforms` subdomain is covered offline by the other three
+sources.
+
+## Per-source contracts
+
+### EU DSA Transparency Database (`dsa-sor-dumps`)
+
+- **Endpoints.** Index `https://transparency.dsa.ec.europa.eu/data-download`;
+  files `https://dsa-sor-data-dumps.s3.eu-central-1.amazonaws.com/sor-{platform}-{YYYY-MM-DD}-{full|light}.zip`
+  (*verify* naming and host). Each ZIP holds CSV parts, possibly as nested ZIP
+  parts; the connector reads both. The submission API
+  (`/api/v1/statement`) is for platforms and is not used.
+- **Authentication.** None.
+- **Licence and redistribution.** Commission reuse policy (Decision
+  2011/833/EU), CC BY 4.0 for Commission data unless stated otherwise
+  (*verify* the database's own terms). Attribution: "Source: European
+  Commission, DSA Transparency Database".
+- **Rate limits.** None documented for the dump host (*verify*). One declared
+  file per unit; a file with more than 5,000 rows is `budget_exhausted`, never
+  truncated.
+- **Identifiers.** Statement `uuid` with `platform_uid`; the dump file name.
+- **Updates, corrections and removals.** Statements are immutable once
+  submitted. A dump republished with different bytes is a new `dump-release`
+  revision (the dump version is file name, variant and SHA-256 of the bytes,
+  recorded in the receipt). A statement that changes in a republished dump is a
+  new `revised` revision; one no longer present is a `not-returned` revision.
+  Nothing is deleted.
+
+### Meta Ad Library API (`meta-ad-library-political`)
+
+- **Endpoint.** `https://graph.facebook.com/{version}/ads_archive` with
+  `ad_type=POLITICAL_AND_ISSUE_ADS`, `ad_reached_countries`, `search_page_ids`,
+  `ad_delivery_date_min/max`, `ad_active_status=ALL` and an explicit `fields`
+  list (*verify* the Graph API version, here `v21.0`).
+- **Authentication and key handling.** A user access token of an
+  identity-confirmed developer account, held as the required secret
+  `NOESIS_META_AD_LIBRARY_TOKEN` and sent as `Authorization: Bearer`, never as
+  the `access_token` query parameter, in a record or in a receipt. The token
+  Meta embeds in `ad_snapshot_url` is stripped before storage; the store
+  refuses any record still carrying `access_token=`.
+- **Licence and redistribution.** Meta Platform Terms and the Ad Library API
+  terms: research and transparency use; no sale, advertising use or profiling
+  (*verify*).
+- **Rate limits.** Graph API application and business-use-case limits; HTTP 429
+  is `rate_limited` with `Retry-After` (*verify* the error codes).
+- **Paging.** Cursor paging (`paging.cursors.after`), 100 per page, at most 5
+  pages per unit; longer is `budget_exhausted`.
+- **Identifiers.** Ad archive `id`, `page_id`.
+- **Updates, corrections and removals.** Stop times and spend and impression
+  ranges change while an ad runs; a changed ad is a `revised` revision. An ad no
+  longer returned for the same declared selection is a `not-returned` revision
+  stated as an observed absence, not a stated deletion.
+
+### Google political ads (`google-political-ads`)
+
+- **Endpoint.** `https://storage.googleapis.com/transparencyreport/google-political-ads-transparency-bundle.zip`
+  (*verify*), members `google-political-ads-advertiser-stats.csv`,
+  `google-political-ads-creative-stats.csv` and
+  `google-political-ads-updated.csv` (`Report_Data_Updated_Time`, *verify*).
+- **Authentication.** None.
+- **Licence and redistribution.** Google Transparency Report data, reuse with
+  attribution (*verify*).
+- **Rate limits.** None documented. The live bundle is large: the source
+  declares the maximum byte budget (100 MB); an operator may need to raise it
+  or move to BigQuery, which is recorded rather than worked around.
+- **Identifiers.** `Advertiser_ID` (`AR…`), `Ad_ID` (`CR…`) and
+  `Public_IDs_List` as published (FEC committee ids are read from it for
+  identity).
+- **Updates, corrections and removals.** The bundle is regenerated; its refresh
+  time is stored on every record (`data_as_of`). A changed row is a `revised`
+  revision; an ad no longer listed for a declared advertiser is `not-returned`.
+  Spend ranges (`Spend_Range_Min/Max_{CUR}`) and impression buckets are stored
+  as the strings Google published.
+
+### Lumen (`lumen-notices`)
+
+- **Endpoint.** `https://lumendatabase.org/notices/search.json` with
+  `recipient_name`, a date-received facet, `per_page` and `page` (*verify*
+  the facet parameter names).
+- **Authentication and key handling.** Researcher token
+  `NOESIS_LUMEN_API_TOKEN` in the `X-Authentication-Token` header; granted by
+  Lumen on application. Not granted here (see Decisions).
+- **Licence and redistribution.** Researcher terms: research use; no
+  republication of notice bodies or URLs beyond the public notice page
+  (*verify* the terms of any granted access).
+- **Rate limits.** Per token (*verify*); at most 4 pages of 50 per unit.
+- **Identifiers.** Notice `id`.
+- **Updates, corrections and removals.** Lumen may redact or update a notice; a
+  changed notice is a `revised` revision with the redactions as published
+  (`[Private]`, `[REDACTED]` are kept verbatim and listed).
+
+## Minimisation
+
+Policy `platform-transparency-minimisation-v1` (enforced in the parser and
+again at write time by `PlatformTransparencyStore.project`, which refuses a
+record with `minimisation_violation` before anything is written).
+
+| Record | Stored | Never stored |
 | --- | --- | --- |
-| https://transparency.dsa.ec.europa.eu/ (API documentation, data download, terms) | 2026-09-30 | **Blocked** by the egress proxy; _unverified_ |
-| https://github.com/digital-services-act/transparency-database (README; `app/Models/Statement.php`, `app/Exports/StatementExportTrait.php`, `app/Services/DayArchiveService.php`, `app/Http/Controllers/DataDownloadController.php`, `routes/web.php`, `routes/api.php`, branch `main`) | 2026-09-30 | Read: the database's own published source code (GPLv2) |
-| https://www.facebook.com/ads/library/api/ and https://developers.facebook.com/docs/graph-api/reference/ads_archive/ | 2026-09-30 | **Blocked**; _unverified_ |
-| https://github.com/facebookresearch/Ad-Library-API-Script-Repository (README, `python/fb_ads_library_api.py`, `python/fb_ads_library_api_utils.py`, `python/fb_ads_library_api_cli.py`) | 2026-09-30 | Read: Meta's own example client |
-| https://adstransparency.google.com/political, https://support.google.com/adspolicy/answer/6014595, https://console.cloud.google.com/marketplace/product/transparency-report/google-political-ads, https://docs.cloud.google.com/bigquery/public-data | 2026-09-30 | **Blocked**; _unverified_ |
-| https://storage.googleapis.com/transparencyreport/google-political-ads-transparency-bundle.zip | 2026-09-30 | Read: 2,566 bytes, last modified 2022-06-02, an empty folder placeholder with no data files |
-| https://github.com/Wesleyan-Media-Project/google_ads_archive (README) | 2026-09-30 | Read: **secondary** source (a research project) for the BigQuery table and column names |
-| https://lumendatabase.org/pages/researchers and https://lumendatabase.org/pages/api_terms | 2026-09-30 | **Blocked**; _unverified_ |
-| https://github.com/berkmancenter/lumendatabase/wiki/Lumen-API-Documentation | 2026-09-30 | Read: Lumen's own API documentation |
+| Statement of reasons | platform, uuid, decision types (visibility, monetary, provision, account), decision ground and legal or terms reference, category and specification, content type and language, account type, source type, automated detection and automated decision flags, territorial scope, dates | `decision_facts`, `illegal_content_explanation`, `incompatible_content_explanation`, `puid` (the platform's content id), `source_identity` (the notifier), content URLs |
+| Ad | platform, ad id, advertiser as declared, funding entity as declared (`bylines`), delivery dates, spend and impression ranges and currency as published, languages, publisher platforms, regions and ad-level targeting as published, a token-free locator | creative bodies, link titles, captions and descriptions; `demographic_distribution`; `delivery_by_region`; access tokens |
+| Advertiser | advertiser id and names, published public ids, election labels and totals as published | — |
+| Takedown notice | id, type, title, sender, principal and recipient names as published (redactions preserved), dates, topics, jurisdictions, action taken, counts of works and URLs | notice body, work descriptions, infringing and copyrighted URLs, sender addresses, e-mail or telephone |
 
-## Access decisions
-
-| Source (source-pack id) | Provider | Delivers | Decision | Reason |
-| --- | --- | --- | --- | --- |
-| `platform-transparency-dsa-sor` | EU DSA Transparency Database, daily dumps | statements of reasons of declared platforms and days (light version) | `unverified-live` | Dump routes, versions and columns read from the database's published source code; the Commission's pages and terms were not readable |
-| `platform-transparency-meta-ads` | Meta Ad Library API (`ads_archive`) | political and issue ads of declared page ids, countries and window | `unverified-live` | Request and field names read from Meta's own example client; documentation and terms not readable; access needs Meta's identity confirmation |
-| `platform-transparency-google-political-ads` | Google political ads (BigQuery `google_political_ads`) | advertiser and creative rows of declared advertiser ids per region | `unverified-live` | The legacy download bundle is empty; column names come from a secondary source; Google's pages and terms not readable |
-| (none) | Lumen database | takedown notices | **`not-implemented`** | See below |
-
-## DSA Transparency Database
-
-* **Endpoints.** The database's routes (`routes/web.php`) serve per-platform
-  daily archives at
-  `/explore-data/download/sor-{platformSlug}-{date}-{version}.zip` and the
-  checksum at the same path with `.zip.sha1`, with `version` one of `full` or
-  `light` and `platformSlug` the platform's slugified name (`global` is the
-  whole database). The download controller answers with a redirect to the
-  archive's stored URL (`redirectToArchiveUrl`), which is on another host; the
-  source-pack runtime refuses cross-host redirects, so the storage host must be
-  verified and declared before a live run (_unverified_).
-* **Authentication.** None for dumps. The API in the repository is a
-  submission API for platforms behind authentication; the README states that a
-  research search API is "considered ... in future releases", so reads use the
-  dumps.
-* **Columns (light version).** `uuid`, `decision_visibility`,
-  `decision_visibility_other`, `end_date_visibility_restriction`,
-  `decision_monetary`, `decision_monetary_other`,
-  `end_date_monetary_restriction`, `decision_provision`,
-  `end_date_service_restriction`, `decision_account`,
-  `end_date_account_restriction`, `account_type`, `decision_ground`,
-  `decision_ground_reference_url`, `illegal_content_legal_ground`,
-  `incompatible_content_ground`, `incompatible_content_illegal`, `category`,
-  `category_addition`, `category_specification`,
-  `category_specification_other`, `content_type`, `content_type_other`,
-  `content_language`, `content_date`, `content_id_ean`, `application_date`,
-  `source_type`, `source_identity`, `automated_detection`,
-  `automated_decision`, `platform_name`, `platform_uid`, `created_at`
-  (`StatementExportTrait::headingsLight`). The full version adds the free-text
-  explanations, `territorial_scope` and `decision_facts`. Values are the
-  model's keys (for example `DECISION_GROUND_ILLEGAL_CONTENT`,
-  `AUTOMATED_DECISION_FULLY`); `automated_detection` is `Yes` or `No`. The
-  encoding of multi-valued columns inside the CSV is _unverified_; the parser
-  keeps a JSON array or a comma-separated list as published.
-* **Licence.** The Commission's reuse policy (Decision 2011/833/EU) is
-  expected to apply; the terms page could not be read (_unverified_).
-* **Rate limits.** None documented for dumps (_unverified_); one dump and one
-  checksum per unit.
-* **Revisions.** A statement is keyed by platform and `uuid`. A dump is
-  identified by platform, day and version and its published SHA-1, verified on
-  acquisition; a republished dump with another checksum is a new revision of
-  its `dump-release` record, and a changed row a new revision of the statement.
-  Statements are never deleted.
-
-## Meta Ad Library API
-
-* **Endpoint.** `https://graph.facebook.com/{version}/ads_archive` with
-  `ad_type=POLITICAL_AND_ISSUE_ADS`, `ad_reached_countries`,
-  `search_page_ids`, `ad_delivery_date_min`/`max`, `fields` and `limit`;
-  responses carry `data` and `paging` (`cursors.after`, `next`). Meta's example
-  client defaults to Graph API `v14.0`; the source declares that version and
-  the current version is _unverified_.
-* **Fields requested.** `id`, `page_id`, `page_name`, `bylines`,
-  `ad_creation_time`, `ad_delivery_start_time`, `ad_delivery_stop_time`,
-  `currency`, `spend`, `impressions`, `publisher_platforms`, `languages` (all
-  in the example client's list of valid fields). `spend` and `impressions` are
-  ranges with `lower_bound` and `upper_bound`; they are stored as published and
-  an absent upper bound stays absent.
-* **Token handling.** A user access token of a developer who completed Meta's
-  identity confirmation (required secret `NOESIS_META_AD_LIBRARY_TOKEN`), sent
-  as an `Authorization: Bearer` header (whether the Graph API accepts it is
-  _unverified_), never in a URL, receipt or record. `ad_snapshot_url` embeds
-  the token and is never stored; the locator is the public Ad Library page of
-  the ad. The pagination cursor is followed; the `next` URL (which embeds the
-  token) is not.
-* **Licence and rate limits.** Meta Platform Terms and Graph API rate limits
-  (_unverified_); at most 5 pages of 100 ads per unit.
-* **Revisions and removals.** No revision stamp is published. Each acquisition
-  of a declared unit is compared with the stored revision; changed ranges are a
-  revision; an ad that a complete listing of the same unit no longer returns
-  receives a `not-returned` revision citing the listing (the platform does not
-  say why), and a `relisted` revision if it returns. A response identical to an
-  earlier one is treated as a replay.
-
-## Google political ads
-
-* **Route.** The legacy bundle `google-political-ads-transparency-bundle.zip`
-  is an empty placeholder (read 2026-09-30), so the documented public BigQuery
-  dataset `bigquery-public-data.google_political_ads` is read through the
-  BigQuery REST API: `tables.get` for `advertiser_stats` and `creative_stats`
-  (their `lastModifiedTime` is the data refresh date) and two fixed,
-  parameterised `jobs.query` POSTs per unit (`@advertiser_id`, `@region`).
-* **Columns.** From the secondary source: `advertiser_stats` has
-  `advertiser_id`, `advertiser_name`, `public_ids_list`, `regions`,
-  `elections`, `total_creatives` and `spend_<currency>`; `creative_stats` has
-  `ad_id`, `ad_url`, `ad_type`, `regions`, `advertiser_id`, `advertiser_name`,
-  `date_range_start`, `date_range_end`, `num_of_days`, `impressions` (a
-  bucket), `first_served_timestamp`, `last_served_timestamp` and
-  `spend_range_min_<currency>`/`spend_range_max_<currency>`, plus targeting
-  columns that are never selected. All _unverified_ against Google's schema.
-* **Authentication.** An OAuth access token for the operator's own Google
-  Cloud billing project (required secret `NOESIS_GOOGLE_BIGQUERY_TOKEN`) as a
-  bearer header; query costs fall on that project (_unverified_ free tier).
-* **Licence and rate limits.** Google Cloud Public Datasets and Transparency
-  Report terms; BigQuery quotas (_unverified_).
-* **Revisions.** Stored per record: the refresh date (`source_as_of`) and the
-  refresh order. A refresh with unchanged values adds no revision (the receipt
-  records the refresh); changed values are a revision; an ad no longer returned
-  for the same advertiser and region is a `not-returned` revision. A query that
-  states more rows than one bounded page (`pageToken`) is `budget_exhausted`,
-  never truncated.
-
-## Lumen: not implemented
-
-Lumen's own API documentation (read 2026-09-30) states that searches are
-disabled without an authentication token (`X-Authentication-Token`), that
-tokens are requested from the Lumen team and are "intended for research use
-only", subject to the API Terms of Use, and that requests are throttled at
-about one request per second. **Decision: not implemented.** No research token
-has been granted to this deployment, the API Terms of Use and the researcher
-page could not be read, so it cannot be established that storing and citing
-notice fields is permitted; notices name senders and recipients who may be
-individuals. No source-pack entry exists. The `takedown-notice` record kind
-and its minimisation rule are defined (sender stored only when Lumen publishes
-an organisation, redactions kept verbatim, never the notice body or infringing
-URLs) so that a granted access can be added without a new store; the
-`platform-transparency-lumen` feature adds no source.
-
-## Data-minimisation decision
-
-* **Stored.** Statements of reasons: `uuid`, platform name, decision type
-  fields and end dates, account type as published, decision ground and its
-  reference URL, legal or contractual ground, category fields, content type,
-  language and date, product EAN, application date, automated detection and
-  automated decision as published, `created_at`. Ads: ad id, page id and page
-  name (advertiser as declared), `bylines` (funding entity as declared),
-  delivery dates, spend and impression ranges with currency as published,
-  publisher platforms, languages; Google advertiser ids and names, published
-  identifiers, ad type, regions, date range, impression bucket and spend range.
-* **Never stored.** `platform_uid`/`puid` (the platform's identifier of the
-  user's content or account), `source_identity` (the notifier), decision facts
-  and free-text explanations, `*_other` free text, territorial scope rows,
-  creative text and `ad_snapshot_url`, demographic, regional and audience-size
-  breakdowns, age, gender and geographic targeting, any user, viewer or
-  account identifier, takedown-notice bodies and infringing URLs. They are
-  dropped by the parser before any record, document or receipt exists and
-  listed under `minimisation.withheld`; the store refuses a record carrying one
-  (`minimisation_violation`), and MCP tools refuse an output carrying one.
-* **Ranges.** Stored as the published bounds and bucket text; never converted
-  to a midpoint, a sum of midpoints or any other point estimate; no answer
-  sums spend.
-* **Persons.** Advertisers and funding entities are legally required public
-  disclosures and are stored as declared. They are matched only to
-  organisational records (committees, regulated entities, party lists,
-  lobbying registrants and clients, legal entities); election candidate
-  records and other natural persons are never targets.
-* **Retention.** Retained with their source revision; no user identifier is
-  stored, so nothing user-level remains to purge; no automatic expiry in the
-  first coverage.
-* **Who may query.** `knowledge:osint:platform-transparency:read` with
-  namespace access; identity review needs `knowledge:ownership:review`. No
-  scope returns a withheld field.
+- **Individuals.** No stored field identifies a user of a platform.
+  Advertisers and funding entities are stored as the platform published its
+  political-ad disclosure. Identity matching targets organisation records only
+  (campaign-finance committees and regulated entities, lobbying registrants and
+  clients, Corporate Ownership legal entities); a natural-person record (a
+  campaign-finance or elections candidate) is never a target, so a page named
+  after a person stays unmatched.
+- **Retention.** Revisions are retained with their source run; the stored
+  fields carry no personal identifier, so nothing personal remains to purge.
+  No automatic expiry in the first coverage.
+- **Who may query.** `knowledge:osint:platform-transparency:read` (with
+  namespace access) for statements, ads and advertisers. Lumen notices also
+  need `knowledge:osint:platform-transparency:notices:read`; without it they
+  are counted, never returned.
 
 ## Bounded first coverage
 
-* **DSA.** Light daily dumps of the platforms and days named in the selection
-  (at most 31 platform-days per source, 20,000 statements per dump, larger is
-  `budget_exhausted`); the `global` dump is refused as unbounded. Counts are
-  computed over stored records only and state the window, the days without a
-  stored dump and the dump versions used.
-* **Meta.** At most 10 page ids per unit, declared countries and a delivery
-  window of at most 366 days, at most 5 pages of 100 ads.
-* **Google.** Declared advertiser ids per region, at most 500 creatives each.
-* **Elections.** Reached only through accepted identity matches with party
-  lists or with campaign-finance committees whose filings the campaign-finance
-  feature has linked to a contest.
+- **DSA:** declared (platform, day) light dumps, at most 20 units per source
+  and 5,000 statements per unit. Moderation counts are computed only over
+  stored statements and state the stored window, the days without a dump and
+  the dump versions used. Justification: daily dumps of large platforms run to
+  millions of rows; a bounded first coverage picks platforms and days whose
+  files fit the unit bound.
+- **Meta:** declared pages with reached countries and a delivery window of at
+  most 366 days, at most 20 units and 500 ads per unit; an optional declared
+  elections id per unit.
+- **Google:** at most 20 declared advertiser ids from one bundle and 2,000
+  creative rows; advertiser election labels mapped to elections ids only where
+  the selection declares the mapping.
+- **Lumen:** one declared recipient platform and at most 92 days per unit,
+  under researcher access only.
 
-The first coverage in `config/source_packs/osint.json` names synthetic
-placeholder platforms, pages and advertisers; the SP14 live run replaces them
-with a declared real selection and records the outcome per source.
+The offline fixtures (`tests/fixtures/platform_transparency/`) are authored in
+each provider's documented shape and name fictional platforms (Exampla Social,
+Northwind Video), pages, advertisers and notices only.
+
+## Exclusions
+
+No user-level profiling, no collection of private content, no inference of
+coordinated behaviour and no conversion of spend or impression ranges into
+point estimates. Answers never contain midpoints or sums of ranges; monitors
+report record changes, not assessments.

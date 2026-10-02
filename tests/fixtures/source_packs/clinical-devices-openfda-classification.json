@@ -1,0 +1,25 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\n  \"terms\": \"https://open.fda.gov/terms/\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"last_updated\": \"2025-06-30\",\n  \"results\": {\n   \"skip\": 0,\n   \"limit\": 1,\n   \"total\": 1\n  }\n },\n \"results\": [\n  {\n   \"product_code\": \"ZXA\",\n   \"device_name\": \"Pump, Infusion (fictional)\",\n   \"device_class\": \"2\",\n   \"regulation_number\": \"880.9999\",\n   \"medical_specialty_description\": \"General Hospital\",\n   \"review_panel\": \"HO\",\n   \"submission_type_id\": \"1\",\n   \"implant_flag\": \"N\",\n   \"life_sustain_support_flag\": \"N\",\n   \"gmp_exempt_flag\": \"N\",\n   \"definition\": \"A fictional device type used in Noesis fixtures.\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/classification.json?limit=1&search=product_code%3A%22ZXA%22",
+   "status": 200
+  },
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\n  \"terms\": \"https://open.fda.gov/terms/\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"last_updated\": \"2025-06-30\",\n  \"results\": {\n   \"skip\": 0,\n   \"limit\": 1,\n   \"total\": 1\n  }\n },\n \"results\": [\n  {\n   \"product_code\": \"ZXB\",\n   \"device_name\": \"Electrode, Pacemaker, Permanent (fictional)\",\n   \"device_class\": \"3\",\n   \"regulation_number\": \"870.9999\",\n   \"medical_specialty_description\": \"Cardiovascular\",\n   \"review_panel\": \"CV\",\n   \"submission_type_id\": \"2\",\n   \"implant_flag\": \"Y\",\n   \"life_sustain_support_flag\": \"Y\",\n   \"gmp_exempt_flag\": \"N\",\n   \"definition\": \"A fictional device type used in Noesis fixtures.\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/classification.json?limit=1&search=product_code%3A%22ZXB%22",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

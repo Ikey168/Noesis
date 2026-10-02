@@ -1,29 +1,35 @@
-"""Income, poverty and inequality sources for the Society bundle's ``society.income`` provider (#2583, IP01, IP03-IP05).
+"""Income, poverty and inequality sources for the Society bundle's ``society.income`` provider (#2583).
 
-Three providers are recorded under an access contract (:data:`PROVIDER_CONTRACTS`), each a format of the
-``income-distribution`` source-pack connector:
+IP01 (#2588) source contracts and IP03-IP05 (#2598, #2603, #2608) acquisition. One native source-pack connector,
+``income-distribution``, driven by :mod:`src.ingestion.source_pack_runtime` with the ``society-income-distribution``
+source pack (``config/source_packs/society.json``). Each source declares one provider and a bounded list of
+documents; the adapter fetches one declared document per page and returns one *release* (a header and one item per
+series) that :class:`src.kb.income_distribution_store.IncomeDistributionProjector` appends as series vintages.
 
 * **World Bank PIP** (``pip``, format ``pip-json``) - the Poverty and Inequality Platform API (``/pip`` country
-  estimates, ``/pip-grp`` regional aggregates), JSON. A document names one country or region, one poverty line and
-  the PPP round (``ppp_version``) and pins the PIP release (``version``, e.g. ``20260801_2017_01_02_PROD``). Each PIP
-  release and each PPP round is a separate vintage; the welfare type (income or consumption), the survey year, the
-  survey acronym and PIP's own estimation label (survey-year estimate or interpolated/extrapolated reference-year
-  "lineup" estimate) are stored per value exactly as PIP labels them.
-* **Eurostat EU-SILC** (``eu-silc``, format ``eurostat-sdmx-csv``) - EU-SILC datasets (``ilc_*``) through the
-  existing :class:`~src.ingestion.connectors.dataset.sdmx.SDMXConnector` ESTAT SDMX-CSV path; ``LAST UPDATE`` dates
-  the release, ``OBS_FLAG`` letters are stored verbatim per value, the survey year and the income reference year
-  are kept distinct, and the at-risk-of-poverty threshold rule and the modified OECD equivalence scale are recorded
-  as definitions.
-* **OECD Income Distribution Database** (``oecd-idd``, format ``oecd-sdmx-csv``) - the OECD Data Explorer IDD
-  dataflow through the same connector (provider ``OECD``); the income definition, methodology (terms of reference)
-  and dataflow version are stored per series, and breaks become comparability notes. OECD values are never mixed
-  with EU-SILC values, even where the OECD figure rests on the same survey.
+  estimates, ``/pip-grp`` regional aggregates). Each document pins a ``release_version``
+  (``YYYYMMDD_<PPP year>_<revision>_PROD``) and a ``ppp_version``; a series is keyed by country or region,
+  reporting level, welfare type (income or consumption), poverty line and its PPP base year. Survey-year estimates
+  and PIP's interpolated or extrapolated reference-year (line-up) estimates are distinguished per value exactly as PIP
+  labels them (``estimation_type``, ``is_interpolated``, ``survey_year``); nothing is filled here.
+* **Eurostat EU-SILC** (``eurostat-silc``, format ``eurostat-silc-sdmx-csv``) - EU-SILC datasets (``ilc_li02``
+  at-risk-of-poverty rate, ``ilc_di12`` Gini coefficient, ``ilc_di11`` S80/S20, ``ilc_di03`` mean and median
+  equivalised net income, ``ilc_li01`` at-risk-of-poverty thresholds) through the existing SDMX connector's ESTAT
+  SDMX-CSV path. The dataflow version and ``OBS_FLAG`` letters (``b`` break, ``p`` provisional, ``e`` estimated,
+  ``u`` low reliability, ``c`` confidential) are stored per value; the at-risk-of-poverty threshold and the modified
+  OECD equivalence scale are recorded as definitions; the survey year (``TIME_PERIOD``) and the income reference year
+  (the declared offset Eurostat documents, with stated country exceptions) are kept distinct.
+* **OECD Income Distribution Database** (``oecd-idd``, format ``oecd-idd-sdmx-csv``) - the IDD dataflow on the OECD
+  Data Explorer through the same connector (provider ``OECD``). The income definition and the methodology version
+  (the IDD terms of reference, e.g. the 2012 income definition) are part of every series key and definition; series
+  breaks (``OBS_STATUS`` ``B``) become source-stated comparability notes. OECD series are never mixed with EU-SILC
+  series even where the underlying survey is the same: provider and key differ, and the declared underlying survey is
+  recorded as a note only.
 
 Every provider is ``unverified-live`` until a dated live run (``docs/development/income-distribution-evidence/``);
-endpoint, parameter and field names marked *verify* come from the providers' documentation as recorded in the source
-audit. The sources publish aggregate statistics only; the data-minimisation decision (:data:`MINIMISATION`) keeps
-any person- or household-level field out of every record. Nothing here nowcasts, fills a year, sets its own poverty
-line, blends PIP, EU-SILC and OECD figures into one series or re-harmonises a welfare concept.
+endpoint, parameter and field names marked *verify* come from the providers' public documentation, not from a live
+response. Nothing here nowcasts, fills a year, sets a poverty line of its own, blends PIP, EU-SILC and OECD figures
+or re-harmonises welfare concepts.
 """
 
 from __future__ import annotations
@@ -32,8 +38,9 @@ import hashlib
 import json
 import re
 from collections.abc import Callable, Mapping, Sequence
-from datetime import UTC, date, datetime
+from datetime import date
 from decimal import Decimal, InvalidOperation
+from itertools import pairwise
 from typing import Any
 from urllib.parse import parse_qsl, urlencode, urlsplit
 
@@ -42,245 +49,165 @@ from src.ingestion.source_packs import SourcePackError
 CONNECTOR = "income-distribution"
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
 RELEASE_CONTRACT = "noesis-income-distribution-release-v1"
+AUDIT = "docs/development/income-distribution-evidence/source-audit.md"
+FIXTURE_SECRET = None
+PROVIDERS = ("pip", "eurostat-silc", "oecd-idd")
+FORMATS = {
+    "pip-json": {"provider": "pip"},
+    "eurostat-silc-sdmx-csv": {"provider": "eurostat-silc"},
+    "oecd-idd-sdmx-csv": {"provider": "oecd-idd"},
+}
+PROVIDER_HOSTS = {"pip": "api.worldbank.org", "eurostat-silc": "ec.europa.eu", "oecd-idd": "sdmx.oecd.org"}
+SDMX_PROVIDERS = {"eurostat-silc": "ESTAT", "oecd-idd": "OECD"}
 NEVER_SENTENCE = (
     "Published income, poverty and inequality figures as each source released them: PIP, EU-SILC and OECD side by "
-    "side with their welfare concept, equivalence scale, poverty line and PPP round, never blended or re-harmonised; "
-    "no nowcast, no filled year and no poverty line of our own."
+    "side with their own definitions, never blended or re-harmonised; no nowcast, no filled year and no poverty line "
+    "of our own."
 )
 EXCLUSIONS = (
-    "nowcasting poverty or inequality",
+    "nowcasting income, poverty or inequality figures",
     "filling years a source did not publish",
-    "setting or applying poverty lines no source published",
+    "poverty lines of our own (only the lines a source publishes)",
     "blending PIP, EU-SILC and OECD figures into one series",
-    "re-harmonising welfare concepts, equivalence scales or PPP rounds",
-    "deriving indicators (rates, shares or ratios) that no source published",
-    "person- or household-level microdata",
+    "re-harmonising welfare concepts, equivalence scales or income definitions",
+    "deriving indicators (rates, ratios, shares or counts) that no source published",
+    "person-level or household-level microdata",
 )
-# IP01 data-minimisation decision: aggregate published statistics only.
-MINIMISATION = {
-    "decision": "store aggregate published statistics only; no person-, household- or respondent-level field is "
-    "stored, logged or returned",
-    "stored": [
-        "published aggregate values with their flags, labels and notes",
-        "survey metadata as published (survey acronym, survey year, coverage, welfare type, estimation label)",
-        "release, retrieval and file digests",
-    ],
-    "excluded": [
-        "EU-SILC, LIS or national survey microdata (research-contract access; out of scope)",
-        "PIP percentile or distribution files beyond the declared aggregate indicators",
-        "any field naming or identifying a person, household or respondent",
-    ],
-    "redacted": "nothing: no personal field is admitted, so nothing needs redaction; a record carrying one is "
-    "refused at write time (personal_data_refused)",
-    "retention": "every retained vintage is kept as published provenance; removals by the source are recorded as "
-    "revisions, never deletions",
-    "who_may_query": "principals with knowledge:income:read and namespace read access; writes need "
-    "knowledge:income:write, reviews knowledge:income:review",
+CONCEPTS = (
+    "poverty_headcount",
+    "poverty_gap",
+    "gini",
+    "quintile_share_ratio",
+    "income_share",
+    "mean_income",
+    "median_income",
+    "poverty_threshold",
+)
+WELFARE_CONCEPTS = ("income", "consumption", "mixed")
+EQUIVALENCE_SCALES = ("per-capita", "modified-oecd", "square-root")
+LINE_BASES = ("absolute-ppp", "relative-median", "relative-mean")
+ESTIMATION_TYPES = ("survey", "interpolation", "extrapolation", "regional-line-up", "not-stated")
+STATUSES = ("reported", "confidential", "not_published")
+# Hard ceilings the adapter enforces on top of the source-pack budgets.
+CAPS = {"documents": 12, "pip_rows": 400, "sdmx_series": 60, "years": 40}
+BOUNDED_COVERAGE = {
+    "pip": "Germany (DEU) national estimates and the Europe and Central Asia (ECA) regional aggregate at the "
+           "international poverty line of the pinned PPP round, one release per document, every year PIP returns "
+           "without fill_gaps beyond PIP's own line-up (fill_gaps is declared per document)",
+    "eurostat-silc": "Germany (DE) country figures for ilc_li02 (60 % of median threshold, total population), "
+                     "ilc_di12 (Gini), ilc_di11 (S80/S20), ilc_di03 (median equivalised net income) and ilc_li01 "
+                     "(threshold, single person), from a declared start period",
+    "oecd-idd": "Germany (DEU) Gini of disposable income and the relative poverty rate (50 % of median) under the "
+                "current income definition and methodology, from a declared start period",
 }
-PERSONAL_KEYS = frozenset({
-    "person_id", "personal_id", "household_id", "hh_id", "respondent", "respondent_id", "name", "first_name",
-    "last_name", "surname", "full_name", "address", "street", "postcode", "zip", "email", "phone", "birth_date",
-    "date_of_birth", "national_id", "microdata", "individual_income", "household_income_record",
-})
-
-PROVIDER_HOSTS = {"pip": {"api.worldbank.org"}, "eu-silc": {"ec.europa.eu"}, "oecd-idd": {"sdmx.oecd.org"}}
-SDMX_PROVIDERS = {"eu-silc": "ESTAT", "oecd-idd": "OECD"}
-PIP_PATHS = {"pip": "country estimates", "pip-grp": "regional and global aggregates"}
-PIP_PARAMETERS = ("country", "year", "povline", "fill_gaps", "ppp_version", "version", "welfare_type",
-                  "reporting_level", "group_by", "format")
-PIP_INDICATORS = {
-    "headcount": {"concept": "poverty_headcount_ratio", "measure": "share",
-                  "label": "Poverty headcount ratio at the poverty line (share of population)",
-                  "unit": {"code": "share", "label": "share of population (0-1)"}},
-    "poverty_gap": {"concept": "poverty_gap_index", "measure": "index",
-                    "label": "Poverty gap index at the poverty line", "unit": {"code": "share", "label": "index (0-1)"}},
-    "gini": {"concept": "gini_index", "measure": "index", "label": "Gini index of the welfare distribution",
-             "unit": {"code": "index01", "label": "index (0-1)"}},
-    "mean": {"concept": "mean_welfare", "measure": "mean", "label": "Mean welfare per person per day",
-             "unit": {"code": "usd_ppp_day", "label": "PPP dollars per person per day"}},
-    "median": {"concept": "median_welfare", "measure": "median", "label": "Median welfare per person per day",
-               "unit": {"code": "usd_ppp_day", "label": "PPP dollars per person per day"}},
-    "decile10": {"concept": "income_share", "measure": "share", "label": "Welfare share held by the top decile",
-                 "unit": {"code": "share", "label": "share of total welfare (0-1)"}},
-}
-# PIP fields kept per value (as PIP labels them; verify names against a live response).
-PIP_VALUE_ATTRIBUTES = ("survey_year", "survey_acronym", "survey_coverage", "welfare_type", "estimation_type",
-                        "is_interpolated", "survey_comparability", "comparable_spell", "distribution_type", "ppp",
-                        "cpi", "reporting_level")
-MONETARY_UNITS = {"usd_ppp_day"}
-
 PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     "pip": {
-        "delivers": "World Bank PIP country poverty and inequality estimates (survey-year and interpolated "
-        "reference-year estimates) and regional aggregates at stated poverty lines and PPP rounds",
-        "access_decision": "unverified-live",
-        "reason": "documented public JSON API without authentication; not yet run live from this runtime (the audit "
-        "could not fetch pip.worldbank.org/api from this environment)",
-        "access": "api (PIP API v1, JSON; /pip country estimates and /pip-grp aggregates; verify)",
+        "publisher": "World Bank, Poverty and Inequality Platform (PIP)",
+        "delivers": "country and regional poverty headcounts, poverty gaps, Gini, mean and median welfare and "
+                    "decile shares at stated poverty lines and PPP rounds",
+        "access": "api (PIP API v1: /pip/v1/pip country estimates, /pip/v1/pip-grp regional aggregates, "
+                  "/pip/v1/versions release list; JSON via format=json) - verify",
         "entry_points": [
-            ("https://api.worldbank.org/pip/v1/pip?country={ISO3}&year=all&povline={line}&fill_gaps={bool}"
-             "&ppp_version={YYYY}&version={release}&format=json (verify)"),
+            ("https://api.worldbank.org/pip/v1/pip?country={ISO3}&year=all&povline={line}&ppp_version={2017|2021}"
+             "&release_version={version}&fill_gaps={true|false}&format=json (verify)"),
             ("https://api.worldbank.org/pip/v1/pip-grp?country={REGION}&year=all&povline={line}&group_by=wb"
-             "&ppp_version={YYYY}&version={release}&format=json (verify)"),
-            "https://api.worldbank.org/pip/v1/versions (release list; verify)",
+             "&ppp_version={...}&release_version={...}&format=json (verify)"),
+            "https://api.worldbank.org/pip/v1/versions (verify)",
         ],
         "authentication": "none",
-        "rate_limits": "no published quota found (verify); each run is bounded by the declared documents, max_pages "
-        "and max_results",
-        "identifiers": {
-            "countries": "country_code as ISO 3166-1 alpha-3",
-            "regions": "region_code as World Bank region codes (e.g. SSF, EAP, WLD; verify)",
-            "release": "version string {YYYYMMDD}_{PPP year}_{PPP revision}_{data revision}_{PROD} (verify); the "
-            "release date and PPP round are read from it",
-        },
-        "indicators": {k: v["label"] for k, v in PIP_INDICATORS.items()},
-        "welfare_concepts": "welfare_type per survey: income or consumption, as PIP states; never converted",
-        "equivalence_scale": "per-capita welfare (no equivalence scale), as PIP documents (verify)",
-        "poverty_lines": "the declared povline in PPP dollars per person per day of the declared PPP round "
-        "(e.g. 2.15 in 2017 PPP); no other line is ever computed",
-        "estimation_labels": "estimation_type / is_interpolated per value: survey-year estimate versus interpolated "
-        "or extrapolated reference-year estimate, stored as PIP labels them (verify field names)",
-        "update_cadence": "PIP releases (typically March and September; verify) and PPP-round changes",
-        "temporal_semantics": "the pinned release version dates the vintage; reporting_year is the reference year and "
-        "survey_year the survey year, kept distinct",
-        "release_signals": "/versions endpoint and the version string of each release (verify)",
-        "revision_model": "each PIP release and each PPP round or PPP revision is a new vintage; a PPP revision "
-        "restating past values is never an overwrite",
-        "terms": "CC BY 4.0 (World Bank dataset terms of use; verify on the PIP site)",
-        "retained_evidence": "raw JSON per request (file digest) with every kept field verbatim",
-        "coverage": "declared countries, regions, poverty lines, PPP rounds and releases only",
-        "unavailable_fallback": "a failed request leaves earlier vintages current and is reported in the receipt",
-        "verify": ["API base path and version", "parameter names", "response field names", "version string layout",
-                   "estimation labels", "terms"],
+        "key_handling": "no key; nothing secret is stored or sent",
+        "licence": "CC BY 4.0 (World Bank open data terms; verify) with the PIP citation and release version",
+        "redistribution": "attribution-required; the release version is cited with every value",
+        "rate_limits": "no published per-user quota (verify); each run requests only the declared documents, at "
+                       "most one request per document",
+        "identifiers": "country_code (ISO 3166-1 alpha-3), region_code (World Bank regions), reporting_level "
+                       "(national/urban/rural), welfare_type, survey_acronym, survey_year, reporting_year",
+        "revision_model": "a release_version (YYYYMMDD_<PPP year>_<PPP revision>_<adaptation>_PROD) is one vintage; "
+                          "a release restating past values (new survey data, a PPP revision within the round) is a "
+                          "new vintage, never an overwrite; a PPP round change is a different series (the poverty "
+                          "line's PPP base year is part of the key)",
+        "updates_corrections_removals": "PIP publishes complete releases; a series a later complete release no "
+                                        "longer contains is recorded as removed in that release (a revision)",
+        "personal_data": "none: aggregate estimates only; survey microdata are never requested",
+        "status": "unverified-live",
     },
-    "eu-silc": {
-        "delivers": "Eurostat EU-SILC at-risk-of-poverty rates, thresholds and inequality indicators by country and "
-        "NUTS region",
-        "access_decision": "unverified-live",
-        "reason": "documented dissemination API without authentication, read through the SDMX connector's ESTAT "
-        "SDMX-CSV path; not yet run live from this runtime",
-        "access": "api (Eurostat SDMX 2.1 dissemination API, SDMX-CSV with LAST UPDATE and OBS_FLAG)",
-        "entry_points": [("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{dataset}/{key}"
-                          "?format=SDMX-CSV (verify)")],
-        "sdmx_version": "SDMX 2.1 REST",
+    "eurostat-silc": {
+        "publisher": "Eurostat (EU statistics on income and living conditions, EU-SILC)",
+        "delivers": "at-risk-of-poverty rates and thresholds, Gini coefficient, S80/S20 income quintile share ratio, "
+                    "mean and median equivalised net income",
+        "access": "api (Eurostat SDMX 2.1 dissemination API, SDMX-CSV via format=SDMX-CSV) through the SDMX connector",
+        "entry_points": [
+            ("https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data/{dataset}/{key}?format=SDMX-CSV"
+             "&startPeriod={year} (verify dataset codes and key order)"),
+        ],
         "authentication": "none",
-        "rate_limits": "no published per-user limit (verify); asynchronous bulk extractions are out of scope",
-        "identifiers": {
-            "datasets": "ilc_li02 (at-risk-of-poverty rate by poverty threshold, age and sex), ilc_di12 (Gini "
-            "coefficient of equivalised disposable income), ilc_li01 (at-risk-of-poverty thresholds), ilc_li41 "
-            "(at-risk-of-poverty rate by NUTS region) - verify dimension order",
-            "areas": "geo as Eurostat GEO codes (country = ISO alpha-2 except EL; NUTS 1/2 codes)",
-        },
-        "welfare_concepts": "equivalised disposable income (income concept only)",
-        "equivalence_scale": "modified OECD scale (1.0 first adult, 0.5 other persons aged 14 and over, 0.3 children "
-        "under 14), recorded as definition",
-        "poverty_lines": "at-risk-of-poverty threshold: 60 % of the national median equivalised disposable income "
-        "after social transfers (other shares where declared); thresholds acquired as published series (ilc_li01)",
-        "reference_years": "TIME_PERIOD is the survey year; the income reference year is the previous calendar year "
-        "for most countries (declared per document; verify per country)",
-        "flags": "OBS_FLAG letters stored verbatim: b break in time series, p provisional, e estimated (by the "
-        "publisher), u low reliability, c confidential, d definition differs",
-        "update_cadence": "annual survey waves with revisions of earlier years",
-        "temporal_semantics": "the SDMX-CSV LAST UPDATE column dates the release",
-        "release_signals": "LAST UPDATE per dataset; Eurostat release calendar",
-        "revision_model": "a changed dataset with a new LAST UPDATE is a new vintage; earlier vintages stay",
-        "terms": "Eurostat reuse policy (Commission Decision 2011/833/EU): reuse with attribution",
-        "retained_evidence": "raw SDMX-CSV per request (file digest), OBS_FLAG letters and the LAST UPDATE stamp",
-        "coverage": "declared datasets, keys and periods only",
-        "unavailable_fallback": "a failed request leaves earlier vintages current",
-        "verify": ["dataset codes and key order", "LAST UPDATE format", "OBS_FLAG letters",
-                   "income reference year rule per country"],
+        "key_handling": "no key",
+        "licence": "Eurostat copyright and reuse policy (Commission Decision 2011/833/EU): reuse with "
+                   "acknowledgement of the source (verify)",
+        "redistribution": "attribution-required",
+        "rate_limits": "no published per-user quota for the dissemination API (verify); asynchronous responses for "
+                       "large extractions are out of scope (the declared keys are small)",
+        "identifiers": "dataset code, SDMX key (freq, indic_il/statinfo, unit, age, sex, geo), geo as Eurostat GEO "
+                       "codes (ISO alpha-2 except EL and UK, NUTS for regions)",
+        "revision_model": "the SDMX-CSV LAST UPDATE column dates each release; a changed dataset is a new vintage, "
+                          "the dataflow version and OBS_FLAG letters are kept per value",
+        "updates_corrections_removals": "corrections are new releases (new LAST UPDATE); a series a complete later "
+                                        "release no longer contains is recorded as removed in that release",
+        "personal_data": "none: published aggregates; EU-SILC user microdata (UDB) are excluded",
+        "status": "unverified-live",
     },
     "oecd-idd": {
-        "delivers": "OECD Income Distribution Database indicators (Gini, poverty rates at 50 % and 60 % of the "
-        "median, income levels) by country, methodology and income definition",
-        "access_decision": "unverified-live",
-        "reason": "documented SDMX REST API (.Stat Suite) without authentication; the IDD dataflow reference not yet "
-        "run live from this runtime",
-        "access": "api (OECD Data Explorer SDMX REST API, SDMX-CSV via format=csvfile)",
-        "entry_points": [("https://sdmx.oecd.org/public/rest/data/OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,{version}/{key}"
-                          "?format=csvfile (verify)")],
-        "sdmx_version": "SDMX 2.1 REST (.Stat Suite)",
+        "publisher": "OECD (Income Distribution Database, IDD)",
+        "delivers": "Gini coefficients, relative poverty rates at 50 % and 60 % of the median, income levels and "
+                    "shares per income definition and methodology",
+        "access": "api (OECD Data Explorer SDMX REST API, SDMX-CSV via format=csvfile) through the SDMX connector",
+        "entry_points": [
+            ("https://sdmx.oecd.org/public/rest/data/OECD.WISE.INE,DSD_WISE_IDD@DF_IDD,{version}/{key}"
+             "?format=csvfile&startPeriod={year} (verify the dataflow id, version and dimension order)"),
+        ],
         "authentication": "none",
-        "rate_limits": "about 20 data queries per minute per IP address (as recorded by the labour audit; verify)",
-        "identifiers": {
-            "dataflow": "OECD.WISE.INE,DSD_WISE_IDD@DF_IDD (verify version)",
-            "areas": "REF_AREA as ISO 3166-1 alpha-3 (OECD aggregates stay distinct)",
-            "dimensions": "REF_AREA, FREQ, MEASURE, STATISTICAL_OPERATION, UNIT_MEASURE, AGE, METHODOLOGY, "
-            "DEFINITION, POVERTY_LINE (verify order and codes)",
-        },
-        "welfare_concepts": "household disposable income (cash income, 2012 terms of reference from 2012 onwards)",
-        "equivalence_scale": "square root of household size, as the IDD terms of reference state",
-        "methodology": "METHODOLOGY dimension (2011 and 2012 terms of reference) and DEFINITION dimension stored per "
-        "series; a change is a break, never a continuation",
-        "update_cadence": "rolling updates, two to three times a year (OECD dataset page; verify)",
-        "temporal_semantics": "a changed response or dataflow version is a new release dated by the declared "
-        "release date, else the retrieval time (labelled)",
-        "release_signals": "dataflow version increments; IDD metadata version",
-        "revision_model": "data updates and dataflow version changes are new vintages; earlier vintages stay",
-        "terms": "OECD terms and conditions: reuse with attribution (verify)",
-        "retained_evidence": "raw SDMX-CSV per request (file digest) with the DATAFLOW column",
-        "coverage": "declared keys and periods only",
-        "unavailable_fallback": "a failed or rate-limited request leaves earlier vintages current",
-        "verify": ["dataflow reference and version", "dimension order and codes", "break flags", "rate limit"],
+        "key_handling": "no key",
+        "licence": "OECD terms and conditions; OECD data are licensed under CC BY 4.0 since July 2024 (verify)",
+        "redistribution": "attribution-required",
+        "rate_limits": "about 20 data queries per minute per IP address (verify); each run requests only the "
+                       "declared documents",
+        "identifiers": "REF_AREA (ISO 3166-1 alpha-3), MEASURE, METHODOLOGY (income-definition terms of reference), "
+                       "DEFINITION (current/previous), POVERTY_LINE, AGE (verify the dimension ids)",
+        "revision_model": "the response carries no update stamp; a changed response is a new release dated by the "
+                          "declared release date or the retrieval time (labelled); breaks (OBS_STATUS B) are "
+                          "source-stated comparability notes",
+        "updates_corrections_removals": "as Eurostat; a methodology change is a different series (the methodology "
+                                        "is part of the key), a revised value is a new vintage",
+        "personal_data": "none: published aggregates",
+        "status": "unverified-live",
     },
 }
 LIVE_VERIFICATION = {
-    provider: {
-        "status": contract["access_decision"],
-        "intended": "verified-live after a dated bounded run (IP13, #2648)",
-        "note": "no dated live run from this runtime; offline fixtures only",
-    }
-    for provider, contract in PROVIDER_CONTRACTS.items()
+    provider: {"status": "unverified-live", "checked": None, "evidence": None,
+               "note": "no dated live run yet (IP13, #2648); offline fixtures only"}
+    for provider in PROVIDERS
 }
-# Each provider is a separate optional feature of the Society bundle (IP11).
-SOURCE_FEATURES = {"pip": "pip", "eu-silc": "eu-silc", "oecd-idd": "oecd-idd"}
-BOUNDED_COVERAGE = {
-    "places": {
-        "Germany": {"pip": "DEU", "eu-silc": "DE", "oecd-idd": "DEU"},
-        "Austria": {"eu-silc": "AT"},
-        "Berlin (NUTS 2 DE30)": {"eu-silc": "DE30"},
-        "Indonesia": {"pip": "IDN (consumption; interpolated reference-year estimates)"},
-        "United States": {"oecd-idd": "USA"},
-        "Sub-Saharan Africa": {"pip": "SSF (regional aggregate)"},
-    },
-    "indicators": ["poverty headcount ratio at a stated line", "poverty gap", "Gini", "mean and median welfare",
-                   "top-decile share", "at-risk-of-poverty rate and threshold", "relative poverty rate (OECD)"],
-    "poverty_lines": {"pip": "2.15 PPP$ per day (2017 PPP)", "eu-silc": "60 % of national median equivalised "
-                      "disposable income", "oecd-idd": "50 % of median equivalised disposable income"},
-    "periods": "two to four most recent reference years per declared series",
-    "record_cap": "max_results series per response and max_pages requests per run",
-    "justification": "Germany is covered by all three sources (the side-by-side journey), a consumption-based PIP "
-    "country and a PIP region cover welfare-type and aggregate handling, Berlin covers NUTS matching, the United "
-    "States covers a non-EU OECD country; the caps keep each run within the documented budgets",
-}
-FORMATS = {
-    "pip-json": {"provider": "pip"},
-    "eurostat-sdmx-csv": {"provider": "eu-silc"},
-    "oecd-sdmx-csv": {"provider": "oecd-idd"},
-}
-CONCEPTS = (
-    "poverty_headcount_ratio",
-    "poverty_gap_index",
-    "gini_index",
-    "mean_welfare",
-    "median_welfare",
-    "income_share",
-    "income_quintile_share_ratio",
-    "poverty_threshold",
-)
-MEASURES = ("share", "rate", "index", "ratio", "mean", "median", "level")
-WELFARE_CONCEPTS = ("income", "consumption")
-# PIP's regional aggregates combine income- and consumption-based country estimates as PIP computes them.
-AGGREGATE_WELFARE = "mixed-aggregate"
-EQUIVALENCE_SCALES = ("per-capita", "modified-oecd", "square-root", "none")
-REFERENCE_YEAR_BASES = ("survey-year", "lineup-year", "income-year")
-STATUSES = ("reported", "confidential", "not_published")
-CONFIDENTIAL_FLAGS = {"c", "C"}
-BREAK_FLAGS = {"b", "B"}
+# EU-SILC OBS_FLAG letters (verify against the live code list); OECD OBS_STATUS codes.
 FLAG_ATTRIBUTES = ("OBS_FLAG", "OBS_STATUS", "CONF_STATUS")
-NOTE_ATTRIBUTES = ("NOTE", "COMMENT_OBS", "NOTE_SOURCE")
-UNIT_MULT_ATTRIBUTES = ("UNIT_MULT",)
+BREAK_FLAGS = {"b", "B"}
+CONFIDENTIAL_FLAGS = {"c", "C"}
+FLAG_MEANINGS = {
+    "b": "break in time series", "p": "provisional", "e": "estimated", "u": "low reliability", "c": "confidential",
+    "d": "definition differs", "n": "not significant", "s": "Eurostat estimate", "z": "not applicable",
+    "A": "normal value", "B": "break", "E": "estimated value", "P": "provisional value", "M": "missing value",
+}
+PIP_MEASURES = {
+    "headcount": ("poverty_headcount", "share of population below the poverty line (0-1)"),
+    "poverty_gap": ("poverty_gap", "poverty gap index (0-1)"),
+    "gini": ("gini", "Gini index (0-1)"),
+    "mean": ("mean_income", "mean welfare, PPP dollars per person per day"),
+    "median": ("median_income", "median welfare, PPP dollars per person per day"),
+    "decile10": ("income_share", "share of welfare held by the top decile (0-1)"),
+    "decile1": ("income_share", "share of welfare held by the bottom decile (0-1)"),
+}
+LINE_DEPENDENT = {"poverty_headcount", "poverty_gap"}
+MONETARY = {"mean_income", "median_income", "poverty_threshold"}
+PIP_RELEASE = re.compile(r"^(\d{8})_(\d{4})_(\d{2})_(\d{2})_[A-Z]+$")
 
 
 class IncomeFormatError(ValueError):
@@ -298,462 +225,339 @@ def digest(value: Any) -> str:
 
 
 def unverified(provider: str) -> bool:
-    return PROVIDER_CONTRACTS.get(provider, {}).get("access_decision") != "verified-live"
-
-
-def text(value: Any) -> str | None:
-    if value is None:
-        return None
-    raw = str(value).strip()
-    return raw or None
+    return LIVE_VERIFICATION.get(provider, {}).get("status") != "verified-live"
 
 
 def decimal_text(value: Any) -> str | None:
-    """A published number as exact decimal text; ``None`` for a missing or non-numeric value (never zero)."""
-    raw = text(value)
-    if raw is None:
+    if value is None:
+        return None
+    text = str(value).strip()
+    if text in {"", ":", "NaN", "nan", "None", "null"}:
         return None
     try:
-        number = Decimal(raw)
+        number = Decimal(text)
     except InvalidOperation:
         return None
-    return format(number, "f") if number.is_finite() else None
+    return format(number.normalize(), "f") if number == number.to_integral() else str(number)
 
 
-def iso_day(value: Any) -> str | None:
-    raw = text(value)
-    if raw is None:
-        return None
-    try:
-        return date.fromisoformat(raw[:10]).isoformat()
-    except ValueError:
-        return None
-
-
-def personal_keys(value: Any, path: str = "$") -> list[str]:
-    """Keys anywhere in a value that would carry person- or household-level data (IP01 minimisation)."""
-    found = []
-    if isinstance(value, Mapping):
-        for key, item in value.items():
-            if str(key).casefold() in PERSONAL_KEYS:
-                found.append(f"{path}.{key}")
-            found += personal_keys(item, f"{path}.{key}")
-    elif isinstance(value, list):
-        for index, item in enumerate(value):
-            found += personal_keys(item, f"{path}[{index}]")
-    return found
-
-
-def pip_version(version: str | None) -> dict[str, Any] | None:
-    """The PIP release version string read as release date, PPP year and revisions (layout to verify live)."""
-    raw = text(version)
-    if raw is None:
-        return None
-    match = re.fullmatch(r"(\d{8})_(\d{4})_(\d{2})_(\d{2})_([A-Z]+)", raw)
+def parse_pip_release(version: str) -> dict[str, Any]:
+    """``20980915_2017_01_02_PROD`` -> release date, PPP base year and the PPP revision label (format: verify)."""
+    match = PIP_RELEASE.fullmatch(str(version or ""))
     if not match:
-        raise IncomeFormatError("invalid_document", f"not a PIP release version: {raw!r}")
-    day = match.group(1)
-    try:
-        released = date(int(day[:4]), int(day[4:6]), int(day[6:])).isoformat()
-    except ValueError as exc:
-        raise IncomeFormatError("invalid_document", "the PIP version's release date is not a date") from exc
-    return {"version": raw, "released_on": released, "ppp_version": match.group(2),
-            "ppp_revision": match.group(3), "data_revision": match.group(4), "identity": match.group(5),
-            "layout": "{YYYYMMDD}_{PPP year}_{PPP revision}_{data revision}_{identity} (verify)"}
+        raise IncomeFormatError("invalid_release", f"PIP release_version {version!r} is not YYYYMMDD_PPP_RR_AA_TAG")
+    day, ppp_year, revision, adaptation = match.groups()
+    published = date(int(day[:4]), int(day[4:6]), int(day[6:8])).isoformat()
+    return {"published_on": published, "ppp_base_year": int(ppp_year), "ppp_revision": f"{revision}_{adaptation}"}
 
 
-# ------------------------------------------------------------------ declarations
+# ------------------------------------------------------------------ declaration
 
 
 def income_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
-    declared = dict(source.get("income_distribution") or {})
-    fmt = declared.get("format")
-    if fmt not in FORMATS or FORMATS[fmt]["provider"] != declared.get("provider"):
-        raise SourcePackError(
-            "invalid_manifest", "income-distribution sources declare a known provider and its runtime format"
-        )
-    documents = list(declared.get("documents") or [])
-    if not documents:
-        raise SourcePackError("invalid_manifest", "an income-distribution source declares its documents")
-    if len(documents) > int(dict(source.get("budgets") or {}).get("max_pages", 1)):
-        raise SourcePackError("invalid_manifest", "more declared requests than the source's page budget")
-    host = (urlsplit(source["endpoint"]).hostname or "").casefold()
-    if host not in PROVIDER_HOSTS[declared["provider"]]:
-        raise SourcePackError("invalid_manifest", "the endpoint is not the provider's documented host")
-    urls = []
+    config = dict(source.get("income_distribution") or {})
+    provider, fmt = config.get("provider"), config.get("format")
+    if provider not in PROVIDERS or FORMATS.get(str(fmt), {}).get("provider") != provider:
+        raise SourcePackError("invalid_source", "income-distribution sources declare a known provider and its format")
+    host = (urlsplit(str(source.get("endpoint") or "")).hostname or "").casefold()
+    if host != PROVIDER_HOSTS[provider]:
+        raise SourcePackError("unsafe_endpoint", f"{provider} documents are fetched from {PROVIDER_HOSTS[provider]}")
+    documents = [dict(d) for d in config.get("documents") or []]
+    if not 1 <= len(documents) <= CAPS["documents"]:
+        raise SourcePackError("unbounded_source", f"declare 1-{CAPS['documents']} documents")
     for document in documents:
         try:
-            check_document(fmt, document)
-            url = document_url(fmt, document)
-        except (IncomeFormatError, ValueError) as exc:
-            raise SourcePackError("invalid_manifest", str(exc)) from exc
-        parts = urlsplit(url)
-        if parts.scheme != "https" or (parts.hostname or "").casefold() != host:
-            raise SourcePackError("invalid_manifest", "declared documents are HTTPS resources on the endpoint's host")
-        urls.append(url)
-    if len(set(urls)) != len(urls):
-        raise SourcePackError("invalid_manifest", "each declared document is a distinct request")
-    return declared
-
-
-def _check_indicator(indicator: Mapping[str, Any]) -> None:
-    if indicator.get("concept") not in CONCEPTS or indicator.get("measure") not in MEASURES:
-        raise IncomeFormatError("invalid_document", f"an indicator states its concept ({CONCEPTS}) and measure")
-
-
-def _check_line(line: Any) -> None:
-    if line is None:
-        return
-    line = dict(line)
-    if line.get("kind") == "absolute":
-        if decimal_text(line.get("value")) is None or not text(line.get("ppp_base_year")) or not text(
-                line.get("unit")):
-            raise IncomeFormatError("invalid_document", "an absolute poverty line states its value, unit and PPP base "
-                                    "year as published")
-    elif line.get("kind") == "relative":
-        if decimal_text(line.get("share")) is None or not text(line.get("of")):
-            raise IncomeFormatError("invalid_document", "a relative poverty line states its share and reference")
-    else:
-        raise IncomeFormatError("invalid_document", "a poverty line is absolute or relative, as the source states")
+            check_document(str(fmt), document)
+        except IncomeFormatError as exc:
+            raise SourcePackError("invalid_source", f"{document.get('label')}: {exc}") from exc
+    return {"provider": provider, "format": fmt, "namespace": config.get("namespace") or "global",
+            "documents": documents, "live_verification": config.get("live_verification") or "unverified-live"}
 
 
 def check_document(fmt: str, document: Mapping[str, Any]) -> None:
-    if not text(document.get("label")):
-        raise IncomeFormatError("invalid_document", "a document has a label")
-    if personal_keys(dict(document)):
-        raise IncomeFormatError("personal_data_refused", "a document declares no person- or household-level field")
-    definition = dict(document.get("definition") or {})
-    if document.get("welfare_concept") not in WELFARE_CONCEPTS + (AGGREGATE_WELFARE,):
-        raise IncomeFormatError("invalid_document", f"a document states its welfare concept ({WELFARE_CONCEPTS})")
-    if dict(document.get("equivalence_scale") or {}).get("code") not in EQUIVALENCE_SCALES:
-        raise IncomeFormatError("invalid_document", f"a document states its equivalence scale ({EQUIVALENCE_SCALES})")
-    if document.get("reference_year_basis") not in REFERENCE_YEAR_BASES:
-        raise IncomeFormatError("invalid_document", f"a document states its reference-year basis "
-                                f"({REFERENCE_YEAR_BASES})")
-    if not text(document.get("survey")) or not text(document.get("coverage")):
-        raise IncomeFormatError("invalid_document", "a document states its survey and coverage")
-    if not text(definition.get("income_definition")):
-        raise IncomeFormatError("invalid_document", "a document states the income definition the source uses")
-    for ref in document.get("references") or []:
-        if not text(dict(ref).get("identifier")) or not text(dict(ref).get("kind")):
-            raise IncomeFormatError("invalid_document", "each reference states its kind and identifier as published")
-    release = document.get("release")
-    if release is not None and iso_day(dict(release).get("published_on")) is None:
-        raise IncomeFormatError("invalid_document", "a declared release states its publication date")
+    for key in ("label", "welfare_concept", "equivalence_scale", "definition", "references"):
+        if not document.get(key):
+            raise IncomeFormatError("invalid_document", f"a document states its {key}")
+    if document["welfare_concept"] not in WELFARE_CONCEPTS:
+        raise IncomeFormatError("invalid_document", f"welfare_concept is one of {WELFARE_CONCEPTS}")
+    if document["equivalence_scale"] not in EQUIVALENCE_SCALES:
+        raise IncomeFormatError("invalid_document", f"equivalence_scale is one of {EQUIVALENCE_SCALES}")
     if fmt == "pip-json":
-        if document.get("path") not in PIP_PATHS:
-            raise IncomeFormatError("invalid_document", f"a PIP document requests one of {sorted(PIP_PATHS)}")
         params = dict(document.get("params") or {})
-        if set(params) - set(PIP_PARAMETERS):
-            raise IncomeFormatError("invalid_document", f"PIP parameters are {PIP_PARAMETERS}")
-        for key in ("country", "povline", "ppp_version"):
-            if not text(params.get(key)):
-                raise IncomeFormatError("invalid_document", f"a PIP document states {key}")
-        if decimal_text(params["povline"]) is None:
-            raise IncomeFormatError("invalid_document", "povline is the published poverty line value")
-        version = pip_version(params.get("version"))
-        if version is not None and version["ppp_version"] != str(params["ppp_version"]):
-            raise IncomeFormatError("invalid_document", "the pinned PIP release and ppp_version name the same round")
-        indicators = list(document.get("indicators") or [])
-        if not indicators or set(indicators) - set(PIP_INDICATORS):
-            raise IncomeFormatError("invalid_document", f"a PIP document selects indicators from {sorted(PIP_INDICATORS)}")
-        if not dict(document.get("area") or {}).get("scheme"):
-            raise IncomeFormatError("invalid_document", "a PIP document names its area code scheme")
-        return
-    area = dict(document.get("area") or {})
-    if not area.get("dimension") or not area.get("scheme"):
-        raise IncomeFormatError("invalid_document", "an SDMX document names its area dimension and code scheme")
-    if document.get("indicator_dimension"):
-        spec = dict(document["indicator_dimension"])
-        if not spec.get("dimension") or not spec.get("codes"):
-            raise IncomeFormatError("invalid_document", "an indicator dimension maps its codes to indicators")
-        for indicator in dict(spec["codes"]).values():
-            _check_indicator(dict(indicator))
-            if not dict(dict(indicator).get("unit") or {}).get("label"):
-                raise IncomeFormatError("invalid_document", "each mapped indicator states its unit")
+        if document.get("endpoint") not in {"pip", "pip-grp"}:
+            raise IncomeFormatError("invalid_document", "PIP documents name the pip or pip-grp endpoint")
+        for key in ("country", "povline", "ppp_version", "release_version"):
+            if not params.get(key):
+                raise IncomeFormatError("unbounded_document", f"PIP documents pin {key}")
+        if str(params["country"]).casefold() == "all":
+            raise IncomeFormatError("unbounded_document", "PIP documents name countries or regions, never all")
+        if parse_pip_release(params["release_version"])["ppp_base_year"] != int(params["ppp_version"]):
+            raise IncomeFormatError("invalid_document", "release_version and ppp_version name different PPP rounds")
+        if not set(document.get("measures") or []) <= set(PIP_MEASURES) or not document.get("measures"):
+            raise IncomeFormatError("invalid_document", f"PIP measures are among {sorted(PIP_MEASURES)}")
     else:
-        _check_indicator(dict(document.get("indicator") or {}))
-        if not dict(document.get("unit") or {}).get("label"):
-            raise IncomeFormatError("invalid_document", "a document states its unit")
-    if document.get("poverty_line_dimension"):
-        spec = dict(document["poverty_line_dimension"])
-        if not spec.get("dimension") or "codes" not in spec:
-            raise IncomeFormatError("invalid_document", "a poverty-line dimension maps its codes to lines")
-        for line in dict(spec["codes"]).values():
-            _check_line(line)
-    else:
-        _check_line(document.get("poverty_line"))
-    if document.get("methodology_dimension"):
-        spec = dict(document["methodology_dimension"])
-        if not spec.get("dimension") or not spec.get("codes"):
-            raise IncomeFormatError("invalid_document", "a methodology dimension maps its codes to descriptions")
+        if not document.get("flow") or not document.get("key"):
+            raise IncomeFormatError("unbounded_document", "SDMX documents name a dataflow and a series key")
+        if not dict(document.get("params") or {}).get("startPeriod"):
+            raise IncomeFormatError("unbounded_document", "SDMX documents pin a start period")
+        indicator = dict(document.get("indicator") or {})
+        if indicator.get("concept") not in CONCEPTS and not document.get("measure_dimension"):
+            raise IncomeFormatError("invalid_document", f"indicator concept is one of {CONCEPTS}")
+        if fmt == "oecd-idd-sdmx-csv" and not (document.get("methodology") and document.get("income_definition")):
+            raise IncomeFormatError("invalid_document", "OECD IDD documents state the methodology and income definition")
+        if fmt == "eurostat-silc-sdmx-csv" and not document.get("income_reference"):
+            raise IncomeFormatError("invalid_document", "EU-SILC documents state the income reference period rule")
+    line = document.get("poverty_line")
+    if line is not None and dict(line).get("basis") not in LINE_BASES:
+        raise IncomeFormatError("invalid_document", f"a poverty line basis is one of {LINE_BASES}")
+
+
+def document_key(provider: str, document: Mapping[str, Any]) -> str:
+    """Identity of a declared document across releases (removal detection compares releases of one document)."""
+    if provider == "pip":
+        params = dict(document["params"])
+        return f"pip:{document['endpoint']}:{params['country']}:{params['povline']}:{params['ppp_version']}"
+    return f"{provider}:{document['flow']}:{document['key']}"
 
 
 def document_url(fmt: str, document: Mapping[str, Any]) -> str:
     if fmt == "pip-json":
-        params = {k: str(v) for k, v in dict(document.get("params") or {}).items()}
-        params.setdefault("format", "json")
-        return f"https://api.worldbank.org/pip/v1/{document['path']}?" + urlencode(sorted(params.items()))
+        params = {k: str(v).lower() if isinstance(v, bool) else str(v) for k, v in dict(document["params"]).items()}
+        params.setdefault("year", "all")
+        params["format"] = "json"
+        if document["endpoint"] == "pip-grp":
+            params.setdefault("group_by", "wb")
+        return f"https://api.worldbank.org/pip/v1/{document['endpoint']}?" + urlencode(sorted(params.items()))
     from src.ingestion.connectors.dataset.sdmx import SDMXConnector
 
     provider = SDMX_PROVIDERS[FORMATS[fmt]["provider"]]
-    url, query = SDMXConnector(provider).csv_url(
-        str(document.get("flow") or ""), str(document.get("key") or ""), dict(document.get("params") or {})
-    )
+    try:
+        url, query = SDMXConnector(provider).csv_url(str(document["flow"]), str(document["key"]),
+                                                     dict(document.get("params") or {}))
+    except ValueError as exc:
+        raise IncomeFormatError("invalid_document", str(exc)) from exc
     return url + "?" + urlencode(sorted(query.items()))
-
-
-def document_key(provider: str, document: Mapping[str, Any]) -> str:
-    """One declared request independent of its pinned release (a later PIP release of it is the same document)."""
-    params = {k: v for k, v in dict(document.get("params") or {}).items() if k != "version"}
-    return "inc-document:" + digest([provider, document.get("path"), document.get("flow"), document.get("key"),
-                                     params])[:24]
 
 
 # ------------------------------------------------------------------ parsing
 
 
-def _declared_release(document: Mapping[str, Any]) -> tuple[str | None, str | None]:
-    release = dict(document.get("release") or {})
-    return iso_day(release.get("published_on")), text(release.get("label"))
-
-
-def _definition(document: Mapping[str, Any], provider: str, indicator: Mapping[str, Any], *,
-                welfare: str, line: Mapping[str, Any] | None, methodology: str | None) -> dict[str, Any]:
-    definition = dict(document.get("definition") or {})
+def _definition(document: Mapping[str, Any], provider: str, **extra: Any) -> dict[str, Any]:
+    definition = dict(document["definition"])
     return {
         "provider": provider,
-        "indicator_code": text(indicator.get("code")),
-        "concept": indicator["concept"],
-        "measure": indicator["measure"],
-        "welfare_concept": welfare,
-        "income_definition": text(definition.get("income_definition")),
-        "equivalence_scale": dict(document["equivalence_scale"]),
-        "poverty_line": None if line is None else dict(line),
-        "reference_year_basis": document["reference_year_basis"],
-        "income_reference_rule": text(definition.get("income_reference_rule")),
-        "survey": text(document.get("survey")),
-        "coverage": text(document.get("coverage")),
-        "methodology_version": methodology or text(definition.get("methodology_version")),
-        "source_text": text(definition.get("source_text")),
-        "methodology_notes": [str(n) for n in definition.get("methodology_notes") or []],
-    }
-
-
-def _item(provider: str, document: Mapping[str, Any], *, native_key: str, dataflow: Mapping[str, Any],
-          indicator: Mapping[str, Any], unit: Mapping[str, Any], welfare: str, line: Mapping[str, Any] | None,
-          ppp_base_year: str | None, survey: str, coverage: str, area: Mapping[str, Any], dimensions: Mapping[str, Any],
-          observations: list[dict[str, Any]], source_notes: list[dict[str, Any]], methodology: str | None,
-          unit_multiplier: str | None = None) -> dict[str, Any]:
-    return {
-        "provider": provider,
-        "native_key": native_key,
-        "document_key": document_key(provider, document),
-        "dataflow": dict(dataflow),
-        "indicator": dict(indicator),
-        "definition": _definition(document, provider, indicator, welfare=welfare, line=line, methodology=methodology),
-        "welfare_concept": welfare,
-        "equivalence_scale": dict(document["equivalence_scale"]),
-        "poverty_line": None if line is None else dict(line),
-        "ppp_base_year": ppp_base_year,
-        "reference_year_basis": document["reference_year_basis"],
-        "survey": survey,
-        "coverage": coverage,
-        "methodology_version": methodology,
-        "frequency": "annual",
-        "unit": dict(unit),
-        "unit_multiplier": unit_multiplier,
-        "area": dict(area),
-        "dimensions": dict(dimensions),
-        "source_notes": source_notes,
+        "source_text": definition.get("source_text"),
+        "welfare_concept": document["welfare_concept"],
+        "equivalence_scale": document["equivalence_scale"],
+        "threshold": definition.get("threshold"),
+        "income_definition": document.get("income_definition"),
+        "methodology": document.get("methodology"),
+        "income_reference": document.get("income_reference"),
+        "methodology_notes": list(definition.get("methodology_notes") or []),
         "references": [dict(r) for r in document.get("references") or []],
-        "denominator": dict(document["denominator"]) if document.get("denominator") else None,
-        "observations": sorted(observations, key=lambda o: o["period"]),
+        **extra,
     }
 
 
-def _pip_rows(raw: bytes) -> list[dict[str, Any]]:
-    try:
-        body = json.loads(raw.decode("utf-8"), parse_float=str, parse_int=str)
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise IncomeFormatError("schema_drift", "PIP response is not JSON") from exc
-    if isinstance(body, Mapping) and isinstance(body.get("error"), (str, Mapping)):
-        raise IncomeFormatError("schema_drift", f"PIP answered with an error: {body.get('error')}")
-    rows = body if isinstance(body, list) else None
-    if rows is None or not all(isinstance(r, Mapping) for r in rows):
-        raise IncomeFormatError("schema_drift", "PIP response is not a list of rows")
-    return [dict(r) for r in rows]
+def _line(spec: Mapping[str, Any] | None, *, ppp_base_year: int | None = None) -> dict[str, Any] | None:
+    if not spec:
+        return None
+    line = {k: spec.get(k) for k in ("basis", "amount", "unit", "label")}
+    line["amount"] = decimal_text(line["amount"]) if line.get("amount") is not None else None
+    line["ppp_base_year"] = ppp_base_year if spec.get("basis") == "absolute-ppp" else None
+    return line
 
 
-def parse_pip(raw: bytes, *, document: Mapping[str, Any], url: str) -> dict[str, Any]:
-    """PIP rows as income items: one series per area, reporting level, welfare type, survey and indicator."""
-    del url
-    rows = _pip_rows(raw)
-    if not rows:
-        raise IncomeFormatError("schema_drift", "the response states no estimate")
-    if personal_keys(rows):
-        raise IncomeFormatError("personal_data_refused", "the response carries a person- or household-level field")
-    params = dict(document["params"])
-    version = pip_version(params.get("version"))
-    ppp = str(params["ppp_version"])
-    line = {"kind": "absolute", "value": decimal_text(params["povline"]), "unit": "PPP$ per person per day",
-            "ppp_base_year": ppp, "set_by": "World Bank (declared request parameter)"}
-    regional = document["path"] == "pip-grp"
-    area_spec = dict(document["area"])
-    groups: dict[tuple, list[dict[str, Any]]] = {}
-    for row in rows:
-        code = text(row.get("region_code" if regional else "country_code"))
-        year = text(row.get("reporting_year"))
-        if code is None or year is None or not re.fullmatch(r"\d{4}", year):
-            raise IncomeFormatError("schema_drift", "a PIP row lacks its area code or reporting year")
-        stated_line = decimal_text(row.get("poverty_line"))
-        if stated_line is not None and Decimal(stated_line) != Decimal(line["value"]):
-            raise IncomeFormatError("schema_drift", "a PIP row states another poverty line than requested")
-        welfare = text(row.get("welfare_type")) or (document["welfare_concept"] if regional else None)
-        if not regional and welfare not in WELFARE_CONCEPTS:
-            raise IncomeFormatError("schema_drift", "a PIP country row states its welfare type (income or consumption)")
-        level = text(row.get("reporting_level")) or ("regional" if regional else "national")
-        survey = text(row.get("survey_acronym")) or ("PIP regional aggregate" if regional else None)
-        if survey is None:
-            raise IncomeFormatError("schema_drift", "a PIP country row states its survey")
-        label = text(row.get("region_name" if regional else "country_name"))
-        groups.setdefault((code, level, welfare, survey, label), []).append(row)
-    items = []
-    for (code, level, welfare, survey, label), members in sorted(groups.items(), key=lambda g: g[0][:4]):
-        years = [str(r["reporting_year"]) for r in members]
-        if len(set(years)) != len(years):
-            raise IncomeFormatError("schema_drift", "a PIP series repeats a reporting year")
-        for name in document["indicators"]:
-            spec = PIP_INDICATORS[name]
-            indicator = {"code": name, "concept": spec["concept"], "measure": spec["measure"], "label": spec["label"]}
-            observations, spells = [], []
-            for row in sorted(members, key=lambda r: str(r["reporting_year"])):
-                value_text = text(row.get(name))
-                value = decimal_text(value_text)
-                attributes = {k: str(row[k]) for k in PIP_VALUE_ATTRIBUTES if row.get(k) not in (None, "")}
-                attributes.setdefault("welfare_type", welfare)
-                observations.append({
-                    "period": str(row["reporting_year"]),
-                    "value_text": value_text,
-                    "value": value,
-                    "status": "reported" if value is not None else "not_published",
-                    "flags": {},
-                    "attributes": attributes,
-                    "footnotes": [],
-                })
-                spells.append((str(row["reporting_year"]), attributes.get("survey_comparability")))
-            notes = []
-            breaks = [year for (year, spell), (_, before) in zip(spells[1:], spells[:-1])
-                      if spell is not None and before is not None and spell != before]
-            if breaks:
-                notes.append({"kind": "break", "attribute": "survey_comparability",
-                              "value": "PIP states a new survey comparability spell", "periods": breaks})
-            items.append(_item(
-                "pip", document,
-                native_key=f"{document['path']}:{code}:{level}:{welfare}:{survey}:{name}:{line['value']}@{ppp}",
-                dataflow={"reference": document["path"], "stated": PIP_PATHS[document["path"]],
-                          "version": None if version is None else version["version"]},
-                indicator=indicator, unit=spec["unit"], welfare=welfare, line=line if name in {
-                    "headcount", "poverty_gap"} else None,
-                ppp_base_year=ppp if spec["unit"]["code"] in MONETARY_UNITS or name in {"headcount", "poverty_gap"}
-                else None,
-                survey=survey, coverage=f"{level} ({document['coverage']})",
-                area={"scheme": area_spec["scheme"], "code": code, **({"label": label} if label else {})},
-                dimensions={"path": document["path"], "area": code, "reporting_level": level,
-                            "welfare_type": welfare, "survey": survey, "povline": line["value"], "ppp_version": ppp},
-                observations=observations, source_notes=notes, methodology=None,
-            ))
-    items.sort(key=lambda i: i["native_key"])
-    declared_on, declared_label = _declared_release(document)
-    if version is not None:
-        published_on, basis, label = version["released_on"], "pip_release_version", version["version"]
-    elif declared_on:
-        published_on, basis, label = declared_on, "declared_release", declared_label
-    else:
-        published_on, basis, label = None, "retrieval_time", None
+def series_key(item: Mapping[str, Any]) -> dict[str, Any]:
+    """The fields that make a series: never a release, so each release of the same key is a vintage."""
     return {
-        "provider": "pip",
-        "format": "pip-json",
-        "items": items,
-        "item_count": len(items),
-        "published_on": published_on,
-        "published_at": None,
-        "release_basis": basis,
-        "release_label": label,
-        "file_sha256": hashlib.sha256(raw).hexdigest(),
-        "content_sha256": digest(items),
-        "structure": {"path": document["path"], "release_version": version, "ppp_version": ppp,
-                      "dataflow_version": None if version is None else version["version"], "rows": len(rows),
-                      "series": len(items)},
+        "provider": item["provider"],
+        "concept": item["indicator"]["concept"],
+        "measure": item["indicator"]["measure"],
+        "welfare_concept": item["welfare_concept"],
+        "equivalence_scale": item["equivalence_scale"],
+        "poverty_line": item.get("poverty_line"),
+        "ppp_base_year": item.get("ppp_base_year"),
+        "area": {"scheme": item["area"]["scheme"], "code": item["area"]["code"]},
+        "coverage": item.get("coverage") or {},
+        "survey": item.get("survey"),
+        "income_definition": item.get("income_definition"),
+        "methodology": item.get("methodology"),
     }
+
+
+def parse_pip(raw: bytes, *, document: Mapping[str, Any]) -> dict[str, Any]:
+    """One PIP response as series items: one per (place, reporting level, welfare type, measure)."""
+    try:
+        payload = json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, ValueError) as exc:
+        raise IncomeFormatError("schema_drift", "PIP response is not JSON") from exc
+    rows = payload if isinstance(payload, list) else (payload or {}).get("data") if isinstance(payload, dict) else None
+    if not isinstance(rows, list):
+        raise IncomeFormatError("schema_drift", "PIP response is not a list of estimates")
+    if len(rows) > CAPS["pip_rows"]:
+        raise IncomeFormatError("budget_exhausted", "PIP response has more rows than the declared cap")
+    params = dict(document["params"])
+    release = parse_pip_release(params["release_version"])
+    regional = document["endpoint"] == "pip-grp"
+    line_spec = {"basis": "absolute-ppp", "amount": params["povline"],
+                 "unit": f"{release['ppp_base_year']} PPP dollars per person per day",
+                 "label": dict(document.get("poverty_line") or {}).get("label")}
+    groups: dict[str, dict[str, Any]] = {}
+    for row in rows:
+        if not isinstance(row, Mapping):
+            raise IncomeFormatError("schema_drift", "PIP rows are objects")
+        code = row.get("region_code") if regional else row.get("country_code")
+        year = row.get("reporting_year")
+        if not code or year is None:
+            raise IncomeFormatError("schema_drift", "PIP rows state a country or region code and a reporting year")
+        stated_line = decimal_text(row.get("poverty_line"))
+        if stated_line is not None and stated_line != decimal_text(params["povline"]):
+            raise IncomeFormatError("schema_drift", "PIP answered for another poverty line than requested")
+        welfare = "mixed" if regional else str(row.get("welfare_type") or "").casefold()
+        if welfare not in WELFARE_CONCEPTS:
+            raise IncomeFormatError("schema_drift", f"PIP welfare_type {row.get('welfare_type')!r} is not stated")
+        level = "regional" if regional else str(row.get("reporting_level") or "national")
+        estimation = ("regional-line-up" if regional else str(row.get("estimation_type") or "")).casefold() or (
+            "interpolation" if row.get("is_interpolated") else "not-stated")
+        if estimation not in ESTIMATION_TYPES:
+            raise IncomeFormatError("schema_drift", f"PIP estimation_type {estimation!r} is not known")
+        for field in document["measures"]:
+            if field not in row:
+                continue
+            concept, unit = PIP_MEASURES[field]
+            key = canonical([code, level, welfare, field])
+            entry = groups.setdefault(key, {
+                "provider": "pip",
+                "native_key": f"{document['endpoint']}:{code}:{level}:{welfare}:{field}",
+                "indicator": {"concept": concept, "measure": field,
+                              "label": f"PIP {field}" + (" (regional aggregate)" if regional else "")},
+                "welfare_concept": welfare,
+                "equivalence_scale": document["equivalence_scale"],
+                "poverty_line": _line(line_spec, ppp_base_year=release["ppp_base_year"])
+                if concept in LINE_DEPENDENT else None,
+                "ppp_base_year": release["ppp_base_year"],
+                "area": {"scheme": "wb-region" if regional else "iso3166-1-alpha3", "code": str(code),
+                         "label": row.get("region_name") if regional else row.get("country_name")},
+                "coverage": {"reporting_level": level},
+                "survey": "PIP household surveys (survey acronym per value)" if not regional
+                else "PIP regional line-up aggregate",
+                "income_definition": None,
+                "methodology": f"PIP {release['ppp_base_year']} PPP round",
+                "unit": {"code": field, "label": unit},
+                "frequency": "annual",
+                "definition": _definition(document, "pip", poverty_line=line_spec if concept in LINE_DEPENDENT
+                                          else None, ppp_base_year=release["ppp_base_year"]),
+                "references": [dict(r) for r in document.get("references") or []],
+                "source_notes": [],
+                "observations": [],
+            })
+            value_text = None if row.get(field) is None else str(row.get(field))
+            value = decimal_text(value_text)
+            period = str(int(float(year)))
+            if any(o["period"] == period for o in entry["observations"]):
+                raise IncomeFormatError("schema_drift", f"PIP states reporting year {period} twice for one series")
+            entry["observations"].append({
+                "period": period,
+                "value_text": value_text,
+                "value": value,
+                "status": "reported" if value is not None else "not_published",
+                "estimation_type": estimation,
+                "survey_year": None if regional or row.get("survey_year") is None else str(row.get("survey_year")),
+                "income_reference_year": None,
+                "welfare_type": welfare,
+                "flags": {},
+                "attributes": {k: row.get(k) for k in ("survey_acronym", "survey_coverage", "survey_comparability",
+                                                       "comparable_spell", "distribution_type", "is_interpolated")
+                               if row.get(k) is not None},
+            })
+    items = []
+    for entry in groups.values():
+        entry["observations"].sort(key=lambda o: o["period"])
+        comparability = [(o["period"], o["attributes"].get("survey_comparability")) for o in entry["observations"]]
+        for (before, left), (after, right) in pairwise(comparability):
+            if left is not None and right is not None and left != right:
+                entry["source_notes"].append({
+                    "kind": "break", "attribute": "survey_comparability", "value": f"{left} -> {right}",
+                    "periods": [after], "statement": "PIP marks the surveys of these years as not comparable "
+                                                     f"(survey_comparability changes between {before} and {after})"})
+        items.append(entry)
+    items.sort(key=lambda i: i["native_key"])
+    return {"items": items, "published_on": release["published_on"], "published_at": None,
+            "release_basis": "pip_release_version", "release_label": params["release_version"],
+            "ppp": {"base_year": release["ppp_base_year"], "revision": release["ppp_revision"]},
+            "dataflow_version": None}
 
 
 def _flag_letters(attributes: Mapping[str, Any]) -> set[str]:
     letters: set[str] = set()
     for key in FLAG_ATTRIBUTES:
-        value = text(attributes.get(key))
-        if value:
-            letters |= set(value)
+        value = str(attributes.get(key) or "").strip()
+        letters |= set(value) if key == "OBS_FLAG" else ({value} if value else set())
     return letters
 
 
-def _flow_version(reference: str) -> str | None:
+def _flow_version(reference: str | None) -> str | None:
+    if not reference:
+        return None
     match = re.search(r"\((\d+(?:\.\d+)*)\)\s*$", reference) or re.search(r",(\d+(?:\.\d+)*)\s*$", reference)
     return match.group(1) if match else None
 
 
-def _mapped(document: Mapping[str, Any], key: str, dims: Mapping[str, str]) -> tuple[bool, Any]:
-    spec = document.get(key)
-    if not spec:
-        return False, None
-    spec = dict(spec)
-    code = dims.get(spec["dimension"])
-    codes = dict(spec["codes"])
-    if code not in codes:
-        raise IncomeFormatError("schema_drift", f"unmapped {spec['dimension']} code {code!r}")
-    return True, codes[code]
-
-
 def parse_sdmx(raw: bytes, *, fmt: str, document: Mapping[str, Any], url: str) -> dict[str, Any]:
-    """Declared SDMX-CSV series as income items: one per dimension combination, flags and notes verbatim."""
+    """Declared EU-SILC or OECD IDD SDMX-CSV series as items; flags and dataflow version kept per value."""
     from src.ingestion.connectors.dataset.base import RawSeries, SeriesRef
     from src.ingestion.connectors.dataset.sdmx import SDMXConnector
     from src.integrations.common import IntegrationError
 
     provider = FORMATS[fmt]["provider"]
     connector = SDMXConnector(SDMX_PROVIDERS[provider])
-    ref = SeriesRef(locator=str(document["flow"]) + "/" + str(document.get("key") or ""),
-                    metadata={"flow": str(document["flow"])}, title=document.get("label"))
+    ref = SeriesRef(locator=f"{document['flow']}/{document['key']}", metadata={"flow": str(document["flow"])},
+                    title=document.get("label"))
     try:
         records = connector.parse_csv(RawSeries(ref, raw, content_type="text/csv", source_url=url, fetched_at=0))
     except IntegrationError as exc:
         raise IncomeFormatError("schema_drift", f"{exc.code}: {exc}") from exc
     if not records:
         raise IncomeFormatError("schema_drift", "the response states no series")
-    area_spec = dict(document["area"])
-    offset = document.get("income_reference_offset_years")
-    items, dataflows, last_update = [], set(), None
+    if len(records) > CAPS["sdmx_series"]:
+        raise IncomeFormatError("budget_exhausted", "the response has more series than the declared cap")
+    dims_spec = dict(document.get("dimensions") or {})
+    area_dim = dims_spec.get("area") or ("geo" if provider == "eurostat-silc" else "REF_AREA")
+    coverage_dims = list(dims_spec.get("coverage") or [])
+    measures = dict(document.get("measure_dimension") or {})
+    lines = dict(document.get("poverty_line_dimension") or {})
+    reference = dict(document.get("income_reference") or {})
+    items, stated_flows, last_update = [], set(), None
     for record in records:
         meta = record.metadata
         dims = {str(k): str(v) for k, v in dict(meta["dimensions"]).items()}
-        if personal_keys(dims):
-            raise IncomeFormatError("personal_data_refused", "the response carries a person-level dimension")
-        dataflows.add(meta.get("dataflow"))
+        stated_flows.add(meta.get("dataflow"))
         last_update = meta.get("provider_last_update_at") or last_update
-        area_code = dims.get(area_spec["dimension"])
+        area_code = dims.get(area_dim)
         if area_code is None:
             raise IncomeFormatError("schema_drift", "the response lacks the declared area dimension")
-        mapped, indicator = _mapped(document, "indicator_dimension", dims)
-        if mapped:
-            indicator = dict(indicator)
-            unit = dict(indicator.pop("unit"))
+        if measures:
+            code = dims.get(measures["dimension"])
+            spec = dict(measures["codes"]).get(code)
+            if spec is None:
+                raise IncomeFormatError("schema_drift", f"unmapped measure code {code!r}")
+            indicator = {"concept": spec["concept"], "measure": code, "label": spec.get("label") or code}
+            unit = dict(spec.get("unit") or document.get("unit") or {"code": "", "label": ""})
         else:
-            indicator, unit = dict(document["indicator"]), dict(document["unit"])
-        mapped, line = _mapped(document, "poverty_line_dimension", dims)
-        if not mapped:
-            line = document.get("poverty_line")
-        _, methodology = _mapped(document, "methodology_dimension", dims)
-        observations, notes, breaks, multipliers = [], {}, [], set()
+            indicator = dict(document["indicator"])
+            unit = dict(document.get("unit") or {"code": "", "label": ""})
+        if indicator["concept"] not in CONCEPTS:
+            raise IncomeFormatError("schema_drift", f"unknown concept {indicator['concept']!r}")
+        line = document.get("poverty_line")
+        if lines:
+            code = dims.get(lines["dimension"])
+            line = dict(lines["codes"]).get(code)
+            if line is None and indicator["concept"] in LINE_DEPENDENT:
+                raise IncomeFormatError("schema_drift", f"unmapped poverty-line code {code!r}")
+        if indicator["concept"] not in LINE_DEPENDENT:
+            line = None
+        observations, breaks = [], []
         for observation in sorted(record.observations, key=lambda o: o.period):
             attributes = {str(k): str(v) for k, v in dict(meta["observation_attributes"].get(observation.period)
                                                          or {}).items()}
@@ -762,92 +566,84 @@ def parse_sdmx(raw: bytes, *, fmt: str, document: Mapping[str, Any], url: str) -
             letters = _flag_letters(attributes)
             status = "reported" if value is not None else (
                 "confidential" if letters & CONFIDENTIAL_FLAGS else "not_published")
-            period = str(observation.period)
+            period = str(observation.period)[:4]
             if letters & BREAK_FLAGS:
                 breaks.append(period)
-            for key in NOTE_ATTRIBUTES:
-                if attributes.get(key):
-                    notes.setdefault((key, attributes[key]), []).append(period)
-            multiplier = next((attributes[k] for k in UNIT_MULT_ATTRIBUTES if attributes.get(k)), None)
-            if multiplier is not None:
-                multipliers.add(multiplier)
-            kept = {k: attributes[k] for k in sorted(attributes) if k not in FLAG_ATTRIBUTES}
-            kept["welfare_type"] = document["welfare_concept"]
-            if document["reference_year_basis"] == "survey-year":
-                kept["survey_year"] = period
-                if offset is not None and re.fullmatch(r"\d{4}", period):
-                    kept["income_reference_year"] = str(int(period) + int(offset))
-                    kept["income_reference_basis"] = "declared rule: " + str(
-                        dict(document.get("definition") or {}).get("income_reference_rule") or "")
-            elif document["reference_year_basis"] == "income-year":
-                kept["income_reference_year"] = period
+            income_year = None
+            if reference:
+                offset = int(dict(reference.get("exceptions") or {}).get(area_code, reference.get("offset_years", 0)))
+                income_year = str(int(period) + offset)
             observations.append({
                 "period": period,
                 "value_text": value_text if value_text not in (None, "") else None,
                 "value": value,
                 "status": status,
+                "estimation_type": "survey",
+                "survey_year": period if provider == "eurostat-silc" else None,
+                "income_reference_year": income_year,
+                "welfare_type": document["welfare_concept"],
                 "flags": {k: attributes[k] for k in sorted(attributes) if k in FLAG_ATTRIBUTES},
-                "attributes": kept,
-                "footnotes": [],
+                "flag_meanings": sorted({FLAG_MEANINGS.get(letter, letter) for letter in letters}),
+                "attributes": {k: attributes[k] for k in sorted(attributes) if k not in FLAG_ATTRIBUTES},
             })
-        source_notes = [
-            {"kind": "source-attribute", "attribute": key, "value": value, "periods": periods}
-            for (key, value), periods in sorted(notes.items())
-        ]
+        notes = []
         if breaks:
-            source_notes.append({"kind": "break", "attribute": "flag", "value": "break in series", "periods": breaks})
-        for declared in document.get("declared_breaks") or []:
-            declared = dict(declared)
-            if declared.get("area") in (None, area_code):
-                source_notes.append({"kind": "break", "attribute": "declared", "value": str(declared["statement"]),
-                                     "periods": [str(p) for p in declared.get("periods") or []]})
-        items.append(_item(
-            provider, document,
-            native_key=".".join(dims[k] for k in dims),
-            dataflow={"reference": str(document["flow"]), "stated": meta.get("dataflow")},
-            indicator=indicator, unit=unit, welfare=document["welfare_concept"], line=line,
-            ppp_base_year=text(document.get("ppp_base_year")), survey=str(document["survey"]),
-            coverage=str(document["coverage"]),
-            area={"scheme": area_spec["scheme"], "code": area_code,
-                  **({"label": dict(area_spec.get("labels") or {}).get(area_code)}
-                     if dict(area_spec.get("labels") or {}).get(area_code) else {})},
-            dimensions=dims, observations=observations, source_notes=source_notes,
-            methodology=None if methodology is None else str(methodology),
-            unit_multiplier=min(multipliers) if len(multipliers) == 1 else None,
-        ))
+            notes.append({"kind": "break", "attribute": "OBS_FLAG" if provider == "eurostat-silc" else "OBS_STATUS",
+                          "value": "break in series", "periods": breaks,
+                          "statement": f"{document['label']}: the source flags a break in series"})
+        methodology = document.get("methodology")
+        definition_code = None
+        if dims_spec.get("methodology"):
+            methodology = dims.get(dims_spec["methodology"]) or methodology
+        if dims_spec.get("definition"):
+            definition_code = dims.get(dims_spec["definition"])
+        coverage = {k: dims.get(k) for k in coverage_dims if dims.get(k) is not None}
+        items.append({
+            "provider": provider,
+            "native_key": ".".join(dims[k] for k in dims),
+            "dataflow": {"reference": str(document["flow"]), "stated": meta.get("dataflow")},
+            "indicator": indicator,
+            "welfare_concept": document["welfare_concept"],
+            "equivalence_scale": document["equivalence_scale"],
+            "poverty_line": _line(line),
+            "ppp_base_year": None,
+            "area": {"scheme": dims_spec.get("area_scheme") or ("eurostat-geo" if provider == "eurostat-silc"
+                                                               else "iso3166-1-alpha3"),
+                     "code": area_code, **({"label": dict(document.get("area_labels") or {})[area_code]}
+                                           if area_code in dict(document.get("area_labels") or {}) else {})},
+            "coverage": coverage,
+            "survey": document.get("survey") or ("EU-SILC" if provider == "eurostat-silc" else "OECD IDD"),
+            "income_definition": (f"{document.get('income_definition')} ({definition_code})" if definition_code
+                                  else document.get("income_definition")),
+            "methodology": methodology,
+            "unit": unit,
+            "frequency": "annual",
+            "definition": _definition(document, provider, poverty_line=line, methodology=methodology,
+                                      underlying_survey=document.get("underlying_survey")),
+            "references": [dict(r) for r in document.get("references") or []],
+            "source_notes": notes,
+            "observations": observations,
+        })
     items.sort(key=lambda i: i["native_key"])
-    declared_on, declared_label = _declared_release(document)
+    stated = sorted(f for f in stated_flows if f)
+    flow_version = _flow_version(stated[0] if stated else str(document["flow"]))
+    declared = dict(document.get("release") or {})
     if last_update:
-        stamp = datetime.fromisoformat(last_update)
-        stamp = stamp if stamp.tzinfo else stamp.replace(tzinfo=UTC)
-        published_at, published_on, basis = stamp.isoformat(), stamp.date().isoformat(), "provider_last_update"
-    elif declared_on:
-        published_at, published_on, basis = None, declared_on, "declared_release"
+        published_on, published_at, basis = last_update[:10], last_update, "provider_last_update"
+    elif declared.get("published_on"):
+        published_on, published_at, basis = str(declared["published_on"]), None, "declared_release"
     else:
-        published_at, published_on, basis = None, None, "retrieval_time"
-    stated = sorted(d for d in dataflows if d)
-    return {
-        "provider": provider,
-        "format": fmt,
-        "items": items,
-        "item_count": len(items),
-        "published_on": published_on,
-        "published_at": published_at,
-        "release_basis": basis,
-        "release_label": declared_label,
-        "file_sha256": hashlib.sha256(raw).hexdigest(),
-        "content_sha256": digest(items),
-        "structure": {"dataflow": str(document["flow"]), "dataflow_stated": stated,
-                      "dataflow_version": _flow_version(stated[0] if stated else str(document["flow"])),
-                      "last_update": last_update, "series": len(items)},
-    }
+        published_on, published_at, basis = None, None, "retrieval_time"
+    return {"items": items, "published_on": published_on, "published_at": published_at, "release_basis": basis,
+            "release_label": declared.get("label") or last_update or published_on, "ppp": None,
+            "dataflow_version": flow_version}
 
 
 # ------------------------------------------------------------------ adapter
 
 
 class IncomeDistributionAdapter:
-    """Fetch the declared income documents on the runtime's default transport; one page (one release) per document."""
+    """Fetch the declared documents; one page (one release) per document."""
 
     accepts_transport = True
     connector = CONNECTOR
@@ -856,7 +652,7 @@ class IncomeDistributionAdapter:
                  secret: str | None = None) -> None:
         from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 
-        del secret  # no provider needs a credential (IP01)
+        del secret  # every income-distribution source is open; nothing secret is ever sent
         self.source = json.loads(json.dumps(source))
         self.declared = income_declaration(self.source)
         if transport is None:
@@ -865,21 +661,13 @@ class IncomeDistributionAdapter:
             transport = partial(HTTPSPageAdapter._request, max_bytes=int(source["budgets"]["max_bytes"]))
         self.transport = transport
         self.definition = {
-            "contract": ADAPTER_CONTRACT,
-            "source_id": source["source_id"],
-            "connector": source["connector"],
-            "endpoint": source["endpoint"],
-            "operations": list(source["operations"]),
-            "source_hash": source["source_hash"],
-            "mapping": source["mapping"],
-            "extractor_versions": source["extractor_versions"],
-            "limits": source["budgets"],
-            "income_distribution": {
-                "provider": self.declared["provider"],
-                "format": self.declared["format"],
-                "feature": SOURCE_FEATURES[self.declared["provider"]],
-                "live_verification": LIVE_VERIFICATION[self.declared["provider"]]["status"],
-            },
+            "contract": ADAPTER_CONTRACT, "source_id": source["source_id"], "connector": source["connector"],
+            "endpoint": source["endpoint"], "operations": list(source["operations"]),
+            "source_hash": source["source_hash"], "mapping": source["mapping"],
+            "extractor_versions": source["extractor_versions"], "limits": source["budgets"],
+            "income_distribution": {"provider": self.declared["provider"], "format": self.declared["format"],
+                                    "documents": len(self.declared["documents"]), "caps": CAPS,
+                                    "live_verification": LIVE_VERIFICATION[self.declared["provider"]]["status"]},
         }
 
     def describe(self) -> dict[str, Any]:
@@ -891,22 +679,19 @@ class IncomeDistributionAdapter:
         if set(request) - {"operation", "parameters", "limit", "from_ms", "to_ms"}:
             raise SourcePackError("parameter_forbidden", "runtime adapter received undeclared controls")
         if dict(request.get("parameters") or {}):
-            raise SourcePackError("parameter_forbidden", "income runs fetch the declared documents only")
+            raise SourcePackError("parameter_forbidden", "income-distribution runs fetch the declared documents only")
 
     def _get(self, url: str) -> tuple[bytes, str]:
         from src.ingestion.source_pack_runtime import _retry_after_ms
 
-        host = (urlsplit(self.source["endpoint"]).hostname or "").casefold()
+        host = PROVIDER_HOSTS[self.declared["provider"]]
         parts = urlsplit(url)
         if (parts.hostname or "").casefold() != host or parts.scheme != "https":
-            raise SourcePackError("network_policy", "declared documents are fetched from the endpoint's host only")
+            raise SourcePackError("network_policy", "declared documents are fetched from the provider's host only")
         base, _, query = url.partition("?")
-        response = self.transport(
-            url=base,
-            params=parse_qsl(query, keep_blank_values=True),
-            headers={"Accept": "application/json, text/csv"},
-            timeout=int(self.definition["limits"]["timeout_ms"]) / 1000,
-        )
+        response = self.transport(url=base, params=parse_qsl(query, keep_blank_values=True),
+                                  headers={"Accept": "application/json, text/csv"},
+                                  timeout=int(self.definition["limits"]["timeout_ms"]) / 1000)
         final_host = (urlsplit(str(response.get("final_url") or url)).hostname or "").casefold()
         if final_host != host:
             raise SourcePackError("network_policy", "response was served from another host")
@@ -931,79 +716,65 @@ class IncomeDistributionAdapter:
         from src.ingestion.source_pack_runtime import RuntimePage
 
         self._check(request)
-        documents = list(self.declared["documents"])
+        documents = self.declared["documents"]
         index = 0 if cursor is None else int(cursor) if str(cursor).isdigit() else -1
         if not 0 <= index < len(documents):
             raise SourcePackError("cursor_drift", "cursor names no declared document")
         document = dict(documents[index])
         fmt = self.declared["format"]
-        url = document_url(fmt, document)
-        raw, origin = self._get(url)
-        limit = int(request.get("limit") or self.definition["limits"]["max_results"])
+        provider = self.declared["provider"]
         try:
-            release = (parse_pip(raw, document=document, url=url) if fmt == "pip-json"
-                       else parse_sdmx(raw, fmt=fmt, document=document, url=url))
+            url = document_url(fmt, document)
         except IncomeFormatError as exc:
-            code = "personal_data_refused" if exc.code == "personal_data_refused" else "schema_drift"
-            raise SourcePackError(code, f"{exc.code}: {exc}") from exc
-        if release["item_count"] > limit:
-            # Never a truncated release: a missing series would read as a series that was not published.
+            raise SourcePackError("invalid_source", str(exc)) from exc
+        raw, origin = self._get(url)
+        try:
+            release = parse_pip(raw, document=document) if fmt == "pip-json" else parse_sdmx(
+                raw, fmt=fmt, document=document, url=url)
+        except IncomeFormatError as exc:
+            raise SourcePackError("budget_exhausted" if exc.code == "budget_exhausted" else "schema_drift",
+                                  f"{exc.code}: {exc}") from exc
+        items = release["items"]
+        limit = int(request.get("limit") or self.definition["limits"]["max_results"])
+        if len(items) > limit:
+            # Never a truncated release: a missing series would read as a series the source removed.
             raise SourcePackError("budget_exhausted", "release has more series than the run's result budget")
         header = {
-            "contract": RELEASE_CONTRACT,
-            "provider": release["provider"],
-            "format": release["format"],
-            "document": document,
-            "document_key": document_key(release["provider"], document),
-            "published_on": release["published_on"],
-            "published_at": release["published_at"],
-            "release_basis": release["release_basis"],
-            "release_label": release["release_label"],
-            "file_sha256": release["file_sha256"],
-            "content_sha256": release["content_sha256"],
-            "item_count": release["item_count"],
-            "structure": release["structure"],
-            "evidence_origin": origin,
-            "live_verification": LIVE_VERIFICATION[release["provider"]]["status"],
-            "url": url,
+            "contract": RELEASE_CONTRACT, "provider": provider, "format": fmt, "document": document,
+            "document_key": document_key(provider, document), "published_on": release["published_on"],
+            "published_at": release["published_at"], "release_basis": release["release_basis"],
+            "release_label": release["release_label"], "ppp": release["ppp"],
+            "dataflow_version": release["dataflow_version"], "file_sha256": hashlib.sha256(raw).hexdigest(),
+            "content_sha256": digest(items), "item_count": len(items), "complete": True,
+            "evidence_origin": origin, "live_verification": LIVE_VERIFICATION[provider]["status"], "url": url,
         }
-        records = [
-            {
-                "id": f"{release['file_sha256'][:16]}:{number}",
-                "title": f"{document.get('label')} ({release['published_on'] or 'retrieved'})",
-                "url": url,
-                "language": "en",
-                "published_at": release["published_on"],
-                "content": json.dumps(item, sort_keys=True, ensure_ascii=False),
-                "income_release": header,
-                "income_item": item,
-            }
-            for number, item in enumerate(release["items"])
-        ]
-        receipt = {
-            "status": 200,
-            "provider": release["provider"],
-            "document": document.get("label"),
-            "published_on": release["published_on"],
-            "release_basis": release["release_basis"],
-            "file_sha256": release["file_sha256"],
-            "items": len(records),
-            "requests": 1,
-            "evidence_origin": origin,
-            "final_page": index + 1 >= len(documents),
-        }
+        records = [{
+            "id": f"{header['file_sha256'][:16]}:{number}",
+            "title": f"{document['label']} ({release['release_label'] or 'retrieved'})",
+            "url": url, "language": "en", "published_at": release["published_on"],
+            "content": canonical(item), "income_release": header, "income_item": item,
+        } for number, item in enumerate(items)]
+        receipt = {"status": 200, "provider": provider, "document": document["label"],
+                   "release_label": release["release_label"], "release_basis": release["release_basis"],
+                   "file_sha256": header["file_sha256"], "items": len(records), "requests": 1,
+                   "evidence_origin": origin, "final_page": index + 1 >= len(documents)}
         next_cursor = str(index + 1) if index + 1 < len(documents) else None
         return RuntimePage(tuple(records), next_cursor, len(raw), receipt=receipt)
 
 
-FIXTURE_SECRET = None
 ADAPTERS = {CONNECTOR: IncomeDistributionAdapter}
 
 
 def _fixture_key(url: str, params: Any) -> str:
     pairs = list(params.items()) if isinstance(params, Mapping) else list(params or [])
-    query = urlencode(sorted(pairs))
+    query = urlencode(sorted((str(k), str(v)) for k, v in pairs))
     return urlsplit(url).path + ("?" + query if query else "")
+
+
+def fixture_request(fmt: str, document: Mapping[str, Any]) -> str:
+    """The key :func:`fixture_transport` files a response under."""
+    base, _, query = document_url(fmt, document).partition("?")
+    return _fixture_key(base, parse_qsl(query, keep_blank_values=True))
 
 
 def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
@@ -1024,20 +795,12 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
     return transport
 
 
-def fixture_request(fmt: str, document: Mapping[str, Any]) -> str:
-    """The key :func:`fixture_transport` files a response under."""
-    base, _, query = document_url(fmt, document).partition("?")
-    return _fixture_key(base, parse_qsl(query, keep_blank_values=True))
-
-
 def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any]) -> list[dict[str, Any]]:
     adapter = IncomeDistributionAdapter(source, transport=fixture_transport(list(fixture["native_pages"])))
     records, cursor = [], None
     while True:
-        page = adapter.fetch_page(
-            {"operation": min(source["operations"]), "parameters": {}, "limit": int(source["budgets"]["max_results"])},
-            cursor=cursor,
-        )
+        page = adapter.fetch_page({"operation": min(source["operations"]), "parameters": {},
+                                   "limit": int(source["budgets"]["max_results"])}, cursor=cursor)
         records += [dict(item) for item in page.records]
         cursor = page.next_cursor
         if cursor is None:
@@ -1047,24 +810,27 @@ def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any])
 __all__ = [
     "ADAPTERS",
     "BOUNDED_COVERAGE",
+    "CAPS",
     "CONCEPTS",
     "CONNECTOR",
+    "EQUIVALENCE_SCALES",
     "EXCLUSIONS",
     "FORMATS",
     "LIVE_VERIFICATION",
-    "MINIMISATION",
     "NEVER_SENTENCE",
+    "PROVIDERS",
     "PROVIDER_CONTRACTS",
-    "SOURCE_FEATURES",
+    "WELFARE_CONCEPTS",
     "IncomeDistributionAdapter",
     "IncomeFormatError",
     "document_key",
+    "document_url",
     "fixture_request",
     "fixture_transport",
     "income_declaration",
     "parse_pip",
+    "parse_pip_release",
     "parse_sdmx",
-    "personal_keys",
-    "pip_version",
     "replay_native_fixture",
+    "series_key",
 ]

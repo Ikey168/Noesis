@@ -1,431 +1,408 @@
-"""Enforcement actions for an entity (and its group) as of a date, and by authority or legal basis (#2651, EN09, EN10).
+"""Enforcement actions for an entity or its group as of a date, and by authority and legal basis (EN09, EN10).
 
-* :func:`actions_for_entity` - the actions whose respondents reach an
-  ownership entity through **accepted** identity matches (EN07), optionally
-  expanded to its group through the ownership graph as of the date
-  (:func:`src.kb.competition_queries.group_members`: the stated control-chain
-  tops and their stated subsidiaries over the accepted ownership identity
-  decisions, which the answer lists). Each action shows what was published by
-  the as-of date: the decisions, penalties and appeals dated on or before it,
-  the outcome as published (a settlement "without admitting or denying" keeps
-  that wording) and the appeal status as published. An entity with no
-  matched respondent gets ``no_action_on_record`` - never a clean bill.
-* :func:`actions_for_identifier` - the same answer keyed by an identifier the
-  regulator itself published for a respondent (CIK, FRN, LEI), for
-  deployments without the ownership store; it is a lookup of published text,
-  not an identity match.
+* :func:`actions_for_entity` - the actions naming a company (and, optionally,
+  its group as of the same date) through **accepted** EN07 identity matches
+  only. The company is an ownership entity; its cluster comes from the
+  accepted ownership identity decisions and its group from the stated
+  ownership/control assertions of the ownership graph as of the date
+  (:func:`src.kb.competition_queries.group_members`); the answer states which
+  matches and which ownership paths were used. Each action carries the
+  outcome **as published** at the date (a settlement keeps the published
+  admission wording, never a finding), its penalties as published, its appeal
+  history with dates and the revisions it cites. "No action on record" is
+  never a clean bill.
 * :func:`actions_by_authority` - the actions of an authority and/or citing a
-  legal basis over a period, with outcomes and penalties as published.
-  Penalties are **never summed** - not across currencies, not across
-  authorities, not within one; they are listed per authority and currency
-  with a count, and undisclosed or unpublished figures stay explicit
-  unknowns.
+  legal basis over a period, each with outcome and penalties as published.
+  Penalties are **never summed** across currencies or authorities (nor within
+  them): figures are listed per authority and currency with their inputs, and
+  undisclosed penalties stay explicit.
+* :func:`action_history` - an action's revision chain (corrections and
+  removals included), its notices with their versions, respondents, penalties,
+  appeals and links.
 
-Every answer cites each action revision (and the decision, penalty, appeal and
-respondent revisions it shows) and exports as a ``noesis-evidence-bundle-v1``
-(:func:`export_bundle`). Nothing scores risk or compliance, infers wrongdoing
-from an initiated action, merges a settled outcome into a finding or profiles
-a named individual.
+Authorities stay side by side. Nothing scores risk or compliance, infers
+wrongdoing from an initiated action, merges a settled outcome into a finding or
+profiles an individual; answers carry the regulators' own wording.
 """
 
 from __future__ import annotations
 
 from collections.abc import Iterable, Mapping
-from datetime import date
 from typing import Any
 
 from src.kb.enforcement import (
-    NOTICE,
+    EXCLUSIONS,
     READ_SCOPE,
     EnforcementError,
     EnforcementStore,
     authorize,
-    table_exists,
 )
-from src.kb.enforcement_records import digest
 
 ENTITY_CONTRACT = "noesis-enforcement-actions-answer-v1"
-AUTHORITY_CONTRACT = "noesis-enforcement-authority-answer-v1"
+AUTHORITY_CONTRACT = "noesis-enforcement-actions-by-authority-v1"
 HISTORY_CONTRACT = "noesis-enforcement-action-history-v1"
-OWNERSHIP_READ = "knowledge:ownership:read"
-NO_ACTION = ("no action on record for this entity's reviewed identity matches inside the acquired coverage (not a "
-             "statement that no action exists)")
-SETTLEMENT_NOTE = ("settled as published; the stated admission wording is quoted and is not a finding of the "
-                   "allegations")
+NOTICE = ("Actions, outcomes, penalties and appeals are what each regulator published, side by side per authority. "
+          f"Exclusions: {EXCLUSIONS}. An initiated action is not a finding; a settlement is shown with its published "
+          "admission wording only.")
+DATE_FIELDS = ("decided_on", "published_on", "initiated_on")
 
 
-def _as_of(value: str | None) -> str | None:
-    if value is None:
-        return None
+def _graph(conn: Any, ownership_namespace: str, scopes: set[str], principal_id: str | None, known_at_ms: int | None):
+    from src.kb.ownership_graph import OwnershipGraph
+
+    return OwnershipGraph(conn, ownership_namespace, principal_id=principal_id, scopes=scopes,
+                          known_at_ms=known_at_ms)
+
+
+def _resolve(graph, entity: str) -> str:
+    from src.kb.competition_queries import CompetitionError
+    from src.kb.competition_queries import _resolve as resolve_entity
+
     try:
-        return date.fromisoformat(str(value)[:10]).isoformat()
-    except ValueError as exc:
-        raise EnforcementError("invalid_request", "dates are YYYY-MM-DD") from exc
-
-
-def _on_or_before(value: str | None, as_of: str | None) -> bool:
-    return as_of is None or (value is not None and value[:10] <= as_of)
+        return resolve_entity(graph, entity)
+    except CompetitionError as exc:
+        raise EnforcementError("not_found", "the company is not an entity of the ownership namespace") from exc
 
 
 def _cite(view: Mapping[str, Any]) -> dict[str, Any]:
     body = view["record"]
-    return {"record_key": body["record_key"], "revision_id": view["revision_id"], "revision": view["revision"],
+    return {"record_key": body["record_key"], "revision": view["revision"], "revision_id": view["revision_id"],
             "observed_at_ms": view["observed_at_ms"], "provider": body["source"]["provider"],
             "url": body["source"].get("url"), "source_revision": body["source"].get("revision"),
             "evidence_origin": body["source"].get("evidence_origin")}
 
 
-def _respondent_view(view: Mapping[str, Any]) -> dict[str, Any]:
-    body = view["record"]
-    if body["party_type"] == "natural_person":
-        return {"party_type": "natural_person", "pseudonym": body["pseudonym"],
-                "role_as_published": body["role_as_published"], "cite": _cite(view)}
-    return {"party_type": "organisation", "name_as_published": body["name_as_published"],
-            "role_as_published": body["role_as_published"], "identifiers": body.get("identifiers") or [],
-            "cite": _cite(view)}
-
-
-def _penalty_view(view: Mapping[str, Any]) -> dict[str, Any]:
+def _penalty(view: Mapping[str, Any]) -> dict[str, Any]:
     body = view["record"]
     return {"penalty_type": body["penalty_type"], "penalty_type_as_published": body["penalty_type_as_published"],
-            "amount_as_published": body.get("amount_as_published"), "amount": body.get("amount"),
-            "currency": body.get("currency"), "status": body["status"], "stage": body.get("stage"),
-            "discount_as_published": body.get("discount_as_published"), "respondent_key": body.get("respondent_key"),
+            "amount_as_published": body.get("amount_as_published"), "currency": body.get("currency"),
+            "amount_status": body["amount_status"], "imposed_on": body.get("imposed_on"), "note": body.get("note"),
             "cite": _cite(view)}
 
 
-def action_row(store: EnforcementStore, namespace: str, action_key: str, *, as_of: str | None = None,
-               known_at_ms: int | None = None) -> dict[str, Any] | None:
-    """One action as published by the as-of date, with every shown revision cited."""
-    action = store.by_key(namespace, action_key, known_at_ms=known_at_ms)
-    if action is None:
-        return None
+def _appeal(view: Mapping[str, Any], as_of: str | None) -> dict[str, Any]:
+    body = view["record"]
+    decided = body.get("decided_on")
+    return {"forum_as_published": body["forum_as_published"], "reference": body.get("reference"),
+            "status_as_published": body.get("status_as_published"), "lodged_on": body.get("lodged_on"),
+            "decided_on": decided, "court_docket": body.get("court_docket"),
+            "status_at_date": (None if as_of is None else
+                               "decided by the date" if decided and decided <= as_of else
+                               "no published appeal decision by the date" if decided or body.get("lodged_on")
+                               else "appeal dates not published"),
+            "cite": _cite(view)}
+
+
+def _action_date(body: Mapping[str, Any]) -> tuple[str | None, str | None]:
+    for field in DATE_FIELDS:
+        if body.get(field):
+            return body[field], field
+    return None, None
+
+
+def action_row(store: EnforcementStore, namespace: str, action: Mapping[str, Any], as_of: str | None,
+               known_at_ms: int | None = None) -> dict[str, Any]:
+    """One action as published (at the date when given), with penalties, appeals, notices and cited revisions."""
     body = action["record"]
-    children = store.action_children(namespace, action_key, known_at_ms=known_at_ms)
-    first = min((d for d in (body.get("initiated_on"), body.get("published_on"), body.get("decided_on")) if d),
-                default=None)
-    decisions = [v for v in children["decision"] if _on_or_before(v["record"].get("decided_on"), as_of)
-                 or (as_of and v["record"].get("decided_on") is None and _on_or_before(body.get("published_on"),
-                                                                                      as_of))]
-    shown = {v["record"]["record_key"] for v in decisions}
-    penalties = [v for v in children["penalty"] if v["record"].get("decision_key") in shown
-                 or (v["record"].get("decision_key") is None and _on_or_before(first, as_of))]
-    appeals = [v for v in children["appeal"] if _on_or_before(v["record"].get("stated_on"), as_of)]
-    later = [v["record"]["record_key"] for v in children["decision"] + children["appeal"]
-             if v not in decisions and v not in appeals]
-    unknowns = list(body.get("unknowns") or [])
-    unknowns += [f"penalty {p['record']['penalty_type']}: figure not published" for p in penalties
-                 if p["record"]["status"] == "not_published"]
-    if not [v for v in children["respondent"] if v["record"]["party_type"] == "organisation"]:
-        unknowns.append("no organisation respondent published")
-    row = {
-        "action_key": action_key, "authority": body["authority"],
-        "authority_as_published": body.get("authority_as_published"), "native_id": body["native_id"],
-        "identifiers": body.get("identifiers") or [], "action_type": body["action_type"],
-        "action_type_as_published": body["action_type_as_published"], "title": body.get("title"),
-        "legal_bases": body.get("legal_bases") or [], "initiated_on": body.get("initiated_on"),
-        "decided_on": body.get("decided_on"), "published_on": body.get("published_on"),
-        "publication_status": body.get("publication_status"),
-        "outcome": ({"as_published": body.get("outcome_as_published"), "settled": body.get("settled"),
-                     "admission_wording": body.get("admission_wording"),
-                     "note": SETTLEMENT_NOTE if body.get("settled") else
-                     "outcome as published; an initiated action is not a finding"}
-                    if decisions or as_of is None else
-                    {"as_published": None, "settled": None, "admission_wording": None,
-                     "note": "no decision published by the as-of date; an initiated action is not a finding"}),
-        "decisions": [{"decision_type_as_published": v["record"]["decision_type_as_published"],
-                       "decided_on": v["record"].get("decided_on"),
-                       "outcome_as_published": v["record"].get("outcome_as_published"),
-                       "settled": v["record"].get("settled"), "admission_wording": v["record"].get("admission_wording"),
-                       "corrective_measures": v["record"].get("corrective_measures") or [],
-                       "document_url": v["record"].get("document_url"), "cite": _cite(v)} for v in decisions],
-        "penalties": [_penalty_view(v) for v in penalties],
-        "appeals": [{"forum_as_published": v["record"]["forum_as_published"],
-                     "reference": v["record"].get("reference"), "status_as_published": v["record"]["status_as_published"],
-                     "stated_on": v["record"].get("stated_on"), "cite": _cite(v)} for v in appeals],
-        "appeal_status": ("appeal published" if appeals else "no appeal published by the as-of date"),
-        "respondents": [_respondent_view(v) for v in children["respondent"]],
-        "court_cases": body.get("court_cases") or [], "facilities": body.get("facilities") or [],
-        "concerned_authorities": body.get("concerned_authorities") or [],
-        "documents": [{"url": v["record"]["url"], "title": v["record"].get("title"),
-                       "document_type_as_published": v["record"].get("document_type_as_published"),
-                       "published_on": v["record"].get("published_on"),
-                       "content_sha256": v["record"].get("content_sha256"), "cite": _cite(v)}
-                      for v in children["notice_document"]],
-        "not_yet_published_at_as_of": later if as_of else [],
-        "not_yet_initiated": bool(as_of and first and first > as_of),
-        "unknowns": sorted(set(unknowns)),
-        "cite": _cite(action),
+    children = store.action_children(namespace, body["record_key"], known_at_ms=known_at_ms)
+    decided = body.get("decided_on")
+    if as_of is None:
+        outcome_at = "as currently published"
+    elif decided and decided <= as_of:
+        outcome_at = "decided by the date"
+    elif decided:
+        outcome_at = "no published decision by the date (decided later)"
+    else:
+        outcome_at = "decision date not published"
+    return {
+        "action_key": body["record_key"], "authority": body["authority"], "action_number": body["action_number"],
+        "action_type": body["action_type"], "action_type_as_published": body["action_type_as_published"],
+        "title": body.get("title"), "status_as_published": body.get("status_as_published"),
+        "source_status": body["source_status"], "initiated_on": body.get("initiated_on"), "decided_on": decided,
+        "published_on": body.get("published_on"), "legal_bases": body.get("legal_bases") or [],
+        "charges_as_published": body.get("charges_as_published") or [],
+        "outcome_as_published": body.get("outcome_as_published") if outcome_at != "no published decision by the "
+                                                                                  "date (decided later)" else None,
+        "outcome_at_date": outcome_at, "settlement_as_published": body.get("settlement"),
+        "lead_authority": body.get("lead_authority"), "concerned_authorities": body.get("concerned_authorities") or [],
+        "corrective_measures_as_published": body.get("corrective_measures_as_published") or [],
+        "facilities": body.get("facilities") or [], "court_cases": body.get("court_cases") or [],
+        "natural_person_respondents": body.get("natural_person_respondents"),
+        "penalties": [_penalty(v) for v in children["penalty"]],
+        "appeals": sorted((_appeal(v, as_of) for v in children["appeal"]),
+                          key=lambda a: (a["lodged_on"] or a["decided_on"] or "", a["cite"]["record_key"])),
+        "notices": [{"document_type_as_published": v["record"]["document_type_as_published"],
+                     "document_date": v["record"].get("document_date"), "url": v["record"]["url"],
+                     "amended_on": v["record"].get("amended_on"), "source_status": v["record"]["source_status"],
+                     "cite": _cite(v)} for v in children["enforcement_decision"]],
+        "unknowns": body.get("unknowns") or [],
+        "action_revision": _cite(action),
     }
-    return row
 
 
-def _group(conn: Any, ownership_namespace: str, entity: str, *, as_of: str | None, group: bool, scopes: set[str],
-           principal_id: str | None, known_at_ms: int | None):
-    from src.kb.competition_queries import group_members
-    from src.kb.ownership_graph import OwnershipGraph
-    from src.kb.ownership_store import OwnershipError
+def _similar_unknowns(identity, namespace: str, names: set[str], scopes) -> list[dict[str, Any]]:
+    from src.kb.entities import normalize_surface
 
-    graph = OwnershipGraph(conn, ownership_namespace, principal_id=principal_id, scopes=scopes,
-                           known_at_ms=known_at_ms)
-    person = [v for v in graph.by_kind.get("person", []) if v["record"]["record_key"] == entity
-              or v["record_id"] == entity]
-    if person:
-        raise EnforcementError("natural_person_not_a_query_key",
-                               "natural persons are never a query key (EN01 minimisation decision)")
-    try:
-        root = graph.resolve(entity)
-    except OwnershipError:
-        root = next((graph.cluster(k) for k, views in graph.entities.items()
-                     if any(v["record"].get("canonical_entity_id") == entity for v in views)), None)
-        if root is None:
-            raise EnforcementError("not_found", "the entity is not an entity of the ownership namespace") from None
-    members = group_members(graph, root, as_of) if group else [{"entity": root, "relation": "self", "path": []}]
-    return graph, root, members
+    wanted = {normalize_surface(n) for n in names if n}
+    out = []
+    for item in identity.unmatched(namespace, scopes=scopes):
+        name = normalize_surface(item["name_as_published"])
+        if any(name == w or (len(w) > 3 and (w in name or name in w)) for w in wanted):
+            out.append({**item, "unknown": "not matched to this company; a similar name only, never counted"})
+    return out
 
 
 def actions_for_entity(conn: Any, namespace: str, entity: str, *, ownership_namespace: str, scopes: Iterable[str],
-                       as_of: str | None = None, group: bool = False, principal_id: str | None = None,
-                       known_at_ms: int | None = None, include_unmatched: bool = False) -> dict[str, Any]:
+                       as_of: str | None = None, group: bool = False, include_unknowns: bool = False,
+                       include_removed: bool = False, principal_id: str | None = None,
+                       known_at_ms: int | None = None, authority: str | None = None) -> dict[str, Any]:
+    from src.kb.competition_queries import group_members
     from src.kb.enforcement_identity import EnforcementIdentity
 
     scopes = set(scopes)
     authorize(namespace, scopes, READ_SCOPE)
-    as_of = _as_of(as_of)
-    base = {"contract": ENTITY_CONTRACT, "namespace": namespace, "ownership_namespace": ownership_namespace,
-            "as_of": as_of, "group": group, "notice": NOTICE}
-    if not table_exists(conn, "ownership_records"):
-        return {**base, "status": "ownership_unavailable", "actions": [],
-                "message": "the Corporate Ownership store is not installed; use actions_for_identifier with an "
-                           "identifier the regulator published"}
-    if OWNERSHIP_READ not in scopes and "operator" not in scopes:
-        raise EnforcementError("unauthorized", f"{OWNERSHIP_READ} is required to read ownership entities")
-    graph, root, members = _group(conn, ownership_namespace, entity, as_of=as_of, group=group, scopes=scopes,
-                                  principal_id=principal_id, known_at_ms=known_at_ms)
+    graph = _graph(conn, ownership_namespace, scopes, principal_id, known_at_ms)
+    root = _resolve(graph, entity)
+    members = group_members(graph, root, as_of) if group else [{"entity": root, "relation": "self", "path": []}]
     store = EnforcementStore(conn, initialize=False)
     identity = EnforcementIdentity(conn, initialize=False)
     respondents = {v["record"]["record_key"]: v for v in store.views(namespace, ("respondent",),
-                                                                        known_at_ms=known_at_ms)}
-    rows, excluded, seen = [], [], set()
+                                                                     known_at_ms=known_at_ms)}
+    rows, excluded, removed, names, matches_used = [], [], [], set(), []
+    seen: set[tuple[str, str]] = set()
     for member in members:
+        names |= {n["name"] for n in graph.describe(member["entity"])["names"] if n.get("name")}
         for link in identity.accepted_links(namespace, graph.members(member["entity"]), scopes=scopes):
             respondent = respondents.get(link["subject_key"])
-            if respondent is None or (respondent["record"]["action_key"], link["subject_key"]) in seen:
+            if respondent is None:
                 continue
-            seen.add((respondent["record"]["action_key"], link["subject_key"]))
-            row = action_row(store, namespace, respondent["record"]["action_key"], as_of=as_of,
-                             known_at_ms=known_at_ms)
-            if row is None:
+            matches_used.append({**link, "group_member": member["entity"]})
+            action = store.by_key(namespace, respondent["record"]["action_key"], known_at_ms=known_at_ms)
+            if action is None or (authority and action["record"]["authority"] != authority):
                 continue
-            if row["not_yet_initiated"]:
-                excluded.append({"action_key": row["action_key"], "reason": "initiated or published after the as-of "
-                                                                            "date"})
+            key = (action["record"]["record_key"], respondent["record"]["record_key"])
+            if key in seen:
                 continue
-            matched = {k: link[k] for k in ("candidate_id", "method", "low_evidence", "reviewer", "reviewed_at_ms",
-                                            "decision_id", "ownership_key")}
-            row.update({"respondent": _respondent_view(respondent), "matched_through": matched,
-                        "group_member": member["entity"], "group_relation": member["relation"],
-                        "ownership_path": member["path"]})
+            seen.add(key)
+            body = action["record"]
+            if body["source_status"] == "removed_by_source" and not include_removed:
+                removed.append({"action_key": body["record_key"], "cite": _cite(action),
+                                "reason": "the regulator no longer publishes this action (a removed_by_source "
+                                          "revision); history on request"})
+                continue
+            started = body.get("initiated_on") or body.get("published_on") or body.get("decided_on")
+            if as_of and started and started > as_of:
+                excluded.append({"action_key": body["record_key"], "reason": "not initiated or published by the "
+                                                                             "as-of date"})
+                continue
+            row = action_row(store, namespace, action, as_of, known_at_ms)
+            row.update({
+                "respondent": {"name_as_published": respondent["record"]["name_as_published"],
+                               "role_as_published": respondent["record"]["role_as_published"],
+                               "identifiers": respondent["record"].get("identifiers") or [],
+                               "cite": _cite(respondent)},
+                "matched_through": {k: link[k] for k in ("candidate_id", "method", "low_evidence", "reviewer",
+                                                         "reviewed_at_ms", "decision_id", "ownership_key")},
+                "group_member": member["entity"], "group_relation": member["relation"],
+                "ownership_path": member["path"]})
+            row["cites"] = {"action_revision_id": action["revision_id"],
+                            "respondent_revision_id": respondent["revision_id"],
+                            "penalty_revision_ids": [p["cite"]["revision_id"] for p in row["penalties"]],
+                            "appeal_revision_ids": [a["cite"]["revision_id"] for a in row["appeals"]],
+                            "notice_revision_ids": [n["cite"]["revision_id"] for n in row["notices"]],
+                            "identity_candidate": link["candidate_id"], "identity_decision": link["decision_id"]}
             rows.append(row)
-    rows.sort(key=lambda r: (r["authority"], r["decided_on"] or r["published_on"] or "", r["action_key"]))
+    rows.sort(key=lambda r: (r["authority"], r["action_number"], r["respondent"]["cite"]["record_key"]))
     by_authority: dict[str, list[str]] = {}
     for row in rows:
         by_authority.setdefault(row["authority"], []).append(row["action_key"])
-    answer = {**base, "entity": graph.describe(root),
-              "group_members": [{"entity": m["entity"], "relation": m["relation"], "ownership_path": m["path"]}
-                                for m in members],
-              "group_basis": {"accepted_ownership_identity_decisions": list(graph.identity),
-                              "note": "group expansion uses the accepted ownership identity decisions listed here and "
-                                      "the ownership assertions on each path; nothing else"} if group else None,
-              "status": "answered" if rows else "no_action_on_record", "actions": rows,
-              "by_authority": by_authority, "excluded": excluded,
-              "coverage": "only the declared, acquired enforcement selections and reviewed identity matches are "
-                          "searched"}
+    answer = {
+        "contract": ENTITY_CONTRACT, "namespace": namespace, "ownership_namespace": ownership_namespace,
+        "entity": graph.describe(root), "as_of": as_of, "group": group,
+        "group_basis": ("entity clusters from accepted ownership identity decisions; group members from stated "
+                        "ownership and control assertions as of the date; actions reached through accepted "
+                        "enforcement identity matches only (listed in matches_used)"),
+        "group_members": [{"entity": m["entity"], "relation": m["relation"], "ownership_path": m["path"]}
+                          for m in members],
+        "matches_used": matches_used,
+        "status": "answered" if rows else "no_action_on_record", "actions": rows, "by_authority": by_authority,
+        "excluded": excluded, "removed_by_source": removed,
+        "coverage": "only the declared, acquired enforcement selections and reviewed identity matches are searched; "
+                    "'no action on record' is not a statement that no action exists",
+        "notice": NOTICE,
+    }
     if not rows:
-        answer["message"] = NO_ACTION
-    if include_unmatched:
-        from src.kb.entities import normalize_surface
-
-        names = {normalize_surface(n["name"]) for m in members for n in graph.describe(m["entity"])["names"]
-                 if n.get("name")}
-        answer["unmatched_respondents_of_same_name"] = [
-            {**u, "unknown": "not matched to this entity; a name only, never counted"}
-            for u in identity.unmatched(namespace, scopes=scopes) if normalize_surface(u["name_as_published"]) in names]
+        answer["message"] = "no enforcement action on record for this company's reviewed identity matches (not a clean " \
+                            "bill)"
+    if include_unknowns:
+        answer["unknowns"] = _similar_unknowns(identity, namespace, names, scopes)
     return answer
 
 
-def actions_for_identifier(conn: Any, namespace: str, scheme: str, value: str, *, scopes: Iterable[str],
-                           as_of: str | None = None) -> dict[str, Any]:
-    """Actions whose respondents carry an identifier the regulator published (no identity match involved)."""
-    authorize(namespace, scopes, READ_SCOPE)
-    as_of = _as_of(as_of)
-    wanted = "".join(ch for ch in str(value).upper() if ch.isalnum()).lstrip("0")
-    store = EnforcementStore(conn, initialize=False)
-    rows = []
-    for view in store.views(namespace, ("respondent",)):
-        body = view["record"]
-        if not any(i["scheme"] == scheme and "".join(ch for ch in str(i["value"]).upper()
-                                                     if ch.isalnum()).lstrip("0") == wanted
-                   for i in body.get("identifiers") or []):
-            continue
-        row = action_row(store, namespace, body["action_key"], as_of=as_of)
-        if row and not row["not_yet_initiated"]:
-            rows.append({**row, "respondent": _respondent_view(view),
-                         "matched_through": {"method": "published identifier on the respondent record",
-                                             "scheme": scheme, "value": value}})
-    return {"contract": ENTITY_CONTRACT, "namespace": namespace, "query": {"scheme": scheme, "value": value},
-            "as_of": as_of, "status": "answered" if rows else "no_action_on_record", "actions": rows,
-            "note": "a lookup of identifiers as the regulators published them; not an identity match",
-            "notice": NOTICE, **({} if rows else {"message": NO_ACTION})}
+def _basis_keys(text: str) -> set[str]:
+    from src.kb.enforcement_links import parse_legal_bases
+
+    # A whole act (celex:32016R0679) matches its provisions (celex:32016R0679:art32) by prefix; a provision matches
+    # only itself.
+    return {c["key"] for c in parse_legal_bases(text, context="gdpr")}
 
 
 def actions_by_authority(conn: Any, namespace: str, *, scopes: Iterable[str], authority: str | None = None,
                          legal_basis: str | None = None, date_from: str | None = None, date_to: str | None = None,
-                         as_of: str | None = None) -> dict[str, Any]:
-    from src.kb.enforcement_links import basis_keys, parse_references
+                         include_removed: bool = False, known_at_ms: int | None = None) -> dict[str, Any]:
+    from src.kb.enforcement_links import EnforcementLinks
 
     authorize(namespace, scopes, READ_SCOPE)
     if not authority and not legal_basis:
         raise EnforcementError("invalid_request", "name an authority, a legal basis or both")
-    date_from, date_to, as_of = _as_of(date_from), _as_of(date_to), _as_of(as_of)
-    wanted_keys = {c["key"] for c in parse_references(legal_basis, authority=authority)} if legal_basis else set()
     store = EnforcementStore(conn, initialize=False)
-    rows, undated = [], []
-    for view in store.views(namespace, ("enforcement_action",)):
+    wanted = _basis_keys(legal_basis) if legal_basis else set()
+    links = EnforcementLinks(conn, initialize=False)
+    rows, undated, removed = [], [], []
+    for view in store.views(namespace, ("enforcement_action",), known_at_ms=known_at_ms):
         body = view["record"]
-        if authority and body["authority"] != authority:
+        lead = (body.get("lead_authority") or {}).get("code")
+        if authority and authority not in {body["authority"], lead}:
             continue
+        match_basis = None
         if legal_basis:
-            published = {" ".join(b.lower().split()) for b in body.get("legal_bases") or []}
-            if not (" ".join(legal_basis.lower().split()) in published or (wanted_keys & basis_keys(body))):
+            own = set()
+            for text in (body.get("legal_bases") or []) + (body.get("charges_as_published") or []):
+                own |= _basis_keys(text)
+            works = {link["target_record"] for link in links.links(namespace, citing_record_key=body["record_key"])
+                     if link["status"] == "resolved" and link["target_pack"] == "legal.works"}
+            if wanted and (wanted & own or any(k.startswith(w + ":") for w in wanted for k in own)):
+                match_basis = "exact citation"
+            elif legal_basis in works:
+                match_basis = "linked Legal work"
+            elif not wanted and any(legal_basis.casefold() in b.casefold() for b in body.get("legal_bases") or []):
+                match_basis = "the published wording contains the query text (not a parsed citation)"
+            if match_basis is None:
                 continue
-        reference = body.get("decided_on") or body.get("published_on") or body.get("initiated_on")
-        if reference is None:
-            undated.append({"action_key": body["record_key"], "unknown": "no published date; outside any period"})
+        if body["source_status"] == "removed_by_source" and not include_removed:
+            removed.append({"action_key": body["record_key"], "cite": _cite(view)})
             continue
-        if (date_from and reference < date_from) or (date_to and reference > date_to):
+        day, field = _action_date(body)
+        if day is None:
+            undated.append({"action_key": body["record_key"], "unknown": "no initiated, decided or published date",
+                            "cite": _cite(view)})
             continue
-        row = action_row(store, namespace, body["record_key"], as_of=as_of or date_to)
-        if row:
-            row["period_date"] = {"value": reference, "basis": "decided_on" if body.get("decided_on") else
-                                  "published_on" if body.get("published_on") else "initiated_on"}
-            rows.append(row)
-    rows.sort(key=lambda r: (r["authority"], r["period_date"]["value"], r["action_key"]))
-    listed: dict[tuple[str, str], dict[str, Any]] = {}
-    unknowns = list(undated)
+        if (date_from and day < date_from) or (date_to and day > date_to[:len(day)]):
+            continue
+        row = action_row(store, namespace, view, None, known_at_ms)
+        row.update({"period_date": day, "period_date_field": field, "legal_basis_match": match_basis})
+        rows.append(row)
+    rows.sort(key=lambda r: (r["authority"], r["period_date"], r["action_number"]))
+    figures: dict[str, dict[str, list[dict[str, Any]]]] = {}
+    undisclosed = []
     for row in rows:
         for penalty in row["penalties"]:
-            if penalty["status"] != "stated" or not penalty["currency"]:
-                unknowns.append({"action_key": row["action_key"], "penalty_type": penalty["penalty_type"],
-                                 "unknown": "figure not published or no currency stated"})
+            if penalty["amount_status"] != "stated":
+                undisclosed.append({"action_key": row["action_key"], "penalty_type": penalty["penalty_type"],
+                                    "unknown": penalty["note"] or "amount not published",
+                                    "revision_id": penalty["cite"]["revision_id"]})
                 continue
-            entry = listed.setdefault((row["authority"], penalty["currency"]), {
-                "authority": row["authority"], "currency": penalty["currency"], "penalties": []})
-            entry["penalties"].append({"action_key": row["action_key"], "penalty_type": penalty["penalty_type"],
-                                       "amount_as_published": penalty["amount_as_published"],
-                                       "stage": penalty["stage"], "revision_id": penalty["cite"]["revision_id"]})
-    for row in rows:
-        if not row["penalties"]:
-            unknowns.append({"action_key": row["action_key"], "unknown": "no penalty published for this action"})
-    return {"contract": AUTHORITY_CONTRACT, "namespace": namespace,
-            "query": {"authority": authority, "legal_basis": legal_basis, "reference_keys": sorted(wanted_keys),
-                      "date_from": date_from, "date_to": date_to},
-            "authority_identity": _authority(authority), "status": "answered" if rows else "no_action_on_record",
-            "actions": rows,
-            "penalties_by_authority_and_currency": [
-                {**entry, "count": len(entry["penalties"])} for _, entry in sorted(listed.items())],
-            "totals_note": "not computed: penalties are never summed across currencies or authorities, and the "
-                           "figures of different stages (before or after a settlement discount) and types are not "
-                           "additive",
-            "unknowns": unknowns, "notice": NOTICE, **({} if rows else {"message": "no action on record for this "
-                                                                                   "authority, basis and period"})}
+            figures.setdefault(row["authority"], {}).setdefault(penalty["currency"] or "currency not published",
+                                                                []).append(
+                {"action_key": row["action_key"], "penalty_type": penalty["penalty_type"],
+                 "amount_as_published": penalty["amount_as_published"], "revision_id": penalty["cite"]["revision_id"]})
+    return {
+        "contract": AUTHORITY_CONTRACT, "namespace": namespace, "authority": authority, "legal_basis": legal_basis,
+        "legal_basis_keys": sorted(wanted), "period": {"from": date_from, "to": date_to,
+                                                       "date_used": "decided_on, else published_on, else initiated_on "
+                                                                    "(named per action)"},
+        "status": "answered" if rows else "no_action_on_record", "actions": rows,
+        "penalty_figures": {"by_authority_and_currency": figures,
+                            "note": "figures are listed as published; they are never summed or converted, within or "
+                                    "across currencies and authorities"},
+        "undisclosed_penalties": undisclosed, "undated": undated, "removed_by_source": removed,
+        "cites": [r["action_revision"]["revision_id"] for r in rows], "notice": NOTICE,
+    }
 
 
-def _authority(authority: str | None) -> dict[str, Any] | None:
-    from src.kb.enforcement_identity import authority_identity
-
-    return authority_identity(authority) if authority else None
-
-
-def export_bundle(answer: Mapping[str, Any], *, created_at_ms: int = 0) -> dict[str, Any]:
-    """A ``noesis-evidence-bundle-v1`` citing every action, decision, penalty, appeal and respondent revision with
-    its source, record revision and as-of time."""
-    from src.evidence_bundle.builder import EvidenceBundleBuilder
-
-    as_of = answer.get("as_of") or (answer.get("query") or {}).get("date_to")
-    as_of_ms = None
-    if as_of:
-        as_of_ms = int((date.fromisoformat(as_of) - date(1970, 1, 1)).total_seconds() * 1000)
-    builder = EvidenceBundleBuilder("receipt", {"operation": "enforcement-actions", "contract": answer["contract"],
-                                               "query": answer.get("query"), "as_of": as_of},
-                                    created_at_ms=created_at_ms, as_of_ms=as_of_ms)
-    refs: list[str] = []
-
-    def add(kind: str, cite: Mapping[str, Any], payload: Mapping[str, Any]) -> None:
-        object_id = f"enforcement:{cite['revision_id']}"
-        if object_id in refs:
-            return
-        builder.add_object("evidence", {
-            "kind": kind, **payload, "as_of": as_of,
-            "locator": {"cited": True, "document_id": cite["record_key"], "revision_id": cite["revision_id"],
-                        "url": cite.get("url")},
-            "citation": dict(cite)}, object_id=object_id)
-        refs.append(object_id)
-        if cite.get("url"):
-            builder.add_external_reference(f"source:{cite['record_key']}", cite["url"], required=False)
-
-    for row in answer.get("actions") or []:
-        add("enforcement-action-revision", row["cite"], {
-            "action_key": row["action_key"], "authority": row["authority"], "title": row["title"],
-            "outcome": row["outcome"], "legal_bases": row["legal_bases"], "appeal_status": row["appeal_status"]})
-        for decision in row["decisions"]:
-            add("enforcement-decision-revision", decision["cite"], {k: v for k, v in decision.items() if k != "cite"})
-        for penalty in row["penalties"]:
-            add("enforcement-penalty-revision", penalty["cite"], {k: v for k, v in penalty.items() if k != "cite"})
-        for appeal in row["appeals"]:
-            add("enforcement-appeal-revision", appeal["cite"], {k: v for k, v in appeal.items() if k != "cite"})
-        if row.get("respondent"):
-            add("enforcement-respondent-revision", row["respondent"]["cite"],
-                {k: v for k, v in row["respondent"].items() if k != "cite"})
-    root = {k: v for k, v in answer.items() if k != "actions"}
-    root["action_keys"] = [row["action_key"] for row in answer.get("actions") or []]
-    builder.add_object("receipt", root, object_id=f"{answer['contract']}:{digest(refs)[:16]}", references=refs,
-                       root=True)
-    if not answer.get("actions"):
-        builder.add_omission(str(answer.get("message") or answer.get("status") or NO_ACTION))
-    for item in answer.get("unknowns") or []:
-        if isinstance(item, Mapping):
-            builder.add_omission(f"unknown: {item.get('action_key')} ({item.get('unknown')})")
-    return builder.build()
-
-
-def action_history(conn: Any, namespace: str, action_key: str, *, scopes: Iterable[str], as_of: str | None = None,
-                   known_at_ms: int | None = None) -> dict[str, Any]:
-    """One action as published by a date (or as recorded at a record time), with every revision of it and of its
-    decisions, penalties, appeals and notice documents, and its links; corrections and removals are revisions."""
+def action_history(conn: Any, namespace: str, action_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+    """An action's full revision chain with its notices, respondents, penalties, appeals and links."""
     from src.kb.enforcement_links import EnforcementLinks
 
     authorize(namespace, scopes, READ_SCOPE)
-    as_of = _as_of(as_of)
     store = EnforcementStore(conn, initialize=False)
-    row = action_row(store, namespace, action_key, as_of=as_of, known_at_ms=known_at_ms)
-    if row is None:
+    current = store.by_key(namespace, action_key)
+    if current is None:
         return {"contract": HISTORY_CONTRACT, "namespace": namespace, "action_key": action_key,
                 "status": "no_action_on_record", "notice": NOTICE}
     children = store.action_children(namespace, action_key)
-    revisions = {}
-    for key in [action_key] + [v["record"]["record_key"] for kind in ("decision", "penalty", "appeal",
-                                                                       "notice_document") for v in children[kind]]:
-        revisions[key] = [{"revision": v["revision"], "revision_id": v["revision_id"],
-                           "observed_at_ms": v["observed_at_ms"], "run_id": v["run_id"],
-                           "publication_status": v["record"].get("publication_status"),
-                           "source_revision": v["record"]["source"].get("revision"),
-                           "content_sha256": v["record"].get("content_sha256"),
-                           "amount_as_published": v["record"].get("amount_as_published")}
-                          for v in store.history(namespace, key)]
+
+    def chain(key: str) -> list[dict[str, Any]]:
+        return [{"revision": v["revision"], "revision_id": v["revision_id"], "observed_at_ms": v["observed_at_ms"],
+                 "run_id": v["run_id"], "source_status": v["record"].get("source_status"),
+                 "source_revision": v["record"]["source"].get("revision"), "record": v["record"]}
+                for v in store.history(namespace, key)]
+
     links = EnforcementLinks(conn, initialize=False)
-    return {"contract": HISTORY_CONTRACT, "namespace": namespace, "action_key": action_key, "as_of": as_of,
-            "known_at_ms": known_at_ms, "status": "answered", "action": row, "revisions": revisions,
-            "links": [link for key in [action_key] + [v["record"]["record_key"] for v in children["respondent"]]
-                      for link in links.links(namespace, citing_record_key=key)],
-            "notice": NOTICE}
+    keys = [action_key] + [v["record"]["record_key"] for group in children.values() for v in group]
+    return {
+        "contract": HISTORY_CONTRACT, "namespace": namespace, "action_key": action_key, "status": "answered",
+        "current": action_row(store, namespace, current, None), "action_revisions": chain(action_key),
+        "notice_revisions": {v["record"]["record_key"]: chain(v["record"]["record_key"])
+                             for v in children["enforcement_decision"]},
+        "appeal_revisions": {v["record"]["record_key"]: chain(v["record"]["record_key"]) for v in children["appeal"]},
+        "respondents": [{"name_as_published": v["record"]["name_as_published"],
+                         "role_as_published": v["record"]["role_as_published"],
+                         "identifiers": v["record"].get("identifiers") or [], "cite": _cite(v)}
+                        for v in children["respondent"]],
+        "links": [link for key in keys for link in links.links(namespace, citing_record_key=key)],
+        "notice": NOTICE,
+    }
+
+
+def evidence_bundle(answer: Mapping[str, Any]) -> dict[str, Any]:
+    """An evidence-bundle export of an entity or authority answer: every assertion cites its record revision.
+
+    Each bibliography entry names the source (provider, URL, source revision), the record revision and the as-of
+    time (the revision's observation time, and the answer's as-of date when one was asked). Individuals are never
+    named because the records hold none; exclusions travel with the bundle.
+    """
+    bibliography: dict[str, dict[str, Any]] = {}
+    assertions: list[dict[str, Any]] = []
+
+    def add(identifier: str, text: str, cite: Mapping[str, Any] | None) -> None:
+        if not cite:
+            return
+        bibliography.setdefault(cite["revision_id"], {
+            "id": cite["revision_id"],
+            "text": f"{cite['provider']} {cite['record_key']} ({cite.get('url') or 'no URL'}; source revision "
+                    f"{cite.get('source_revision') or 'n/a'}; record revision {cite['revision']}; as of "
+                    f"{cite['observed_at_ms']} ms record time; {cite.get('evidence_origin') or 'live'} evidence)",
+            "source": {"provider": cite["provider"], "url": cite.get("url"),
+                       "source_revision": cite.get("source_revision")},
+            "record_revision": {"record_key": cite["record_key"], "revision": cite["revision"],
+                                "revision_id": cite["revision_id"]},
+            "as_of": {"record_time_ms": cite["observed_at_ms"], "valid_date": answer.get("as_of")}})
+        assertions.append({"id": identifier, "text": text, "kind": "sourced",
+                           "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
+                                             "id": cite["record_key"], "revision": cite["revision_id"]}],
+                           "citations": [cite["revision_id"]]})
+
+    for row in answer.get("actions") or []:
+        add(f"action-{row['action_key']}", f"{row['authority']} {row['action_type_as_published']} "
+            f"{row['action_number']}: {row.get('title')}; outcome as published: "
+            f"{row.get('outcome_as_published') or 'not published'}", row["action_revision"])
+        if row.get("respondent"):
+            add(f"respondent-{row['respondent']['cite']['record_key']}",
+                f"respondent as published: {row['respondent']['name_as_published']} "
+                f"({row['respondent']['role_as_published']})", row["respondent"]["cite"])
+        for penalty in row["penalties"]:
+            add(f"penalty-{penalty['cite']['record_key']}", f"{penalty['penalty_type_as_published']}: "
+                f"{penalty.get('amount_as_published') or 'amount not published'}", penalty["cite"])
+        for appeal in row["appeals"]:
+            add(f"appeal-{appeal['cite']['record_key']}", f"{appeal['forum_as_published']} {appeal.get('reference')}"
+                f": {appeal.get('status_as_published')}", appeal["cite"])
+        for notice in row["notices"]:
+            add(f"notice-{notice['cite']['record_key']}", f"{notice['document_type_as_published']} "
+                f"{notice.get('document_date') or ''}".strip(), notice["cite"])
+    title = (answer.get("entity") or {}).get("entity") or answer.get("authority") or answer.get("legal_basis")
+    return {"sections": [{"id": answer.get("contract", "answer"),
+                          "title": f"Enforcement actions for {title} as of {answer.get('as_of') or 'now'}",
+                          "assertions": assertions}],
+            "bibliography": list(bibliography.values()), "exclusions": EXCLUSIONS,
+            "coverage": answer.get("coverage") or "declared, acquired selections only"}

@@ -1,245 +1,185 @@
-"""Platform-transparency acquisition: DSA dumps, Meta Ad Library and Google political ads (#2596, #2600, #2604, #2611).
-
-Authored responses replay through the real adapter; nothing here is live.
-"""
+"""Platform-transparency source audit, declared sources and acquisition through the real adapter (#2585, #2596,
+#2600, #2604, #2611)."""
 
 from __future__ import annotations
 
-import base64
-import copy
 import json
 
 import pytest
 
-from src.ingestion.platform_transparency_sources import (
-    FIXTURE_SECRET,
-    LIVE_VERIFICATION,
-    MINIMISATION,
-    PROVIDER_CONTRACTS,
-    WITHHELD_KEYS,
-    PlatformTransparencyAdapter,
-    fixture_transport,
-    minimisation_violations,
-    platform_transparency_declaration,
-)
-from src.ingestion.source_packs import (
-    SourcePackConformance,
-    SourcePackError,
-    native_connector_module,
-)
+from src.ingestion import platform_transparency_sources as pt
+from src.ingestion.source_packs import SourcePackError, _digest, replay_native_fixture
 from tests.unit import platform_transparency_harness as h
 
+PERSONAL = ("PLACEHOLDER", "placeholder_user", "Placeholder Notifier", "Placeholder notice body", "1 Placeholder",
+            "exampla.example/post", "northwind.example/track", "-placeholder", "FIXTURE-TOKEN-NOT-REAL",
+            "access_token", "Placeholder creative", "Exampleshire", "Placeholder terms explanation")
 
-def records(source_id: str, version: str = "v1") -> list[dict]:
-    fetcher = h.adapter(source_id, version)
-    out, cursor = [], None
-    for _ in fetcher.units:
-        page = fetcher.fetch_page({"operation": "selection", "parameters": {}, "limit": 600}, cursor=cursor)
-        out += [item["platform_transparency_record"] for item in page.records]
+
+def fetch_all(source_id: str, version: str = "v1", secret: str | None = pt.FIXTURE_SECRET):
+    adapter = h.adapter(source_id, version, secret=secret)
+    records, receipts, cursor = [], [], None
+    for _ in adapter.units:
+        page = adapter.fetch_page({"operation": "selection", "parameters": {}, "limit": 500}, cursor=cursor)
+        records += [r["platform_transparency_record"] for r in page.records]
+        receipts.append(page.receipt)
         cursor = page.next_cursor
-        if cursor is None:
-            break
-    return out
+    return records, receipts
 
 
-def test_pack_declares_every_source_bounded_unverified_live_and_minimised():
-    sources = [s for s in h.manifest()["sources"] if s["connector"] == "platform-transparency"]
-    assert sorted(s["source_id"] for s in sources) == sorted(h.SOURCES)
-    for item in sources:
-        declared = platform_transparency_declaration(item)
-        assert declared["live_verification"] == "unverified-live"
-        assert declared["minimisation"] == "platform-transparency-minimisation-v1"
-        assert declared["decision"].startswith("docs/development/platform-transparency-evidence/source-audit.md#")
-        assert item["update_cadence"].startswith("on explicit selection only")
-    assert {p: v["status"] for p, v in LIVE_VERIFICATION.items()} == {
-        "dsa-transparency-db": "unverified-live", "meta-ad-library": "unverified-live",
-        "google-political-ads": "unverified-live", "lumen": "not-implemented"}
-    assert native_connector_module("platform-transparency").ADAPTERS["platform-transparency"] is \
-        PlatformTransparencyAdapter
+def by_key(records):
+    return {r["record_key"]: r for r in records}
 
 
-def test_lumen_is_recorded_as_not_implemented_with_its_reason():
-    lumen = PROVIDER_CONTRACTS["lumen"]
-    assert lumen["access_decision"] == "not-implemented" and lumen["formats"] == []
-    assert "no research token" in lumen["reason"] and "Terms of Use" in lumen["reason"]
-    item = h.source(h.DSA)
-    item["platform_transparency"]["provider"] = "lumen"
-    with pytest.raises(SourcePackError):
-        platform_transparency_declaration(item)
-    assert not [s for s in h.manifest()["sources"] if "lumen" in s["source_id"]]
+def test_the_audit_records_contracts_terms_minimisation_and_the_gated_source():
+    audit = (h.ROOT / "docs/development/platform-transparency-evidence/source-audit.md").read_text()
+    for source_id in h.SOURCES:
+        assert f"`{source_id}`" in audit
+    for needed in ("not re-verified live", "Authorization: Bearer", "access_token", "X-Authentication-Token",
+                   "Retention", "Who may query", "Bounded first coverage", "gated-not-granted", "not implemented",
+                   "decision_facts", "puid", "demographic_distribution", "point estimates"):
+        assert needed in audit, needed
+    assert set(pt.PROVIDER_CONTRACTS) == {"dsa-transparency-database", "meta-ad-library", "google-political-ads",
+                                          "lumen"}
+    for contract in pt.PROVIDER_CONTRACTS.values():
+        assert {"endpoints", "authentication", "rate_limits", "revisions", "licence", "access_decision"} <= set(
+            contract)
+    assert pt.LIVE_VERIFICATION["lumen"]["status"] == "gated-not-granted"
+    assert all(v["status"] != "verified-live" for v in pt.LIVE_VERIFICATION.values())
+    assert "decision_facts" in pt.MINIMISATION["never_stored"]["statement-of-reasons"][0]
+    assert "never a match target" in pt.MINIMISATION["individuals"]
+    assert pt.source_contracts()["decision_document"].endswith("source-audit.md")
 
 
-def test_offline_conformance_replays_every_pinned_fixture():
-    pack = h.manifest()
-    pack["sources"] = [s for s in pack["sources"] if s["connector"] == "platform-transparency"]
-    report = SourcePackConformance(h.ROOT).offline(pack)
-    assert report["valid"], report["sources"]
-    assert {r["source_id"]: r["records"] for r in report["sources"]} == {h.DSA: 10, h.META: 8, h.GOOGLE: 10}
+def test_the_pack_declares_every_source_bounded_minimised_and_replaying_its_pinned_output():
+    manifest = h.manifest()
+    assert manifest["pack_id"] == "osint-platform-transparency" and manifest["version"] == "1.0.0"
+    ours = {s["source_id"]: s for s in manifest["sources"]}
+    assert set(ours) == set(h.SOURCES)
+    for source_id, item in ours.items():
+        declared = item["platform_transparency"]
+        assert declared["minimisation"] == pt.MINIMISATION_POLICY and declared["format"] == h.FORMATS[source_id]
+        assert declared["live_verification"] == ("gated-not-granted" if source_id == "lumen-notices"
+                                                 else "unverified-live")
+        keyed = pt.FORMATS[declared["format"]]["keyed"]
+        assert (item["auth"]["kind"] == "required-secret") is keyed
+        fixture = json.loads((h.ROOT / item["fixture"]["path"]).read_text())
+        assert fixture == json.loads(json.dumps(h.source_pack_fixture(source_id)))  # generated from the harness
+        assert _digest(list(replay_native_fixture(item, fixture))) == item["fixture"]["expected_output_hash"]
 
 
-def test_dsa_statements_are_keyed_by_platform_and_uuid_with_the_dump_version_and_minimised():
-    rows = records(h.DSA)
-    dumps = [r for r in rows if r["record_kind"] == "dump-release"]
-    assert [d["record_key"] for d in dumps] == [
-        "platform-transparency:dsa:dump:example-video:2099-05-01:light",
-        "platform-transparency:dsa:dump:example-video:2099-05-02:light",
-        "platform-transparency:dsa:dump:example-market:2099-05-01:light"]
-    assert all(d["fields"]["sha1_verified"] and len(d["fields"]["sha1_as_published"]) == 40 for d in dumps)
-    statements = [r for r in rows if r["record_kind"] == "statement-of-reasons"]
-    first = next(s for s in statements if s["fields"]["uuid"].endswith("0002"))
-    assert first["record_key"] == "platform-transparency:dsa:sor:example-video:0a000000-0000-4000-8000-000000000002"
-    assert first["dump_key"] == dumps[0]["record_key"]
-    assert first["fields"]["decision_ground"] == "DECISION_GROUND_ILLEGAL_CONTENT"
-    assert first["fields"]["automated_detection"] == "No"
-    assert first["fields"]["automated_decision"] == "AUTOMATED_DECISION_NOT_AUTOMATED"
-    assert first["fields"]["decision_visibility"] == ["DECISION_VISIBILITY_CONTENT_REMOVED"]
-    assert first["minimisation"]["withheld"] == ["platform_uid", "source_identity"]
-    text = json.dumps(rows)
-    assert "Example Flagger Association" not in text and "synthetic-content-id" not in text
-    assert "free text a notifier wrote" not in text
-    assert all(minimisation_violations(r) == [] for r in rows)
+def test_dsa_dumps_key_statements_by_platform_and_uuid_record_the_dump_version_and_drop_free_text():
+    records, receipts = fetch_all("dsa-sor-dumps")
+    found = by_key(records)
+    dump = found["platform-transparency:dsa:dump:exampla-social:2099-05-01:light"]
+    assert dump["record_kind"] == "dump-release" and dump["fields"]["file_name"] == \
+        "sor-exampla-social-2099-05-01-light.zip"
+    assert len(dump["fields"]["sha256"]) == 64 and dump["fields"]["statements"] == 5
+    statement = found["platform-transparency:dsa:sor:exampla-social:00000000-0000-4000-8000-00000000a001"]
+    fields = statement["fields"]
+    assert fields["decision_visibility"] == ["DECISION_VISIBILITY_CONTENT_REMOVED"]
+    assert fields["decision_ground"] == "DECISION_GROUND_ILLEGAL_CONTENT"
+    assert fields["automated_detection"] == "Yes" and fields["automated_decision"] == "AUTOMATED_DECISION_PARTIALLY"
+    assert fields["content_type"] == ["CONTENT_TYPE_TEXT"] and fields["application_date"] == "2099-05-01 12:00:00"
+    assert {"decision_facts", "illegal_content_explanation", "puid", "source_identity"} <= set(
+        statement["minimisation"]["withheld"])
+    assert not any("other-platform" in k for k in found)  # another platform's row is never stored
+    assert receipts[0]["requests"][0]["path"] == "/sor-exampla-social-2099-05-01-light.zip"
+    assert receipts[0]["complete_listings"] == [{"selection_key": "dsa:exampla-social:2099-05-01:light",
+                                                 "record_kind": "statement-of-reasons"}]
+    assert not [p for p in PERSONAL if p in json.dumps([records, receipts])]
 
 
-def test_a_dump_that_does_not_match_its_published_checksum_is_refused():
-    pages = h.native_pages(h.DSA)
-    pages[1] = {**pages[1], "body": "0" * 40 + "  sor-example-video-2099-05-01-light.zip\n"}
-    fetcher = PlatformTransparencyAdapter(h.source(h.DSA), transport=fixture_transport(pages))
+def test_meta_ads_keep_ranges_as_published_follow_cursors_and_never_store_tokens_or_creatives():
+    records, receipts = fetch_all("meta-ad-library-political")
+    found = by_key(records)
+    ad = found["platform-transparency:meta:ad:880000000000001"]
+    fields = ad["fields"]
+    assert fields["spend_range_as_published"] == {"lower_bound": "100", "upper_bound": "199", "currency": "GBP"}
+    assert fields["impressions_range_as_published"] == {"lower_bound": "1000", "upper_bound": "4999"}
+    assert fields["funding_entity_as_declared"] == ["Paid for by Example Holdings Ltd"]
+    assert fields["advertiser_as_declared"] == "Example Holdings Ltd" and fields["delivery_stop"] is None
+    assert fields["snapshot_url"] == "https://www.facebook.com/ads/archive/render_ad/?id=880000000000001"
+    assert {"ad_creative_bodies", "demographic_distribution", "delivery_by_region"} <= set(
+        ad["minimisation"]["withheld"])
+    open_range = found["platform-transparency:meta:ad:880000000000011"]["fields"]["impressions_range_as_published"]
+    assert open_range == {"lower_bound": "1000000", "upper_bound": None}  # open upper bound kept open
+    assert "platform-transparency:meta:ad:880000000000003" in found  # second cursor page
+    assert "platform-transparency:meta:ad:880000000000099" not in found  # another page's ad is never stored
+    assert [len(r["requests"]) for r in receipts] == [2, 1, 1]
+    assert all("after=C1" not in r["requests"][0]["path"] for r in receipts)
+    assert "after=C1" in receipts[0]["requests"][1]["path"]
+    assert found["platform-transparency:meta:advertiser:999000001"]["fields"]["funding_entities_as_declared"] == [
+        "Paid for by Example Holdings Ltd"]
+    assert not [p for p in PERSONAL if p in json.dumps([records, receipts])]
     with pytest.raises(SourcePackError) as refused:
-        fetcher.fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    assert refused.value.code == "schema_drift" and "checksum_mismatch" in str(refused.value)
-
-
-def test_a_dump_above_its_statement_cap_is_budget_exhausted_never_truncated(monkeypatch):
-    from src.ingestion import platform_transparency_sources as sources
-
-    monkeypatch.setattr(sources, "DSA_ROW_CAP", 2)
-    with pytest.raises(SourcePackError) as refused:
-        h.adapter(h.DSA).fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    assert refused.value.code == "budget_exhausted"
-
-
-def test_meta_ads_keep_ranges_and_currency_exactly_as_published_and_drop_withheld_fields():
-    rows = records(h.META)
-    ads = {r["fields"]["ad_id"]: r for r in rows if r["record_kind"] == "ad"}
-    assert sorted(ads) == ["990000000000101", "990000000000102", "990000000000201", "990000000000301"]
-    ad = ads["990000000000102"]
-    assert ad["fields"]["spend"] == {"lower_bound": "1000", "upper_bound": "1499",
-                                     "as_published": {"lower_bound": "1000", "upper_bound": "1499"}}
-    assert ad["fields"]["currency"] == "GBP"
-    assert ad["fields"]["advertiser_as_declared"] == "Example Party"
-    assert ad["fields"]["funding_entity_as_declared"] == "Example Party"
-    assert ad["minimisation"]["withheld"] == ["ad_snapshot_url", "demographic_distribution"]
-    open_ended = ads["990000000000201"]["fields"]["impressions"]
-    assert open_ended["lower_bound"] == "1000000" and open_ended["upper_bound"] is None  # never filled in
-    assert ad["locator"] == "https://www.facebook.com/ads/library/?id=990000000000102"
-    assert "access_token" not in json.dumps(rows) and "FIXTURE" not in json.dumps(rows)
-    listing = next(r for r in rows if r["record_kind"] == "listing")
-    assert listing["fields"]["ad_keys"] == sorted(r["record_key"] for r in ads.values())
-
-
-def test_meta_pagination_follows_the_cursor_and_the_token_travels_only_in_the_header():
-    seen = []
-    pages = h.native_pages(h.META)
-    replay = fixture_transport(pages)
-
-    def transport(**kwargs):
-        seen.append(kwargs)
-        return replay(**kwargs)
-
-    fetcher = PlatformTransparencyAdapter(h.source(h.META), transport=transport, secret=FIXTURE_SECRET)
-    page = fetcher.fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    assert len(seen) == 2 and seen[1]["params"]["after"] == "QUZURVIx"
-    assert all(s["headers"]["Authorization"] == f"Bearer {FIXTURE_SECRET}" for s in seen)
-    assert all(FIXTURE_SECRET not in json.dumps(s["params"]) for s in seen)
-    assert FIXTURE_SECRET not in json.dumps(page.receipt) and FIXTURE_SECRET not in json.dumps(page.records)
-    assert [r["method"] for r in page.receipt["requests"]] == ["GET", "GET"]
-    without = PlatformTransparencyAdapter(h.source(h.META), transport=replay)
-    with pytest.raises(SourcePackError) as refused:
-        without.fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
+        fetch_all("meta-ad-library-political", secret=None)
     assert refused.value.code == "authentication_failed"
 
 
-def test_meta_units_longer_than_their_page_bound_are_budget_exhausted(monkeypatch):
-    from src.ingestion import platform_transparency_sources as sources
+def test_google_bundle_filters_declared_advertisers_keeps_spend_ranges_and_the_refresh_time_per_record():
+    records, receipts = fetch_all("google-political-ads")
+    found = by_key(records)
+    advertiser = found["platform-transparency:google:advertiser:AR10000000000000000001"]
+    assert advertiser["fields"]["fec_committee_ids_as_published"] == ["C00999901"]
+    assert advertiser["fields"]["election_ids_declared"] == [h.US_ELECTION]
+    ad = found["platform-transparency:google:ad:CR10000000000000000021"]
+    assert ad["fields"]["spend_ranges_as_published"] == [
+        {"currency": "GBP", "lower_bound": "800", "upper_bound": "40000"},
+        {"currency": "USD", "lower_bound": "1000", "upper_bound": "50000"}]
+    assert ad["fields"]["impressions_bucket_as_published"] == "100k-1M"
+    assert all(r["data_as_of"] == "2099-11-10T06:00:00Z" for r in records)
+    assert not any("AR10000000000000000009" in k or "CR10000000000000000091" in k for k in found)
+    absent = found["platform-transparency:google:advertiser:AR10000000000000000004"]
+    assert "not listed" in absent["fields"]["note"]
+    listings = {(entry["selection_key"], entry["record_kind"]) for entry in receipts[0]["complete_listings"]}
+    assert (f"google:{h.GOOGLE_ABSENT}", "ad") in listings
 
-    monkeypatch.setattr(sources, "META_MAX_PAGES", 1)
+
+def test_lumen_is_gated_and_stores_only_permitted_fields_with_redactions_preserved():
     with pytest.raises(SourcePackError) as refused:
-        h.adapter(h.META).fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    assert refused.value.code == "budget_exhausted"
+        fetch_all("lumen-notices", secret=None)
+    assert refused.value.code == "authentication_failed" and "gated-not-granted" in str(refused.value)
+    records, receipts = fetch_all("lumen-notices")
+    notice = by_key(records)["platform-transparency:lumen:notice:99000002"]["fields"]
+    assert notice["sender_name_as_published"] == "[Private]" and notice["title_as_published"].endswith("[REDACTED]")
+    assert "[Private]" in notice["redactions_as_published"]
+    assert notice["works_count"] == 1 and notice["infringing_url_count"] == 1
+    assert {"body", "works", "sender_address"} <= set(receipts[0]["withheld_fields"])
+    assert not [p for p in PERSONAL if p in json.dumps([records, receipts])]
 
 
-@pytest.mark.parametrize("change", [
-    lambda s: s["pages"][0].update(page_ids=[str(10**14 + i) for i in range(11)]),
-    lambda s: s["pages"][0].update(**{"from": "2098-01-01", "to": "2099-05-31"}),
-    lambda s: s["pages"][0].update(countries=["gb"]),
-    lambda s: s.pop("api_version"),
-])
-def test_unbounded_meta_selections_are_refused(change):
-    item = h.source(h.META)
-    change(item["platform_transparency"]["selection"])
+def test_units_are_all_or_nothing_bounded_and_host_checked():
+    item = h.source("meta-ad-library-political")
+    item["platform_transparency"]["selection"]["units"][0]["delivery_date_max"] = "2101-01-01"
     with pytest.raises(SourcePackError):
-        platform_transparency_declaration(item)
-
-
-def test_the_global_dump_and_undeclared_hosts_are_refused():
-    item = h.source(h.DSA)
-    item["platform_transparency"]["selection"]["dumps"][0]["platform"] = "global"
+        pt.PlatformTransparencyAdapter(item)
+    item = h.source("dsa-sor-dumps")
+    item["endpoint"] = "https://example.org"
     with pytest.raises(SourcePackError):
-        platform_transparency_declaration(item)
-    pages = copy.deepcopy(h.native_pages(h.DSA))
-    pages[0]["final_url"] = "https://storage.example.invalid/sor-example-video-2099-05-01-light.zip"
-    fetcher = PlatformTransparencyAdapter(h.source(h.DSA), transport=fixture_transport(pages))
-    with pytest.raises(SourcePackError) as refused:
-        fetcher.fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    assert refused.value.code == "network_policy"
+        pt.PlatformTransparencyAdapter(item)
+    pages = h.native_pages("dsa-sor-dumps")
+    pages[0]["final_url"] = "https://elsewhere.example/sor.zip"
+    adapter = pt.PlatformTransparencyAdapter(h.source("dsa-sor-dumps"), transport=pt.fixture_transport(pages))
+    with pytest.raises(SourcePackError) as moved:
+        adapter.fetch_page({"operation": "selection", "parameters": {}, "limit": 500}, cursor=None)
+    assert moved.value.code == "network_policy"
+    original = pt.DSA_ROW_CAP
+    try:
+        pt.DSA_ROW_CAP = 2
+        with pytest.raises(SourcePackError) as capped:
+            fetch_all("dsa-sor-dumps")
+        assert capped.value.code == "budget_exhausted"
+    finally:
+        pt.DSA_ROW_CAP = original
+    with pytest.raises(SourcePackError):
+        h.adapter("dsa-sor-dumps").fetch_page({"operation": "selection", "parameters": {"q": "x"}}, cursor=None)
 
 
-def test_google_ads_keep_published_ids_spend_range_bucket_and_refresh_date_per_record():
-    rows = records(h.GOOGLE)
-    advertiser = next(r for r in rows if r["record_key"].endswith(h.FUND) and r["record_kind"] == "advertiser")
-    assert advertiser["fields"]["public_ids"] == ["C00999903"]
-    assert advertiser["source_as_of"] == "2099-06-01T00:00:00Z"
-    ad = next(r for r in rows if r["record_key"] == "platform-transparency:google:ad:CR00000000000000000103")
-    assert ad["fields"]["spend"] == {"lower_bound": "0", "upper_bound": "100", "currency": "USD",
-                                     "as_published": {"spend_range_min_usd": "0", "spend_range_max_usd": "100"}}
-    assert ad["fields"]["impressions"] == {"as_published": "≤ 10k"}
-    assert ad["source_as_of"] == "2099-06-01T00:00:00Z" and ad["native_revision"] == "refreshed:2099-06-01T00:00:00Z"
-    assert ad["fields"]["funding_entity_as_declared"] is None
-    civic = [r for r in rows if r["unit_key"] == f"google:{h.CIVIC}:US"]
-    assert [r["record_kind"] for r in civic] == ["advertiser", "listing"]
-    assert civic[-1]["fields"]["ad_keys"] == []
-
-
-def test_google_queries_are_fixed_parameterised_posts_and_more_rows_than_one_page_is_budget_exhausted():
-    seen = []
-    replay = fixture_transport(h.native_pages(h.GOOGLE))
-
-    def transport(**kwargs):
-        seen.append(kwargs)
-        return replay(**kwargs)
-
-    fetcher = PlatformTransparencyAdapter(h.source(h.GOOGLE), transport=transport, secret=FIXTURE_SECRET)
-    fetcher.fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    posts = [json.loads(s["body"]) for s in seen if s.get("method") == "POST"]
-    assert len(posts) == 2 and all(p["parameterMode"] == "NAMED" for p in posts)
-    assert all("@advertiser_id" in p["query"] and h.FUND not in p["query"] for p in posts)
-    assert all("targeting" not in p["query"] for p in posts)
-    pages = h.native_pages(h.GOOGLE)
-    for page in pages:
-        if isinstance(page.get("body"), dict) and page["body"].get("kind") == "bigquery#queryResponse":
-            page["body"] = {**page["body"], "pageToken": "more"}
-    fetcher = PlatformTransparencyAdapter(h.source(h.GOOGLE), transport=fixture_transport(pages),
-                                          secret=FIXTURE_SECRET)
-    with pytest.raises(SourcePackError) as refused:
-        fetcher.fetch_page({"operation": "selection", "parameters": {}}, cursor=None)
-    assert refused.value.code == "budget_exhausted"
-
-
-def test_the_minimisation_decision_names_what_is_withheld_and_never_stored():
-    assert MINIMISATION["policy"] == "platform-transparency-minimisation-v1"
-    assert {"platform_uid", "source_identity", "ad_snapshot_url", "demographic_distribution"} <= WITHHELD_KEYS
-    assert "never converted to a midpoint" in MINIMISATION["ranges"]
-    assert "never to a natural person" in MINIMISATION["persons"]
-    fixture = json.loads((h.ROOT / "tests/fixtures/source_packs/osint-platform-transparency-dsa.json").read_text())
-    raw = base64.b64decode(fixture["native_pages"][0]["body_base64"])
-    assert b"synthetic-content-id-0001" in raw  # the native dump carries it; the records never do
+def test_records_validate_against_the_published_record_schema():
+    jsonschema = pytest.importorskip("jsonschema")
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-platform-transparency-record-v2.json"
+                         ).read_text())
+    for source_id in h.SOURCES:
+        for record in fetch_all(source_id)[0]:
+            jsonschema.validate({**record, "evidence_origin": "fixture"}, schema)

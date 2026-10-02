@@ -1,0 +1,25 @@
+{
+ "content": [
+  {
+   "basicUdi": "0899999EXFLOWSENSEZ7",
+   "manufacturerSrn": "US-MF-000099902",
+   "authorisedRepresentativeSrn": "DE-AR-000099903",
+   "deviceName": "Exampla FlowSense Infusion Pump",
+   "deviceModel": "FS-100",
+   "riskClass": "Class IIb",
+   "applicableLegislation": "MDR",
+   "udiDis": [
+    {
+     "primaryDi": "00899999000011",
+     "deviceStatus": "On the EU market",
+     "tradeName": "Exampla FlowSense"
+    }
+   ],
+   "certificateNumbers": [
+    "EX-9999-0001"
+   ],
+   "versionNumber": "1",
+   "lastUpdateDate": "2022-02-01"
+  }
+ ]
+}

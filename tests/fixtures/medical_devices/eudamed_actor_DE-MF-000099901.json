@@ -1,25 +1,28 @@
 {
- "abbreviatedName": "Fixturetech",
- "actorType": "Manufacturer",
- "address": {
-  "city": "Musterstadt",
-  "postcode": "99999",
-  "street": "Musterweg 1"
- },
- "contactDetails": {
-  "email": "placeholder@example.org",
-  "phone": "+49 555 0100"
- },
- "countryIso2Code": "DE",
- "lastUpdateDate": "2098-11-20",
- "name": "Fixturetech GmbH",
- "prrc": [
+ "content": [
   {
-   "email": "placeholder@example.org",
-   "name": "Jo Sample"
+   "srn": "DE-MF-000099901",
+   "name": "Northwind Medtech GmbH",
+   "abbreviatedName": "Northwind",
+   "actorType": "Manufacturer",
+   "countryIso2Code": "DE",
+   "city": "Hamburg",
+   "actorStatus": "Active",
+   "versionNumber": "1",
+   "lastUpdateDate": "2023-11-15",
+   "contactPersons": [
+    {
+     "firstName": "Max",
+     "lastName": "Fictional",
+     "email": "x@example.invalid"
+    }
+   ],
+   "prrcs": [
+    {
+     "firstName": "Erika",
+     "lastName": "Fictional"
+    }
+   ]
   }
- ],
- "srn": "DE-MF-000099901",
- "status": "Active",
- "versionNumber": 2
+ ]
 }

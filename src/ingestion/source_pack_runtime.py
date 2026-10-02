@@ -268,12 +268,6 @@ def _labour_projector(conn: Any) -> Any:
     from src.kb.labour_statistics import LabourProjector
 
     return LabourProjector(conn)
-
-
-def _extractives_projector(conn: Any) -> Any:
-    from src.kb.extractives_store import ExtractivesProjector
-
-    return ExtractivesProjector(conn)
 def _legislation_projector(conn: Any) -> Any:
     from src.kb.legislation import LegislationProjector
 
@@ -341,7 +335,6 @@ PROJECTORS: dict[str, Callable[[Any], Any]] = {
     "noesis-weather-record-v1": _weather_projector,
     "noesis-trade-flow-record-v1": _trade_flow_projector,
     "noesis-labour-statistics-record-v1": _labour_projector,
-    "noesis-extractives-record-v1": _extractives_projector,
     "noesis-education-statistic-record-v1": _education_projector,
     "noesis-energy-record-v1": _energy_projector,
     "noesis-humanitarian-record-v1": _humanitarian_projector,
@@ -375,6 +368,8 @@ def _fisheries_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-fisheries-record-v1"] = _fisheries_projector
+
+
 def _agrifood_projector(conn: Any) -> Any:
     from src.kb.agrifood_store import AgrifoodProjector
 
@@ -382,6 +377,8 @@ def _agrifood_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-agrifood-record-v1"] = _agrifood_projector
+
+
 def _court_justice_projector(conn: Any) -> Any:
     from src.kb.courts_justice import CourtsJusticeProjector
 
@@ -393,13 +390,13 @@ PROJECTORS["noesis-court-justice-record-v1"] = _court_justice_projector
 
 
 def _treaty_projector(conn: Any) -> Any:
-    from src.kb.treaties_store import TreatiesProjector
+    from src.kb.treaties_records import TreatiesProjector
 
     return TreatiesProjector(conn)
 
 
-# Legal treaties provider: treaties and treaty actions with depositary revisions (#2581).
-PROJECTORS["noesis-treaty-record-v1"] = _treaty_projector
+# Legal treaties provider (#2581).
+PROJECTORS["noesis-treaty-record-v2"] = _treaty_projector
 
 
 def _biodiversity_projector(conn: Any) -> Any:
@@ -417,8 +414,7 @@ def _water_projector(conn: Any) -> Any:
     return WaterProjector(conn)
 
 
-# Climate and Environment water and hydrology (#2582).
-PROJECTORS["noesis-water-record-v1"] = _water_projector
+PROJECTORS["noesis-water-record-v2"] = _water_projector
 
 
 def _food_composition_projector(conn: Any) -> Any:
@@ -437,6 +433,8 @@ def _astronomy_registration_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-astronomy-registration-record-v1"] = _astronomy_registration_projector
+
+
 def _real_estate_projector(conn: Any) -> Any:
     from src.kb.real_estate import RealEstateProjector
 
@@ -444,6 +442,8 @@ def _real_estate_projector(conn: Any) -> Any:
 
 
 PROJECTORS["noesis-real-estate-record-v1"] = _real_estate_projector
+
+
 def _logistics_projector(conn: Any) -> Any:
     from src.kb.logistics_series import LogisticsProjector
 
@@ -452,6 +452,18 @@ def _logistics_projector(conn: Any) -> Any:
 
 # Economics shipping and logistics feature (#2229).
 PROJECTORS["noesis-logistics-record-v1"] = _logistics_projector
+
+
+def _extractives_projector(conn: Any) -> Any:
+    from src.kb.extractives_store import ExtractivesProjector
+
+    return ExtractivesProjector(conn)
+
+
+# Economics extractives provider (#2653).
+PROJECTORS["noesis-extractives-record-v2"] = _extractives_projector
+
+
 def _competition_projector(conn: Any) -> Any:
     from src.kb.competition import CompetitionProjector
 
@@ -490,24 +502,14 @@ def _campaign_finance_projector(conn: Any) -> Any:
 PROJECTORS["noesis-campaign-finance-record-v1"] = _campaign_finance_projector
 
 
-def _fact_checks_projector(conn: Any) -> Any:
-    from src.kb.fact_checks_records import FactChecksProjector
+def _fact_check_projector(conn: Any) -> Any:
+    from src.kb.fact_checks_records import FactCheckProjector
 
-    return FactChecksProjector(conn)
-
-
-# News fact-checks provider: ClaimReview records and IFCN signatory status (#2659).
-PROJECTORS["noesis-fact-check-record-v1"] = _fact_checks_projector
+    return FactCheckProjector(conn)
 
 
-def _medical_devices_projector(conn: Any) -> Any:
-    from src.kb.medical_devices_records import MedicalDevicesProjector
-
-    return MedicalDevicesProjector(conn)
-
-
-# Clinical Evidence medical-devices features (#2654).
-PROJECTORS["noesis-medical-device-record-v1"] = _medical_devices_projector
+# News fact-checks provider (#2659).
+PROJECTORS["noesis-fact-check-record-v2"] = _fact_check_projector
 
 
 def _enforcement_projector(conn: Any) -> Any:
@@ -516,28 +518,8 @@ def _enforcement_projector(conn: Any) -> Any:
     return EnforcementProjector(conn)
 
 
-# Legal regulatory enforcement provider (#2651).
-PROJECTORS["noesis-enforcement-record-v1"] = _enforcement_projector
-
-
-def _income_distribution_projector(conn: Any) -> Any:
-    from src.kb.income_distribution_store import IncomeProjector
-
-    return IncomeProjector(conn)
-
-
-# Society income, poverty and inequality provider (#2583).
-PROJECTORS["noesis-income-distribution-record-v1"] = _income_distribution_projector
-
-
-def _research_entities_projector(conn: Any) -> Any:
-    from src.kb.research_entities_records import ResearchEntitiesProjector
-
-    return ResearchEntitiesProjector(conn)
-
-
-# Science research-entities features: ROR, ORCID, DataCite and CORDIS registry records (#2579).
-PROJECTORS["noesis-research-entity-record-v1"] = _research_entities_projector
+# Legal regulatory enforcement features (#2651).
+PROJECTORS["noesis-enforcement-record-v2"] = _enforcement_projector
 
 
 def _lifesci_projector(conn: Any) -> Any:
@@ -546,8 +528,38 @@ def _lifesci_projector(conn: Any) -> Any:
     return LifeSciProjector(conn)
 
 
-# Science life-science reference records (#2652).
-PROJECTORS["noesis-lifesci-record-v1"] = _lifesci_projector
+# Science life-sciences reference records (#2652).
+PROJECTORS["noesis-lifesci-record-v2"] = _lifesci_projector
+
+
+def _medical_devices_projector(conn: Any) -> Any:
+    from src.kb.medical_devices_records import MedicalDeviceProjector
+
+    return MedicalDeviceProjector(conn)
+
+
+# Clinical Evidence medical devices provider (#2654).
+PROJECTORS["noesis-medical-device-record-v2"] = _medical_devices_projector
+
+
+def _research_entities_projector(conn: Any) -> Any:
+    from src.kb.research_entities_records import ResearchEntityProjector
+
+    return ResearchEntityProjector(conn)
+
+
+# Science research-entities features (#2579).
+PROJECTORS["noesis-research-entity-record-v2"] = _research_entities_projector
+
+
+def _income_distribution_projector(conn: Any) -> Any:
+    from src.kb.income_distribution_store import IncomeDistributionProjector
+
+    return IncomeDistributionProjector(conn)
+
+
+# Society bundle, income, poverty and inequality (society.income, #2583).
+PROJECTORS["noesis-income-distribution-record-v2"] = _income_distribution_projector
 
 
 def _platform_transparency_projector(conn: Any) -> Any:
@@ -556,8 +568,8 @@ def _platform_transparency_projector(conn: Any) -> Any:
     return PlatformTransparencyProjector(conn)
 
 
-# OSINT platform-transparency features (#2580).
-PROJECTORS["noesis-platform-transparency-record-v1"] = _platform_transparency_projector
+# OSINT platform transparency feature (#2580).
+PROJECTORS["noesis-platform-transparency-record-v2"] = _platform_transparency_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

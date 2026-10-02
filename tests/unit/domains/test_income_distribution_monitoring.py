@@ -1,72 +1,85 @@
-"""Income monitors through platform subscriptions: new, revised and unchanged cases (#2583, IP10)."""
+"""IP10 (#2633): income monitors through subscriptions; new, revised and unchanged releases; bounded refreshes."""
 
 from __future__ import annotations
 
 import pytest
 
 from src.ingestion.income_distribution_sources import fixture_transport
-from src.kb.income_distribution_monitoring import IncomeMonitor, change_kinds
+from src.kb.income_distribution_monitoring import IncomeMonitor
 from src.kb.income_distribution_records import IncomeError
 from tests.unit import income_distribution_harness as h
 
-DEU = {"scheme": "iso3166-1-alpha3", "code": "DEU"}
+
+class Clock:
+    def __init__(self, start: int = h.FIRST_RETRIEVAL) -> None:
+        self.value = start
+
+    def __call__(self) -> int:
+        self.value += 1000
+        return self.value
 
 
-def run(conn, subscription_id, at):
-    return IncomeMonitor(conn, now=lambda: at).run(subscription_id, principal_id="alice", scopes=h.SCOPES)
+def _monitor(conn):
+    return IncomeMonitor(conn, now=Clock())
 
 
-def test_new_revised_and_unchanged_releases_notify_once_citing_the_records():
+def test_new_revised_and_unchanged_releases_notify_once_with_citations():
+    conn = h.connection()
+    monitor = _monitor(conn)
+    first = monitor.refresh(h.NS, h.source("silc"), principal_id="svc", scopes=h.SCOPES,
+                            transport=fixture_transport(h.pages("silc")), retrieved_at_ms=h.FIRST_RETRIEVAL)
+    assert first["status"] == "complete" and first["new_releases"] == 3
+    created = monitor.create(h.NS, "silc-de", target={"area": {"scheme": "eurostat-geo", "code": "DE"}},
+                             principal_id="analyst", scopes=h.SCOPES)
+    sub = created["subscription_id"]
+    run = monitor.run(sub, principal_id="analyst", scopes=h.SCOPES)
+    assert {n["kind"] for n in run["notifications"]} == {"new_release"}
+    assert all(n["citation"]["vintage_id"] == n["vintage_id"] for n in run["notifications"])
+    # Unchanged: re-reading the same files adds nothing and a replay emits nothing.
+    again = monitor.refresh(h.NS, h.source("silc"), principal_id="svc", scopes=h.SCOPES,
+                            transport=fixture_transport(h.pages("silc")), retrieved_at_ms=h.FIRST_RETRIEVAL)
+    assert again["new_releases"] == 0 and again["unchanged_releases"] == 3
+    assert monitor.run(sub, principal_id="analyst", scopes=h.SCOPES)["notifications"] == []
+    # Revised: a later release with a revised value and a new reference year.
+    monitor.refresh(h.NS, h.source("silc", revision=True), principal_id="svc", scopes=h.SCOPES,
+                    transport=fixture_transport(h.pages("silc", revision=True)), retrieved_at_ms=h.SECOND_RETRIEVAL)
+    revised = monitor.run(sub, principal_id="analyst", scopes=h.SCOPES)
+    kinds = {n["kind"] for n in revised["notifications"]}
+    assert kinds == {"new_period", "revised_value"}
+    change = next(n for n in revised["notifications"] if n["kind"] == "revised_value")
+    assert change["what_changed"]["revised"][0]["period"] == "2096" and change["previous_vintage_id"]
+    assert "assess" not in change["message"].casefold()
+
+
+def test_ppp_revisions_and_removals_are_notified_for_a_concept_watch():
     conn = h.connection()
     h.load_all(conn)
-    monitor = IncomeMonitor(conn, now=lambda: h.FIRST_RETRIEVAL + 1)
-    watch = monitor.create(h.NS, "deu-pip", target={"place": DEU, "provider": "pip"}, principal_id="alice",
-                           scopes=h.SCOPES)
-    first = run(conn, watch["subscription_id"], h.FIRST_RETRIEVAL + 1)
-    assert [n["kind"] for n in first["notifications"]] == ["new_period"] * 4
-    assert run(conn, watch["subscription_id"], h.FIRST_RETRIEVAL + 2)["notifications"] == []  # unchanged
-    h.load_all(conn, revisions=True)
-    second = run(conn, watch["subscription_id"], h.SECOND_RETRIEVAL + 1)
-    kinds = sorted(n["kind"] for n in second["notifications"])
-    assert kinds == ["new_period"] * 4 + ["ppp_revision"] * 4
-    ppp = next(n for n in second["notifications"] if n["kind"] == "ppp_revision")
-    assert ppp["previous_vintage_id"] and ppp["vintage_id"] != ppp["previous_vintage_id"]
-    assert ppp["source_revision"]["release_version"] == "20991120_2017_02_02_PROD" and ppp["detail"]["basis"]
-    assert run(conn, watch["subscription_id"], h.SECOND_RETRIEVAL + 2)["notifications"] == []  # restart: nothing
+    monitor = _monitor(conn)
+    head = monitor.create(h.NS, "headcount", target={"concept": "poverty_headcount"}, principal_id="analyst",
+                          scopes=h.SCOPES)["subscription_id"]
+    monitor.run(head, principal_id="analyst", scopes=h.SCOPES)
+    h.apply(conn, "pip", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
+    h.apply(conn, "oecd", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
+    kinds = {(n["series"]["provider"], n["kind"]) for n in monitor.run(head, principal_id="analyst",
+                                                                        scopes=h.SCOPES)["notifications"]}
+    assert ("pip", "ppp_revision") in kinds and ("oecd-idd", "removed_by_source") in kinds
 
 
-def test_indicator_watch_hears_withdrawals_and_definition_changes():
+def test_refresh_is_bounded_receipted_and_waits_after_a_rate_limit():
     conn = h.connection()
-    h.load_all(conn)
-    watch = IncomeMonitor(conn, now=lambda: h.FIRST_RETRIEVAL + 1).create(
-        h.NS, "gini", target={"concept": "gini_index"}, principal_id="alice", scopes=h.SCOPES)
-    run(conn, watch["subscription_id"], h.FIRST_RETRIEVAL + 1)
-    h.load_all(conn, revisions=True)
-    kinds = {n["kind"] for n in run(conn, watch["subscription_id"], h.SECOND_RETRIEVAL + 1)["notifications"]}
-    assert {"withdrawn", "definition_change", "revised_value", "ppp_revision"} <= kinds
+    monitor = _monitor(conn)
+    bounded = monitor.refresh(h.NS, h.source("silc"), principal_id="svc", scopes=h.SCOPES,
+                              transport=fixture_transport(h.pages("silc")), max_documents=1,
+                              retrieved_at_ms=h.FIRST_RETRIEVAL)
+    assert bounded["status"] == "bounded" and len(bounded["releases"]) == 1
 
+    def limited(*, url, params, headers, timeout):
+        return {"status": 429, "headers": {"Retry-After": "3600"}, "content": b""}
 
-def test_change_kinds_are_record_facts():
-    assert change_kinds({"withdrawn": True, "removed_periods": ["2096"]}) == ["withdrawn"]
-    assert change_kinds({"new_periods": [], "revised": [], "removed_periods": []}) == ["new_release"]
-    with pytest.raises(IncomeError):
-        IncomeMonitor(h.connection()).create(h.NS, "x", target={"forecast": True}, principal_id="a", scopes=h.SCOPES)
-
-
-def test_refresh_is_bounded_idempotent_and_receipted():
-    conn = h.connection()
-    monitor = IncomeMonitor(conn, now=lambda: h.FIRST_RETRIEVAL)
-    source = h.source("eusilc")
-    transport = fixture_transport(h.pages("eusilc"))
-    bounded = monitor.refresh(h.NS, source, principal_id="op", scopes=h.SCOPES, transport=transport, max_documents=2)
-    assert bounded["status"] == "bounded" and bounded["new_releases"] == 2
-    complete = monitor.refresh(h.NS, source, principal_id="op", scopes=h.SCOPES, transport=transport)
-    assert complete["status"] == "complete" and complete["unchanged_releases"] == 2 and complete["new_releases"] == 2
-    again = monitor.refresh(h.NS, source, principal_id="op", scopes=h.SCOPES, transport=transport)
-    assert again["new_releases"] == 0 and again["unchanged_releases"] == 4
-    limited = fixture_transport([{**p, "status": 429, "headers": {"Retry-After": "3600"}} for p in h.pages("eusilc")])
-    stopped = monitor.refresh(h.NS, source, principal_id="op", scopes=h.SCOPES, transport=limited)
-    assert stopped["status"] == "stopped" and stopped["stopped"]["code"] == "rate_limited"
-    waiting = monitor.refresh(h.NS, source, principal_id="op", scopes=h.SCOPES, transport=transport)
+    stopped = monitor.refresh(h.NS, h.source("oecd"), principal_id="svc", scopes=h.SCOPES, transport=limited)
+    assert stopped["status"] == "stopped" and stopped["stopped"]["code"] == "rate_limited" and stopped["retry_at"]
+    waiting = monitor.refresh(h.NS, h.source("oecd"), principal_id="svc", scopes=h.SCOPES,
+                              transport=fixture_transport(h.pages("oecd")))
     assert waiting["status"] == "rate_limited_wait" and waiting["releases"] == []
-    assert conn.execute("SELECT count(*) FROM income_refresh_receipts").fetchone()[0] == 5
+    with pytest.raises(IncomeError):
+        monitor.create(h.NS, "bad", target={"concept": "happiness"}, principal_id="analyst", scopes=h.SCOPES)

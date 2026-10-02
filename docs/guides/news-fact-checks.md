@@ -1,120 +1,95 @@
-# News fact-checks: ClaimReview records, publishers and ratings as published
+# News fact-checks: published ClaimReview records, publishers and ratings as published
 
-The News bundle's `news.fact-checks` provider (tracking issue #2659) adds the
-fact-checks publishers publish: ClaimReview records from the Google Fact Check
-Tools API and the Data Commons ClaimReview feed, and the IFCN Code of
-Principles signatory list with its status history. Given a claim, a claimant, a
-news article or a publisher, it returns the fact-checks publishers published,
-with the claim as quoted, the claimant as named and the rating as published,
-each citing its source, record revision and as-of time.
+The News pack's `news.fact-checks` provider (tracking issue #2659) adds the
+fact-checks that publishers publish. Given a claim, a claimant, a news article
+or a publisher, it returns the fact-checks with the claim as quoted, the
+claimant as named and the rating as published. Each item carries its source,
+record revision and as-of time, and the publisher's IFCN signatory status at
+the review date. It fills the `fact-checks` subdomain of the domain coverage
+program ([ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md))
+with **offline** coverage. Live coverage is outstanding (#2722).
 
-**Exclusions.** No truth verdict by Noesis, no rating normalisation presented as
-the publisher's, no automatic claim matching without review, and no scraping
-beyond each publisher's terms. A rating is the publisher's text and, where
-published, its numeric value with the publisher's own best/worst scale.
-Ratings from different publishers are shown side by side, never merged,
-averaged or mapped onto a common scale. (The older lookup in
-`src/argument_mining/factcheck.py`, which normalises verdicts, is not used.)
+**Exclusions.** No truth verdicts by Noesis. No rating normalisation presented
+as the publisher's: ratings are the publisher's own text, and any numeric value
+is kept with its scale. When publishers disagree, their ratings are shown side
+by side and never reconciled. No automatic claim matching without review. No
+scraping beyond each publisher's terms. The older `src/argument_mining/factcheck.py`
+verdict mapping is not used.
 
-## Claimant data minimisation (FC01)
+## Features and sources
 
-The binding decision is in `docs/development/fact-checks-evidence/source-audit.md`:
+Three independent optional features of the `news` bundle, all default off:
 
-* stored: publisher, review URL, title, date and language; claim text as quoted;
-  claimant as named, with the claimant type and `sameAs` identifiers the
-  publisher published; claim date and appearance URLs; ratings as published;
-* never stored: natural-person review authors, images and logos, claimant job
-  titles and other personal attributes, appearance authors, article bodies. The
-  parser drops them (listed under `minimisation.withheld`) and the store refuses
-  any record that still carries them or any verdict/normalised-rating key;
-* claimant searches, claimant matches and claimant monitors need
-  `knowledge:news:fact-checks:claimant:read` in addition to
-  `knowledge:news:fact-checks:read`.
-
-## Sources and coverage
-
-Three sources ship in `bounded-public-osint` 1.2.0
-(`config/source_packs/osint.json`; the News bundle has no source pack of its
-own), each `unverified-live` and declaring the minimisation policy. Selections
-are placeholders until the live validation (#2722):
-
-| Source | Provider | Records | Feature |
+| Feature | Source (`bounded-public-osint` 1.2.0) | Provider | Records |
 | --- | --- | --- | --- |
-| `fact-checks-google-claim-search` | Google Fact Check Tools `claims:search` | fact-checks per (publisher site, review URL) for declared queries or publisher sites | `fact-checks-google` |
-| `fact-checks-datacommons-feed` | Data Commons ClaimReview `DataFeed` | fact-checks per release (a vintage), filtered to declared sites and a review window | `fact-checks-datacommons` |
-| `fact-checks-ifcn-signatories` | IFCN signatories listing | publisher records with status label and date as published | `fact-checks-ifcn` |
+| `fact-checks-google` | `news-fact-checks-google` | Google Fact Check Tools API (`claims:search`, API key `NOESIS_GOOGLE_FACTCHECK_API_KEY`) | fact-checks for declared searches |
+| `fact-checks-datacommons` | `news-fact-checks-datacommons` | Data Commons ClaimReview feed | fact-checks per release (vintage) |
+| `fact-checks-ifcn` | `news-fact-checks-ifcn` | IFCN Code of Principles signatory listing | publishers with dated status revisions |
 
-The Google source needs the secret `NOESIS_GOOGLE_FACTCHECK_API_KEY` (sent as a
-header, never in a URL or receipt). The IFCN listing refuses a live fetch until
-an operator adds `fact_checks.terms_confirmation` to the source after reading
-the site's terms.
+Each feature binds `news.fact-checks`, `platform.entity-identity`,
+`platform.subscriptions` and `platform.source-runtime`. News articles, OSINT
+corroboration, claim timelines, source identities and web archives are used
+when present. When they are absent the answer degrades to an `unavailable`
+report, so no feature requires them. Every source is `unverified-live`, and
+the terms were not re-verified live: see the
+[source audit](../development/fact-checks-evidence/source-audit.md).
 
 ## Records and revisions
 
-`src/kb/fact_checks_records.py` keeps one record per source and key with an
-append-only revision log:
+- A **fact-check** is keyed by the publisher, the review URL and the reviewed
+  claim (`fact-check:review:<domain>:<url digest>:<claim digest>`). A
+  publisher's update (a new review date, a changed rating, a corrected claim) is
+  a new revision.
+- The same review from the API and from a Data Commons release has the same
+  key. Each source keeps its own provenance chain, and answers show both.
+- A **publisher** is keyed by its website domain. Each IFCN status (verified,
+  expired, under review) is in force from the date the listing states.
+- A review that a later release no longer carries, and a signatory missing from
+  a later listing, get an `absent-from-release` or `absent-from-listing`
+  revision. Nothing is deleted.
 
-* a fact-check is keyed by publisher site and canonical review URL (`wa-canon-v1`
-  rules shared with the web-archives provider), so the same review from Google
-  and Data Commons is one key under two sources with both provenance records;
-* a publisher's update (review date, rating, claims) is a new revision; a
-  replayed older response adds nothing; an older observation never becomes
-  current;
-* an item missing from a later complete release (Data Commons) or listing (IFCN)
-  gets an `absent-from-*` revision, never a deletion. A Google search result that
-  stops appearing is not a removal;
-* `as_of(record_key, day)` returns, per source, the revision published by that
-  day.
+## Data minimisation (FC01)
 
-## Reviewable identity and links
+Claimants keep only their name and published `@type`, plus Wikidata or ROR
+identifiers. Images, job titles, contact details, birth dates and social
+profiles are dropped by the parser, and so is a review's individual author.
+Appearances on social platforms are stored as the host plus the SHA-256 of the
+canonical URL. They match only when the caller supplies the same URL. The store
+refuses any record that still carries a withheld field.
 
-`src/kb/fact_checks_identity.py` proposes match assertions with method,
-evidence and confidence; a reviewer accepts, rejects or reverts them and nothing
-is merged:
+## Journey
 
-| Kind | Target | Methods (strongest first) |
-| --- | --- | --- |
-| `claimant-entity` | `canonical_entities` | `published-identifier` (a `sameAs` such as a Wikidata QID is an entity alias), `alias-name` |
-| `claim-argument` | `argument_claims` | `appearance-url`, `review-url` (legacy stored lookup), `lexical-overlap` (from `src/kb/claim_links.py`) |
-| `publisher-source` | source identities (`src/kb/source_identity.py`) | `published-domain` (a reviewed domain alias) |
+1. Acquire through the source-pack runtime (`run_source_pack_execution` for
+   `bounded-public-osint`, sources `news-fact-checks-*`), or re-read one source
+   within its bounds with `FactCheckMonitor.refresh`.
+2. `propose_fact_check_identity_matches` proposes candidates. Claimants are
+   matched to canonical entities, published Wikidata id first and then the name
+   as published. Fact-check claims are matched to `argument_claims`, by shared
+   appearance URL or quoted-text overlap. Publishers are matched to source
+   identities by published domain. A reviewer accepts or rejects each candidate
+   with `review_fact_check_identity_match` and can revert the decision; nothing
+   is automatic.
+3. `link_fact_checks` links fact-checks to the news documents they cite
+   (`wa-canon-v1` URL rules). Accepted matches also link claim timelines, OSINT
+   corroboration and source identities. Missing targets are reported.
+4. `fact_checks_of_claim_or_claimant` takes a `claim_id` or a `claimant` and an
+   optional `as_of` publication cut-off. `known_at` restricts the answer to what
+   had been acquired by then. The answer gives ratings verbatim, side by side,
+   with the publisher's status at review time.
+5. `fact_checks_citing_article` takes a `url` or a `document_id` and returns the
+   fact-checks that cite it, the stated URL rule, and archived captures near the
+   review date when the web-archive store is present.
+6. `export_fact_check_evidence_bundle` cites every assertion with source,
+   record revision and as-of time.
+7. `create_fact_check_monitor` watches a claimant, a topic query or a
+   publisher. `run_fact_check_monitor` notices cite the new and previous
+   revisions: new fact-checks, rating and review-date changes, absences and
+   IFCN status changes.
 
-Accepted claimant and publisher matches are also `EntityHistoryStore` decisions;
-generic claimants are never proposed. `src/kb/fact_checks_links.py` then links
-current fact-check revisions to news documents they cite (by URL), and through
-accepted claim matches to argument claims, OSINT corroboration results
-(referenced, grades not copied) and claim-timeline states. Missing providers and
-targets are reported.
+## Evidence
 
-## Questions answered
-
-* **Fact-checks of a claim** (`fact_checks_for_claim`): by argument claim id
-  (accepted matches only; unreviewed candidates listed apart) or by a text
-  search over quoted claims (labelled a search). As of a date, with each rating
-  verbatim, conflicting ratings side by side and the publisher's IFCN status in
-  effect on the review date.
-* **Fact-checks of a claimant** (`fact_checks_for_claimant`): as named, or every
-  claimant accepted as matching a canonical entity; needs the claimant scope.
-* **Fact-checks citing an article** (`fact_checks_citing_url`): by URL or news
-  document id, matched with the stated URL rules, with archived captures when
-  the web-archives provider holds them.
-* **Evidence bundle** (`export_fact_checks_evidence_bundle`): every assertion
-  quotes the rating and cites the fact-check revision, source and observation
-  time.
-
-## Monitors
-
-`create_fact_checks_monitor` watches a claimant, a topic query or a publisher
-site through `platform.subscriptions`; notices (`fact_check_published`,
-`fact_check_revised`, `fact_check_withdrawn`, `publisher_listed`,
-`publisher_status_changed`) cite the new and previous revision and state what
-changed. No new scheduler: the source-pack schedule acquires and the maintenance
-orchestrator commits watermarks.
-
-## Enabling
-
-Select any of the News bundle features `fact-checks-google`,
-`fact-checks-datacommons` and `fact-checks-ifcn` (default off). Each binds
-`news.fact-checks`, `platform.entity-identity`, `platform.subscriptions` and
-`platform.source-runtime`; news documents, OSINT corroboration, claim timelines
-and web-archive captures are used when present and reported as unavailable when
-absent. Offline acceptance: `tests/unit/domains/test_fact_checks_acceptance.py`.
+- Offline: `tests/unit/domains/test_fact_checks_acceptance.py` (the journey
+  through the real runtime with sockets blocked) and the other
+  `test_fact_checks_*` suites, over fictional fixtures in
+  `tests/fixtures/fact_checks/`.
+- Live: none yet (#2722). Offline coverage is not live coverage.

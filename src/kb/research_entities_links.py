@@ -1,243 +1,325 @@
-"""Research-entity records linked to other packs by citation and accepted matches (#2579, RE08 #2618).
+"""Research-entity records linked to other packs by citation, shared identifier and accepted matches (#2579, RE08).
 
-Links are built from what the registries publish, never inferred:
+Every link starts at a specific record revision and points at a specific target revision, and records its basis:
 
-* a **researcher** links to a Scholarly-literature work (document store, ``source_type`` paper) only through a DOI
-  the researcher asserts among the public works of the ORCID revision (``orcid-asserted-identifier``); the link is an
-  assertion, not verified authorship, and no name is ever compared;
-* a **dataset** links to a work through a DOI among its DataCite related identifiers, with the relation type as
-  published (``published-related-identifier``);
-* a **project** links to a Funding & grants record (``src.kb.funding_opportunities``) whose provider id is the CORDIS
-  project id or whose record states the project id or grant DOI (``shared-identifier``);
-* an **organisation** or a **participant** links to an ownership entity only through an accepted RE07 match
-  (``accepted-match``).
+* ``citation`` - the source record cites the target: a DOI a researcher's public ORCID record asserts as one of their
+  works (labelled ORCID-asserted, never verified authorship), a DOI a dataset's metadata relates with a published
+  ``relationType`` (IsSupplementTo, Cites, IsVersionOf, ...);
+* ``shared-identifier`` - both sides publish the same identifier: the ROR id of an ORCID-asserted employment, a ROR
+  id in a dataset creator's affiliation or name identifiers, a CORDIS project id as a dataset funding reference's award
+  number (European Commission funder), a CORDIS topic or call identifier stated by a Funding & grants record;
+* ``accepted-match`` - an accepted RE07 identity decision (ROR organisation or CORDIS participant to a Corporate
+  Ownership entity, CORDIS participant to a ROR organisation), with the candidate and decision ids.
 
-Each link records its basis and points at a specific revision on both sides (the subject's record revision; the
-target's content hash, funding revision or ownership revision). A missing store is ``provider_absent`` and a missing
-record ``target_missing``: both are kept and reported, never dropped. No collaboration, co-authorship or influence
-link is ever derived.
+Targets live in other packs: Scholarly literature papers (documents whose metadata states the DOI), Funding & grants
+records (``funding_opportunities``), Corporate Ownership entities (``ownership_records``) and this provider's own
+records. A missing provider is reported as ``provider_absent`` and a missing target as ``target_missing``; both stay
+on record with the cited identifier and are re-resolved on later runs - nothing is dropped. There are no inferred
+collaboration, co-authorship or influence links and no name joins.
 """
 
 from __future__ import annotations
 
 import json
-import re
 import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
+from src.ingestion.research_entities_sources import (
+    canonical,
+    digest,
+    normalize_doi,
+    ror_url,
+)
 from src.kb.research_entities_records import (
     READ_SCOPE,
     WRITE_SCOPE,
-    ResearchEntitiesStore,
+    ResearchEntityStore,
     authorize,
-    canonical,
-    digest,
+    may_read_researchers,
     table_exists,
 )
 
 CONTRACT = "noesis-research-entity-link-v1"
-BASES = ("orcid-asserted-identifier", "published-related-identifier", "shared-identifier", "accepted-match")
-TARGETS = {
-    "scholarly_work": ("science.literature", "documents"),
-    "funding_record": ("funding", "funding_opportunity_revisions"),
-    "ownership_entity": ("ownership", "ownership_records"),
-}
-NOTICE = ("Linked by a published identifier or an accepted identity match only; ORCID works are the researcher's "
-          "assertions, not verified authorship; no collaboration or influence link is derived.")
+EC_FUNDER_IDS = {"10.13039/501100000780"}
+LINK_KINDS = ("researcher-asserted-work", "researcher-asserted-employment", "dataset-related-work",
+              "dataset-creator-affiliation", "dataset-funded-by-project", "project-funding-record",
+              "organisation-ownership-entity", "participant-ownership-entity", "participant-organisation")
+NOTICE = ("a link records what a registry record cites or an accepted identity decision; it is not evidence of "
+          "authorship, collaboration or influence")
 _DDL = """
-CREATE TABLE IF NOT EXISTS rentity_links (
-  namespace TEXT NOT NULL, link_id TEXT NOT NULL, subject_record_id TEXT NOT NULL, subject_revision_id TEXT NOT NULL,
-  subject_json TEXT NOT NULL, target_kind TEXT NOT NULL, target_json TEXT NOT NULL, basis_json TEXT NOT NULL,
-  target_status TEXT NOT NULL, history_json TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, link_id)
+CREATE TABLE IF NOT EXISTS research_entity_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, kind TEXT NOT NULL, source_key TEXT NOT NULL,
+  source_revision_id TEXT NOT NULL, reference TEXT NOT NULL, target_side TEXT NOT NULL, target_key TEXT,
+  target_revision TEXT, status TEXT NOT NULL, basis_json TEXT NOT NULL, history_json TEXT NOT NULL,
+  created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
 );
 """
 
 
-def _strings(value: Any) -> list[str]:
-    if isinstance(value, dict):
-        return [s for item in value.values() for s in _strings(item)]
-    if isinstance(value, list):
-        return [s for item in value for s in _strings(item)]
-    return [str(value)] if isinstance(value, (str, int)) and not isinstance(value, bool) else []
-
-
-def _doi_key(value: Any) -> str | None:
-    from src.ingestion.research_entities_sources import ResearchEntitiesFormatError, doi
-
-    try:
-        return doi(value)
-    except ResearchEntitiesFormatError:
-        return None
-
-
-class ResearchEntitiesLinks:
+class ResearchEntityLinks:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
-        self.store = ResearchEntitiesStore(conn, initialize=initialize, now=self.now)
+        self.store = ResearchEntityStore(conn, initialize=initialize, now=self.now)
         if initialize:
             conn.execute(_DDL)
 
-    # ------------------------------------------------------------------ targets
+    # ------------------------------------------------------------ targets
 
-    def _work(self, identifier: str) -> tuple[str, dict[str, Any] | None]:
+    def _papers(self) -> dict[str, dict[str, Any]] | None:
+        """Scholarly literature papers by the DOI their metadata states; ``None`` without the literature store."""
         if not table_exists(self.conn, "documents"):
-            return "provider_absent", None
-        rows = self.conn.execute(
-            "SELECT document_id, content_hash, url, metadata FROM documents WHERE source_type='paper' ORDER BY "
-            "document_id").fetchall()
-        for document_id, content_hash, url, metadata in rows:
-            stated = {_doi_key(json.loads(metadata or "{}").get("doi")), _doi_key(url)}
-            if identifier in stated:
-                return "resolved", {"record_id": document_id, "revision": content_hash, "url": url}
-        return "target_missing", None
-
-    def _funding(self, project: Mapping[str, Any]) -> tuple[str, list[dict[str, Any]]]:
-        if not table_exists(self.conn, "funding_opportunity_revisions"):
-            return "provider_absent", []
-        needles = {project["project_id"]} | ({project["grant_doi"]} if project.get("grant_doi") else set())
-        out = []
-        rows = self.conn.execute(
-            "SELECT o.opportunity_id, o.namespace, o.provider, o.provider_id, o.revision, r.content_json FROM "
-            "funding_opportunities o JOIN funding_opportunity_revisions r ON r.opportunity_id=o.opportunity_id AND "
-            "r.revision=o.revision ORDER BY o.opportunity_id").fetchall()
-        for opportunity_id, namespace, provider, provider_id, revision, content in rows:
-            values = _strings(json.loads(content))
-            stated = [n for n in sorted(needles) if n == str(provider_id)
-                      or any(re.search(rf"(?<![\w.]){re.escape(n)}(?![\w])", v) for v in values)]
-            if stated:
-                out.append({"record_id": opportunity_id, "namespace": namespace, "provider": provider,
-                            "revision": int(revision), "identifier": stated[0],
-                            "record_sha256": digest(json.loads(content))})
-        return ("resolved" if out else "target_missing"), out
-
-    def _ownership(self, ownership_key: str, ownership_namespace: str | None) -> tuple[str, dict[str, Any] | None]:
-        if not table_exists(self.conn, "ownership_records"):
-            return "provider_absent", None
-        row = self.conn.execute(
-            "SELECT r.namespace, r.record_id, r.current_revision, v.revision_id FROM ownership_records r JOIN "
-            "ownership_record_revisions v ON v.namespace=r.namespace AND v.record_id=r.record_id AND "
-            "v.revision=r.current_revision WHERE r.record_key=? AND (? IS NULL OR r.namespace=?) ORDER BY "
-            "r.namespace LIMIT 1", [ownership_key, ownership_namespace, ownership_namespace]).fetchone()
-        if row is None:
-            return "target_missing", None
-        return "resolved", {"namespace": row[0], "record_id": row[1], "record_key": ownership_key,
-                            "revision": int(row[2]), "revision_id": row[3]}
-
-    # ------------------------------------------------------------------ build
-
-    def _put(self, namespace, subject, target_kind, target, basis, status, created):
-        link_id = "rentity-link:" + digest([namespace, subject["revision_id"], target_kind, basis,
-                                           target.get("record_id") if status == "resolved" else None])[:24]
-        row = self.conn.execute("SELECT target_status, history_json FROM rentity_links WHERE namespace=? AND "
-                                "link_id=?", [namespace, link_id]).fetchone()
-        now = self.now()
-        if row is None:
-            self.conn.execute(
-                "INSERT INTO rentity_links VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                [namespace, link_id, subject["record_id"], subject["revision_id"], canonical(subject), target_kind,
-                 canonical(target), canonical(basis), status, canonical([{"status": status, "at_ms": now}]), now])
-            created.append(link_id)
-        elif row[0] != status:
-            history = json.loads(row[1]) + [{"status": status, "at_ms": now}]
-            self.conn.execute("UPDATE rentity_links SET target_status=?, target_json=?, history_json=? WHERE "
-                              "namespace=? AND link_id=?", [status, canonical(target), canonical(history), namespace,
-                                                           link_id])
-        return link_id
-
-    def build(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
-              ownership_namespace: str | None = None) -> dict[str, Any]:
-        """Link every revision of every held record by published identifier or accepted match; idempotent.
-        Missing providers and targets are reported with the link that could not resolve."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, WRITE_SCOPE, write=True)
-        del principal_id
-        self.conn.execute(_DDL)
-        created: list[str] = []
-        revisions = [(record, revision) for record in self.store.records(namespace)
-                     for revision in self.store.revisions(namespace, record["record_id"])]
-        for record, revision in revisions:
-            statement = self.store.statement(namespace, revision["revision_id"])
-            body = statement["body"]
-            if not body:
+            return None
+        revisions = table_exists(self.conn, "document_revision_records")
+        out: dict[str, dict[str, Any]] = {}
+        for document_id, title, metadata, content_hash in self.conn.execute(
+                "SELECT document_id, title, metadata, content_hash FROM documents WHERE source_type='paper' "
+                "ORDER BY document_id").fetchall():
+            meta = json.loads(metadata) if isinstance(metadata, str) and metadata else dict(metadata or {})
+            doi = normalize_doi(meta.get("doi"))
+            if not doi:
                 continue
-            subject = {"record_kind": record["record_kind"], "provider": record["provider"],
-                       "native_id": record["native_id"], "record_id": record["record_id"],
-                       "revision_id": revision["revision_id"], "revision": revision["revision"]}
-            if record["record_kind"] == "researcher":
-                for work in body.get("works") or []:
-                    for identifier in work.get("identifiers") or []:
-                        if identifier["type"] != "doi":
-                            continue
-                        status, target = self._work(identifier["value"])
-                        basis = {"method": "orcid-asserted-identifier", "identifier": identifier,
-                                 "put_code": work.get("put_code"),
-                                 "assertion": "orcid-asserted, not verified authorship"}
-                        self._put(namespace, subject, "scholarly_work", target or {}, basis, status, created)
-            elif record["record_kind"] == "dataset":
-                for related in body.get("related_identifiers") or []:
-                    key = _doi_key(related.get("relatedIdentifier"))
-                    if str(related.get("relatedIdentifierType")).upper() != "DOI" or key is None:
-                        continue
-                    status, target = self._work(key)
-                    basis = {"method": "published-related-identifier", "identifier": {"type": "doi", "value": key},
-                             "relation_type": related.get("relationType"), "as_published": related}
-                    self._put(namespace, subject, "scholarly_work", target or {}, basis, status, created)
-            elif record["record_kind"] == "project":
-                status, targets = self._funding(body)
-                for target in targets or [{}]:
-                    basis = {"method": "shared-identifier",
-                             "identifier": {"type": "cordis-project", "value": body["project_id"]},
-                             "stated_identifier": target.get("identifier")}
-                    self._put(namespace, subject, "funding_record", target, basis, status, created)
-                keys = [("research-entities:pic:" + p["pic"], p["pic"]) for p in body.get("participants") or []]
-                self._ownership_links(namespace, subject, keys, ownership_namespace, created)
-            elif record["record_kind"] == "organisation":
-                keys = [("research-entities:ror:" + body["ror_id"].rsplit("/", 1)[-1], body["ror_id"])]
-                self._ownership_links(namespace, subject, keys, ownership_namespace, created)
-        return {"created": created, "links": self.links(namespace, scopes={"operator"}),
-                "missing": [v for v in self.links(namespace, scopes={"operator"})
-                            if v["target_status"] != "resolved"]}
-
-    def _ownership_links(self, namespace, subject, keys, ownership_namespace, created) -> list[str]:
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
-
-        identity = ResearchEntitiesIdentity(self.conn, initialize=False, now=self.now)
-        out = []
-        for key, label in keys:
-            for match in identity.accepted_ownership(namespace, key):
-                status, target = self._ownership(match["ownership_key"], ownership_namespace)
-                out.append(self._put(namespace, subject, "ownership_entity",
-                                     target or {"record_key": match["ownership_key"]},
-                                     {"method": "accepted-match", "match_id": match["match_id"],
-                                      "match_method": match["method"], "decision_id": match["decision_id"],
-                                      "subject_key": key, "subject_identifier": label}, status, created))
+            revision = None
+            if revisions:
+                row = self.conn.execute(
+                    "SELECT revision_id FROM document_revision_records WHERE document_id=? AND committed_watermark "
+                    "IS NOT NULL ORDER BY revision DESC LIMIT 1", [document_id]).fetchone()
+                revision = row[0] if row else None
+            out.setdefault(doi, {"document_id": document_id, "title": title,
+                                 "revision": revision or content_hash or "sha256:" + digest([document_id, meta])})
         return out
 
-    # ------------------------------------------------------------------ reads
+    def _funding(self, identifier: str) -> tuple[str, dict[str, Any] | None]:
+        if not table_exists(self.conn, "funding_opportunity_revisions"):
+            return "provider_absent", None
+        rows = self.conn.execute(
+            "SELECT o.opportunity_id, o.provider, o.revision, r.content_json FROM funding_opportunities o JOIN "
+            "funding_opportunity_revisions r ON r.opportunity_id=o.opportunity_id AND r.revision=o.revision "
+            "WHERE o.provider_id=? OR o.round_id=? ORDER BY o.opportunity_id", [identifier, identifier]).fetchall()
+        for opportunity_id, provider, revision, content in rows:
+            if identifier in str(content):  # the held record must state the identifier
+                return "resolved", {"key": opportunity_id, "provider": provider, "revision": f"revision:{revision}"}
+        return "target_missing", None
 
-    def _view(self, row) -> dict[str, Any]:
-        keys = ("link_id", "subject_record_id", "subject_revision_id", "subject", "target_kind", "target", "basis",
-                "target_status", "history", "created_at_ms")
-        value = dict(zip(keys, row))
-        for key in ("subject", "target", "basis", "history"):
-            value[key] = json.loads(value[key])
-        value["target_pack"] = TARGETS[value["target_kind"]][0]
-        return {"contract": CONTRACT, **value, "notice": NOTICE}
+    # ------------------------------------------------------------ writes
 
-    def links(self, namespace: str, *, scopes: Iterable[str], record_id: str | None = None,
-              revision_id: str | None = None, target_kind: str | None = None) -> list[dict[str, Any]]:
-        authorize(namespace, set(scopes), READ_SCOPE)
-        if not table_exists(self.conn, "rentity_links"):
+    def _put(self, namespace, kind, source, reference, target_side, status, target, basis, principal_id) -> str:
+        link_id = "re-link:" + digest([namespace, kind, source["record_key"], source["revision_id"], reference])[:24]
+        target = target or {}
+        now = self.now()
+        row = self.conn.execute("SELECT status, target_key, target_revision, history_json FROM research_entity_links "
+                                "WHERE namespace=? AND link_id=?", [namespace, link_id]).fetchone()
+        if row is None:
+            self.conn.execute(
+                "INSERT INTO research_entity_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                [namespace, link_id, kind, source["record_key"], source["revision_id"], reference, target_side,
+                 target.get("key"), target.get("revision"), status, canonical(basis),
+                 canonical([{"status": status, "by": principal_id, "at_ms": now}]), principal_id, now])
+            return "created"
+        if (row[0], row[1], row[2]) == (status, target.get("key"), target.get("revision")):
+            return "unchanged"
+        history = json.loads(row[3]) + [{"status": status, "previous_status": row[0], "by": principal_id,
+                                         "at_ms": now}]
+        self.conn.execute("UPDATE research_entity_links SET status=?, target_key=?, target_revision=?, basis_json=?, "
+                          "history_json=? WHERE namespace=? AND link_id=?",
+                          [status, target.get("key"), target.get("revision"), canonical(basis), canonical(history),
+                           namespace, link_id])
+        return "re-resolved"
+
+    def link(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
+             ownership_namespace: str | None = None) -> dict[str, Any]:
+        """Resolve every citation, shared identifier and accepted match of the current revisions; idempotent."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        self.conn.execute(_DDL)
+        papers = self._papers()
+        providers = {"literature": "absent" if papers is None else "present",
+                     "funding": "present" if table_exists(self.conn, "funding_opportunity_revisions") else "absent",
+                     "ownership": ("not_requested" if not ownership_namespace else
+                                   "present" if table_exists(self.conn, "ownership_records") else "absent"),
+                     "researchers": ("linked" if may_read_researchers(scopes) else
+                                     "skipped: linking researcher records needs the researchers:read scope")}
+        records = self.store.records(namespace, scopes=scopes)
+        by_key = {r["record_key"]: r for r in records}
+        organisations = {r["record"]["fields"]["ror_id"]: r for r in records if r["record_kind"] == "organisation"}
+        datasets = {r["record"]["fields"]["doi"]: r for r in records if r["record_kind"] == "dataset"}
+        projects = {r["record"]["fields"]["project_id"]: r for r in records if r["record_kind"] == "project"}
+        outcome: dict[str, int] = {}
+
+        def put(kind, source, reference, side, status, target, basis):
+            change = self._put(namespace, kind, source, reference, side, status, target, basis, principal_id)
+            outcome[change] = outcome.get(change, 0) + 1
+
+        def paper_or_dataset(doi):
+            if doi in datasets:
+                row = datasets[doi]
+                return "research-entities", "resolved", {"key": row["record_key"], "revision": row["revision_id"]}
+            if papers is None:
+                return "literature", "provider_absent", None
+            paper = papers.get(doi)
+            if paper is None:
+                return "literature", "target_missing", None
+            return "literature", "resolved", {"key": paper["document_id"], "revision": paper["revision"]}
+
+        def organisation(rid):
+            row = organisations.get(rid)
+            if row is None:
+                return "target_missing", None
+            return "resolved", {"key": row["record_key"], "revision": row["revision_id"]}
+
+        for row in records:
+            fields = row["record"]["fields"]
+            if row["record_kind"] == "researcher":
+                for work in fields.get("works") or []:
+                    for ext in work.get("external_ids") or []:
+                        doi = normalize_doi(ext.get("value")) if ext.get("type") == "doi" else None
+                        if not doi:
+                            continue
+                        side, status, target = paper_or_dataset(doi)
+                        put("researcher-asserted-work", row, f"doi:{doi}", side, status, target,
+                            {"kind": "citation", "method": "orcid-asserted-work-doi", "put_code": work["put_code"],
+                             "asserted_by": work["asserted_by"]["kind"], "relationship": ext.get("relationship"),
+                             "label": "ORCID-asserted work; not verified authorship"})
+                for employment in fields.get("employments") or []:
+                    rid = ((employment.get("organisation") or {}).get("disambiguated") or {}).get("ror_id")
+                    if not rid:
+                        continue
+                    status, target = organisation(rid)
+                    put("researcher-asserted-employment", row, f"ror:{rid}", "research-entities", status, target,
+                        {"kind": "shared-identifier", "method": "orcid-asserted-employment-ror",
+                         "put_code": employment["put_code"], "asserted_by": employment["asserted_by"]["kind"],
+                         "start_date": employment["start_date"], "end_date": employment["end_date"],
+                         "label": "ORCID-asserted employment; not a verified affiliation"})
+            elif row["record_kind"] == "dataset":
+                for related in fields.get("related_identifiers") or []:
+                    if not related.get("doi"):
+                        continue
+                    side, status, target = paper_or_dataset(related["doi"])
+                    put("dataset-related-work", row, f"{related['relation_type']}:doi:{related['doi']}", side, status,
+                        target, {"kind": "citation", "method": "datacite-related-identifier",
+                                 "relation_type": related["relation_type"]})
+                for role in ("creators", "contributors"):
+                    for person in fields.get(role) or []:
+                        ids = set(person.get("affiliation_ids") or [])
+                        ids |= {ror_url(i.get("value")) for i in person.get("identifiers") or []
+                                if str(i.get("scheme") or "").upper() == "ROR" and ror_url(i.get("value"))}
+                        for rid in sorted(ids):
+                            status, target = organisation(rid)
+                            put("dataset-creator-affiliation", row, f"{role}[{person['position']}]:ror:{rid}",
+                                "research-entities", status, target,
+                                {"kind": "shared-identifier", "method": "datacite-ror-identifier", "role": role,
+                                 "name_type": person["name_type"]})
+                for funding in fields.get("funding_references") or []:
+                    funder = normalize_doi(funding.get("funder_identifier"))
+                    award = str(funding.get("award_number") or "").strip()
+                    if not award or funder not in EC_FUNDER_IDS:
+                        continue
+                    project = projects.get(award)
+                    put("dataset-funded-by-project", row, f"award:{award}", "research-entities",
+                        "resolved" if project else "target_missing",
+                        {"key": project["record_key"], "revision": project["revision_id"]} if project else None,
+                        {"kind": "shared-identifier", "method": "datacite-award-number",
+                         "funder_identifier": funding.get("funder_identifier")})
+            elif row["record_kind"] == "project":
+                topics = sorted(set(fields.get("topics") or []))
+                calls = sorted({fields.get("master_call"), fields.get("sub_call")} - {None, ""} - set(topics))
+                for identifier in topics + calls:
+                    status, target = self._funding(identifier)
+                    if identifier in calls and status != "resolved":
+                        continue  # a call id is linked when a Funding record states it; topics are always reported
+                    put("project-funding-record", row, f"funding:{identifier}", "funding", status, target,
+                        {"kind": "shared-identifier", "method": "cordis-topic-or-call-identifier",
+                         "identifier": identifier, "identifier_kind": "topic" if identifier in topics else "call"})
+        if providers["ownership"] == "present" and not self.conn.execute(
+                "SELECT 1 FROM ownership_records WHERE namespace=? LIMIT 1", [ownership_namespace]).fetchone():
+            providers["ownership"] = "absent"
+        self._accepted(namespace, by_key, scopes, ownership_namespace, providers, put)
+        return {"outcome": outcome, "providers": providers, "links": self.links(namespace, scopes=scopes)}
+
+    def _accepted(self, namespace, by_key, scopes, ownership_namespace, providers, put) -> None:
+        from src.kb.research_entities_identity import ResearchEntityIdentity
+
+        if not table_exists(self.conn, "ownership_identity_candidates"):
+            return
+        identity = ResearchEntityIdentity(self.conn, initialize=False)
+        entities = {}
+        if providers["ownership"] == "present":
+            entities = {e["record"]["record_key"]: e for e in identity.service._entities(
+                ownership_namespace, "research-entities-links", scopes)}
+        for match in identity.accepted(namespace, scopes=scopes):
+            subject = match["subject_key"]
+            basis = {"kind": "accepted-match", "candidate_id": match["candidate_id"],
+                     "decision_id": match["decision_id"], "method": match["method"], "reviewer": match["reviewer"],
+                     "low_evidence": match["low_evidence"]}
+            if ":cordis-participant:" in subject:
+                projects = [by_key[k] for k in sorted(by_key) if k.startswith("research-entities:cordis:") and any(
+                    p.get("pic") == subject.rsplit(":", 1)[1] for p in by_key[k]["record"]["fields"]["participants"])]
+                sources = [{"record_key": subject, "revision_id": p["revision_id"]} for p in projects]
+            else:
+                source = by_key.get(subject)
+                sources = [{"record_key": subject, "revision_id": source["revision_id"]}] if source else []
+            for source in sources:
+                if match["target_kind"] == "ror_organisation":
+                    target = by_key.get(match["target_key"])
+                    put("participant-organisation", source, f"match:{match['candidate_id']}", "research-entities",
+                        "resolved" if target else "target_missing",
+                        {"key": target["record_key"], "revision": target["revision_id"]} if target else None, basis)
+                    continue
+                kind = ("participant-ownership-entity" if ":cordis-participant:" in subject
+                        else "organisation-ownership-entity")
+                if providers["ownership"] != "present":
+                    status = "provider_absent" if providers["ownership"] == "absent" else "not_requested"
+                    put(kind, source, f"match:{match['candidate_id']}", "ownership", status, None, basis)
+                    continue
+                entity = entities.get(match["target_key"])
+                put(kind, source, f"match:{match['candidate_id']}", "ownership",
+                    "resolved" if entity else "target_missing",
+                    {"key": match["target_key"], "revision": str(entity["revision"])} if entity else None,
+                    {**basis, "ownership_namespace": ownership_namespace})
+
+    # ------------------------------------------------------------ reads
+
+    def links(self, namespace: str, *, scopes: Iterable[str], source_key: str | None = None,
+              kind: str | None = None, target_key: str | None = None, source_revision_id: str | None = None,
+              status: str | None = None) -> list[dict[str, Any]]:
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        if not table_exists(self.conn, "research_entity_links"):
             return []
         rows = self.conn.execute(
-            "SELECT link_id, subject_record_id, subject_revision_id, subject_json, target_kind, target_json, "
-            "basis_json, target_status, history_json, created_at_ms FROM rentity_links WHERE namespace=? AND "
-            "(? IS NULL OR subject_record_id=?) AND (? IS NULL OR subject_revision_id=?) AND (? IS NULL OR "
-            "target_kind=?) ORDER BY subject_record_id, target_kind, link_id",
-            [namespace, record_id, record_id, revision_id, revision_id, target_kind, target_kind]).fetchall()
-        return [self._view(r) for r in rows]
+            "SELECT link_id, kind, source_key, source_revision_id, reference, target_side, target_key, "
+            "target_revision, status, basis_json, history_json, created_by, created_at_ms FROM research_entity_links "
+            "WHERE namespace=? AND (? IS NULL OR source_key=?) AND (? IS NULL OR kind=?) AND (? IS NULL OR "
+            "target_key=?) AND (? IS NULL OR source_revision_id=?) AND (? IS NULL OR status=?) "
+            "ORDER BY kind, source_key, source_revision_id, reference",
+            [namespace, source_key, source_key, kind, kind, target_key, target_key, source_revision_id,
+             source_revision_id, status, status]).fetchall()
+        out = []
+        for row in rows:
+            view = dict(zip(("link_id", "kind", "source_key", "source_revision_id", "reference", "target_side",
+                             "target_key", "target_revision", "status"), row[:9], strict=True))
+            if view["source_key"].startswith("research-entities:orcid:") and not may_read_researchers(scopes):
+                continue
+            out.append({"contract": CONTRACT, "namespace": namespace, **view, "basis": json.loads(row[9]),
+                        "history": json.loads(row[10]), "created_by": row[11], "created_at_ms": row[12],
+                        "notice": NOTICE})
+        return out
 
-__all__ = ["BASES", "TARGETS", "ResearchEntitiesLinks"]
+    def current(self, namespace: str, *, scopes: Iterable[str], source_key: str, source_revision_id: str | None = None,
+                kind: str | None = None) -> list[dict[str, Any]]:
+        """Links of one record revision (its current revision by default)."""
+        if source_revision_id is None:
+            head = self.store.records(namespace, scopes=scopes, record_keys=[source_key])
+            if not head:
+                return []
+            source_revision_id = head[0]["revision_id"]
+        return self.links(namespace, scopes=scopes, source_key=source_key, source_revision_id=source_revision_id,
+                          kind=kind)
+
+
+def summarise(links: Iterable[Mapping[str, Any]]) -> dict[str, int]:
+    counts: dict[str, int] = {}
+    for link in links:
+        counts[link["status"]] = counts.get(link["status"], 0) + 1
+    return counts

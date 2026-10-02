@@ -52,8 +52,10 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Geospatial infrastructure feature's geospatial-infrastructure pack (#2223),
     # plus the Economics logistics feature's separate economic-shipping-and-logistics pack (#2229),
     # plus the Market insurance feature's insurance-supervisory-and-catastrophe-losses pack (#2230),
-    # plus the Society bundle's society-statistics pack (#2583).
-    assert len(packs) == 33
+    # plus the Economics extractives features' separate economic-extractives pack (#2653),
+    # plus the Society bundle's society-income-distribution pack (#2583),
+    # plus the OSINT platform-transparency features' osint-platform-transparency pack (#2580).
+    assert len(packs) == 35
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -127,16 +129,15 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the OSINT movements feature's FAA, G-INFO, OpenSky, GFW port-visit, open AIS and UNCTAD sources (#2221),
     # plus the Cultural Collections media-metadata Open Library, MusicBrainz, Wikidata, DNB and LoC sources (#2225),
     # plus the Political campaign-finance features' six OpenFEC and two Electoral Commission sources (#2209),
-    # plus the News fact-checks features' Google claim-search, Data Commons feed and IFCN signatories sources (#2659),
-    # plus the Legal treaties provider's CELLAR, Council of Europe and declined UN Treaty Collection sources (#2581),
-    # plus the Clinical Evidence medical-devices features' seven openFDA, one AccessGUDID and three EUDAMED sources
-    # (#2654),
-    # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB sources (#2651),
-    # plus the Society income provider's World Bank PIP, Eurostat EU-SILC and OECD IDD sources (#2583),
+    # plus the Legal treaties features' UNTC, CELLAR agreement and Council of Europe sources (#2581),
+    # plus the News fact-checks features' Google Fact Check Tools, Data Commons ClaimReview and IFCN sources (#2659),
+    # plus the Legal enforcement features' SEC, FCA, EPA ECHO and EDPB Art. 60 sources (#2651),
+    # plus the Economics extractives features' EITI, USGS MCS and BGS World Mineral Statistics sources (#2653),
+    # plus the Science life-sciences UniProt, NCBI Gene, NCBI Taxonomy, RCSB PDB and ChEMBL sources (#2652),
+    # plus the Clinical Evidence medical-devices openFDA, AccessGUDID and EUDAMED sources (#2654),
     # plus the Science research-entities features' ROR, ORCID, DataCite and CORDIS sources (#2579),
-    # plus the Science life-sciences features' UniProt, NCBI, RCSB PDB and ChEMBL sources (#2652),
-    # plus the OSINT platform-transparency DSA dump, Meta Ad Library and Google political-ads sources (#2580),
-    # plus the Economics extractives features' EITI, USGS MCS and BGS WMS sources (#2653).
+    # plus the Society income pack's PIP country, PIP regional, EU-SILC and OECD IDD sources (#2583),
+    # plus the OSINT platform-transparency features' DSA, Meta, Google and Lumen sources (#2580).
     assert sum(len(pack["sources"]) for pack in packs) == 337
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()

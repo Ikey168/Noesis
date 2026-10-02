@@ -1,68 +1,88 @@
-"""Monitor device changes through subscriptions: new, revised and unchanged (#2708, MD11)."""
+"""Monitor devices, manufacturers and product codes through subscriptions: new, revised, unchanged (MD11)."""
 
 from __future__ import annotations
 
 import pytest
 
-from src.ingestion.medical_devices_sources import FIXTURE_SECRET, fixture_transport
-from src.kb.medical_devices_monitoring import MedicalDevicesMonitor
-from src.kb.medical_devices_records import MedicalDevicesError
+from src.kb.medical_devices_monitoring import MedicalDeviceMonitor
+from src.kb.medical_devices_records import MedicalDeviceError
 from src.kb.subscriptions import SubscriptionStore
 from tests.unit import medical_devices_harness as h
 
 
+@pytest.fixture()
 def env():
     conn = h.connection()
-    h.load_all(conn)
-    return conn, MedicalDevicesMonitor(conn)
+    clock = h.Clock()
+    h.load_all(conn, now=clock)
+    monitor = MedicalDeviceMonitor(conn, now=clock)
+    SubscriptionStore(conn).commit_watermark(h.NS, 1)
+    return conn, clock, monitor
 
 
-def run(conn, monitor, subscription, watermark):
-    SubscriptionStore(conn).commit_watermark(h.NS, watermark)
-    return monitor.run(subscription, principal_id="alice", scopes=h.SCOPES)
+def run(monitor, subscription, watermark=None):
+    return monitor.run(subscription["subscription_id"], watermark, principal_id="analyst", scopes=h.SCOPES)
 
 
-def test_new_revised_and_unchanged_records_with_cited_revisions():
-    conn, monitor = env()
-    device = monitor.create(h.NS, "pump", watch="device", key="K999901", principal_id="alice", scopes=h.SCOPES)
-    valve = monitor.create(h.NS, "valve", watch="product-code", key="zzb", principal_id="alice", scopes=h.SCOPES)
-    first = run(conn, monitor, device["subscription_id"], 1)
-    kinds = sorted(n["kind"] for n in first["notifications"])
-    assert kinds == ["classification_published", "clearance_published", "device_version_published",
-                     "recall_published", "recall_published"]
+def test_new_revised_and_unchanged_records(env):
+    conn, clock, monitor = env
+    code = monitor.create(h.NS, "code", watch="product-code", key="ZXA", principal_id="analyst", scopes=h.SCOPES)
+    device = monitor.create(h.NS, "lead", watch="device", key="P999001", principal_id="analyst", scopes=h.SCOPES)
+    cert = monitor.create(h.NS, "pump", watch="device", key="0899999EXFLOWSENSEZ7", principal_id="analyst",
+                          scopes=h.SCOPES)
+    first = run(monitor, code)
+    assert sorted(n["kind"] for n in first["notifications"]) == ["clearance_published", "clearance_published",
+                                                                "recall_published"]
     assert all(n["cites"]["revision_id"] and n["cites"]["previous_revision_id"] is None
                for n in first["notifications"])
-    assert not [n for n in first["notifications"] if ":maude" in n["record_key"]]  # reports are never notified
-    run(conn, monitor, valve["subscription_id"], 1)
-    h.load_all(conn, version="v2", run_id="v2")
-    revised = run(conn, monitor, device["subscription_id"], 2)
-    changes = {(n["kind"], n["record_key"]) for n in revised["notifications"]}
-    assert ("recall_status_changed", "medical-devices:fda:recall:Z-9901-2099") in changes
-    assert ("device_version_published", f"medical-devices:gudid:di:{h.EXAMPLE_DI}") in changes
-    status = [n for n in revised["notifications"] if n["kind"] == "recall_status_changed"]
-    assert {(n["before"], n["after"]) for n in status} == {("Open, Classified", "Terminated"),
-                                                           ("Ongoing", "Terminated")}
-    assert all(n["cites"]["previous_revision_id"] and n["cites"]["revision_id"] != n["cites"]["previous_revision_id"]
-               for n in revised["notifications"])
-    valve_notes = run(conn, monitor, valve["subscription_id"], 2)["notifications"]
-    assert {n["kind"] for n in valve_notes} == {"supplement_published", "supplement_listed"}
-    assert run(conn, monitor, device["subscription_id"], 3)["notifications"] == []  # unchanged
+    run(monitor, device)
+    run(monitor, cert)
+    # Unchanged: a replayed acquisition and a new watermark deliver nothing.
+    h.load_all(conn, now=clock)
+    SubscriptionStore(conn).commit_watermark(h.NS, 2)
+    assert run(monitor, code)["notifications"] == []
+    # Revised: the recall terminated, a supplement published, the certificate suspended, K999002 removed.
+    h.load_all(conn, v2=True, now=clock)
+    SubscriptionStore(conn).commit_watermark(h.NS, 3)
+    notes = {n["kind"]: n for n in run(monitor, code)["notifications"]}
+    assert set(notes) == {"recall_status_changed", "record_removed_by_source"}
+    status = notes["recall_status_changed"]
+    assert (status["before"], status["after"]) == ("Open, Classified", "Terminated")
+    assert status["cites"]["previous_revision_id"] and status["cites"]["revision_id"] != status["cites"][
+        "previous_revision_id"]
+    assert [n["kind"] for n in run(monitor, device)["notifications"]] == ["supplement_published"]
+    (suspended,) = run(monitor, cert)["notifications"]
+    assert suspended["kind"] == "certificate_status_changed" and suspended["after"] == "Suspended"
+    # A replayed watermark is idempotent.
+    assert monitor.run(code["subscription_id"], 3, principal_id="analyst", scopes=h.SCOPES)["status"] == "replayed"
+    polled = monitor.poll(code["subscription_id"], principal_id="analyst", scopes=h.SCOPES)
+    assert len(polled["events"]) == 5
 
 
-def test_refresh_is_bounded_idempotent_and_leaves_receipts():
-    conn, monitor = env()
-    source = h.source("devices-eudamed-certificates")
-    transport = fixture_transport(h.native_pages("devices-eudamed-certificates", "v2"))
-    first = monitor.refresh(source, run_id="refresh-1", principal_id="alice", scopes=h.SCOPES, transport=transport,
-                            secret=FIXTURE_SECRET)
-    assert first["counts"]["revised"] == 1 and first["complete"] and len(first["receipts"]) == 1
-    again = monitor.refresh(source, run_id="refresh-2", principal_id="alice", scopes=h.SCOPES, transport=transport)
-    assert again["counts"]["unchanged"] == 1 and again["counts"].get("revised", 0) == 0
-    watch = monitor.create(h.NS, "maker", watch="manufacturer", key="DE-MF-000099901", principal_id="alice",
-                           scopes=h.SCOPES)
-    notes = run(conn, monitor, watch["subscription_id"], 1)["notifications"]
-    assert {n["kind"] for n in notes} >= {"certificate_published"}
-    with pytest.raises(MedicalDevicesError):
-        monitor.create(h.NS, "bad", watch="product-code", key="Z1", principal_id="alice", scopes=h.SCOPES)
-    with pytest.raises(MedicalDevicesError):
-        monitor.refresh(source, run_id="r", principal_id="alice", scopes=h.READ_ONLY, transport=transport)
+def test_manufacturer_watch_and_validation(env):
+    _, _, monitor = env
+    subscription = monitor.create(h.NS, "maker", watch="manufacturer",
+                                  key="medical-devices:manufacturer:openfda-device:exampla-medical-devices",
+                                  principal_id="analyst", scopes=h.SCOPES)
+    kinds = sorted(n["kind"] for n in run(monitor, subscription)["notifications"])
+    assert kinds == ["approval_published", "clearance_published", "clearance_published", "recall_published"]
+    with pytest.raises(MedicalDeviceError):
+        monitor.create(h.NS, "bad", watch="manufacturer", key="Exampla", principal_id="analyst", scopes=h.SCOPES)
+    with pytest.raises(MedicalDeviceError):
+        monitor.create(h.NS, "bad", watch="device", key="Exampla FlowSense", principal_id="analyst",
+                       scopes=h.SCOPES)
+
+
+def test_refresh_is_bounded_idempotent_and_receipted(env):
+    _, _, monitor = env
+    source = h.source("clinical-devices-openfda-recalls")
+    from src.ingestion.medical_devices_sources import fixture_transport
+
+    result = monitor.refresh(source, run_id="run:refresh", principal_id="operator", scopes=h.SCOPES,
+                             transport=fixture_transport(h.native_pages("clinical-devices-openfda-recalls")))
+    assert result["complete"] and result["units"] == 1 and result["counts"]["unchanged"] == 1
+    assert result["receipts"] and result["receipts"][0]["receipt"]["requests"]
+    revised = monitor.refresh(source, run_id="run:refresh-2", principal_id="operator", scopes=h.SCOPES,
+                              transport=fixture_transport(h.native_pages("clinical-devices-openfda-recalls",
+                                                                         v2=True)))
+    assert revised["counts"]["revised"] == 1

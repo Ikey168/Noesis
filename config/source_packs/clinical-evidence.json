@@ -1,7 +1,7 @@
 {
   "pack_id": "clinical-evidence",
   "version": "0.1.4",
-  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart. Version 0.1.2 adds medicines regulation (EMA EPARs and product information, Drugs@FDA submission history through the openFDA connector, DailyMed SPL versions, FDA Drug Safety Communications). Version 0.1.3 adds health-system capacity indicators (hospital beds, health workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics through the SDMX connector and Eurostat health care resources and expenditure) with definitions and vintages; existing sources are unchanged. Version 0.1.4 adds medical devices (openFDA 510(k), PMA with supplements, classification, recalls, enforcement reports and MAUDE reports and report counts, AccessGUDID device identifiers and EUDAMED public actor, device and certificate records); existing sources are unchanged. No medical advice, no rankings, no safety-signal detection.",
+  "description": "Clinical Evidence: registered trials with version history, posted results, EU registry records and regulatory records (openFDA, EMA) for pinned selections. Version 0.1.1 adds public-health surveillance series (RKI open data, WHO GHO, Eurostat health through the SDMX connector, Destatis health through the GENESIS connector) with reporting and reference dates kept apart. Version 0.1.2 adds medicines regulation (EMA EPARs and product information, Drugs@FDA submission history through the openFDA connector, DailyMed SPL versions, FDA Drug Safety Communications). Version 0.1.3 adds health-system capacity indicators (hospital beds, health workforce and expenditure by financing scheme from WHO GHO, OECD Health Statistics through the SDMX connector and Eurostat health care resources and expenditure) with definitions and vintages; existing sources are unchanged. No medical advice, no rankings. Version 0.1.4 adds medical devices (openFDA 510(k), PMA, classification, recall and MAUDE device endpoints, AccessGUDID device identifiers and EUDAMED public actor, device and certificate modules) as versioned device, clearance, approval, recall and adverse-event report records; existing sources are unchanged. Adverse-event report counts are reports, never incidence.",
   "domains": [
     "clinical"
   ],
@@ -1279,8 +1279,8 @@
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1289,13 +1289,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-fda-510k",
+      "source_id": "clinical-devices-openfda-510k",
       "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
+      "publisher": "U.S. Food and Drug Administration (openFDA)",
       "endpoint": "https://api.fda.gov",
-      "scope": "510(k) clearances of the declared product codes: K number, decision code and date, applicant as published (contact persons withheld)",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "decision_date per clearance; meta.last_updated in the receipt; observation time separately",
+      "scope": "Declared 510(k) numbers: clearance, decision code and date, product code as published",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1305,42 +1305,48 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
         "provider": "openfda-device",
-        "format": "openfda-device-510k-json",
+        "format": "openfda-510k-json",
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
-          "product_codes": [
-            "ZZA",
-            "ZZC"
+          "k_numbers": [
+            {
+              "k_number": "K999001"
+            },
+            {
+              "k_number": "K999002"
+            },
+            {
+              "k_number": "K999404"
+            }
           ]
         }
       },
       "license": {
         "id": "openfda-terms",
         "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
+        "redistribution": "public domain US government data; keep openFDA's disclaimer; no FDA endorsement"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-510k.json",
-        "sha256": "9ebf755121649fbc0069a08c9ef00f41726652ca76285bef301f782ce5572437",
-        "expected_output_hash": "2fc2be8377a410fb812157805294ddff13552a842fccbcc7ba29a4d97ba5c037"
+        "path": "tests/fixtures/source_packs/clinical-devices-openfda-510k.json",
+        "sha256": "5f3399d57ab82448fe53cf33a4d2c1b3405872139966c416f79d67f3cccafa84",
+        "expected_output_hash": "ed4b92cd5cb00ec82e63629ac412882746837909344ddb5227c28e047c00fd82"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1349,13 +1355,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-fda-pma",
+      "source_id": "clinical-devices-openfda-pma",
       "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
+      "publisher": "U.S. Food and Drug Administration (openFDA)",
       "endpoint": "https://api.fda.gov",
-      "scope": "PMA approvals and supplements of the declared product codes: P number, supplement number, decision code and date as published; the approval lists its supplements",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "decision_date per approval and supplement; meta.last_updated in the receipt",
+      "scope": "Declared PMA numbers: the original approval and every published supplement",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1365,41 +1371,42 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
         "provider": "openfda-device",
-        "format": "openfda-device-pma-json",
+        "format": "openfda-pma-json",
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
-          "product_codes": [
-            "ZZB"
+          "pma_numbers": [
+            {
+              "pma_number": "P999001"
+            }
           ]
         }
       },
       "license": {
         "id": "openfda-terms",
         "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
+        "redistribution": "public domain US government data; keep openFDA's disclaimer; no FDA endorsement"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-pma.json",
-        "sha256": "ebd2da2ba6ac6ebbf212cdeadb685c9026f937a82925400bcb81f55050005fc8",
-        "expected_output_hash": "8d6eaa78224a8cd263c50272c9376d5cb6e29d2920dfa50c075692051e9b0689"
+        "path": "tests/fixtures/source_packs/clinical-devices-openfda-pma.json",
+        "sha256": "4cbda9c46814e0a896548dc02d677e29bbefda42f8747959b877e63a313a8f8a",
+        "expected_output_hash": "99a2d995e0dfb89b9785925b7ee005b5be4f18fecf5f06fab32b6fd509cc447e"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1408,13 +1415,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-fda-classification",
+      "source_id": "clinical-devices-openfda-classification",
       "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
+      "publisher": "U.S. Food and Drug Administration (openFDA)",
       "endpoint": "https://api.fda.gov",
-      "scope": "Device classification of the declared product codes: device class, regulation number and panel as published",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "undated; meta.last_updated in the receipt",
+      "scope": "Declared FDA product codes: device class, regulation number and review panel",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1424,42 +1431,45 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
         "provider": "openfda-device",
-        "format": "openfda-device-classification-json",
+        "format": "openfda-classification-json",
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
           "product_codes": [
-            "ZZA",
-            "ZZB"
+            {
+              "product_code": "ZXA"
+            },
+            {
+              "product_code": "ZXB"
+            }
           ]
         }
       },
       "license": {
         "id": "openfda-terms",
         "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
+        "redistribution": "public domain US government data; keep openFDA's disclaimer; no FDA endorsement"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-classification.json",
-        "sha256": "4592cd8d76871fa81d6acb4ced59e9f4a5e6e1dbbf7f1416d9c4ccdbc6187ca5",
-        "expected_output_hash": "236d1adad30aed07ed5982532a0faa7d19a4c56406deb82fcca54413251f0f97"
+        "path": "tests/fixtures/source_packs/clinical-devices-openfda-classification.json",
+        "sha256": "8e71f6e7b3eba037993347e38f07c6648302ea34ff2b807343962a3635a0bdd2",
+        "expected_output_hash": "170b9a633f7717c42742dbd69583432605d0004c5a75bdecb312734e0f0118c2"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1468,13 +1478,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-fda-recalls",
+      "source_id": "clinical-devices-openfda-recalls",
       "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
+      "publisher": "U.S. Food and Drug Administration (openFDA)",
       "endpoint": "https://api.fda.gov",
-      "scope": "Device recalls (Recall Enterprise System) of the declared product codes: recall number, status and dates as published (contact persons withheld)",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "event_date_initiated/posted/terminated per recall; a status change is a revision",
+      "scope": "Declared device recall numbers: recall class, status and reason as published",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1484,144 +1494,20 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
         "provider": "openfda-device",
-        "format": "openfda-device-recall-json",
-        "live_verification": "unverified-live",
-        "minimisation": "medical-devices-minimisation-v1",
-        "selection": {
-          "product_codes": [
-            "ZZA"
-          ]
-        }
-      },
-      "license": {
-        "id": "openfda-terms",
-        "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
-      },
-      "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-recalls.json",
-        "sha256": "473cddb1f0b5156e6081aeda13a3de54b9a1326dd2ed380124254312836a1d9f",
-        "expected_output_hash": "c9a5927c80b2ed531589f08f515f51864d4fd46f3d113d6e39ee0a8a67de0fae"
-      }
-    },
-    {
-      "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
-      },
-      "extractor_versions": [
-        "medical-devices-sources:1.0.0"
-      ],
-      "health": {
-        "required": false,
-        "max_staleness_s": 2592000
-      },
-      "source_id": "devices-fda-enforcement",
-      "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
-      "endpoint": "https://api.fda.gov",
-      "scope": "Enforcement reports of the declared recall numbers: recall class and status as published",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "recall_initiation_date, center_classification_date, termination_date",
-      "operations": [
-        "records"
-      ],
-      "schedule": {
-        "kind": "interval",
-        "interval_s": 604800
-      },
-      "budgets": {
-        "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
-      },
-      "medical_devices": {
-        "namespace": "clinical",
-        "provider": "openfda-device",
-        "format": "openfda-device-enforcement-json",
+        "format": "openfda-recall-json",
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
           "recall_numbers": [
-            "Z-9901-2099"
-          ]
-        }
-      },
-      "license": {
-        "id": "openfda-terms",
-        "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
-      },
-      "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-enforcement.json",
-        "sha256": "638e2408dc2a5bc3ccefe5b5a8141b154fcac829002392d61cc345669ed27147",
-        "expected_output_hash": "b07672d92db81d403774f7238fbe96ef58d3499ef7102523c579a2b07412edff"
-      }
-    },
-    {
-      "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
-      },
-      "extractor_versions": [
-        "medical-devices-sources:1.0.0"
-      ],
-      "health": {
-        "required": false,
-        "max_staleness_s": 2592000
-      },
-      "source_id": "devices-fda-maude-reports",
-      "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
-      "endpoint": "https://api.fda.gov",
-      "scope": "MAUDE adverse-event reports for the declared product codes and date windows (patient blocks and contact persons withheld; narratives as published, scope-gated)",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "date_received per report; counts are reports, never incidence",
-      "operations": [
-        "records"
-      ],
-      "schedule": {
-        "kind": "interval",
-        "interval_s": 604800
-      },
-      "budgets": {
-        "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
-      },
-      "medical_devices": {
-        "namespace": "clinical",
-        "provider": "openfda-device",
-        "format": "openfda-device-event-json",
-        "live_verification": "unverified-live",
-        "minimisation": "medical-devices-minimisation-v1",
-        "selection": {
-          "event_windows": [
             {
-              "product_code": "ZZA",
-              "from": "2099-01-01",
-              "to": "2099-06-30"
+              "recall_number": "Z-9901-2025"
             }
           ]
         }
@@ -1629,145 +1515,151 @@
       "license": {
         "id": "openfda-terms",
         "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
-      },
-      "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-maude-reports.json",
-        "sha256": "c996bcd547540a707a297a1841371c06de62816f0f3f29fc1903509e4a064076",
-        "expected_output_hash": "ffcc056f1196bbe6cad671fe7e777e64c25e341aaff587d8a5f6af2b5910adb9"
-      }
-    },
-    {
-      "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
-      },
-      "extractor_versions": [
-        "medical-devices-sources:1.0.0"
-      ],
-      "health": {
-        "required": false,
-        "max_staleness_s": 2592000
-      },
-      "source_id": "devices-fda-maude-counts",
-      "connector": "medical-devices",
-      "publisher": "US Food and Drug Administration (openFDA device endpoints)",
-      "endpoint": "https://api.fda.gov",
-      "scope": "MAUDE report counts per event type for the declared product codes and windows, as openFDA returns them",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "date_received window per count; counts are reports",
-      "operations": [
-        "records"
-      ],
-      "schedule": {
-        "kind": "interval",
-        "interval_s": 604800
-      },
-      "budgets": {
-        "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "optional-secret",
-        "secret_ref": "NOESIS_OPENFDA_API_KEY"
-      },
-      "medical_devices": {
-        "namespace": "clinical",
-        "provider": "openfda-device",
-        "format": "openfda-device-event-count-json",
-        "live_verification": "unverified-live",
-        "minimisation": "medical-devices-minimisation-v1",
-        "selection": {
-          "event_windows": [
-            {
-              "product_code": "ZZA",
-              "from": "2099-01-01",
-              "to": "2099-03-31"
-            },
-            {
-              "product_code": "ZZA",
-              "from": "2099-04-01",
-              "to": "2099-06-30"
-            }
-          ]
-        }
-      },
-      "license": {
-        "id": "openfda-terms",
-        "terms_url": "https://open.fda.gov/terms/",
-        "redistribution": "openFDA data with its disclaimer; results are unvalidated and not medical advice"
-      },
-      "fixture": {
-        "path": "tests/fixtures/source_packs/devices-fda-maude-counts.json",
-        "sha256": "f068e1e9e832a6bb4b4235adc4f22ac703b8974b65864b9a4efacec92562f1ab",
-        "expected_output_hash": "f0ac0058b1d6b01512d74b0c0d7028db69273ca6f25a2f9b90df0e95e4c664a7"
-      }
-    },
-    {
-      "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
-      },
-      "extractor_versions": [
-        "medical-devices-sources:1.0.0"
-      ],
-      "health": {
-        "required": false,
-        "max_staleness_s": 2592000
-      },
-      "source_id": "devices-gudid-identifiers",
-      "connector": "medical-devices",
-      "publisher": "US National Library of Medicine (AccessGUDID)",
-      "endpoint": "https://accessgudid.nlm.nih.gov",
-      "scope": "AccessGUDID device records of the declared primary DIs: package DIs, version, product codes and premarket submission numbers as published (contacts withheld)",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "publicVersionNumber and publicVersionDate per device record version",
-      "operations": [
-        "records"
-      ],
-      "schedule": {
-        "kind": "interval",
-        "interval_s": 604800
-      },
-      "budgets": {
-        "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
+        "redistribution": "public domain US government data; keep openFDA's disclaimer; no FDA endorsement"
       },
       "auth": {
         "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-devices-openfda-recalls.json",
+        "sha256": "58ab81c450cd8e6ea931e3009aa87bda35fd9d0bc9233e6e8b2495b9427b2686",
+        "expected_output_hash": "ab547eea9c6582f8647d013ad42ea7c292f48e375168b9e4a908e0c425b8206f"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
+      },
+      "extractor_versions": [
+        "medical-devices-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "clinical-devices-openfda-maude",
+      "connector": "medical-devices",
+      "publisher": "U.S. Food and Drug Administration (openFDA)",
+      "endpoint": "https://api.fda.gov",
+      "scope": "MAUDE reports and published event-type counts per declared product code and received-date window (at most one year); reports, never incidence",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
+      },
+      "medical_devices": {
+        "namespace": "clinical",
+        "provider": "openfda-device",
+        "format": "openfda-event-json",
+        "live_verification": "unverified-live",
+        "minimisation": "medical-devices-minimisation-v1",
+        "selection": {
+          "event_windows": [
+            {
+              "product_code": "ZXA",
+              "received_from": "20250101",
+              "received_to": "20250630"
+            },
+            {
+              "product_code": "ZXB",
+              "received_from": "20250101",
+              "received_to": "20250630"
+            }
+          ]
+        }
+      },
+      "license": {
+        "id": "openfda-terms",
+        "terms_url": "https://open.fda.gov/terms/",
+        "redistribution": "public domain US government data; keep openFDA's disclaimer; no FDA endorsement"
+      },
+      "auth": {
+        "kind": "none"
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/clinical-devices-openfda-maude.json",
+        "sha256": "a4b83f4e64caa6b873800e2977b353262b8ab202714fa35d9a4559e8062c5f4f",
+        "expected_output_hash": "c2e63b49ea35cf43825571341bbe89fb1595e488bc668fc1d16470a889ffba8f"
+      }
+    },
+    {
+      "mapping": {
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
+      },
+      "extractor_versions": [
+        "medical-devices-sources:1.0.0"
+      ],
+      "health": {
+        "required": false,
+        "max_staleness_s": 2592000
+      },
+      "source_id": "clinical-devices-accessgudid",
+      "connector": "medical-devices",
+      "publisher": "U.S. National Library of Medicine (AccessGUDID)",
+      "endpoint": "https://accessgudid.nlm.nih.gov",
+      "scope": "Declared primary DIs: device identifier records with package DIs, product codes and premarket submission numbers",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
+      "operations": [
+        "records"
+      ],
+      "schedule": {
+        "kind": "interval",
+        "interval_s": 604800
+      },
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
         "provider": "accessgudid",
-        "format": "accessgudid-device-json",
+        "format": "gudid-device-json",
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
           "device_identifiers": [
-            "00899999000011",
-            "04099999000025"
+            {
+              "di": "00899999000011"
+            },
+            {
+              "di": "00899999000028"
+            }
           ]
         }
       },
       "license": {
-        "id": "accessgudid-public",
-        "terms_url": "https://accessgudid.nlm.nih.gov/resources/home",
-        "redistribution": "public FDA GUDID device identification data with attribution; terms of use to verify"
+        "id": "nlm-accessgudid-terms",
+        "terms_url": "https://accessgudid.nlm.nih.gov/about-gudid",
+        "redistribution": "public US government data; cite AccessGUDID; no NLM or FDA endorsement"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-gudid-identifiers.json",
-        "sha256": "970e325af29fb7ee13b4e30c1e916152205a8633a07620205e7d65520cf22902",
-        "expected_output_hash": "067b8d2a87cf561940b222c602fe8dfc8c890afac9e1f4037757b7c2792a97b3"
+        "path": "tests/fixtures/source_packs/clinical-devices-accessgudid.json",
+        "sha256": "6c48914093cae0b0187d7d293ecb526521d17e274d1f0efdf19533ef771a8ff6",
+        "expected_output_hash": "6a99247778283b0e182e1532851e71276e72b95d1ee9da7de71778ad98dc540f"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1776,13 +1668,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-eudamed-actors",
+      "source_id": "clinical-devices-eudamed-actors",
       "connector": "medical-devices",
-      "publisher": "European Commission (EUDAMED public site)",
-      "endpoint": "https://ec.europa.eu",
-      "scope": "EUDAMED public actor records of the declared SRNs (contact details and PRRC names withheld); placeholder paths until MD14",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "version number and last update date",
+      "publisher": "European Commission (EUDAMED)",
+      "endpoint": "https://ec.europa.eu/tools/eudamed",
+      "scope": "Declared EUDAMED actor SRNs: organisation, role, country and status (no contact persons)",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1792,12 +1684,9 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "none"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
@@ -1806,29 +1695,34 @@
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
-          "documents": [
+          "actors": [
             {
-              "key": "DE-MF-000099901",
-              "path": "/tools/eudamed/placeholder/actors/DE-MF-000099901.json"
+              "srn": "US-MF-000099902"
+            },
+            {
+              "srn": "DE-MF-000099901"
             }
           ]
         }
       },
       "license": {
-        "id": "ec-legal-notice",
-        "terms_url": "https://commission.europa.eu/legal-notice_en",
-        "redistribution": "Commission reuse policy (Decision 2011/833/EU) with acknowledgement; coverage of EUDAMED public data to verify"
+        "id": "ec-reuse-2011-833",
+        "terms_url": "https://ec.europa.eu/tools/eudamed/#/screen/legal-notice",
+        "redistribution": "reuse with acknowledgement (Commission Decision 2011/833/EU); personal data of contact persons excluded"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-eudamed-actors.json",
-        "sha256": "455afd7c88afa4cdf871dba225346e126bee09ff716389a7f37e1165245ed564",
-        "expected_output_hash": "95c26ce7efded0a6958e73079c67f2dbebe4faa171c24a0981d6dda5a047d92a"
+        "path": "tests/fixtures/source_packs/clinical-devices-eudamed-actors.json",
+        "sha256": "7ff7932f1b0a62f83265bea53cf84ca4fd11d62e51322da0f44e6ac3a4f64294",
+        "expected_output_hash": "5977261ccdf307f118163dfdb1a59e51b75eea286328f235b7f6ef49475444b6"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1837,13 +1731,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-eudamed-devices",
+      "source_id": "clinical-devices-eudamed-devices",
       "connector": "medical-devices",
-      "publisher": "European Commission (EUDAMED public site)",
-      "endpoint": "https://ec.europa.eu",
-      "scope": "EUDAMED public UDI/device records of the declared Basic UDI-DIs; placeholder paths until MD14",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "version number and last update date",
+      "publisher": "European Commission (EUDAMED)",
+      "endpoint": "https://ec.europa.eu/tools/eudamed",
+      "scope": "Declared Basic UDI-DIs: device, risk class, UDI-DIs and certificates as published",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1853,12 +1747,9 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "none"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
@@ -1867,29 +1758,31 @@
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
-          "documents": [
+          "basic_udi_dis": [
             {
-              "key": "4099999FIXTUREFLOWA1",
-              "path": "/tools/eudamed/placeholder/devices/4099999FIXTUREFLOWA1.json"
+              "basic_udi_di": "0899999EXFLOWSENSEZ7"
             }
           ]
         }
       },
       "license": {
-        "id": "ec-legal-notice",
-        "terms_url": "https://commission.europa.eu/legal-notice_en",
-        "redistribution": "Commission reuse policy (Decision 2011/833/EU) with acknowledgement; coverage of EUDAMED public data to verify"
+        "id": "ec-reuse-2011-833",
+        "terms_url": "https://ec.europa.eu/tools/eudamed/#/screen/legal-notice",
+        "redistribution": "reuse with acknowledgement (Commission Decision 2011/833/EU); personal data of contact persons excluded"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-eudamed-devices.json",
-        "sha256": "95e71ee1db9d1e22236a5165443bc369871d1f0afbb5afa2cc7706a1b4935dc7",
-        "expected_output_hash": "20bdac846a6b1acea2eb53474baac38b4d4f116975eb0aed7bbfb35585ceabac"
+        "path": "tests/fixtures/source_packs/clinical-devices-eudamed-devices.json",
+        "sha256": "173a4b5a3dd5f9e3516527fd4443aa7fe79465741b88c4c98339cd4682355bc0",
+        "expected_output_hash": "1b3cc4ab4aed83a1d661da72bf4f91902b0d763d676117da859869f910f07874"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1898,13 +1791,13 @@
         "required": false,
         "max_staleness_s": 2592000
       },
-      "source_id": "devices-eudamed-certificates",
+      "source_id": "clinical-devices-eudamed-certificates",
       "connector": "medical-devices",
-      "publisher": "European Commission (EUDAMED public site)",
-      "endpoint": "https://ec.europa.eu",
-      "scope": "EUDAMED public certificate records of the declared certificate numbers; status changes are revisions; placeholder paths until MD14",
-      "update_cadence": "weekly at most",
-      "temporal_semantics": "status date and certificate revision",
+      "publisher": "European Commission (EUDAMED)",
+      "endpoint": "https://ec.europa.eu/tools/eudamed",
+      "scope": "Declared notified-body certificates: type, status, validity and covered Basic UDI-DIs",
+      "update_cadence": "weekly at most; each publisher revision is a new record revision",
+      "temporal_semantics": "the publisher's revision date (openFDA meta.last_updated, GUDID public version date, EUDAMED last update) is the as-of date; event dates as published; observation time recorded separately",
       "operations": [
         "records"
       ],
@@ -1914,12 +1807,9 @@
       },
       "budgets": {
         "timeout_ms": 30000,
-        "max_results": 500,
-        "max_bytes": 20000000,
-        "max_pages": 50
-      },
-      "auth": {
-        "kind": "none"
+        "max_results": 100,
+        "max_bytes": 5000000,
+        "max_pages": 25
       },
       "medical_devices": {
         "namespace": "clinical",
@@ -1928,23 +1818,26 @@
         "live_verification": "unverified-live",
         "minimisation": "medical-devices-minimisation-v1",
         "selection": {
-          "documents": [
+          "certificates": [
             {
-              "key": "9999-MDR-0001",
-              "path": "/tools/eudamed/placeholder/certificates/9999-MDR-0001.json"
+              "certificate_number": "EX-9999-0001",
+              "notified_body": "9999"
             }
           ]
         }
       },
       "license": {
-        "id": "ec-legal-notice",
-        "terms_url": "https://commission.europa.eu/legal-notice_en",
-        "redistribution": "Commission reuse policy (Decision 2011/833/EU) with acknowledgement; coverage of EUDAMED public data to verify"
+        "id": "ec-reuse-2011-833",
+        "terms_url": "https://ec.europa.eu/tools/eudamed/#/screen/legal-notice",
+        "redistribution": "reuse with acknowledgement (Commission Decision 2011/833/EU); personal data of contact persons excluded"
+      },
+      "auth": {
+        "kind": "none"
       },
       "fixture": {
-        "path": "tests/fixtures/source_packs/devices-eudamed-certificates.json",
-        "sha256": "1a6e0fc7073ec4e06b9ea431916a35ca1e4cec4beaca51397195e5cbe02b1f2a",
-        "expected_output_hash": "d0ff354c7a3412c6ab5fcc3da25285f4df14df87801452a93125c7e6525de12c"
+        "path": "tests/fixtures/source_packs/clinical-devices-eudamed-certificates.json",
+        "sha256": "d75729ce214ea8a01b0b63cfaaa7ee95503e47d9d6c34fcf5181be2897556292",
+        "expected_output_hash": "b19a6c6c9010f55173695790260b9ab85408c054f1d4967ba134ded4ed428886"
       }
     }
   ]

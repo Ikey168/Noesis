@@ -1,0 +1,141 @@
+{
+ "documents": [
+  {
+   "area_labels": {
+    "DE": "Germany"
+   },
+   "definition": {
+    "methodology_notes": [
+     "Equivalence scale: modified OECD (1.0 first adult, 0.5 other persons aged 14+, 0.3 children under 14)",
+     "Breaks in series are flagged b (ESMS, verify)"
+    ],
+    "source_text": "Share of persons with an equivalised disposable income (after social transfers) below the at-risk-of-poverty threshold",
+    "threshold": "60 % of the national median equivalised disposable income after social transfers"
+   },
+   "dimensions": {
+    "area": "geo",
+    "coverage": [
+     "sex",
+     "age"
+    ]
+   },
+   "equivalence_scale": "modified-oecd",
+   "flow": "ilc_li02",
+   "income_reference": {
+    "basis": "EU-SILC: the income reference period is the calendar year before the survey year, except Ireland (12 months before the interview); ESMS ilc_esms (verify)",
+    "exceptions": {
+     "IE": 0
+    },
+    "offset_years": -1
+   },
+   "indicator": {
+    "code": "ilc_li02",
+    "concept": "poverty_headcount",
+    "label": "At-risk-of-poverty rate (cut-off point: 60 % of median equivalised income after social transfers)",
+    "measure": "LI_R_MD60"
+   },
+   "key": "A.LI_R_MD60.PC.T.TOTAL.DE",
+   "label": "EU-SILC at-risk-of-poverty rate, 60 % of median, total population, Germany (ilc_li02)",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "poverty_line": {
+    "amount": "60",
+    "basis": "relative-median",
+    "label": "60 % of median equivalised disposable income after social transfers",
+    "unit": "percent of national median equivalised disposable income"
+   },
+   "references": [
+    {
+     "identifier": "ilc_esms",
+     "kind": "methodology",
+     "relation": "documented_in",
+     "scheme": "eurostat-esms",
+     "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm"
+    },
+    {
+     "identifier": "32019R1700",
+     "kind": "standard",
+     "locator": "Regulation (EU) 2019/1700 (IESS)",
+     "relation": "defined_by",
+     "scheme": "celex"
+    }
+   ],
+   "unit": {
+    "code": "PC",
+    "label": "percent of total population"
+   },
+   "welfare_concept": "income"
+  },
+  {
+   "area_labels": {
+    "DE": "Germany"
+   },
+   "definition": {
+    "methodology_notes": [
+     "Equivalence scale: modified OECD"
+    ],
+    "source_text": "Gini coefficient of equivalised disposable income (EU-SILC)"
+   },
+   "dimensions": {
+    "area": "geo",
+    "coverage": [
+     "age"
+    ]
+   },
+   "equivalence_scale": "modified-oecd",
+   "flow": "ilc_di12",
+   "income_reference": {
+    "basis": "EU-SILC: the income reference period is the calendar year before the survey year, except Ireland (12 months before the interview); ESMS ilc_esms (verify)",
+    "exceptions": {
+     "IE": 0
+    },
+    "offset_years": -1
+   },
+   "indicator": {
+    "code": "ilc_di12",
+    "concept": "gini",
+    "label": "Gini coefficient of equivalised disposable income",
+    "measure": "GINI_HND"
+   },
+   "key": "A.TOTAL.GINI_HND.DE",
+   "label": "EU-SILC Gini coefficient of equivalised disposable income, Germany (ilc_di12)",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "references": [
+    {
+     "identifier": "ilc_esms",
+     "kind": "methodology",
+     "relation": "documented_in",
+     "scheme": "eurostat-esms",
+     "url": "https://ec.europa.eu/eurostat/cache/metadata/en/ilc_esms.htm"
+    },
+    {
+     "identifier": "32019R1700",
+     "kind": "standard",
+     "locator": "Regulation (EU) 2019/1700 (IESS)",
+     "relation": "defined_by",
+     "scheme": "celex"
+    }
+   ],
+   "unit": {
+    "code": "GINI_HND",
+    "label": "Gini coefficient (0-100)"
+   },
+   "welfare_concept": "income"
+  }
+ ],
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,indic_il,unit,sex,age,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:ILC_LI02(1.0),12/05/99 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2094,16.1,\nESTAT:ILC_LI02(1.0),12/05/99 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2095,16.4,b\nESTAT:ILC_LI02(1.0),12/05/99 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2096,16.9,\nESTAT:ILC_LI02(1.0),12/05/99 11:00:00,A,LI_R_MD60,PC,T,TOTAL,DE,2097,17.0,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/ilc_li02/A.LI_R_MD60.PC.T.TOTAL.DE?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  },
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,age,statinfo,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:ILC_DI12(1.0),10/06/98 11:00:00,A,TOTAL,GINI_HND,DE,2094,29.4,\nESTAT:ILC_DI12(1.0),10/06/98 11:00:00,A,TOTAL,GINI_HND,DE,2095,29.9,b\nESTAT:ILC_DI12(1.0),10/06/98 11:00:00,A,TOTAL,GINI_HND,DE,2096,30.1,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/ilc_di12/A.TOTAL.GINI_HND.DE?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  }
+ ]
+}

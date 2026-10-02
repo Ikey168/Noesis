@@ -1,85 +1,125 @@
-"""Research-entities monitors through subscriptions: new, revised and unchanged cases, bounded refresh (#2634)."""
+"""Research-entities monitors: new, revised and unchanged registry records through subscriptions (#2634)."""
 
 from __future__ import annotations
+
+import copy
 
 import pytest
 
 from src.ingestion.research_entities_sources import fixture_transport
-from src.kb.research_entities_identity import ResearchEntitiesIdentity
-from src.kb.research_entities_monitoring import ResearchEntitiesMonitor
-from src.kb.research_entities_records import ResearchEntitiesError
+from src.ingestion.source_packs import SourcePackError
+from src.kb.research_entities_links import ResearchEntityLinks
+from src.kb.research_entities_monitoring import ResearchEntityMonitor
+from src.kb.research_entities_records import ResearchEntityError, ResearchEntityStore
+from src.kb.subscriptions import SubscriptionError, SubscriptionStore
 from tests.unit import research_entities_harness as h
 
 
-@pytest.fixture()
-def env():
+def kinds(result):
+    return sorted(n["kind"] for n in result["notifications"])
+
+
+def second_acquisition(conn):
+    h.load_second(conn)
+    ResearchEntityLinks(conn, initialize=False).link(h.NS, principal_id="alice", scopes=h.SCOPES,
+                                                     ownership_namespace=h.OWN_NS)
+
+
+def test_organisation_monitor_reports_new_revised_and_unchanged_records_with_citations():
+    conn = h.accepted_world()
+    monitor = ResearchEntityMonitor(conn)
+    watch = monitor.create(h.NS, "northwind", watch="organisation", key=h.NORTHWIND_POLY, principal_id="alice",
+                           scopes=h.SCOPES)
+    assert "no new scheduler" in watch["refresh"]
+    with pytest.raises(ResearchEntityError):
+        monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)  # no committed watermark
+    SubscriptionStore(conn).commit_watermark(h.NS, 1)
+    first = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert kinds(first) == ["new_dataset", "new_project_participation", "new_record"]
+    second_acquisition(conn)
+    SubscriptionStore(conn).commit_watermark(h.NS, 2)
+    second = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert kinds(second) == ["dataset_revised", "record_revised", "status_changed", "status_changed",
+                             "successor_published"]
+    status = next(n for n in second["notifications"] if n["kind"] == "status_changed"
+                  and n["record_key"] == "research-entities:ror:0zznwd303")
+    assert (status["before"], status["after"]) == ("active", "withdrawn")
+    assert status["cites"]["revision_id"] != status["cites"]["previous_revision_id"] is not None
+    assert status["cites"]["source_as_of"] == "2099-06-01"
+    successor = next(n for n in second["notifications"] if n["kind"] == "successor_published")
+    assert successor["successor"] == h.NORTHWIND_TECH
+    revised = next(n for n in second["notifications"] if n["kind"] == "record_revised")
+    assert set(revised["changed_fields"]) >= {"status", "relationships", "release"}
+    SubscriptionStore(conn).commit_watermark(h.NS, 3)
+    assert monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
+    assert monitor.poll(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["events"]
+
+
+def test_researcher_monitor_notifies_new_asserted_works_with_minimised_fields_only():
+    conn = h.accepted_world()
+    monitor = ResearchEntityMonitor(conn)
+    with pytest.raises(ResearchEntityError):
+        monitor.create(h.NS, "ada", watch="researcher", key=h.ADA, principal_id="bob", scopes=h.NO_RESEARCHERS)
+    watch = monitor.create(h.NS, "ada", watch="researcher", key=h.ADA, principal_id="alice", scopes=h.SCOPES)
+    SubscriptionStore(conn).commit_watermark(h.NS, 1)
+    first = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert kinds(first) == ["new_asserted_work", "new_asserted_work", "new_record"]
+    second_acquisition(conn)
+    SubscriptionStore(conn).commit_watermark(h.NS, 2)
+    second = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert kinds(second) == ["new_asserted_work", "record_revised"]
+    work = next(n for n in second["notifications"] if n["kind"] == "new_asserted_work")
+    assert work["work"]["dois"] == [h.PAPER2] and "not verified authorship" in work["message"]
+    assert not [p for p in h.PERSONAL if p in str(second)]
+    with pytest.raises((ResearchEntityError, SubscriptionError)):
+        monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.NO_RESEARCHERS)
+
+
+def test_project_monitor_reports_revised_contributions_and_datasets_no_longer_served():
+    conn = h.accepted_world()
+    monitor = ResearchEntityMonitor(conn)
+    watch = monitor.create(h.NS, "northwave", watch="project", key=f"HORIZON:{h.NORTHWAVE}", principal_id="alice",
+                           scopes=h.SCOPES)
+    examplar = monitor.create(h.NS, "examplar", watch="project", key=h.EXAMPLAR, principal_id="alice",
+                              scopes=h.SCOPES)
+    SubscriptionStore(conn).commit_watermark(h.NS, 1)
+    assert kinds(monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)) == [
+        "new_dataset", "new_record"]
+    monitor.run(examplar["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    second_acquisition(conn)
+    SubscriptionStore(conn).commit_watermark(h.NS, 2)
+    northwave = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert kinds(northwave) == ["dataset_revised", "status_changed"]  # ds.002 is no longer served
+    gone = next(n for n in northwave["notifications"] if n["kind"] == "status_changed")
+    assert (gone["before"], gone["after"], gone["record_key"]) == ("findable", "unavailable",
+                                                                   f"research-entities:doi:{h.DS2}")
+    changed = monitor.run(examplar["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert kinds(changed) == ["dataset_revised", "record_revised"]
+    revised = next(n for n in changed["notifications"] if n["kind"] == "record_revised")
+    assert revised["changed_fields"] == ["content_update_date", "participants"]
+    assert ["999999903", "participant", "750000", "EUR"] in revised["after"]["participants"]
+
+
+def test_refresh_is_bounded_idempotent_with_receipts_and_live_unverified_revisions_are_withheld():
     conn = h.connection()
-    h.load_all(conn)
-    identity = ResearchEntitiesIdentity(conn)
-    for match in identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES)["matches"]:
-        identity.review(h.NS, match["match_id"], "accept", "same website", principal_id="rev", scopes=h.SCOPES)
-    monitor = ResearchEntitiesMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 10)
-    return conn, monitor
-
-
-def run(monitor, subscription):
-    return monitor.run(subscription, principal_id="alice", scopes=h.SCOPES)
-
-
-def test_new_revised_and_unchanged_notices_cite_records(env):
-    conn, monitor = env
-    uni = monitor.create(h.NS, "uni", watch={"ror": h.A1}, principal_id="alice", scopes=h.SCOPES)["subscription_id"]
-    ada = monitor.create(h.NS, "ada", watch={"orcid": h.R1}, principal_id="alice",
-                         scopes=h.SCOPES)["subscription_id"]
-    first = run(monitor, uni)
-    assert sorted(n["kind"] for n in first["notifications"]) == ["new_dataset", "new_dataset", "new_project",
-                                                                 "new_record"]
-    new_record = next(n for n in first["notifications"] if n["kind"] == "new_record")
-    assert new_record["citation"]["revision_marker"] == "v9.1-2099-01-15" and new_record["record_ids"]
-    assert run(monitor, ada)["notifications"]
-    assert run(monitor, uni)["notifications"] == []  # a replay emits nothing
-    for name in ("ror", "orcid", "datacite", "cordis"):
-        h.apply(conn, name, later=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
-    revised = run(monitor, uni)["notifications"]
-    assert [n["kind"] for n in revised] == ["registry_change"]
-    assert revised[0]["changes"][0]["field"] == "relationships"
-    assert revised[0]["previous_revision_id"] and "v9.2-2099-03-15" in revised[0]["message"]
-    works = run(monitor, ada)["notifications"]
-    assert {n["kind"] for n in works} == {"registry_change", "new_asserted_work"}
-    work = next(n for n in works if n["kind"] == "new_asserted_work")
-    assert work["work"]["value"] == "10.9999/rent.paper3" and "not verified authorship" in work["assertion"]
-    change = next(n for n in works if n["kind"] == "registry_change")
-    assert all(set(c) == {"field", "changed"} for c in change["changes"])  # personal fields named only
-    # Re-acquiring the same documents changes nothing and emits nothing.
-    for name in ("ror", "orcid"):
-        h.apply(conn, name, later=True, retrieved_at_ms=h.SECOND_RETRIEVAL + 1)
-    assert run(monitor, uni)["notifications"] == [] and run(monitor, ada)["notifications"] == []
-
-
-def test_researcher_monitors_need_the_researchers_scope(env):
-    _, monitor = env
-    with pytest.raises(ResearchEntitiesError):
-        monitor.create(h.NS, "x", watch={"orcid": h.R1}, principal_id="bob",
-                       scopes={"knowledge:research-entities:read", "knowledge:subscriptions:write",
-                               "namespace:global:read"})
-    with pytest.raises(ResearchEntitiesError):
-        monitor.create(h.NS, "y", watch={"orcid": h.R1, "ror": h.A1}, principal_id="alice", scopes=h.SCOPES)
-
-
-def test_refresh_is_bounded_idempotent_receipted_and_honours_retry_after(env):
-    conn, monitor = env
-    source = h.source("orcid", later=True)
-    first = monitor.refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
-                            transport=fixture_transport(h.pages("orcid", later=True)), max_documents=1)
-    assert first["status"] == "bounded" and first["new_releases"] == 1
-    again = monitor.refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
-                            transport=fixture_transport(h.pages("orcid", later=True)))
-    assert again["status"] == "complete" and again["unchanged_releases"] == 1 and again["new_releases"] == 1
-    limited = [{**p, "status": 429, "headers": {"Retry-After": "120"}} for p in h.pages("orcid", later=True)]
-    stopped = monitor.refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES, transport=fixture_transport(limited))
-    assert stopped["status"] == "stopped" and stopped["stopped"]["code"] == "rate_limited"
-    waiting = monitor.refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
-                              transport=fixture_transport(h.pages("orcid", later=True)))
-    assert waiting["status"] == "rate_limited_wait"
-    receipts = conn.execute("SELECT count(*) FROM rentity_refresh_receipts").fetchone()[0]
-    assert receipts == 4
+    monitor = ResearchEntityMonitor(conn)
+    item = h.source(h.DATACITE_SOURCE)
+    first = monitor.refresh(item, run_id="refresh-1", principal_id="alice", scopes=h.SCOPES,
+                            transport=fixture_transport(h.native_pages(h.DATACITE_SOURCE)))
+    assert first["counts"]["new"] == 2 and first["complete"] and len(first["receipts"]) == 2
+    again = monitor.refresh(item, run_id="refresh-2", principal_id="alice", scopes=h.SCOPES,
+                            transport=fixture_transport(h.native_pages(h.DATACITE_SOURCE)))
+    assert again["counts"] == {"new": 0, "revised": 0, "unchanged": 2, "older-observation": 0}
+    bounded = copy.deepcopy(item)
+    bounded["budgets"]["max_pages"] = 1
+    with pytest.raises(SourcePackError):  # the declaration refuses more units than the page budget
+        monitor.refresh(bounded, run_id="refresh-3", principal_id="alice", scopes=h.SCOPES,
+                        transport=fixture_transport(h.native_pages(h.DATACITE_SOURCE)))
+    watch = monitor.create(h.NS, "ds1-project", watch="project", key=h.EXAMPLAR, principal_id="alice",
+                           scopes=h.SCOPES)
+    store = ResearchEntityStore(conn)
+    record = h.fetch(h.CORDIS_SOURCE)[0][0]
+    store.project(h.NS, [{**record, "evidence_origin": "live"}], run_id="live", source_id=h.CORDIS_SOURCE)
+    SubscriptionStore(conn).commit_watermark(h.NS, 1)
+    result = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert result["notifications"] == [] and result["withheld_unverified_live_revisions"] == 1

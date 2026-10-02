@@ -1,64 +1,84 @@
-"""Research-entity links to Scholarly, Funding and Ownership records by citation and accepted matches (#2618)."""
+"""Research-entity records linked to literature, funding and ownership by citation and accepted matches (#2618)."""
 
 from __future__ import annotations
 
-from src.kb.research_entities_identity import ResearchEntitiesIdentity
-from src.kb.research_entities_links import ResearchEntitiesLinks
-from src.kb.research_entities_records import ResearchEntitiesStore
+from src.kb.research_entities_links import ResearchEntityLinks
 from tests.unit import research_entities_harness as h
 
 
-def build(conn, **kwargs):
-    return ResearchEntitiesLinks(conn).build(h.NS, principal_id="analyst", scopes=h.SCOPES, **kwargs)
+def by_ref(links, kind):
+    return {(link["source_key"], link["reference"]): link for link in links if link["kind"] == kind}
 
 
-def test_missing_providers_are_reported_not_dropped():
-    conn = h.connection()
-    h.load_all(conn)
-    result = build(conn)
-    assert result["links"] and {v["target_status"] for v in result["links"]} == {"provider_absent"}
-    assert result["missing"] == result["links"]
-    assert {v["target_kind"] for v in result["links"]} == {"scholarly_work", "funding_record"}
+def test_links_record_their_basis_and_point_at_specific_revisions():
+    conn = h.accepted_world()
+    links = ResearchEntityLinks(conn, initialize=False).links(h.NS, scopes=h.SCOPES)
+    assert {link["basis"]["kind"] for link in links} == {"citation", "shared-identifier", "accepted-match"}
+    heads = {r["record_key"]: r["revision_id"] for r in
+             ResearchEntityLinks(conn, initialize=False).store.records(h.NS, scopes=h.SCOPES)}
+    for link in links:
+        if not link["source_key"].startswith("research-entities:cordis-participant:"):
+            assert link["source_revision_id"] == heads[link["source_key"]]
+        if link["status"] == "resolved":
+            assert link["target_revision"]
+    works = by_ref(links, "researcher-asserted-work")
+    paper = works[(f"research-entities:orcid:{h.ADA}", f"doi:{h.PAPER1}")]
+    assert paper["target_side"] == "literature" and paper["target_key"] == "doc:exampla-paper-1"
+    assert paper["basis"]["label"] == "ORCID-asserted work; not verified authorship"
+    dataset = works[(f"research-entities:orcid:{h.ADA}", f"doi:{h.DS1}")]
+    assert dataset["target_key"] == f"research-entities:doi:{h.DS1}" and dataset["basis"]["asserted_by"] == \
+        "member-client"
+    related = by_ref(links, "dataset-related-work")
+    assert related[(f"research-entities:doi:{h.DS1}", f"IsSupplementTo:doi:{h.PAPER1}")]["status"] == "resolved"
+    assert related[(f"research-entities:doi:{h.DS1}", "Cites:doi:10.99998/exampla.paper.009")]["status"] == \
+        "target_missing"
+    award = by_ref(links, "dataset-funded-by-project")[(f"research-entities:doi:{h.DS1}", f"award:{h.EXAMPLAR}")]
+    assert award["target_key"] == f"research-entities:cordis:HORIZON:{h.EXAMPLAR}"
+    funding = by_ref(links, "project-funding-record")
+    assert funding[(f"research-entities:cordis:HORIZON:{h.EXAMPLAR}", "funding:HORIZON-CL6-2094-EXAMPLE-01")][
+        "target_revision"] == "revision:1"
+    assert funding[(f"research-entities:cordis:HORIZON:{h.NORTHWAVE}", "funding:HORIZON-CL5-2092-EXAMPLE-02")][
+        "status"] == "target_missing"
+    ownership = by_ref(links, "organisation-ownership-entity")
+    (entity,) = ownership.values()
+    assert entity["target_key"] == "lei:5299EXAMPLAUNIV00001" and entity["basis"]["kind"] == "accepted-match"
+    assert entity["basis"]["decision_id"] and entity["basis"]["reviewer"] == "reviewer"
 
 
-def test_links_record_their_basis_and_point_at_revisions():
-    conn = h.connection()
-    h.load_all(conn)
-    h.seed_science_and_funding(conn)
-    own = h.seed_ownership(conn)
-    identity = ResearchEntitiesIdentity(conn)
-    proposed = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, ownership_namespace=h.OWN_NS)
-    isni = next(m for m in proposed["matches"] if m["right"]["key"] == own["Universitaet Beispielstadt"]
-                and m["left"].get("ror_id") == h.A1)
-    identity.review(h.NS, isni["match_id"], "accept", "ISNI agrees", principal_id="rev", scopes=h.SCOPES)
-    result = build(conn, ownership_namespace=h.OWN_NS)
-    store = ResearchEntitiesStore(conn)
-    r1 = store.find(h.NS, "researcher", h.R1)
-    latest = store.revisions(h.NS, r1)[-1]["revision_id"]
-    r1_links = [v for v in result["links"] if v["subject_revision_id"] == latest]
-    assert {(v["basis"]["identifier"]["value"], v["target_status"]) for v in r1_links} == {
-        ("10.9999/rent.paper1", "resolved"), ("10.9999/rent.paper2", "resolved")}
-    link = next(v for v in r1_links if v["basis"]["identifier"]["value"] == "10.9999/rent.paper1")
-    assert link["basis"]["method"] == "orcid-asserted-identifier"
-    assert link["subject"]["record_id"] == r1 and link["subject"]["revision"] == 1
-    assert link["target"] == {"record_id": "doc:rent-paper-1", "revision": "sha-rent-paper-1",
-                              "url": "https://doi.org/10.9999/rent.paper1"}
-    # R2's asserted work is not in the document store: reported as target_missing.
-    r2 = store.find(h.NS, "researcher", h.R2)
-    assert {v["target_status"] for v in result["links"] if v["subject_record_id"] == r2} == {"target_missing"}
-    d1 = store.find(h.NS, "dataset", "10.9999/rent.data1")
-    relations = {v["basis"]["relation_type"] for v in result["links"] if v["subject_record_id"] == d1}
-    assert relations == {"IsSupplementTo", "Cites"}  # the URL-typed related identifier is not a paper link
-    project = store.find(h.NS, "project", "HORIZON:101999001")
-    funding = next(v for v in result["links"] if v["subject_record_id"] == project
-                   and v["target_kind"] == "funding_record")
-    assert funding["target_status"] == "resolved" and funding["target"]["revision"] == 1
-    assert funding["basis"]["method"] == "shared-identifier"
-    ownership = [v for v in result["links"] if v["target_kind"] == "ownership_entity"]
-    assert len(ownership) == 1 and ownership[0]["basis"]["method"] == "accepted-match"
-    assert ownership[0]["target"]["revision"] == 1 and ownership[0]["basis"]["match_id"] == isni["match_id"]
-    # Unreviewed candidates (the VAT and name matches) never produce links.
-    assert all(v["basis"]["match_id"] == isni["match_id"] for v in ownership)
-    again = build(conn, ownership_namespace=h.OWN_NS)
-    assert again["created"] == [] and len(again["links"]) == len(result["links"])
-    assert not {k for v in result["links"] for k in v["basis"]} & {"collaborator", "coauthor", "influence"}
+def test_missing_providers_and_targets_are_reported_not_dropped_and_re_resolved_later():
+    conn = h.accepted_world(ownership=False, papers=False, funding=False)
+    linker = ResearchEntityLinks(conn, initialize=False)
+    result = linker.link(h.NS, principal_id="alice", scopes=h.SCOPES, ownership_namespace=h.OWN_NS)
+    assert result["providers"]["literature"] == "absent" and result["providers"]["funding"] == "absent"
+    works = by_ref(result["links"], "researcher-asserted-work")
+    assert works[(f"research-entities:orcid:{h.ADA}", f"doi:{h.PAPER1}")]["status"] == "provider_absent"
+    assert by_ref(result["links"], "project-funding-record")[
+        (f"research-entities:cordis:HORIZON:{h.EXAMPLAR}", "funding:HORIZON-CL6-2094-EXAMPLE-01")]["status"] == \
+        "provider_absent"
+    h.seed_papers(conn)
+    h.seed_funding(conn)
+    again = linker.link(h.NS, principal_id="alice", scopes=h.SCOPES)
+    assert again["outcome"].get("re-resolved", 0) >= 3
+    link = by_ref(again["links"], "researcher-asserted-work")[(f"research-entities:orcid:{h.ADA}", f"doi:{h.PAPER1}")]
+    assert link["status"] == "resolved" and [e["status"] for e in link["history"]] == ["provider_absent", "resolved"]
+    assert linker.link(h.NS, principal_id="alice", scopes=h.SCOPES)["outcome"] == {"unchanged": len(again["links"])}
+
+
+def test_links_follow_new_revisions_and_researcher_links_need_the_researcher_scope():
+    conn = h.accepted_world()
+    linker = ResearchEntityLinks(conn, initialize=False)
+    h.load_second(conn)
+    result = linker.link(h.NS, principal_id="alice", scopes=h.SCOPES, ownership_namespace=h.OWN_NS)
+    current = linker.current(h.NS, scopes=h.SCOPES, source_key=f"research-entities:orcid:{h.ADA}",
+                             kind="researcher-asserted-work")
+    assert {link["reference"] for link in current} == {f"doi:{h.PAPER1}", f"doi:{h.DS1}", f"doi:{h.PAPER2}"}
+    older = [link for link in result["links"] if link["source_key"] == f"research-entities:orcid:{h.ADA}"
+             and link["kind"] == "researcher-asserted-work" and link not in current]
+    assert len(older) == 2  # the links of the earlier revision stay on record
+    assert not [link for link in linker.links(h.NS, scopes=h.NO_RESEARCHERS) if "orcid" in link["source_key"]]
+    skipped = linker.link(h.NS, principal_id="bob", scopes=h.NO_RESEARCHERS)
+    assert skipped["providers"]["researchers"].startswith("skipped")
+    kinds = {link["kind"] for link in result["links"]}
+    assert not kinds - {"researcher-asserted-work", "researcher-asserted-employment", "dataset-related-work",
+                        "dataset-creator-affiliation", "dataset-funded-by-project", "project-funding-record",
+                        "organisation-ownership-entity", "participant-ownership-entity", "participant-organisation"}

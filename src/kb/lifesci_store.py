@@ -1,101 +1,121 @@
-"""Revisioned life-science statements with release lookup, removal tombstones and run receipts (LS02-LS06).
+"""Immutable, release-addressable life-science reference records (#2652, LS02 #2661).
 
-Owns ``noesis-lifesci-record-v1`` for the Science pack's ``science.life-sciences``
-provider. Like the other domain record stores (:mod:`src.kb.biodiversity_store`,
-following :mod:`src.kb.entity_history` patterns) it is namespace-scoped and
-revision-addressable, and nothing is overwritten or deleted:
+One record per (source, record type, native accession); every statement the adapters produce
+(:mod:`src.ingestion.lifesci_sources`) is applied as a **revision**:
 
-* **Records** are keyed by provider, record type and native key (UniProt
-  accession, Gene ID, Tax ID, PDB ID, ChEMBL ID). A statement whose published
-  content differs is a new immutable revision with the next number and its
-  retrieval time; a replay adds nothing.
-* **Releases.** UniProt and ChEMBL statements carry their release, PDB
-  statements their major.minor revision; each release is a new revision of the
-  same record and release-scoped content is de-duplicated against every earlier
-  revision, so re-reading an older release never re-adds it.
-  :meth:`LifeSciStore.at_release` answers the revision in force at a release.
-* **Obsolescence is a revision.** A UniProt entry that became inactive (merged,
-  demerged, deleted), a discontinued or replaced gene, a merged taxon and an
-  obsolete PDB entry are ``obsoleted`` revisions keeping the successors the
-  source names; earlier revisions stay readable.
-* **Removal tombstones.** A ChEMBL activity page is a snapshot of one declared
-  target selection in one release. An activity present in the previous
-  *complete* snapshot and absent from the next complete one gets a dated
-  ``removed`` revision; it is never deleted.
+* a revision is identified by the source's version marker (UniProt entry version, PDB major.minor revision) or, where
+  the source publishes none, by the digest of its content. Replaying a marker with the same content adds nothing; the
+  same marker with different content is recorded as a **conflict** and never overwrites the stored revision;
+* each application also records **release membership** - the source release (UniProt ``2099_01``, ChEMBL
+  ``CHEMBL_99``, a declared NCBI or PDB release) in which the revision was observed - so an entry that did not change
+  between releases keeps one revision and still answers "as of" every release it was seen in;
+* obsoletion, merges, replacements and deletions are revisions with the published status and successors; merges and
+  replacements are also ``redirect`` decisions in :class:`src.kb.entity_history.EntityHistoryStore`. Nothing is
+  deleted;
+* cross-references are stored per revision exactly as published.
 
-Runtime pages arrive through :class:`LifeSciProjector` (registered for
-``noesis-lifesci-record-v1`` in ``src/ingestion/source_pack_runtime.py``); each
-source's run outcome is a receipt row.
+As-of lookup (:meth:`LifeSciStore.in_force`) selects the revision in force at a release label or a date: the revision
+of the latest release membership not after the requested release (and published by the requested date). A revision
+that arrives late for an older release is history and never displaces the one in force for a newer release.
 """
 
 from __future__ import annotations
 
 import json
 import time
-from collections.abc import Iterable, Mapping, Sequence
-from datetime import UTC, datetime
+from collections.abc import Callable, Iterable, Mapping, Sequence
+from datetime import UTC, date, datetime
 from typing import Any
 
 from src.kb.lifesci_records import (
+    _ENTITY_HISTORY_SCOPES,
     CONTRACT,
-    READ_SCOPE,
+    INACTIVE,
+    SOURCES,
     LifeSciError,
     authorize,
     canonical,
+    detect_reference,
     digest,
-    release_of,
+    native_key,
+    record_id_for,
     release_order,
+    table_exists,
     validate_statement,
 )
 
 _DDL = """
-CREATE SEQUENCE IF NOT EXISTS lifesci_seq;
+CREATE SEQUENCE IF NOT EXISTS lifesci_seq START 1;
 CREATE TABLE IF NOT EXISTS lifesci_records (
-  namespace TEXT NOT NULL, record_id TEXT NOT NULL, record_type TEXT NOT NULL, provider TEXT NOT NULL,
-  record_key TEXT NOT NULL, subject_key TEXT NOT NULL, subject_name TEXT, created_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, record_id)
+  namespace TEXT NOT NULL, record_id TEXT NOT NULL, source TEXT NOT NULL, record_type TEXT NOT NULL,
+  native_id TEXT NOT NULL, created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, record_id)
 );
 CREATE TABLE IF NOT EXISTS lifesci_revisions (
   namespace TEXT NOT NULL, revision_id TEXT NOT NULL, record_id TEXT NOT NULL, seq BIGINT NOT NULL,
-  revision_no INTEGER NOT NULL, content_sha TEXT NOT NULL, statement_json TEXT NOT NULL, event TEXT NOT NULL,
-  release TEXT, supersedes TEXT, observed_at_ms BIGINT NOT NULL, run_id TEXT, source_id TEXT,
-  evidence_origin TEXT, PRIMARY KEY(namespace, revision_id)
+  marker TEXT NOT NULL, basis TEXT NOT NULL, order_json TEXT, version_date TEXT, content_sha TEXT NOT NULL,
+  status TEXT NOT NULL, successors_json TEXT NOT NULL, release_label TEXT NOT NULL, released_on TEXT,
+  release_basis TEXT NOT NULL, observed_at_ms BIGINT NOT NULL, run_id TEXT, source_id TEXT, evidence_origin TEXT,
+  statement_json TEXT NOT NULL, PRIMARY KEY(namespace, revision_id)
 );
-CREATE TABLE IF NOT EXISTS lifesci_snapshots (
-  namespace TEXT NOT NULL, snapshot_id TEXT NOT NULL, selection_key TEXT NOT NULL, provider TEXT NOT NULL,
-  release TEXT, complete BOOLEAN NOT NULL, entry_count INTEGER NOT NULL, removed INTEGER NOT NULL, url TEXT,
-  run_id TEXT, source_id TEXT, observed_at_ms BIGINT NOT NULL, members_json TEXT NOT NULL,
-  PRIMARY KEY(namespace, snapshot_id)
+CREATE TABLE IF NOT EXISTS lifesci_release_members (
+  namespace TEXT NOT NULL, record_id TEXT NOT NULL, release_label TEXT NOT NULL, revision_id TEXT NOT NULL,
+  released_on TEXT, release_basis TEXT NOT NULL, observed_at_ms BIGINT NOT NULL, run_id TEXT,
+  PRIMARY KEY(namespace, record_id, release_label, revision_id)
 );
-CREATE TABLE IF NOT EXISTS lifesci_source_runs (
-  namespace TEXT NOT NULL, run_id TEXT NOT NULL, source_id TEXT NOT NULL, provider TEXT, status TEXT NOT NULL,
-  outcomes_json TEXT NOT NULL, cutoff_seq BIGINT NOT NULL, evidence_origin TEXT, finished_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, run_id, source_id)
+CREATE TABLE IF NOT EXISTS lifesci_xrefs (
+  namespace TEXT NOT NULL, revision_id TEXT NOT NULL, record_id TEXT NOT NULL, position INTEGER NOT NULL,
+  database TEXT NOT NULL, xref_id TEXT NOT NULL, relation TEXT, properties_json TEXT NOT NULL,
+  PRIMARY KEY(namespace, revision_id, position)
+);
+CREATE TABLE IF NOT EXISTS lifesci_conflicts (
+  namespace TEXT NOT NULL, conflict_id TEXT NOT NULL, record_id TEXT NOT NULL, marker TEXT NOT NULL,
+  stored_revision_id TEXT NOT NULL, offered_sha TEXT NOT NULL, offered_json TEXT NOT NULL,
+  observed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, conflict_id)
+);
+CREATE TABLE IF NOT EXISTS lifesci_successions (
+  namespace TEXT NOT NULL, source TEXT NOT NULL, record_type TEXT NOT NULL, from_id TEXT NOT NULL, to_id TEXT NOT NULL,
+  kind TEXT NOT NULL, revision_id TEXT NOT NULL, decision_id TEXT, observed_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, source, record_type, from_id, to_id, revision_id)
+);
+CREATE TABLE IF NOT EXISTS lifesci_receipts (
+  namespace TEXT NOT NULL, receipt_id TEXT NOT NULL, run_id TEXT NOT NULL, source_id TEXT, provider TEXT,
+  receipt_json TEXT NOT NULL, observed_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, receipt_id)
 );
 """
-TABLES = ("lifesci_records", "lifesci_revisions", "lifesci_snapshots", "lifesci_source_runs")
+TABLES = ("lifesci_records", "lifesci_revisions", "lifesci_release_members", "lifesci_xrefs", "lifesci_conflicts",
+          "lifesci_successions", "lifesci_receipts")
+_REVISION_COLUMNS = ("revision_id", "record_id", "seq", "marker", "basis", "order_json", "version_date",
+                     "content_sha", "status", "successors_json", "release_label", "released_on", "release_basis",
+                     "observed_at_ms", "run_id", "source_id", "evidence_origin")
 
 
-def table_exists(conn: Any, name: str) -> bool:
-    return bool(conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name=?", [name]).fetchone())
+def iso_from_ms(value: int | None) -> str | None:
+    if value is None:
+        return None
+    return datetime.fromtimestamp(int(value) / 1000, tz=UTC).isoformat().replace("+00:00", "Z")
 
 
-def day(ms: int | None) -> str | None:
-    return None if ms is None else datetime.fromtimestamp(ms / 1000, tz=UTC).date().isoformat()
+def as_of_day(value: Any) -> str | None:
+    """An as-of date (ISO date or instant; a date means the whole day)."""
+    if value in (None, ""):
+        return None
+    if isinstance(value, date):
+        return value.isoformat()
+    try:
+        return date.fromisoformat(str(value)[:10]).isoformat()
+    except ValueError as exc:
+        raise LifeSciError("invalid_as_of", "as_of is an ISO date (YYYY-MM-DD) or instant") from exc
 
 
-def record_id_for(namespace: str, provider: str, record_type: str, record_key: str) -> str:
-    return "lifesci-record:" + digest([namespace, provider, record_type, record_key])[:24]
-
-
-def _content(value: Mapping[str, Any]) -> dict[str, Any]:
-    """What makes a revision distinct: published content, event and release - not when it was fetched."""
-    return {"subject": value["subject"], "as_published": value["as_published"],
-            "event": value["effective"]["event"], "release": release_of(value)}
+def _content(statement: Mapping[str, Any]) -> dict[str, Any]:
+    """What makes a revision distinct: everything but the release it was observed in."""
+    return {k: v for k, v in statement.items() if k != "release"}
 
 
 class LifeSciStore:
-    def __init__(self, conn: Any, *, initialize: bool = True, now=None) -> None:
+    """Namespace-scoped revisions of gene, protein, structure, taxon and ChEMBL records."""
+
+    def __init__(self, conn: Any, *, initialize: bool = True, now: Callable[[], int] | None = None) -> None:
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
         if initialize:
@@ -108,225 +128,329 @@ class LifeSciStore:
 
     def require_ready(self) -> None:
         if not self.ready():
-            raise LifeSciError("not_ready", "no life-sciences record has been acquired yet")
+            raise LifeSciError("not_ready", "no life-science record is stored yet; run the life-sciences sources of "
+                                            "primary-scientific-evidence")
 
     # ------------------------------------------------------------------ writes
 
-    def _apply(self, namespace: str, statement: Mapping[str, Any], *, run_id: str | None, source_id: str | None,
-               observed_at_ms: int) -> dict[str, Any]:
-        value = validate_statement(statement)
-        record_id = record_id_for(namespace, value["provider"], value["record_type"], value["record_key"])
-        self.conn.execute(
-            "INSERT OR IGNORE INTO lifesci_records VALUES (?,?,?,?,?,?,?,?)",
-            [namespace, record_id, value["record_type"], value["provider"], value["record_key"],
-             value["subject"]["key"], value["subject"].get("name"), observed_at_ms])
-        content_sha = digest(_content(value))
-        release = release_of(value)
-        rows = self.conn.execute(
-            "SELECT content_sha, revision_no, revision_id FROM lifesci_revisions WHERE namespace=? AND record_id=? "
-            "ORDER BY revision_no DESC", [namespace, record_id]).fetchall()
-        latest = rows[0] if rows else None
-        # Release-scoped content is never re-added when an older release is re-read.
-        known = {r[0]: r[2] for r in rows} if release else ({latest[0]: latest[2]} if latest else {})
-        if content_sha in known:
-            return {"record_id": record_id, "revision_id": known[content_sha], "status": "unchanged"}
-        number = (int(latest[1]) if latest else 0) + 1
-        revision_id = "lifesci-revision:" + digest([record_id, content_sha, number])[:24]
-        seq = self.conn.execute("SELECT nextval('lifesci_seq')").fetchone()[0]
-        self.conn.execute(
-            "INSERT INTO lifesci_revisions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            [namespace, revision_id, record_id, seq, number, content_sha, canonical(value),
-             value["effective"]["event"], release, latest[2] if latest else None, observed_at_ms, run_id,
-             source_id, value["source"].get("evidence_origin")])
-        return {"record_id": record_id, "revision_id": revision_id, "seq": seq, "revision_no": number,
-                "status": "created" if number == 1 else "revised"}
-
-    def observe(self, namespace: str, statements: Sequence[Mapping[str, Any]], *, run_id: str | None = None,
-                source_id: str | None = None, observed_at_ms: int | None = None) -> dict[str, Any]:
-        """Keep a batch of statements in one transaction; replays add nothing."""
-        observed = observed_at_ms if observed_at_ms is not None else self.now()
-        counts = {"created": 0, "revised": 0, "unchanged": 0}
+    def observe_page(self, run_id: str, source: Mapping[str, Any], namespace: str,
+                     records: Sequence[Mapping[str, Any]], *, page_receipt: Mapping[str, Any] | None = None
+                     ) -> dict[str, Any]:
+        """Apply one runtime page in one transaction; a replay adds nothing."""
+        statements = []
+        for item in records:
+            statement = dict(item.get("lifesci_statement") or {})
+            if statement.get("contract") != CONTRACT:
+                raise LifeSciError("invalid_record", "page record lacks a life-science statement")
+            origin = str(dict(item.get("lifesci_page") or {}).get("evidence_origin") or "fixture")
+            statements.append((statement, origin))
+        counts = {"created": 0, "revised": 0, "history": 0, "unchanged": 0, "conflict": 0}
         results = []
+        now = self.now()
         self.conn.execute("BEGIN")
         try:
-            for item in statements:
-                result = self._apply(namespace, item, run_id=run_id, source_id=source_id, observed_at_ms=observed)
+            for statement, origin in statements:
+                result = self._apply(namespace, statement, run_id=run_id, source_id=source.get("source_id"),
+                                     evidence_origin=origin, observed_at_ms=now)
                 counts[result["status"]] += 1
                 results.append(result)
+            receipt = dict(page_receipt or {})
+            if receipt:
+                receipt_id = "lifesci-receipt:" + digest([namespace, run_id, source.get("source_id"), receipt])[:24]
+                self.conn.execute("INSERT OR IGNORE INTO lifesci_receipts VALUES (?,?,?,?,?,?,?)",
+                                  [namespace, receipt_id, run_id, source.get("source_id"), receipt.get("provider"),
+                                   canonical({**receipt, "applied": counts}), now])
             self.conn.execute("COMMIT")
         except Exception:
             self.conn.execute("ROLLBACK")
             raise
         return {"counts": counts, "results": results}
 
-    def close_snapshot(self, namespace: str, *, selection_key: str, provider: str, release: str | None,
-                       complete: bool, present_record_ids: Iterable[str], url: str | None, run_id: str | None,
-                       source_id: str | None, observed_at_ms: int | None = None) -> dict[str, Any]:
-        """Record one activity page; activities of the previous complete page now absent get a tombstone."""
-        observed = observed_at_ms if observed_at_ms is not None else self.now()
-        present = sorted(set(present_record_ids))
-        previous = self.conn.execute(
-            "SELECT snapshot_id, complete, members_json, release FROM lifesci_snapshots WHERE namespace=? AND "
-            "selection_key=? ORDER BY observed_at_ms DESC LIMIT 1", [namespace, selection_key]).fetchone()
-        if previous is not None and bool(previous[1]) == bool(complete) and json.loads(previous[2]) == present \
-                and previous[3] == release:
-            return {"snapshot_id": previous[0], "status": "unchanged", "removed": []}
-        removed: list[str] = []
-        note = None
-        if previous is not None and not (previous[1] and complete):
-            note = "a page of this selection was truncated; absence is not compared"
-        elif previous is not None:
-            removed = self._tombstone(namespace, set(json.loads(previous[2])) - set(present), release, observed,
-                                      run_id, source_id)
-        snapshot_id = "lifesci-snapshot:" + digest([namespace, selection_key, present, complete, release,
-                                                    observed])[:24]
-        self.conn.execute(
-            "INSERT OR IGNORE INTO lifesci_snapshots VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            [namespace, snapshot_id, selection_key, provider, release, bool(complete), len(present), len(removed),
-             url, run_id, source_id, observed, canonical(present)])
-        return {"snapshot_id": snapshot_id, "status": "recorded", "removed": removed, "note": note}
+    def apply(self, namespace: str, statement: Mapping[str, Any], *, run_id: str | None = None,
+              source_id: str | None = None, evidence_origin: str = "operator") -> dict[str, Any]:
+        """Apply one statement outside a runtime page (tests, operator imports); same rules as a page."""
+        self.conn.execute("BEGIN")
+        try:
+            result = self._apply(namespace, dict(statement), run_id=run_id, source_id=source_id,
+                                 evidence_origin=evidence_origin, observed_at_ms=self.now())
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        return result
 
-    def _tombstone(self, namespace, absent, release, observed, run_id, source_id) -> list[str]:
-        removed = []
-        for record_id in sorted(absent):
-            latest = self.revisions(namespace, record_id)[-1]
-            if latest["event"] == "removed":
-                continue
-            prior = latest["statement"]
-            published = dict(prior["as_published"])
-            if release and "release" in published:
-                published["release"] = release  # the state in the new release is "removed"
-            tombstone = {**prior, "as_published": published,
-                         "source": {**prior["source"], "absent_from_release": release},
-                         "effective": {"event": "removed", "date": day(observed),
-                                       "date_basis": f"absent from the complete page of the same declared selection "
-                                                     f"in release {release}, retrieved on {day(observed)}; the record "
-                                                     "and its earlier revisions are kept, never deleted"}}
-            self._apply(namespace, tombstone, run_id=run_id, source_id=source_id, observed_at_ms=observed)
-            removed.append(record_id)
-        return removed
+    def _apply(self, namespace: str, statement: Mapping[str, Any], *, run_id, source_id, evidence_origin,
+               observed_at_ms: int) -> dict[str, Any]:
+        statement = validate_statement(statement)
+        source, record_type = statement["source"], statement["record_type"]
+        native = native_key(source, statement["native_id"])
+        record_id = record_id_for(namespace, source, record_type, native)
+        version, release = statement["version"], statement["release"]
+        content_sha = digest(_content(statement))
+        head = self.conn.execute("SELECT 1 FROM lifesci_records WHERE namespace=? AND record_id=?",
+                                 [namespace, record_id]).fetchone()
+        stored = self.conn.execute(
+            "SELECT revision_id, content_sha FROM lifesci_revisions WHERE namespace=? AND record_id=? AND marker=? "
+            "AND basis=?", [namespace, record_id, version["marker"], version["basis"]]).fetchone()
+        if stored and stored[1] != content_sha:
+            conflict_id = "lifesci-conflict:" + digest([namespace, record_id, version["marker"], content_sha])[:24]
+            self.conn.execute("INSERT OR IGNORE INTO lifesci_conflicts VALUES (?,?,?,?,?,?,?,?)",
+                              [namespace, conflict_id, record_id, version["marker"], stored[0], content_sha,
+                               canonical(statement), observed_at_ms])
+            return {"status": "conflict", "record_id": record_id, "revision_id": stored[0],
+                    "conflict_id": conflict_id}
+        if stored:
+            revision_id, status = stored[0], "unchanged"
+        else:
+            if head is None:
+                self.conn.execute("INSERT INTO lifesci_records VALUES (?,?,?,?,?,?)",
+                                  [namespace, record_id, source, record_type, native, observed_at_ms])
+            seq = int(self.conn.execute("SELECT nextval('lifesci_seq')").fetchone()[0])
+            revision_id = "lifesci-revision:" + digest([namespace, record_id, version["basis"], version["marker"]])[:24]
+            self.conn.execute(
+                "INSERT INTO lifesci_revisions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                [namespace, revision_id, record_id, seq, version["marker"], version["basis"],
+                 canonical(version.get("order")) if version.get("order") is not None else None,
+                 version.get("date"), content_sha, statement["status"], canonical(statement["successors"]),
+                 release["label"], release["published_on"], release["basis"], observed_at_ms, run_id, source_id,
+                 evidence_origin, canonical(statement)])
+            for position, xref in enumerate(statement["xrefs"]):
+                self.conn.execute("INSERT INTO lifesci_xrefs VALUES (?,?,?,?,?,?,?,?)",
+                                  [namespace, revision_id, record_id, position, xref["database"], xref["id"],
+                                   xref.get("relation"), canonical(xref.get("properties") or {})])
+            if statement["status"] in INACTIVE:
+                self._succession(namespace, statement, revision_id, observed_at_ms)
+            status = "created" if head is None else "pending"
+        self.conn.execute("INSERT OR IGNORE INTO lifesci_release_members VALUES (?,?,?,?,?,?,?,?)",
+                          [namespace, record_id, release["label"], revision_id, release["published_on"],
+                           release["basis"], observed_at_ms, run_id])
+        if status == "pending":
+            after = self.in_force(namespace, record_id)
+            status = "revised" if after and after["revision_id"] == revision_id else "history"
+        return {"status": status, "record_id": record_id, "revision_id": revision_id}
 
-    def record_run(self, namespace: str, run_id: str, source_id: str, *, provider: str | None, status: str,
-                   outcomes: Sequence[Mapping[str, Any]], evidence_origin: str | None) -> dict[str, Any]:
-        cutoff = self.generation(namespace)
-        self.conn.execute(
-            "INSERT OR REPLACE INTO lifesci_source_runs VALUES (?,?,?,?,?,?,?,?,?)",
-            [namespace, run_id, source_id, provider, status, canonical(list(outcomes)), int(cutoff), evidence_origin,
-             self.now()])
-        return {"namespace": namespace, "run_id": run_id, "source_id": source_id, "status": status,
-                "cutoff_seq": int(cutoff), "outcomes": list(outcomes)}
+    def _succession(self, namespace: str, statement: Mapping[str, Any], revision_id: str, observed: int) -> None:
+        from src.kb.entity_history import EntityHistoryStore
+
+        source, record_type = statement["source"], statement["record_type"]
+        old = native_key(source, statement["native_id"])
+        for target in statement["successors"]:
+            new = native_key(source, target)
+            decision_id = None
+            if statement["status"] in {"merged", "replaced", "demerged", "obsolete"}:
+                history = EntityHistoryStore(self.conn, now=self.now)
+                left, right = f"lifesci:{source}:{old}", f"lifesci:{source}:{new}"
+                for entity in (left, right):
+                    history.register_entity(namespace, entity, [entity.split(":", 1)[1]],
+                                            principal_id=f"provider:{source}", scopes=_ENTITY_HISTORY_SCOPES)
+                decided = history.decide(
+                    namespace, "redirect", [left, right],
+                    {"source": source, "from": old, "to": new, "revision_id": revision_id,
+                     "status": statement["status"], "release": statement["release"]["label"],
+                     "provenance": {"producer": "science.life-sciences", "asserted_by": source},
+                     "policy": {"merge": False, "note": "the source's own succession, recorded as identity history"}},
+                    reviewer_id=f"provider:{source}", principal_id=f"provider:{source}",
+                    scopes=_ENTITY_HISTORY_SCOPES, event_key=f"lifesci-succession:{namespace}:{source}:{old}:{new}")
+                decision_id = decided["decision_id"]
+            self.conn.execute("INSERT OR IGNORE INTO lifesci_successions VALUES (?,?,?,?,?,?,?,?,?)",
+                              [namespace, source, record_type, old, new, statement["status"], revision_id,
+                               decision_id, observed])
 
     # ------------------------------------------------------------------ reads
 
-    _COLUMNS = ("revision_id, record_id, seq, revision_no, content_sha, observed_at_ms, statement_json, event, "
-                "release, supersedes, run_id, source_id, evidence_origin")
+    def record(self, namespace: str, record_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT record_id, source, record_type, native_id FROM lifesci_records WHERE namespace=? AND record_id=?",
+            [namespace, record_id]).fetchone() if self.ready() else None
+        if row is None:
+            raise LifeSciError("not_found", "life-science record is not visible in this namespace")
+        return dict(zip(("record_id", "source", "record_type", "native_id"), row))
 
-    @staticmethod
-    def _revision(row: Sequence[Any]) -> dict[str, Any]:
-        return {"revision_id": row[0], "record_id": row[1], "seq": int(row[2]), "revision_no": int(row[3]),
-                "content_sha": row[4], "observed_at_ms": int(row[5]), "retrieved_on": day(int(row[5])),
-                "statement": json.loads(row[6]), "event": row[7], "release": row[8], "supersedes": row[9],
-                "run_id": row[10], "source_id": row[11], "evidence_origin": row[12]}
-
-    def revisions(self, namespace: str, record_id: str, *, cutoff_seq: int | None = None,
-                  as_of_ms: int | None = None) -> list[dict[str, Any]]:
+    def records(self, namespace: str, *, source: str | None = None,
+                record_type: str | None = None) -> list[dict[str, Any]]:
         if not self.ready():
             return []
         rows = self.conn.execute(
-            f"SELECT {self._COLUMNS} FROM lifesci_revisions WHERE namespace=? AND record_id=? "
-            "AND (? IS NULL OR seq<=?) AND (? IS NULL OR observed_at_ms<=?) ORDER BY seq",
-            [namespace, record_id, cutoff_seq, cutoff_seq, as_of_ms, as_of_ms]).fetchall()
-        return [self._revision(r) for r in rows]
+            "SELECT record_id, source, record_type, native_id FROM lifesci_records WHERE namespace=? "
+            "AND (? IS NULL OR source=?) AND (? IS NULL OR record_type=?) ORDER BY source, record_type, native_id",
+            [namespace, source, source, record_type, record_type]).fetchall()
+        return [dict(zip(("record_id", "source", "record_type", "native_id"), r)) for r in rows]
 
-    def current(self, namespace: str, record_id: str, *, as_of_ms: int | None = None,
-                cutoff_seq: int | None = None) -> dict[str, Any] | None:
-        """The revision on record at ``as_of_ms`` (retrieval time): the latest one retrieved by then."""
-        revisions = self.revisions(namespace, record_id, as_of_ms=as_of_ms, cutoff_seq=cutoff_seq)
-        return revisions[-1] if revisions else None
+    def find(self, namespace: str, source: str, native_id: str, record_type: str | None = None) -> list[str]:
+        """Record ids of a source's native accession (one per record type that uses it)."""
+        if not self.ready():
+            return []
+        rows = self.conn.execute(
+            "SELECT record_id FROM lifesci_records WHERE namespace=? AND source=? AND native_id=? "
+            "AND (? IS NULL OR record_type=?) ORDER BY record_type",
+            [namespace, source, native_key(source, native_id), record_type, record_type]).fetchall()
+        return [r[0] for r in rows]
 
-    def at_release(self, namespace: str, record_id: str, release: str, *,
-                   as_of_ms: int | None = None) -> dict[str, Any] | None:
-        """The revision in force at a published release: the latest revision whose release is not later."""
-        wanted = release_order(release)
-        candidates = [r for r in self.revisions(namespace, record_id, as_of_ms=as_of_ms)
-                      if r["release"] is not None and release_order(r["release"]) <= wanted]
-        if not candidates:
-            return None
-        return max(candidates, key=lambda r: (release_order(r["release"]), r["seq"]))
+    def resolve(self, namespace: str, reference: str) -> list[str]:
+        """Record ids a reference names: a record id, ``source:native`` or a bare accession."""
+        text = str(reference or "").strip()
+        if text.startswith("lifesci-record:"):
+            self.record(namespace, text)
+            return [text]
+        found: list[str] = []
+        for source, native in detect_reference(text):
+            found += self.find(namespace, source, native)
+        return found
+
+    def _revision_row(self, row: Sequence[Any]) -> dict[str, Any]:
+        value = dict(zip(_REVISION_COLUMNS, row))
+        value["order"] = json.loads(value.pop("order_json")) if value.get("order_json") else None
+        value["successors"] = json.loads(value.pop("successors_json"))
+        value["retrieved_at"] = iso_from_ms(value["observed_at_ms"])
+        return value
+
+    def revisions(self, namespace: str, record_id: str) -> list[dict[str, Any]]:
+        if not self.ready():
+            return []
+        rows = self.conn.execute(
+            f"SELECT {', '.join(_REVISION_COLUMNS)} FROM lifesci_revisions WHERE namespace=? AND record_id=? "
+            "ORDER BY seq", [namespace, record_id]).fetchall()
+        return [self._revision_row(r) for r in rows]
 
     def revision(self, namespace: str, revision_id: str) -> dict[str, Any]:
-        row = self.conn.execute(f"SELECT {self._COLUMNS} FROM lifesci_revisions WHERE namespace=? AND revision_id=?",
-                                [namespace, revision_id]).fetchone() if self.ready() else None
+        row = self.conn.execute(
+            f"SELECT {', '.join(_REVISION_COLUMNS)} FROM lifesci_revisions WHERE namespace=? AND revision_id=?",
+            [namespace, revision_id]).fetchone() if self.ready() else None
         if row is None:
-            raise LifeSciError("not_found", "life-sciences revision is not visible in this namespace")
-        return self._revision(row)
+            raise LifeSciError("not_found", "revision is not visible in this namespace")
+        return self._revision_row(row)
 
-    def records(self, namespace: str, *, record_type: str | None = None, provider: str | None = None,
-                subject_keys: Iterable[str] | None = None) -> list[dict[str, Any]]:
+    def statement(self, namespace: str, revision_id: str) -> dict[str, Any]:
+        row = self.conn.execute("SELECT statement_json FROM lifesci_revisions WHERE namespace=? AND revision_id=?",
+                                [namespace, revision_id]).fetchone()
+        if row is None:
+            raise LifeSciError("not_found", "revision is not visible in this namespace")
+        return json.loads(row[0])
+
+    def memberships(self, namespace: str, record_id: str) -> list[dict[str, Any]]:
+        rows = self.conn.execute(
+            "SELECT m.release_label, m.revision_id, m.released_on, m.release_basis, m.observed_at_ms, r.seq "
+            "FROM lifesci_release_members m JOIN lifesci_revisions r ON r.namespace=m.namespace AND "
+            "r.revision_id=m.revision_id WHERE m.namespace=? AND m.record_id=?", [namespace, record_id]).fetchall()
+        items = [dict(zip(("release_label", "revision_id", "released_on", "release_basis", "observed_at_ms", "seq"),
+                          r)) for r in rows]
+        return sorted(items, key=lambda m: (release_order(m["release_label"]), m["seq"]))
+
+    def releases(self, namespace: str, record_id: str) -> list[dict[str, Any]]:
+        """Every release the record was observed in, oldest first, with the revision it carried."""
+        return [{k: m[k] for k in ("release_label", "released_on", "release_basis", "revision_id")}
+                for m in self.memberships(namespace, record_id)]
+
+    def in_force(self, namespace: str, record_id: str, *, release: str | None = None,
+                 as_of: Any = None) -> dict[str, Any] | None:
+        """The revision in force at a release label and/or date; the latest when neither is given."""
+        day = as_of_day(as_of)
+        cutoff = release_order(release) if release else None
+        chosen = None
+        for member in self.memberships(namespace, record_id):
+            if cutoff is not None and release_order(member["release_label"]) > cutoff:
+                continue
+            published = member["released_on"] or (iso_from_ms(member["observed_at_ms"]) or "")[:10]
+            if day is not None and published > day:
+                continue
+            chosen = member
+        return None if chosen is None else self.revision(namespace, chosen["revision_id"])
+
+    def xrefs(self, namespace: str, revision_id: str) -> list[dict[str, Any]]:
+        rows = self.conn.execute(
+            "SELECT database, xref_id, relation, properties_json FROM lifesci_xrefs WHERE namespace=? AND "
+            "revision_id=? ORDER BY position", [namespace, revision_id]).fetchall()
+        return [{"database": r[0], "id": r[1], "relation": r[2], "properties": json.loads(r[3])} for r in rows]
+
+    def xrefs_naming(self, namespace: str, databases: Iterable[str], xref_id: str) -> list[dict[str, Any]]:
+        """Revisions (any record) whose published cross-references name this id in one of the databases."""
+        wanted = sorted(set(databases))
+        if not wanted or not self.ready():
+            return []
+        rows = self.conn.execute(
+            "SELECT x.record_id, x.revision_id, x.database, x.xref_id, x.relation FROM lifesci_xrefs x WHERE "
+            "x.namespace=? AND upper(x.xref_id)=upper(?) AND x.database IN (" + ",".join("?" * len(wanted)) + ") "
+            "ORDER BY x.record_id, x.revision_id", [namespace, xref_id, *wanted]).fetchall()
+        return [dict(zip(("record_id", "revision_id", "database", "id", "relation"), r)) for r in rows]
+
+    def conflicts(self, namespace: str, record_id: str | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "lifesci_conflicts"):
+            return []
+        rows = self.conn.execute(
+            "SELECT conflict_id, record_id, marker, stored_revision_id, offered_sha, observed_at_ms FROM "
+            "lifesci_conflicts WHERE namespace=? AND (? IS NULL OR record_id=?) ORDER BY conflict_id",
+            [namespace, record_id, record_id]).fetchall()
+        return [dict(zip(("conflict_id", "record_id", "marker", "stored_revision_id", "offered_sha",
+                          "observed_at_ms"), r)) for r in rows]
+
+    def successions(self, namespace: str, source: str, native_id: str) -> list[dict[str, Any]]:
+        key = native_key(source, native_id)
+        rows = self.conn.execute(
+            "SELECT s.source, s.record_type, s.from_id, s.to_id, s.kind, s.revision_id, s.decision_id, "
+            "r.release_label, r.released_on FROM lifesci_successions s JOIN lifesci_revisions r ON "
+            "r.namespace=s.namespace AND r.revision_id=s.revision_id WHERE s.namespace=? AND s.source=? AND "
+            "(s.from_id=? OR s.to_id=?) ORDER BY r.seq", [namespace, source, key, key]).fetchall()
+        return [dict(zip(("source", "record_type", "from_id", "to_id", "kind", "revision_id", "decision_id",
+                          "release", "released_on"), r)) for r in rows]
+
+    def receipts(self, namespace: str, source_id: str | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "lifesci_receipts"):
+            return []
+        rows = self.conn.execute(
+            "SELECT receipt_id, run_id, source_id, provider, receipt_json, observed_at_ms FROM lifesci_receipts "
+            "WHERE namespace=? AND (? IS NULL OR source_id=?) ORDER BY observed_at_ms, receipt_id",
+            [namespace, source_id, source_id]).fetchall()
+        return [{"receipt_id": r[0], "run_id": r[1], "source_id": r[2], "provider": r[3], **json.loads(r[4]),
+                 "observed_at": iso_from_ms(r[5])} for r in rows]
+
+    def citation(self, namespace: str, revision: Mapping[str, Any], *, as_of: Any = None,
+                 release: str | None = None, answered: bool = True) -> dict[str, Any]:
+        """Source, record revision and as-of time for one answer item."""
+        head = self.record(namespace, revision["record_id"])
+        statement = self.statement(namespace, revision["revision_id"])
+        return {"record_id": head["record_id"], "source": head["source"], "record_type": head["record_type"],
+                "native_id": head["native_id"], "revision_id": revision["revision_id"],
+                "version_marker": revision["marker"], "version_basis": revision["basis"],
+                "version_date": revision["version_date"], "status": revision["status"],
+                "release": revision["release_label"], "released_on": revision["released_on"],
+                "release_basis": revision["release_basis"], "retrieved_at": revision["retrieved_at"],
+                "evidence_origin": revision["evidence_origin"], "url": statement.get("url"),
+                "licence": statement.get("licence"),
+                "as_of": {"release": release, "date": as_of_day(as_of),
+                          "answered_at": iso_from_ms(self.now()) if answered else None}}
+
+    def generation(self, namespace: str) -> str:
+        """Digest of the namespace's revisions and memberships (monitors use it as their state)."""
         if not self.ready():
-            return []
+            return digest([])
         rows = self.conn.execute(
-            "SELECT record_id, record_type, provider, record_key, subject_key, subject_name FROM lifesci_records "
-            "WHERE namespace=? AND (? IS NULL OR record_type=?) AND (? IS NULL OR provider=?) "
-            "ORDER BY record_type, provider, record_key",
-            [namespace, record_type, record_type, provider, provider]).fetchall()
-        wanted = None if subject_keys is None else set(subject_keys)
-        return [dict(zip(("record_id", "record_type", "provider", "record_key", "subject_key", "subject_name"), r))
-                for r in rows if wanted is None or r[4] in wanted]
+            "SELECT record_id, release_label, revision_id FROM lifesci_release_members WHERE namespace=? "
+            "ORDER BY ALL", [namespace]).fetchall()
+        return digest([list(r) for r in rows])[:24]
 
-    def find(self, namespace: str, record_type: str, record_key: str) -> dict[str, Any] | None:
-        rows = [r for r in self.records(namespace, record_type=record_type) if r["record_key"] == record_key]
-        return rows[0] if rows else None
-
-    def snapshots(self, namespace: str, *, selection_key: str | None = None) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "lifesci_snapshots"):
-            return []
-        rows = self.conn.execute(
-            "SELECT snapshot_id, selection_key, provider, release, complete, entry_count, removed, url, run_id, "
-            "source_id, observed_at_ms FROM lifesci_snapshots WHERE namespace=? AND (? IS NULL OR selection_key=?) "
-            "ORDER BY observed_at_ms", [namespace, selection_key, selection_key]).fetchall()
-        return [dict(zip(("snapshot_id", "selection_key", "provider", "release", "complete", "entry_count",
-                          "removed", "url", "run_id", "source_id", "retrieved_at_ms"), r)) for r in rows]
-
-    def generation(self, namespace: str) -> int:
+    def counts(self, namespace: str) -> dict[str, dict[str, int]]:
         if not self.ready():
-            return 0
-        return int(self.conn.execute("SELECT coalesce(max(seq), 0) FROM lifesci_revisions WHERE namespace=?",
-                                     [namespace]).fetchone()[0])
-
-    def runs(self, namespace: str, run_id: str | None = None) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "lifesci_source_runs"):
-            return []
-        rows = self.conn.execute(
-            "SELECT run_id, source_id, provider, status, outcomes_json, cutoff_seq, evidence_origin, finished_at_ms "
-            "FROM lifesci_source_runs WHERE namespace=? AND (? IS NULL OR run_id=?) ORDER BY finished_at_ms, "
-            "source_id", [namespace, run_id, run_id]).fetchall()
-        return [{"run_id": r[0], "source_id": r[1], "provider": r[2], "status": r[3], "outcomes": json.loads(r[4]),
-                 "cutoff_seq": int(r[5]), "evidence_origin": r[6], "finished_at_ms": int(r[7])} for r in rows]
-
-    def provider_state(self, namespace: str, provider: str) -> dict[str, Any]:
-        runs = [r for r in self.runs(namespace) if r["provider"] == provider]
-        done = [r for r in runs if r["status"] == "complete"]
-        held = len(self.records(namespace, provider=provider))
-        return {"runs": len(runs), "records": held, "last_success_ms": done[-1]["finished_at_ms"] if done else None,
-                "last_evidence_origin": done[-1]["evidence_origin"] if done else None,
-                "last_status": runs[-1]["status"] if runs else None}
+            return {}
+        out: dict[str, dict[str, int]] = {}
+        for source, record_type, count in self.conn.execute(
+                "SELECT source, record_type, count(*) FROM lifesci_records WHERE namespace=? GROUP BY ALL "
+                "ORDER BY ALL", [namespace]).fetchall():
+            out.setdefault(source, {})[record_type] = int(count)
+        return out
 
 
 def read_store(conn: Any, namespace: str, scopes: Iterable[str]) -> LifeSciStore:
+    from src.kb.lifesci_records import READ_SCOPE
+
     authorize(namespace, scopes, READ_SCOPE)
-    store = LifeSciStore(conn, initialize=False)
-    store.require_ready()
-    return store
+    return LifeSciStore(conn, initialize=False)
 
 
 class LifeSciProjector:
-    """Runtime projector for ``noesis-lifesci-record-v1`` pages; a ChEMBL activity page closes its snapshot."""
+    """Source-pack runtime projector for ``noesis-lifesci-record-v2``."""
 
     def __init__(self, conn: Any) -> None:
         self.store = LifeSciStore(conn)
-        self._outcomes: dict[tuple[str, str], list[dict[str, Any]]] = {}
-        self._origin: dict[tuple[str, str], str] = {}
 
     @staticmethod
     def _namespace(source: Mapping[str, Any]) -> str:
@@ -334,39 +458,34 @@ class LifeSciProjector:
 
     def project_page(self, *, run_id, manifest, source, records, documents, page_receipt, principal_id):
         del manifest, documents, principal_id
-        namespace = self._namespace(source)
-        statements = [dict(r["lifesci_record"]) for r in records if r.get("lifesci_record")]
-        if any(s.get("contract") != CONTRACT for s in statements):
-            raise LifeSciError("invalid_record", "page record lacks a life-sciences statement")
-        result = self.store.observe(namespace, statements, run_id=run_id, source_id=source["source_id"])
-        receipt = dict(page_receipt or {})
-        snapshot = receipt.get("snapshot")
-        closed = None
-        if snapshot and receipt.get("outcome") == "found":
-            activity_ids = [r["record_id"] for r, s in zip(result["results"], statements, strict=True)
-                            if s["record_type"] == "activity"]
-            closed = self.store.close_snapshot(
-                namespace, selection_key=snapshot["selection_key"], provider=snapshot["provider"],
-                release=snapshot.get("release"), complete=bool(snapshot.get("complete")),
-                present_record_ids=activity_ids, url=snapshot.get("url"), run_id=run_id,
-                source_id=source["source_id"])
-        key = (run_id, source["source_id"])
-        if receipt.get("selection"):
-            self._outcomes.setdefault(key, []).append(
-                {"selection": receipt["selection"], "outcome": receipt.get("outcome"), "statements": len(statements),
-                 "release": receipt.get("release"), "removed": len((closed or {}).get("removed") or []),
-                 "personal_fields_dropped": receipt.get("personal_fields_dropped", []),
-                 "excluded_fields_dropped": receipt.get("excluded_fields_dropped", [])})
-        if receipt.get("evidence_origin"):
-            self._origin[key] = receipt["evidence_origin"]
-        return result["counts"]
+        return self.store.observe_page(run_id, source, self._namespace(source), records, page_receipt=page_receipt)
 
     def finish_source(self, *, run_id, manifest, source, status, principal_id):
-        del manifest, principal_id
-        key = (run_id, source["source_id"])
-        return self.store.record_run(self._namespace(source), run_id, source["source_id"],
-                                     provider=dict(source.get("life_sciences") or {}).get("provider"), status=status,
-                                     outcomes=self._outcomes.pop(key, []), evidence_origin=self._origin.pop(key, None))
+        del run_id, manifest, principal_id
+        return {"source_id": source["source_id"], "status": status}
 
 
-__all__ = ["TABLES", "LifeSciProjector", "LifeSciStore", "day", "read_store", "record_id_for", "table_exists"]
+def selected_features(conn: Any) -> list[str]:
+    from src.kb.education_statistics import selected_features as science_features
+
+    return science_features(conn)
+
+
+def readiness(conn: Any, namespace: str = "global") -> dict[str, Any]:
+    from src.ingestion.lifesci_sources import LIVE_VERIFICATION
+    from src.kb.lifesci_records import FEATURES
+
+    selected = selected_features(conn)
+    store = LifeSciStore(conn, initialize=False)
+    counts = store.counts(namespace)
+    return {
+        "provider": "science.life-sciences",
+        "features": {feature: feature in selected for feature in sorted(set(FEATURES.values()))},
+        "stores_ready": store.ready(),
+        "providers": {source: {"feature": FEATURES[source], "records": counts.get(source, {}),
+                               "live_verification": LIVE_VERIFICATION[source]["status"]} for source in SOURCES},
+        "note": "offline fixture coverage is never reported as live coverage",
+    }
+
+
+__all__ = ["TABLES", "LifeSciProjector", "LifeSciStore", "as_of_day", "iso_from_ms", "read_store", "readiness"]

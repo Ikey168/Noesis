@@ -1,26 +1,24 @@
-"""Fact-checks of a claim or claimant as of a date, and fact-checks citing a news article (#2659, FC08, FC09).
+"""Fact-checks of a claim or claimant as of a date, and fact-checks that cite a news article (#2659, FC08, FC09).
 
-Answers are read-only views over the fact-check store, the reviewed matches of
-:mod:`src.kb.fact_checks_identity` and (optionally) the web-archive captures
-of the citation preservation store:
+Both answers read revisions as they were in force on the as-of date (by the
+publisher's own dates) and as known at the end of that day, and cite every
+fact-check revision they use with its source, record revision and as-of times.
 
-* every rating is shown exactly as published - the textual rating and any
-  numeric value with the publisher's own best/worst scale - and ratings from
-  different publishers are shown side by side, never merged, averaged or
-  mapped onto a common scale;
-* a claim reaches fact-checks only through an *accepted* claim match; unreviewed
-  candidates are listed separately and never answer. A text query is a search
-  over quoted claims, labelled as such, not a match;
-* "as of" a date is the revision each source had published by then (review or
-  status date) - later reviews are left out and counted; the publisher's IFCN
-  status is the signatory revision in effect on the review date;
-* URL lookups use the versioned ``wa-canon-v1`` canonicalisation and say which
-  rules applied; archived captures of the URL are listed when the web-archives
-  provider holds them, otherwise their absence is reported;
-* every answer cites each fact-check revision with its source, revision number
-  and observation time.
+* :meth:`FactCheckQueries.for_claim_or_claimant` - a claim is an
+  ``argument_claims`` id reached only through **accepted** FC06 claim matches; a
+  claimant is a canonical entity reached through accepted claimant matches, or the
+  claimant's name exactly as a publisher published it (a filter on the published
+  text, labelled as such, never a match). Ratings are shown verbatim with any
+  publisher scale; when publishers rated the same claim differently their ratings
+  are shown **side by side** and never reconciled. Each fact-check carries its
+  publisher's IFCN status at the review date as then known.
+* :meth:`FactCheckQueries.citing` - a news article or URL is compared with each
+  fact-check's appearance and first-appearance URLs under the ``wa-canon-v1``
+  rules (stated in the answer); a social-platform appearance, stored as a digest,
+  matches only when the caller supplies its URL. Archived captures of the URL near
+  each review date are added from the web-archive store when present.
 
-No truth verdict by Noesis and no normalised rating appear in any answer.
+Nothing here issues a truth verdict, normalises a rating or matches a claim.
 """
 
 from __future__ import annotations
@@ -28,310 +26,297 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from src.ingestion.fact_checks_sources import EXCLUSIONS, canonical_url, url_rule
-from src.kb.fact_checks_identity import (
-    FactCheckIdentity,
-    claim_key,
-    claimant_key,
-    normalise_claim,
-)
+from src.ingestion.fact_checks_sources import EXCLUSIONS, MINIMISATION_POLICY, URL_RULES
+from src.kb.fact_checks_identity import FactCheckIdentity, claimant_key
 from src.kb.fact_checks_records import (
-    CLAIMANT_SCOPE,
     READ_SCOPE,
     FactCheckError,
-    FactChecksStore,
     authorize,
+    day_ms,
+    forbidden_keys,
+    iso,
     table_exists,
 )
 
-ANSWER_CONTRACT = "noesis-fact-checks-answer-v1"
-NOTICE = ("Ratings are the publishers' own, quoted as published with their scales; Noesis gives no verdict and does "
-          "not normalise ratings.")
+ANSWER_CONTRACT = "noesis-fact-check-answer-v1"
+NOTICE = ("Ratings are each publisher's own, shown verbatim; Noesis issues no verdict and does not reconcile "
+          "differing ratings.")
+
+
+def _today_ms(conn: Any) -> int:
+    import time
+
+    del conn
+    return int(time.time() * 1000)
+
+
+def url_rule(url: str) -> dict[str, Any]:
+    from src.ingestion.fact_checks_sources import canonical_url
+    from src.kb.web_archive_identity import RULES
+
+    canonical, applied = canonical_url(url)
+    return {"rules": URL_RULES, "input": url, "canonical_url": canonical, "applied": applied,
+            "rule_text": [f"{rule}: {text}" for rule, text in RULES],
+            "social_platforms": "appearances on social platforms are stored as the SHA-256 of this canonical URL and "
+                                "match only when the same URL is supplied"}
 
 
 class FactCheckQueries:
     def __init__(self, conn: Any) -> None:
         self.conn = conn
-        self.store = FactChecksStore(conn, initialize=False)
         self.identity = FactCheckIdentity(conn, initialize=False)
+        self.store = self.identity.store
 
-    # ------------------------------------------------------------------ building blocks
-
-    def publisher_status(self, namespace: str, site: str | None, day: str | None, *, scopes: Iterable[str]
-                         ) -> dict[str, Any]:
-        """The IFCN signatory status in effect on a day for the signatory whose website domain is ``site``."""
-        if not site:
-            return {"status": "no_publisher_site"}
-        rows = self.store.records(namespace, scopes=scopes, kinds=["publisher"], publisher_site=site)
-        if not rows:
-            return {"status": "no_signatory_record_for_site", "site": site,
-                    "note": "absence from the acquired listing is not a statement about the publisher"}
-        out = []
-        for row in rows:
-            in_effect = self.store.as_of(namespace, row["record_key"], day, scopes=scopes, source_id=row["source_id"])
-            if not in_effect:
-                history = self.store.history(namespace, row["record_key"], scopes=scopes, source_id=row["source_id"])
-                out.append({"status": "status_unknown_on_date", "record_key": row["record_key"], "day": day,
-                            "earliest_known": FactChecksStore.effective_day(history[0]) if history else None})
-                continue
-            revision = in_effect[0]
-            fields = revision["record"]["fields"]
-            out.append({
-                "status": "known", "record_key": row["record_key"], "day": day,
-                "name_as_published": fields.get("name_as_published"),
-                "status_as_published": fields.get("status_as_published") if revision["status"] == "published"
-                else None, "listing_status": revision["status"],
-                "status_date_as_published": fields.get("status_date_as_published"),
-                "status_date_label": fields.get("status_date_label"),
-                "basis": "shared identifier: the signatory's published website domain equals the review's publisher "
-                         "site",
-                "citation": revision["citation"]})
-        return {"status": "answered", "site": site, "signatories": out}
-
-    def _claims_view(self, claims: Iterable[Mapping[str, Any]], record_key: str, keys: set[str] | None
-                     ) -> list[dict[str, Any]]:
-        out = []
-        for claim in claims:
-            key = claim_key(record_key, claim.get("claim_text_as_quoted"))
-            if keys is not None and key not in keys:
-                continue
-            out.append({"claim_key": key, **dict(claim)})
-        return out
-
-    def _items(self, namespace: str, record_keys: dict[str, set[str] | None], as_of: str | None, *,
-               scopes: set[str], basis: Mapping[str, Any]) -> tuple[list[dict[str, Any]], int]:
-        """One item per fact-check with every source's revision in effect as of the date."""
-        items, later = [], 0
-        for record_key in sorted(record_keys):
-            revisions = self.store.as_of(namespace, record_key, as_of, scopes=scopes)
-            if not revisions:
-                later += 1
-                continue
-            base = revisions[0]["record"]
-            fields = base["fields"]
-            assertions = []
-            for revision in revisions:
-                rf = revision["record"]["fields"]
-                assertions.append({
-                    "source_id": revision["source_id"], "provider": revision["record"]["provider"],
-                    "revision_id": revision["revision_id"], "revision_no": revision["revision_no"],
-                    "status": revision["status"], "review_date": rf.get("review_date"),
-                    "claims": self._claims_view(rf.get("claims") or [], record_key, record_keys[record_key]),
-                    "rating_scale_note": rf.get("rating_scale_note"), "sd_license": rf.get("sd_license"),
-                    "citation": revision["citation"]})
-            names = [(r["record"]["fields"].get("publisher") or {}).get("name_as_published") for r in revisions]
-            publisher = {**(fields.get("publisher") or {}),
-                         "name_as_published": next((n for n in names if n), None)}
-            items.append({
-                "record_key": record_key, "publisher": publisher, "review_url": fields.get("review_url"),
-                "review_title": fields.get("review_title"), "language": base.get("language"),
-                "review_date": max((a["review_date"] or "" for a in assertions), default=None) or None,
-                "withdrawn_by_source": all(a["status"] != "published" for a in assertions),
-                "source_assertions": assertions,
-                "publisher_status_at_review": self.publisher_status(
-                    namespace, (fields.get("publisher") or {}).get("site"), fields.get("review_date"),
-                    scopes=scopes),
-                "basis": basis.get(record_key) or basis.get("*")})
-        return items, later
+    # ------------------------------------------------------------------ shared
 
     @staticmethod
-    def side_by_side(items: Iterable[Mapping[str, Any]]) -> list[dict[str, Any]]:
-        """Ratings of the same quoted claim by different publishers, each verbatim; never merged or averaged."""
-        groups: dict[str, dict[str, Any]] = {}
-        for item in items:
-            for assertion in item["source_assertions"]:
-                if assertion["status"] != "published":
-                    continue
-                for claim in assertion["claims"]:
-                    group = groups.setdefault(normalise_claim(claim.get("claim_text_as_quoted")), {
-                        "claim_texts_as_quoted": set(), "ratings": {}})
-                    group["claim_texts_as_quoted"].add(claim.get("claim_text_as_quoted"))
-                    rating = claim.get("rating") or {}
-                    group["ratings"].setdefault((item["record_key"], assertion["source_id"]), {
-                        "publisher": (item.get("publisher") or {}).get("name_as_published"),
-                        "publisher_site": (item.get("publisher") or {}).get("site"),
-                        "record_key": item["record_key"], "source_id": assertion["source_id"],
-                        "revision_id": assertion["revision_id"], "review_date": assertion["review_date"],
-                        "claimant_as_named": claim.get("claimant_as_named"), **rating})
+    def _window(as_of: str | None, known_at: str | None = None) -> tuple[str | None, int | None]:
+        """The publication cut-off day (publisher dates) and, optionally, the end of the day records were known by."""
+        day = str(as_of)[:10] if as_of else None
+        return day, day_ms(str(known_at)[:10]) if known_at else None
+
+    def _publisher_status(self, namespace: str, publisher_key: str, review_day: str | None, known_at: int | None,
+                          scopes: set[str]) -> dict[str, Any]:
+        if not self.store.ready() or not self.conn.execute(
+                "SELECT 1 FROM fact_check_records WHERE namespace=? AND record_kind='publisher' LIMIT 1",
+                [namespace]).fetchone():
+            return {"status": "unavailable", "reason": "no IFCN signatory listing acquired (fact-checks-ifcn feature "
+                                                       "absent or not run)"}
+        rows = self.store.as_of(namespace, publisher_key, scopes=scopes, day=review_day, known_at_ms=known_at)
+        if not rows:
+            return {"status": "no_signatory_record", "reason": "no IFCN signatory record for this publisher's domain "
+                                                               "in force on the review date as then known"}
+        row = rows[0]
+        fields = row["record"]["fields"]
+        if row["status"] != "published":
+            return {"status": row["status"], "in_force_since": row["in_force_since"], "citation": row["citation"]}
+        return {"status": fields["ifcn_status"], "status_as_published": fields["status_as_published"],
+                "status_dates": fields["status_dates"], "in_force_since": row["in_force_since"],
+                "signatory_name_as_published": fields["name_as_published"], "citation": row["citation"]}
+
+    def _fact_checks(self, namespace: str, record_keys: Iterable[str], *, day: str | None, known_at: int | None,
+                     scopes: set[str]) -> list[dict[str, Any]]:
         out = []
-        for _, group in sorted(groups.items()):
-            ratings = sorted(group["ratings"].values(), key=lambda r: (r["publisher_site"] or "", r["source_id"]))
-            out.append({"claim_texts_as_quoted": sorted(t for t in group["claim_texts_as_quoted"] if t),
-                        "ratings_as_published": ratings,
-                        "publishers": sorted({r["publisher_site"] for r in ratings if r["publisher_site"]}),
-                        "distinct_textual_ratings": sorted({r.get("textual_rating") or "" for r in ratings} - {""}),
-                        "grouping_basis": "identical quoted claim text after case, whitespace and punctuation "
-                                          "folding; not a reviewed claim match"})
+        for key in sorted(set(record_keys)):
+            revisions = [r for r in self.store.as_of(namespace, key, scopes=scopes, day=day, known_at_ms=known_at)
+                         if r["status"] == "published"]
+            if not revisions:
+                continue
+            first = revisions[0]["record"]["fields"]
+            claim = first["claims"][0]
+            publisher_name = next((r["record"]["fields"]["publisher"]["name_as_published"] for r in revisions
+                                   if r["record"]["fields"]["publisher"]["name_as_published"]), None)
+            review_day = max((r["record"]["fields"]["review_day"] or "" for r in revisions), default="") or None
+            out.append({
+                "record_key": key, "review_key": revisions[0]["review_key"],
+                "publisher": {"name_as_published": publisher_name,
+                              "domain": first["publisher"]["domain"], "publisher_key": revisions[0]["publisher_key"]},
+                "review_url": first["review_url"], "review_title": first["review_title"],
+                "claim": {"text_as_quoted": claim["claim_text"], "claimant_as_named": claim.get("claimant"),
+                          "claim_date": claim.get("claim_date")},
+                "as_published_by_source": [{
+                    "source_id": r["source_id"], "provider": r["provider"],
+                    "review_date": r["record"]["fields"]["review_date"],
+                    "rating_as_published": r["record"]["fields"]["claims"][0]["rating"],
+                    "language": r["record"]["fields"]["language"], "in_force_since": r["in_force_since"],
+                    "citation": r["citation"]} for r in revisions],
+                "publisher_status_at_review": self._publisher_status(namespace, revisions[0]["publisher_key"],
+                                                                     review_day, known_at, scopes),
+            })
         return out
 
-    def _answer(self, namespace, query, key, as_of, items, later, **extra) -> dict[str, Any]:
-        return {"contract": ANSWER_CONTRACT, "namespace": namespace, "query": query, "key": key,
-                "as_of": str(as_of)[:10] if as_of else None,
-                "status": "answered" if items else "none_on_record", "fact_checks": items,
-                "ratings_side_by_side": self.side_by_side(items), "later_reviews_not_shown": later,
-                "exclusions": list(EXCLUSIONS), "notice": NOTICE, **extra}
+    @staticmethod
+    def _side_by_side(fact_checks: list[dict[str, Any]]) -> dict[str, Any]:
+        by_claim: dict[str, list[dict[str, Any]]] = {}
+        for item in fact_checks:
+            by_claim.setdefault(item["claim"]["text_as_quoted"], []).append(item)
+        groups = []
+        for text, items in sorted(by_claim.items()):
+            ratings = [{"publisher": i["publisher"]["name_as_published"], "domain": i["publisher"]["domain"],
+                        "review_url": i["review_url"],
+                        "ratings_as_published": sorted({(s["rating_as_published"]["text"] or "")
+                                                        for s in i["as_published_by_source"]}),
+                        "scales_as_published": sorted({s["rating_as_published"]["scale_as_published"]
+                                                       for s in i["as_published_by_source"]
+                                                       if s["rating_as_published"]["scale_as_published"]})}
+                       for i in items]
+            texts = {t.strip().casefold() for r in ratings for t in r["ratings_as_published"] if t}
+            groups.append({"claim_as_quoted": text, "publishers": ratings,
+                           "rating_texts_differ": len({r["domain"] for r in ratings}) > 1 and len(texts) > 1})
+        return {"groups": groups, "basis": "verbatim rating text per publisher, compared as text only; no rating is "
+                                           "normalised, ranked or reconciled"}
+
+    def _envelope(self, query: str, namespace: str, day: str | None, known_at: int | None,
+                  fact_checks: list[dict[str, Any]], **extra: Any) -> dict[str, Any]:
+        answer = {
+            "contract": ANSWER_CONTRACT, "query": query, "namespace": namespace, "as_of": day,
+            "known_at": iso(known_at) if known_at is not None else None,
+            "status": "answered" if fact_checks else "none_on_record", "fact_checks": fact_checks,
+            "side_by_side": self._side_by_side(fact_checks), "exclusions": list(EXCLUSIONS),
+            "minimisation": MINIMISATION_POLICY, "notice": NOTICE, **extra,
+        }
+        if forbidden_keys(answer):
+            raise FactCheckError("assessment_forbidden", "an answer may not carry a verdict or normalised rating")
+        return answer
 
     # ------------------------------------------------------------------ FC08
 
-    def for_claim(self, namespace: str, *, scopes: Iterable[str], claim_id: str | None = None,
-                  text: str | None = None, as_of: str | None = None) -> dict[str, Any]:
-        """Fact-checks of an argument claim (accepted matches only) or of a quoted-claim text search."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        if bool(claim_id) == bool(text):
-            raise FactCheckError("invalid_request", "give an argument claim id or a claim text, not both")
-        keys: dict[str, set[str] | None] = {}
-        basis: dict[str, Any] = {}
-        extra: dict[str, Any] = {}
-        if claim_id:
-            target = f"argument-claim:{claim_id}"
-            for match in self.identity.matches(namespace, scopes=scopes, kind="claim-argument", key=target):
-                record_key = match["left_key"].split("#claim=", 1)[0]
-                if match["state"] == "accepted":
-                    keys.setdefault(record_key, set()).add(match["left_key"])
-                    basis[record_key] = {"kind": "accepted-match", "match_id": match["match_id"],
-                                         "method": match["method"], "reviewer": match["reviewer"]}
-            extra["unreviewed_candidates"] = [
-                {"match_id": m["match_id"], "claim_key": m["left_key"], "method": m["method"],
-                 "confidence": m["confidence"], "state": m["state"]}
-                for m in self.identity.matches(namespace, scopes=scopes, kind="claim-argument", key=target)
-                if m["state"] == "proposed"]
-            extra["matching"] = "accepted claim matches only; candidates are listed, never answered"
-        else:
-            needle = normalise_claim(text)
-            if len(needle) < 3:
-                raise FactCheckError("invalid_request", "a claim search needs at least three characters")
-            for row in self.store.records(namespace, scopes=scopes, kinds=["fact-check"]):
-                for claim in row["record"]["fields"].get("claims") or []:
-                    if needle in normalise_claim(claim.get("claim_text_as_quoted")):
-                        keys.setdefault(row["record_key"], set()).add(
-                            claim_key(row["record_key"], claim.get("claim_text_as_quoted")))
-            basis["*"] = {"kind": "text-search", "normalised_query": needle,
-                          "note": "a search over quoted claim texts, not a reviewed claim match"}
-        items, later = self._items(namespace, keys, as_of, scopes=scopes, basis=basis)
-        return self._answer(namespace, "claim", claim_id or text, as_of, items, later, **extra)
+    def for_claim_or_claimant(self, namespace: str, *, scopes: Iterable[str], claim_id: str | None = None,
+                              claimant: str | None = None, as_of: str | None = None,
+                              known_at: str | None = None) -> dict[str, Any]:
+        """Fact-checks published by ``as_of`` of an argument claim or a claimant, ratings verbatim and cited.
 
-    def for_claimant(self, namespace: str, claimant: str, *, scopes: Iterable[str], as_of: str | None = None
-                     ) -> dict[str, Any]:
-        """Fact-checks of a claimant as named, or of every claimant accepted as matching a canonical entity."""
+        ``as_of`` is a cut-off on the publishers' own dates (the review revision in force that day); ``known_at``
+        additionally restricts the answer to what had been acquired by the end of that day (default: everything).
+        """
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        if "operator" not in scopes and CLAIMANT_SCOPE not in scopes:
-            raise FactCheckError("unauthorized", f"claimant queries need {CLAIMANT_SCOPE} (FC01)")
-        wanted: set[str] = set()
-        basis: dict[str, Any] = {}
-        if str(claimant).startswith("ent-"):
-            for match in self.identity.accepted(namespace, scopes=scopes, kind="claimant-entity", key=claimant):
-                wanted.add(match["left_key"])
-            basis["*"] = {"kind": "accepted-match", "entity": claimant}
+        if bool(claim_id) == bool(claimant):
+            raise FactCheckError("invalid_request", "name a claim_id or a claimant")
+        day, known_ms = self._window(as_of, known_at)
+        keys: set[str] = set()
+        used, unreviewed = [], []
+        if claim_id:
+            for match in self.identity.candidates(namespace, scopes=scopes, match_kind="claim", key=claim_id):
+                (used if match["state"] == "accepted" else unreviewed).append(match)
+            keys = {m["left_key"] for m in used}
+            subject = {"claim_id": claim_id, "basis": "accepted claim matches (FC06) only"}
         else:
-            wanted.add(claimant_key(claimant))
-            basis["*"] = {"kind": "claimant-as-named", "note": "the claimant name as the publisher named it"}
-        keys: dict[str, set[str] | None] = {}
-        for row in self.store.records(namespace, scopes=scopes, kinds=["fact-check"]):
-            for claim in row["record"]["fields"].get("claims") or []:
-                if claim.get("claimant_as_named") and claimant_key(claim["claimant_as_named"]) in wanted:
-                    keys.setdefault(row["record_key"], set()).add(
-                        claim_key(row["record_key"], claim.get("claim_text_as_quoted")))
-        items, later = self._items(namespace, keys, as_of, scopes=scopes, basis=basis)
-        return self._answer(namespace, "claimant", claimant, as_of, items, later, claimant_keys=sorted(wanted))
+            subjects = {s["subject_key"]: s for s in self.identity.subjects(namespace, scopes=scopes)["claimant"]}
+            if str(claimant).startswith("ent-"):
+                for match in self.identity.candidates(namespace, scopes=scopes, match_kind="claimant", key=claimant):
+                    (used if match["state"] == "accepted" else unreviewed).append(match)
+                claimant_subjects = {m["left_key"] for m in used}
+                basis = "accepted claimant matches (FC06) only"
+            else:
+                key = claimant if str(claimant).startswith("fact-check:claimant:") else claimant_key(
+                    {"name_as_published": claimant})
+                claimant_subjects = {key} if key else set()
+                basis = "the claimant as a publisher named it (a filter on published text, not an identity match)"
+            for key in claimant_subjects:
+                keys |= set((subjects.get(key) or {}).get("fact_checks") or [])
+            subject = {"claimant": claimant, "claimant_subjects": sorted(claimant_subjects), "basis": basis}
+        fact_checks = self._fact_checks(namespace, keys, day=day, known_at=known_ms, scopes=scopes)
+        return self._envelope(
+            "claim" if claim_id else "claimant", namespace, day, known_ms, fact_checks, subject=subject,
+            identity={"accepted": [{"candidate_id": m["candidate_id"], "record": m["left_key"],
+                                    "method": m["method"], "decision_id": m["decision_id"],
+                                    "reviewer": m["reviewer"]} for m in used],
+                      "unreviewed_candidates_not_used": [m["candidate_id"] for m in unreviewed
+                                                         if m["state"] == "proposed"]})
 
     # ------------------------------------------------------------------ FC09
 
-    def citing(self, namespace: str, *, scopes: Iterable[str], url: str | None = None,
-               document_id: str | None = None, as_of: str | None = None, archive_namespace: str | None = None
-               ) -> dict[str, Any]:
-        """Fact-checks whose revision in effect cites a URL (or a news document's URL) as appearance or review."""
+    def _document_url(self, document_id: str) -> str:
+        if not table_exists(self.conn, "documents"):
+            raise FactCheckError("provider_absent", "no news documents store")
+        row = self.conn.execute("SELECT coalesce(canonical_url, url) FROM documents WHERE document_id=?",
+                                [document_id]).fetchone()
+        if not row or not row[0]:
+            raise FactCheckError("not_found", "no document with a URL under that id")
+        return str(row[0])
+
+    def _archives(self, namespace: str, url: str, review_day: str | None, scopes: set[str]) -> dict[str, Any]:
+        if not table_exists(self.conn, "web_archive_captures"):
+            return {"status": "unavailable", "reason": "no web-archive capture store (platform.web-archives absent)"}
+        from src.kb.citation_preservation import READ_SCOPE as CITATION_READ
+        from src.kb.web_archive_queries import page_as_of
+
+        if CITATION_READ not in scopes and "operator" not in scopes:
+            return {"status": "unavailable", "reason": f"{CITATION_READ} is required to read archived captures"}
+        try:
+            answer = page_as_of(self.conn, namespace, url, review_day or iso(_today_ms(self.conn)), scopes=scopes)
+        except Exception as exc:  # noqa: BLE001 - archives are optional; report, never fail the answer
+            return {"status": "unavailable", "reason": getattr(exc, "code", type(exc).__name__)}
+        return {"status": answer["status"], "statement": answer["statement"], "closest": answer["closest"],
+                "cites": answer["cites"]}
+
+    def citing(self, namespace: str, *, scopes: Iterable[str], url: str | None = None, document_id: str | None = None,
+               as_of: str | None = None, known_at: str | None = None) -> dict[str, Any]:
+        """Fact-checks that cite a news article or URL as an appearance, with the matching rule and archives."""
+        from src.ingestion.fact_checks_sources import url_digest
+
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
         if bool(url) == bool(document_id):
-            raise FactCheckError("invalid_request", "give a URL or a document id, not both")
-        urls = [url] if url else []
-        if document_id:
-            if not table_exists(self.conn, "documents"):
-                raise FactCheckError("provider_unavailable", "no news documents table (news.core absent)")
-            row = self.conn.execute("SELECT url, canonical_url FROM documents WHERE document_id=?",
-                                    [document_id]).fetchone()
-            if row is None:
-                raise FactCheckError("not_found", "no news document with that id")
-            urls = sorted({u for u in row if u})
-        canonical_keys = {}
-        for item in urls:
-            key, rules = canonical_url(item)
-            canonical_keys[key] = {"url": item, "rules_applied": rules}
-        roles: dict[str, dict[str, set[str]]] = {}
-        for key in canonical_keys:
-            for hit in self.store.by_url(namespace, key, scopes=scopes):
-                roles.setdefault(hit["record_key"], {}).setdefault(hit["revision_id"], set()).add(hit["role"])
-        keys: dict[str, set[str] | None] = {k: None for k in roles}
-        items, later = self._items(namespace, keys, as_of, scopes=scopes, basis={"*": {"kind": "citation"}})
-        kept = []
-        for item in items:
-            cited = {rid: sorted(r) for rid, r in roles[item["record_key"]].items()}
-            item["source_assertions"] = [a for a in item["source_assertions"] if a["revision_id"] in cited]
-            if not item["source_assertions"]:
-                later += 1  # the revision in effect on the date does not cite the URL
-                continue
-            for assertion in item["source_assertions"]:
-                assertion["cites_as"] = cited[assertion["revision_id"]]
-            kept.append(item)
-        return self._answer(namespace, "citing", url or document_id, as_of, kept, later,
-                            url_matching={**url_rule(), "input": canonical_keys},
-                            archived_captures=self._captures(archive_namespace or namespace, urls, scopes))
+            raise FactCheckError("invalid_request", "name a url or a document_id")
+        target = url or self._document_url(str(document_id))
+        rule = url_rule(target)
+        wanted, wanted_hash = rule["canonical_url"], url_digest(target)
+        day, known_ms = self._window(as_of, known_at)
+        views = self.store.records(namespace, scopes=scopes, kinds=["fact-check"], known_at_ms=known_ms)
+        matched: dict[str, list[dict[str, Any]]] = {}
+        for view in views:
+            claim = view["record"]["fields"]["claims"][0]
+            entries = [("appearance", a) for a in claim.get("appearances") or []]
+            if claim.get("first_appearance"):
+                entries.append(("first_appearance", claim["first_appearance"]))
+            for role, entry in entries:
+                hit = (entry.get("url_canonical") == wanted if not entry.get("platform_post")
+                       else entry.get("url_sha256") == wanted_hash)
+                if hit:
+                    matched.setdefault(view["record_key"], []).append(
+                        {"role": role, "source_id": view["source_id"], "revision_id": view["revision_id"],
+                         "match": "canonical-url" if not entry.get("platform_post") else "url-digest",
+                         "cited_as_published": entry.get("url")})
+        fact_checks = self._fact_checks(namespace, matched, day=day, known_at=known_ms, scopes=scopes)
+        for item in fact_checks:
+            item["cites_target_as"] = matched[item["record_key"]]
+            review_days = sorted({s["review_date"][:10] for s in item["as_published_by_source"] if s["review_date"]})
+            item["archived_captures"] = self._archives(namespace, target, review_days[0] if review_days else None,
+                                                       scopes)
+        return self._envelope("citing", namespace, day, known_ms, fact_checks, subject={
+            "url": url, "document_id": document_id, "url_rule": rule})
 
-    def _captures(self, namespace: str, urls: list[str], scopes: set[str]) -> dict[str, Any]:
-        if not table_exists(self.conn, "web_archive_captures"):
-            return {"status": "unavailable", "provider": "platform.web-archives",
-                    "reason": "no web-archive captures in the warehouse"}
-        from src.kb.citation_preservation import READ_SCOPE as CITATION_READ
-        from src.kb.citation_preservation import CitationPreservationStore
-
-        if "operator" not in scopes and CITATION_READ not in scopes:
-            return {"status": "unavailable", "provider": "platform.web-archives",
-                    "reason": f"{CITATION_READ} is needed to list archived captures"}
-        store = CitationPreservationStore(self.conn, initialize=False)
-        captures = []
-        for url in urls:
-            for capture in store.captures_for_url(namespace, url, scopes=scopes | {CITATION_READ}):
-                captures.append({"url": url, "capture_id": capture.get("capture_id"),
-                                 "archive_id": capture.get("archive_id"), "uri_m": capture.get("uri_m"),
-                                 "memento_datetime": capture.get("memento_datetime")})
-        return {"status": "answered" if captures else "no_capture_on_record", "captures": captures}
-
-    # ------------------------------------------------------------------ evidence
+    # ------------------------------------------------------------------ evidence bundle
 
     @staticmethod
     def evidence_bundle(answer: Mapping[str, Any]) -> dict[str, Any]:
-        """Assertions each citing the fact-check revision behind it (source, revision and as-of time)."""
+        """Assertions each citing the fact-check revision behind them (source, record revision and as-of times)."""
         bibliography: dict[str, dict[str, Any]] = {}
         assertions = []
         for item in answer.get("fact_checks") or []:
-            publisher = (item.get("publisher") or {}).get("name_as_published") or \
-                (item.get("publisher") or {}).get("site")
-            for source in item["source_assertions"]:
-                citation = source["citation"]
+            for entry in item["as_published_by_source"]:
+                citation = entry["citation"]
                 bibliography.setdefault(citation["revision_id"], {
                     "id": citation["revision_id"],
-                    "text": f"{publisher}, {item.get('review_title') or item['review_url']} ({citation['provider']} "
-                            f"source {citation['source_id']}, record revision {citation['revision_no']}, observed "
-                            f"{citation['observed_at']}, {citation['evidence_origin']} evidence), "
-                            f"{citation['locator']}"})
-                for claim in source["claims"]:
-                    rating = claim.get("rating") or {}
-                    scale = "" if rating.get("rating_value") is None else (
-                        f" ({rating.get('rating_value')} on the publisher's scale {rating.get('worst_rating')}-"
-                        f"{rating.get('best_rating')})")
-                    assertions.append({
-                        "id": f"{citation['revision_id']}:{claim['claim_key']}", "kind": "sourced",
-                        "text": f"{publisher} rated the claim “{claim.get('claim_text_as_quoted')}”"
-                                + (f" by {claim['claimant_as_named']}" if claim.get("claimant_as_named") else "")
-                                + f" as “{rating.get('textual_rating')}”{scale}, as published on "
-                                  f"{source.get('review_date') or 'an unpublished date'}.",
-                        "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
-                                          "id": item["record_key"], "revision": citation["revision_id"],
-                                          "locator": {"section": claim["claim_key"]}}],
-                        "citations": [citation["revision_id"]], "as_of": answer.get("as_of")})
-        return {"sections": [{"id": answer.get("query", "answer"),
-                              "title": f"Fact-checks for {answer.get('key')} as of {answer.get('as_of') or 'latest'}",
+                    "text": f"{item['publisher']['name_as_published']}, {item['review_title'] or 'review'} "
+                            f"({entry['review_date']}), {item['review_url']}; via {citation['provider']} (source "
+                            f"{citation['source_id']}, record {citation['record_key']}, revision "
+                            f"{citation['revision_no']}, in force since {entry['in_force_since']}, observed "
+                            f"{citation['observed_at']}, {citation['evidence_origin']} evidence)"})
+                rating = entry["rating_as_published"]
+                assertions.append({
+                    "id": f"{item['record_key']}@{citation['source_id']}", "kind": "sourced",
+                    "text": f"{item['publisher']['name_as_published']} rated the claim \"{item['claim']['text_as_quoted']}"
+                            f"\" as \"{rating['text']}\"" + (f" ({rating['scale_as_published']})"
+                                                             if rating.get("scale_as_published") else "")
+                            + " (the publisher's rating, verbatim)",
+                    "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
+                                      "id": citation["record_key"], "revision": citation["revision_id"],
+                                      "locator": {"url": citation["locator"]}}],
+                    "citations": [citation["revision_id"]]})
+            status = item.get("publisher_status_at_review") or {}
+            if status.get("citation"):
+                citation = status["citation"]
+                bibliography.setdefault(citation["revision_id"], {
+                    "id": citation["revision_id"],
+                    "text": f"IFCN signatory listing, {citation['record_key']} (source {citation['source_id']}, "
+                            f"revision {citation['revision_no']}, "
+                            f"in force since {status.get('in_force_since')}, observed {citation['observed_at']}, "
+                            f"{citation['evidence_origin']} evidence), {citation['locator']}"})
+                assertions.append({
+                    "id": f"{item['record_key']}#publisher-status", "kind": "sourced",
+                    "text": f"IFCN status of {item['publisher']['domain']} at the review date: "
+                            f"{status.get('status_as_published') or status.get('status')}",
+                    "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
+                                      "id": citation["record_key"], "revision": citation["revision_id"],
+                                      "locator": {"url": citation["locator"]}}],
+                    "citations": [citation["revision_id"]]})
+        subject = answer.get("subject") or {}
+        title = subject.get("claim_id") or subject.get("claimant") or subject.get("url") or subject.get("document_id")
+        return {"sections": [{"id": answer.get("query", "answer"), "title": f"Fact-checks for {title} as of "
+                                                                             f"{answer.get('as_of') or 'latest'}",
                               "assertions": assertions}],
-                "bibliography": list(bibliography.values()), "exclusions": list(EXCLUSIONS), "notice": NOTICE}
+                "bibliography": list(bibliography.values()), "exclusions": list(EXCLUSIONS),
+                "notice": NOTICE}

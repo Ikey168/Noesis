@@ -1,0 +1,174 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2025-06-30",
+  "results": {
+   "skip": 0,
+   "limit": 100,
+   "total": 3
+  }
+ },
+ "results": [
+  {
+   "report_number": "9999001-2025-00001",
+   "mdr_report_key": "9999001",
+   "event_type": "Malfunction",
+   "date_received": "20250214",
+   "date_of_event": "20250201",
+   "date_report": "20250214",
+   "report_source_code": "Manufacturer report",
+   "adverse_event_flag": "N",
+   "product_problem_flag": "Y",
+   "product_problems": [
+    "Incorrect Display"
+   ],
+   "reporter_occupation_code": "NURSE",
+   "manufacturer_contact_f_name": "Jane",
+   "manufacturer_contact_l_name": "Fictional",
+   "manufacturer_contact_phone_number": "5550100",
+   "device": [
+    {
+     "brand_name": "EXAMPLA FLOWSENSE",
+     "generic_name": "PUMP, INFUSION",
+     "manufacturer_d_name": "EXAMPLA MEDICAL DEVICES INC.",
+     "manufacturer_d_address_1": "1 EXAMPLE WAY",
+     "device_report_product_code": "ZXA",
+     "model_number": "FS-100",
+     "catalog_number": "FS-100-US",
+     "udi_di": "00899999000011",
+     "device_sequence_number": "1",
+     "device_operator": "HEALTH PROFESSIONAL"
+    }
+   ],
+   "patient": [
+    {
+     "patient_sequence_number": "1",
+     "patient_age": "63",
+     "patient_sex": "Female",
+     "patient_weight": "70",
+     "sequence_number_outcome": [
+      "Required Intervention"
+     ]
+    }
+   ],
+   "mdr_text": [
+    {
+     "text_type_code": "Description of Event or Problem",
+     "text": "IT WAS REPORTED THAT THE PUMP DISPLAYED AN OCCLUSION ALARM WITHOUT AN OCCLUSION (FICTIONAL)."
+    },
+    {
+     "text_type_code": "Additional Manufacturer Narrative",
+     "text": "The manufacturer investigated the fictional report; no conclusion is recorded."
+    }
+   ]
+  },
+  {
+   "report_number": "9999001-2025-00002",
+   "mdr_report_key": "9999002",
+   "event_type": "Injury",
+   "date_received": "20250320",
+   "date_of_event": "20250311",
+   "date_report": "20250320",
+   "report_source_code": "Manufacturer report",
+   "adverse_event_flag": "Y",
+   "product_problem_flag": "Y",
+   "product_problems": [
+    "Delayed Delivery"
+   ],
+   "reporter_occupation_code": "NURSE",
+   "manufacturer_contact_f_name": "Jane",
+   "manufacturer_contact_l_name": "Fictional",
+   "manufacturer_contact_phone_number": "5550100",
+   "device": [
+    {
+     "brand_name": "EXAMPLA FLOWSENSE",
+     "generic_name": "PUMP, INFUSION",
+     "manufacturer_d_name": "EXAMPLA MEDICAL DEVICES INC.",
+     "manufacturer_d_address_1": "1 EXAMPLE WAY",
+     "device_report_product_code": "ZXA",
+     "model_number": "FS-100",
+     "catalog_number": "FS-100-US",
+     "udi_di": "00899999000011",
+     "device_sequence_number": "1",
+     "device_operator": "HEALTH PROFESSIONAL"
+    }
+   ],
+   "patient": [
+    {
+     "patient_sequence_number": "1",
+     "patient_age": "63",
+     "patient_sex": "Female",
+     "patient_weight": "70",
+     "sequence_number_outcome": [
+      "Required Intervention"
+     ]
+    }
+   ],
+   "mdr_text": [
+    {
+     "text_type_code": "Description of Event or Problem",
+     "text": "IT WAS REPORTED THAT DELIVERY WAS DELAYED AND INTERVENTION WAS REQUIRED (FICTIONAL)."
+    },
+    {
+     "text_type_code": "Additional Manufacturer Narrative",
+     "text": "The manufacturer investigated the fictional report; no conclusion is recorded."
+    }
+   ]
+  },
+  {
+   "report_number": "9999001-2025-00003",
+   "mdr_report_key": "9999003",
+   "event_type": "Malfunction",
+   "date_received": "20250605",
+   "date_of_event": "20250528",
+   "date_report": "20250605",
+   "report_source_code": "Manufacturer report",
+   "adverse_event_flag": "N",
+   "product_problem_flag": "Y",
+   "product_problems": [
+    "Alarm, Audible"
+   ],
+   "reporter_occupation_code": "NURSE",
+   "manufacturer_contact_f_name": "Jane",
+   "manufacturer_contact_l_name": "Fictional",
+   "manufacturer_contact_phone_number": "5550100",
+   "device": [
+    {
+     "brand_name": "EXAMPLA FLOWSENSE",
+     "generic_name": "PUMP, INFUSION",
+     "manufacturer_d_name": "EXAMPLA MEDICAL DEVICES INC.",
+     "manufacturer_d_address_1": "1 EXAMPLE WAY",
+     "device_report_product_code": "ZXA",
+     "model_number": "FS-100",
+     "catalog_number": "FS-100-US",
+     "udi_di": null,
+     "device_sequence_number": "1",
+     "device_operator": "HEALTH PROFESSIONAL"
+    }
+   ],
+   "patient": [
+    {
+     "patient_sequence_number": "1",
+     "patient_age": "63",
+     "patient_sex": "Female",
+     "patient_weight": "70",
+     "sequence_number_outcome": [
+      "Required Intervention"
+     ]
+    }
+   ],
+   "mdr_text": [
+    {
+     "text_type_code": "Description of Event or Problem",
+     "text": "IT WAS REPORTED THAT THE ALARM SOUNDED INTERMITTENTLY (FICTIONAL)."
+    },
+    {
+     "text_type_code": "Additional Manufacturer Narrative",
+     "text": "The manufacturer investigated the fictional report; no conclusion is recorded."
+    }
+   ]
+  }
+ ]
+}

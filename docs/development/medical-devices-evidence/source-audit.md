@@ -1,124 +1,142 @@
-# Medical devices: source-contract audit, data minimisation and bounded coverage (MD01)
+# Medical devices: source-contract audit, minimisation decision and bounded coverage (MD01)
 
 Tracking: #2654 · delivery issue #2658 · recorded 2026-09-30.
 
-This audit sets out, per source, what the Clinical Evidence provider
-`clinical.devices` (features `medical-devices-fda`, `medical-devices-gudid`,
-`medical-devices-eudamed`) may acquire, how, on what terms, and which personal
-data is kept out.
-
-**How it was researched.** On 2026-09-30 every official page named below was
-requested from this build environment and refused by the network egress proxy
-(`EGRESS_BLOCKED` for `open.fda.gov`, `accessgudid.nlm.nih.gov` and
-`ec.europa.eu`). The points below therefore come from search-engine excerpts of
-the official pages (read 2026-09-30, URLs cited) and from the providers'
-documentation as the author knows it. **Every item marked _verify_ is
-unverified and must be checked against the live page, the live terms and a real
-response before the first dated live run (MD14, #2723). No source is
-`verified-live` until that run exists.**
+This audit sets out, per source, what the Clinical Evidence pack's
+`clinical.devices` provider may acquire, how, and on what terms. **The
+publishers' documentation and terms pages (open.fda.gov, accessgudid.nlm.nih.gov,
+ec.europa.eu/tools/eudamed) could not be fetched from the authoring runtime
+(egress blocked), so the terms were not re-verified live.** Endpoints, fields
+and terms below come from the issue's references and the publishers'
+documentation as the author knows it. Every item marked _verify_ must be
+checked against the live pages, the live terms and a real response before the
+first dated live run (MD14, #2723). No source is `live` until that run exists.
 
 The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
-`LIVE_VERIFICATION`, `BOUNDED_COVERAGE`, `MINIMISATION`, `EUDAMED_MODULES` and
-`MAUDE_CAVEATS` in `src/ingestion/medical_devices_sources.py`. Each source entry
-in `config/source_packs/clinical-evidence.json` (`clinical-evidence` 0.1.4)
-states `medical_devices.live_verification: unverified-live`, and the MCP tool
-`medical_devices_source_contracts` returns the same decisions.
+`EUDAMED_MODULES`, `IDENTIFIERS`, `MINIMISATION`, `BOUNDED_COVERAGE`,
+`DECLINED`, `MAUDE_CAVEATS` and `LIVE_VERIFICATION` in
+`src/ingestion/medical_devices_sources.py`. Each source entry in
+`config/source_packs/clinical-evidence.json` (0.1.4; earlier sources verbatim)
+states `medical_devices.live_verification: unverified-live` and
+`medical_devices.minimisation: medical-devices-minimisation-v1`, and the MCP
+tool `medical_device_source_contracts` returns the same decisions.
 
-Non-goals for every source: no safety-signal detection, no causality from
-adverse-event reports, no clinical advice and no patient data beyond what
-regulators publish. Adverse-event report counts are counts of reports with the
-source's caveats, never incidence, rates or causal events.
-
-## Pages consulted (2026-09-30)
-
-| URL | Fetched | What was read |
-| --- | --- | --- |
-| https://open.fda.gov/apis/device/ | no (EGRESS_BLOCKED) | search excerpt: device endpoints 510(k), classification, PMA, recall, enforcement, event, registration and listing, UDI |
-| https://open.fda.gov/apis/authentication/ | no (EGRESS_BLOCKED) | search excerpt: 240 requests per minute; 1,000 per day per IP without a key; 120,000 per day per key |
-| https://open.fda.gov/terms/ | no (EGRESS_BLOCKED) | search excerpts of openFDA pages: "Do not rely on openFDA to make decisions regarding medical care"; results are to be assumed unvalidated; access may be limited under the Terms of Service. The licence wording itself was not read: _verify_ |
-| https://open.fda.gov/apis/device/pma/ and https://open.fda.gov/fields/devicepma_reference.pdf | no | search excerpt: `supplement_number`, `supplement_type`, `decision_code` (e.g. LE30, APRL, APWD), `pma_number` with leading letters |
-| https://open.fda.gov/apis/device/510k/searchable-fields/ and https://open.fda.gov/fields/deviceclearance_reference.pdf | no | search excerpt: `k_number`, `decision_code`, `decision_date`, `product_code`, `applicant`, `contact`, address fields |
-| https://open.fda.gov/apis/device/classification/ | no | search excerpt: `product_code`, `device_class`, `regulation_number` |
-| https://open.fda.gov/apis/device/recall/ and https://open.fda.gov/fields/devicerecall_reference.pdf | no | search excerpt: `https://api.fda.gov/device/recall.json`, `root_cause_description`; `product_res_number`, `recall_status` field names _verify_ |
-| https://open.fda.gov/apis/device/event/ and https://www.fda.gov/medical-devices/medical-device-reporting-mdr-how-report-medical-device-problems/mdr-data-files | no | search excerpt: MAUDE holds mandatory and voluntary reports; reports can be incomplete, inaccurate, untimely, unverified or biased; MDR data cannot be used to determine rates of events; report numbers; `event_type` countable with `.exact` |
-| https://accessgudid.nlm.nih.gov/resources/developers (device lookup and device history API pages) | no (EGRESS_BLOCKED) | search excerpt: `GET /api/v2/devices/lookup.json` with `di`, `udi` or `record_key`; `GET /api/v2/devices/history.json?di=`; the public device record key is stable when the DI changes; a v3 API exists (new GMDN information) |
-| https://ec.europa.eu/tools/eudamed/ | no (EGRESS_BLOCKED) | not read |
-| https://health.ec.europa.eu/medical-devices-eudamed/overview_en and the "four first modules mandatory from 28 May 2026" notice | no | search excerpt: Actor registration, UDI/device registration, Notified bodies and certificates and Market surveillance mandatory from 2026-05-28; actor information public except competent-authority contacts |
-| https://eur-lex.europa.eu/eli/reg_impl/2021/2078 | no | search excerpt: Implementing Regulation (EU) 2021/2078 on EUDAMED; a public website; machine-to-machine data exchange for national databases |
+Non-goals for every source: no safety-signal detection (no disproportionality,
+no trend or threshold), no causality from adverse-event reports, no clinical
+advice, and no patient data beyond what regulators publish. Decision codes,
+recall classes and statuses, event types and certificate statuses are kept
+**as the regulator published them**.
 
 ## Access decisions
 
-| Source (source-pack id) | Provider | Delivers | Decision | Reason |
+| Source (source-pack id) | Publisher | Delivers | Access | Decision |
 | --- | --- | --- | --- | --- |
-| `devices-fda-510k` | openFDA `/device/510k.json` | 510(k) clearances per product code: K number, decision code, decision date, applicant | `unverified-live` | Documented endpoint; fixture-verified parser; `clearance_type`, `third_party_flag` are _verify_ |
-| `devices-fda-pma` | openFDA `/device/pma.json` | PMA originals and supplements per product code | `unverified-live` | `supplement_reason`, `ao_statement` are _verify_ |
-| `devices-fda-classification` | openFDA `/device/classification.json` | product code, device class, regulation number, panel | `unverified-live` | As above |
-| `devices-fda-recalls` | openFDA `/device/recall.json` | recalls per product code: recall number, status, dates, K/P numbers | `unverified-live` | `product_res_number`, `recall_status`, `event_date_terminated`, `additional_info_contact` are _verify_; the endpoint is not known to state a recall class |
-| `devices-fda-enforcement` | openFDA `/device/enforcement.json` | enforcement report of a declared recall number with the recall class (`classification`) and status | `unverified-live` | Recall numbers are the join; `classification` on the device enforcement endpoint is _verify_ |
-| `devices-fda-maude-reports` | openFDA `/device/event.json` | MAUDE reports for declared (product code, window) pairs | `unverified-live` | `device.device_report_product_code` search field and `mdr_text` shape are _verify_ |
-| `devices-fda-maude-counts` | openFDA `/device/event.json?count=event_type.exact` | report counts per event type for declared windows | `unverified-live` | Count queries return terms and counts only |
-| `devices-gudid-identifiers` | AccessGUDID device lookup and device history | device record of a declared primary DI with package DIs, version, product codes, premarket submissions | `unverified-live` | v2 paths from the search excerpt; the v3 migration, the history response shape and the terms of use are _verify_ |
-| `devices-eudamed-actors` | EUDAMED public site, actor module | actor by SRN | `unverified-live` | No documented public API or bulk download was confirmed; operator-declared documents with placeholder paths (`/tools/eudamed/placeholder/...`) and an authored mapping of the public fields; paths, shape and reuse terms are _verify_ |
-| `devices-eudamed-devices` | EUDAMED public site, UDI/device module | device by Basic UDI-DI with its UDI-DIs | `unverified-live` | As above |
-| `devices-eudamed-certificates` | EUDAMED public site, notified bodies and certificates module | certificate by number with status and dates | `unverified-live` | As above |
-| (not acquired) | openFDA `/device/registrationlisting.json` | establishment registrations and listings | `documented-not-acquired` | Records name official correspondents and contact persons; MD03 does not need them |
-| (not acquired) | openFDA `/device/udi.json` | GUDID copy without version history | `documented-not-acquired` | AccessGUDID is acquired instead |
+| `clinical-devices-openfda-510k` | FDA via openFDA `/device/510k.json` | premarket notifications: K number, applicant, device name, product code, decision code and description, decision and receipt dates, clearance type | `search=k_number:"K…"`, one declared K number per unit | `unverified-live` |
+| `clinical-devices-openfda-pma` | FDA via openFDA `/device/pma.json` | premarket approvals and every supplement: P number, supplement number, type and reason, decision code and date, trade and generic name, product code, AO statement | `search=pma_number:"P…"`, `limit=100`; one declared P number per unit; more than 100 results is `budget_exhausted` | `unverified-live` |
+| `clinical-devices-openfda-classification` | FDA via openFDA `/device/classification.json` | product code, device name, class, regulation number, review panel, implant and life-sustaining flags | `search=product_code:"…"`, one declared product code per unit | `unverified-live` |
+| `clinical-devices-openfda-recalls` | FDA via openFDA `/device/recall.json` and `/device/enforcement.json` | recall number (`product_res_number`), event id, status, recalling firm, reason, root cause, action, product code, K and P numbers; class (`classification`) and status from the enforcement report | two requests per declared recall number (the enforcement report may be absent: the class is then unknown, never guessed) | `unverified-live` |
+| `clinical-devices-openfda-maude` | FDA via openFDA `/device/event.json` (MAUDE) | reports: report number, MDR report key, event type, event/receipt/report dates, report source, product problems, device fields (brand, generic name, manufacturer, product code, model, UDI-DI), narratives (`mdr_text`) as published; the published `count=event_type.exact` tally | one declared product code and a received-date window of at most one year per unit, `limit=100`; the count query for the same search | `unverified-live` |
+| `clinical-devices-accessgudid` | NLM and FDA, AccessGUDID | GUDID device record: primary DI and issuing agency, package and secondary DIs, brand, version/model, catalog number, labeler and DUNS, product codes, premarket submission numbers, GMDN terms, public version number and date, record and distribution status | `/api/v3/devices/lookup.json?di=…`, one declared primary DI per unit (_verify_ the version path and field names) | `unverified-live` |
+| `clinical-devices-eudamed-actors` | European Commission, EUDAMED actor module | actor SRN, name, abbreviated name, role, country, city, status, version | the public site's JSON backend `/api/actors?srn=…` (_verify_: no documented public API) | `unverified-live` |
+| `clinical-devices-eudamed-devices` | European Commission, EUDAMED UDI/device module | Basic UDI-DI, manufacturer and authorised-representative SRN, device name, model, risk class, legislation (MDR/IVDR/legacy), UDI-DIs with status and trade name, certificate numbers, version | `/api/devices/basicUdiData?basicUdi=…` (_verify_) | `unverified-live` |
+| `clinical-devices-eudamed-certificates` | European Commission, EUDAMED notified-bodies and certificates module | certificate number, notified body number and name, type, status, issue/validity/expiry dates, manufacturer SRN, covered Basic UDI-DIs, status-change reason, version | `/api/certificates?certificateNumber=…&notifiedBody=…` (_verify_) | `unverified-live` |
+
+Declined (documented, not acquired): openFDA registration and listing
+(owner/operator contact persons and addresses; manufacturers come from the
+clearance, approval, GUDID and EUDAMED records instead), MAUDE patient
+sections, the GUDID full and delta releases (bulk, outside the bounded
+coverage) and the EUDAMED vigilance module (not public).
 
 ## Per-source contract
 
-### openFDA device endpoints
+| Source | Authentication and key handling | Licence, redistribution and attribution | Rate limits | Updates, corrections and removals |
+| --- | --- | --- | --- | --- |
+| openFDA device endpoints | none; an optional api.data.gov key (`NOESIS_OPENFDA_API_KEY`) raises quotas but is not used by this connector and is never written to a record, receipt or log | openFDA Terms of Service: FDA data are public-domain US government works (CC0 where FDA states it); no FDA endorsement may be implied; openFDA's `meta.disclaimer` ("Do not rely on openFDA to make decisions regarding medical care …") is kept on every record and returned with every citation (_verify_ the current terms page) | 240 requests per minute and 1,000 per day per IP without a key (_verify_); at most 25 units per source per run | `meta.last_updated` is the dataset revision and the record's as-of date; a changed payload for a key is a new revision; a new PMA supplement is a new record; a dataset stamp alone is not a revision; a declared unit answered `NOT_FOUND` becomes a `not-published` revision (a removal is a revision, never a deletion) |
+| AccessGUDID | none | GUDID data are public US government data published by NLM; cite AccessGUDID; no NLM or FDA endorsement (_verify_ the NLM terms page) | none published; reasonable use (_verify_); at most 25 DIs per run | `publicVersionNumber` / `publicVersionDate` are the revision; a new public version with changed content is a new revision; an older version observed later is kept as an `older-observation` and never becomes current |
+| EUDAMED public modules | none | Commission reuse policy (Decision 2011/833/EU) per the EUDAMED legal notice, reuse with acknowledgement; personal data of contact persons and PRRCs are not reused (_verify_ the legal notice) | none published (_verify_); at most 25 units per source per run | EUDAMED version number and last-update date are the revision; a certificate status change (issued, suspended, withdrawn, expired, refused) is a new revision; an empty search result for a declared unit is a `not-published` revision |
 
-- **Endpoints:** `https://api.fda.gov/device/{510k,pma,classification,recall,enforcement,event}.json`, queried with `search` and `limit`/`skip`, or `count=event_type.exact` for report counts.
-- **Authentication and key handling:** an optional key; the adapter uses the optional secret `NOESIS_OPENFDA_API_KEY` (the key the Medicines feature's openfda provider already uses) and sends it as the `api_key` request parameter only. It never enters a durable URL, a record, a receipt or a document; a response that echoes it is discarded.
-- **Rate limits:** 240 requests per minute; 1,000 requests per day per IP without a key and 120,000 per day per key (search excerpt; _verify_). HTTP 429 is reported as `rate_limited` with `Retry-After`.
-- **Licence and redistribution:** openFDA terms of service; FDA data are US government works. Every response carries `meta.disclaimer`, which is stored on every record ("Do not rely on openFDA to make decisions regarding medical care"; results are unvalidated). The exact licence wording is _verify_.
-- **Updates, corrections and removals:** openFDA publishes no per-record revision stamp. A changed row is a new revision of the same record key (a recall status change, a supplement newly listed on an approval). `meta.last_updated` is kept in the receipt. A row that disappears from a later response is not deleted; the last revision stays on record.
-- **MAUDE caveats** (attached to every report and count): MAUDE holds reports from mandatory and voluntary reporters; reports can be incomplete, inaccurate, untimely, unverified or biased and do not establish that a device caused an event; events are under-reported and report counts cannot establish rates or compare devices; a report count is a number of reports, not of patients or events.
+### EUDAMED module availability
 
-### AccessGUDID
+| Module | Status | Consequence |
+| --- | --- | --- |
+| Actor registration | available | acquired (`eudamed-actor-json`) |
+| UDI/device registration | available | acquired (`eudamed-device-json`) |
+| Notified bodies and certificates | available | acquired (`eudamed-certificate-json`) |
+| Vigilance and post-market surveillance | not public | explicit gap in every answer; field safety notices are not acquired |
+| Clinical investigations and performance studies | not public | explicit gap |
+| Market surveillance | not public (competent authorities) | explicit gap |
 
-- **Endpoints:** `https://accessgudid.nlm.nih.gov/api/v2/devices/lookup.json?di=` and `/api/v2/devices/history.json?di=` (search excerpt; a v3 API exists: _verify_ which is current).
-- **Authentication:** none. **Rate limits:** not stated in the excerpts (_verify_); one lookup and one history request per declared DI.
-- **Licence:** FDA GUDID public device identification data published by NLM; the AccessGUDID terms of use were not read (_verify_).
-- **Revisions:** `publicVersionNumber` and `publicVersionDate` per device record version; a new version is a new revision (order by version number; an older version delivered later is an `older-observation`). The public device record key is stable if the primary DI changes.
+## Data-minimisation decision (`medical-devices-minimisation-v1`)
 
-### EUDAMED public modules
+The sources publish some personal data. The decision:
 
-- **Access:** the EUDAMED public site. No documented public API or bulk download could be confirmed, and the machine-to-machine service under Implementing Regulation (EU) 2021/2078 is for registered actors. The adapter therefore reads operator-declared JSON documents on `ec.europa.eu` under `/tools/eudamed/`; the pack's paths are placeholders until MD14 replaces them with verified public paths.
-- **Authentication:** none. **Rate limits:** not documented (_verify_).
-- **Licence:** the Commission's reuse policy (Decision 2011/833/EU) with acknowledgement; whether it covers EUDAMED public data is _verify_.
-- **Module availability** (stated in every regulatory-history answer):
+* **Excluded (never stored):** MAUDE patient sections (age, sex, weight,
+  ethnicity, outcomes, treatments); MAUDE reporter occupation and the
+  manufacturer, distributor and reporter contact names, phones, emails and
+  street addresses; the 510(k) and PMA contact person and street address;
+  GUDID customer contact phone and email; EUDAMED contact persons and persons
+  responsible for regulatory compliance (PRRC); street addresses and
+  postcodes of firms. The parsers never copy these fields and record only how
+  many sections were excluded; the record store refuses any record that still
+  carries such a field (`minimisation_violation`, enforced at write time in
+  `src/kb/medical_devices_records.py`).
+* **Stored:** organisation names, cities, states and countries as published;
+  device identifiers and names; decision, recall, certificate and report
+  fields as published.
+* **Restricted:** MAUDE narratives (`mdr_text`) are stored verbatim as FDA
+  released them (FDA redacts them before release, but they can still describe
+  a patient). They are returned only to principals holding
+  `knowledge:clinical:devices:narratives:read`; everyone else sees that a
+  narrative exists and is withheld. Narratives are never exported in an
+  evidence bundle.
+* **Retention:** revisions are kept for provenance; deleting the namespace
+  removes them. No personal field is ever written, so none needs purging.
+* **Who may query:** namespace readers with `knowledge:clinical:read`;
+  narratives additionally need the narrative scope. MCP answers are checked
+  for personal fields and assessment keys before they are returned.
 
-  | Module | Availability (as audited) | Acquired |
-  | --- | --- | --- |
-  | Actor registration | public; mandatory from 2026-05-28 | yes (`devices-eudamed-actors`) |
-  | UDI/device registration | public; mandatory from 2026-05-28 | yes (`devices-eudamed-devices`) |
-  | Notified bodies and certificates | public; mandatory from 2026-05-28 | yes (`devices-eudamed-certificates`) |
-  | Market surveillance | mandatory for authorities from 2026-05-28; public content not verified | no: explicit gap |
-  | Vigilance and post-market surveillance | not in mandatory use | no: explicit gap |
-  | Clinical investigations and performance studies | not in mandatory use | no: explicit gap |
+## Adverse-event report caveats
 
-- **Revisions:** version number and last-update date per public record; a certificate status change (valid, suspended, withdrawn, expired) is a new revision ordered by certificate revision and status date.
+Every MAUDE report and count carries FDA's published limitations
+(`MAUDE_CAVEATS`): passive surveillance with incomplete, inaccurate, untimely,
+unverified or biased reports and duplicates; a report does not establish that
+a device caused an event; counts cannot estimate incidence or prevalence or
+compare devices because the number of devices in use is not known; reporting
+is influenced by publicity, litigation and reporting requirements, and
+reports may be revised. Counts are labelled **reports** and are never
+presented as rates, incidence or causal events.
 
-## Data-minimisation decision (binding for every medical-devices module)
+## Stable identifiers
 
-- **Stored:** regulatory identifiers (K and P numbers, supplement numbers, product codes, recall and report numbers, DIs, SRNs, certificate numbers); decision, recall, report and certificate dates as published; company names as published with city, state and country; device brand, model, catalogue number and description; MAUDE event type, report source, product problems and device fields; MAUDE narrative text (`mdr_text`) as published.
-- **Never stored (dropped in the parser, listed under `minimisation.withheld`, refused by the store with `minimisation_violation`):** contact persons (510(k) `contact`, recall `additional_info_contact`, MAUDE `manufacturer_contact_*` and `reporter_*` fields, GUDID customer contacts, EUDAMED contact details and PRRC names); street addresses, postal codes, telephone numbers and e-mail addresses; every MAUDE `patient` block (age, sex, weight, ethnicity, race, patient problems and outcomes).
-- **Narratives:** kept verbatim on adverse-event reports only and returned only to principals holding `knowledge:clinical:devices:narratives:read`; otherwise withheld and counted. Narratives never enter the source-pack documents.
-- **Who may query:** `knowledge:clinical:read` with namespace access for records; the narrative scope for MAUDE text; answers that follow accepted identity matches also read `knowledge:ownership:read`.
-- **Matching:** companies only; no person is a subject, matched or linked.
-- **Retention:** retained with the record revision; no personal identifier is stored, so nothing personal remains to purge; no automatic expiry in the first coverage.
+| Source | Identifiers |
+| --- | --- |
+| openFDA | 510(k) K number; PMA P number + supplement number; three-letter product code; recall number (Z-nnnn-yyyy) and recall event id; MDR report number and report key; device UDI-DI where a report publishes one |
+| AccessGUDID | primary DI (GS1, HIBCC or ICCBBA); package and secondary DIs; labeler DUNS; premarket submission numbers; FDA product codes |
+| EUDAMED | actor SRN; Basic UDI-DI; UDI-DI; certificate number + notified body number |
 
-## Bounded first coverage
+Devices are matched across registries by UDI-DI and premarket numbers
+(product codes are low evidence; names are never used), and manufacturers to
+Corporate Ownership entities by DUNS, LEI or SRN before names (MD07).
 
-- **FDA:** the product codes and recall numbers named in each source's selection (at most 50 units per source, at most 5 pages of 100 rows per unit, never truncated); MAUDE reports and counts only for declared (product code, window) pairs of at most 366 days.
-- **GUDID:** the primary DIs named in the selection (at most 50).
-- **EUDAMED:** the SRNs, Basic UDI-DIs and certificate numbers named in the selection (at most 50 each) from the three public modules above.
-- **Justification:** a device journey needs its product code, premarket numbers, recalls and a short report window; whole-endpoint or bulk downloads are not a bounded selection and are not acquired. Nothing implies complete coverage of a device class, a manufacturer or a market.
+## Bounded coverage
+
+* **Entities:** declared devices only - K and P numbers, product codes,
+  recall numbers, primary DIs, SRNs, Basic UDI-DIs and certificates listed in
+  the source entries. No search crawl. Fixtures: the fictional Exampla Medical
+  and Northwind Medtech devices.
+* **Places:** US (FDA) and EU (EUDAMED); shown side by side, never merged.
+* **Periods:** clearances, approvals and recalls decided or initiated from
+  2020-01-01; MAUDE windows of at most one year per unit.
+* **Caps:** at most 25 units per source per run and 100 results per request; a
+  larger result is `budget_exhausted`, never truncated.
+* **Justification:** enough to answer a device's regulatory history and report
+  counts for declared devices within unauthenticated quotas, while staying away
+  from bulk personal data.
 
 ## LIVE_VERIFICATION
 
-Every source is `unverified-live`: fixture-verified parsers in the documented
-shapes (authored fixtures in `tests/fixtures/medical_devices/`, fictional
-companies and devices), no dated live run from this runtime. The dated run and
-cited demo belong to MD14 (#2723).
+| Provider | Status | Outstanding |
+| --- | --- | --- |
+| `openfda-device` | `unverified-live` | verify the terms page, rate limits and one real response per endpoint (MD14) |
+| `accessgudid` | `unverified-live` | verify the lookup path and version fields and the NLM terms (MD14) |
+| `eudamed` | `unverified-live` | verify the JSON backend paths and fields and the legal notice; confirm module availability (MD14) |

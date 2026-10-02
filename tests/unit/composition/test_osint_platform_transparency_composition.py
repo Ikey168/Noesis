@@ -1,4 +1,4 @@
-"""The osint.platform-transparency provider and the OSINT bundle's optional platform-transparency features (#2641)."""
+"""The osint.platform-transparency provider and the Osint bundle's optional platform-transparency features (#2641)."""
 
 from __future__ import annotations
 
@@ -24,7 +24,7 @@ from tools.knowledge_engine_mcp.platform_transparency import (
 ROOT = Path(__file__).resolve().parents[3]
 FEATURES = ("platform-transparency-dsa", "platform-transparency-meta", "platform-transparency-google",
             "platform-transparency-lumen")
-SOURCE_PACK = {"pack_id": "bounded-public-osint", "version": "1.2.0", "range": "^1.2.0"}
+SOURCE_PACK = {"pack_id": "osint-platform-transparency", "version": "1.0.0", "range": "^1.0.0"}
 
 
 @pytest.fixture(autouse=True)
@@ -38,8 +38,8 @@ def isolated_registry():
     domain_registry.set_authority(saved[2])
 
 
-def osint_plan(features=None, bundles=None):
-    bundles = bundles or adapt_all()
+def osint_plan(features=None):
+    bundles = adapt_all()
     root = {"pack": "osint", "version": bundles["osint"]["version"]}
     if features is not None:
         root["features"] = features
@@ -48,90 +48,76 @@ def osint_plan(features=None, bundles=None):
     return result.plan
 
 
-def bound(plan):
-    return {b["capability"] for b in plan["bindings"]}
-
-
 def descriptor():
     return next(d for d in provider_descriptors() if d["id"] == "osint.platform-transparency")
 
 
-def test_descriptor_validates_declares_scopes_stores_exclusions_and_pins_the_source_pack():
+def test_descriptor_validates_declares_scopes_stores_exclusions_and_the_source_pack():
     found = descriptor()
     assert validate_provider_descriptor(found) == []
     assert (ROOT / "packs/osint/providers/osint.platform-transparency.json").exists()
     (capability,) = found["capabilities"]
-    assert capability["contract"] == {"name": "noesis-platform-transparency-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-platform-transparency-record", "version": "2.0.0"}
     constraints = capability["semantic_constraints"]
-    assert "no user-level profiling" in constraints["exclusions"]
-    assert "no conversion of spend or impression ranges into point estimates" in constraints["exclusions"]
-    assert "SP01" in constraints["minimisation"] and "never targets" in constraints["matching"]
+    assert "no user-level profiling" in constraints["exclusions"] and "point estimates" in constraints["exclusions"]
+    assert "platform-transparency-minimisation-v1" in constraints["minimisation"]
+    assert "gated-not-granted" in constraints["gated"]
     tools = {op["tool"].rsplit(".", 1)[1]: op for op in found["operations"]}
+    assert set(tools) == set(PLATFORM_TRANSPARENCY_SCOPES)
     for name, op in tools.items():
-        assert op["required_scopes"] == PLATFORM_TRANSPARENCY_SCOPES[name]
+        assert op["required_scopes"] == (PLATFORM_TRANSPARENCY_SCOPES[name] or ["knowledge:read"])
     assert found["source_packs"] == [SOURCE_PACK]
     owned = {s["record_type"] for s in found["stores"]}
-    others = {s["record_type"] for d in provider_descriptors() if d["id"] != "osint.platform-transparency"
-              for s in d["stores"]}
-    assert not owned & others
-    # existing OSINT providers are unchanged
-    for provider in ("osint.core", "osint.movements"):
+    others = {s["record_type"] for d in provider_descriptors() if d["id"] != found["id"] for s in d["stores"]}
+    assert not owned & others  # no second identity, subscription or ownership store
+    for provider in ("osint.core", "osint.movements"):  # existing providers unchanged
         assert json.loads((ROOT / f"packs/osint/providers/{provider}.json").read_text())["id"] == provider
 
 
-def test_dsa_meta_google_and_lumen_are_separate_optional_features_off_by_default():
+def test_each_source_is_a_separate_optional_feature_off_by_default():
     composition = json.loads((ROOT / "packs/osint/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
     for feature in FEATURES:
         assert features[feature]["default"] is False
         required = {r["capability"] for r in features[feature]["requires"]}
         assert "osint.platform-transparency" in required
-        # elections, campaign finance and lobbying links degrade when absent, so no feature requires them
-        assert not required & {"political.elections", "political.campaign-finance", "political.lobbying"}
-    assert "not implemented" in features["platform-transparency-lumen"]["description"]
+        # elections, campaign-finance, lobbying and ownership links degrade when absent: never required
+        assert not required & {"political.election-records", "political.campaign-finance", "political.lobbying",
+                               "ownership.graph"}
     assert validate_composition_manifest(adapt_all()["osint"]) == []
     default = osint_plan()
-    assert "osint.platform-transparency" not in bound(default)
-    omitted = {o["feature"] for o in default["omissions"] if o["pack"] == "osint"}
-    assert set(FEATURES) <= omitted
+    assert "osint.platform-transparency" not in {b["capability"] for b in default["bindings"]}
+    # the pack is pinned by the provider only (as geospatial-infrastructure is), never by the bundle, so a default
+    # Osint plan neither binds the provider nor contributes the pack
+    assert SOURCE_PACK not in default["source_packs"]
+    assert set(FEATURES) <= {o["feature"] for o in default["omissions"] if o["pack"] == "osint"}
 
 
-@pytest.mark.parametrize("selection", [[f] for f in FEATURES] + [list(FEATURES), ["movements",
-                                                                                  "platform-transparency-meta"]])
-def test_selecting_a_feature_binds_the_provider(selection):
-    plan = osint_plan(selection)
-    assert "osint.platform-transparency" in bound(plan)
-    if selection != ["platform-transparency-lumen"]:
-        assert {"platform.subscriptions", "platform.source-acquisition"} <= bound(plan)
-    if "platform-transparency-meta" in selection:
-        assert "ownership.identity" in bound(plan)
-    assert ("osint.movements" in bound(plan)) == ("movements" in selection)
+@pytest.mark.parametrize("feature", FEATURES)
+def test_selecting_a_feature_binds_the_provider_identity_subscriptions_and_the_source_pack(feature):
+    plan = osint_plan([feature])
+    capabilities = {b["capability"] for b in plan["bindings"]}
+    assert {"osint.platform-transparency", "ownership.identity", "platform.subscriptions",
+            "platform.source-acquisition"} <= capabilities
+    bound = next(b for b in plan["bindings"] if b["capability"] == "osint.platform-transparency")
+    assert bound["provider"] == "osint.platform-transparency" and descriptor()["source_packs"] == [SOURCE_PACK]
 
 
-def test_feature_enablement_follows_the_active_composition_selection():
+def test_feature_enablement_follows_the_active_selection_and_no_new_pack_exists():
     conn, coordinator, bundles, _ = _migrated()
     assert not any(feature_enabled(conn, f) for f in FEATURES)
     coordinator.select("osint", bundles["osint"]["version"], features=["platform-transparency-dsa"])
     assert coordinator.activate("osint-platform-transparency-dsa-on")["status"] == "published"
     assert feature_enabled(conn, "platform-transparency-dsa")
     assert not feature_enabled(conn, "platform-transparency-meta")
-
-
-def test_pack_manifest_taxonomy_and_source_pack_record_the_provider_without_a_new_pack():
     pack = json.loads((ROOT / "packs/osint/pack.json").read_text())
-    assert "platform-transparency-records-and-political-ad-libraries" in pack["capabilities"]
-    assert pack["schema_versions"]["platform-transparency-record"] == "1.0.0"
-    assert {"user-level profiling of platform users or ad viewers",
-            "inference of coordinated behaviour from ad or moderation records",
-            "conversion of spend or impression ranges into point estimates"} <= set(pack["exclusions"])
-    taxonomy = json.loads((ROOT / "packs/taxonomy.json").read_text())
-    assert taxonomy["providers"]["osint.platform-transparency"] == {
-        "subdomains": ["social-platforms"], "shapes": ["events-notices", "registry-records"],
-        "themes": ["security-defence"]}
-    roadmap = (ROOT / "docs/roadmaps/domain-coverage-program.md").read_text()
-    assert "| `social-platforms` |" not in roadmap
-    source_pack = json.loads((ROOT / "config/source_packs/osint.json").read_text())
-    assert source_pack["version"] == "1.2.0"
-    assert {s["connector"] for s in source_pack["sources"] if s["source_id"].startswith("platform-transparency-")} == {
-        "platform-transparency"}
+    assert pack["schema_versions"]["platform-transparency-record"] == "2.0.0"
+    assert {"user-level profiling from platform transparency data",
+            "conversion of ad spend or impression ranges into point estimates"} <= set(pack["exclusions"])
     assert not list(ROOT.glob("packs/*platform-transparency*"))  # no new pack
+    taxonomy = json.loads((ROOT / "packs/taxonomy.json").read_text())
+    entry = taxonomy["providers"]["osint.platform-transparency"]
+    assert entry == {"subdomains": ["social-platforms"], "shapes": ["events-notices", "registry-records"],
+                     "themes": ["security-defence"]}
+    program = (ROOT / "docs/roadmaps/domain-coverage-program.md").read_text()
+    assert "| `social-platforms` |" not in program

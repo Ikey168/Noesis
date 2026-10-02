@@ -1,4 +1,4 @@
-"""Medical-device records: immutable revisions, as-of lookup and write-time minimisation (#2665, MD02)."""
+"""Medical device records: revision chains, as-of lookup, removals as revisions and write-time minimisation (MD02)."""
 
 from __future__ import annotations
 
@@ -10,127 +10,182 @@ import pytest
 
 from src.kb.medical_devices_records import (
     NARRATIVE_SCOPE,
-    MedicalDevicesError,
-    MedicalDevicesStore,
-    readiness,
+    MedicalDeviceError,
+    MedicalDeviceStore,
+    forbidden_keys,
+    personal_fields,
     validate,
 )
 from tests.unit import medical_devices_harness as h
 
-SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-medical-device-record-v1.json").read_text())
-RECALL = "medical-devices:fda:recall:Z-9901-2099"
 
-
-def loaded(*, v2: bool = False):
+@pytest.fixture()
+def loaded():
     conn = h.connection()
-    h.load_all(conn, observed_at_ms=4_070_908_800_000)  # 2099-01-01
-    if v2:
-        h.load_all(conn, version="v2", run_id="v2", observed_at_ms=4_096_828_800_000)  # 2099-10-26
-    return conn
+    clock = h.Clock()
+    h.load_all(conn, now=clock)
+    return conn, clock
 
 
-def test_every_emitted_record_satisfies_the_contract():
-    validator = jsonschema.Draft202012Validator(SCHEMA)
-    for source_id in h.SOURCES:
-        for version in ("v1", "v2"):
-            for record in h.fetch_all(source_id, version)[0]:
-                assert not list(validator.iter_errors(record)), record["record_key"]
+def _record(conn, key):
+    return MedicalDeviceStore(conn, initialize=False).records(h.NS, scopes=h.SCOPES, record_keys=[key])[0]
 
 
-def test_a_changed_publication_is_a_new_revision_and_a_replay_adds_nothing():
-    conn = loaded()
-    store = MedicalDevicesStore(conn)
-    assert len(store.records(h.NS, scopes=h.SCOPES)) == 19
-    outcome = h.apply(conn, "devices-fda-recalls")[0]
-    assert outcome["counts"]["unchanged"] == 1 and outcome["counts"]["new"] == 0
-    h.load_all(conn, version="v2", run_id="v2")
-    chain = store.history(h.NS, RECALL, scopes=h.SCOPES, source_id="devices-fda-recalls")
-    assert [(r["change"], r["record"]["fields"]["recall_status"]) for r in chain] == [
-        ("new", "Open, Classified"), ("revised", "Terminated")]
-    assert chain[1]["previous_revision_id"] == chain[0]["revision_id"]
-    approval = store.history(h.NS, "medical-devices:fda:pma:P999901", scopes=h.SCOPES)
-    assert [r["record"]["fields"]["supplements_as_published"] for r in approval] == [["S001", "S002"],
-                                                                                     ["S001", "S002", "S003"]]
-    # a source that drops a record never deletes it: the last revision stays on record
-    assert store.records(h.NS, scopes=h.SCOPES, record_keys=["medical-devices:fda:pma:P999901:S001"])
+def test_every_record_carries_source_revision_and_as_of_time(loaded):
+    conn, _ = loaded
+    rows = MedicalDeviceStore(conn).records(h.NS, scopes=h.SCOPES)
+    assert {r["record_kind"] for r in rows} == {
+        "classification", "clearance", "approval", "approval-supplement", "recall", "adverse-event-report",
+        "report-count", "device-identifier", "eudamed-actor", "eudamed-device", "eudamed-certificate"}
+    for row in rows:
+        cite = row["citation"]
+        assert cite["provider"] and cite["locator"].startswith("https://") and cite["revision_id"]
+        assert cite["revision_no"] >= 1 and cite["observed_at_ms"] > 0 and cite["evidence_origin"] == "fixture"
+        if row["publication_state"] == "published":
+            assert cite["as_of"], row["record_key"]
+            if row["provider"] == "openfda-device":
+                assert cite["disclaimer"].startswith("Do not rely on openFDA")
 
 
-def test_an_older_publication_delivered_later_never_becomes_current():
-    conn = loaded(v2=True)
-    store = MedicalDevicesStore(conn)
-    outcome = h.apply(conn, "devices-gudid-identifiers", run_id="late")
-    assert outcome[0]["counts"]["unchanged"] == 1  # version 3 is already on record: nothing re-applied
-    record = store.records(h.NS, scopes=h.SCOPES, record_keys=[f"medical-devices:gudid:di:{h.EXAMPLE_DI}"])[0]
-    assert record["native_revision"] == "version:4"
-    older = h.fetch_all("devices-gudid-identifiers")[0][0]
-    older = {**older, "fields": {**older["fields"], "brand_name": "EXAMPLEPUMP (re-sent)"}}
-    result = store.project(h.NS, [older], run_id="older", source_id="devices-gudid-identifiers")
-    assert result["counts"]["older-observation"] == 1
-    current = store.records(h.NS, scopes=h.SCOPES, record_keys=[older["record_key"]])[0]
-    assert current["native_revision"] == "version:4"
+def test_every_stored_record_follows_the_published_contract(loaded):
+    conn, _ = loaded
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-medical-device-record-v2.json").read_text())
+    validator = jsonschema.Draft202012Validator(schema)
+    store = MedicalDeviceStore(conn)
+    rows = store.records(h.NS, scopes=h.SCOPES) + store.records(h.NS, scopes=h.NARRATIVE_SCOPES)
+    assert rows
+    for row in rows:
+        assert row["record"]["contract"] == "noesis-medical-device-record-v2"
+        assert not list(validator.iter_errors(row["record"])), row["record_key"]
+    assert list(validator.iter_errors({**rows[0]["record"], "safety_signal": True}))
 
 
-def test_as_of_lookup_by_published_date_and_by_observation():
-    conn = loaded(v2=True)
-    store = MedicalDevicesStore(conn)
-    before = store.as_of(h.NS, RECALL, "2099-05-01", scopes=h.SCOPES, source_id="devices-fda-recalls")
-    state = before["sources"][0]
-    assert state["status"] == "in_force" and state["revision"]["record"]["fields"]["recall_status"] == "Open, Classified"
-    assert [r["date"] for r in state["later_revisions"]] == ["2099-09-15"]
-    after = store.as_of(h.NS, RECALL, "2099-09-30", scopes=h.SCOPES, source_id="devices-fda-recalls")["sources"][0]
-    assert after["revision"]["record"]["fields"]["recall_status"] == "Terminated"
-    early = store.as_of(h.NS, "medical-devices:fda:510k:K999902", "2099-01-01", scopes=h.SCOPES)["sources"][0]
-    assert early["status"] == "not_yet_published"  # decided 2099-06-15
-    undated = store.as_of(h.NS, "medical-devices:fda:product-code:ZZA", "1990-01-01", scopes=h.SCOPES)["sources"][0]
-    assert undated["status"] == "in_force" and undated["dated"] is False
-    observed = store.as_of(h.NS, RECALL, "2099-09-30", scopes=h.SCOPES, source_id="devices-fda-recalls",
-                           basis="observed")["sources"][0]
-    assert observed["revision"]["revision_no"] == 1  # the termination was observed on 2099-10-26
-    assert store.as_of(h.NS, "medical-devices:fda:510k:K000000", "2099-01-01", scopes=h.SCOPES)["status"] == \
-        "none_on_record"
+def test_kind_specific_fields_are_kept_as_published(loaded):
+    conn, _ = loaded
+    clearance = _record(conn, h.PUMP_CLEARANCE)["record"]["fields"]
+    assert (clearance["k_number"], clearance["decision_code"], clearance["decision_date"], clearance["product_code"]) \
+        == ("K999001", "SESE", "2021-03-15", "ZXA")
+    supplement = _record(conn, h.PMA + ":S001")["record"]["fields"]
+    assert supplement["approval_key"] == h.PMA and supplement["supplement_type"] == "30-Day Notice"
+    recall = _record(conn, h.RECALL)["record"]["fields"]
+    assert (recall["recall_class"], recall["status_as_published"]) == ("Class II", "Open, Classified")
+    report = _record(conn, "medical-devices:fda:mdr:9999001-2025-00002")["record"]
+    assert report["fields"]["event_type"] == "Injury" and report["caveats"]
+    device = _record(conn, h.GUDID_PUMP)["record"]["fields"]
+    assert device["primary_di"] == h.PUMP_DI and device["public_version_number"] == "1"
+    assert device["premarket_submissions"] == [{"submission_number": "K999001", "supplement_number": None}]
 
 
-def test_minimisation_is_enforced_at_write_time():
-    record = copy.deepcopy(h.fetch_all("devices-fda-510k")[0][0])
-    record["fields"]["contact"] = "SOMEONE"
-    with pytest.raises(MedicalDevicesError) as refused:
-        validate(record)
-    assert refused.value.code == "minimisation_violation" and refused.value.details["paths"] == ["$.fields.contact"]
-    report = copy.deepcopy(h.fetch_all("devices-fda-maude-reports")[0][0])
-    report["fields"]["patient"] = [{"patient_age": "50"}]
-    with pytest.raises(MedicalDevicesError):
-        validate(report)
-    clearance = copy.deepcopy(h.fetch_all("devices-fda-510k")[0][0])
-    clearance["fields"]["narratives"] = [{"text": "x"}]
-    with pytest.raises(MedicalDevicesError):
-        validate(clearance)
-    no_caveats = {**h.fetch_all("devices-fda-maude-counts")[0][0], "caveats": None}
-    with pytest.raises(MedicalDevicesError):
-        validate(no_caveats)
-    no_disclaimer = {**h.fetch_all("devices-fda-510k")[0][0], "disclaimer": None}
-    with pytest.raises(MedicalDevicesError):
-        validate(no_disclaimer)
-    conn = h.connection()
-    with pytest.raises(MedicalDevicesError):
-        MedicalDevicesStore(conn).project(h.NS, [h.fetch_all("devices-fda-pma")[0][0], record], run_id="r",
-                                          source_id="devices-fda-510k")
-    assert MedicalDevicesStore(conn).records(h.NS, scopes=h.SCOPES) == []  # the whole page was refused
+def test_revision_chains_are_immutable_and_replays_add_nothing(loaded):
+    conn, clock = loaded
+    store = MedicalDeviceStore(conn)
+    before = conn.execute("SELECT count(*) FROM medical_device_revisions").fetchone()[0]
+    h.load_all(conn, now=clock)  # replay
+    assert conn.execute("SELECT count(*) FROM medical_device_revisions").fetchone()[0] == before
+    h.load_all(conn, v2=True, now=clock)
+    history = store.history(h.NS, h.RECALL, scopes=h.SCOPES)
+    assert [v["change"] for v in history] == ["new", "revised"]
+    assert history[1]["previous_revision_id"] == history[0]["revision_id"]
+    assert [v["record"]["fields"]["status_as_published"] for v in history] == ["Open, Classified", "Terminated"]
+    certificate = store.history(h.NS, h.CERTIFICATE, scopes=h.SCOPES)
+    assert [v["record"]["fields"]["status_as_published"] for v in certificate] == ["Valid", "Suspended"]
+    # A dataset-wide revision stamp alone (openFDA meta.last_updated) is not a new revision.
+    assert len(store.history(h.NS, h.PMA, scopes=h.SCOPES)) == 1
+    assert [v["change"] for v in store.history(h.NS, h.PMA + ":S003", scopes=h.SCOPES)] == ["new"]
 
 
-def test_narratives_are_returned_only_with_the_narrative_scope_and_reads_need_namespace_access():
-    conn = loaded()
-    store = MedicalDevicesStore(conn)
-    plain = store.records(h.NS, scopes=h.SCOPES, kinds=["adverse-event-report"])
-    assert all(r["record"]["fields"]["narratives"] is None and r["record"]["fields"]["narratives_withheld"] == 1
-               for r in plain)
-    full = store.records(h.NS, scopes=h.SCOPES | {NARRATIVE_SCOPE}, kinds=["adverse-event-report"])
-    assert all(r["record"]["fields"]["narratives"][0]["as_published"] for r in full)
-    with pytest.raises(MedicalDevicesError) as refused:
-        store.records(h.NS, scopes={h.READ})
-    assert refused.value.code == "unauthorized"
-    receipts = store.receipts(h.NS, scopes=h.SCOPES)
-    assert {r["source_id"] for r in receipts} == set(h.SOURCES)
-    assert all(r["receipt"]["evidence_origin"] == "fixture" for r in receipts)
-    state = readiness(conn)
-    assert state["providers"]["openfda-device"]["evidence_origins"] == ["fixture"]
-    assert all(p["live"] != "verified-live" for p in state["providers"].values())
+def test_a_removal_by_the_source_is_a_revision_never_a_deletion(loaded):
+    conn, clock = loaded
+    h.load_all(conn, v2=True, now=clock)
+    history = MedicalDeviceStore(conn).history(h.NS, "medical-devices:fda:510k:K999002", scopes=h.SCOPES)
+    assert [(v["change"], v["publication_state"]) for v in history] == [("new", "published"),
+                                                                       ("revised", "not-published")]
+    assert history[0]["record"]["fields"]["decision_date"] == "2023-06-20"  # still addressable
+
+
+def test_an_older_version_observed_later_never_becomes_current(loaded):
+    conn, clock = loaded
+    h.load_all(conn, v2=True, now=clock)
+    h.apply(conn, "clinical-devices-accessgudid", run_id="run:late-v1", now=clock)
+    store = MedicalDeviceStore(conn)
+    history = store.history(h.NS, h.GUDID_PUMP, scopes=h.SCOPES)
+    assert [v["change"] for v in history] == ["new", "revised"]  # the v1 replay is already on record
+    older = copy.deepcopy(history[0]["record"])
+    older["fields"]["device_description"] = "an older text observed late"
+    store.project(h.NS, [older], run_id="run:older", source_id="clinical-devices-accessgudid")
+    history = store.history(h.NS, h.GUDID_PUMP, scopes=h.SCOPES)
+    assert history[-1]["change"] == "older-observation"
+    assert _record(conn, h.GUDID_PUMP)["record"]["fields"]["public_version_number"] == "2"
+
+
+def test_as_of_lookup_by_source_date_and_by_record_time(loaded):
+    conn, clock = loaded
+    first_loaded = clock.value
+    h.load_all(conn, v2=True, now=clock)
+    store = MedicalDeviceStore(conn)
+    assert store.as_of(h.NS, h.RECALL, scopes=h.SCOPES, published_by="2025-08-01")["record"]["fields"][
+        "status_as_published"] == "Open, Classified"
+    assert store.as_of(h.NS, h.RECALL, scopes=h.SCOPES, published_by="2025-10-01")["record"]["fields"][
+        "status_as_published"] == "Terminated"
+    assert store.as_of(h.NS, h.RECALL, scopes=h.SCOPES, published_by="2025-01-01") is None
+    assert store.as_of(h.NS, h.RECALL, scopes=h.SCOPES, known_at_ms=first_loaded)["revision_no"] == 1
+    assert store.as_of(h.NS, h.RECALL, scopes=h.SCOPES)["revision_no"] == 2
+
+
+def test_minimisation_is_enforced_at_write_time(loaded):
+    conn, _ = loaded
+    store = MedicalDeviceStore(conn)
+    report = copy.deepcopy(_record(conn, "medical-devices:fda:mdr:9999001-2025-00001")["record"])
+    for field, value in (("patient", [{"patient_age": "63"}]), ("manufacturer_contact_f_name", "Jane"),
+                         ("address_1", "1 Example Way")):
+        bad = copy.deepcopy(report)
+        bad["fields"][field] = value
+        with pytest.raises(MedicalDeviceError) as caught:
+            store.project(h.NS, [bad], run_id="run:bad", source_id="x")
+        assert caught.value.code == "minimisation_violation"
+    bad = copy.deepcopy(report)
+    bad["fields"]["devices"][0]["email"] = "x@example.invalid"
+    with pytest.raises(MedicalDeviceError):
+        validate(bad)
+    # Nothing that the fixtures carry (patients, contacts, PRRCs, addresses) survives acquisition.
+    for row in store.records(h.NS, scopes={"operator"}):
+        assert personal_fields(row["record"]) == [], row["record_key"]
+    assert conn.execute("SELECT count(*) FROM medical_device_revisions WHERE run_id='run:bad'").fetchone()[0] == 0
+
+
+def test_narratives_need_the_narrative_scope(loaded):
+    conn, _ = loaded
+    store = MedicalDeviceStore(conn)
+    key = "medical-devices:fda:mdr:9999001-2025-00001"
+    hidden = store.records(h.NS, scopes=h.SCOPES, record_keys=[key])[0]
+    assert all(n["text"] is None and n["withheld"] for n in hidden["record"]["fields"]["narratives"])
+    assert hidden["narratives_withheld"]["scope"] == NARRATIVE_SCOPE
+    shown = store.records(h.NS, scopes=h.NARRATIVE_SCOPES, record_keys=[key])[0]
+    assert "OCCLUSION ALARM" in shown["record"]["fields"]["narratives"][0]["text"]
+    assert store.history(h.NS, key, scopes=h.SCOPES)[0]["record"]["fields"]["narratives"][0]["text"] is None
+
+
+def test_records_refuse_assessments_and_need_disclaimer_and_caveats(loaded):
+    conn, _ = loaded
+    report = copy.deepcopy(_record(conn, "medical-devices:fda:mdr:9999001-2025-00002")["record"])
+    with pytest.raises(MedicalDeviceError) as caught:
+        validate({**report, "fields": {**report["fields"], "causality": "device caused"}})
+    assert caught.value.code == "assessment_forbidden"
+    with pytest.raises(MedicalDeviceError) as caught:
+        validate({**report, "caveats": []})
+    assert caught.value.code == "missing_caveats"
+    clearance = copy.deepcopy(_record(conn, h.PUMP_CLEARANCE)["record"])
+    with pytest.raises(MedicalDeviceError) as caught:
+        validate({**clearance, "disclaimer": None})
+    assert caught.value.code == "missing_disclaimer"
+    assert forbidden_keys({"a": {"incidence": 1}}) == ["$.a.incidence"]
+
+
+def test_reads_need_clinical_read_and_namespace_access(loaded):
+    conn, _ = loaded
+    store = MedicalDeviceStore(conn)
+    with pytest.raises(MedicalDeviceError):
+        store.records(h.NS, scopes={"knowledge:clinical:read"})
+    with pytest.raises(MedicalDeviceError):
+        store.history("other", h.RECALL, scopes=h.READ_ONLY)
+    assert store.records(h.NS, scopes=h.READ_ONLY)

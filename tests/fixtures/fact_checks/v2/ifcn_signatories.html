@@ -1,22 +1,24 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><title>Signatories (synthetic fixture)</title></head>
+<html lang="en"><head><title>Signatories (authored fixture)</title></head>
 <body>
-<nav><a href="/">Home</a> <a href="/application-process">Apply</a></nav>
-<main>
-  <div class="signatory-card">
-    <h3><a href="/profile/example-fact-check">Example Fact Check</a></h3>
-    <img src="/media/example-fact-check.png" alt="">
+<main class="signatories">
+  <div class="signatory" data-status="verified">
+    <h3 class="signatory-name">Exampla Fact Desk</h3>
     <span class="signatory-country">Exampleland</span>
-    <span class="signatory-status">Verified</span>
-    <p>Verified since 2025-01-12</p>
-    <a href="https://factcheck.example.org" rel="nofollow">factcheck.example.org</a>
+    <a class="signatory-website" href="https://factdesk.example">factdesk.example</a>
+    <span class="signatory-status">Verified signatory</span>
+    <span class="signatory-date" data-kind="verified">2098-03-01</span>
+    <span class="signatory-date" data-kind="expires">2100-03-01</span>
+    <a class="signatory-profile" href="/profile/factdesk">Profile</a>
   </div>
-  <div class="signatory-card">
-    <h3><a href="/profile/verifica-example">Verifica Example</a></h3>
-    <span class="signatory-country">Examplia</span>
-    <span class="signatory-status">Verified</span>
-    <p>Verified since 2025-08-15</p>
-    <a href="https://verifica.example.net" rel="nofollow">verifica.example.net</a>
+  <div class="signatory" data-status="expired">
+    <h3 class="signatory-name">Northwind Verify</h3>
+    <span class="signatory-country">Northwind Isles</span>
+    <a class="signatory-website" href="https://northwind-verify.example">northwind-verify.example</a>
+    <span class="signatory-status">Expired</span>
+    <span class="signatory-date" data-kind="verified">2097-05-10</span>
+    <span class="signatory-date" data-kind="expired">2099-05-10</span>
+    <a class="signatory-profile" href="/profile/northwind-verify">Profile</a>
   </div>
 </main>
 </body></html>

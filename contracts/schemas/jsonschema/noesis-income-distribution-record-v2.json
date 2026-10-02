@@ -1,0 +1,73 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-income-distribution-record-v2",
+  "title": "Income, poverty and inequality series item: one series of one release (society.income)",
+  "description": "One published series as a source released it: source, indicator, welfare concept, equivalence scale, poverty line with its PPP base year, place, coverage, survey, income definition and methodology, the definition the source states and the observations (value text as published, status, estimation type, survey and income reference years, flags). Each release is appended as a vintage by src/kb/income_distribution_store.py, never overwritten; removals and corrections are vintages. No record carries person- or household-level data, and no value is nowcast, filled, blended, re-harmonised or derived.",
+  "type": "object",
+  "required": ["provider", "native_key", "indicator", "welfare_concept", "equivalence_scale", "area", "definition", "observations"],
+  "definitions": {
+    "line": {
+      "type": ["object", "null"],
+      "required": ["basis"],
+      "properties": {
+        "basis": {"enum": ["absolute-ppp", "relative-median", "relative-mean"]},
+        "amount": {"type": ["string", "null"]},
+        "unit": {"type": ["string", "null"]},
+        "label": {"type": ["string", "null"]},
+        "ppp_base_year": {"type": ["integer", "null"]}
+      }
+    },
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "estimation_type"],
+      "properties": {
+        "period": {"type": "string", "pattern": "^\\d{4}$"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "status": {"enum": ["reported", "confidential", "not_published"]},
+        "estimation_type": {"enum": ["survey", "interpolation", "extrapolation", "regional-line-up", "not-stated"]},
+        "survey_year": {"type": ["string", "null"]},
+        "income_reference_year": {"type": ["string", "null"]},
+        "welfare_type": {"type": ["string", "null"]},
+        "flags": {"type": "object"},
+        "attributes": {"type": "object"}
+      }
+    }
+  },
+  "properties": {
+    "provider": {"enum": ["pip", "eurostat-silc", "oecd-idd"]},
+    "native_key": {"type": "string", "minLength": 1},
+    "indicator": {
+      "type": "object",
+      "required": ["concept", "measure"],
+      "properties": {
+        "concept": {"enum": ["poverty_headcount", "poverty_gap", "gini", "quintile_share_ratio", "income_share", "mean_income", "median_income", "poverty_threshold"]},
+        "measure": {"type": "string"},
+        "label": {"type": "string"}
+      }
+    },
+    "welfare_concept": {"enum": ["income", "consumption", "mixed"]},
+    "equivalence_scale": {"enum": ["per-capita", "modified-oecd", "square-root"]},
+    "poverty_line": {"$ref": "#/definitions/line"},
+    "ppp_base_year": {"type": ["integer", "null"]},
+    "area": {
+      "type": "object",
+      "required": ["scheme", "code"],
+      "properties": {
+        "scheme": {"enum": ["iso3166-1-alpha3", "eurostat-geo", "wb-region"]},
+        "code": {"type": "string"},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "coverage": {"type": "object"},
+    "survey": {"type": ["string", "null"]},
+    "income_definition": {"type": ["string", "null"]},
+    "methodology": {"type": ["string", "null"]},
+    "unit": {"type": "object"},
+    "frequency": {"enum": ["annual"]},
+    "definition": {"type": "object", "required": ["provider", "welfare_concept", "equivalence_scale"]},
+    "references": {"type": "array"},
+    "source_notes": {"type": "array"},
+    "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
+  }
+}

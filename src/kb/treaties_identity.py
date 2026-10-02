@@ -1,33 +1,31 @@
-"""Treaty participants and treaties across sources through reviewable identity (#2581, TR06).
+"""Treaty participants and treaties matched across sources through reviewable identity (#2581, TR06).
 
-**Participants.** A participant is kept per source as published
-(``treaties:participant:<source>:<name>``); nothing is merged by name. Each is
-offered to the :mod:`src.kb.geospatial` places the platform already holds and
-to ``canonical_entities``, published identifiers first:
+Every subject stays the record its source published: a participant as UNTC,
+CELLAR or the Council of Europe names it, a treaty under its own key. Links are
+*proposed* into the shared reviewable state machine
+(:class:`src.kb.ownership_identity.OwnershipIdentityService`, the one the
+sanctions, courts and campaign-finance features use), whose accepted and
+reverted decisions are :class:`src.kb.entity_history.EntityHistoryStore`
+decisions on canonical entities. Nothing is merged and nothing is accepted
+automatically; every candidate carries its method, evidence and confidence.
 
-* ``published-code`` - an ISO 3166-1 code (or a CELLAR country authority code,
-  which is ISO 3166-1 alpha-3 based) the source itself publishes for the
-  participant, carried by exactly one place in its ``source_ids``
-  (``iso3166-1-alpha2`` / ``iso3166-1-alpha3``);
-* ``exact-name-coded-place`` - the participant's name as published equals the
-  name of exactly one place that carries an ISO 3166-1 code; the code is the
-  evidence, the reviewer decides;
-* ``name-only`` - a canonical entity whose preferred name equals the name as
-  published; shown as context and never acceptable.
+Methods, published identifiers first:
 
-**Treaties.** The same treaty in UNTC, CELLAR and the Council of Europe is
-matched only through published cross-references: ``shared-identifier`` (both
-records publish the same identifier in the same scheme, e.g. a UNTS
-registration number) and ``published-cross-reference`` (one record's
-published title or reference cites the other's identifier, e.g. "CETS No.
-990" in a CELLAR agreement title). Titles are never compared.
+* ``iso3166-code`` (``exact-identifier``) - a participant's published ISO
+  3166-1 code (CELLAR's country authority codes) equal to a
+  :mod:`src.kb.geospatial` place's ``iso3166-1-alpha2``/``-alpha3`` source id;
+* ``published-cross-reference`` (``cross-referenced-identifier``) - two
+  treaties from different sources sharing an identifier one of them publishes
+  as its own (a CELLAR title citing ``CETS No. 999`` and the Council of Europe
+  treaty 999, a UNTS registration number);
+* ``name-as-published`` (``name-jurisdiction``) - only for participants that
+  publish **no** code (UNTC and Council of Europe): an equal normalised name
+  with a place, or with a participant of another source. Always low
+  confidence, never accepted without a reviewer; an EU participant is paired
+  only with another EU participant.
 
-Every candidate carries its method, evidence and confidence and is
-``proposed``; a reviewer ``accepts`` or ``rejects`` it with a reason and may
-``revert`` a decision. Accepted and rejected decisions (and reverts) are
-recorded as :class:`src.kb.entity_history.EntityHistoryStore` ``match`` /
-``non-match`` / ``undo`` decisions; records are never merged. A participant or
-treaty without a candidate stays visible as ``unmatched``.
+Unmatched participants and treaties stay visible as ``unmatched``. No natural
+person is ever a subject (TR01).
 """
 
 from __future__ import annotations
@@ -38,345 +36,281 @@ from typing import Any
 
 from src.kb.treaties_records import (
     READ_SCOPE,
-    REVIEW_SCOPE,
-    WRITE_SCOPE,
     TreatiesError,
+    TreatiesStore,
     authorize,
-    canonical,
-    digest,
-    load,
     table_exists,
 )
 
-CONTRACT = "noesis-treaty-identity-candidate-v1"
-CONFIDENCE = {"published-code": 0.95, "shared-identifier": 0.95, "published-cross-reference": 0.9,
-              "exact-name-coded-place": 0.5, "name-only": 0.1}
-NEVER_ACCEPTED = frozenset({"name-only"})
-PLACE_CODE_KEYS = ("iso3166-1-alpha2", "iso3166-1-alpha3")
-CODE_SCHEMES = {"iso3166-1-alpha2": "iso3166-1-alpha2", "iso3166-1-alpha3": "iso3166-1-alpha3",
-                "op-country": "iso3166-1-alpha3"}
-_ENTITY_HISTORY_SCOPES = {"knowledge:entity-history:write", "knowledge:entity-history:review",
-                          "knowledge:entity-history:execute", "knowledge:entity-history:read"}
-_DDL = """
-CREATE TABLE IF NOT EXISTS treaty_identity_assertions (
-  namespace TEXT NOT NULL, assertion_id TEXT NOT NULL, kind TEXT NOT NULL, subject_key TEXT NOT NULL,
-  target_key TEXT, target_json TEXT, method TEXT, confidence DOUBLE, evidence_json TEXT NOT NULL, state TEXT NOT NULL,
-  decision_id TEXT, reason TEXT, history_json TEXT NOT NULL, created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, assertion_id)
-);
-"""
+GEO_READ = "knowledge:geospatial:read"
+CODE_SCHEMES = ("iso3166-1-alpha2", "iso3166-1-alpha3")
+NOTICE = "a reviewable identity decision; records are never merged and nothing is accepted automatically"
 
 
-def entity_for(key: str) -> str:
+def _norm(value: Any) -> str:
+    from src.kb.entities import normalize_surface
+
+    return normalize_surface(str(value or ""))
+
+
+def entity(key: str) -> str:
     from src.kb.ownership_store import canonical_entity_id
 
     return canonical_entity_id(key)
 
 
+def place_key(place_id: str) -> str:
+    return f"geospatial:place:{place_id}"
+
+
 class TreatiesIdentity:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
-        from src.kb.entity_history import EntityHistoryStore
-        from src.kb.treaties_store import TreatyStore
+        from src.kb.ownership_identity import OwnershipIdentityService
 
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
-        self.store = TreatyStore(conn, initialize=initialize, now=self.now)
-        self.history = EntityHistoryStore(conn, now=self.now, initialize=initialize)
-        if initialize:
-            conn.execute(_DDL)
+        self.store = TreatiesStore(conn, initialize=initialize, now=self.now)
+        self.service = OwnershipIdentityService(conn, now=self.now, initialize=initialize)
 
-    # ------------------------------------------------------------------ inputs
+    # ------------------------------------------------------------------ subjects
+
+    def participants(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Participants per source as published, each citing the record revisions it was read from."""
+        out: dict[str, dict[str, Any]] = {}
+        for row in self.store.records(namespace, scopes=scopes, kinds=["participant"]):
+            fields = row["record"]["fields"]
+            subject = out.setdefault(row["record_key"], {
+                "record_key": row["record_key"], "provider": row["provider"], "entity_id": entity(row["record_key"]),
+                "name_as_published": fields.get("name_as_published"),
+                "participant_type": fields.get("participant_type"), "codes": {}, "treaties": [], "cited": []})
+            for code in fields.get("codes") or []:
+                subject["codes"][code["scheme"]] = code["value"]
+            subject["treaties"].append(row["treaty_key"])
+            subject["cited"].append(row["citation"])
+        return sorted(out.values(), key=lambda s: s["record_key"])
+
+    def treaties(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        out = []
+        for row in self.store.records(namespace, scopes=scopes, kinds=["treaty"]):
+            fields = row["record"]["fields"]
+            out.append({"record_key": row["record_key"], "provider": row["provider"],
+                        "entity_id": entity(row["record_key"]), "title": fields.get("title_as_published"),
+                        "cross_references": fields.get("cross_references") or [], "cited": [row["citation"]]})
+        return out
 
     def _places(self, geo_namespace: str) -> list[dict[str, Any]]:
         if not table_exists(self.conn, "geospatial_place_revisions"):
             return []
-        rows = self.conn.execute(
-            "SELECT p.place_id, r.revision_id, r.canonical_name, r.names_json, r.source_ids_json FROM "
-            "geospatial_places p JOIN geospatial_place_current c ON c.place_id=p.place_id JOIN "
-            "geospatial_place_revisions r ON r.revision_id=c.revision_id WHERE p.namespace IN (?, 'global') "
-            "ORDER BY p.place_id", [geo_namespace]).fetchall()
-        out = []
-        for place_id, revision_id, name, names, ids in rows:
-            labels = {str(name).casefold()} | {str(n.get("value")).casefold() for n in load(names, [])
-                                                if isinstance(n, Mapping) and n.get("value")}
-            out.append({"place_id": place_id, "place_revision_id": revision_id, "place_name": name,
-                        "labels": labels, "source_ids": {str(k): str(v) for k, v in load(ids, {}).items()}})
-        return out
+        from src.kb.geospatial import READ_SCOPE as GEO_SCOPE
+        from src.kb.geospatial import GeospatialStore
 
-    def _canonical(self, name: str) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "canonical_entities"):
-            return []
-        return [{"canonical_id": r[0], "preferred_name": r[1], "entity_type": r[2]} for r in self.conn.execute(
-            "SELECT canonical_id, preferred_name, entity_type FROM canonical_entities WHERE lower(preferred_name)="
-            "lower(?) ORDER BY canonical_id", [name]).fetchall()]
+        geo = GeospatialStore(self.conn, initialize=False)
+        rows = self.conn.execute("SELECT DISTINCT place_id, namespace FROM geospatial_place_revisions WHERE "
+                                 "namespace=? ORDER BY place_id", [geo_namespace]).fetchall()
+        return [p for p in (geo.place(ns, pid, scopes={GEO_SCOPE}) for pid, ns in rows) if p]
 
-    # ------------------------------------------------------------------ assertions
-
-    def _offer(self, namespace: str, kind: str, subject: str, target_key: str | None, target: Mapping[str, Any] | None,
-               method: str | None, evidence: Mapping[str, Any], principal_id: str, *, state: str = "proposed",
-               reason: str | None = None) -> tuple[str, bool]:
-        assertion_id = "treaty-idc:" + digest([namespace, kind, subject, target_key])[:24]
-        row = self.conn.execute("SELECT state, method, evidence_json, history_json FROM treaty_identity_assertions "
-                                "WHERE namespace=? AND assertion_id=?", [namespace, assertion_id]).fetchone()
-        now = self.now()
-        if row is None:
-            self.conn.execute(
-                "INSERT INTO treaty_identity_assertions VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                [namespace, assertion_id, kind, subject, target_key, None if target is None else canonical(target),
-                 method, CONFIDENCE.get(method or ""), canonical(evidence), state, None, reason,
-                 canonical([{"state": state, "by": principal_id, "at_ms": now, "reason": reason}]), principal_id, now])
-            return assertion_id, True
-        old_state, old_method, old_evidence, history = row[0], row[1], load(row[2], {}), load(row[3], [])
-        changed = old_method != method or digest(old_evidence) != digest(dict(evidence))
-        if old_state in {"accepted", "rejected"} or not changed:
-            return assertion_id, False  # a reviewed decision stands until reverted; nothing new to propose
-        history.append({"state": state, "by": principal_id, "at_ms": now, "change": "reproposed",
-                        "previous_state": old_state, "previous_method": old_method, "previous_evidence": old_evidence})
-        self.conn.execute("UPDATE treaty_identity_assertions SET state=?, method=?, confidence=?, evidence_json=?, "
-                          "target_json=?, decision_id=NULL, reason=?, history_json=? WHERE namespace=? AND "
-                          "assertion_id=?", [state, method, CONFIDENCE.get(method or ""), canonical(evidence),
-                                             None if target is None else canonical(target), reason,
-                                             canonical(history), namespace, assertion_id])
-        return assertion_id, True
+    # ------------------------------------------------------------------ proposals
 
     def propose(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
-                geo_namespace: str = "global") -> dict[str, Any]:
-        """Offer every participant and treaty; idempotent. Reviewed decisions stand until reverted."""
+                geo_namespace: str | None = None) -> dict[str, Any]:
+        """Offer reviewable candidates; idempotent, never an automatic merge."""
         scopes = set(scopes)
-        authorize(namespace, scopes, WRITE_SCOPE, write=True)
-        places = self._places(geo_namespace) if "knowledge:geospatial:read" in scopes else []
-        created: list[str] = []
-        for participant in self.store.participants(namespace):
-            key, name = participant["participant_key"], participant["name_as_published"]
-            left = {"participant_key": key, "name_as_published": name, "kind": participant["kind"],
-                    "provider": participant["provider"], "published_codes": participant["published_codes"],
-                    "treaties": participant["treaties"]}
-            offered = False
-            codes = {(CODE_SCHEMES[c["scheme"]], str(c["value"]).upper()) for c in participant["published_codes"]
-                     if c.get("scheme") in CODE_SCHEMES}
-            by_code = [p for p in places if any(p["source_ids"].get(s, "").upper() == v for s, v in codes)]
-            by_name = [p for p in places if name.casefold() in p["labels"]
-                       and any(p["source_ids"].get(k) for k in PLACE_CODE_KEYS)]
-            for method, matches in (("published-code", by_code), ("exact-name-coded-place", by_name)):
-                if len({p["place_id"] for p in matches}) != 1:
-                    continue
-                place = matches[0]
-                target = {"place_id": place["place_id"], "place_revision_id": place["place_revision_id"],
-                          "place_name": place["place_name"],
-                          "codes": {k: place["source_ids"][k] for k in PLACE_CODE_KEYS if place["source_ids"].get(k)}}
-                evidence = {"method": method, "participant": left, "place": target,
-                            "codes_compared": sorted(f"{s}:{v}" for s, v in codes) if method == "published-code"
-                            else None,
-                            "note": "a published code identifies the place" if method == "published-code" else
-                            "the name as published equals a place carrying an ISO 3166-1 code; a reviewer decides"}
-                assertion_id, new = self._offer(namespace, "participant-place", key, f"place:{place['place_id']}",
-                                                target, method, evidence, principal_id)
-                created += [assertion_id] if new else []
-                offered = True
-                break
-            for entity in self._canonical(name):
-                assertion_id, new = self._offer(
-                    namespace, "participant-entity", key, f"canonical:{entity['canonical_id']}", entity, "name-only",
-                    {"method": "name-only", "participant": left, "entity": entity,
-                     "note": "an equal name alone is never an identity"}, principal_id)
-                created += [assertion_id] if new else []
-            if not offered:
-                reason = "no place carries a published code or the exact name with an ISO 3166-1 code" if places \
-                    else "no geospatial places are available (or knowledge:geospatial:read is missing)"
-                assertion_id, new = self._offer(namespace, "participant-place", key, None, None, None,
-                                                {"participant": left}, principal_id, state="unmatched", reason=reason)
-                created += [assertion_id] if new else []
-        created += self._propose_treaties(namespace, principal_id)
-        return {"created": sorted(set(created)), "candidates": self.candidates(namespace, scopes=scopes),
-                "unmatched": self.unmatched(namespace, scopes=scopes),
-                "notice": "published identifiers first; nothing is merged or accepted automatically"}
-
-    def _treaties(self, namespace: str) -> list[dict[str, Any]]:
-        out = []
-        for key in self.store.treaty_keys(namespace):
-            row = self.store.as_of(namespace, key)
-            if row is None:
-                continue
-            fields = self.store.record(row)["fields"]
-            out.append({"treaty_key": key, "provider": row["provider"], "revision_id": row["revision_id"],
-                        "title_as_published": row["title"],
-                        "identifiers": [(i["scheme"], str(i["value"])) for i in fields.get("identifiers") or []],
-                        "cross_references": [c for c in fields.get("cross_references") or []]})
-        return out
-
-    def _propose_treaties(self, namespace: str, principal_id: str) -> list[str]:
-        treaties = self._treaties(namespace)
-        created, matched = [], set()
-        for i, left in enumerate(treaties):
-            for right in treaties[i + 1:]:
+        authorize(namespace, scopes, READ_SCOPE)
+        participants = self.participants(namespace, scopes=scopes)
+        offered, unavailable = [], []
+        places: list[dict[str, Any]] = []
+        if geo_namespace is None:
+            unavailable.append({"provider": "geospatial.core", "reason": "no geospatial namespace given"})
+        elif GEO_READ not in scopes and "operator" not in scopes:
+            unavailable.append({"provider": "geospatial.core", "reason": f"{GEO_READ} is required"})
+        else:
+            places = self._places(geo_namespace)
+            if not places:
+                unavailable.append({"provider": "geospatial.core", "reason": "no places in the namespace"})
+        for subject in participants:
+            if subject["participant_type"] == "eu":
+                continue  # the EU is not a place
+            for place in places:
+                ids = dict(place["source_ids"])
+                right = {"record_key": place_key(place["place_id"]), "place_id": place["place_id"],
+                         "revision_id": place["revision_id"], "geo_namespace": geo_namespace}
+                shared = [s for s in CODE_SCHEMES if subject["codes"].get(s) and ids.get(s) == subject["codes"][s]]
+                if shared:
+                    offered.append(self._offer(namespace, subject, right["record_key"], "exact-identifier",
+                                               "iso3166-code", {"scheme": shared[0],
+                                                                "value": subject["codes"][shared[0]],
+                                                                "right": right}, principal_id, scopes))
+                elif not subject["codes"]:
+                    names = {_norm(place.get("canonical_name"))} | {_norm(n.get("value")) for n in
+                                                                     place.get("names") or []}
+                    if _norm(subject["name_as_published"]) in names:
+                        offered.append(self._offer(namespace, subject, right["record_key"], "name-jurisdiction",
+                                                   "name-as-published", {
+                                                       "value": subject["name_as_published"], "right": right,
+                                                       "note": "the source publishes no code; an equal name is a "
+                                                               "weak signal and a reviewer decides"},
+                                                   principal_id, scopes))
+        # participants across sources: EU with EU, and code-less participants by equal names
+        for index, left in enumerate(participants):
+            for right in participants[index + 1:]:
                 if left["provider"] == right["provider"]:
                     continue
-                shared = sorted(set(left["identifiers"]) & set(right["identifiers"]))
-                cited = [c for a, b in ((left, right), (right, left)) for c in a["cross_references"]
-                         if (c["scheme"], str(c["value"])) in set(b["identifiers"])]
-                if not shared and not cited:
+                if left["participant_type"] == "eu" or right["participant_type"] == "eu":
+                    if left["participant_type"] == right["participant_type"] == "eu":
+                        offered.append(self._offer(namespace, left, right["record_key"], "name-jurisdiction",
+                                                   "eu-designation", {
+                                                       "value": "European Union", "right": self._side(right),
+                                                       "note": "both sources name the European Union as the "
+                                                               "participant"}, principal_id, scopes))
                     continue
-                method = "shared-identifier" if shared else "published-cross-reference"
-                a, b = sorted((left, right), key=lambda t: t["treaty_key"])
-                evidence = {"method": method, "shared_identifiers": [f"{s}:{v}" for s, v in shared],
-                            "cross_references": cited,
-                            "records": [{k: t[k] for k in ("treaty_key", "provider", "revision_id",
-                                                           "title_as_published")} for t in (a, b)],
-                            "note": "matched through published identifiers only; titles are never compared"}
-                assertion_id, new = self._offer(namespace, "treaty", a["treaty_key"], b["treaty_key"],
-                                                {"treaty_key": b["treaty_key"], "revision_id": b["revision_id"]},
-                                                method, evidence, principal_id)
-                created += [assertion_id] if new else []
-                matched |= {a["treaty_key"], b["treaty_key"]}
-        for treaty in treaties:
-            if treaty["treaty_key"] not in matched and not self.conn.execute(
-                    "SELECT 1 FROM treaty_identity_assertions WHERE namespace=? AND kind='treaty' AND "
-                    "(subject_key=? OR target_key=?) AND target_key IS NOT NULL",
-                    [namespace, treaty["treaty_key"], treaty["treaty_key"]]).fetchone():
-                assertion_id, new = self._offer(namespace, "treaty", treaty["treaty_key"], None, None, None,
-                                                {"record": treaty}, principal_id, state="unmatched",
-                                                reason="no other acquired source publishes a shared identifier or a "
-                                                       "cross-reference")
-                created += [assertion_id] if new else []
-        return created
+                if left["codes"] and right["codes"]:
+                    shared = [s for s in CODE_SCHEMES if left["codes"].get(s) and
+                              left["codes"].get(s) == right["codes"].get(s)]
+                    if shared:
+                        offered.append(self._offer(namespace, left, right["record_key"], "exact-identifier",
+                                                   "iso3166-code", {"scheme": shared[0],
+                                                                    "value": left["codes"][shared[0]],
+                                                                    "right": self._side(right)},
+                                                   principal_id, scopes))
+                    continue
+                if not left["codes"] and not right["codes"] and left["name_as_published"] and \
+                        _norm(left["name_as_published"]) == _norm(right["name_as_published"]):
+                    offered.append(self._offer(namespace, left, right["record_key"], "name-jurisdiction",
+                                               "name-as-published", {
+                                                   "value": left["name_as_published"], "right": self._side(right),
+                                                   "note": "neither source publishes a code; a reviewer decides"},
+                                               principal_id, scopes))
+        # treaties across sources through published cross-references only
+        treaties = self.treaties(namespace, scopes=scopes)
+        for index, left in enumerate(treaties):
+            for right in treaties[index + 1:]:
+                if left["provider"] == right["provider"]:
+                    continue
+                ours = {(c["scheme"], c["value"]): c for c in left["cross_references"]}
+                for ref in right["cross_references"]:
+                    mine = ours.get((ref["scheme"], ref["value"]))
+                    if mine and "native identifier" in {mine["basis"], ref["basis"]}:
+                        offered.append(self.service.offer(
+                            namespace, left_key=left["record_key"], right_key=right["record_key"],
+                            left_entity=left["entity_id"], right_entity=right["entity_id"],
+                            basis="cross-referenced-identifier",
+                            evidence=[{"method": "published-cross-reference", "scheme": ref["scheme"],
+                                       "value": ref["value"],
+                                       "left": {"record_key": left["record_key"], "as_published": mine["as_published"],
+                                                "basis": mine["basis"], "cited": left["cited"]},
+                                       "right": {"record_key": right["record_key"],
+                                                 "as_published": ref["as_published"], "basis": ref["basis"],
+                                                 "cited": right["cited"]}}],
+                            principal_id=principal_id, scopes=scopes))
+                        break
+        return {"proposed": sorted({o["candidate_id"] for o in offered if o["created"] or o.get("change")}),
+                "candidates": self.candidates(namespace, scopes=scopes), "unavailable": unavailable,
+                "notice": NOTICE}
 
-    # ------------------------------------------------------------------ reads
+    @staticmethod
+    def _side(subject: Mapping[str, Any]) -> dict[str, Any]:
+        return {"record_key": subject["record_key"], "name_as_published": subject["name_as_published"],
+                "codes": subject["codes"], "cited": subject["cited"][:3]}
 
-    def assertion(self, namespace: str, assertion_id: str) -> dict[str, Any]:
-        row = self.conn.execute(
-            "SELECT assertion_id, kind, subject_key, target_key, target_json, method, confidence, evidence_json, state, "
-            "decision_id, reason, history_json, created_by, created_at_ms FROM treaty_identity_assertions WHERE "
-            "namespace=? AND assertion_id=?", [namespace, assertion_id]).fetchone()
-        if row is None:
-            raise TreatiesError("not_found", "no treaty identity candidate with that id")
-        history = load(row[11], [])
-        reviewed = [h for h in history if h["state"] in {"accepted", "rejected", "reverted"}]
-        return {"contract": CONTRACT, "namespace": namespace, "candidate_id": row[0], "kind": row[1],
-                "subject": row[2], "target": row[3], "target_detail": load(row[4], None), "method": row[5],
-                "confidence": row[6], "evidence": load(row[7], {}), "state": row[8], "decision_id": row[9],
-                "reason": row[10], "history": history, "reviewer": reviewed[-1]["by"] if reviewed else None,
-                "created_by": row[12], "created_at_ms": row[13],
-                "notice": "a reviewable identity assertion; records are never merged"}
+    def _offer(self, namespace, subject, right_key, basis, method, evidence, principal_id, scopes):
+        return self.service.offer(
+            namespace, left_key=subject["record_key"], right_key=right_key, left_entity=subject["entity_id"],
+            right_entity=entity(right_key), basis=basis,
+            evidence=[{**evidence, "method": method, "left": self._side(subject)}],
+            principal_id=principal_id, scopes=scopes)
 
-    def candidates(self, namespace: str, *, scopes: Iterable[str], kind: str | None = None,
-                   subject: str | None = None, state: str | None = None) -> list[dict[str, Any]]:
-        authorize(namespace, scopes, READ_SCOPE)
-        if not table_exists(self.conn, "treaty_identity_assertions"):
-            return []
-        rows = self.conn.execute(
-            "SELECT assertion_id FROM treaty_identity_assertions WHERE namespace=? AND target_key IS NOT NULL AND "
-            "(? IS NULL OR kind=?) AND (? IS NULL OR subject_key=? OR target_key=?) AND (? IS NULL OR state=?) "
-            "ORDER BY kind, subject_key, assertion_id",
-            [namespace, kind, kind, subject, subject, subject, state, state]).fetchall()
-        return [self.assertion(namespace, r[0]) for r in rows]
+    # ------------------------------------------------------------------ review and reads
 
-    def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Participants and treaties with no usable candidate: kept visible, never hidden."""
-        authorize(namespace, scopes, READ_SCOPE)
-        if not table_exists(self.conn, "treaty_identity_assertions"):
-            return []
-        out = []
-        for kind, subject, reason, evidence in self.conn.execute(
-                "SELECT kind, subject_key, reason, evidence_json FROM treaty_identity_assertions a WHERE namespace=? "
-                "AND state='unmatched' AND NOT EXISTS (SELECT 1 FROM treaty_identity_assertions b WHERE "
-                "b.namespace=a.namespace AND b.kind=a.kind AND (b.subject_key=a.subject_key OR "
-                "b.target_key=a.subject_key) AND b.target_key IS NOT NULL AND b.state IN ('proposed','accepted')) "
-                "ORDER BY kind, subject_key", [namespace]).fetchall():
-            out.append({"kind": kind, "subject": subject, "status": "unmatched", "reason": reason,
-                        "as_published": load(evidence, {}).get("participant") or load(evidence, {}).get("record")})
-        return out
+    @staticmethod
+    def view(candidate: Mapping[str, Any]) -> dict[str, Any]:
+        last = candidate["history"][-1]
+        evidence = candidate["evidence"][0] if candidate["evidence"] else {}
+        return {
+            "candidate_id": candidate["candidate_id"], "state": candidate["state"],
+            "review_state": {"accepted": "reviewed-match", "rejected": "reviewed-non-match",
+                             "reverted": "reverted", "proposed": "unreviewed-candidate"}[candidate["state"]],
+            "basis": candidate["basis"], "method": evidence.get("method"), "confidence": candidate["confidence"],
+            "records": [candidate["left_key"], candidate["right_key"]],
+            "entities": [candidate["left_entity"], candidate["right_entity"]],
+            "decision_id": candidate["decision_id"],
+            "reviewer": last.get("by") if candidate["state"] != "proposed" else None,
+            "reason": last.get("reason"), "evidence": candidate["evidence"], "history": candidate["history"],
+            "notice": NOTICE,
+        }
 
-    # ------------------------------------------------------------------ reviews
+    def candidates(self, namespace: str, *, scopes: Iterable[str], record_key: str | None = None
+                   ) -> list[dict[str, Any]]:
+        rows = [c for c in self.service.candidates(namespace, scopes=scopes, record_key=record_key)
+                if c["left_key"].startswith("treaties:") or c["right_key"].startswith("treaties:")]
+        return [self.view(c) for c in rows]
 
-    def _entities(self, candidate: Mapping[str, Any]) -> list[str]:
-        return [entity_for(candidate["subject"]), entity_for(candidate["target"])]
-
-    def _transition(self, namespace, candidate, state, decision_id, principal_id, reason) -> dict[str, Any]:
-        history = candidate["history"] + [{"state": state, "by": principal_id, "reason": reason, "at_ms": self.now(),
-                                           "decision_id": decision_id}]
-        self.conn.execute("UPDATE treaty_identity_assertions SET state=?, decision_id=?, reason=?, history_json=? "
-                          "WHERE namespace=? AND assertion_id=?", [state, decision_id, reason, canonical(history),
-                                                                   namespace, candidate["candidate_id"]])
-        return self.assertion(namespace, candidate["candidate_id"])
+    def _own(self, namespace: str, candidate_id: str, scopes: Iterable[str]) -> None:
+        if not any(c["candidate_id"] == candidate_id for c in self.candidates(namespace, scopes=scopes)):
+            raise TreatiesError("not_found", "no treaties identity candidate with that id")
 
     def review(self, namespace: str, candidate_id: str, decision: str, reason: str, *, principal_id: str,
                scopes: Iterable[str]) -> dict[str, Any]:
-        """Accept (``match``) or reject (``non-match``) a candidate as an entity identity decision."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
-        if decision not in {"accept", "reject"} or not str(reason or "").strip():
-            raise TreatiesError("invalid_decision", "accept or reject with a reason")
-        candidate = self.assertion(namespace, candidate_id)
-        if candidate["state"] != "proposed":
-            raise TreatiesError("invalid_state", f"candidate is {candidate['state']}; propose again to re-review")
-        if decision == "accept" and candidate["method"] in NEVER_ACCEPTED:
-            raise TreatiesError("insufficient_evidence", "an equal name alone never produces an accepted match")
-        entities = self._entities(candidate)
-        for entity, alias in zip(entities, (candidate["subject"], candidate["target"])):
-            self.history.register_entity(namespace, entity, [alias], principal_id=principal_id,
-                                         scopes=_ENTITY_HISTORY_SCOPES)
-        recorded = self.history.decide(
-            namespace, "match" if decision == "accept" else "non-match", entities,
-            {"candidate_id": candidate_id, "basis": candidate["method"], "confidence": candidate["confidence"],
-             "evidence": candidate["evidence"], "reason": reason.strip(),
-             "provenance": {"producer": "legal.treaties", "records": [candidate["subject"], candidate["target"]]},
-             "policy": {"merge": False, "note": "identity decision only; records stay separate"}},
-            reviewer_id=principal_id, principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES,
-            event_key=f"treaties-identity:{namespace}:{candidate_id}")
-        return self._transition(namespace, candidate, "accepted" if decision == "accept" else "rejected",
-                                recorded["decision_id"], principal_id, reason.strip())
+        self._own(namespace, candidate_id, scopes)
+        return self.view(self.service.review(namespace, candidate_id, decision, reason, principal_id=principal_id,
+                                             scopes=scopes))
 
     def revert(self, namespace: str, candidate_id: str, reason: str, *, principal_id: str,
                scopes: Iterable[str]) -> dict[str, Any]:
-        scopes = set(scopes)
-        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
-        if not str(reason or "").strip():
-            raise TreatiesError("invalid_decision", "a revert needs a reason")
-        candidate = self.assertion(namespace, candidate_id)
-        if candidate["state"] not in {"accepted", "rejected"}:
-            raise TreatiesError("invalid_state", "only an accepted or rejected candidate can be reverted")
-        undo = self.history.undo(namespace, candidate["decision_id"], reviewer_id=principal_id,
-                                 principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES)
-        return self._transition(namespace, candidate, "reverted", undo["decision_id"], principal_id, reason.strip())
+        self._own(namespace, candidate_id, scopes)
+        return self.view(self.service.revert(namespace, candidate_id, reason, principal_id=principal_id,
+                                             scopes=scopes))
 
-    # ------------------------------------------------------------------ accepted matches (used by queries and links)
+    def accepted(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Accepted, unreverted links of one subject: the other record, method and decision."""
+        out = []
+        for view in self.candidates(namespace, scopes=scopes, record_key=record_key):
+            if view["state"] != "accepted":
+                continue
+            other = view["records"][1] if view["records"][0] == record_key else view["records"][0]
+            out.append({"candidate_id": view["candidate_id"], "record_key": other, "basis": view["basis"],
+                        "method": view["method"], "confidence": view["confidence"],
+                        "decision_id": view["decision_id"], "reviewer": view["reviewer"]})
+        return out
 
-    def _accepted(self, namespace: str, kind: str) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "treaty_identity_assertions"):
+    def equivalents(self, namespace: str, key: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Participant or treaty keys reached from a key (a participant, a treaty or ``geospatial:place:<id>``)
+        through accepted, unreverted matches, one hop and through a shared place. Each carries its path."""
+        try:
+            first = self.accepted(namespace, key, scopes=scopes)
+        except Exception:  # noqa: BLE001 - identity access is optional for an answer
             return []
-        return [self.assertion(namespace, r[0]) for r in self.conn.execute(
-            "SELECT assertion_id FROM treaty_identity_assertions WHERE namespace=? AND kind=? AND state='accepted' "
-            "ORDER BY assertion_id", [namespace, kind]).fetchall()]
+        out: dict[str, dict[str, Any]] = {}
+        for link in first:
+            if link["record_key"].startswith("treaties:"):
+                out.setdefault(link["record_key"], {"record_key": link["record_key"], "path": [link]})
+            if link["record_key"].startswith("geospatial:place:"):
+                for second in self.accepted(namespace, link["record_key"], scopes=scopes):
+                    if second["record_key"].startswith("treaties:") and second["record_key"] != key:
+                        out.setdefault(second["record_key"], {"record_key": second["record_key"],
+                                                              "path": [link, second]})
+        return sorted(out.values(), key=lambda e: e["record_key"])
 
-    def accepted_place(self, namespace: str, participant: str) -> dict[str, Any] | None:
-        for item in self._accepted(namespace, "participant-place"):
-            if item["subject"] == participant:
-                return {**item["target_detail"], "candidate_id": item["candidate_id"], "method": item["method"],
-                        "reviewer": item["reviewer"], "decision_id": item["decision_id"]}
-        return None
+    def identity(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        """Accepted links and open candidates for one subject; without an accepted link it is unmatched."""
+        try:
+            views = self.candidates(namespace, scopes=scopes, record_key=record_key)
+        except Exception as exc:  # noqa: BLE001 - identity access is optional for an answer
+            return {"state": "unmatched", "links": [], "candidates": [], "unavailable": [getattr(exc, "code", "x")]}
+        links = [v for v in views if v["state"] == "accepted"]
+        return {"state": "matched" if links else "unmatched",
+                "links": [{"candidate_id": v["candidate_id"], "records": v["records"], "method": v["method"],
+                           "confidence": v["confidence"], "reviewer": v["reviewer"]} for v in links],
+                "candidates": [v["candidate_id"] for v in views if v["state"] == "proposed"]}
 
-    def participants_for_place(self, namespace: str, place: str) -> list[dict[str, Any]]:
-        """Participant keys linked to a place (place id or ISO 3166-1 code) by an accepted, unreverted match."""
-        wanted = str(place).removeprefix("iso3166:").upper()
-        out = []
-        for item in self._accepted(namespace, "participant-place"):
-            detail = item["target_detail"] or {}
-            codes = {str(v).upper() for v in dict(detail.get("codes") or {}).values()}
-            if place == detail.get("place_id") or wanted in codes:
-                out.append({"participant_key": item["subject"], "candidate_id": item["candidate_id"],
-                            "method": item["method"], "reviewer": item["reviewer"], "place": detail})
-        return out
-
-    def related_treaties(self, namespace: str, treaty: str) -> list[dict[str, Any]]:
-        """Treaty records of other sources linked to ``treaty`` by an accepted, unreverted match."""
-        out = []
-        for item in self._accepted(namespace, "treaty"):
-            if treaty in {item["subject"], item["target"]}:
-                other = item["target"] if item["subject"] == treaty else item["subject"]
-                out.append({"treaty_key": other, "candidate_id": item["candidate_id"], "method": item["method"],
-                            "reviewer": item["reviewer"]})
-        return out
-
-
-__all__ = ["CONFIDENCE", "CONTRACT", "NEVER_ACCEPTED", "TreatiesIdentity", "entity_for"]
-
+    def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        """Participants and treaties without an accepted link; they stay visible as unmatched."""
+        scopes = set(scopes)
+        participants = [{"record_key": s["record_key"], "name_as_published": s["name_as_published"],
+                         "provider": s["provider"], "state": "unmatched"}
+                        for s in self.participants(namespace, scopes=scopes)
+                        if self.identity(namespace, s["record_key"], scopes=scopes)["state"] == "unmatched"]
+        treaties = [{"record_key": t["record_key"], "title": t["title"], "provider": t["provider"],
+                     "state": "unmatched"}
+                    for t in self.treaties(namespace, scopes=scopes)
+                    if self.identity(namespace, t["record_key"], scopes=scopes)["state"] == "unmatched"]
+        return {"participants": participants, "treaties": treaties, "notice": NOTICE}

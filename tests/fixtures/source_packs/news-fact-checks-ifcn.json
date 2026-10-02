@@ -1,0 +1,20 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<!doctype html>\n<html lang=\"en\"><head><title>Signatories (authored fixture)</title></head>\n<body>\n<main class=\"signatories\">\n  <div class=\"signatory\" data-status=\"verified\">\n    <h3 class=\"signatory-name\">Exampla Fact Desk</h3>\n    <span class=\"signatory-country\">Exampleland</span>\n    <a class=\"signatory-website\" href=\"https://factdesk.example\">factdesk.example</a>\n    <span class=\"signatory-status\">Verified signatory</span>\n    <span class=\"signatory-date\" data-kind=\"verified\">2098-03-01</span>\n    <span class=\"signatory-date\" data-kind=\"expires\">2100-03-01</span>\n    <a class=\"signatory-profile\" href=\"/profile/factdesk\">Profile</a>\n  </div>\n  <div class=\"signatory\" data-status=\"verified\">\n    <h3 class=\"signatory-name\">Northwind Verify</h3>\n    <span class=\"signatory-country\">Northwind Isles</span>\n    <a class=\"signatory-website\" href=\"https://northwind-verify.example\">northwind-verify.example</a>\n    <span class=\"signatory-status\">Verified signatory</span>\n    <span class=\"signatory-date\" data-kind=\"verified\">2097-05-10</span>\n    <span class=\"signatory-date\" data-kind=\"expires\">2099-05-10</span>\n    <a class=\"signatory-profile\" href=\"/profile/northwind-verify\">Profile</a>\n  </div>\n  <div class=\"signatory\" data-status=\"under-review\">\n    <h3 class=\"signatory-name\">Contoso Check</h3>\n    <span class=\"signatory-country\">Contosia</span>\n    <a class=\"signatory-website\" href=\"https://contoso-check.example\">contoso-check.example</a>\n    <span class=\"signatory-status\">Under review</span>\n    <span class=\"signatory-date\" data-kind=\"review\">2099-01-20</span>\n    <a class=\"signatory-profile\" href=\"/profile/contoso-check\">Profile</a>\n  </div>\n</main>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "text/html"
+   },
+   "request": "/signatories",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape (the IFCN listing markup is assumed); every publisher, claimant, claim and URL is fictional, and the personal fields present on purpose are dropped by the parser (FC01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-publishers",
+  "minimised-claimants"
+ ]
+}

@@ -1,0 +1,19 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<?xml version=\"1.0\" ?>\n<TaxaSet><Taxon><TaxId>99000001</TaxId><ScientificName>Exampla fictiva</ScientificName><OtherNames><CommonName>fictional common name</CommonName></OtherNames><ParentTaxId>99000000</ParentTaxId><Rank>species</Rank><Division>Invertebrates</Division><Lineage>cellular organisms; Eukaryota; Exampla</Lineage><LineageEx><Taxon><TaxId>131567</TaxId><ScientificName>cellular organisms</ScientificName><Rank>no rank</Rank></Taxon><Taxon><TaxId>2759</TaxId><ScientificName>Eukaryota</ScientificName><Rank>superkingdom</Rank></Taxon><Taxon><TaxId>99000000</TaxId><ScientificName>Exampla</ScientificName><Rank>genus</Rank></Taxon></LineageEx><AkaTaxIds><TaxId>99000009</TaxId></AkaTaxIds><CreateDate>2098/01/01 00:00:00</CreateDate><UpdateDate>2099/01/05 00:00:00</UpdateDate><PubDate>2098/02/01 00:00:00</PubDate></Taxon><Taxon><TaxId>99000000</TaxId><ScientificName>Exampla</ScientificName><OtherNames><CommonName>fictional common name</CommonName></OtherNames><ParentTaxId>2759</ParentTaxId><Rank>genus</Rank><Division>Invertebrates</Division><Lineage>cellular organisms; Eukaryota</Lineage><LineageEx><Taxon><TaxId>131567</TaxId><ScientificName>cellular organisms</ScientificName><Rank>no rank</Rank></Taxon><Taxon><TaxId>2759</TaxId><ScientificName>Eukaryota</ScientificName><Rank>superkingdom</Rank></Taxon></LineageEx><CreateDate>2098/01/01 00:00:00</CreateDate><UpdateDate>2099/01/05 00:00:00</UpdateDate><PubDate>2098/02/01 00:00:00</PubDate></Taxon><Taxon><TaxId>99000100</TaxId><ScientificName>Northwindia borealis</ScientificName><OtherNames><CommonName>fictional common name</CommonName></OtherNames><ParentTaxId>99000099</ParentTaxId><Rank>species</Rank><Division>Invertebrates</Division><Lineage>cellular organisms; Eukaryota; Northwindia</Lineage><LineageEx><Taxon><TaxId>131567</TaxId><ScientificName>cellular organisms</ScientificName><Rank>no rank</Rank></Taxon><Taxon><TaxId>2759</TaxId><ScientificName>Eukaryota</ScientificName><Rank>superkingdom</Rank></Taxon><Taxon><TaxId>99000099</TaxId><ScientificName>Northwindia</ScientificName><Rank>genus</Rank></Taxon></LineageEx><CreateDate>2098/01/01 00:00:00</CreateDate><UpdateDate>2099/01/05 00:00:00</UpdateDate><PubDate>2098/02/01 00:00:00</PubDate></Taxon></TaxaSet>",
+   "headers": {
+    "Content-Type": "text/xml"
+   },
+   "request": "/entrez/eutils/efetch.fcgi?db=taxonomy&id=99000001%2C99000009%2C99000000%2C99000100&retmode=xml",
+   "status": 200
+  }
+ ],
+ "note": "Authored in the provider's documented shape (verify against a live response); every accession, organism, compound, value, identifier and title is fictional. Author and depositor fields are present only to prove they are dropped.",
+ "provider": "ncbi-taxonomy",
+ "scenarios": [
+  "lineage as published",
+  "merged tax id via AkaTaxIds"
+ ]
+}

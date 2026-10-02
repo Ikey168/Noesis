@@ -1,467 +1,397 @@
-"""Claimants, claims and publishers matched through reviewable assertions (#2659, FC06).
+"""Claimants, claims and publishers matched through reviewable identity (#2659, FC06).
 
-Every subject stays what the publisher published - a claimant as named, a claim
-as quoted, a publisher site - and links to other owners' records are *proposed*
-as match assertions that a reviewer accepts, rejects or reverts. Nothing is
-merged and nothing is accepted automatically; subjects without an accepted
-match stay visible as ``unmatched``.
+Every fact-check stays the record its publisher published. Links to other
+owners' records are *proposed* as candidates with a method, evidence and a
+confidence, and a reviewer accepts, rejects or later reverts them; accepted and
+rejected decisions are :class:`src.kb.entity_history.EntityHistoryStore`
+``match`` / ``non-match`` decisions and a revert is an ``undo`` there. Nothing is
+merged and nothing is accepted automatically.
 
 Three kinds of match, published identifiers before names:
 
-* ``claimant-entity`` (:mod:`src.kb.entities` ``canonical_entities``):
-  ``published-identifier`` when a ``sameAs`` identifier the publisher published
-  for the claimant (e.g. a Wikidata URL or QID) is an alias surface of a
-  canonical entity; ``alias-name`` when the claimant's name as named resolves
-  through the entity aliases (weak). Generic claimants ("social media users",
-  "viral image") are never proposed. Accepted and reverted claimant matches are
-  also :class:`src.kb.entity_history.EntityHistoryStore` decisions;
-* ``claim-argument`` (``argument_claims``): ``appearance-url`` when the
-  claim's document URL is an appearance URL the fact-check published;
-  ``review-url`` when the legacy ``argument_claims.factcheck_url`` names this
-  review (a stored lookup, still only a proposal); ``lexical-overlap`` using the
-  lexical fallback of :mod:`src.kb.claim_links` (weak);
-* ``publisher-source`` (:mod:`src.kb.source_identity`): ``published-domain``
-  when a reviewed domain alias of a source identity equals the publisher site.
+* **claimant -> canonical entity** (``canonical_entities``):
+  ``published-identifier`` when the claimant carries a Wikidata id and a
+  canonical entity is registered under that identifier
+  (``ent-wikidata-q...``, :func:`src.kb.entities.register_canonical_entity`);
+  otherwise ``name-as-published`` when the claimant's name as published resolves
+  through the entity alias table (a weak signal);
+* **fact-check claim -> argument claim** (``argument_claims``):
+  ``shared-appearance-url`` when the argument claim's document is an appearance
+  the fact-check cites (URLs compared under ``wa-canon-v1``), and
+  ``quoted-text-overlap`` when the quoted claim and the extracted claim share
+  enough tokens (:mod:`src.kb.claim_links` tokenisation). Either is only a
+  candidate: *no automatic claim matching without review*;
+* **publisher -> source identity** (:mod:`src.kb.source_identity`):
+  ``published-domain`` when the publisher's website domain resolves to a source
+  identity through a domain alias decision.
 
-Matches carry method, evidence and confidence and point at the fact-check
-revision they were proposed from. Proposing is idempotent; a rejected or
-reverted match is proposed again only with new evidence.
+Records without an accepted match stay visible as ``unmatched``. Claimant
+accounts and social-platform appearances are never matched (FC01).
 """
 
 from __future__ import annotations
 
-import json
-import re
 import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
-from src.ingestion.fact_checks_sources import canonical_url, slug
 from src.kb.fact_checks_records import (
-    CLAIMANT_SCOPE,
     READ_SCOPE,
     REVIEW_SCOPE,
     WRITE_SCOPE,
     FactCheckError,
-    FactChecksStore,
+    FactCheckStore,
     authorize,
     canonical,
     digest,
     table_exists,
 )
 
-CONTRACT = "noesis-fact-check-match-v1"
-KINDS = ("claimant-entity", "claim-argument", "publisher-source")
+CONTRACT = "noesis-fact-check-identity-candidate-v1"
+MATCH_KINDS = ("claimant", "claim", "publisher")
+CONFIDENCE = {"published-identifier": 0.95, "published-domain": 0.8, "shared-appearance-url": 0.6,
+              "quoted-text-overlap": 0.3, "name-as-published": 0.3}
+TEXT_OVERLAP = 0.6
 STATES = ("proposed", "accepted", "rejected", "reverted")
-CONFIDENCE = {"published-identifier": 0.9, "published-domain": 0.8, "appearance-url": 0.7, "review-url": 0.6,
-              "alias-name": 0.4, "lexical-overlap": 0.3}
-LEXICAL_THRESHOLD = 0.5
-GENERIC_CLAIMANTS = frozenset({
-    "social media", "social media users", "social media posts", "multiple sources", "viral image", "viral post",
-    "viral video", "facebook posts", "facebook users", "twitter users", "x users", "instagram posts", "tiktok users",
-    "whatsapp messages", "online posts", "bloggers", "various", "unknown", "multiple people", "internet users",
-})
+NOTICE = "a reviewable identity decision; records are never merged and nothing is accepted automatically"
 _ENTITY_HISTORY_SCOPES = {"knowledge:entity-history:write", "knowledge:entity-history:review",
                           "knowledge:entity-history:execute", "knowledge:entity-history:read"}
 _DDL = """
-CREATE TABLE IF NOT EXISTS fact_check_matches (
-  namespace TEXT NOT NULL, match_id TEXT NOT NULL, match_kind TEXT NOT NULL, left_key TEXT NOT NULL,
-  left_revision_id TEXT, right_key TEXT NOT NULL, method TEXT NOT NULL, confidence DOUBLE NOT NULL,
-  evidence_json TEXT NOT NULL, state TEXT NOT NULL, decision_id TEXT, created_by TEXT NOT NULL,
-  created_at_ms BIGINT NOT NULL, history_json TEXT NOT NULL, PRIMARY KEY(namespace, match_id)
+CREATE TABLE IF NOT EXISTS fact_check_identity_candidates (
+  namespace TEXT NOT NULL, candidate_id TEXT NOT NULL, match_kind TEXT NOT NULL, left_key TEXT NOT NULL,
+  right_key TEXT NOT NULL, method TEXT NOT NULL, confidence DOUBLE NOT NULL, evidence_json TEXT NOT NULL,
+  state TEXT NOT NULL, decision_id TEXT, created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
+  history_json TEXT NOT NULL, PRIMARY KEY(namespace, candidate_id)
 );
 """
+_COLUMNS = ("candidate_id", "match_kind", "left_key", "right_key", "method", "confidence", "evidence_json", "state",
+            "decision_id", "created_by", "created_at_ms", "history_json")
 
 
-def normalise_claim(text: Any) -> str:
-    """Case, whitespace, quote and punctuation folding (for grouping and search only, never for display)."""
-    folded = re.sub(r"[\"'“”‘’«»]", "", str(text or "").casefold())
-    return " ".join(re.sub(r"[^\w\s%.,-]", " ", folded).replace(",", " ").split()).strip(" .")
-
-
-def claim_key(record_key: str, text: Any) -> str:
-    return f"{record_key}#claim={digest(normalise_claim(text))[:16]}"
-
-
-def claimant_key(name: Any) -> str:
-    return f"fact-checks:claimant:{slug(name)}"
-
-
-def publisher_key(site: Any) -> str:
-    return f"fact-checks:publisher-site:{site}"
-
-
-def is_generic(name: Any) -> bool:
+def claimant_key(claimant: Mapping[str, Any] | None) -> str | None:
+    """A claimant subject: by its first published identifier, else by its normalised name as published."""
     from src.kb.entities import normalize_surface
 
-    norm = normalize_surface(str(name or ""))
-    return not norm or norm in GENERIC_CLAIMANTS or norm.endswith((" users", " posts"))
+    if not claimant:
+        return None
+    identifiers = sorted((i["scheme"], i["value"]) for i in claimant.get("identifiers") or [])
+    if identifiers:
+        return f"fact-check:claimant:{identifiers[0][0]}:{identifiers[0][1]}"
+    name = normalize_surface(str(claimant.get("name_as_published") or ""))
+    return f"fact-check:claimant:name:{name.replace(' ', '-')}" if name else None
 
 
-def _qid(value: str) -> str | None:
-    match = re.search(r"(?:wikidata\.org/(?:wiki|entity)/)(Q\d+)$", value)
-    return match.group(1) if match else None
+def subject_entity(match_kind: str, key: str) -> str:
+    """The entity-history id of one side of a candidate (a fact-check subject or its target)."""
+    if key.startswith(("ent-", "source-identity:")):
+        return key
+    if match_kind == "claim" and not key.startswith("fact-check:"):
+        return f"argument-claim:{key}"
+    return f"fact-check-{match_kind}:{digest(key)[:24]}"
+
+
+def _view(row) -> dict[str, Any]:
+    import json
+
+    value = dict(zip(_COLUMNS, row))
+    value["evidence"] = json.loads(value.pop("evidence_json"))
+    value["history"] = json.loads(value.pop("history_json"))
+    last = value["history"][-1]
+    return {"contract": CONTRACT, **value,
+            "review_state": {"accepted": "reviewed-match", "rejected": "reviewed-non-match",
+                             "reverted": "reverted", "proposed": "unreviewed-candidate"}[value["state"]],
+            "reviewer": last.get("by") if value["state"] != "proposed" else None, "reason": last.get("reason"),
+            "notice": NOTICE}
 
 
 class FactCheckIdentity:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
+        from src.kb.entity_history import EntityHistoryStore
+
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
-        self.store = FactChecksStore(conn, initialize=initialize, now=self.now)
+        self.store = FactCheckStore(conn, initialize=initialize, now=self.now)
+        self.history = EntityHistoryStore(conn, now=self.now, initialize=initialize)
         if initialize:
             conn.execute(_DDL)
 
-    def _ready(self) -> bool:
-        return table_exists(self.conn, "fact_check_matches")
+    def ready(self) -> bool:
+        return table_exists(self.conn, "fact_check_identity_candidates")
 
     # ------------------------------------------------------------------ subjects
 
     def subjects(self, namespace: str, *, scopes: Iterable[str]) -> dict[str, list[dict[str, Any]]]:
-        """Claimants, claims and publisher sites as published, each citing the fact-check revisions behind it."""
+        """Claimants, claims and publishers as published, each citing the revisions it was read from."""
         claimants: dict[str, dict[str, Any]] = {}
         claims: dict[str, dict[str, Any]] = {}
         publishers: dict[str, dict[str, Any]] = {}
-        for row in self.store.records(namespace, scopes=scopes):
-            record, fields = row["record"], row["record"]["fields"]
-            cite = {"record_key": row["record_key"], "source_id": row["source_id"], "revision_id": row["revision_id"]}
-            site = record.get("publisher_site")
-            if site:
-                entry = publishers.setdefault(site, {"key": publisher_key(site), "site": site, "names": set(),
-                                                     "cited": []})
-                name = (fields.get("publisher") or {}).get("name_as_published") or fields.get("name_as_published")
-                if name:
-                    entry["names"].add(name)
+        for view in self.store.records(namespace, scopes=scopes, include_absent=False):
+            record, cite = view["record"], {"record_key": view["record_key"], "source_id": view["source_id"],
+                                            "revision_id": view["revision_id"]}
+            fields = record["fields"]
+            if view["record_kind"] == "publisher":
+                entry = publishers.setdefault(view["record_key"], {"subject_key": view["record_key"],
+                                                                   "domain": fields["domain"], "names": set(),
+                                                                   "cited": []})
+                entry["names"].add(fields["name_as_published"])
                 entry["cited"].append(cite)
-            if row["record_kind"] != "fact-check" or row["status"] != "published":
                 continue
-            for claim in fields.get("claims") or []:
-                text = claim.get("claim_text_as_quoted")
-                if text:
-                    entry = claims.setdefault(claim_key(row["record_key"], text), {
-                        "key": claim_key(row["record_key"], text), "record_key": row["record_key"],
-                        "claim_text_as_quoted": text, "appearance_urls": set(), "review_url": fields["review_url"],
-                        "cited": []})
-                    entry["appearance_urls"].update(claim.get("appearance_urls") or [])
-                    if claim.get("first_appearance_url"):
-                        entry["appearance_urls"].add(claim["first_appearance_url"])
-                    entry["cited"].append(cite)
-                name = claim.get("claimant_as_named")
-                if name:
-                    entry = claimants.setdefault(claimant_key(name), {
-                        "key": claimant_key(name), "names": set(), "same_as": set(), "types": set(),
-                        "generic": is_generic(name), "cited": []})
-                    entry["names"].add(name)
-                    entry["same_as"].update(claim.get("claimant_same_as") or [])
-                    if claim.get("claimant_type_as_published"):
-                        entry["types"].add(claim["claimant_type_as_published"])
-                    entry["cited"].append(cite)
+            publisher = fields["publisher"]
+            entry = publishers.setdefault(view["publisher_key"], {"subject_key": view["publisher_key"],
+                                                                  "domain": publisher["domain"], "names": set(),
+                                                                  "cited": []})
+            if publisher.get("name_as_published"):
+                entry["names"].add(publisher["name_as_published"])
+            entry["cited"].append(cite)
+            claim = fields["claims"][0]
+            subject = claims.setdefault(view["record_key"], {"subject_key": view["record_key"],
+                                                             "claim_text": claim["claim_text"], "appearances": set(),
+                                                             "cited": []})
+            subject["appearances"].update(a["url_canonical"] for a in claim.get("appearances") or []
+                                          if a.get("url_canonical"))
+            if claim.get("first_appearance") and claim["first_appearance"].get("url_canonical"):
+                subject["appearances"].add(claim["first_appearance"]["url_canonical"])
+            subject["cited"].append(cite)
+            person = claim.get("claimant")
+            key = claimant_key(person)
+            if key:
+                entry = claimants.setdefault(key, {"subject_key": key, "names": set(), "identifiers": {},
+                                                   "types": set(), "fact_checks": set(), "cited": []})
+                if person.get("name_as_published"):
+                    entry["names"].add(person["name_as_published"])
+                if person.get("type_as_published"):
+                    entry["types"].add(person["type_as_published"])
+                for identifier in person.get("identifiers") or []:
+                    entry["identifiers"][identifier["scheme"]] = identifier["value"]
+                entry["fact_checks"].add(view["record_key"])
+                entry["cited"].append(cite)
 
-        def finish(items: Iterable[dict[str, Any]]) -> list[dict[str, Any]]:
+        def done(items: dict[str, dict[str, Any]]) -> list[dict[str, Any]]:
             out = []
-            for item in items:
-                item = {k: sorted(v) if isinstance(v, set) else v for k, v in item.items()}
-                seen, cited = set(), []
-                for c in item["cited"]:
-                    if c["revision_id"] not in seen:
-                        seen.add(c["revision_id"])
-                        cited.append(c)
-                item["cited"] = cited[:20]
-                out.append(item)
-            return sorted(out, key=lambda s: s["key"])
+            for item in items.values():
+                out.append({k: sorted(v) if isinstance(v, set) else v for k, v in item.items()})
+            return sorted(out, key=lambda s: s["subject_key"])
 
-        return {"claimants": finish(claimants.values()), "claims": finish(claims.values()),
-                "publishers": finish(publishers.values())}
-
-    # ------------------------------------------------------------------ targets (other owners, all optional)
-
-    def _entity_aliases(self) -> dict[str, list[tuple[str, str | None]]]:
-        if not (table_exists(self.conn, "entity_aliases") and table_exists(self.conn, "canonical_entities")):
-            return {}
-        rows = self.conn.execute(
-            "SELECT a.surface_form, a.canonical_id, c.preferred_name FROM entity_aliases a JOIN canonical_entities c "
-            "ON c.canonical_id=a.canonical_id ORDER BY a.surface_form, a.canonical_id").fetchall()
-        out: dict[str, list[tuple[str, str | None]]] = {}
-        for surface, canonical_id, name in rows:
-            out.setdefault(str(surface), []).append((canonical_id, name))
-        return out
-
-    def _documents(self) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "documents"):
-            return []
-        columns = {r[0] for r in self.conn.execute(
-            "SELECT column_name FROM information_schema.columns WHERE table_name='documents'").fetchall()}
-        wanted = [c for c in ("document_id", "url", "canonical_url", "content_hash", "source_type", "title")
-                  if c in columns]
-        if "document_id" not in wanted or not {"url", "canonical_url"} & columns:
-            return []
-        rows = self.conn.execute("SELECT " + ", ".join(wanted) + " FROM documents ORDER BY document_id").fetchall()
-        return [dict(zip(wanted, r)) for r in rows]
-
-    def _argument_claims(self) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "argument_claims"):
-            return []
-        columns = {r[0] for r in self.conn.execute(
-            "SELECT column_name FROM information_schema.columns WHERE table_name='argument_claims'").fetchall()}
-        select = ["claim_id", "claim_text", "document_id"] + (["factcheck_url"] if "factcheck_url" in columns else [])
-        rows = self.conn.execute("SELECT " + ", ".join(select) + " FROM argument_claims ORDER BY claim_id").fetchall()
-        return [dict(zip(select, r)) for r in rows]
+        return {"claimant": done(claimants), "claim": done(claims), "publisher": done(publishers)}
 
     # ------------------------------------------------------------------ proposals
 
+    def _offer(self, namespace: str, kind: str, left: str, right: str, method: str, evidence: Mapping[str, Any],
+               principal_id: str) -> dict[str, Any]:
+        candidate_id = "fc-idc:" + digest([namespace, kind, left, right])[:24]
+        evidence = [dict(evidence, method=method)]
+        now = self.now()
+        row = self.conn.execute("SELECT state, method, evidence_json, history_json FROM "
+                                "fact_check_identity_candidates WHERE namespace=? AND candidate_id=?",
+                                [namespace, candidate_id]).fetchone()
+        if row is None:
+            self.conn.execute("INSERT INTO fact_check_identity_candidates VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                              [namespace, candidate_id, kind, left, right, method, CONFIDENCE[method],
+                               canonical(evidence), "proposed", None, principal_id, now,
+                               canonical([{"state": "proposed", "by": principal_id, "at_ms": now}])])
+            return {"candidate_id": candidate_id, "change": "created"}
+        import json
+
+        state, old_method, history = row[0], row[1], json.loads(row[3])
+        stronger = CONFIDENCE[method] > CONFIDENCE[old_method]
+        fresh = digest(evidence) != digest(json.loads(row[2]))
+        if (state == "proposed" and stronger) or (state in {"rejected", "reverted"} and fresh):
+            history.append({"state": "proposed", "by": principal_id, "at_ms": now, "previous_state": state,
+                            "previous_method": old_method})
+            self.conn.execute("UPDATE fact_check_identity_candidates SET state='proposed', decision_id=NULL, "
+                              "method=?, confidence=?, evidence_json=?, history_json=? WHERE namespace=? AND "
+                              "candidate_id=?", [method, CONFIDENCE[method], canonical(evidence), canonical(history),
+                                                 namespace, candidate_id])
+            return {"candidate_id": candidate_id, "change": "reproposed"}
+        return {"candidate_id": candidate_id, "change": None}
+
+    def _claimant_targets(self) -> list[dict[str, Any]] | None:
+        if not table_exists(self.conn, "canonical_entities"):
+            return None
+        rows = self.conn.execute("SELECT canonical_id, preferred_name, entity_type FROM canonical_entities").fetchall()
+        return [{"canonical_id": r[0], "preferred_name": r[1], "entity_type": r[2]} for r in rows]
+
+    def _argument_claims(self) -> list[dict[str, Any]] | None:
+        if not table_exists(self.conn, "argument_claims"):
+            return None
+        from src.kb.web_archive_identity import canonical_key
+
+        documents = {}
+        if table_exists(self.conn, "documents"):
+            documents = {r[0]: r[1] for r in self.conn.execute("SELECT document_id, url FROM documents").fetchall()}
+        out = []
+        for claim_id, text, document_id in self.conn.execute(
+                "SELECT claim_id, claim_text, document_id FROM argument_claims ORDER BY claim_id").fetchall():
+            url = documents.get(document_id)
+            out.append({"claim_id": claim_id, "claim_text": text, "document_id": document_id,
+                        "document_url_canonical": canonical_key(url) if url else None})
+        return out
+
     def propose(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
-                source_namespace: str | None = None) -> dict[str, Any]:
-        """Offer reviewable match assertions; idempotent, never an automatic merge or acceptance."""
+                source_identity_namespace: str | None = None) -> dict[str, Any]:
+        """Offer reviewable candidates; idempotent, never an automatic acceptance; absent owners are reported."""
         from src.kb.claim_links import _jaccard, _tokens
-        from src.kb.entities import normalize_surface
+        from src.kb.entities import normalize_surface, resolve
 
         scopes = set(scopes)
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
         subjects = self.subjects(namespace, scopes=scopes)
         offered, unavailable = [], []
-        claimant_allowed = "operator" in scopes or CLAIMANT_SCOPE in scopes
-        # claimants -> canonical entities (identifier first, then name)
-        aliases = self._entity_aliases()
-        if not aliases:
-            unavailable.append({"provider": "news.core", "target": "canonical_entities",
-                                "reason": "no canonical entities or aliases in the warehouse"})
-        elif not claimant_allowed:
-            unavailable.append({"provider": "news.fact-checks", "target": "canonical_entities",
-                                "reason": f"claimant matching needs {CLAIMANT_SCOPE} (FC01)"})
-        for subject in subjects["claimants"] if aliases and claimant_allowed else []:
-            if subject["generic"]:
-                continue  # never proposed: a generic attribution is not an identity
-            matched_by_identifier = False
-            for same in subject["same_as"]:
-                for surface in {same.casefold(), (_qid(same) or "").casefold()} - {""}:
-                    for canonical_id, name in aliases.get(surface, []):
-                        matched_by_identifier = True
-                        offered.append(self._offer(namespace, "claimant-entity", subject["key"], subject["cited"][0],
-                                                   canonical_id, "published-identifier", {
-                                                       "identifier_as_published": same, "alias_surface": surface,
-                                                       "entity_name": name, "names_as_named": subject["names"]},
+        entities = self._claimant_targets()
+        if entities is None:
+            unavailable.append({"target": "canonical_entities", "reason": "no canonical entity store"})
+        else:
+            by_id = {e["canonical_id"]: e for e in entities}
+            for subject in subjects["claimant"]:
+                matched = False
+                for scheme, value in sorted(subject["identifiers"].items()):
+                    target = f"ent-{scheme}-{value.lower()}"
+                    if target in by_id:
+                        matched = True
+                        offered.append(self._offer(namespace, "claimant", subject["subject_key"], target,
+                                                   "published-identifier", {
+                                                       "scheme": scheme, "value": value,
+                                                       "names_as_published": subject["names"],
+                                                       "cited": subject["cited"][:5],
+                                                       "right": by_id[target]}, principal_id))
+                if matched:
+                    continue
+                for name in subject["names"]:
+                    hits = {h["canonical_id"]: {**h, "via": "entity alias"} for h in [resolve(self.conn, name)] if h}
+                    for entity in entities:
+                        if normalize_surface(entity["preferred_name"] or "") == normalize_surface(name):
+                            hits.setdefault(entity["canonical_id"], {**entity, "via": "preferred name"})
+                    for target, hit in sorted(hits.items()):
+                        offered.append(self._offer(namespace, "claimant", subject["subject_key"], target,
+                                                   "name-as-published", {
+                                                       "value": name, "via": hit["via"],
+                                                       "cited": subject["cited"][:5], "right": hit,
+                                                       "note": "a name alone is a weak signal; a reviewer decides"},
                                                    principal_id))
-            if matched_by_identifier:
-                continue
-            for name in subject["names"]:
-                for canonical_id, preferred in aliases.get(normalize_surface(name), []):
-                    offered.append(self._offer(namespace, "claimant-entity", subject["key"], subject["cited"][0],
-                                               canonical_id, "alias-name", {
-                                                   "name_as_named": name, "entity_name": preferred,
-                                                   "types_as_published": subject["types"],
-                                                   "note": "an equal name is a weak signal; a reviewer decides"},
-                                               principal_id))
-        # claims -> argument claims (published URLs first, then lexical overlap)
-        arguments = self._argument_claims()
-        documents = {d["document_id"]: d for d in self._documents()}
-        if not arguments:
-            unavailable.append({"provider": "news.core", "target": "argument_claims",
-                                "reason": "no argument claims in the warehouse"})
-        for subject in subjects["claims"]:
-            appearances = {canonical_url(u)[0]: u for u in subject["appearance_urls"]}
-            review = canonical_url(subject["review_url"])[0]
-            tokens = _tokens(subject["claim_text_as_quoted"])
-            for argument in arguments:
-                document = documents.get(argument["document_id"]) or {}
-                urls = {canonical_url(u)[0] for u in (document.get("url"), document.get("canonical_url")) if u}
-                shared = sorted(set(appearances) & urls)
-                if shared:
-                    method, evidence = "appearance-url", {"appearance_url": appearances[shared[0]],
-                                                         "document_id": argument["document_id"],
-                                                         "rule": "wa-canon-v1 canonical URL equality"}
-                elif argument.get("factcheck_url") and canonical_url(argument["factcheck_url"])[0] == review:
-                    method, evidence = "review-url", {"factcheck_url_on_claim": argument["factcheck_url"],
-                                                      "note": "stored by the legacy lookup; not a reviewed match"}
-                else:
-                    overlap = _jaccard(tokens, _tokens(str(argument.get("claim_text") or "")))
-                    if overlap < LEXICAL_THRESHOLD:
+        claims = self._argument_claims()
+        if claims is None:
+            unavailable.append({"target": "argument_claims", "reason": "no argument claim store"})
+        else:
+            for subject in subjects["claim"]:
+                quoted = _tokens(subject["claim_text"])
+                for claim in claims:
+                    overlap = _jaccard(quoted, _tokens(claim["claim_text"] or ""))
+                    shared = claim["document_url_canonical"] in set(subject["appearances"])
+                    if not shared and overlap < TEXT_OVERLAP:
                         continue
-                    method, evidence = "lexical-overlap", {"jaccard": round(overlap, 3),
-                                                           "threshold": LEXICAL_THRESHOLD,
-                                                           "note": "shared words are a weak signal; a reviewer "
-                                                                   "decides"}
-                offered.append(self._offer(namespace, "claim-argument", subject["key"], subject["cited"][0],
-                                           f"argument-claim:{argument['claim_id']}", method, {
-                                               **evidence, "claim_text_as_quoted": subject["claim_text_as_quoted"],
-                                               "argument_claim_text": argument.get("claim_text")}, principal_id))
-        # publishers -> source identities by published domain
-        if table_exists(self.conn, "source_alias_decisions"):
+                    method = "shared-appearance-url" if shared else "quoted-text-overlap"
+                    offered.append(self._offer(namespace, "claim", subject["subject_key"], claim["claim_id"], method, {
+                        "quoted_claim": subject["claim_text"], "argument_claim": claim["claim_text"],
+                        "token_overlap": round(overlap, 3), "document_id": claim["document_id"],
+                        "shared_appearance": claim["document_url_canonical"] if shared else None,
+                        "url_rules": "wa-canon-v1", "cited": subject["cited"][:5],
+                        "note": "a candidate only: no automatic claim matching without review"}, principal_id))
+        if not table_exists(self.conn, "source_alias_decisions"):
+            unavailable.append({"target": "source_identities", "reason": "no source identity store"})
+        else:
             from src.kb.source_identity import READ_SCOPE as SOURCE_READ
             from src.kb.source_identity import SourceIdentityStore
 
-            sources = SourceIdentityStore(self.conn, initialize=False)
-            for subject in subjects["publishers"]:
-                resolved = sources.resolve_alias(source_namespace or namespace, "domain", subject["site"],
-                                                 scopes={SOURCE_READ})
+            store = SourceIdentityStore(self.conn, initialize=False)
+            for subject in subjects["publisher"]:
+                resolved = store.resolve_alias(source_identity_namespace or namespace, "domain", subject["domain"],
+                                               scopes={SOURCE_READ})
                 for match in resolved["matches"]:
-                    offered.append(self._offer(namespace, "publisher-source", subject["key"], subject["cited"][0],
-                                               match["source_id"], "published-domain", {
-                                                   "site_as_published": subject["site"],
+                    offered.append(self._offer(namespace, "publisher", subject["subject_key"], match["source_id"],
+                                               "published-domain", {
+                                                   "domain": subject["domain"], "names_as_published": subject["names"],
                                                    "alias_decision_id": match["decision_id"],
-                                                   "ambiguous": resolved["ambiguous"],
-                                                   "names_as_published": subject["names"]}, principal_id))
-        else:
-            unavailable.append({"provider": "news.core", "target": "source_identities",
-                                "reason": "no source identities in the warehouse"})
-        return {"proposed": sorted({o["match_id"] for o in offered if o["change"]}),
-                "matches": self.matches(namespace, scopes=scopes), "unavailable": unavailable,
-                "notice": "match assertions are proposals; nothing is merged or accepted automatically"}
+                                                   "ambiguous": resolved["ambiguous"], "cited": subject["cited"][:5]},
+                                               principal_id))
+        return {"proposed": sorted({o["candidate_id"] for o in offered if o["change"]}),
+                "candidates": self.candidates(namespace, scopes=scopes), "unavailable": unavailable,
+                "unmatched": self.unmatched(namespace, scopes=scopes), "notice": NOTICE}
 
-    def _offer(self, namespace, kind, left_key, cited, right_key, method, evidence, principal_id) -> dict[str, Any]:
-        match_id = "fc-match:" + digest([namespace, kind, left_key, right_key])[:24]
-        evidence = [{**evidence, "method": method, "left": {"record_key": cited["record_key"],
-                                                             "revision_id": cited["revision_id"],
-                                                             "source_id": cited["source_id"]}}]
-        now = self.now()
-        row = self.conn.execute("SELECT state, method, evidence_json, history_json FROM fact_check_matches WHERE "
-                                "namespace=? AND match_id=?", [namespace, match_id]).fetchone()
+    # ------------------------------------------------------------------ review
+
+    def _row(self, namespace: str, candidate_id: str) -> dict[str, Any]:
+        row = self.conn.execute("SELECT " + ", ".join(_COLUMNS) + " FROM fact_check_identity_candidates WHERE "
+                                "namespace=? AND candidate_id=?", [namespace, candidate_id]).fetchone() \
+            if self.ready() else None
         if row is None:
-            self.conn.execute(
-                "INSERT INTO fact_check_matches VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                [namespace, match_id, kind, left_key, cited["revision_id"], right_key, method, CONFIDENCE[method],
-                 canonical(evidence), "proposed", None, principal_id, now,
-                 canonical([{"state": "proposed", "by": principal_id, "at_ms": now}])])
-            return {"match_id": match_id, "change": "created"}
-        state, old_method, old_evidence, history = row[0], row[1], json.loads(row[2]), json.loads(row[3])
-        stronger = CONFIDENCE[method] > CONFIDENCE[old_method]
-        fresh = digest(evidence) != digest(old_evidence) or method != old_method
-        if state == "proposed" and stronger:
-            change = "upgraded"
-        elif state in {"rejected", "reverted"} and fresh:
-            change = "reproposed"
-        else:
-            return {"match_id": match_id, "change": None}
-        history.append({"state": "proposed", "by": principal_id, "at_ms": now, "change": change,
-                        "previous_state": state, "previous_method": old_method, "previous_evidence": old_evidence})
-        self.conn.execute(
-            "UPDATE fact_check_matches SET state='proposed', decision_id=NULL, method=?, confidence=?, evidence_json=?, "
-            "left_revision_id=?, history_json=? WHERE namespace=? AND match_id=?",
-            [method, CONFIDENCE[method], canonical(evidence), cited["revision_id"], canonical(history), namespace,
-             match_id])
-        return {"match_id": match_id, "change": change}
+            raise FactCheckError("not_found", "no fact-check identity candidate with that id")
+        return _view(row)
 
-    # ------------------------------------------------------------------ review and reads
+    def _transition(self, namespace: str, candidate: Mapping[str, Any], state: str, decision_id: str,
+                    principal_id: str, reason: str) -> dict[str, Any]:
+        history = candidate["history"] + [{"state": state, "by": principal_id, "reason": reason, "at_ms": self.now(),
+                                           "decision_id": decision_id}]
+        self.conn.execute("UPDATE fact_check_identity_candidates SET state=?, decision_id=?, history_json=? WHERE "
+                          "namespace=? AND candidate_id=?",
+                          [state, decision_id, canonical(history), namespace, candidate["candidate_id"]])
+        return self._row(namespace, candidate["candidate_id"])
 
-    def _row(self, namespace: str, match_id: str) -> dict[str, Any]:
-        row = self.conn.execute(
-            "SELECT match_id, match_kind, left_key, left_revision_id, right_key, method, confidence, evidence_json, "
-            "state, decision_id, created_by, created_at_ms, history_json FROM fact_check_matches WHERE namespace=? "
-            "AND match_id=?", [namespace, match_id]).fetchone()
-        if row is None:
-            raise FactCheckError("not_found", "no fact-check match with that id")
-        view = dict(zip(("match_id", "match_kind", "left_key", "left_revision_id", "right_key", "method",
-                         "confidence"), row[:7]))
-        history = json.loads(row[12])
-        last = history[-1]
-        return {"contract": CONTRACT, "namespace": namespace, **view, "evidence": json.loads(row[7]),
-                "state": row[8],
-                "review_state": {"accepted": "reviewed-match", "rejected": "reviewed-non-match",
-                                 "reverted": "reverted", "proposed": "unreviewed-candidate"}[row[8]],
-                "decision_id": row[9], "created_by": row[10], "created_at_ms": row[11],
-                "reviewer": last.get("by") if row[8] != "proposed" else None, "reason": last.get("reason"),
-                "history": history, "notice": "a reviewable match assertion; records are never merged"}
-
-    def matches(self, namespace: str, *, scopes: Iterable[str], kind: str | None = None, key: str | None = None,
-                state: str | None = None) -> list[dict[str, Any]]:
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        if not self._ready():
-            return []
-        rows = self.conn.execute(
-            "SELECT match_id FROM fact_check_matches WHERE namespace=? AND (? IS NULL OR match_kind=?) AND "
-            "(? IS NULL OR state=?) AND (? IS NULL OR left_key=? OR right_key=? OR left_key LIKE ?) "
-            "ORDER BY match_kind, left_key, right_key",
-            [namespace, kind, kind, state, state, key, key, key, f"{key}#%" if key else None]).fetchall()
-        views = [self._row(namespace, r[0]) for r in rows]
-        if "operator" not in scopes and CLAIMANT_SCOPE not in scopes:
-            views = [v for v in views if v["match_kind"] != "claimant-entity"]
-        return views
-
-    def review(self, namespace: str, match_id: str, decision: str, reason: str, *, principal_id: str,
+    def review(self, namespace: str, candidate_id: str, decision: str, reason: str, *, principal_id: str,
                scopes: Iterable[str]) -> dict[str, Any]:
-        """Accept or reject a proposed match; claimant matches are also entity identity decisions."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        """Accept (``match``) or reject (``non-match``) a candidate as an entity identity decision."""
+        authorize(namespace, set(scopes), REVIEW_SCOPE, write=True)
         if decision not in {"accept", "reject"} or not str(reason or "").strip():
             raise FactCheckError("invalid_decision", "accept or reject with a reason")
-        match = self._row(namespace, match_id)
-        self._claimant_guard(match, scopes)
-        if match["state"] != "proposed":
-            raise FactCheckError("invalid_state", f"match is {match['state']}; propose again to re-review")
-        decision_id = None
-        if match["match_kind"] in {"claimant-entity", "publisher-source"}:
-            decision_id = self._decide(namespace, match, "match" if decision == "accept" else "non-match", reason,
-                                       principal_id)
-        return self._transition(namespace, match, "accepted" if decision == "accept" else "rejected", decision_id,
-                                principal_id, reason.strip())
-
-    def revert(self, namespace: str, match_id: str, reason: str, *, principal_id: str, scopes: Iterable[str]
-               ) -> dict[str, Any]:
-        """Undo an accepted or rejected decision; the match becomes ``reverted`` and records stay intact."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
-        if not str(reason or "").strip():
-            raise FactCheckError("invalid_decision", "a revert needs a reason")
-        match = self._row(namespace, match_id)
-        self._claimant_guard(match, scopes)
-        if match["state"] not in {"accepted", "rejected"}:
-            raise FactCheckError("invalid_state", "only an accepted or rejected match can be reverted")
-        decision_id = None
-        if match["decision_id"]:
-            from src.kb.entity_history import EntityHistoryStore
-
-            undo = EntityHistoryStore(self.conn, now=self.now).undo(
-                namespace, match["decision_id"], reviewer_id=principal_id, principal_id=principal_id,
-                scopes=_ENTITY_HISTORY_SCOPES)
-            decision_id = undo["decision_id"]
-        return self._transition(namespace, match, "reverted", decision_id, principal_id, reason.strip())
-
-    @staticmethod
-    def _claimant_guard(match: Mapping[str, Any], scopes: set[str]) -> None:
-        if match["match_kind"] == "claimant-entity" and "operator" not in scopes and CLAIMANT_SCOPE not in scopes:
-            raise FactCheckError("unauthorized", f"claimant matches need {CLAIMANT_SCOPE} (FC01)")
-
-    def _decide(self, namespace, match, decision_type, reason, principal_id) -> str:
-        from src.kb.entity_history import EntityHistoryStore
-
-        history = EntityHistoryStore(self.conn, now=self.now)
-        subjects = [match["left_key"], match["right_key"]]
-        for subject in subjects:
-            history.register_entity(namespace, subject, [subject], principal_id=principal_id,
-                                    scopes=_ENTITY_HISTORY_SCOPES)
-        recorded = history.decide(
-            namespace, decision_type, subjects,
-            {"match_id": match["match_id"], "method": match["method"], "confidence": match["confidence"],
-             "evidence": match["evidence"], "reason": reason.strip(),
-             "provenance": {"producer": "news.fact-checks", "records": subjects},
+        candidate = self._row(namespace, candidate_id)
+        if candidate["state"] != "proposed":
+            raise FactCheckError("invalid_state", f"candidate is {candidate['state']}; propose again to re-review")
+        kind = candidate["match_kind"]
+        sides = [subject_entity(kind, candidate["left_key"]), subject_entity(kind, candidate["right_key"])]
+        for entity, key in zip(sides, (candidate["left_key"], candidate["right_key"])):
+            self.history.register_entity(namespace, entity, [key], principal_id=principal_id,
+                                         scopes=_ENTITY_HISTORY_SCOPES)
+        recorded = self.history.decide(
+            namespace, "match" if decision == "accept" else "non-match", sides,
+            {"candidate_id": candidate_id, "match_kind": kind, "method": candidate["method"],
+             "confidence": candidate["confidence"], "evidence": candidate["evidence"], "reason": reason.strip(),
+             "provenance": {"producer": "news.fact-checks", "records": [candidate["left_key"],
+                                                                        candidate["right_key"]]},
              "policy": {"merge": False, "note": "identity decision only; records stay separate"}},
             reviewer_id=principal_id, principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES,
-            event_key=f"fact-check-match:{namespace}:{match['match_id']}")
-        return recorded["decision_id"]
+            event_key=f"fact-check-identity:{namespace}:{candidate_id}:{len(candidate['history'])}")
+        return self._transition(namespace, candidate, "accepted" if decision == "accept" else "rejected",
+                                recorded["decision_id"], principal_id, reason.strip())
 
-    def _transition(self, namespace, match, state, decision_id, principal_id, reason) -> dict[str, Any]:
-        history = match["history"] + [{"state": state, "by": principal_id, "reason": reason, "at_ms": self.now(),
-                                       "decision_id": decision_id}]
-        self.conn.execute("UPDATE fact_check_matches SET state=?, decision_id=?, history_json=? WHERE namespace=? "
-                          "AND match_id=?", [state, decision_id, canonical(history), namespace, match["match_id"]])
-        return self._row(namespace, match["match_id"])
+    def revert(self, namespace: str, candidate_id: str, reason: str, *, principal_id: str,
+               scopes: Iterable[str]) -> dict[str, Any]:
+        """Undo an accepted or rejected decision; the candidate becomes ``reverted`` and records stay intact."""
+        authorize(namespace, set(scopes), REVIEW_SCOPE, write=True)
+        if not str(reason or "").strip():
+            raise FactCheckError("invalid_decision", "a revert needs a reason")
+        candidate = self._row(namespace, candidate_id)
+        if candidate["state"] not in {"accepted", "rejected"}:
+            raise FactCheckError("invalid_state", "only an accepted or rejected candidate can be reverted")
+        undo = self.history.undo(namespace, candidate["decision_id"], reviewer_id=principal_id,
+                                 principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES)
+        return self._transition(namespace, candidate, "reverted", undo["decision_id"], principal_id, reason.strip())
 
-    def accepted(self, namespace: str, *, scopes: Iterable[str], kind: str | None = None, key: str | None = None
+    # ------------------------------------------------------------------ reads
+
+    def candidates(self, namespace: str, *, scopes: Iterable[str], match_kind: str | None = None,
+                   key: str | None = None, state: str | None = None) -> list[dict[str, Any]]:
+        authorize(namespace, set(scopes), READ_SCOPE)
+        if not self.ready():
+            return []
+        rows = self.conn.execute(
+            "SELECT " + ", ".join(_COLUMNS) + " FROM fact_check_identity_candidates WHERE namespace=? AND "
+            "(? IS NULL OR match_kind=?) AND (? IS NULL OR left_key=? OR right_key=?) AND (? IS NULL OR state=?) "
+            "ORDER BY match_kind, left_key, right_key",
+            [namespace, match_kind, match_kind, key, key, key, state, state]).fetchall()
+        return [_view(r) for r in rows]
+
+    def accepted(self, namespace: str, match_kind: str, *, scopes: Iterable[str], key: str | None = None
                  ) -> list[dict[str, Any]]:
-        return self.matches(namespace, scopes=scopes, kind=kind, key=key, state="accepted")
+        """Accepted, unreverted matches of one kind (optionally touching one key)."""
+        return self.candidates(namespace, scopes=scopes, match_kind=match_kind, key=key, state="accepted")
 
-    def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        """Subjects without an accepted match, visible as unmatched (claimants only with the claimant scope)."""
-        scopes = set(scopes)
+    def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> dict[str, list[dict[str, Any]]]:
+        """Subjects without an accepted match stay visible as unmatched."""
         subjects = self.subjects(namespace, scopes=scopes)
-        accepted = {m["left_key"] for m in self.matches(namespace, scopes=scopes | {CLAIMANT_SCOPE}, state="accepted")}
-        out = {kind: [{"key": s["key"], "state": "unmatched", **({"names": s["names"]} if "names" in s else {}),
-                       **({"claim_text_as_quoted": s["claim_text_as_quoted"]} if "claim_text_as_quoted" in s
-                          else {})}
-                      for s in subjects[kind] if s["key"] not in accepted]
-               for kind in ("claims", "publishers")}
-        if "operator" in scopes or CLAIMANT_SCOPE in scopes:
-            out["claimants"] = [{"key": s["key"], "names": s["names"], "generic": s["generic"], "state": "unmatched"}
-                                for s in subjects["claimants"] if s["key"] not in accepted]
-        else:
-            out["claimants"] = {"withheld": f"claimants are listed with {CLAIMANT_SCOPE} (FC01)"}
+        accepted = {(c["match_kind"], c["left_key"]) for c in self.candidates(namespace, scopes=scopes,
+                                                                             state="accepted")}
+        out: dict[str, list[dict[str, Any]]] = {}
+        for kind in MATCH_KINDS:
+            out[kind] = [{"subject_key": s["subject_key"], "state": "unmatched",
+                          **({"names": s["names"]} if "names" in s else {"claim_text": s["claim_text"]})}
+                         for s in subjects[kind] if (kind, s["subject_key"]) not in accepted]
         return out

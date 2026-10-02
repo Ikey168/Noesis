@@ -1,15 +1,14 @@
 """Offline treaty-to-actions acceptance for the Legal treaties provider (TR12, #2640).
 
 The pinned ``legal-research`` 1.5.0 fixtures for the three ``treaties``
-sources replay through the real source-pack runtime (fixture adapters compiled
-from the installed pack) with sockets blocked and the ``treaties-untc``,
-``treaties-eu`` and ``treaties-coe`` features selected. The UN Treaty
-Collection entry is declined and acquires nothing; its authored status page is
-then replayed under a *test-only* accepted licence decision, as an operator
-holding written permission would. A treaty and a state reach cited treaty
-actions with revision history, reviewable identity and cross-pack links; a
-subject with no records has none on record. Every treaty, action and text is
-fictional; nothing here is live evidence.
+sources (UN Treaty Collection, CELLAR agreements, Council of Europe) replay
+through the real source-pack runtime (fixture adapters compiled from the
+installed pack) with sockets blocked and the ``treaties-untc``, ``treaties-eu``
+and ``treaties-coe`` features selected. A treaty and a state reach cited
+treaty actions with their revision history, as-of answers, reviewable
+participant identity and cross-pack links; a subject with no records is
+answered as such. Every treaty, state, act and date is fictional; nothing here
+is live evidence.
 """
 
 from __future__ import annotations
@@ -20,29 +19,33 @@ import socket
 import pytest
 
 from src.domains import registry as domain_registry
-from src.evidence_bundle.verifier import verify_bundle
 from src.ingestion.source_pack_runtime import SourcePackRuntime
 from src.ingestion.source_packs import SourcePackStore, validate_source_pack
-from src.ingestion.treaties_sources import TreatiesAdapter, fixture_transport
+from src.ingestion.treaties_sources import (
+    MINIMISATION,
+    TreatiesAdapter,
+    fixture_transport,
+)
 from src.kb.subscriptions import SubscriptionStore
-from src.kb.treaties_identity import TreatiesIdentity
+from src.kb.treaties_identity import TreatiesIdentity, place_key
 from src.kb.treaties_links import TreatiesLinks
 from src.kb.treaties_monitoring import TreatiesMonitor
-from src.kb.treaties_queries import TreatyQueries
+from src.kb.treaties_queries import TreatiesQueries
 from src.kb.treaties_records import (
+    TreatiesStore,
     feature_enabled,
     forbidden_keys,
-    minimisation_violations,
+    readiness,
 )
-from src.kb.treaties_store import readiness
 from tests.unit import treaties_harness as h
 from tests.unit.composition.test_migration import _migrated
+from tools.knowledge_engine_mcp.treaties import guard
 
 PACK_ID = "legal-research"
 PUBLIC_DNS = lambda _host: ["8.8.8.8"]
-SOURCES = (h.UNTC, h.CELLAR, h.COE)
-EXCLUDED_WORDS = ("is legally bound", "obligation to", "complies with", "in breach", "legal advice:",
-                  "the reservation is invalid", "the reservation is permissible")
+FEATURES = ["treaties-untc", "treaties-eu", "treaties-coe"]
+EXCLUDED_WORDS = ("is bound by", "must comply", "complies with", "is in breach", "the reservation is invalid",
+                  "legal advice:")
 
 
 @pytest.fixture(autouse=True)
@@ -70,13 +73,12 @@ class Env:
         self.conn = h.connection()
         self.clock = 4_102_444_800_000
         _, coordinator, bundles, _ = _migrated(self.conn)
-        coordinator.select("legal", bundles["legal"]["version"],
-                           features=["treaties-untc", "treaties-eu", "treaties-coe"])
+        coordinator.select("legal", bundles["legal"]["version"], features=FEATURES)
         coordinator.activate("treaties-acceptance")
         manifest = validate_source_pack(json.loads(h.PACK.read_text()))
         SourcePackStore(self.conn).install(manifest, principal_id="operator", enable=True, now_ms=1)
         runtime = self.runtime()
-        for source_id in SOURCES:
+        for source_id in h.SOURCES:
             runtime.accept_license(PACK_ID, source_id, principal_id="operator")
 
     def now(self) -> int:
@@ -93,133 +95,120 @@ class Env:
             {"pack_id": PACK_ID, "run_key": key, "operation": "records", "source_ids": list(source_ids),
              "max_results": 5000, "max_bytes": 50_000_000, "timeout_ms": 120_000},
             principal_id="operator", adapters={s: (adapters or {}).get(s) or fixtures[s] for s in source_ids},
-            dns_resolver=PUBLIC_DNS)
-
-
-def adapter(source_id: str, *, v2: bool = False) -> TreatiesAdapter:
-    return TreatiesAdapter(h.item_for(source_id), transport=fixture_transport(h.native_pages(source_id, v2=v2)))
+            dns_resolver=PUBLIC_DNS, secret_resolver=lambda _ref: None)
 
 
 def without_notices(value):
     """The answer without its boundary notices, which name the exclusions they refuse."""
     if isinstance(value, dict):
         return {k: without_notices(v) for k, v in value.items()
-                if k not in {"notice", "note", "exclusions", "record_state_basis", "statement_notice", "coverage"}}
+                if k not in {"notice", "note", "reason", "boundary", "exclusions"}}
     if isinstance(value, list):
         return [without_notices(v) for v in value]
     return value
 
 
-def test_treaty_and_state_to_cited_actions_with_revisions_identity_and_links():
+def v2_adapter(source_id: str) -> TreatiesAdapter:
+    return TreatiesAdapter(h.source(source_id), transport=fixture_transport(h.native_pages(source_id, v2=True)))
+
+
+def test_treaty_and_state_to_cited_actions_with_revision_history_identity_and_links():
     env = Env()
     conn = env.conn
-    assert all(feature_enabled(conn, f) for f in ("treaties-untc", "treaties-eu", "treaties-coe"))
-
-    # The pinned pack: CELLAR and the Council of Europe acquire; the declined UNTC entry acquires nothing.
-    first = env.run(SOURCES, "treaties-1")
+    assert all(feature_enabled(conn, f) for f in FEATURES)
+    first = env.run(h.SOURCES, "treaties-1")
     assert first["status"] == "complete"
-    state = readiness(conn)
-    assert state["providers"]["untc"]["revisions_acquired"] == 0
-    assert state["providers"]["untc"]["licence_decision"]["status"] == "declined"
-    queries = TreatyQueries(conn, now=env.now)
-    declined = queries.status_as_of(h.NS, "cets:990", "France", "2099-06-01", scopes=h.READ_ONLY)
-    assert declined["not_acquired"] == [{"provider": "untc",
-                                         "reason": "declined licence decision (written permission required)"}]
-    before = {t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0]
-              for t in ("treaty_revisions", "treaty_action_revisions")}
-    assert env.run(SOURCES, "treaties-replay")["status"] == "complete"
-    assert {t: conn.execute(f"SELECT count(*) FROM {t}").fetchone()[0] for t in before} == before
+    store = TreatiesStore(conn)
+    count = conn.execute("SELECT count(*) FROM treaty_revisions").fetchone()[0]
+    assert count == 42  # 17 UNTC + 8 CELLAR + 17 Council of Europe records
+    assert env.run(h.SOURCES, "treaties-replay")["status"] == "complete"
+    assert conn.execute("SELECT count(*) FROM treaty_revisions").fetchone()[0] == count  # a replay adds nothing
+    ready = readiness(conn)
+    assert ready["enabled"] == {"untc": True, "eu-cellar": True, "coe-treaty-office": True}
+    assert {p["live"] for p in ready["providers"].values()} == {"unverified-live"}
 
-    # An operator holding written permission (test-only decision) replays the authored UNTC status page.
-    assert env.run([h.UNTC], "treaties-untc-permitted", {h.UNTC: adapter(h.UNTC)})["status"] == "complete"
-
-    # Monitors start before the later depositary revisions arrive.
-    subscriptions = SubscriptionStore(conn)
-    subscriptions.commit_watermark(h.NS, 1)
+    # Monitors start before the later depositary statuses arrive.
+    subs = SubscriptionStore(conn)
+    subs.commit_watermark(h.NS, 1)
     monitor = TreatiesMonitor(conn, now=env.now)
-    treaty_sub = monitor.create(h.NS, "untc", watch="treaty", key="untc:XXIX-99", principal_id="alice",
+    treaty_sub = monitor.create(h.NS, "wetlands", watch="treaty", key="XXVII-99", principal_id="alice",
                                 scopes=h.SCOPES)["subscription_id"]
-    state_sub = monitor.create(h.NS, "germany", watch="participant", key="Germany", principal_id="alice",
-                               scopes=h.SCOPES)["subscription_id"]
     monitor.run(treaty_sub, 1, principal_id="alice", scopes=h.SCOPES)
-    monitor.run(state_sub, 1, principal_id="alice", scopes=h.SCOPES)
-    later = env.run(SOURCES, "treaties-2", {s: adapter(s, v2=True) for s in SOURCES})
-    assert later["status"] == "complete"
-    subscriptions.commit_watermark(h.NS, 2)
-    treaty_notices = {n["kind"] for n in monitor.run(treaty_sub, 2, principal_id="alice",
-                                                     scopes=h.SCOPES)["notifications"]}
-    assert {"depositary_correction", "action_removed_by_source", "new_action"} <= treaty_notices
-    state_notices = monitor.run(state_sub, 2, principal_id="alice", scopes=h.SCOPES)["notifications"]
-    assert any(n["summary"]["action_type"] == "denunciation" for n in state_notices)
+    assert env.run(h.SOURCES, "treaties-2", adapters={s: v2_adapter(s) for s in h.SOURCES})["status"] == "complete"
+    subs.commit_watermark(h.NS, 2)
+    notices = monitor.run(treaty_sub, 2, principal_id="alice", scopes=h.SCOPES)["notifications"]
+    assert {"action_recorded", "depositary_correction", "removed_by_source"} <= {n["kind"] for n in notices}
 
-    # Treaty and state to the cited action chain as of a date, with the revision history.
-    germany = queries.status_as_of(h.NS, "cets:990", "Germany", "2100-03-01", scopes=h.READ_ONLY)
-    (coe,) = germany["sources"]
-    assert coe["record_state"] == "denunciation-or-withdrawal-deposited-effective-later"
-    assert coe["pending"][0]["citation"]["depositary_date"] == "2100-04-15"
-    assert all(item["citation"]["revision_id"] and item["citation"]["retrieved_at_ms"] for item in coe["chain"])
-    corrected = queries.status_as_of(h.NS, "untc:XXIX-99", "Germany", "2099-01-01", scopes=h.READ_ONLY)
-    ratification = next(c for c in corrected["sources"][0]["chain"] if c["action_type"] == "ratification")
-    assert ratification["action_date"] == "2098-09-04" and ratification["citation"]["change"] == "revised"
-    history = queries.history(h.NS, "untc:XXIX-99", scopes=h.READ_ONLY)
-    changes = {r["record_key"]: [x["citation"]["change"] for x in r["revisions"]] for r in history["records"]}
-    assert changes["treaties:action:untc:XXIX-99:germany:ratification:table"] == ["new", "revised"]
-    assert changes["treaties:action:untc:XXIX-99:examplonia:signature:table"] == ["new", "removed-by-source"]
+    # Revision history: the corrected accession date is a new revision naming its predecessor.
+    accession = "treaties:untc:action:XXVII-99:northwind-republic:accession:1"
+    history = store.history(h.NS, accession, scopes=h.READ_ONLY)
+    assert [(r["change"], r["record"]["fields"]["deposit_date"]) for r in history] == [
+        ("new", "2092-05-10"), ("revised", "2092-05-11")]
+    assert history[1]["previous_revision_id"] == history[0]["revision_id"]
+    oldland = store.history(h.NS, "treaties:untc:action:XXVII-99:oldland:succession:1", scopes=h.READ_ONLY)
+    assert [r["change"] for r in oldland] == ["new", "removed-by-source"]  # kept, never deleted
+    eif = store.records(h.NS, scopes=h.READ_ONLY, record_keys=[h.EU])[0]["record"]["fields"]["entry_into_force"]
+    assert eif["date"] == "2093-06-01"
 
-    # Reservations and objections verbatim, linked as the source links them.
-    statements = queries.treaty_statements(h.NS, "untc:XXIX-99", scopes=h.READ_ONLY,
-                                           kinds=["reservation", "objection"])
-    objection = next(s for s in statements["statements"] if s["action_type"] == "objection")
-    assert objection["objected"]["objected_statement"]["text_verbatim"].startswith("Reservation: Examplestan")
+    # Treaty to cited actions as of a date, current and as the depositary published it earlier.
+    ask = TreatiesQueries(conn)
+    status = ask.status_as_of(h.NS, "XXVII-99", "Northwind Republic", "2095-01-01", scopes=h.READ_ONLY)
+    (answer,) = status["answers"]
+    assert answer["chain"][0]["deposit_date"] == "2092-05-11"
+    assert answer["depositary_revision_used"] == "2099-06-20T10:00:00"
+    (objection,) = answer["statements"]
+    assert objection["objects_to"]["link"] == "linked by the source"
+    earlier = ask.status_as_of(h.NS, "XXVII-99", "Northwind Republic", "2095-01-01", scopes=h.READ_ONLY,
+                               depositary_as_of="2099-02-01")
+    assert earlier["answers"][0]["chain"][0]["deposit_date"] == "2092-05-10"
+    pending = ask.status_as_of(h.NS, "CETS 999", "Southland", "2099-06-01", scopes=h.READ_ONLY)
+    assert pending["status"] == "pending" and pending["answers"][0]["pending"][0]["source_text"] == "01/09/2099"
+    bundle = ask.evidence_bundle(status)
+    assert bundle["bibliography"] and all("as of" in b["text"] and "revision" in b["text"]
+                                          for b in bundle["bibliography"])
 
-    # Reviewable identity: nothing is used until a reviewer accepts it.
+    # Reviewable identity: a state reaches its actions under both depositaries only through accepted matches.
     places = h.seed_places(conn)
-    assert queries.status_as_of(h.NS, "cets:990", "iso3166:DE", "2100-03-01",
-                                scopes=h.READ_ONLY)["status"] == "no_action_on_record"
     identity = TreatiesIdentity(conn, now=env.now)
-    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    assert all(c["state"] == "proposed" for c in proposed["candidates"])
-    assert "treaties:participant:untc:examplestan" in {u["subject"] for u in proposed["unmatched"]}
+    proposed = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, geo_namespace=h.NS)
+    assert {c["state"] for c in proposed["candidates"]} == {"proposed"}
+    unreviewed = ask.participant_actions(h.NS, place_key(places["XEA"]), scopes=h.SCOPES)
+    assert unreviewed["status"] == "participant_not_on_record"  # nothing reached before review
     for candidate in proposed["candidates"]:
-        if candidate["subject"].endswith(":germany") or candidate["kind"] == "treaty":
-            identity.review(h.NS, candidate["candidate_id"], "accept", "published code / citation checked",
-                            principal_id="bob", scopes=h.REVIEW_SCOPES)
-    by_code = queries.status_as_of(h.NS, "celex:22099A0101(01)", "iso3166:DE", "2100-03-01", scopes=h.READ_ONLY)
-    assert {s["treaty"]["treaty_key"] for s in by_code["sources"]} == {h.CELLAR_TREATY, h.COE_TREATY}
-    assert by_code["status"] == "answered"
-    actions = queries.participant_actions(h.NS, "iso3166:DE", scopes=h.READ_ONLY, date_from="2098-01-01",
-                                          date_to="2100-12-31")
-    assert {a["provider"] for a in actions["actions"]} == {"untc", "coe-treaty-office"}
+        if place_key(places["XEA"]) in candidate["records"]:
+            identity.review(h.NS, candidate["candidate_id"], "accept", "reviewed against the source",
+                            principal_id="reviewer", scopes=h.REVIEW_SCOPES)
+    reached = ask.participant_actions(h.NS, place_key(places["XEA"]), scopes=h.SCOPES)
+    assert {p["participant_key"] for p in reached["participants"]} == {
+        "treaties:untc:participant:exampland", "treaties:coe:participant:exampland",
+        "treaties:eu-cellar:participant:xea"}
+    assert {a["provider"] for a in reached["actions"]} == {"untc", "coe-treaty-office"}
+    assert all(a["citation"]["revision_id"] for a in reached["actions"])
+    assert identity.unmatched(h.NS, scopes=h.SCOPES)["participants"]  # the rest stay visible as unmatched
 
-    # Cross-pack links by citation and accepted match; missing targets are reported.
-    h.seed_legal_act(conn)
-    h.seed_sanctions_bases(conn)
-    h.seed_trade_area(conn, places["DE"])
-    links = TreatiesLinks(conn, now=env.now).link_all(h.NS, principal_id="alice", scopes=h.SCOPES)
-    kinds = {(x["link_kind"], x["status"]) for x in links["links"]}
-    assert {("eu-act", "linked"), ("eu-act", "missing_target"), ("sanctions-legal-basis", "linked"),
-            ("sanctions-legal-basis", "missing_target"), ("participant-trade-reporter", "linked")} <= kinds
+    # Cross-pack links by citation, shared identifier or accepted match; missing targets reported.
+    h.seed_legal_work(conn, "32093D0202")
+    h.seed_sanctions_basis(conn, "Measures referring to the Convention on Example Data Cooperation (CETS No. 999)")
+    h.seed_trade_reporter(conn, "XEA")
+    links = TreatiesLinks(conn, now=env.now).link_all(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    kinds = {(link["target_kind"], link["basis"], link["status"]) for link in links["links"]}
+    assert {("legal-work", "citation", "resolved"), ("legal-work", "citation", "target-missing"),
+            ("sanctions-legal-basis", "citation", "resolved"), ("trade-reporter", "shared-identifier", "resolved"),
+            ("trade-reporter", "accepted-match", "resolved")} <= kinds
 
-    # A subject with no records.
-    nobody = queries.participant_actions(h.NS, "Atlantis", scopes=h.READ_ONLY)
-    assert nobody["status"] == "no_action_on_record"
-    assert queries.status_as_of(h.NS, "cets:1", "France", "2100-01-01",
-                                scopes=h.READ_ONLY)["status"] == "no_treaty_on_record"
+    # A subject with no records is answered as such.
+    nobody = ask.status_as_of(h.NS, "XXVII-99", "Nowhereland", "2095-01-01", scopes=h.READ_ONLY)
+    assert nobody["status"] == "no_action_on_record" and nobody["answers"] == []
+    assert ask.treaty_statements(h.NS, "XXVII-1", scopes=h.READ_ONLY)["status"] == "treaty_not_on_record"
 
-    # The evidence bundle cites every item with source, record revision and as-of time.
-    bundle = queries.export_bundle(germany, created_at_ms=1)
-    assert verify_bundle(bundle).errors == []
-    evidence = [o["payload"] for o in bundle["objects"] if o["type"] == "evidence"]
-    assert len(evidence) == 1 + len(coe["chain"]) + len(coe["pending"])
-    assert all(e["source"]["source_id"] and e["record_revision"]["revision_id"] and e["as_of"]["retrieved_at_ms"]
-               for e in evidence)
-
-    # Exclusions and the minimisation decision.
-    for result in (germany, corrected, statements, by_code, actions, nobody):
-        assert forbidden_keys(result) == [] and minimisation_violations(result) == []
-        text = json.dumps(without_notices(result)).casefold()
-        assert not any(word in text for word in EXCLUDED_WORDS)
-        assert "no legal advice" in result["exclusions"]
-    stored = [json.loads(r[0]) for r in conn.execute("SELECT record_json FROM treaty_revisions").fetchall()]
-    assert {r["fields"]["text_policy"] for r in stored} == {"linked, not stored"}
-    assert all("treaty_text" not in r["fields"] for r in stored)
+    # Exclusions and the minimisation decision hold across every answer.
+    answers = [status, earlier, pending, reached, links, bundle, notices]
+    assert forbidden_keys(answers) == [] and guard({"answers": answers})
+    text = json.dumps(without_notices(answers)).casefold()
+    assert not [w for w in EXCLUDED_WORDS if w in text]
+    stored = json.dumps(conn.execute("SELECT record_json FROM treaty_revisions").fetchall())
+    assert "central.authority@example.org" not in stored and "123 456 789" not in stored
+    assert "[contact details withheld: TR01]" in stored
+    assert MINIMISATION["policy"] == "treaties-minimisation-v1"
+    assert not conn.execute("SELECT count(*) FROM treaty_revisions WHERE record_json LIKE '%signatory_name%'"
+                            ).fetchone()[0]

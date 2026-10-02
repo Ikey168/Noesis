@@ -1,4 +1,4 @@
-"""An income indicator for a place as of a release, and a series' history with comparability (#2583, IP08-IP09)."""
+"""IP08 and IP09 (#2623, #2628): an indicator for a place as of a release, and a series' history with comparability."""
 
 from __future__ import annotations
 
@@ -6,97 +6,99 @@ import pytest
 
 from src.kb.income_distribution_identity import IncomeIdentity
 from src.kb.income_distribution_queries import IncomeQueries
-from src.kb.income_distribution_records import IncomeError, forbidden_keys
+from src.kb.income_distribution_records import IncomeError
 from tests.unit import income_distribution_harness as h
-
-DEU = {"scheme": "iso3166-1-alpha3", "code": "DEU"}
 
 
 @pytest.fixture(scope="module")
-def env():
+def world():
     conn = h.connection()
     h.load_all(conn, revisions=True)
-    places = h.register_places(conn)
+    places = h.register_places(conn, keys=("de",))
     identity = IncomeIdentity(conn)
-    for a in identity.propose_places(h.NS, principal_id="analyst", scopes=h.SCOPES, geo_namespace="geo")["assertions"]:
-        if a["state"] == "proposed":
-            identity.review(h.NS, a["assertion_id"], "accept", "code", principal_id="reviewer", scopes=h.SCOPES)
-    return conn, places, IncomeQueries(conn)
+    for assertion in identity.propose_places(h.NS, principal_id="proposer", scopes=h.SCOPES)["proposed"]:
+        identity.review(h.NS, assertion["assertion_id"], "accept", "identifier", principal_id="reviewer",
+                        scopes=h.SCOPES)
+    identity.propose_related(h.NS, principal_id="proposer", scopes=h.SCOPES)
+    return conn, places
 
 
-def test_as_of_answers_select_the_vintage_released_by_the_date(env):
-    _conn, places, queries = env
-    before = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"],
-                                         concept="poverty_headcount_ratio", as_of_ms=h.day_ms("2026-07-01"))
-    middle = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"],
-                                         concept="poverty_headcount_ratio", as_of_ms=h.day_ms("2099-10-01"))
-    after = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"],
-                                        concept="poverty_headcount_ratio", as_of_ms=h.day_ms("2100-02-01"))
-    silc_before = next(r for r in before["results"] if r["provider"] == "eu-silc")
-    silc_after = next(r for r in after["results"] if r["provider"] == "eu-silc")
-    assert {v["period"]: v["value"] for v in silc_before["values"]}["2098"] == "14.4"
-    assert {v["period"]: v["value"] for v in silc_after["values"]}["2098"] == "14.3"
-    assert silc_after["vintage"]["revision_of"] == silc_before["vintage"]["vintage_id"]
-    # PIP released its first estimates on 2026-08-01; the OECD response was only retrieved on 2099-12-01.
-    assert {r["provider"] for r in before["results"]} == {"eu-silc"}
-    assert {r["provider"] for r in middle["results"]} == {"pip", "eu-silc"}
-    assert before["unavailable_by_as_of"] and before["unavailable_by_as_of"][0]["reason"] == "no_release_by_as_of"
-    assert {r["provider"] for r in after["results"]} == {"pip", "eu-silc", "oecd-idd"}
+def test_each_source_side_by_side_as_released_by_the_date_never_combined(world):
+    conn, places = world
+    answer = IncomeQueries(conn).indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="poverty_headcount",
+                                                     place_id=places["de"], as_of="2099-01-31")
+    providers = {r["provider"] for r in answer["results"]}
+    assert providers == {"pip", "eurostat-silc", "oecd-idd"}
+    assert answer["combined_value"] is None and "never combined" in answer["never_combined"]
+    # Different lines, PPP rounds and welfare concepts are different rows and groups.
+    pip_rows = [r for r in answer["results"] if r["provider"] == "pip"]
+    assert {r["ppp_base_year"] for r in pip_rows} == {2017, 2021}
+    assert len({r["comparability_group"] for r in answer["results"]}) == len(answer["results"])
+    silc = next(r for r in answer["results"] if r["provider"] == "eurostat-silc")
+    assert silc["vintage"]["release_at"] == "2098-06-10T11:00:00Z"  # the 2099-05 release is after the date
+    assert silc["definition"]["content"]["threshold"].startswith("60 %")
+    assert silc["citation"]["vintage_id"] == silc["vintage"]["vintage_id"] and silc["citation"]["as_of"]
+    pip_2017 = next(r for r in pip_rows if r["ppp_base_year"] == 2017)
+    assert pip_2017["vintage"]["release_label"] == "20980915_2017_01_02_PROD"
+    assert {o["estimation_type"] for o in pip_2017["observations"]} == {"survey", "interpolation"}
+    assert pip_2017["related_series"]
 
 
-def test_lines_ppp_rounds_and_welfare_concepts_are_never_combined(env):
-    _conn, places, queries = env
-    answer = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"],
-                                         concept="poverty_headcount_ratio")
-    assert answer["side_by_side"] and len(answer["groups"]) == 3
-    lines = {g["definition"]["poverty_line"]["kind"] + ":" + (g["definition"]["poverty_line"].get("share") or
-             g["definition"]["poverty_line"].get("value")) for g in answer["groups"]}
-    assert lines == {"absolute:2.15", "relative:60", "relative:50"}
-    assert all(not p["same_group"] and p["combined"] is False and p["status"] == "noted"
-               for p in answer["comparability"])
-    for result in answer["results"]:
-        for value in result["values"]:
-            assert value["citation"]["vintage_id"] == result["vintage"]["vintage_id"]
-            assert value["citation"]["definition_id"] == result["definition"]["definition_id"]
-            assert value["attributes"]["welfare_type"] == result["welfare_concept"]
-    assert forbidden_keys(answer) == []
+def test_as_of_selects_later_releases_and_reports_what_was_not_yet_released(world):
+    conn, places = world
+    queries = IncomeQueries(conn)
+    later = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="poverty_headcount",
+                                        place_id=places["de"], as_of="2099-06-30", reference_year="2094")
+    pip_2017 = next(r for r in later["results"] if r["provider"] == "pip" and r["ppp_base_year"] == 2017)
+    assert pip_2017["vintage"]["release_label"] == "20990320_2017_02_02_PROD"
+    assert [(o["period"], o["value"]) for o in pip_2017["observations"]] == [("2094", "0.0022")]
+    oecd = next(r for r in later["results"] if r["provider"] == "oecd-idd")
+    assert oecd["status"] == "removed_by_source" and oecd["observations"] == []
+    early = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="gini",
+                                        area={"scheme": "eurostat-geo", "code": "DE"}, as_of="2098-08-01")
+    assert {r["provider"] for r in early["results"]} == {"eurostat-silc"}
+    assert {u["provider"] for u in early["unavailable_by_as_of"]} == {"pip", "oecd-idd"}
+    assert {r["area_basis"] for r in early["results"]} == {"published-code"}
 
 
-def test_a_subject_with_no_records_and_withheld_cells_are_explicit(env):
-    _conn, places, queries = env
-    none = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place={"scheme": "iso3166-1-alpha3", "code": "FRA"})
-    assert none["status"] == "none_published" and none["results"] == []
-    berlin = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["be"])
-    assert berlin["results"][0]["withheld_periods"][0]["status"] == "confidential"
-    austria = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["at"], concept="gini_index")
-    assert austria["status"] == "none_published"
-    assert austria["unavailable_by_as_of"][0]["reason"] == "withdrawn_by_source"
+def test_a_place_with_no_records_and_unmatched_places(world):
+    conn, places = world
+    queries = IncomeQueries(conn)
+    nothing = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="gini",
+                                          area={"scheme": "iso3166-1-alpha3", "code": "ZZX"})
+    assert nothing["results"] == [] and {n["provider"] for n in nothing["none_on_record"]} == {
+        "pip", "eurostat-silc", "oecd-idd"}
+    region = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="poverty_headcount",
+                                         area={"scheme": "wb-region", "code": "ECA"})
+    assert region["results"][0]["welfare_concept"] == "mixed"
+    disabled = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="gini", place_id=places["de"],
+                                           enabled_providers={"pip"})
+    assert {r["provider"] for r in disabled["results"]} == {"pip"}
+    assert {f["provider"] for f in disabled["features_disabled"]} == {"eurostat-silc", "oecd-idd"}
     with pytest.raises(IncomeError):
-        queries.indicator_for_place(h.NS, scopes=set(), place=DEU)
+        queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="happiness", place_id=places["de"])
+    with pytest.raises(IncomeError):
+        queries.indicator_for_place(h.NS, scopes={"knowledge:income:read"}, concept="gini", place_id=places["de"])
 
 
-def test_history_lists_revisions_ppp_revisions_breaks_and_unknown_comparability(env):
-    conn, _places, queries = env
-    median = h.series_where(conn, "pip", concept="median_welfare")
-    history = queries.history(h.NS, median["series_id"], scopes=h.READ_ONLY)
-    _first, second = history["vintages"]
-    assert second["changed_periods"] == {"new": ["2099"], "revised": ["2096", "2097", "2098"], "removed": []}
-    assert second["citation"]["release_version"] == "20991120_2017_02_02_PROD"
-    (pair,) = history["comparability"]
-    assert pair["status"] == "noted" and {n["relation"] for n in pair["notes"]} >= {"ppp_revision", "break_in_series"}
-    threshold = h.series_where(conn, "eu-silc", concept="poverty_threshold")
-    (plain,) = queries.history(h.NS, threshold["series_id"], scopes=h.READ_ONLY)["comparability"]
-    assert plain["status"] == "comparability_unknown" and plain["notes"] == []
+def test_series_history_lists_revisions_ppp_revisions_breaks_and_unknown_comparability(world):
+    conn, _ = world
+    queries = IncomeQueries(conn)
+    head = h.series(conn, "pip", "pip:DEU:national:income:headcount", ppp=2017)
+    history = queries.series_history(h.NS, head["series_id"], scopes=h.READ_ONLY)
+    first, second = history["vintages"]
+    assert first["release_at"] == "2098-09-15T00:00:00Z" and second["release_at"] == "2099-03-20T00:00:00Z"
+    assert second["changed_periods"] == ["2094"] and second["new_periods"] == ["2097"]
+    assert second["revisions"][0]["before"]["value"] == "0.0021" and second["revisions"][0]["after"]["value"] == "0.0022"
+    (pair,) = history["pairs"]
+    assert pair["comparability"] == "noted"
+    assert {n["kind"] for n in pair["notes"]} >= {"ppp_revision"}
+    assert all(v["citation"]["vintage_id"] == v["vintage_id"] for v in history["vintages"])
 
+    arop = h.series(conn, "eurostat-silc", "LI_R_MD60")
+    (silc_pair,) = queries.series_history(h.NS, arop["series_id"], scopes=h.READ_ONLY)["pairs"]
+    assert silc_pair["changed_periods"] == ["2096"] and silc_pair["comparability"] == "comparability_unknown"
 
-def test_evidence_bundle_cites_every_value_with_source_revision_and_as_of(env):
-    _conn, places, queries = env
-    answer = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"], concept="gini_index",
-                                         as_of_ms=h.day_ms("2100-02-01"))
-    bundle = queries.export_bundle(answer, created_at_ms=h.SECOND_RETRIEVAL)
-    evidence = [o for o in bundle["objects"] if o["payload"].get("kind") == "income-value"]
-    assert len(evidence) == sum(len(r["values"]) for r in answer["results"])
-    for item in evidence:
-        payload = item["payload"]
-        assert payload["source"]["provider"] and payload["record_revision"]["vintage_id"]
-        assert payload["as_of"] == answer["as_of"] and payload["retrieved_at"]
+    rate = h.series(conn, "oecd-idd", "PR_INC_DISP")
+    (removal,) = queries.series_history(h.NS, rate["series_id"], scopes=h.READ_ONLY)["pairs"]
+    assert removal["notes"][0]["kind"] == "removed_by_source"

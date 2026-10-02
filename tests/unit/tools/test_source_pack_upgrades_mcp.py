@@ -44,6 +44,7 @@ def test_public_preview_to_apply_to_receipt(monkeypatch):
 
     source_pack_upgrades.register(tools, safe, lambda: ("operator", {"operator"}))
     monkeypatch.setenv("NOESIS_EPO_OPS_CREDENTIALS", "fixture-key:fixture-secret")  # epo-ops requires one
+    monkeypatch.setenv("NOESIS_ORCID_PUBLIC_TOKEN", "fixture-token")  # research-entities-orcid requires one
     monkeypatch.setattr("src.ingestion.source_pack_runtime.socket.getaddrinfo",
                         lambda *_args, **_kwargs: [(None, None, None, None, ("8.8.8.8", 443))])
     preview = tools.functions["preview_source_pack_upgrade_impact"](newer)

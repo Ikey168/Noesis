@@ -1,186 +1,246 @@
-"""Life-science reference sources for the Science pack: UniProt, NCBI, RCSB PDB and ChEMBL (#2652, LS01 and LS03-LS06).
+"""Life-science reference sources for the Science ``science.life-sciences`` provider (#2652, LS01/LS03-LS06).
 
-Four providers run as sources of the ``primary-scientific-evidence`` source pack
-(``config/source_packs/scientific.json``, connector ``life-sciences``) through
-:mod:`src.ingestion.source_pack_runtime` - licence acceptance, budgets,
-receipts, checkpoints and the runtime's same-host HTTPS transport - each under a
-recorded access contract (:data:`PROVIDER_CONTRACTS`, documented in
-``docs/development/life-sciences-evidence/source-audit.md``). Selections are
-explicit and bounded, parsers fail closed, only the provider host is contacted
-and values are kept as published.
+Five providers under an access contract (:data:`PROVIDER_CONTRACTS`, LS01), implemented as the ``life-sciences``
+source-pack connector. Each declared document is one bounded request set and one runtime page:
 
-* **UniProt** (``uniprot``, LS03) - UniProtKB entries by accession (reviewed and
-  unreviewed as UniProt labels them, entry and sequence versions, the release
-  from the response headers, sequence, cross-references and literature) and the
-  UniSave entry-version history; inactive entries keep UniProt's reason and
-  successor accessions.
-* **NCBI** (``ncbi``, LS04) - NCBI Datasets v2 gene reports by Gene ID and
-  taxonomy reports by Tax ID; replaced and discontinued genes and merged taxa
-  are kept with the successor NCBI names. The optional API key travels in the
-  ``api-key`` header only, never in a URL, receipt or record.
-* **RCSB PDB** (``pdb``, LS05) - experimental entries by PDB ID from the Data API
-  with the revision history, methods and resolution as published and each
-  polymer entity's UniProt mapping; removed entries come from the removed
-  holdings with their superseding IDs. Computed structure models are excluded.
-* **ChEMBL** (``chembl``, LS06) - the release (``/status``), targets, molecules,
-  one bounded activity page per declared target and the documents those
-  activities cite, keyed by ChEMBL ID and release; values stay strings exactly
-  as published.
+* **UniProtKB** (``uniprot``) - ``GET https://rest.uniprot.org/uniprotkb/{accession}.json`` for a declared accession
+  list (a bounded proteome slice or query result pinned by accession). Entry and sequence versions, the
+  reviewed/unreviewed label as UniProt publishes it (``entryType``), secondary accessions, cross-references and
+  citation identifiers are kept; inactive entries (``MERGED``, ``DEMERGED``, ``DELETED``) are revisions with their
+  successors. The release comes from the ``X-UniProt-Release`` / ``X-UniProt-Release-Date`` headers.
+* **NCBI Gene** (``ncbi-gene``) - E-utilities ``esummary.fcgi?db=gene&retmode=json`` for declared Gene IDs; the
+  summary ``status`` (live, secondary with ``currentid``, discontinued) is kept as published with the successor.
+* **NCBI Taxonomy** (``ncbi-taxonomy``) - E-utilities ``efetch.fcgi?db=taxonomy&retmode=xml`` for declared Tax IDs:
+  rank, parent, lineage (``Lineage`` and ``LineageEx``) as published per release; a requested Tax ID that NCBI answers
+  under another Tax ID's ``AkaTaxIds`` is recorded as merged into it.
+* **RCSB PDB** (``rcsb-pdb``) - Data API ``/rest/v1/core/entry/{id}`` and ``/rest/v1/core/polymer_entity/{id}/{n}``
+  for declared entries, keeping experimental method, resolution, the ``pdbx_audit_revision_history`` and the
+  entity-to-UniProt mappings as the PDB states them; ``/rest/v1/holdings/removed/{id}`` records obsolete entries
+  with their superseding entries.
+* **ChEMBL** (``chembl``) - the ChEMBL web services (``status``, ``target``, ``molecule``, ``activity``,
+  ``document``) for declared targets: the release (``chembl_db_version``) is checked against the declaration; each
+  activity keeps its published and standardised type, relation, value and unit and the data-validity comment, and
+  cites its source document.
 
-Person fields (author lists, depositors, submitters) are dropped at acquisition
-(LS01 minimisation decision) and listed in each page receipt. Every provider is
-``unverified-live`` until a dated live run (LS14, #2721); request paths and
-field names marked *verify* are authored from public documentation.
+NCBI accepts an optional API key (``NOESIS_NCBI_API_KEY``) that raises its rate limit; it is sent only as the
+``api_key`` parameter, never recorded in a URL, receipt or record. No other provider needs a credential.
+
+Personal data (citation author lists, PDB depositors, ChEMBL document authors) is dropped before a statement is
+built and refused by :func:`src.kb.lifesci_records.validate_statement`. Every provider is ``unverified-live`` until a
+dated live run (LS14, #2721). See ``docs/development/life-sciences-evidence/source-audit.md``.
 """
 
 from __future__ import annotations
 
+import calendar
 import hashlib
 import json
 import re
+import xml.etree.ElementTree as ET
 from collections.abc import Callable, Mapping, Sequence
+from datetime import UTC, date, datetime
+from decimal import Decimal, InvalidOperation
 from typing import Any
-from urllib.parse import quote, urlencode, urlsplit
+from urllib.parse import urlencode, urlsplit
 
 from src.ingestion.source_packs import SourcePackError
 from src.kb.lifesci_records import (
-    ACCESSION,
     CHEMBL_ID,
-    MINIMISATION,
+    CONTRACT,
+    EXCLUSIONS,
+    LICENCES,
+    NEVER_SENTENCE,
     PDB_ID,
-    PERSONAL_KEYS,
+    UNIPROT_ACCESSION,
     LifeSciError,
-    digest,
-    statement,
+    canonical,
+    validate_statement,
 )
 
 CONNECTOR = "life-sciences"
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-PROVIDERS = ("uniprot", "ncbi", "pdb", "chembl")
-PROVIDER_HOSTS = {"uniprot": ("rest.uniprot.org",), "ncbi": ("api.ncbi.nlm.nih.gov",), "pdb": ("data.rcsb.org",),
-                  "chembl": ("www.ebi.ac.uk",)}
-MAX_VERSIONS = 20
-MAX_ENTITIES = 10
-MAX_ACTIVITIES = 100
-MAX_DOCUMENTS = 10
-READ_ON = "2026-09-30"
+PAGE_CONTRACT = "noesis-lifesci-page-v1"
+PROVIDERS = ("uniprot", "ncbi-gene", "ncbi-taxonomy", "rcsb-pdb", "chembl")
+PROVIDER_HOSTS = {
+    "uniprot": {"rest.uniprot.org"},
+    "ncbi-gene": {"eutils.ncbi.nlm.nih.gov"},
+    "ncbi-taxonomy": {"eutils.ncbi.nlm.nih.gov"},
+    "rcsb-pdb": {"data.rcsb.org"},
+    "chembl": {"www.ebi.ac.uk"},
+}
+MAX_IDS_PER_DOCUMENT = 20
+MAX_ACTIVITIES = 200
+
 PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     "uniprot": {
-        "publisher": "UniProt Consortium (EMBL-EBI, SIB Swiss Institute of Bioinformatics, PIR)",
-        "access": "UniProt REST API, HTTPS GET /uniprotkb/{accession}?format=json and /unisave/{accession}?format=json",
-        "endpoints": ["https://rest.uniprot.org/uniprotkb/{accession}?format=json",
-                      "https://rest.uniprot.org/unisave/{accession}?format=json (verify JSON field names)"],
-        "authentication": "none (open access, no login)",
-        "licence": "CC BY 4.0 (UniProt licence page; confirmed only through a search-result extract on "
-                   f"{READ_ON}, the page itself was not fetchable from this environment)",
-        "terms_url": "https://www.uniprot.org/help/license",
-        "attribution": "UniProt Consortium, UniProtKB entry accession, entry version and release",
-        "redistribution": "permitted with attribution under CC BY 4.0",
-        "rate_limits": "no hard published limit found (unverified); one request per selected entry and one per "
-                       "entry history",
-        "versioning": "entry version and sequence version per entry; UniProt releases (YYYY_MM) stated in the "
-                      "X-UniProt-Release response header (verify); UniSave lists every entry version with its first "
-                      "and last release",
-        "corrections_and_removals": "an entry that leaves UniProtKB becomes 'Inactive' with inactiveReason "
-                                    "MERGED, DEMERGED or DELETED and the successor accessions (verify field names); "
-                                    "kept as an obsoleted revision",
-        "revision_behaviour": "new revision per release in which the entry is read; earlier revisions never deleted",
-    },
-    "ncbi": {
-        "publisher": "National Center for Biotechnology Information (NCBI), U.S. National Library of Medicine",
-        "access": "NCBI Datasets v2 REST API, HTTPS GET /datasets/v2/gene/id/{gene_id} and "
-                  "/datasets/v2/taxonomy/taxon/{tax_id}",
-        "endpoints": ["https://api.ncbi.nlm.nih.gov/datasets/v2/gene/id/{gene_id} (verify report field names)",
-                      "https://api.ncbi.nlm.nih.gov/datasets/v2/taxonomy/taxon/{tax_id} (verify report field names)"],
-        "authentication": "optional NCBI API key sent in the api-key request header, held as the NOESIS_NCBI_API_KEY "
-                          "secret reference; never stored in manifests, URLs, receipts or records",
-        "licence": "NCBI places no restrictions on the use or distribution of molecular database data; submitters "
-                   "may claim rights in portions (NCBI Website and Data Usage Policies, via a search-result extract "
-                   f"on {READ_ON}; page not fetchable from this environment)",
-        "terms_url": "https://www.ncbi.nlm.nih.gov/home/about/policies/",
-        "attribution": "NCBI Gene / NCBI Taxonomy with the Gene ID or Tax ID",
-        "redistribution": "permitted for the stored identity, status and lineage fields",
-        "rate_limits": "5 requests per second without an API key, 10 with a key (NCBI Datasets API keys page, via a "
-                       f"search-result extract on {READ_ON})",
-        "versioning": "no release label in the gene and taxonomy reports: every change of the published content is "
-                      "a new revision dated by retrieval",
-        "corrections_and_removals": "replaced and discontinued Gene IDs and merged Tax IDs are kept as obsoleted "
-                                    "revisions naming the current ID (verify how Datasets reports them)",
-        "revision_behaviour": "new revision on change; earlier revisions stay queryable",
-    },
-    "pdb": {
-        "publisher": "RCSB Protein Data Bank (wwPDB archive)",
-        "access": "RCSB PDB Data API, HTTPS GET /rest/v1/core/entry/{id}, /rest/v1/core/polymer_entity/{id}/{entity} "
-                  "and /rest/v1/holdings/removed/{id}",
-        "endpoints": ["https://data.rcsb.org/rest/v1/core/entry/{pdb_id}",
-                      "https://data.rcsb.org/rest/v1/core/polymer_entity/{pdb_id}/{entity_id}",
-                      "https://data.rcsb.org/rest/v1/holdings/removed/{pdb_id} (verify)"],
+        "delivers": "UniProtKB protein entries keyed by accession: entry and sequence versions, reviewed/unreviewed "
+        "label, secondary accessions, sequence as published, cross-references and citation identifiers",
+        "access_decision": "unverified-live",
+        "reason": "public REST API without authentication; entry JSON field names and release headers not yet "
+        "checked live from this runtime",
+        "access": "api (UniProt REST, JSON)",
+        "entry_points": ["https://rest.uniprot.org/uniprotkb/{accession}.json (verify)"],
         "authentication": "none",
-        "licence": "CC0 1.0 for PDB archive data and for data from RCSB PDB programmatic APIs (RCSB PDB Usage "
-                   f"Policies, via a search-result extract on {READ_ON}; page not fetchable from this environment)",
-        "terms_url": "https://www.rcsb.org/pages/usage-policy",
-        "attribution": "cite the PDB ID and its primary citation (attribution encouraged, not required)",
-        "redistribution": "permitted (CC0)",
-        "rate_limits": "no published hard limit found (unverified); at most 1 + 10 entity requests per entry",
-        "versioning": "major.minor revision per entry with pdbx_audit_revision_history; each revision is a new "
-                      "record revision",
-        "corrections_and_removals": "obsolete entries leave the current holdings; the removed holdings name the "
-                                    "superseding IDs and the superseding entry names what it supersedes",
-        "revision_behaviour": "new revision per PDB revision; obsolete entries kept as obsoleted revisions",
+        "rate_limits": "no published hard limit; UniProt asks for fair use and batching (verify); one request per "
+        "declared accession, at most 20 accessions per document and max_pages documents per run",
+        "identifiers": {"protein": "UniProtKB accession (primary; secondary accessions kept as published)",
+                        "organism": "NCBI Taxonomy ID"},
+        "licence": "Creative Commons Attribution 4.0 (CC BY 4.0) for UniProt data (verify)",
+        "attribution": LICENCES["uniprot"]["attribution"],
+        "update_cadence": "releases about every eight weeks (YYYY_NN)",
+        "revision_model": "entryAudit.entryVersion and sequenceVersion are the source's own version markers; a new "
+        "entry version is a revision; inactive entries (MERGED, DEMERGED, DELETED) are revisions naming their "
+        "successors (inactiveReason.mergeDemergeTo)",
+        "temporal_semantics": "X-UniProt-Release and X-UniProt-Release-Date response headers date the release; "
+        "entryAudit dates (lastAnnotationUpdateDate, lastSequenceUpdateDate) are kept as published",
+        "corrections_and_removals": "a corrected entry is a new entry version; a removal is an inactive entry "
+        "(DELETED) and a merge names the surviving accession - both stored as revisions, never deletions",
+        "personal_data": "reference author lists and submission names are dropped; citations kept by PubMed ID and "
+        "DOI with title",
+        "retained_evidence": "response digest per accession, release headers",
+        "verify": ["entry JSON field names", "inactive-entry response shape", "release header names and date format",
+                   "licence text"],
+    },
+    "ncbi-gene": {
+        "delivers": "NCBI Gene records keyed by Gene ID: symbol, description, organism Tax ID, chromosome and map "
+        "location, and the live/secondary/discontinued status with the current ID",
+        "access_decision": "unverified-live",
+        "reason": "public E-utilities without authentication (an optional API key raises the limit); esummary JSON "
+        "shape not yet checked live",
+        "access": "api (NCBI E-utilities esummary, JSON)",
+        "entry_points": [("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/esummary.fcgi?db=gene&id={ids}"
+                          "&retmode=json (verify)")],
+        "authentication": "none; optional API key NOESIS_NCBI_API_KEY sent as the api_key parameter only",
+        "rate_limits": "3 requests per second without an API key, 10 with one (NCBI E-utilities policy; verify); "
+        "one request per document of at most 20 Gene IDs",
+        "identifiers": {"gene": "NCBI Gene ID", "organism": "NCBI Taxonomy ID"},
+        "licence": "NCBI molecular data is not subject to copyright restrictions (US government work); some "
+        "submitted data may carry third-party rights (NCBI policy; verify)",
+        "attribution": LICENCES["ncbi-gene"]["attribution"],
+        "update_cadence": "daily updates; no numbered release (the release is declared by the operator)",
+        "revision_model": "no version marker is published in the summary: a changed summary is a new revision keyed "
+        "by its content digest; status 1 (secondary) names currentid, status 2 is discontinued",
+        "temporal_semantics": "the declared release date, else the retrieval date (labelled)",
+        "corrections_and_removals": "a replaced Gene ID keeps its record as a 'replaced' revision naming currentid; "
+        "a discontinued Gene ID is a 'discontinued' revision",
+        "personal_data": "none in the summary fields stored",
+        "retained_evidence": "response digest per request",
+        "verify": ["esummary field names (status, currentid)", "API key parameter", "rate limits"],
+    },
+    "ncbi-taxonomy": {
+        "delivers": "NCBI Taxonomy records keyed by Tax ID: scientific name, rank, parent, division and lineage "
+        "(Lineage and LineageEx) as published",
+        "access_decision": "unverified-live",
+        "reason": "public E-utilities efetch (XML) without authentication; element names not yet checked live",
+        "access": "api (NCBI E-utilities efetch, XML)",
+        "entry_points": [("https://eutils.ncbi.nlm.nih.gov/entrez/eutils/efetch.fcgi?db=taxonomy&id={ids}"
+                          "&retmode=xml (verify)")],
+        "authentication": "none; optional API key NOESIS_NCBI_API_KEY sent as the api_key parameter only",
+        "rate_limits": "3 requests per second without an API key, 10 with one (verify); one request per document of "
+        "at most 20 Tax IDs",
+        "identifiers": {"taxon": "NCBI Taxonomy ID (merged IDs in AkaTaxIds)"},
+        "licence": "NCBI Taxonomy is in the public domain (NCBI policy; verify)",
+        "attribution": LICENCES["ncbi-taxonomy"]["attribution"],
+        "update_cadence": "daily updates; no numbered release (the release is declared by the operator)",
+        "revision_model": "a changed record (name, rank, lineage) is a new revision keyed by its content digest; a "
+        "requested Tax ID answered under another taxon's AkaTaxIds is a 'merged' revision naming the survivor",
+        "temporal_semantics": "the declared release date, else the retrieval date; UpdateDate kept as published",
+        "corrections_and_removals": "merges are revisions; a Tax ID NCBI does not return is reported in the receipt, "
+        "never recorded as a deletion",
+        "personal_data": "none stored (OtherNames and citations are not selected)",
+        "retained_evidence": "response digest per request",
+        "verify": ["XML element names", "AkaTaxIds behaviour for merged IDs"],
+    },
+    "rcsb-pdb": {
+        "delivers": "PDB entries keyed by PDB ID: title, experimental method, resolution, revision history, "
+        "entity-to-UniProt mappings and the primary citation identifiers; obsolete entries with superseding IDs",
+        "access_decision": "unverified-live",
+        "reason": "public RCSB Data API without authentication; field names not yet checked live",
+        "access": "api (RCSB PDB Data API, JSON)",
+        "entry_points": ["https://data.rcsb.org/rest/v1/core/entry/{id} (verify)",
+                         "https://data.rcsb.org/rest/v1/core/polymer_entity/{id}/{entity_id} (verify)",
+                         "https://data.rcsb.org/rest/v1/holdings/removed/{id} (verify)"],
+        "authentication": "none",
+        "rate_limits": "no published hard limit; RCSB asks for reasonable use (verify); one entry request plus one "
+        "per declared polymer entity",
+        "identifiers": {"structure": "PDB ID (four characters)", "entity": "polymer entity id",
+                        "protein": "UniProt accession as the PDB states it"},
+        "licence": "PDB data are free of all copyright restrictions (CC0 1.0; wwPDB usage policy; verify)",
+        "attribution": LICENCES["rcsb-pdb"]["attribution"],
+        "update_cadence": "weekly release (Wednesday 00:00 UTC)",
+        "revision_model": "rcsb_accession_info major_revision.minor_revision is the version marker; "
+        "pdbx_audit_revision_history is kept in full; an obsolete entry is a revision naming id_codes_replaced_by",
+        "temporal_semantics": "the declared weekly release; revision dates kept as published",
+        "corrections_and_removals": "remediation and corrections are new major/minor revisions; obsoletion is a "
+        "revision with successors, never a deletion",
+        "personal_data": "audit_author and citation author lists are dropped",
+        "retained_evidence": "response digests per request",
+        "verify": ["field names", "holdings/removed response shape"],
     },
     "chembl": {
-        "publisher": "ChEMBL, EMBL-EBI",
-        "access": "ChEMBL web services, HTTPS GET /chembl/api/data/{status,target,molecule,activity,document}",
-        "endpoints": ["https://www.ebi.ac.uk/chembl/api/data/status.json",
-                      "https://www.ebi.ac.uk/chembl/api/data/target/{chembl_id}.json",
-                      "https://www.ebi.ac.uk/chembl/api/data/molecule/{chembl_id}.json",
-                      "https://www.ebi.ac.uk/chembl/api/data/activity.json?target_chembl_id&limit&offset=0",
-                      "https://www.ebi.ac.uk/chembl/api/data/document/{chembl_id}.json"],
+        "delivers": "ChEMBL targets, compounds, activities and source documents for declared targets, per ChEMBL "
+        "release",
+        "access_decision": "unverified-live",
+        "reason": "public ChEMBL web services without authentication; resource shapes not yet checked live",
+        "access": "api (ChEMBL web services, JSON)",
+        "entry_points": ["https://www.ebi.ac.uk/chembl/api/data/status.json (verify)",
+                         "https://www.ebi.ac.uk/chembl/api/data/target/{id}.json (verify)",
+                         "https://www.ebi.ac.uk/chembl/api/data/molecule/{id}.json (verify)",
+                         ("https://www.ebi.ac.uk/chembl/api/data/activity.json?target_chembl_id={id}&limit={n} "
+                          "(verify)"),
+                         "https://www.ebi.ac.uk/chembl/api/data/document/{id}.json (verify)"],
         "authentication": "none",
-        "licence": "CC BY-SA 3.0 Unported (ChEMBL interface documentation, via a search-result extract on "
-                   f"{READ_ON}; page not fetchable from this environment); computed properties from commercial "
-                   "software carry their own terms and are not stored",
-        "terms_url": "https://chembl.gitbook.io/chembl-interface-documentation/about",
-        "attribution": "ChEMBL release (ChEMBL_nn) and the ChEMBL IDs; activities cite their source document",
-        "redistribution": "permitted with attribution; adaptations share-alike under CC BY-SA 3.0",
-        "rate_limits": "no published hard limit found (unverified); one activity page of at most 100 records per "
-                       "declared target and at most 10 cited documents per page",
-        "versioning": "numbered releases (chembl_db_version from /status); every record is keyed by ChEMBL ID and "
-                      "release",
-        "corrections_and_removals": "data_validity_comment flags values ChEMBL considers suspect; an activity "
-                                    "absent from a later complete release page gets a dated removed revision",
-        "revision_behaviour": "new revision per release; values never converted",
+        "rate_limits": "no published hard limit; EMBL-EBI fair use (verify); at most 200 activities per target "
+        "document (a larger total is refused, never truncated)",
+        "identifiers": {"target": "ChEMBL target ID", "compound": "ChEMBL molecule ID (standard InChIKey kept)",
+                        "activity": "ChEMBL activity ID", "document": "ChEMBL document ID (DOI and PubMed ID)"},
+        "licence": "Creative Commons Attribution-ShareAlike 3.0 Unported (CC BY-SA 3.0) (verify)",
+        "attribution": LICENCES["chembl"]["attribution"],
+        "update_cadence": "numbered releases (CHEMBL_NN) a few times a year",
+        "revision_model": "records are keyed by ChEMBL ID and release: an unchanged record keeps one revision seen "
+        "in several releases; a changed record (value, validity comment) is a new revision",
+        "temporal_semantics": "status.json chembl_db_version and chembl_release_date date the release",
+        "corrections_and_removals": "corrections appear in a new release as changed records or data_validity_comment "
+        "flags; records absent from a later release are not deleted",
+        "personal_data": "document author lists are dropped; abstracts are not stored",
+        "retained_evidence": "response digests per request, release check",
+        "verify": ["resource field names", "status.json fields", "activity page_meta"],
     },
 }
-BOUNDED_COVERAGE = {
-    "proteins": "one fictional reviewed entry with its UniSave history, one unreviewed entry and one merged "
-                "accession (fixture); live: a declared list of at most 20 accessions",
-    "genes_and_taxa": "the genes those entries cross-reference (one replaced Gene ID) and their organisms' Tax IDs "
-                      "(one merged Tax ID)",
-    "structures": "experimental PDB entries the proteins cross-reference, at most 10 polymer entities each, and one "
-                  "obsolete entry with its superseding entry",
-    "bioactivity": "the ChEMBL targets of the selected proteins, one activity page of at most 100 records per "
-                   "target, the compounds named and the documents cited, for one named ChEMBL release",
-    "excluded": ["computed structure models (AlphaFold, ModelArchive)", "UniProt comments, features and keywords",
-                 "ChEMBL computed molecule properties, max_phase and pChEMBL values", "bulk downloads and mirrors"],
-    "justification": "enough to reproduce protein-to-reference-records journeys with versions, obsolescence and "
-                     "cross-references across all four sources while staying far below each provider's limits",
-}
 LIVE_VERIFICATION = {
-    provider: {"status": "unverified-live", "intended": "live-verified after a dated bounded run (LS14, #2721)",
-               "note": "no dated live run from this runtime; offline fixtures only"}
-    for provider in PROVIDERS
+    provider: {"status": contract["access_decision"],
+               "note": "no dated live run from this runtime; offline fixtures only (LS14 #2721 records live evidence)"}
+    for provider, contract in PROVIDER_CONTRACTS.items()
 }
-LIVE_VERIFICATION["ncbi"]["credential"] = "NOESIS_NCBI_API_KEY optional; not configured"
-NOT_IMPLEMENTED: dict[str, str] = {}
-EXCLUSIONS = (
-    "biological or clinical inference", "activity prediction", "sequence analysis beyond storage",
-    "conversion or aggregation of activity values", "redistribution beyond each source's licence",
-    "person names and contact details",
-)
-_EXCLUDED_CHEMBL = {"molecule_properties", "max_phase", "pchembl_value", "ligand_efficiency", "withdrawn_flag",
-                    "black_box_warning", "indication_class"}
-_UNIPROT_NOT_STORED = ("comments", "features", "keywords", "extraAttributes")
+# The bounded first coverage (LS01). No record set implies complete coverage of any provider.
+BOUNDED_COVERAGE = {
+    "anchor": "a declared set of target proteins (reviewed UniProtKB entries of one organism, at most 20 per document) "
+    "and what they cross-reference",
+    "uniprot": {"entries": "declared accessions only (a pinned proteome slice or query result), <= 20 per document, "
+                "<= max_pages documents", "releases": "the two most recent UniProt releases"},
+    "ncbi-gene": {"entries": "Gene IDs cross-referenced by the declared proteins (GeneID), <= 20 per document"},
+    "ncbi-taxonomy": {"entries": "the organisms of the declared proteins and their parents, <= 20 per document"},
+    "rcsb-pdb": {"entries": "PDB entries cross-referenced by the declared proteins, <= 20 polymer entities each"},
+    "chembl": {"entries": "targets whose components are the declared proteins; their activities (<= 200 per target), "
+               "the compounds and source documents those activities name", "releases": "the two most recent ChEMBL "
+               "releases"},
+    "out_of_scope": "full proteomes, sequence similarity searches, assay descriptions beyond the published label, "
+    "computed molecular properties, and any prediction",
+}
+PERSONAL_DATA_DECISION = {
+    "stored": "accessions, versions, names of genes, proteins, taxa, targets and compounds, citation identifiers "
+    "(PubMed ID, DOI, ChEMBL document ID) and titles",
+    "excluded": "UniProt reference author lists and submission names; PDB audit_author, primary-citation authors "
+    "and depositor names; ChEMBL document authors and abstracts",
+    "enforcement": "dropped by the adapters before a statement is built; refused at write time by "
+    "validate_statement (personal_data); stripped again from every MCP tool output",
+    "retention": "nothing personal is retained, so no retention period applies; raw responses are not stored, only "
+    "their digests",
+    "access": "records carry no personal data; read access needs knowledge:lifesci:read and namespace access",
+}
+
+UNIPROT_REASONS = {"MERGED": "merged", "DEMERGED": "demerged", "DELETED": "deleted"}
+GENE_STATUS = {"": "active", "0": "active", "1": "replaced", "2": "discontinued"}
 
 
 class LifeSciFormatError(ValueError):
@@ -189,479 +249,585 @@ class LifeSciFormatError(ValueError):
         self.code = code
 
 
-def _text(value: Any) -> str | None:
-    text = str(value).strip() if value is not None else ""
-    return text or None
+def digest_bytes(raw: bytes) -> str:
+    return hashlib.sha256(raw).hexdigest()
 
 
-def _as_published(value: Any) -> str | None:
-    """A value as the published text: strings unchanged, JSON numbers as their JSON text (never re-computed)."""
-    if value is None or value == "":
+def unverified(provider: str) -> bool:
+    return PROVIDER_CONTRACTS.get(provider, {}).get("access_decision") != "verified-live"
+
+
+def text(value: Any) -> str | None:
+    if value is None:
         return None
-    if isinstance(value, str):
-        return value
-    return json.dumps(value)
+    raw = str(value).strip()
+    return raw or None
 
 
-def _day(value: Any) -> str | None:
-    match = re.match(r"^(\d{4}(?:-\d{2}(?:-\d{2})?)?)", _text(value) or "")
-    return match.group(1) if match else None
+def decimal_text(value: Any) -> str | None:
+    """A published number as exact decimal text (never rounded or converted); None when not numeric."""
+    raw = text(value)
+    if raw is None:
+        return None
+    try:
+        number = Decimal(raw)
+    except InvalidOperation:
+        return None
+    return raw if number.is_finite() else None
 
 
-def _personal(prefix: str, body: Any) -> list[str]:
-    """Names of person fields present anywhere in a payload (dropped, reported in the receipt)."""
-    found: set[str] = set()
-
-    def walk(value: Any) -> None:
-        if isinstance(value, Mapping):
-            for key, item in value.items():
-                if str(key).casefold() in PERSONAL_KEYS:
-                    found.add(f"{prefix}:{key}")
-                else:
-                    walk(item)
-        elif isinstance(value, list):
-            for item in value:
-                walk(item)
-
-    walk(body)
-    return sorted(found)
-
-
-# ------------------------------------------------------------------ selections
+def iso_day(value: Any) -> str | None:
+    raw = text(value)
+    if raw is None:
+        return None
+    try:
+        return date.fromisoformat(raw[:10].replace("/", "-")).isoformat()
+    except ValueError:
+        pass
+    match = re.fullmatch(r"(\d{1,2})-([A-Za-z]+)-(\d{4})", raw)  # UniProt: 12-January-2099
+    months = {name.casefold(): number for number, name in enumerate(calendar.month_name) if name}
+    months |= {name.casefold(): number for number, name in enumerate(calendar.month_abbr) if name}
+    if match and match.group(2).casefold() in months:
+        try:
+            return date(int(match.group(3)), months[match.group(2).casefold()], int(match.group(1))).isoformat()
+        except ValueError:
+            return None
+    return None
 
 
-def selection_entries(source: Mapping[str, Any]) -> tuple[str, list[dict[str, Any]]]:
+# ------------------------------------------------------------------ declarations
+
+
+def lifesci_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
     declared = dict(source.get("life_sciences") or {})
-    provider = str(declared.get("provider") or "")
+    provider = declared.get("provider")
     if provider not in PROVIDERS:
-        raise SourcePackError("invalid_manifest", f"life-sciences sources declare a provider in {PROVIDERS}")
+        raise SourcePackError("invalid_manifest", "life-sciences sources declare a known provider")
     host = (urlsplit(str(source.get("endpoint") or "")).hostname or "").casefold()
-    if host not in PROVIDER_HOSTS[provider]:
-        raise SourcePackError("invalid_manifest", f"{provider} is fetched from {PROVIDER_HOSTS[provider][0]} only")
-    entries = [dict(e) for e in declared.get("selection") or []]
-    if not 1 <= len(entries) <= int(dict(source.get("budgets") or {}).get("max_pages", 1)):
-        raise SourcePackError("invalid_manifest", "a life-sciences source selects 1..max_pages pages explicitly")
-    kinds = {"uniprot": {"entry", "history"}, "ncbi": {"gene", "taxon"}, "pdb": {"entry"},
-             "chembl": {"release", "target", "molecule", "activities", "document"}}[provider]
-    for index, entry in enumerate(entries):
-        kind = entry.get("kind")
-        if kind not in kinds:
-            raise SourcePackError("invalid_manifest", f"{provider} selections are one of {sorted(kinds)}")
-        if provider == "uniprot":
-            if not ACCESSION.fullmatch(str(entry.get("accession") or "")):
-                raise SourcePackError("invalid_manifest", "UniProt selections name a UniProtKB accession")
-            if kind == "history" and not 1 <= int(entry.get("max_versions") or MAX_VERSIONS) <= MAX_VERSIONS:
-                raise SourcePackError("invalid_manifest", f"at most {MAX_VERSIONS} entry versions per history")
-        elif provider == "ncbi":
-            if not re.fullmatch(r"[0-9]{1,12}", str(entry.get("id") or "")):
-                raise SourcePackError("invalid_manifest", "NCBI selections name a numeric Gene ID or Tax ID")
-        elif provider == "pdb":
-            if not PDB_ID.fullmatch(str(entry.get("pdb_id") or "")):
-                raise SourcePackError("invalid_manifest", "PDB selections name a four-character experimental PDB ID; "
-                                                          "computed structure models are excluded")
-        else:
-            if kind == "release":
-                if index != 0:
-                    raise SourcePackError("invalid_manifest", "the ChEMBL release is read first")
-                continue
-            key = entry.get("target_chembl_id") if kind == "activities" else entry.get("chembl_id")
-            if not CHEMBL_ID.fullmatch(str(key or "")):
-                raise SourcePackError("invalid_manifest", f"a ChEMBL {kind} selection names a ChEMBL ID")
-            if kind == "activities" and not 1 <= int(entry.get("limit") or 0) <= min(
-                    MAX_ACTIVITIES, int(source["budgets"]["max_results"])):
-                raise SourcePackError("invalid_manifest", f"activity pages are small: 1 <= limit <= {MAX_ACTIVITIES}")
-    if provider == "chembl" and entries[0].get("kind") != "release":
-        raise SourcePackError("invalid_manifest", "ChEMBL selections start with the release they are read from")
-    return provider, entries
+    if host not in PROVIDER_HOSTS[provider] or urlsplit(source["endpoint"]).scheme != "https":
+        raise SourcePackError("invalid_manifest", "the endpoint is not the provider's documented HTTPS host")
+    documents = list(declared.get("documents") or [])
+    if not documents:
+        raise SourcePackError("invalid_manifest", "a life-sciences source declares its documents")
+    if len(documents) > int(dict(source.get("budgets") or {}).get("max_pages", 1)):
+        raise SourcePackError("invalid_manifest", "more declared documents than the source's page budget")
+    release = dict(declared.get("release") or {})
+    if release and (not text(release.get("label")) or (release.get("published_on") is not None
+                                                        and iso_day(release["published_on"]) is None)):
+        raise SourcePackError("invalid_manifest", "a declared release states its label and ISO publication date")
+    if provider == "chembl" and not release:
+        raise SourcePackError("invalid_manifest", "a ChEMBL source declares the release it expects (CHEMBL_NN)")
+    for document in documents:
+        try:
+            check_document(provider, document)
+        except LifeSciFormatError as exc:
+            raise SourcePackError("invalid_manifest", str(exc)) from exc
+    keys = [canonical(d) for d in documents]
+    if len(set(keys)) != len(keys):
+        raise SourcePackError("invalid_manifest", "each declared document is distinct")
+    return declared
 
 
-def selection_key(provider: str, entry: Mapping[str, Any]) -> str:
-    return provider + ":" + digest({k: entry[k] for k in sorted(entry) if k != "label"})[:16]
+def _ids(document: Mapping[str, Any], key: str, pattern: re.Pattern[str] | None) -> list[str]:
+    values = [str(v).strip() for v in document.get(key) or []]
+    if not values or len(values) > MAX_IDS_PER_DOCUMENT or len(set(values)) != len(values):
+        raise LifeSciFormatError("invalid_document", f"a document declares 1-{MAX_IDS_PER_DOCUMENT} distinct {key}")
+    if pattern is not None and not all(pattern.fullmatch(v) for v in values):
+        raise LifeSciFormatError("invalid_document", f"{key} are well-formed identifiers")
+    return values
 
 
-def request_for(provider: str, entry: Mapping[str, Any]) -> tuple[str, str, dict[str, str]]:
-    """(role, path, query) of the first request of one selected page; paths are relative to the endpoint."""
-    kind = entry["kind"]
+def check_document(provider: str, document: Mapping[str, Any]) -> None:
+    if not text(document.get("label")):
+        raise LifeSciFormatError("invalid_document", "a document has a label")
+    kind = document.get("kind")
     if provider == "uniprot":
-        accession = quote(str(entry["accession"]))
-        if kind == "history":
-            return "history", f"/unisave/{accession}", {"format": "json"}
-        return "entry", f"/uniprotkb/{accession}", {"format": "json"}
-    if provider == "ncbi":
-        if kind == "gene":
-            return "gene", f"/datasets/v2/gene/id/{quote(str(entry['id']))}", {}
-        return "taxon", f"/datasets/v2/taxonomy/taxon/{quote(str(entry['id']))}", {}
-    if provider == "pdb":
-        return "entry", f"/rest/v1/core/entry/{quote(str(entry['pdb_id']))}", {}
-    if kind == "release":
-        return "release", "/status.json", {}
-    if kind == "activities":
-        return "activities", "/activity.json", {"target_chembl_id": str(entry["target_chembl_id"]),
-                                                "limit": str(int(entry["limit"])), "offset": "0"}
-    return kind, f"/{kind}/{quote(str(entry['chembl_id']))}.json", {}
+        _ids(document, "accessions", UNIPROT_ACCESSION)
+    elif provider == "ncbi-gene":
+        _ids(document, "gene_ids", re.compile(r"^\d{1,12}$"))
+    elif provider == "ncbi-taxonomy":
+        _ids(document, "tax_ids", re.compile(r"^\d{1,12}$"))
+    elif provider == "rcsb-pdb":
+        if kind == "removed":
+            _ids(document, "pdb_ids", PDB_ID)
+        elif kind == "entry":
+            if not PDB_ID.fullmatch(str(document.get("pdb_id") or "")):
+                raise LifeSciFormatError("invalid_document", "a PDB entry document names a four-character PDB ID")
+            _ids(document, "entities", re.compile(r"^\d{1,4}$"))
+        else:
+            raise LifeSciFormatError("invalid_document", "a PDB document is an entry or removed-entries document")
+    elif provider == "chembl":
+        if kind == "target":
+            _ids(document, "target_ids", CHEMBL_ID)
+        elif kind == "molecules":
+            _ids(document, "molecule_ids", CHEMBL_ID)
+        elif kind == "documents":
+            _ids(document, "document_ids", CHEMBL_ID)
+        elif kind == "activities":
+            if not CHEMBL_ID.fullmatch(str(document.get("target_id") or "")):
+                raise LifeSciFormatError("invalid_document", "an activities document names one ChEMBL target")
+            if not 1 <= int(document.get("limit") or 0) <= MAX_ACTIVITIES:
+                raise LifeSciFormatError("invalid_document", f"an activities document caps at 1-{MAX_ACTIVITIES}")
+        else:
+            raise LifeSciFormatError("invalid_document", "a ChEMBL document is target, molecules, activities or "
+                                                         "documents")
+
+
+def requests_for(provider: str, document: Mapping[str, Any], endpoint: str) -> list[tuple[str, str, dict[str, str]]]:
+    """(role, url, params) for every request a document makes, in order."""
+    base = endpoint.rstrip("/")
+    if provider == "uniprot":
+        return [(acc, f"{base}/uniprotkb/{acc}.json", {}) for acc in document["accessions"]]
+    if provider == "ncbi-gene":
+        return [("summary", f"{base}/esummary.fcgi",
+                 {"db": "gene", "id": ",".join(document["gene_ids"]), "retmode": "json"})]
+    if provider == "ncbi-taxonomy":
+        return [("taxa", f"{base}/efetch.fcgi",
+                 {"db": "taxonomy", "id": ",".join(document["tax_ids"]), "retmode": "xml"})]
+    if provider == "rcsb-pdb":
+        if document["kind"] == "removed":
+            return [(pdb, f"{base}/rest/v1/holdings/removed/{pdb}", {}) for pdb in document["pdb_ids"]]
+        pdb = document["pdb_id"]
+        return [("entry", f"{base}/rest/v1/core/entry/{pdb}", {})] + [
+            (f"entity:{n}", f"{base}/rest/v1/core/polymer_entity/{pdb}/{n}", {}) for n in document["entities"]]
+    kind = document["kind"]
+    status = [("status", f"{base}/status.json", {})]
+    if kind == "target":
+        return status + [(t, f"{base}/target/{t}.json", {}) for t in document["target_ids"]]
+    if kind == "molecules":
+        return status + [(m, f"{base}/molecule/{m}.json", {}) for m in document["molecule_ids"]]
+    if kind == "documents":
+        return status + [(d, f"{base}/document/{d}.json", {}) for d in document["document_ids"]]
+    return status + [("activities", f"{base}/activity.json",
+                      {"target_chembl_id": document["target_id"], "limit": str(int(document["limit"])),
+                       "offset": "0"})]
+
+
+# ------------------------------------------------------------------ statement helpers
+
+
+def _statement(provider: str, record_type: str, native_id: str, *, release: Mapping[str, Any], version: Mapping,
+               status: str = "active", status_published: str | None = None, successors: Sequence[str] = (),
+               label: str | None = None, attributes: Mapping[str, Any] | None = None,
+               xrefs: Sequence[Mapping[str, Any]] = (), citations: Sequence[Mapping[str, Any]] = (),
+               url: str | None = None, excluded: Sequence[str] = ()) -> dict[str, Any]:
+    statement = {
+        "contract": CONTRACT, "record_type": record_type, "source": provider, "native_id": str(native_id),
+        "release": dict(release), "version": dict(version), "status": status, "status_published": status_published,
+        "successors": [str(s) for s in successors], "label": label, "attributes": dict(attributes or {}),
+        "xrefs": [dict(x) for x in xrefs], "citations": [dict(c) for c in citations], "url": url,
+        "licence": dict(LICENCES[provider]), "excluded_fields": sorted(set(excluded)),
+    }
+    if statement["version"]["basis"] == "content":
+        body = {k: v for k, v in statement.items() if k not in {"release", "version"}}
+        statement["version"] = {"marker": "content-" + hashlib.sha256(canonical(body).encode()).hexdigest()[:16],
+                                "basis": "content", "order": None, "date": statement["version"].get("date")}
+    try:
+        return validate_statement(statement)
+    except LifeSciError as exc:
+        raise LifeSciFormatError("schema_drift", f"{provider} {native_id}: {exc.message}") from exc
+
+
+CONTENT = {"marker": "pending", "basis": "content", "order": None}
+
+
+def _xref(database: str, identifier: Any, relation: str | None = None, **properties: Any) -> dict[str, Any]:
+    item: dict[str, Any] = {"database": database, "id": str(identifier)}
+    if relation:
+        item["relation"] = relation
+    props = {k: v for k, v in properties.items() if v not in (None, "", [])}
+    if props:
+        item["properties"] = props
+    return item
+
+
+def _citations(pubmed: Any = None, doi: Any = None, title: Any = None) -> list[dict[str, Any]]:
+    out = []
+    if text(pubmed):
+        out.append({"kind": "pubmed", "id": str(pubmed).strip(), "title": text(title)})
+    if text(doi):
+        out.append({"kind": "doi", "id": str(doi).strip().lower(), "title": text(title)})
+    return out
+
+
+def _json(raw: bytes, what: str) -> Any:
+    try:
+        return json.loads(raw.decode("utf-8"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise LifeSciFormatError("schema_drift", f"{what} is not JSON") from exc
 
 
 # ------------------------------------------------------------------ parsers
 
 
-def _source(url: str, provider: str, origin: str, **extra: Any) -> dict[str, Any]:
-    return {"url": url, "attribution": PROVIDER_CONTRACTS[provider]["attribution"],
-            "terms_url": PROVIDER_CONTRACTS[provider]["terms_url"], "licence": PROVIDER_CONTRACTS[provider]["licence"],
-            "evidence_origin": origin, **{k: v for k, v in extra.items() if v is not None}}
+def uniprot_release(headers: Mapping[str, Any], declared: Mapping[str, Any], retrieved_day: str) -> dict[str, Any]:
+    lowered = {str(k).casefold(): v for k, v in headers.items()}
+    label = text(lowered.get("x-uniprot-release"))
+    if label:
+        return {"label": label, "published_on": iso_day(lowered.get("x-uniprot-release-date")), "basis": "provider"}
+    return declared_release(declared, retrieved_day)
 
 
-def _uniprot_citations(body: Mapping[str, Any]) -> list[dict[str, Any]] | None:
-    items = []
-    for ref in body.get("references") or []:
-        citation = dict(ref.get("citation") or {})
-        xrefs = {str(x.get("database") or "").casefold(): _text(x.get("id"))
-                 for x in citation.get("citationCrossReferences") or [] if isinstance(x, Mapping)}
-        items.append({"reference_number": ref.get("referenceNumber"), "pubmed_id": xrefs.get("pubmed"),
-                      "doi": xrefs.get("doi"), "title": _text(citation.get("title")),
-                      "journal": _text(citation.get("journal")), "year": _day(citation.get("publicationDate"))})
-    return items or None
+def declared_release(declared: Mapping[str, Any], retrieved_day: str) -> dict[str, Any]:
+    if declared:
+        return {"label": str(declared["label"]), "published_on": iso_day(declared.get("published_on")),
+                "basis": "declared"}
+    return {"label": f"retrieved-{retrieved_day}", "published_on": retrieved_day, "basis": "retrieval"}
 
 
-def parse_uniprot_entry(body: Mapping[str, Any], url: str, *, origin: str, release: str | None,
-                        release_date: str | None) -> list[dict]:
-    accession = _text(body.get("primaryAccession"))
-    entry_type = _text(body.get("entryType"))
-    if accession is None or entry_type is None:
-        raise LifeSciFormatError("schema_drift", "UniProt entry lacks primaryAccession or entryType")
-    audit = dict(body.get("entryAudit") or {})
-    page = f"https://www.uniprot.org/uniprotkb/{accession}/entry"
-    source = _source(page, "uniprot", origin, api_url=url, release=release, release_date=release_date)
-    if entry_type.casefold() == "inactive":
+def parse_uniprot(body: Mapping[str, Any], *, requested: str, release: Mapping[str, Any], url: str
+                  ) -> list[dict[str, Any]]:
+    accession = text(body.get("primaryAccession"))
+    if accession is None:
+        raise LifeSciFormatError("schema_drift", f"UniProt entry {requested} has no primaryAccession")
+    entry_type = str(body.get("entryType") or "")
+    if entry_type == "Inactive":
         reason = dict(body.get("inactiveReason") or {})
-        kind = _text(reason.get("inactiveReasonType"))
-        successors = [str(a) for a in reason.get("mergeDemergeTo") or []]
-        published = {"accession": accession, "entry_type": entry_type, "entry_status": "obsolete",
-                     "entry_name": _text(body.get("uniProtkbId")), "release": release,
-                     "inactive_reason": {"type": kind, "successors": successors}}
-        return [statement("protein", "uniprot", accession, subject_name=accession, as_published=published,
-                          source=source, event="obsoleted", effective_date=release_date,
-                          date_basis=f"inactive ({kind}) as of UniProt release {release or 'unstated'}")]
-    reviewed = "unreviewed" not in entry_type.casefold() and "reviewed" in entry_type.casefold()
+        kind = str(reason.get("inactiveReasonType") or "")
+        if kind not in UNIPROT_REASONS:
+            raise LifeSciFormatError("schema_drift", f"UniProt inactive reason {kind!r} is not recognised")
+        audit = dict(body.get("entryAudit") or {})
+        return [_statement(
+            "uniprot", "protein", accession, release=release,
+            version={**CONTENT, "date": iso_day(audit.get("lastAnnotationUpdateDate"))},
+            status=UNIPROT_REASONS[kind], status_published=f"Inactive:{kind}",
+            successors=[str(s) for s in reason.get("mergeDemergeTo") or []],
+            label=None, attributes={"entry_type": entry_type, "inactive_reason": kind}, url=url)]
+    if entry_type not in {"UniProtKB reviewed (Swiss-Prot)", "UniProtKB unreviewed (TrEMBL)"}:
+        raise LifeSciFormatError("schema_drift", f"UniProt entry type {entry_type!r} is not recognised")
+    audit = dict(body.get("entryAudit") or {})
     organism = dict(body.get("organism") or {})
-    description = dict(body.get("proteinDescription") or {})
-    name = dict(dict(description.get("recommendedName") or {}).get("fullName") or {}).get("value") or \
-        next((dict(s.get("fullName") or {}).get("value") for s in description.get("submissionNames") or []), None)
     sequence = dict(body.get("sequence") or {})
-    xrefs = [{"database": _text(x.get("database")), "id": _text(x.get("id")),
-              "properties": {str(p.get("key")): p.get("value") for p in x.get("properties") or []
-                             if isinstance(p, Mapping)} or None}
-             for x in body.get("uniProtKBCrossReferences") or [] if isinstance(x, Mapping)]
-    published = {
-        "accession": accession, "entry_type": entry_type, "entry_status": "active", "reviewed": reviewed,
-        "entry_name": _text(body.get("uniProtkbId")), "entry_version": audit.get("entryVersion"),
-        "sequence_version": audit.get("sequenceVersion"), "release": release, "protein_name": _text(name),
-        "gene_names": [g["geneName"]["value"] for g in body.get("genes") or []
-                       if isinstance(g, Mapping) and dict(g.get("geneName") or {}).get("value")] or None,
-        "organism": {"taxon_id": _text(organism.get("taxonId")),
-                     "scientific_name": _text(organism.get("scientificName"))} if organism else None,
-        "sequence": {"value": sequence["value"], "length": sequence.get("length"),
-                     "mol_weight": sequence.get("molWeight"), "crc64": sequence.get("crc64"),
-                     "md5": sequence.get("md5")} if sequence.get("value") else None,
-        "secondary_accessions": [str(a) for a in body.get("secondaryAccessions") or []] or None,
-        "cross_references": [x for x in xrefs if x["database"] and x["id"]] or None,
-        "citations": _uniprot_citations(body), "first_public": _day(audit.get("firstPublicDate")),
-        "last_annotation_update": _day(audit.get("lastAnnotationUpdateDate")),
-        "last_sequence_update": _day(audit.get("lastSequenceUpdateDate")),
+    description = dict(dict(body.get("proteinDescription") or {}).get("recommendedName") or {})
+    if not description:
+        names = list(dict(body.get("proteinDescription") or {}).get("submissionNames") or [])
+        description = dict(names[0]) if names else {}
+    name = text(dict(description.get("fullName") or {}).get("value"))
+    genes = [text(dict(g.get("geneName") or {}).get("value")) for g in body.get("genes") or []]
+    xrefs = [_xref(str(x["database"]), x["id"], None,
+                   **{str(p.get("key")): p.get("value") for p in x.get("properties") or [] if p.get("key")})
+             for x in body.get("uniProtKBCrossReferences") or [] if x.get("database") and x.get("id")]
+    if organism.get("taxonId") is not None:
+        xrefs.append(_xref("NCBI Taxonomy", organism["taxonId"], "organism"))
+    citations: list[dict[str, Any]] = []
+    for reference in body.get("references") or []:
+        citation = dict(reference.get("citation") or {})
+        ids = {str(c.get("database")): c.get("id") for c in citation.get("citationCrossReferences") or []}
+        citations += _citations(ids.get("PubMed"), ids.get("DOI"), citation.get("title"))
+    entry_version, sequence_version = audit.get("entryVersion"), audit.get("sequenceVersion")
+    if entry_version is None or sequence_version is None:
+        raise LifeSciFormatError("schema_drift", f"UniProt entry {accession} has no entry or sequence version")
+    attributes = {
+        "uniprot_id": text(body.get("uniProtkbId")),
+        "reviewed": "reviewed" if "reviewed (Swiss-Prot)" in entry_type else "unreviewed",
+        "entry_type": entry_type,
+        "secondary_accessions": [str(s) for s in body.get("secondaryAccessions") or []],
+        "entry_version": int(entry_version),
+        "sequence_version": int(sequence_version),
+        "first_public": iso_day(audit.get("firstPublicDate")),
+        "last_annotation_update": iso_day(audit.get("lastAnnotationUpdateDate")),
+        "last_sequence_update": iso_day(audit.get("lastSequenceUpdateDate")),
+        "organism": {"scientific_name": text(organism.get("scientificName")), "tax_id": organism.get("taxonId")},
+        "protein_name": name,
+        "gene_names": [g for g in genes if g],
+        # Stored as published; nothing is computed from the sequence.
+        "sequence": {"value": text(sequence.get("value")), "length": sequence.get("length"),
+                     "crc64": text(sequence.get("crc64")), "md5": text(sequence.get("md5")),
+                     "mol_weight": sequence.get("molWeight")},
     }
-    return [statement("protein", "uniprot", accession, subject_name=_text(name) or accession, as_published=published,
-                      source=source, effective_date=release_date)]
+    return [_statement(
+        "uniprot", "protein", accession, release=release,
+        version={"marker": f"entry-{int(entry_version)}", "basis": "entry-version", "order": [int(entry_version)],
+                 "date": attributes["last_annotation_update"]},
+        status_published=entry_type, label=name, attributes=attributes, xrefs=xrefs, citations=citations, url=url,
+        excluded=["references[].citation.authors", "references[].citation.authoringGroup", "comments",
+                  "features", "keywords"])]
 
 
-def parse_unisave(body: Mapping[str, Any], url: str, *, origin: str, accession: str, limit: int) -> list[dict]:
-    rows = body.get("results")
-    if not isinstance(rows, list):
-        raise LifeSciFormatError("schema_drift", "UniSave history lacks results")
-    out = []
-    ordered = sorted((r for r in rows if isinstance(r, Mapping)), key=lambda r: -int(r.get("entryVersion") or 0))
-    for row in ordered[:limit]:
-        version, seq = row.get("entryVersion"), row.get("sequenceVersion")
-        if type(version) is not int or type(seq) is not int:
-            raise LifeSciFormatError("schema_drift", "UniSave row lacks entryVersion or sequenceVersion")
-        page = f"https://rest.uniprot.org/unisave/{accession}?format=txt&versions={version}"
-        out.append(statement(
-            "entry_version", "uniprot", f"{accession}:{version}", subject_name=accession,
-            source=_source(page, "uniprot", origin, api_url=url),
-            as_published={"accession": accession, "entry_version": version, "sequence_version": seq,
-                          "database": _text(row.get("database")) or "unstated",
-                          "first_release": _text(row.get("firstRelease")),
-                          "first_release_date": _day(row.get("firstReleaseDate")),
-                          "last_release": _text(row.get("lastRelease")),
-                          "last_release_date": _day(row.get("lastReleaseDate")),
-                          "entry_name": _text(row.get("name"))}))
-    return out
+def parse_gene_summary(body: Mapping[str, Any], *, requested: Sequence[str], release: Mapping[str, Any], url: str
+                       ) -> tuple[list[dict[str, Any]], list[str]]:
+    result = dict(body.get("result") or {})
+    if "uids" not in result:
+        raise LifeSciFormatError("schema_drift", "esummary gene response has no result.uids")
+    statements, missing = [], []
+    for uid in requested:
+        item = dict(result.get(uid) or {})
+        if not item or item.get("error"):
+            missing.append(uid)
+            continue
+        published = str(item.get("status") if item.get("status") is not None else "")
+        if published not in GENE_STATUS:
+            raise LifeSciFormatError("schema_drift", f"gene {uid} status {published!r} is not recognised")
+        status = GENE_STATUS[published]
+        current = text(item.get("currentid"))
+        organism = dict(item.get("organism") or {})
+        xrefs = [_xref("NCBI Taxonomy", organism["taxid"], "organism")] if organism.get("taxid") else []
+        statements.append(_statement(
+            "ncbi-gene", "gene", uid, release=release, version=dict(CONTENT), status=status,
+            status_published=published or "live", successors=[current] if status == "replaced" and current else [],
+            label=text(item.get("description")),
+            attributes={"gene_id": uid, "symbol": text(item.get("name")), "description": text(item.get("description")),
+                        "organism": {"scientific_name": text(organism.get("scientificname")),
+                                     "tax_id": organism.get("taxid")},
+                        "chromosome": text(item.get("chromosome")), "map_location": text(item.get("maplocation")),
+                        "aliases": [a.strip() for a in str(item.get("otheraliases") or "").split(",") if a.strip()],
+                        "current_id": current},
+            xrefs=xrefs, url=url))
+    return statements, missing
 
 
-def _report(body: Mapping[str, Any], what: str) -> Mapping[str, Any]:
-    reports = body.get("reports")
-    if not isinstance(reports, list) or len(reports) != 1 or not isinstance(reports[0], Mapping):
-        raise LifeSciFormatError("schema_drift", f"NCBI {what} response is not one report")
-    return reports[0]
+def _xml_root(raw: bytes) -> ET.Element:
+    head = raw[:2000].decode("utf-8", "replace")
+    if "<!ENTITY" in head:
+        raise LifeSciFormatError("schema_drift", "XML with entity declarations is refused")
+    try:
+        return ET.fromstring(raw)
+    except ET.ParseError as exc:
+        raise LifeSciFormatError("schema_drift", "taxonomy response is not XML") from exc
 
 
-def parse_ncbi_gene(body: Mapping[str, Any], url: str, *, origin: str, queried: str) -> list[dict]:
-    report = _report(body, "gene")
-    page = f"https://www.ncbi.nlm.nih.gov/gene/{queried}"
-    warning = dict(report.get("warning") or {})
-    code = str(warning.get("gene_warning_code") or "").upper()
-    if code in {"REPLACED", "DISCONTINUED"}:  # verify: how Datasets reports a secondary or retired Gene ID
-        replaced = _text(dict(warning.get("replaced_id") or {}).get("gene_id"))
-        return [statement(
-            "gene", "ncbi", queried, subject_name=_text(warning.get("symbol")) or queried,
-            source=_source(page, "ncbi", origin, api_url=url),
-            as_published={"gene_id": queried, "symbol": _text(warning.get("symbol")) or "unstated",
-                          "tax_id": _text(warning.get("tax_id")) or "0",
-                          "status": "replaced" if code == "REPLACED" else "discontinued", "replaced_by": replaced,
-                          "description": _text(warning.get("message"))},
-            event="obsoleted", date_basis=f"NCBI reports Gene ID {queried} as {code.lower()}")]
-    gene = dict(report.get("gene") or {})
-    gene_id, symbol, tax_id = _text(gene.get("gene_id")), _text(gene.get("symbol")), _text(gene.get("tax_id"))
-    if gene_id is None or symbol is None or tax_id is None:
-        raise LifeSciFormatError("schema_drift", "NCBI gene report lacks gene_id, symbol or tax_id")
-    refs = [{"database": "UniProtKB/Swiss-Prot", "id": str(a)} for a in gene.get("swiss_prot_accessions") or []]
-    refs += [{"database": "Ensembl", "id": str(a)} for a in gene.get("ensembl_gene_ids") or []]
-    return [statement("gene", "ncbi", gene_id, subject_name=symbol,
-                      source=_source(f"https://www.ncbi.nlm.nih.gov/gene/{gene_id}", "ncbi", origin, api_url=url),
-                      as_published={"gene_id": gene_id, "symbol": symbol, "tax_id": tax_id, "status": "live",
-                                    "description": _text(gene.get("description")),
-                                    "organism_name": _text(gene.get("taxname")), "gene_type": _text(gene.get("type")),
-                                    "chromosomes": [str(c) for c in gene.get("chromosomes") or []] or None,
-                                    "cross_references": refs or None})]
+def parse_taxonomy(raw: bytes, *, requested: Sequence[str], release: Mapping[str, Any], url: str
+                   ) -> tuple[list[dict[str, Any]], list[str]]:
+    root = _xml_root(raw)
+    if root.tag != "TaxaSet":
+        raise LifeSciFormatError("schema_drift", "efetch taxonomy response is not a TaxaSet")
+    statements, answered = [], set()
+    for taxon in root.findall("Taxon"):
+        tax_id = text(taxon.findtext("TaxId"))
+        if tax_id is None:
+            raise LifeSciFormatError("schema_drift", "a Taxon has no TaxId")
+        aka = [text(t.text) for t in taxon.findall("AkaTaxIds/TaxId") if text(t.text)]
+        lineage_ex = [{"tax_id": text(t.findtext("TaxId")), "name": text(t.findtext("ScientificName")),
+                       "rank": text(t.findtext("Rank"))} for t in taxon.findall("LineageEx/Taxon")]
+        parent = text(taxon.findtext("ParentTaxId"))
+        xrefs = [_xref("NCBI Taxonomy", parent, "parent")] if parent else []
+        attributes = {"tax_id": tax_id, "scientific_name": text(taxon.findtext("ScientificName")),
+                      "rank": text(taxon.findtext("Rank")), "parent_tax_id": parent,
+                      "division": text(taxon.findtext("Division")), "lineage": text(taxon.findtext("Lineage")),
+                      "lineage_ex": lineage_ex, "merged_tax_ids": aka,
+                      "update_date": iso_day(str(taxon.findtext("UpdateDate") or "").replace("/", "-"))}
+        statements.append(_statement("ncbi-taxonomy", "taxon", tax_id, release=release, version=dict(CONTENT),
+                                     status_published="active", label=attributes["scientific_name"],
+                                     attributes=attributes, xrefs=xrefs, url=url,
+                                     excluded=["OtherNames", "Citations"]))
+        answered.add(tax_id)
+        for old in aka:
+            if old in requested and old not in answered:
+                statements.append(_statement(
+                    "ncbi-taxonomy", "taxon", old, release=release, version=dict(CONTENT), status="merged",
+                    status_published=f"AkaTaxId of {tax_id}", successors=[tax_id], label=None,
+                    attributes={"tax_id": old, "merged_into": tax_id}, url=url))
+                answered.add(old)
+    return statements, [t for t in requested if t not in answered]
 
 
-def parse_ncbi_taxon(body: Mapping[str, Any], url: str, *, origin: str, queried: str) -> list[dict]:
-    report = _report(body, "taxonomy")
-    taxonomy = dict(report.get("taxonomy") or {})
-    tax_id = _text(taxonomy.get("tax_id"))
-    name = dict(taxonomy.get("current_scientific_name") or {})
-    scientific, rank = _text(name.get("name")), _text(taxonomy.get("rank"))
-    if tax_id is None or scientific is None or rank is None:
-        raise LifeSciFormatError("schema_drift", "NCBI taxonomy report lacks tax_id, scientific name or rank")
-    lineage = [{"tax_id": _text(node.get("id")), "name": _text(node.get("name")), "rank": rank_name}
-               for rank_name, node in dict(taxonomy.get("classification") or {}).items()
-               if isinstance(node, Mapping) and node.get("id") is not None]
-    parents = [str(p) for p in taxonomy.get("parents") or []]
-    known = {n["tax_id"] for n in lineage}
-    lineage = [{"tax_id": p, "name": None, "rank": None} for p in parents if p not in known] + lineage \
-        if parents else lineage
-    browser = "https://www.ncbi.nlm.nih.gov/Taxonomy/Browser/wwwtax.cgi?id="
-    out = [statement("taxon", "ncbi", tax_id, subject_name=scientific,
-                     source=_source(browser + tax_id, "ncbi", origin, api_url=url),
-                     as_published={"tax_id": tax_id, "scientific_name": scientific, "rank": rank.casefold(),
-                                   "status": "active", "authority": _text(name.get("authority")),
-                                   "lineage": lineage or None, "genetic_code": _text(taxonomy.get("genetic_code_id"))})]
-    if queried != tax_id:  # verify: the queried (merged) Tax ID answered with its current node
-        out.append(statement("taxon", "ncbi", queried, subject_name=scientific,
-                             source=_source(browser + queried, "ncbi", origin, api_url=url),
-                             as_published={"tax_id": queried, "scientific_name": scientific, "rank": rank.casefold(),
-                                           "status": "merged", "merged_into": tax_id},
-                             event="obsoleted", date_basis=f"NCBI answers Tax ID {queried} with Tax ID {tax_id}"))
-    return out
+def _pdb_day(value: Any) -> str | None:
+    return iso_day(str(value or "")[:10])
 
 
-def parse_pdb_entry(body: Mapping[str, Any], url: str, *, origin: str,
-                    entities: Sequence[Mapping[str, Any]]) -> list[dict]:
-    pdb_id = _text(body.get("rcsb_id"))
-    if pdb_id is None or not PDB_ID.fullmatch(pdb_id):
-        raise LifeSciFormatError("schema_drift", "RCSB entry lacks a PDB rcsb_id (computed models are excluded)")
-    info = dict(body.get("rcsb_accession_info") or {})
-    history = []
-    details: dict[Any, list[str]] = {}
-    for item in body.get("pdbx_audit_revision_details") or []:
-        details.setdefault(item.get("revision_ordinal"), []).append(_text(item.get("type")) or "unstated")
-    for item in body.get("pdbx_audit_revision_history") or []:
-        history.append({"ordinal": item.get("ordinal"), "major": item.get("major_revision"),
-                        "minor": item.get("minor_revision"), "date": _day(item.get("revision_date")),
-                        "data_content_type": _text(item.get("data_content_type")),
-                        "types": details.get(item.get("ordinal")) or None})
-    citation = dict(body.get("rcsb_primary_citation") or {})
-    entry_info = dict(body.get("rcsb_entry_info") or {})
-    supersedes = sorted({_text(s.get("replace_pdb_id")) for s in body.get("pdbx_database_PDB_obs_spr") or []
-                         if str(s.get("id") or "").upper() == "SPRSDE" and _text(s.get("replace_pdb_id"))})
-    mapped = []
-    for entity in entities:
-        ids = dict(entity.get("rcsb_polymer_entity_container_identifiers") or {})
-        accessions = [str(a) for a in ids.get("uniprot_ids") or []]
-        accessions += [str(r.get("database_accession")) for r in ids.get("reference_sequence_identifiers") or []
-                       if str(r.get("database_name") or "").casefold() == "uniprot"
-                       and str(r.get("database_accession")) not in accessions]
-        mapped.append({"entity_id": _text(ids.get("entity_id")),
-                       "description": _text(dict(entity.get("rcsb_polymer_entity") or {}).get("pdbx_description")),
-                       "uniprot_accessions": accessions, "basis": "as stated by the PDB entity container identifiers"})
-    published = {
-        "pdb_id": pdb_id, "status": "released", "title": _text(dict(body.get("struct") or {}).get("title")),
-        "experimental_methods": [_text(e.get("method")) for e in body.get("exptl") or [] if _text(e.get("method"))]
-        or None,
-        "resolution_angstrom": [_as_published(r) for r in entry_info.get("resolution_combined") or []] or None,
-        "deposit_date": _day(info.get("deposit_date")), "initial_release_date": _day(info.get("initial_release_date")),
-        "revision": {"major": info.get("major_revision"), "minor": info.get("minor_revision"),
-                     "date": _day(info.get("revision_date"))} if info.get("major_revision") is not None else None,
-        "revision_history": history or None, "entities": mapped or None,
-        "primary_citation": {"title": _text(citation.get("title")), "journal": _text(citation.get("journal_abbrev")),
-                             "year": _as_published(citation.get("year")),
-                             "doi": _text(citation.get("pdbx_database_id_DOI")),
-                             "pubmed_id": _as_published(citation.get("pdbx_database_id_PubMed"))} if citation else None,
-        "supersedes": supersedes or None,
+def parse_pdb_entry(entry: Mapping[str, Any], entities: Mapping[str, Mapping[str, Any]], *,
+                    release: Mapping[str, Any], url: str) -> dict[str, Any]:
+    pdb_id = text(entry.get("rcsb_id"))
+    info = dict(entry.get("rcsb_accession_info") or {})
+    if pdb_id is None or info.get("major_revision") is None or info.get("minor_revision") is None:
+        raise LifeSciFormatError("schema_drift", "a PDB entry states its id and major/minor revision")
+    major, minor = int(info["major_revision"]), int(info["minor_revision"])
+    history = [{"ordinal": h.get("ordinal"), "major_revision": h.get("major_revision"),
+                "minor_revision": h.get("minor_revision"), "revision_date": _pdb_day(h.get("revision_date")),
+                "data_content_type": text(h.get("data_content_type"))}
+               for h in entry.get("pdbx_audit_revision_history") or []]
+    entity_rows, xrefs = [], []
+    for entity_id, body in sorted(entities.items(), key=lambda kv: int(kv[0])):
+        ids = dict(body.get("rcsb_polymer_entity_container_identifiers") or {})
+        references = [{"database": text(r.get("database_name")), "accession": text(r.get("database_accession"))}
+                      for r in ids.get("reference_sequence_identifiers") or []]
+        uniprot = sorted({str(a) for a in ids.get("uniprot_ids") or []}
+                         | {r["accession"] for r in references if r["database"] == "UniProt" and r["accession"]})
+        entity_rows.append({"entity_id": entity_id, "description": text(dict(body.get("rcsb_polymer_entity") or {})
+                                                                         .get("pdbx_description")),
+                            "uniprot_accessions": uniprot, "reference_sequences": references})
+        xrefs += [_xref("UniProt", acc, "entity-reference", entity_id=entity_id) for acc in uniprot]
+    citation = dict(entry.get("rcsb_primary_citation") or {})
+    entry_info = dict(entry.get("rcsb_entry_info") or {})
+    attributes = {
+        "pdb_id": pdb_id, "title": text(dict(entry.get("struct") or {}).get("title")),
+        "methods": [text(e.get("method")) for e in entry.get("exptl") or [] if text(e.get("method"))],
+        "resolution": [str(r) for r in entry_info.get("resolution_combined") or []],
+        "deposit_date": _pdb_day(info.get("deposit_date")),
+        "initial_release_date": _pdb_day(info.get("initial_release_date")),
+        "revision": {"major": major, "minor": minor, "date": _pdb_day(info.get("revision_date"))},
+        "revision_history": history, "status_code": text(info.get("status_code")), "entities": entity_rows,
+        "primary_citation": {"doi": text(citation.get("pdbx_database_id_doi")),
+                             "pubmed_id": text(citation.get("pdbx_database_id_pub_med")),
+                             "title": text(citation.get("title"))},
     }
-    return [statement("structure", "pdb", pdb_id, subject_name=published["title"] or pdb_id,
-                      source=_source(f"https://www.rcsb.org/structure/{pdb_id}", "pdb", origin, api_url=url),
-                      as_published=published, effective_date=(published["revision"] or {}).get("date"))]
+    return _statement(
+        "rcsb-pdb", "structure", pdb_id, release=release,
+        version={"marker": f"rev-{major}.{minor}", "basis": "pdb-revision", "order": [major, minor],
+                 "date": attributes["revision"]["date"]},
+        status_published=attributes["status_code"], label=attributes["title"], attributes=attributes, xrefs=xrefs,
+        citations=_citations(citation.get("pdbx_database_id_pub_med"), citation.get("pdbx_database_id_doi"),
+                             citation.get("title")), url=url,
+        excluded=["audit_author", "rcsb_primary_citation.rcsb_authors", "citation_author", "pdbx_contact_author"])
 
 
-def parse_pdb_removed(body: Mapping[str, Any], url: str, *, origin: str, pdb_id: str) -> list[dict]:
+def parse_pdb_removed(body: Mapping[str, Any], *, requested: str, release: Mapping[str, Any], url: str
+                      ) -> dict[str, Any]:
     removed = dict(body.get("rcsb_repository_holdings_removed") or {})
+    pdb_id = text(body.get("rcsb_id")) or requested
     if not removed:
-        raise LifeSciFormatError("schema_drift", "RCSB removed holdings lack rcsb_repository_holdings_removed")
-    replaced = [str(i) for i in removed.get("id_codes_replaced_by") or []]
-    return [statement("structure", "pdb", pdb_id, subject_name=_text(removed.get("title")) or pdb_id,
-                      source=_source(f"https://www.rcsb.org/structure/removed/{pdb_id}", "pdb", origin, api_url=url),
-                      as_published={"pdb_id": pdb_id, "status": "obsolete", "title": _text(removed.get("title")),
-                                    "obsoleted_on": _day(removed.get("remove_date")),
-                                    "superseded_by": replaced or None},
-                      event="obsoleted", effective_date=_day(removed.get("remove_date")),
-                      date_basis="removed from the PDB holdings on the published date")]
+        raise LifeSciFormatError("schema_drift", f"{requested} is not listed as removed")
+    successors = [str(s) for s in removed.get("id_codes_replaced_by") or []]
+    return _statement("rcsb-pdb", "structure", pdb_id, release=release,
+                      version={**CONTENT, "date": _pdb_day(removed.get("remove_date"))}, status="obsolete",
+                      status_published="OBS", successors=successors, label=text(removed.get("title")),
+                      attributes={"pdb_id": pdb_id, "remove_date": _pdb_day(removed.get("remove_date")),
+                                  "replaced_by": successors},
+                      url=url, excluded=["audit_authors"])
 
 
-def _chembl_refs(body: Mapping[str, Any]) -> list[dict[str, Any]] | None:
-    refs = [{"database": _text(x.get("xref_src")), "id": _text(x.get("xref_id")), "name": _text(x.get("xref_name"))}
-            for x in body.get("cross_references") or [] if isinstance(x, Mapping)]
-    return [r for r in refs if r["database"] and r["id"]] or None
+def chembl_release(status: Mapping[str, Any], declared: Mapping[str, Any]) -> dict[str, Any]:
+    version = text(status.get("chembl_db_version"))
+    if version is None:
+        raise LifeSciFormatError("schema_drift", "ChEMBL status names no chembl_db_version")
+    if version != str(declared.get("label")):
+        raise LifeSciFormatError("release_mismatch", f"ChEMBL serves {version}; the source declares "
+                                                     f"{declared.get('label')}")
+    return {"label": version, "published_on": iso_day(status.get("chembl_release_date"))
+            or iso_day(declared.get("published_on")), "basis": "provider"}
 
 
-def _chembl_page(kind: str, key: str) -> str:
-    return f"https://www.ebi.ac.uk/chembl/explore/{kind}/{key}"
+def parse_chembl_target(body: Mapping[str, Any], *, release: Mapping[str, Any], url: str) -> dict[str, Any]:
+    target_id = text(body.get("target_chembl_id"))
+    if target_id is None:
+        raise LifeSciFormatError("schema_drift", "a ChEMBL target has no target_chembl_id")
+    components = [{"accession": text(c.get("accession")), "component_type": text(c.get("component_type")),
+                   "relationship": text(c.get("relationship")),
+                   "description": text(c.get("component_description"))}
+                  for c in body.get("target_components") or []]
+    xrefs = [_xref("UniProt", c["accession"], "target-component", component_type=c["component_type"],
+                   relationship=c["relationship"]) for c in components if c["accession"]]
+    if body.get("tax_id") is not None:
+        xrefs.append(_xref("NCBI Taxonomy", body["tax_id"], "organism"))
+    return _statement("chembl", "target", target_id, release=release, version=dict(CONTENT),
+                      label=text(body.get("pref_name")),
+                      attributes={"target_chembl_id": target_id, "pref_name": text(body.get("pref_name")),
+                                  "target_type": text(body.get("target_type")), "organism": text(body.get("organism")),
+                                  "tax_id": body.get("tax_id"), "components": components},
+                      xrefs=xrefs, url=url, excluded=["cross_references"])
 
 
-def parse_chembl_release(body: Mapping[str, Any]) -> dict[str, Any]:
-    release = _text(body.get("chembl_db_version"))
-    if release is None or not release.startswith("ChEMBL_"):
-        raise LifeSciFormatError("schema_drift", "ChEMBL status lacks chembl_db_version")
-    return {"release": release, "released": _day(body.get("chembl_release_date"))}
-
-
-def parse_chembl_target(body: Mapping[str, Any], url: str, *, origin: str, release: Mapping[str, Any]) -> list[dict]:
-    key, name, kind = _text(body.get("target_chembl_id")), _text(body.get("pref_name")), _text(body.get("target_type"))
-    if key is None or name is None or kind is None:
-        raise LifeSciFormatError("schema_drift", "ChEMBL target lacks target_chembl_id, pref_name or target_type")
-    components = [{"accession": _text(c.get("accession")), "component_type": _text(c.get("component_type")),
-                   "relationship": _text(c.get("relationship"))}
-                  for c in body.get("target_components") or [] if isinstance(c, Mapping)]
-    return [statement("target", "chembl", key, subject_name=name,
-                      source=_source(_chembl_page("target", key), "chembl", origin, api_url=url,
-                                     release=release["release"]),
-                      as_published={"target_chembl_id": key, "release": release["release"], "pref_name": name,
-                                    "target_type": kind, "organism": _text(body.get("organism")),
-                                    "tax_id": _as_published(body.get("tax_id")), "components": components or None,
-                                    "cross_references": _chembl_refs(body)},
-                      effective_date=release.get("released"))]
-
-
-def parse_chembl_molecule(body: Mapping[str, Any], url: str, *, origin: str,
-                          release: Mapping[str, Any]) -> list[dict]:
-    key = _text(body.get("molecule_chembl_id"))
-    if key is None:
-        raise LifeSciFormatError("schema_drift", "ChEMBL molecule lacks molecule_chembl_id")
+def parse_chembl_molecule(body: Mapping[str, Any], *, release: Mapping[str, Any], url: str) -> dict[str, Any]:
+    molecule_id = text(body.get("molecule_chembl_id"))
+    if molecule_id is None:
+        raise LifeSciFormatError("schema_drift", "a ChEMBL molecule has no molecule_chembl_id")
     structures = dict(body.get("molecule_structures") or {})
-    return [statement("compound", "chembl", key, subject_name=_text(body.get("pref_name")) or key,
-                      source=_source(_chembl_page("compound", key), "chembl", origin, api_url=url,
-                                     release=release["release"]),
-                      as_published={"molecule_chembl_id": key, "release": release["release"],
-                                    "pref_name": _text(body.get("pref_name")),
-                                    "molecule_type": _text(body.get("molecule_type")),
-                                    "standard_inchikey": _text(structures.get("standard_inchi_key")),
-                                    "standard_inchi": _text(structures.get("standard_inchi")),
-                                    "canonical_smiles": _text(structures.get("canonical_smiles")),
-                                    "cross_references": _chembl_refs(body)},
-                      effective_date=release.get("released"))]
+    return _statement("chembl", "compound", molecule_id, release=release, version=dict(CONTENT),
+                      label=text(body.get("pref_name")),
+                      attributes={"molecule_chembl_id": molecule_id, "pref_name": text(body.get("pref_name")),
+                                  "molecule_type": text(body.get("molecule_type")),
+                                  "structures": {"standard_inchi_key": text(structures.get("standard_inchi_key")),
+                                                 "standard_inchi": text(structures.get("standard_inchi")),
+                                                 "canonical_smiles": text(structures.get("canonical_smiles"))}},
+                      url=url, excluded=["molecule_properties (computed)",
+                                         "max_phase (clinical questions go to Clinical Evidence)",
+                                         "cross_references"])
 
 
-def parse_chembl_activities(body: Mapping[str, Any], url: str, *, origin: str,
-                            release: Mapping[str, Any]) -> tuple[list[dict], bool]:
-    rows, meta = body.get("activities"), body.get("page_meta")
-    if not isinstance(rows, list) or not isinstance(meta, Mapping):
-        raise LifeSciFormatError("schema_drift", "ChEMBL activity page lacks activities or page_meta")
-    out = []
-    for row in rows:
-        activity_id = _as_published(row.get("activity_id"))
-        if activity_id is None:
-            raise LifeSciFormatError("schema_drift", "ChEMBL activity lacks activity_id")
-        out.append(statement(
-            "activity", "chembl", activity_id,
-            subject_name=f"{row.get('standard_type') or row.get('type')} of {row.get('molecule_chembl_id')} on "
-                         f"{row.get('target_chembl_id')}",
-            source=_source(url, "chembl", origin, api_url=url, release=release["release"]),
-            as_published={
-                "activity_id": activity_id, "release": release["release"],
-                "assay_chembl_id": _text(row.get("assay_chembl_id")), "assay_type": _text(row.get("assay_type")),
-                "assay_description": _text(row.get("assay_description")),
-                "target_chembl_id": _text(row.get("target_chembl_id")),
-                "molecule_chembl_id": _text(row.get("molecule_chembl_id")),
-                "document_chembl_id": _text(row.get("document_chembl_id")),
-                "published": {"type": _as_published(row.get("type")), "relation": _as_published(row.get("relation")),
-                              "value": _as_published(row.get("value")), "units": _as_published(row.get("units"))},
-                "standard": {"type": _as_published(row.get("standard_type")),
-                             "relation": _as_published(row.get("standard_relation")),
-                             "value": _as_published(row.get("standard_value")),
-                             "units": _as_published(row.get("standard_units")),
-                             "flag": row.get("standard_flag")},
-                "data_validity_comment": _text(row.get("data_validity_comment")),
-                "data_validity_description": _text(row.get("data_validity_description")),
-                "activity_comment": _text(row.get("activity_comment")),
-                "document_citation": {"journal": _text(row.get("document_journal")),
-                                      "year": _as_published(row.get("document_year"))}},
-            effective_date=release.get("released")))
-    return out, meta.get("next") in (None, "")
+def parse_chembl_activities(body: Mapping[str, Any], *, target_id: str, limit: int, release: Mapping[str, Any],
+                            url: str) -> list[dict[str, Any]]:
+    meta = dict(body.get("page_meta") or {})
+    activities = list(body.get("activities") or [])
+    total = int(meta.get("total_count") if meta.get("total_count") is not None else len(activities))
+    if total > len(activities) or total > limit:
+        # Never a truncated activity list: a missing activity would read as one that was not published.
+        raise LifeSciFormatError("budget_exhausted", f"{target_id} has {total} activities; the document caps at "
+                                                     f"{limit}")
+    statements = []
+    for item in activities:
+        activity_id = text(item.get("activity_id"))
+        if activity_id is None or text(item.get("target_chembl_id")) != target_id:
+            raise LifeSciFormatError("schema_drift", "an activity names its id and the requested target")
+        document = text(item.get("document_chembl_id"))
+        attributes = {
+            "activity_id": activity_id, "assay_chembl_id": text(item.get("assay_chembl_id")),
+            "assay_type": text(item.get("assay_type")), "assay_description": text(item.get("assay_description")),
+            "target_chembl_id": target_id, "molecule_chembl_id": text(item.get("molecule_chembl_id")),
+            "document_chembl_id": document, "document_year": item.get("document_year"),
+            "published": {"type": text(item.get("type")), "relation": text(item.get("relation")),
+                          "value": decimal_text(item.get("value")), "value_text": text(item.get("value")),
+                          "units": text(item.get("units"))},
+            "standard": {"type": text(item.get("standard_type")), "relation": text(item.get("standard_relation")),
+                         "value": decimal_text(item.get("standard_value")), "units": text(item.get("standard_units")),
+                         "flag": item.get("standard_flag")},
+            "data_validity_comment": text(item.get("data_validity_comment")),
+            "activity_comment": text(item.get("activity_comment")),
+            "potential_duplicate": item.get("potential_duplicate"),
+        }
+        xrefs = [_xref("ChEMBL", target_id, "target"),
+                 _xref("ChEMBL compound", attributes["molecule_chembl_id"], "compound")] + (
+            [_xref("ChEMBL document", document, "document")] if document else [])
+        statements.append(_statement(
+            "chembl", "activity", activity_id, release=release, version=dict(CONTENT),
+            label=f"{attributes['standard']['type'] or attributes['published']['type']} "
+                  f"{attributes['molecule_chembl_id']} -> {target_id}",
+            attributes=attributes, xrefs=xrefs,
+            citations=[{"kind": "chembl-document", "id": document}] if document else [], url=url,
+            excluded=["pchembl_value (derived)", "activity_properties", "ligand_efficiency"]))
+    return statements
 
 
-def parse_chembl_document(body: Mapping[str, Any], url: str, *, origin: str,
-                          release: Mapping[str, Any]) -> list[dict]:
-    key = _text(body.get("document_chembl_id"))
-    if key is None:
-        raise LifeSciFormatError("schema_drift", "ChEMBL document lacks document_chembl_id")
-    return [statement("document", "chembl", key, subject_name=_text(body.get("title")) or key,
-                      source=_source(_chembl_page("document", key), "chembl", origin, api_url=url,
-                                     release=release["release"]),
-                      as_published={"document_chembl_id": key, "release": release["release"],
-                                    "doi": _text(body.get("doi")), "pubmed_id": _as_published(body.get("pubmed_id")),
-                                    "title": _text(body.get("title")), "journal": _text(body.get("journal")),
-                                    "year": _as_published(body.get("year")), "doc_type": _text(body.get("doc_type")),
-                                    "volume": _text(body.get("volume")), "first_page": _text(body.get("first_page"))},
-                      effective_date=release.get("released"))]
+def parse_chembl_document(body: Mapping[str, Any], *, release: Mapping[str, Any], url: str) -> dict[str, Any]:
+    document_id = text(body.get("document_chembl_id"))
+    if document_id is None:
+        raise LifeSciFormatError("schema_drift", "a ChEMBL document has no document_chembl_id")
+    return _statement("chembl", "document", document_id, release=release, version=dict(CONTENT),
+                      label=text(body.get("title")),
+                      attributes={"document_chembl_id": document_id, "doc_type": text(body.get("doc_type")),
+                                  "journal": text(body.get("journal")), "year": body.get("year"),
+                                  "volume": text(body.get("volume")), "first_page": text(body.get("first_page")),
+                                  "title": text(body.get("title"))},
+                      citations=_citations(body.get("pubmed_id"), body.get("doi"), body.get("title")), url=url,
+                      excluded=["authors", "abstract"])
 
 
 # ------------------------------------------------------------------ runtime adapter
 
 
-class LifeSciSourceAdapter:
-    """One page per selected entry, history, gene, taxon, structure, ChEMBL record or activity page."""
+class LifeSciAdapter:
+    """Fetch declared life-science documents on the runtime's transport; one page per document."""
 
     accepts_transport = True
     connector = CONNECTOR
 
     def __init__(self, source: Mapping[str, Any], *, transport: Callable[..., Mapping[str, Any]] | None = None,
-                 secret: str | None = None) -> None:
+                 secret: str | None = None, today: Callable[[], str] | None = None) -> None:
         from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 
         self.source = json.loads(json.dumps(source))
-        self.provider, self.entries = selection_entries(self.source)
+        self.declared = lifesci_declaration(self.source)
+        self.provider = self.declared["provider"]
+        # Only NCBI takes a key; it is kept off every URL, receipt and record.
+        self._api_key = secret if self.provider in {"ncbi-gene", "ncbi-taxonomy"} and secret else None
         if transport is None:
             from functools import partial
 
             transport = partial(HTTPSPageAdapter._request, max_bytes=int(source["budgets"]["max_bytes"]))
         self.transport = transport
-        self._secret = secret if self.provider == "ncbi" else None
+        self.today = today or (lambda: datetime.now(UTC).date().isoformat())
         self.definition = {
-            "contract": ADAPTER_CONTRACT, "source_id": source["source_id"], "connector": source["connector"],
-            "endpoint": source["endpoint"], "operations": list(source["operations"]),
-            "source_hash": source["source_hash"], "mapping": source["mapping"],
-            "extractor_versions": source["extractor_versions"], "limits": source["budgets"],
-            "life_sciences": {"provider": self.provider, "selected": len(self.entries),
+            "contract": ADAPTER_CONTRACT,
+            "source_id": source["source_id"],
+            "connector": source["connector"],
+            "endpoint": source["endpoint"],
+            "operations": list(source["operations"]),
+            "source_hash": source["source_hash"],
+            "mapping": source["mapping"],
+            "extractor_versions": source["extractor_versions"],
+            "limits": source["budgets"],
+            "life_sciences": {"provider": self.provider,
                               "live_verification": LIVE_VERIFICATION[self.provider]["status"],
-                              "minimisation": MINIMISATION["decision"]},
+                              "api_key": "configured" if self._api_key else "absent"},
         }
 
     def describe(self) -> dict[str, Any]:
@@ -673,186 +839,157 @@ class LifeSciSourceAdapter:
         if set(request) - {"operation", "parameters", "limit", "from_ms", "to_ms"}:
             raise SourcePackError("parameter_forbidden", "runtime adapter received undeclared controls")
         if dict(request.get("parameters") or {}):
-            raise SourcePackError("parameter_forbidden", "life-sciences runs fetch the declared selection only")
+            raise SourcePackError("parameter_forbidden", "life-sciences runs fetch the declared documents only")
 
-    def _get(self, path: str, query: Mapping[str, str]) -> tuple[int, Any, str, str, dict[str, Any]]:
-        base = self.source["endpoint"].rstrip("/") + path
-        url = base + ("?" + urlencode(sorted(query.items())) if query else "")
-        headers = {"Accept": "application/json"}
-        if self._secret:
-            headers["api-key"] = self._secret  # NCBI Datasets v2 header; never part of the URL
-        response = self.transport(url=base, params=dict(query), headers=headers,
-                                  timeout=int(self.definition["limits"]["timeout_ms"]) / 1000)
+    def _get(self, url: str, params: Mapping[str, str], *, allow_missing: bool = False
+             ) -> tuple[bytes | None, dict[str, Any], str]:
+        from src.ingestion.source_pack_runtime import _retry_after_ms
+
         host = (urlsplit(self.source["endpoint"]).hostname or "").casefold()
-        if (urlsplit(str(response.get("final_url") or url)).hostname or "").casefold() != host:
+        parts = urlsplit(url)
+        if (parts.hostname or "").casefold() != host or parts.scheme != "https":
+            raise SourcePackError("network_policy", "declared documents are fetched from the endpoint's host only")
+        sent = sorted(params.items()) + ([("api_key", self._api_key)] if self._api_key else [])
+        response = self.transport(url=url, params=sent,
+                                  headers={"Accept": "application/json, application/xml, text/xml"},
+                                  timeout=int(self.definition["limits"]["timeout_ms"]) / 1000)
+        final_host = (urlsplit(str(response.get("final_url") or url)).hostname or "").casefold()
+        if final_host != host:
             raise SourcePackError("network_policy", "response was served from another host")
         status = int(response.get("status", 200))
+        headers = {str(k).casefold(): v for k, v in dict(response.get("headers") or {}).items()}
         content = response.get("content", b"")
         raw = content.encode() if isinstance(content, str) else bytes(content)
         if len(raw) > int(self.definition["limits"]["max_bytes"]):
             raise SourcePackError("response_too_large", "response exceeds its byte limit")
-        origin = "fixture" if response.get("origin") == "fixture" else "live"
-        folded = {str(k).casefold(): v for k, v in dict(response.get("headers") or {}).items()}
-        if status == 404:
-            return status, None, url, origin, folded
         if status == 429:
-            from src.ingestion.source_pack_runtime import _retry_after_ms
-
-            raise SourcePackError("rate_limited", f"{self.provider} rate limit reached",
-                                  retry_after_ms=_retry_after_ms(folded.get("retry-after")))
+            raise SourcePackError("rate_limited", "provider quota is temporarily exhausted",
+                                  retry_after_ms=_retry_after_ms(headers.get("retry-after")))
         if status in {401, 403}:
             raise SourcePackError("authentication_failed", f"request refused (HTTP {status})")
         if status >= 500:
             raise SourcePackError("source_unavailable", f"provider returned HTTP {status}")
+        origin = "fixture" if response.get("origin") == "fixture" else "live"
+        if status == 404 and allow_missing:
+            return None, headers, origin
         if status >= 400:
             raise SourcePackError("schema_drift", f"request returned HTTP {status}")
-        if self._secret and len(self._secret) >= 8 and self._secret.encode() in raw:
-            raise SourcePackError("schema_drift", "provider echoed a credential; response is not safe evidence")
-        try:
-            return status, json.loads(raw.decode("utf-8-sig")), url, origin, folded
-        except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-            raise SourcePackError("schema_drift", "response is not UTF-8 JSON") from exc
+        return raw, headers, origin
 
-    def _chembl_release(self, carry: Mapping[str, Any]) -> dict[str, Any]:
-        release = carry.get("release")
-        if not release:
-            raise SourcePackError("invalid_manifest", "ChEMBL records are read after their release")
-        return dict(release)
+    @staticmethod
+    def _display(url: str, params: Mapping[str, str]) -> str:
+        return url + ("?" + urlencode(sorted(params.items())) if params else "")
 
-    def _page(self, entry: Mapping[str, Any], carry: dict[str, Any]) -> dict[str, Any]:
-        role, path, query = request_for(self.provider, entry)
-        _, body, url, origin, headers = self._get(path, query)
-        result: dict[str, Any] = {"url": url, "origin": origin, "statements": [], "personal": [], "excluded": [],
-                                  "snapshot": None, "requests": 1, "release": None}
-        if body is None and self.provider != "pdb":
-            result["outcome"] = "not_found"
-            return result
-        result["outcome"] = "found"
-        if self.provider == "uniprot":
-            result["personal"] = _personal("uniprot", body)
-            if role == "history":
-                limit = int(entry.get("max_versions") or MAX_VERSIONS)
-                result["statements"] = parse_unisave(body, url, origin=origin, accession=str(entry["accession"]),
-                                                     limit=limit)
+    def _parse(self, document: Mapping[str, Any], today: str) -> tuple[list[dict], dict[str, Any]]:
+        endpoint, provider = self.source["endpoint"], self.provider
+        declared = dict(self.declared.get("release") or {})
+        statements: list[dict[str, Any]] = []
+        digests, missing, origins = [], [], set()
+        release = declared_release(declared, today)
+        for role, url, params in requests_for(provider, document, endpoint):
+            shown = self._display(url, params)
+            raw, headers, origin = self._get(url, params, allow_missing=provider == "uniprot")
+            origins.add(origin)
+            if raw is None:
+                missing.append(role)
+                continue
+            digests.append({"request": role, "sha256": digest_bytes(raw)})
+            if provider == "uniprot":
+                release = uniprot_release(headers, declared, today)
+                statements += parse_uniprot(_json(raw, role), requested=role, release=release, url=shown)
+            elif provider == "ncbi-gene":
+                found, gone = parse_gene_summary(_json(raw, role), requested=document["gene_ids"], release=release,
+                                                 url=shown)
+                statements += found
+                missing += gone
+            elif provider == "ncbi-taxonomy":
+                found, gone = parse_taxonomy(raw, requested=document["tax_ids"], release=release, url=shown)
+                statements += found
+                missing += gone
+            elif provider == "rcsb-pdb":
+                if document["kind"] == "removed":
+                    statements.append(parse_pdb_removed(_json(raw, role), requested=role, release=release, url=shown))
+                elif role == "entry":
+                    entry, entities, entry_url = _json(raw, role), {}, shown
+                else:
+                    entities[role.split(":", 1)[1]] = _json(raw, role)
+            elif role == "status":
+                release = chembl_release(_json(raw, role), declared)
+            elif document["kind"] == "target":
+                statements.append(parse_chembl_target(_json(raw, role), release=release, url=shown))
+            elif document["kind"] == "molecules":
+                statements.append(parse_chembl_molecule(_json(raw, role), release=release, url=shown))
+            elif document["kind"] == "documents":
+                statements.append(parse_chembl_document(_json(raw, role), release=release, url=shown))
             else:
-                result["release"] = _text(headers.get("x-uniprot-release"))
-                result["excluded"] = [f"uniprot:{k}" for k in _UNIPROT_NOT_STORED if k in body]
-                result["statements"] = parse_uniprot_entry(
-                    body, url, origin=origin, release=result["release"],
-                    release_date=_day(headers.get("x-uniprot-release-date")))
-        elif self.provider == "ncbi":
-            parser = parse_ncbi_gene if role == "gene" else parse_ncbi_taxon
-            result["statements"] = parser(body, url, origin=origin, queried=str(entry["id"]))
-        elif self.provider == "pdb":
-            pdb_id = str(entry["pdb_id"])
-            if body is None:
-                _, removed, removed_url, _, _ = self._get(f"/rest/v1/holdings/removed/{quote(pdb_id)}", {})
-                result["requests"] += 1
-                if removed is None:
-                    result["outcome"] = "not_found"
-                    return result
-                result["statements"] = parse_pdb_removed(removed, removed_url, origin=origin, pdb_id=pdb_id)
-                return result
-            result["personal"] = _personal("pdb", body)
-            entity_ids = [str(e) for e in dict(body.get("rcsb_entry_container_identifiers") or {}).get(
-                "polymer_entity_ids") or []][:MAX_ENTITIES]
-            entities = []
-            for entity_id in entity_ids:
-                _, entity, _, _, _ = self._get(f"/rest/v1/core/polymer_entity/{quote(pdb_id)}/{quote(entity_id)}", {})
-                result["requests"] += 1
-                if entity is not None:
-                    entities.append(entity)
-            result["statements"] = parse_pdb_entry(body, url, origin=origin, entities=entities)
-            revision = result["statements"][0]["as_published"].get("revision") or {}
-            result["release"] = f"{revision.get('major')}.{revision.get('minor')}" if revision else None
-        else:
-            result["personal"] = _personal("chembl", body)
-            if role == "release":
-                carry["release"] = parse_chembl_release(body)
-                result["release"] = carry["release"]["release"]
-                return result
-            release = self._chembl_release(carry)
-            result["release"] = release["release"]
-            if role == "target":
-                result["statements"] = parse_chembl_target(body, url, origin=origin, release=release)
-            elif role == "molecule":
-                result["excluded"] = sorted(f"molecule:{k}" for k in set(body) & _EXCLUDED_CHEMBL)
-                result["statements"] = parse_chembl_molecule(body, url, origin=origin, release=release)
-            elif role == "document":
-                result["statements"] = parse_chembl_document(body, url, origin=origin, release=release)
-            else:
-                statements, complete = parse_chembl_activities(body, url, origin=origin, release=release)
-                result["excluded"] = sorted({f"activity:{k}" for row in body["activities"]
-                                             for k in set(row) & _EXCLUDED_CHEMBL})
-                documents = sorted({s["as_published"]["document_chembl_id"] for s in statements})
-                for document_id in documents[:MAX_DOCUMENTS]:
-                    _, document, document_url, _, _ = self._get(f"/document/{quote(document_id)}.json", {})
-                    result["requests"] += 1
-                    if document is not None:
-                        result["personal"] += _personal("document", document)
-                        statements += parse_chembl_document(document, document_url, origin=origin, release=release)
-                result["statements"] = statements
-                result["snapshot"] = {"selection_key": selection_key(self.provider, entry), "provider": "chembl",
-                                      "release": release["release"], "complete": complete, "url": url}
-        return result
+                statements += parse_chembl_activities(_json(raw, role), target_id=document["target_id"],
+                                                      limit=int(document["limit"]), release=release, url=shown)
+        if provider == "rcsb-pdb" and document["kind"] == "entry":
+            statements.append(parse_pdb_entry(entry, entities, release=release, url=entry_url))
+        header = {"release": release, "requests": digests, "not_returned": missing,
+                  "evidence_origin": "live" if "live" in origins else "fixture"}
+        return statements, header
 
     def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
         from src.ingestion.source_pack_runtime import RuntimePage
 
         self._check(request)
-        state = {"i": 0, "carry": {}} if cursor is None else json.loads(cursor)
-        if state.get("scope") not in (None, self.source["source_hash"]):
-            raise SourcePackError("cursor_drift", "cursor belongs to a different selection")
-        index = int(state.get("i", -1))
-        if not 0 <= index < len(self.entries):
-            raise SourcePackError("cursor_drift", "cursor names no declared selection")
-        entry = self.entries[index]
-        carry = dict(state.get("carry") or {})
+        documents = list(self.declared["documents"])
+        index = 0 if cursor is None else int(cursor) if str(cursor).isdigit() else -1
+        if not 0 <= index < len(documents):
+            raise SourcePackError("cursor_drift", "cursor names no declared document")
+        document = dict(documents[index])
         try:
-            page = self._page(entry, carry)
-        except (LifeSciFormatError, LifeSciError, KeyError, TypeError, ValueError) as exc:
-            if isinstance(exc, SourcePackError):
-                raise
-            raise SourcePackError("schema_drift", f"{getattr(exc, 'code', 'parse')}: {exc}") from exc
+            statements, header = self._parse(document, self.today())
+        except LifeSciFormatError as exc:
+            code = {"budget_exhausted": "budget_exhausted", "release_mismatch": "schema_drift"}.get(exc.code,
+                                                                                                  "schema_drift")
+            raise SourcePackError(code, f"{exc.code}: {exc}") from exc
         limit = int(request.get("limit") or self.definition["limits"]["max_results"])
-        if len(page["statements"]) > limit:
-            raise SourcePackError("budget_exhausted", "selection has more statements than the run's result budget")
-        records = []
-        for item in page["statements"]:
-            content = json.dumps(item, sort_keys=True, ensure_ascii=False)
-            records.append({
-                "id": f"{item['subject']['key']}|{item['record_type']}|{item['record_key']}|"
-                      + hashlib.sha256(content.encode()).hexdigest()[:12],
-                "title": f"{item['subject'].get('name') or item['subject']['key']}: {item['record_type']}",
-                "url": item["source"]["url"], "language": "en", "content": content, "lifesci_record": item})
-        label = {k: entry[k] for k in sorted(entry) if k in {"kind", "accession", "id", "pdb_id", "chembl_id",
-                                                              "target_chembl_id", "label"}}
-        receipt = {"status": 200, "provider": self.provider, "selection": label, "outcome": page["outcome"],
-                   "statements": len(records), "requests": page["requests"], "release": page["release"],
-                   "personal_fields_dropped": sorted(set(page["personal"])),
-                   "excluded_fields_dropped": sorted(set(page["excluded"])), "evidence_origin": page["origin"],
-                   "final_page": index + 1 >= len(self.entries), "snapshot": page["snapshot"],
-                   "live_verification": LIVE_VERIFICATION[self.provider]["status"]}
-        next_cursor = (json.dumps({"i": index + 1, "scope": self.source["source_hash"], "carry": carry},
-                                  sort_keys=True) if index + 1 < len(self.entries) else None)
-        return RuntimePage(tuple(records), next_cursor, sum(len(r["content"]) for r in records), receipt=receipt)
+        if len(statements) > limit:
+            raise SourcePackError("budget_exhausted", "document yields more records than the run's result budget")
+        page = {"contract": PAGE_CONTRACT, "provider": self.provider, "document": document.get("label"),
+                "live_verification": LIVE_VERIFICATION[self.provider]["status"], **header}
+        records = [
+            {
+                "id": f"{self.provider}:{s['record_type']}:{s['native_id']}:{s['version']['marker']}",
+                "title": f"{s['source']} {s['record_type']} {s['native_id']} ({s['version']['marker']})",
+                "url": s["url"],
+                "language": "en",
+                "published_at": s["release"]["published_on"],
+                "content": canonical(s),
+                "lifesci_page": page,
+                "lifesci_statement": s,
+            }
+            for s in statements
+        ]
+        receipt = {"status": 200, "provider": self.provider, "document": document.get("label"),
+                   "release": header["release"], "requests": header["requests"],
+                   "not_returned": header["not_returned"], "statements": len(records),
+                   "evidence_origin": header["evidence_origin"], "api_key_used": bool(self._api_key),
+                   "final_page": index + 1 >= len(documents)}
+        next_cursor = str(index + 1) if index + 1 < len(documents) else None
+        size = sum(len(r["content"]) for r in records)
+        return RuntimePage(tuple(records), next_cursor, size, receipt=receipt)
 
 
-FIXTURE_SECRET = "fixture-ncbi-key-not-a-real-key"
-ADAPTERS = {CONNECTOR: LifeSciSourceAdapter}
+FIXTURE_SECRET = None
+ADAPTERS = {CONNECTOR: LifeSciAdapter}
+FIXTURE_DAY = "2100-01-01"
 
 
 def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
-    """Replay authored responses keyed by URL path and sorted query; responses are marked as fixture evidence."""
+    """Replay authored responses keyed by URL path (+ sorted query without any api_key)."""
     by_key = {page["request"]: page for page in pages}
 
-    def transport(*, url, params, headers, timeout, **_):
+    def transport(*, url, params, headers, timeout):
         del headers, timeout
-        parts = urlsplit(url)
-        key = parts.path + ("?" + urlencode(sorted(dict(params or {}).items())) if params else "")
+        pairs = list(params.items()) if isinstance(params, Mapping) else list(params or [])
+        query = urlencode(sorted((k, v) for k, v in pairs if k != "api_key"))
+        key = urlsplit(url).path + ("?" + query if query else "")
         page = by_key.get(key)
         if page is None:
-            return {"status": 404, "headers": {}, "content": b"", "origin": "fixture"}
+            raise SourcePackError("fixture_missing", f"no native page for {key}")
         body = page.get("body")
         content = body.encode() if isinstance(body, str) else b"" if body is None else json.dumps(body).encode()
         return {"status": int(page.get("status", 200)), "headers": dict(page.get("headers") or {}),
@@ -861,13 +998,19 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
     return transport
 
 
+def fixture_request(url: str, params: Mapping[str, str] | None = None) -> str:
+    query = urlencode(sorted((params or {}).items()))
+    return urlsplit(url).path + ("?" + query if query else "")
+
+
 def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any]) -> list[dict[str, Any]]:
-    adapter = LifeSciSourceAdapter(source, transport=fixture_transport(list(fixture["native_pages"])),
-                                   secret=FIXTURE_SECRET)
+    adapter = LifeSciAdapter(source, transport=fixture_transport(list(fixture["native_pages"])),
+                             today=lambda: FIXTURE_DAY)
     records, cursor = [], None
     while True:
-        page = adapter.fetch_page({"operation": min(source["operations"]), "parameters": {},
-                                   "limit": int(source["budgets"]["max_results"])}, cursor=cursor)
+        page = adapter.fetch_page(
+            {"operation": min(source["operations"]), "parameters": {}, "limit": int(source["budgets"]["max_results"])},
+            cursor=cursor)
         records += [dict(item) for item in page.records]
         cursor = page.next_cursor
         if cursor is None:
@@ -875,10 +1018,22 @@ def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any])
 
 
 __all__ = [
-    "ADAPTERS", "BOUNDED_COVERAGE", "CONNECTOR", "EXCLUSIONS", "FIXTURE_SECRET", "LIVE_VERIFICATION",
-    "NOT_IMPLEMENTED", "PROVIDERS", "PROVIDER_CONTRACTS", "PROVIDER_HOSTS", "LifeSciFormatError",
-    "LifeSciSourceAdapter", "fixture_transport", "parse_chembl_activities", "parse_chembl_document",
-    "parse_chembl_molecule", "parse_chembl_release", "parse_chembl_target", "parse_ncbi_gene", "parse_ncbi_taxon",
-    "parse_pdb_entry", "parse_pdb_removed", "parse_uniprot_entry", "parse_unisave", "replay_native_fixture",
-    "request_for", "selection_entries", "selection_key",
+    "ADAPTERS",
+    "BOUNDED_COVERAGE",
+    "CONNECTOR",
+    "EXCLUSIONS",
+    "LIVE_VERIFICATION",
+    "NEVER_SENTENCE",
+    "PERSONAL_DATA_DECISION",
+    "PROVIDER_CONTRACTS",
+    "LifeSciAdapter",
+    "fixture_request",
+    "fixture_transport",
+    "parse_chembl_activities",
+    "parse_gene_summary",
+    "parse_pdb_entry",
+    "parse_taxonomy",
+    "parse_uniprot",
+    "replay_native_fixture",
+    "requests_for",
 ]

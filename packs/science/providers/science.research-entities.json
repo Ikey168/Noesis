@@ -12,33 +12,28 @@
       "id": "science.research-entities",
       "contract": {
         "name": "noesis-research-entity-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
         "source-contracts",
         "readiness",
-        "organisation-as-of",
-        "researcher-assertions-as-of",
-        "datasets-for-paper",
         "record-history",
+        "record-as-of",
+        "researcher-as-of",
+        "organisation-lineage",
+        "datasets-for-paper",
+        "evidence-bundle",
         "identity-matches",
         "links",
-        "evidence-bundle",
-        "poll-monitor",
-        "propose-identity-matches",
-        "review-identity-match",
-        "revert-identity-match",
-        "build-links",
-        "create-monitor",
-        "run-monitor"
+        "poll-monitor"
       ],
       "semantic_constraints": {
-        "records": "organisations keyed by ROR ID (names, types, status active/inactive/withdrawn, relationships, successors and GRID/ISNI/Wikidata/FundRef identifiers per data-dump release), researchers keyed by ORCID iD, datasets keyed by DOI (metadata versions, related identifiers as published) and projects keyed by CORDIS programme and project ID (participants with PIC, VAT number, role and contributions with currency as published)",
-        "revisions": "immutable revisions with the provider's revision marker, effective time and acquired release; corrections and removals by the source (not_in_release, not_found, deactivated, locked) are revisions, never deletions; as-of answers select the revision in force and cite source, record revision and as-of time",
-        "minimisation": "researcher records keep only the public ORCID fields of the RE01 data-minimisation decision (iD, display name, public employments with organisation and disambiguated identifier, public works as asserted identifiers), enforced at write time; DataCite creators keep only an ORCID iD, an organisational name and affiliation identifiers; researcher answers need knowledge:research-entities:researchers and withhold names once ORCID reports a record gone",
-        "identity": "ROR organisations match CORDIS participants (website domain or name in one country) and ownership entities (published identifiers first, name and jurisdiction as low evidence) through reviewable proposals with method, evidence and confidence; accept, reject and revert are entity-history decisions; nothing is merged; researchers are never matched",
-        "links": "researchers link to Scholarly works only through DOIs they assert in ORCID, datasets through related identifiers as published, projects to Funding records by shared identifier and organisations to ownership entities by accepted match; links cite both revisions; missing providers and targets are reported as provider_absent or target_missing",
-        "exclusions": "no researcher rankings or metrics, no inference of affiliation from co-authorship, no author disambiguation by name, no personal data beyond the minimisation decision, no contributions summed across currencies, no inferred collaboration or influence links"
+        "records": "ROR organisations per data dump release (names, types, status active/inactive/withdrawn, relationships and successor links, external identifiers as published), public ORCID researcher records (iD, public name, last-modified time, public employments and works as asserted identifiers), DataCite dataset DOIs (metadata version, related identifiers, funding references) and CORDIS projects (programme, participants with PIC, contributions with currency as published); every record carries source, record revision and as-of time",
+        "revisions": "records are immutable revisions; corrections and removals by a registry (a withdrawn ROR record, a deactivated ORCID record, a DOI no longer served, a corrected CORDIS row) are revisions, never deletions; as-of answers use the revision in force at the date",
+        "minimisation": "researcher records keep only the public ORCID fields allowed by research-entities-minimisation-v1, enforced at write time and returned only with knowledge:science:research-entities:researchers:read; personal dataset creators keep only their ORCID iD and affiliation identifiers",
+        "identity": "ROR organisations and CORDIS participants match each other and Corporate Ownership entities through reviewable decisions using published identifiers before names; nothing is auto-merged; researchers are never matched or disambiguated by name",
+        "links": "researchers and datasets link to Scholarly literature papers by DOI, projects to Funding & grants records by topic or call id, organisations to ownership entities by accepted match; each link records its basis and points at specific revisions; missing providers and targets are reported",
+        "exclusions": "no researcher rankings or metrics, no inference of affiliation from co-authorship, no author disambiguation by name, no personal data beyond the minimisation decision, no summing of contributions across currencies"
       }
     }
   ],
@@ -63,36 +58,66 @@
       },
       "readiness_probe": "revisions",
       "required_scopes": [
-        "knowledge:research-entities:read"
+        "knowledge:science:research-entities:read"
       ],
       "required_context": []
     },
     {
-      "id": "organisation-as-of",
-      "tool": "noesis-knowledge-engine.research_organisation_as_of",
+      "id": "record-history",
+      "tool": "noesis-knowledge-engine.research_entity_record",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
       },
       "readiness_probe": "revisions",
       "required_scopes": [
-        "knowledge:research-entities:read"
+        "knowledge:science:research-entities:read"
       ],
       "required_context": [
         "namespace"
       ]
     },
     {
-      "id": "researcher-assertions-as-of",
-      "tool": "noesis-knowledge-engine.researcher_assertions_as_of",
+      "id": "record-as-of",
+      "tool": "noesis-knowledge-engine.research_entity_as_of",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
       },
       "readiness_probe": "revisions",
       "required_scopes": [
-        "knowledge:research-entities:read",
-        "knowledge:research-entities:researchers"
+        "knowledge:science:research-entities:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "researcher-as-of",
+      "tool": "noesis-knowledge-engine.researcher_asserted_works_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:science:research-entities:researchers:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "organisation-lineage",
+      "tool": "noesis-knowledge-engine.organisation_lineage_projects_datasets",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
       ],
       "required_context": [
         "namespace"
@@ -100,59 +125,14 @@
     },
     {
       "id": "datasets-for-paper",
-      "tool": "noesis-knowledge-engine.research_datasets_for_paper",
+      "tool": "noesis-knowledge-engine.datasets_for_paper",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
       },
       "readiness_probe": "revisions",
       "required_scopes": [
-        "knowledge:research-entities:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "record-history",
-      "tool": "noesis-knowledge-engine.research_record_history",
-      "side_effect": "read-only",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "identity-matches",
-      "tool": "noesis-knowledge-engine.list_research_entity_matches",
-      "side_effect": "read-only",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "links",
-      "tool": "noesis-knowledge-engine.list_research_entity_links",
-      "side_effect": "read-only",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:read"
+        "knowledge:science:research-entities:read"
       ],
       "required_context": [
         "namespace"
@@ -167,7 +147,38 @@
       },
       "readiness_probe": "revisions",
       "required_scopes": [
-        "knowledge:research-entities:read"
+        "knowledge:science:research-entities:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-matches",
+      "tool": "noesis-knowledge-engine.list_research_entity_identity_candidates",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:science:research-entities:read",
+        "knowledge:ownership:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_research_entity_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:science:research-entities:read"
       ],
       "required_context": [
         "namespace"
@@ -182,104 +193,8 @@
       },
       "readiness_probe": "revisions",
       "required_scopes": [
-        "knowledge:research-entities:read",
+        "knowledge:science:research-entities:read",
         "knowledge:subscriptions:read"
-      ],
-      "required_context": []
-    },
-    {
-      "id": "propose-identity-matches",
-      "tool": "noesis-knowledge-engine.propose_research_entity_matches",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true,
-        "key": "current organisation and project revisions"
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:write"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "review-identity-match",
-      "tool": "noesis-knowledge-engine.review_research_entity_match",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true,
-        "key": "match and decision"
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:review"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "revert-identity-match",
-      "tool": "noesis-knowledge-engine.revert_research_entity_match",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true,
-        "key": "match and decision"
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:review"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "build-links",
-      "tool": "noesis-knowledge-engine.build_research_entity_links",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true,
-        "key": "current record revisions"
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:write"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "create-monitor",
-      "tool": "noesis-knowledge-engine.create_research_entities_monitor",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true,
-        "key": "request_key"
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:read",
-        "knowledge:subscriptions:write"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "run-monitor",
-      "tool": "noesis-knowledge-engine.run_research_entities_monitor",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true,
-        "key": "subscription and watermark"
-      },
-      "readiness_probe": "revisions",
-      "required_scopes": [
-        "knowledge:research-entities:read",
-        "knowledge:subscriptions:write"
       ],
       "required_context": []
     }
@@ -289,19 +204,10 @@
       "record_type": "research-entity-record",
       "store": "src.kb.research_entities_records",
       "tables": [
-        "rentity_releases",
-        "rentity_records",
-        "rentity_revisions",
-        "rentity_release_members"
-      ],
-      "revision_addressable": true,
-      "namespace_scoped": true
-    },
-    {
-      "record_type": "research-entity-match",
-      "store": "src.kb.research_entities_identity",
-      "tables": [
-        "rentity_identity_matches"
+        "research_entity_records",
+        "research_entity_revisions",
+        "research_entity_receipts",
+        "research_entity_redactions"
       ],
       "revision_addressable": true,
       "namespace_scoped": true
@@ -310,16 +216,7 @@
       "record_type": "research-entity-link",
       "store": "src.kb.research_entities_links",
       "tables": [
-        "rentity_links"
-      ],
-      "revision_addressable": true,
-      "namespace_scoped": true
-    },
-    {
-      "record_type": "research-entity-refresh-receipt",
-      "store": "src.kb.research_entities_monitoring",
-      "tables": [
-        "rentity_refresh_receipts"
+        "research_entity_links"
       ],
       "revision_addressable": true,
       "namespace_scoped": true
@@ -329,7 +226,7 @@
     {
       "id": "revisions",
       "kind": "table-exists",
-      "target": "rentity_revisions"
+      "target": "research_entity_revisions"
     }
   ],
   "source_packs": [

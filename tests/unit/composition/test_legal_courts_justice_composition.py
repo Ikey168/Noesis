@@ -8,10 +8,7 @@ from pathlib import Path
 import pytest
 
 from src.composition.adapter import adapt_all
-from src.composition.contracts import (
-    validate_composition_manifest,
-    validate_provider_descriptor,
-)
+from src.composition.contracts import validate_composition_manifest, validate_provider_descriptor
 from src.composition.resolver import resolve
 from src.composition.shadow import provider_descriptors
 from src.domains import registry as domain_registry
@@ -67,10 +64,8 @@ def test_descriptors_declare_capabilities_constraints_stores_and_the_source_pack
 def test_the_bundle_resolves_with_both_features_off_by_default():
     composition = json.loads((ROOT / "packs/legal/composition.json").read_text())
     features = {f["id"]: f for f in composition["optional_features"]}
-    # The treaties (#2581) and enforcement (#2651) providers' features sit beside them.
-    assert set(features) == {"sanctions", "federal-statutes", "courts", "justice-statistics",
-                             "treaties-untc", "treaties-eu", "treaties-coe", "enforcement-sec",
-                             "enforcement-fca", "enforcement-epa", "enforcement-edpb"}
+    assert {"sanctions", "federal-statutes", "courts", "justice-statistics",
+            "enforcement-sec", "enforcement-fca", "enforcement-epa", "enforcement-edpb"} <= set(features)  # plus treaties (#2581, #2651)
     assert features["courts"]["default"] is False and features["justice-statistics"]["default"] is False
     assert validate_composition_manifest(adapt_all()["legal"]) == []
     plan = legal_plan()

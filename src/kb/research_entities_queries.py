@@ -1,21 +1,23 @@
-"""As-of answers over research-entity records (#2579, RE09 #2624 and RE10 #2629).
+"""Research-entity answers: a researcher's ORCID-asserted works and affiliations as of a date, and an organisation's
+lineage, projects and related datasets (#2579, RE09 and RE10).
 
-* :meth:`ResearchEntitiesQueries.researcher` - given an ORCID iD, the employments and works asserted in the ORCID
-  record version in force at a date, each labelled ``orcid-asserted`` (never verified authorship), with only the
-  minimisation-allowed fields, the record version cited, the papers the asserted DOIs link to and the DataCite
-  datasets that name the iD. Readable only with the researchers scope.
-* :meth:`ResearchEntitiesQueries.organisation` - given a ROR ID, the ROR record of the release in force at a date with
-  its relationships as published, the lineage along predecessor and successor relationships (each hop cited), the
-  CORDIS projects of participants an accepted match ties to it (contributions grouped per currency, never summed
-  across currencies), the DataCite datasets whose creators state it as an affiliation identifier, ownership links
-  through accepted matches, and pending or unmatched identity.
-* :meth:`ResearchEntitiesQueries.datasets_for_paper` - DataCite datasets whose related identifiers name a DOI, with
-  the relation type as published.
-* :meth:`ResearchEntitiesQueries.record_history` - every revision of one record, each cited.
+* :meth:`ResearchEntityQueries.researcher` takes an ORCID identifier and a date and answers from the record version in force
+  then (the latest revision whose ORCID last-modified time is on or before the date): the public name, employments
+  and works exactly as asserted in that version, each labelled **ORCID-asserted** (never verified authorship or a
+  verified affiliation) with the asserting source kind and the links of that revision. Only the fields allowed by the
+  RE01 minimisation decision are returned, and only to principals holding the researcher scope.
+* :meth:`ResearchEntityQueries.organisation` takes a ROR id and a date and answers from the ROR release in force then:
+  status, relationships as published in that release (parent, child, related, predecessor, successor) with the
+  related records' own revisions, the successor and predecessor chains, CORDIS projects reached through accepted
+  participant matches with each participation's role and contributions as published (totals are derived per currency,
+  list their inputs and are never summed across currencies), datasets whose metadata cites the organisation's ROR id or
+  a project it participates in, and accepted Corporate Ownership matches.
+* :meth:`ResearchEntityQueries.datasets_for_paper` answers the datasets whose metadata relates a paper's DOI, with the
+  relation type as published.
 
-Every answer cites each record version with its source, revision and as-of time, reports records not held as
-``none_on_record`` and declares the exclusions: no rankings or metrics, no affiliation inferred from co-authorship,
-no author matching by name, no personal data beyond the minimisation decision.
+Every answer cites each record version (source, record revision, as-of time and observation time); a subject without
+records is ``none_on_record`` and is never read as a clean result. No ranking, metric, inferred affiliation or name
+disambiguation.
 """
 
 from __future__ import annotations
@@ -26,344 +28,366 @@ from typing import Any
 
 from src.ingestion.research_entities_sources import (
     EXCLUSIONS,
-    NEVER_SENTENCE,
-    REMOVAL_STATUSES,
+    normalize_doi,
+    ror_id,
+    ror_url,
+    valid_orcid,
 )
+from src.kb.research_entities_links import ResearchEntityLinks
 from src.kb.research_entities_records import (
     READ_SCOPE,
     RESEARCHER_SCOPE,
-    ResearchEntitiesError,
-    ResearchEntitiesStore,
-    as_of_ms,
+    ResearchEntityError,
+    ResearchEntityStore,
     authorize,
-    iso_from_ms,
-    native_for,
-    require_scope,
-    researcher_view,
+    forbidden_keys,
+    may_read_researchers,
     table_exists,
 )
 
-ANSWER_CONTRACT = "noesis-research-entity-answer-v1"
-LINEAGE_TYPES = ("predecessor", "successor")
-MAX_LINEAGE = 20
+CONTRACT = "noesis-research-entity-answer-v1"
+ASSERTED = "ORCID-asserted: stated in the researcher's public ORCID record; not verified authorship or affiliation"
+MAX_CHAIN = 10
 
 
-class ResearchEntitiesQueries:
-    def __init__(self, conn: Any, *, now=None) -> None:
+def _date_in(start: str | None, end: str | None, day: str | None) -> str:
+    """Whether a published (possibly partial) date range covers a day: 'yes', 'no' or 'unknown'."""
+    if day is None:
+        return "unknown"
+    if start is None:
+        return "unknown"
+    if str(start) > day[:len(str(start))]:
+        return "no"
+    if end is not None and str(end) < day[:len(str(end))]:
+        return "no"
+    return "yes"
+
+
+class ResearchEntityQueries:
+    def __init__(self, conn: Any) -> None:
         self.conn = conn
-        self.store = ResearchEntitiesStore(conn, initialize=False, now=now)
+        self.store = ResearchEntityStore(conn, initialize=False)
+        self.links = ResearchEntityLinks(conn, initialize=False)
 
-    # ------------------------------------------------------------------ helpers
-
-    def _entry(self, namespace: str, kind: str, native: str, cutoff: int | None) -> dict[str, Any] | None:
-        """The revision of a record in force at the cutoff, its statement, citation and known history."""
-        record_id = self.store.find(namespace, kind, native)
-        if record_id is None:
-            return None
-        revision, known = self.store.revision_as_of(namespace, record_id, cutoff)
-        if revision is None:
-            return {"record_id": record_id, "revision": None, "statement": None, "citation": None,
-                    "history": [], "reason": "no revision of this record was in force at the as-of date"}
-        return {"record_id": record_id, "revision": revision,
-                "statement": self.store.statement(namespace, revision["revision_id"]),
-                "citation": self.store.citation(namespace, revision, cutoff=cutoff),
-                "history": [{k: r[k] for k in ("revision_id", "revision", "marker", "effective_at", "status")}
-                            for r in known]}
-
-    def _envelope(self, query: Mapping[str, Any], cutoff: int | None, status: str, citations, **body) -> dict:
-        unique = {c["revision_id"]: c for c in citations if c}
-        return {"contract": ANSWER_CONTRACT, "query": dict(query),
-                "as_of": iso_from_ms(cutoff) if cutoff is not None else "latest", "as_of_ms": cutoff,
-                "status": status, **body, "citations": [unique[k] for k in sorted(unique)],
-                "never": NEVER_SENTENCE, "exclusions": list(EXCLUSIONS)}
-
-    def _datasets(self, namespace: str, cutoff: int | None, *, orcid: str | None = None, ror: str | None = None,
-                  related: str | None = None) -> list[dict[str, Any]]:
-        out = []
-        for record in self.store.records(namespace, kind="dataset"):
-            entry = self._entry(namespace, "dataset", record["native_id"], cutoff)
-            if not entry or not entry["statement"] or not entry["statement"]["body"]:
-                continue
-            body = entry["statement"]["body"]
-            basis = None
-            if orcid and any(c.get("orcid") == orcid for c in body["creators"]):
-                basis = {"method": "creator-orcid-as-published", "orcid": orcid}
-            if ror and any(a["identifier"] == ror for c in body["creators"] for a in c["affiliation_identifiers"]):
-                basis = {"method": "affiliation-identifier-as-published", "ror_id": ror}
-            relations = []
-            if related:
-                from src.ingestion.research_entities_sources import (
-                    ResearchEntitiesFormatError,
-                    doi,
-                )
-
-                for item in body["related_identifiers"]:
-                    try:
-                        same = str(item.get("relatedIdentifierType")).upper() == "DOI" and \
-                            doi(item.get("relatedIdentifier")) == related
-                    except ResearchEntitiesFormatError:
-                        same = False
-                    if same:
-                        relations.append(item)
-                if relations:
-                    basis = {"method": "published-related-identifier", "doi": related,
-                             "relation_types": sorted({r["relationType"] for r in relations}),
-                             "as_published": relations}
-            if basis is None:
-                continue
-            out.append({"doi": body["doi"], "titles": body["titles"], "publisher": body["publisher"],
-                        "publication_year": body["publication_year"], "version": body["version"],
-                        "metadata_version": body["metadata_version"], "related_identifiers": body["related_identifiers"],
-                        "basis": basis, "citation": entry["citation"]})
-        return out
-
-    def _links(self, namespace: str, revision_id: str) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "rentity_links"):
+    def _links(self, namespace, scopes, revision) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "research_entity_links"):
             return []
-        from src.kb.research_entities_links import ResearchEntitiesLinks
-
-        return ResearchEntitiesLinks(self.conn, initialize=False).links(namespace, scopes={"operator"},
-                                                                        revision_id=revision_id)
-
-    # ------------------------------------------------------------------ researcher (RE09)
-
-    def researcher(self, namespace: str, orcid: str, *, scopes: Iterable[str], as_of: Any = None) -> dict[str, Any]:
-        """Employments and works asserted in the ORCID record version in force at ``as_of``."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        require_scope(scopes, RESEARCHER_SCOPE)
-        cutoff = as_of_ms(as_of)
-        native = native_for("researcher", orcid)
-        query = {"orcid": native}
-        entry = self._entry(namespace, "researcher", native, cutoff)
-        if entry is None:
-            return self._envelope(query, cutoff, "none_on_record", [], researcher=None,
-                                  reason="no ORCID record for this iD is held; nothing is inferred from names")
-        if entry["statement"] is None:
-            return self._envelope(query, cutoff, "none_on_record", [], researcher=None, reason=entry["reason"])
-        latest, _ = self.store.revision_as_of(namespace, entry["record_id"], None)
-        withhold = latest is not None and latest["status"] in REMOVAL_STATUSES
-        statement = entry["statement"]
-        if statement["status"] in REMOVAL_STATUSES:
-            return self._envelope(query, cutoff, "removed", [entry["citation"]], researcher=None,
-                                  record_status=statement["status"], history=entry["history"],
-                                  reason="ORCID reported the record as " + statement["status"])
-        view = researcher_view(statement, withhold_name=withhold)
-        links = self._links(namespace, entry["revision"]["revision_id"])
-        papers = [{"doi": link["basis"]["identifier"]["value"], "target_status": link["target_status"],
-                   "target": link["target"], "basis": link["basis"]["method"],
-                   "assertion": "orcid-asserted, not verified authorship"}
-                  for link in links if link["target_kind"] == "scholarly_work"]
-        datasets = self._datasets(namespace, cutoff, orcid=native)
-        return self._envelope(
-            query, cutoff, "answered", [entry["citation"]] + [d["citation"] for d in datasets],
-            researcher=view, record_status=statement["status"], record_revision=entry["citation"],
-            history=entry["history"], linked_papers=papers, datasets=datasets,
-            notice="employments and works are what the researcher asserts in ORCID; they are not verified "
-            "authorship or affiliation, and nothing is inferred from co-authorship or names")
-
-    # ------------------------------------------------------------------ organisation (RE10)
-
-    def _lineage(self, namespace: str, ror: str, cutoff: int | None) -> list[dict[str, Any]]:
-        hops, seen, frontier = [], {ror}, [ror]
-        while frontier and len(hops) < MAX_LINEAGE:
-            current = frontier.pop(0)
-            entry = self._entry(namespace, "organisation", current, cutoff)
-            if not entry or not entry["statement"] or not entry["statement"]["body"]:
-                continue
-            for relation in entry["statement"]["body"]["relationships"]:
-                if relation["type"] not in LINEAGE_TYPES:
-                    continue
-                target = self._entry(namespace, "organisation", relation["id"], cutoff)
-                held = bool(target and target["statement"] and target["statement"]["body"])
-                hops.append({"from": current, "type": relation["type"], "to": relation["id"],
-                             "label_as_published": relation.get("label"),
-                             "stated_in": entry["citation"],
-                             "to_record": {"status": target["statement"]["status"],
-                                           "display_name": target["statement"]["body"]["display_name"],
-                                           "citation": target["citation"]} if held else None,
-                             "to_status": "held" if held else "not_held"})
-                if relation["id"] not in seen:
-                    seen.add(relation["id"])
-                    frontier.append(relation["id"])
-        return hops
-
-    def _projects(self, namespace: str, ror: str, cutoff: int | None) -> tuple[list[dict[str, Any]], dict]:
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
-
-        if not table_exists(self.conn, "rentity_identity_matches"):
-            return [], {}
-        accepted = {a["pic"]: a for a in ResearchEntitiesIdentity(self.conn, initialize=False).accepted_pics(
-            namespace, ror)}
-        projects, totals = [], {}
-        for record in self.store.records(namespace, kind="project"):
-            entry = self._entry(namespace, "project", record["native_id"], cutoff)
-            if not entry or not entry["statement"] or not entry["statement"]["body"]:
-                continue
-            body = entry["statement"]["body"]
-            mine = [p for p in body["participants"] if p["pic"] in accepted]
-            if not mine:
-                continue
-            for participant in mine:
-                for field in ("ec_contribution", "net_ec_contribution"):
-                    money = participant.get(field)
-                    if money:
-                        bucket = totals.setdefault(field, {})
-                        bucket[money["currency"]] = str(Decimal(bucket.get(money["currency"], "0"))
-                                                        + Decimal(money["amount"]))
-            projects.append({
-                "project": {k: body.get(k) for k in ("project_id", "programme", "acronym", "title", "status",
-                                                     "start_date", "end_date", "total_cost", "ec_max_contribution",
-                                                     "grant_doi")},
-                "participation": [{k: p.get(k) for k in ("pic", "name", "role", "activity_type", "country",
-                                                          "ec_contribution", "net_ec_contribution", "total_cost")}
-                                  | {"identity": accepted[p["pic"]]} for p in mine],
-                "citation": entry["citation"],
-                "funding_links": [link for link in self._links(namespace, entry["revision"]["revision_id"])
-                                  if link["target_kind"] == "funding_record"],
-            })
-        return projects, totals
-
-    def organisation(self, namespace: str, ror: str, *, scopes: Iterable[str], as_of: Any = None) -> dict[str, Any]:
-        """A ROR organisation as in the release in force at ``as_of`` with lineage, projects and datasets."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        cutoff = as_of_ms(as_of)
-        native = native_for("organisation", ror)
-        query = {"ror": native}
-        entry = self._entry(namespace, "organisation", native, cutoff)
-        if entry is None or entry["statement"] is None:
-            return self._envelope(query, cutoff, "none_on_record", [], organisation=None,
-                                  reason=(entry or {}).get("reason") or "no ROR record for this ID is held")
-        statement = entry["statement"]
-        releases = [m for m in self.store.memberships(namespace, entry["record_id"])
-                    if cutoff is None or (m["published_on"] or "9999") <= iso_from_ms(cutoff)[:10]]
-        if statement["status"] in REMOVAL_STATUSES:
-            return self._envelope(query, cutoff, "removed", [entry["citation"]], organisation=None,
-                                  record_status=statement["status"], history=entry["history"],
-                                  reason="the ROR release in force does not contain this ID")
-        body = statement["body"]
-        lineage = self._lineage(namespace, native, cutoff)
-        projects, totals = self._projects(namespace, native, cutoff)
-        datasets = self._datasets(namespace, cutoff, ror=native)
-        identity = self._identity(namespace, native)
-        links = [link for link in self._links(namespace, entry["revision"]["revision_id"])
-                 if link["target_kind"] == "ownership_entity"]
-        citations = [entry["citation"]] + [h["stated_in"] for h in lineage] + \
-            [h["to_record"]["citation"] for h in lineage if h["to_record"]] + [p["citation"] for p in projects] + \
-            [d["citation"] for d in datasets]
-        return self._envelope(
-            query, cutoff, "answered", citations,
-            organisation={"ror_id": body["ror_id"], "display_name": body["display_name"], "names": body["names"],
-                          "types": body["types"], "status": statement["status"], "established": body["established"],
-                          "locations": body["locations"], "external_ids": body["external_ids"],
-                          "relationships": body["relationships"], "links": body["links"]},
-            record_revision=entry["citation"], history=entry["history"],
-            release_vintages=releases[-5:], lineage=lineage, projects=projects,
-            contributions_by_currency=totals,
-            contribution_note="contributions are grouped per currency as published; amounts in different currencies "
-            "are never summed or converted",
-            datasets=datasets, ownership_links=links, identity=identity)
-
-    def _identity(self, namespace: str, ror: str) -> dict[str, Any]:
-        if not table_exists(self.conn, "rentity_identity_matches") and \
-                not table_exists(self.conn, "ownership_identity_candidates"):
-            return {"status": "not_proposed", "matches": []}
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
-
-        identity = ResearchEntitiesIdentity(self.conn, initialize=False)
-        matches = identity.matches(namespace, scopes={"operator"}, ror=ror)
-        return {"status": "matched" if any(m["state"] == "accepted" for m in matches) else
-                "candidates_pending" if any(m["state"] == "proposed" for m in matches) else "unmatched",
-                "matches": [{k: m[k] for k in ("match_id", "kind", "method", "confidence", "state", "low_evidence")}
-                            | {"right": m["right"]} for m in matches],
-                "note": "only accepted matches are used; proposals, rejections and reverts are listed, never used"}
-
-    # ------------------------------------------------------------------ datasets and history
-
-    def datasets_for_paper(self, namespace: str, paper_doi: str, *, scopes: Iterable[str], as_of: Any = None
-                           ) -> dict[str, Any]:
-        """DataCite datasets whose related identifiers name a paper DOI, relation types as published."""
-        authorize(namespace, set(scopes), READ_SCOPE)
-        cutoff = as_of_ms(as_of)
-        native = native_for("dataset", paper_doi)
-        datasets = self._datasets(namespace, cutoff, related=native)
-        return self._envelope({"paper_doi": native}, cutoff, "answered" if datasets else "none_on_record",
-                              [d["citation"] for d in datasets], datasets=datasets,
-                              **({} if datasets else {"reason": "no held dataset states this DOI among its related "
-                                                                "identifiers"}))
-
-    def record_history(self, namespace: str, kind: str, identifier: str, *, scopes: Iterable[str],
-                       programme: str | None = None) -> dict[str, Any]:
-        """Every revision of one record, oldest first, each cited; removals and corrections included."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        if kind == "researcher":
-            require_scope(scopes, RESEARCHER_SCOPE)
-        native = native_for(kind, identifier, programme)
-        record_id = self.store.find(namespace, kind, native)
-        if record_id is None:
-            return self._envelope({"kind": kind, "identifier": native}, None, "none_on_record", [], revisions=[])
-        citations, revisions = [], []
-        latest, _ = self.store.revision_as_of(namespace, record_id, None)
-        withhold = latest is not None and latest["status"] in REMOVAL_STATUSES
-        for revision in self.store.revisions(namespace, record_id):
-            citation = self.store.citation(namespace, revision)
-            statement = self.store.statement(namespace, revision["revision_id"])
-            body = researcher_view(statement, withhold_name=withhold) if kind == "researcher" and statement["body"] \
-                else statement["body"]
-            revisions.append({"revision": revision["revision"], "status": revision["status"],
-                              "marker": revision["marker"], "effective_at": revision["effective_at"],
-                              "previous_revision_id": revision["previous_revision_id"], "record": body,
-                              "citation": citation})
-            citations.append(citation)
-        return self._envelope({"kind": kind, "identifier": native}, None, "answered", citations, revisions=revisions,
-                              memberships=self.store.memberships(namespace, record_id))
-
-    # ------------------------------------------------------------------ evidence bundle
+        return self.links.links(namespace, scopes=scopes, source_key=revision["record_key"],
+                                source_revision_id=revision["revision_id"])
 
     @staticmethod
-    def export_bundle(answer: Mapping[str, Any], *, created_at_ms: int | None = None) -> dict[str, Any]:
-        """A noesis-evidence-bundle-v1 citing every record revision the answer used with its source, revision and
-        as-of time; unresolved links and records not held are omissions."""
-        from src.evidence_bundle.builder import EvidenceBundleBuilder
+    def _link_view(link: Mapping[str, Any]) -> dict[str, Any]:
+        return {"kind": link["kind"], "status": link["status"], "target_side": link["target_side"],
+                "target_key": link["target_key"], "target_revision": link["target_revision"],
+                "basis": link["basis"], "link_id": link["link_id"]}
 
-        if answer.get("contract") != ANSWER_CONTRACT:
-            raise ResearchEntitiesError("invalid_request", "export an answer of the research-entities queries")
-        builder = EvidenceBundleBuilder("answer", {"operation": "research-entities", "query": answer["query"]},
-                                        created_at_ms=created_at_ms, as_of_ms=answer.get("as_of_ms"))
-        refs = []
-        for citation in answer.get("citations") or []:
-            object_id = f"rentity-revision:{citation['revision_id'].rsplit(':', 1)[-1]}"
-            builder.add_object("evidence", {
-                "kind": "research-entity-revision", "locator": {"cited": True, "record_id": citation["record_id"],
-                                                                "revision_id": citation["revision_id"]},
-                "source": citation["provider"], "record_kind": citation["record_kind"],
-                "native_id": citation["native_id"], "status": citation["status"],
-                "revision": {k: citation[k] for k in ("revision", "revision_marker", "revision_basis",
-                                                      "effective_at", "retrieved_at")},
-                "as_of": citation["as_of"], "release": {k: citation[k] for k in ("release_id", "release_label",
-                                                                                 "published_on")},
-                "licence": citation["licence"], "attribution": citation["attribution"],
-                "evidence_origin": citation["evidence_origin"], "live_verification": citation["live_verification"],
-            }, object_id=object_id)
-            refs.append(object_id)
-            if citation.get("record_url"):
-                builder.add_external_reference(f"record:{citation['record_id']}", citation["record_url"],
-                                               required=False)
-        for key in ("linked_papers",):
-            for item in answer.get(key) or []:
-                if item["target_status"] != "resolved":
-                    builder.add_omission(f"asserted work {item['doi']}: {item['target_status']}")
-        for hop in answer.get("lineage") or []:
-            if hop["to_status"] != "held":
-                builder.add_omission(f"lineage {hop['type']} {hop['to']} is not held")
-        if answer.get("status") != "answered":
-            builder.add_omission(str(answer.get("reason") or answer.get("status")))
-        root = {k: answer.get(k) for k in ("contract", "query", "as_of", "status", "never")}
-        builder.add_object("answer", {"kind": "research-entities", **root}, object_id="rentity-answer:root",
-                           references=sorted(set(refs)), root=True)
-        return builder.build()
+    @staticmethod
+    def _versions(history: list[dict[str, Any]]) -> list[dict[str, Any]]:
+        return [{"revision_id": v["revision_id"], "revision_no": v["revision_no"], "change": v["change"],
+                 "native_revision": v["native_revision"], "source_as_of": v["source_as_of"], "status": v["status"],
+                 "observed_at_ms": v["observed_at_ms"]} for v in history]
 
+    # ------------------------------------------------------------------ RE09
 
-__all__ = ["ANSWER_CONTRACT", "ResearchEntitiesQueries"]
+    def researcher(self, namespace: str, orcid: str, *, scopes: Iterable[str], as_of: str | None = None
+                   ) -> dict[str, Any]:
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        if not may_read_researchers(scopes):
+            raise ResearchEntityError("unauthorized", f"{RESEARCHER_SCOPE} is required to read researcher records "
+                                      "(RE01 minimisation decision)")
+        identifier = valid_orcid(orcid)
+        if identifier is None:
+            raise ResearchEntityError("invalid_request", "an ORCID identifier with a valid checksum is required")
+        key = f"research-entities:orcid:{identifier}"
+        history = self.store.history(namespace, key, scopes=scopes)
+        base = {"contract": CONTRACT, "query": "researcher", "namespace": namespace, "orcid": identifier, "as_of": as_of,
+                "exclusions": list(EXCLUSIONS)}
+        if not history:
+            return {**base, "status": "none_on_record",
+                    "note": "no ORCID record of this identifier is on record; this says nothing about the researcher"}
+        revision = self.store.as_of(namespace, key, as_of, scopes=scopes)
+        if revision is None:
+            return {**base, "status": "not_yet_published", "record_versions": self._versions(history),
+                    "note": "no version of the record was in force on that date"}
+        fields = revision["record"]["fields"]
+        links = self._links(namespace, scopes, revision)
+        day = str(as_of)[:10] if as_of else None
+        employments = []
+        for item in fields.get("employments") or []:
+            rid = ((item.get("organisation") or {}).get("disambiguated") or {}).get("ror_id")
+            employments.append({
+                "assertion": ASSERTED, "put_code": item["put_code"],
+                "organisation_as_asserted": item["organisation"], "department": item["department"],
+                "role": item["role"], "start_date": item["start_date"], "end_date": item["end_date"],
+                "covers_as_of_date": _date_in(item["start_date"], item["end_date"], day),
+                "asserted_by": item["asserted_by"], "last_modified": item["last_modified"],
+                "organisation_record": next((self._link_view(link) for link in links
+                                             if link["kind"] == "researcher-asserted-employment"
+                                             and link["reference"] == f"ror:{rid}"), None) if rid else None,
+            })
+        works = []
+        for item in fields.get("works") or []:
+            dois = [e["value"] for e in item.get("external_ids") or [] if e.get("type") == "doi"]
+            works.append({
+                "assertion": ASSERTED, "put_code": item["put_code"], "type": item["type"], "title": item["title"],
+                "publication_year": item["publication_year"], "external_ids": item["external_ids"],
+                "asserted_by": item["asserted_by"], "last_modified": item["last_modified"],
+                "linked_records": [self._link_view(link) for link in links if link["kind"] ==
+                                   "researcher-asserted-work" and link["reference"] in {f"doi:{d}" for d in dois}],
+            })
+        answer = {**base, "status": "answered", "record_status": revision["status"],
+                  "record_version": {"revision_id": revision["revision_id"], "last_modified": fields["last_modified"],
+                                     "native_revision": revision["native_revision"]},
+                  "name": fields.get("name"), "name_status": fields.get("name_status"),
+                  "employments": employments, "works": works,
+                  "withheld_sections": fields.get("withheld_sections") or [],
+                  "record_versions": self._versions(history), "citation": revision["citation"],
+                  "labels": {"works": ASSERTED, "employments": ASSERTED},
+                  "minimisation": "only the public fields allowed by research-entities-minimisation-v1 are returned"}
+        if forbidden_keys(answer):
+            raise ResearchEntityError("exclusion_violation", "an answer carries a ranking or metric key")
+        return answer
+
+    # ------------------------------------------------------------------ RE10
+
+    def _org_at(self, namespace, rid, as_of, scopes) -> dict[str, Any] | None:
+        return self.store.as_of(namespace, f"research-entities:ror:{ror_id(rid)}", as_of, scopes=scopes)
+
+    def _chain(self, namespace, revision, as_of, scopes, direction) -> list[dict[str, Any]]:
+        chain, seen, current = [], {revision["record_key"]}, revision
+        while len(chain) < MAX_CHAIN:
+            nxt = [r["id"] for r in current["record"]["fields"]["relationships"] if r["type"] == direction]
+            if not nxt:
+                break
+            target = self._org_at(namespace, nxt[0], as_of, scopes)
+            chain.append({"ror_id": nxt[0], "relationship": direction, "several_published": len(nxt) > 1,
+                          "status": target["status"] if target else "not_on_record",
+                          "citation": target["citation"] if target else None})
+            if target is None or target["record_key"] in seen:
+                break
+            seen.add(target["record_key"])
+            current = target
+        return chain
+
+    def organisation(self, namespace: str, ror: str, *, scopes: Iterable[str], as_of: str | None = None
+                     ) -> dict[str, Any]:
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        rid = ror_id(ror)
+        if rid is None:
+            raise ResearchEntityError("invalid_request", "a ROR id is required")
+        key = f"research-entities:ror:{rid}"
+        history = self.store.history(namespace, key, scopes=scopes)
+        base = {"contract": CONTRACT, "query": "organisation", "namespace": namespace, "ror_id": ror_url(rid),
+                "as_of": as_of, "exclusions": list(EXCLUSIONS)}
+        if not history:
+            return {**base, "status": "none_on_record",
+                    "note": "no ROR record of this id is on record in the acquired releases"}
+        revision = self.store.as_of(namespace, key, as_of, scopes=scopes)
+        if revision is None:
+            return {**base, "status": "not_yet_published", "record_versions": self._versions(history)}
+        fields = revision["record"]["fields"]
+        relationships = []
+        for relation in fields["relationships"]:
+            related = self._org_at(namespace, relation["id"], as_of, scopes)
+            relationships.append({**relation, "related_status": related["status"] if related else "not_on_record",
+                                  "related_citation": related["citation"] if related else None})
+        projects, pending = self._projects(namespace, key, as_of, scopes)
+        answer = {
+            **base, "status": "answered", "record_status": fields["status"], "display_name": fields["display_name"],
+            "names": fields["names"], "types": fields["types"], "external_ids": fields["external_ids"],
+            "release": revision["record"].get("release"), "citation": revision["citation"],
+            "record_versions": self._versions(history),
+            "lineage": {"basis": "ROR relationships as published in the release in force", "relationships":
+                        relationships, "successors": self._chain(namespace, revision, as_of, scopes, "successor"),
+                        "predecessors": self._chain(namespace, revision, as_of, scopes, "predecessor")},
+            "projects": projects, "participation_candidates_pending_review": pending,
+            "contribution_totals": self._totals(projects),
+            "datasets": self._datasets(namespace, key, [p["project_key"] for p in projects], scopes),
+            "ownership": self._ownership(namespace, key, scopes),
+        }
+        answer["asserted_employments"] = self._employments(namespace, ror_url(rid), scopes)
+        if forbidden_keys(answer):
+            raise ResearchEntityError("exclusion_violation", "an answer carries a ranking or metric key")
+        return answer
+
+    def _projects(self, namespace, key, as_of, scopes) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
+        from src.kb.research_entities_identity import ResearchEntityIdentity
+
+        if not table_exists(self.conn, "ownership_identity_candidates"):
+            return [], []
+        identity = ResearchEntityIdentity(self.conn, initialize=False)
+        views = [v for v in identity.candidates(namespace, scopes=scopes) if v["target_key"] == key
+                 and ":cordis-participant:" in v["subject_key"]]
+        pending = [{"participant_key": v["subject_key"], "candidate_id": v["candidate_id"], "method": v["method"],
+                    "low_evidence": v["low_evidence"],
+                    "note": "a proposed match is not used until a reviewer accepts it"}
+                   for v in views if v["state"] == "proposed"]
+        out = []
+        for match in [v for v in views if v["state"] == "accepted"]:
+            pic = match["subject_key"].rsplit(":", 1)[1]
+            for head in self.store.records(namespace, scopes=scopes, kinds=["project"]):
+                revision = self.store.as_of(namespace, head["record_key"], as_of, scopes=scopes)
+                if revision is None:
+                    continue
+                fields = revision["record"]["fields"]
+                for participant in fields["participants"]:
+                    if participant.get("pic") != pic:
+                        continue
+                    out.append({
+                        "project_key": revision["record_key"], "programme": fields["programme"],
+                        "project_id": fields["project_id"], "acronym": fields["acronym"], "title": fields["title"],
+                        "status": fields["status"], "start_date": fields["start_date"], "end_date": fields["end_date"],
+                        "participant": {"pic": pic, "name_as_published": participant["name"],
+                                        "role": participant["role"], "order": participant["order"],
+                                        "ec_contribution": participant["ec_contribution"],
+                                        "net_ec_contribution": participant["net_ec_contribution"],
+                                        "total_cost": participant["total_cost"]},
+                        "match": {"candidate_id": match["candidate_id"], "decision_id": match["decision_id"],
+                                  "method": match["method"], "reviewer": match["reviewer"]},
+                        "citation": revision["citation"],
+                    })
+        out.sort(key=lambda p: (p["programme"], p["project_id"]))
+        return out, pending
+
+    @staticmethod
+    def _totals(projects: list[dict[str, Any]]) -> dict[str, Any]:
+        """EU contributions as published, summed per currency (derived, listing the inputs); never across currencies."""
+        groups: dict[str, dict[str, Any]] = {}
+        for project in projects:
+            money = project["participant"].get("ec_contribution") or {}
+            if money.get("amount") is None:
+                continue
+            group = groups.setdefault(money["currency"], {"sum": Decimal(0), "inputs": []})
+            group["sum"] += Decimal(money["amount"])
+            group["inputs"].append({"project_key": project["project_key"], "amount": money["amount"],
+                                    "revision_id": project["citation"]["revision_id"]})
+        return {"basis": "derived from the listed participations' EU contributions as published; per currency, "
+                         "never converted or summed across currencies; not stored",
+                "per_currency": {currency: {"sum": format(g["sum"], "f"), "inputs": g["inputs"]}
+                                 for currency, g in sorted(groups.items())},
+                "currencies": sorted(groups)}
+
+    def _datasets(self, namespace, key, project_keys, scopes) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "research_entity_links"):
+            return []
+        found: dict[str, dict[str, Any]] = {}
+        for link in self.links.links(namespace, scopes=scopes, status="resolved"):
+            via = None
+            if link["kind"] == "dataset-creator-affiliation" and link["target_key"] == key:
+                via = {"basis": "the dataset metadata cites the organisation's ROR id", "link_id": link["link_id"]}
+            elif link["kind"] == "dataset-funded-by-project" and link["target_key"] in project_keys:
+                via = {"basis": "the dataset metadata names a project the organisation participates in as its award",
+                       "project_key": link["target_key"], "link_id": link["link_id"]}
+            if via is None:
+                continue
+            head = self.store.records(namespace, scopes=scopes, record_keys=[link["source_key"]])
+            if not head or head[0]["revision_id"] != link["source_revision_id"]:
+                continue  # only links of the dataset's current revision
+            fields = head[0]["record"]["fields"]
+            entry = found.setdefault(link["source_key"], {
+                "dataset_key": link["source_key"], "doi": fields["doi"], "title": head[0]["record"]["title"],
+                "record_status": head[0]["status"], "metadata_version": fields.get("metadata_version"),
+                "via": [], "citation": head[0]["citation"]})
+            entry["via"].append(via)
+        return sorted(found.values(), key=lambda d: d["dataset_key"])
+
+    def _ownership(self, namespace, key, scopes) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "research_entity_links"):
+            return []
+        return [self._link_view(link) for link in self.links.links(
+            namespace, scopes=scopes, source_key=key, kind="organisation-ownership-entity")]
+
+    def _employments(self, namespace, rid, scopes) -> dict[str, Any]:
+        """ORCID iDs whose current public record asserts an employment at the organisation (researcher scope only)."""
+        if not may_read_researchers(scopes):
+            return {"withheld": True, "note": f"{RESEARCHER_SCOPE} is required to list researcher records"}
+        if not table_exists(self.conn, "research_entity_links"):
+            return {"withheld": False, "assertions": []}
+        rows = []
+        for link in self.links.links(namespace, scopes=scopes, kind="researcher-asserted-employment",
+                                     target_key=f"research-entities:ror:{ror_id(rid)}"):
+            head = self.store.records(namespace, scopes=scopes, record_keys=[link["source_key"]])
+            if head and head[0]["revision_id"] == link["source_revision_id"]:
+                rows.append({"orcid": head[0]["record"]["fields"]["orcid"], "assertion": ASSERTED,
+                             "put_code": link["basis"]["put_code"], "start_date": link["basis"]["start_date"],
+                             "end_date": link["basis"]["end_date"], "citation": head[0]["citation"]})
+        return {"withheld": False, "assertions": rows,
+                "note": "affiliations are only what each researcher's public ORCID record asserts; none is inferred"}
+
+    def datasets_for_paper(self, namespace: str, doi: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        target = normalize_doi(doi)
+        if target is None:
+            raise ResearchEntityError("invalid_request", "a DOI is required")
+        datasets = []
+        for head in self.store.records(namespace, scopes=scopes, kinds=["dataset"]):
+            relations = [r for r in head["record"]["fields"].get("related_identifiers") or [] if r.get("doi") == target]
+            if relations:
+                datasets.append({"dataset_key": head["record_key"], "doi": head["record"]["fields"]["doi"],
+                                 "title": head["record"]["title"], "record_status": head["status"],
+                                 "relations_as_published": [r["relation_type"] for r in relations],
+                                 "citation": head["citation"]})
+        return {"contract": CONTRACT, "query": "datasets_for_paper", "namespace": namespace, "doi": target,
+                "status": "answered" if datasets else "none_on_record", "datasets": datasets,
+                "basis": "DataCite related identifiers as published; no dataset is inferred",
+                "exclusions": list(EXCLUSIONS)}
+
+    # ------------------------------------------------------------------ evidence
+
+    @staticmethod
+    def evidence_bundle(answer: Mapping[str, Any]) -> dict[str, Any]:
+        """Assertions each citing the record revision behind it: source, record revision, as-of and observation time."""
+        bibliography: dict[str, dict[str, Any]] = {}
+        assertions = []
+
+        def add(identifier: str, text: str, citation: Mapping[str, Any] | None) -> None:
+            if not citation:
+                return
+            bibliography.setdefault(citation["revision_id"], {
+                "id": citation["revision_id"],
+                "text": f"{citation['provider']} {citation['record_key']} (source {citation['source_id']}, revision "
+                        f"{citation['revision_no']}, native revision {citation['native_revision']}, as of "
+                        f"{citation['source_as_of'] or 'not stated'}, observed {citation['observed_at_ms']}, "
+                        f"{citation['evidence_origin']} evidence), {citation['locator']}"})
+            assertions.append({"id": identifier, "text": text, "kind": "sourced",
+                               "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
+                                                 "id": citation["record_key"], "revision": citation["revision_id"],
+                                                 "locator": {"section": citation["record_key"]}}],
+                               "citations": [citation["revision_id"]]})
+
+        if answer.get("query") == "researcher" and answer.get("status") == "answered":
+            add("record", f"ORCID record {answer['orcid']} version {answer['record_version']['last_modified']} "
+                f"({answer['record_status']})", answer["citation"])
+            for item in answer["employments"]:
+                add(f"employment-{item['put_code']}", f"ORCID-asserted employment at "
+                    f"{item['organisation_as_asserted'].get('name')} ({item['start_date']} to "
+                    f"{item['end_date'] or 'open'})", answer["citation"])
+            for item in answer["works"]:
+                add(f"work-{item['put_code']}", f"ORCID-asserted work {item['title']} "
+                    f"{[e['value'] for e in item['external_ids']]}", answer["citation"])
+        elif answer.get("query") == "organisation" and answer.get("status") == "answered":
+            add("record", f"ROR {answer['ror_id']} {answer['display_name']} ({answer['record_status']}) in release "
+                f"{(answer.get('release') or {}).get('label')}", answer["citation"])
+            for relation in answer["lineage"]["relationships"]:
+                add(f"relationship-{relation['type']}-{relation['id']}", f"{relation['type']} {relation['id']} "
+                    f"({relation['related_status']})", relation["related_citation"] or answer["citation"])
+            for project in answer["projects"]:
+                add(f"project-{project['project_key']}", f"{project['programme']} {project['project_id']} "
+                    f"{project['acronym']}: {project['participant']['role']}, EU contribution "
+                    f"{(project['participant']['ec_contribution'] or {}).get('amount')} "
+                    f"{(project['participant']['ec_contribution'] or {}).get('currency')} as published",
+                    project["citation"])
+            for dataset in answer["datasets"]:
+                add(f"dataset-{dataset['dataset_key']}", f"dataset {dataset['doi']} {dataset['title']}",
+                    dataset["citation"])
+        elif answer.get("query") == "datasets_for_paper":
+            for dataset in answer.get("datasets") or []:
+                add(f"dataset-{dataset['dataset_key']}", f"dataset {dataset['doi']} "
+                    f"{'/'.join(dataset['relations_as_published'])} {answer['doi']}", dataset["citation"])
+        title = answer.get("orcid") or answer.get("ror_id") or answer.get("doi")
+        return {"sections": [{"id": answer.get("query", "answer"), "title": f"{title} as of {answer.get('as_of')}",
+                              "assertions": assertions}],
+                "bibliography": list(bibliography.values()), "exclusions": list(EXCLUSIONS)}

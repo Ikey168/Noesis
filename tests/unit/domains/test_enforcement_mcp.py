@@ -1,93 +1,96 @@
-"""Enforcement MCP entry points: catalog registration, scopes, exclusions and minimised answers (#2651, EN12)."""
+"""Legal regulatory enforcement MCP tools: registration, scopes, exclusions and the minimisation guard (#2710)."""
 
 from __future__ import annotations
 
 import asyncio
 import json
 
-import duckdb
 import pytest
 
-from src.evidence_bundle.verifier import verify_bundle
-from src.kb.enforcement import forbidden_keys
-from src.mcp_host.catalog import _mutability, _required_scopes
+from src.kb.enforcement import EnforcementError
 from tests.unit import enforcement_harness as h
-from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.enforcement import (
     ENFORCEMENT_SCOPES,
     ENFORCEMENT_TOOLS,
     ENFORCEMENT_WRITES,
+    guarded,
 )
-from tools.knowledge_engine_mcp.legal import LEGAL_TOOLS
 
 
-@pytest.fixture()
-def mcp_env(tmp_path, monkeypatch):
-    path = str(tmp_path / "enforcement-mcp.duckdb")
-    conn = duckdb.connect(path)
-    h.ownership(conn)
-    h.load_all(conn)
-    h.seed_legal(conn)
-    conn.close()
-    state = {"principal": "alice", "scopes": set(h.REVIEW_SCOPES)}
-    monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
-    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+def test_tools_are_registered_through_the_legal_pack_with_scopes():
+    from tools.knowledge_engine_mcp.legal import (
+        LEGAL_SCOPES,
+        LEGAL_TOOLS,
+        LEGAL_WRITES,
+        required_scopes,
+    )
 
-
-def test_tools_are_registered_in_the_legal_module_with_scopes_and_exclusions(mcp_env):
-    tools, _ = mcp_env
-    assert ENFORCEMENT_TOOLS <= set(tools) and ENFORCEMENT_TOOLS <= LEGAL_TOOLS
+    assert ENFORCEMENT_TOOLS <= LEGAL_TOOLS and ENFORCEMENT_WRITES <= LEGAL_WRITES
     assert set(ENFORCEMENT_SCOPES) == ENFORCEMENT_TOOLS
-    for name in ENFORCEMENT_TOOLS:
-        mutability = _mutability(name)
-        assert mutability == ("write" if name in ENFORCEMENT_WRITES else "read"), name
-        assert _required_scopes("knowledge_engine_mcp", mutability, name) == ENFORCEMENT_SCOPES[name]
+    for tool in ENFORCEMENT_TOOLS:
+        assert LEGAL_SCOPES[tool] == ENFORCEMENT_SCOPES[tool]
+        assert required_scopes(tool, "write" if tool in ENFORCEMENT_WRITES else "read") == ENFORCEMENT_SCOPES[tool]
+
+
+def test_the_catalog_lists_every_tool():
     catalog = json.loads((h.ROOT / "contracts/generated/noesis-mcp-catalog-v1.json").read_text())
-    assert ENFORCEMENT_TOOLS <= {t["name"] for t in catalog["tools"]}
-    descriptor = json.loads((h.ROOT / "packs/legal/providers/legal.enforcement.json").read_text())
-    assert {op["tool"].split(".", 1)[1] for op in descriptor["operations"]} == ENFORCEMENT_TOOLS
-    for name in ("enforcement_actions_for_entity", "enforcement_actions_by_authority",
-                 "enforcement_source_contracts"):
-        assert "compliance score" in tools[name].description or "compliance scoring" in tools[name].description
-    assert "never summed" in tools["enforcement_actions_by_authority"].description
-    assert "without admitting or denying" in tools["enforcement_actions_for_entity"].description
+    names = {t["name"] for t in catalog["tools"] if t.get("server") == "noesis-knowledge-engine"}
+    assert ENFORCEMENT_TOOLS <= names
 
 
-def test_review_link_answer_export_and_monitor_through_mcp(mcp_env):
-    tools, state = mcp_env
-    proposed = tools["propose_enforcement_respondent_matches"].fn(namespace=h.NS, ownership_namespace=h.OWN_NS)
-    exact = next(c for c in proposed["candidates"] if c["method"] == "exact-identifier")
-    state["principal"] = "bob"
-    reviewed = tools["review_enforcement_respondent_match"].fn(namespace=h.NS, candidate_id=exact["candidate_id"],
-                                                               decision="accept", reason="CIK stated")
-    assert reviewed["state"] == "accepted"
-    linked = tools["link_enforcement_records"].fn(namespace=h.NS, ownership_namespace=h.OWN_NS)
-    assert linked["links"]
-    answer = tools["enforcement_actions_for_entity"].fn(namespace=h.NS, entity=h.SEC_CIK_ENTITY,
-                                                        ownership_namespace=h.OWN_NS, as_of="2099-12-31")
-    assert answer["status"] == "answered" and forbidden_keys(answer) == []
-    assert "Jordan" not in json.dumps(answer) and "natural person 2" in json.dumps(answer)
-    refused = tools["enforcement_actions_for_entity"].fn(namespace=h.NS, entity=h.PERSON_ENTITY,
-                                                         ownership_namespace=h.OWN_NS)
-    assert refused["ok"] is False and refused["error"]["code"] == "natural_person_not_a_query_key"
-    by_authority = tools["enforcement_actions_by_authority"].fn(namespace=h.NS, authority="uk-fca")
-    assert by_authority["penalties_by_authority_and_currency"][0]["count"] == 3
-    exported = tools["export_enforcement_evidence_bundle"].fn(namespace=h.NS, entity=h.SEC_CIK_ENTITY,
-                                                              ownership_namespace=h.OWN_NS, as_of="2099-12-31")
-    assert verify_bundle(exported["bundle"]).valid
-    history = tools["enforcement_action_history"].fn(namespace=h.NS, action_key=h.SEC_LR)
-    assert history["revisions"][h.SEC_LR]
-    contracts = tools["enforcement_source_contracts"].fn()
-    assert contracts["live_verification"]["uk-fca"]["status"] == "unverified-live"
-    assert "natural_persons" in contracts["minimisation"]
-    readiness = tools["enforcement_readiness"].fn(namespace=h.NS)
-    assert set(readiness["features"]) == {"enforcement-sec", "enforcement-fca", "enforcement-epa",
-                                          "enforcement-edpb"}
-    monitor = tools["create_enforcement_monitor"].fn(namespace=h.NS, request_key="mcp", watch="authority",
-                                                     key="uk-fca")
-    assert monitor["subscription_id"]
-    state["scopes"] = set(h.READ_ONLY)
-    denied = tools["revert_enforcement_respondent_match"].fn(namespace=h.NS, candidate_id=exact["candidate_id"],
-                                                             reason="x")
-    assert denied["ok"] is False
+def test_tool_descriptions_declare_the_exclusions():
+    from mcp.server.fastmcp import FastMCP
+
+    from tools.knowledge_engine_mcp.enforcement import register
+
+    mcp = FastMCP("test")
+    register(mcp, lambda fn, **_: fn(None), lambda: ("alice", set()))
+    tools = {t.name: t for t in asyncio.run(mcp.list_tools())}
+    assert set(tools) == ENFORCEMENT_TOOLS
+    for name in ("enforcement_actions_for_entity", "enforcement_actions_by_authority"):
+        text = tools[name].description.lower()
+        assert "no risk or compliance scoring" in text or "no ranking, scoring" in text
+    assert "individuals are never proposed" in " ".join(tools["propose_enforcement_identity_matches"].description.split())
+
+
+def test_outputs_pass_the_minimisation_guard_and_carry_the_exclusions():
+    clean = guarded({"actions": [{"title": "Exampla Holdings plc and [individual]"}]})
+    assert "no profiling of named individuals" in clean["exclusions"]
+    for bad in ({"risk_score": 3}, {"actions": [{"respondent": {"date_of_birth": "1970-01-01"}}]},
+                {"finding_of_wrongdoing": True}):
+        with pytest.raises(EnforcementError) as exc:
+            guarded(bad)
+        assert exc.value.code == "minimisation_violation"
+
+
+def test_tools_answer_over_the_fixtures():
+    from mcp.server.fastmcp import FastMCP
+
+    from tools.knowledge_engine_mcp.enforcement import register
+
+    conn = h.connection()
+    h.reviewed(conn)
+
+    def safe(fn, **_):
+        return fn(conn)
+
+    mcp = FastMCP("test")
+    register(mcp, safe, lambda: ("alice", h.SCOPES))
+
+    def call(name, **arguments):
+        result = asyncio.run(mcp.call_tool(name, arguments))
+        payload = result[1] if isinstance(result, tuple) else result
+        return payload.get("result", payload) if isinstance(payload, dict) else json.loads(payload[0].text)
+
+    answer = call("enforcement_actions_for_entity", namespace=h.NS, entity=h.HOLD_ENTITY,
+                  ownership_namespace=h.OWN_NS, group=True)
+    assert {a["action_key"] for a in answer["actions"]} == {h.SEC_LR, h.FCA_EX, h.EDPB_EX}
+    assert answer["exclusions"]
+    bundle = call("export_enforcement_evidence_bundle", namespace=h.NS, ownership_namespace=h.OWN_NS,
+                  entity=h.HOLD_ENTITY, group=True)["bundle"]
+    cited = {b["id"] for b in bundle["bibliography"]}
+    assert all(set(a["citations"]) <= cited for a in bundle["sections"][0]["assertions"])
+    assert all(b["source"]["provider"] and b["record_revision"]["revision_id"] and b["as_of"]["record_time_ms"]
+               for b in bundle["bibliography"])
+    contracts = call("enforcement_source_contracts")
+    assert set(contracts["contracts"]) == {"us-sec", "uk-fca", "us-epa-echo", "edpb-art60"}

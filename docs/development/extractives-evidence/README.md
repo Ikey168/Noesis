@@ -1,10 +1,13 @@
-# Extractives: live-coverage evidence
+# Extractives evidence
 
-This directory holds the source audit ([`source-audit.md`](source-audit.md)) and
-dated live checks only. Offline fixture evidence lives in
-`tests/unit/domains/test_extractives_*.py` (the journey is
-`tests/unit/domains/test_extractives_acceptance.py`) and is never recorded here.
+Evidence for the Economics `economics.extractives` provider (tracker #2653).
 
-| Run | Result |
-| --- | --- |
-| none yet | No dated live run exists. EITI summary data, USGS Mineral Commodity Summaries and BGS World Mineral Statistics stay `unverified-live` until a bounded live check (EX13, #2717) records dated counts per declared document, publication labels, response hashes and failure codes here. |
+- [Source audit](source-audit.md) - EITI, USGS Mineral Commodity Summaries and
+  BGS World Mineral Statistics contracts, the personal-data minimisation
+  decision and the bounded first coverage (EX01, #2657). Written without live
+  access to the providers; terms were not re-verified live.
+- Offline evidence: the authored fixtures under `tests/fixtures/extractives/`
+  and `tests/fixtures/source_packs/economic-extractives-*.json` (fictional
+  companies and figures) replayed by `tests/unit/domains/test_extractives_*.py`.
+- Live evidence: none yet. Bounded live acceptance is EX13 (#2717) and has not
+  run; offline coverage is never reported as live coverage.

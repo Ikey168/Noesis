@@ -1,160 +1,131 @@
-# Treaties: source-contract audit, licence decisions, minimisation and bounded coverage (TR01)
+# Treaties and international law: source-contract audit, minimisation decision and bounded coverage (TR01)
 
 Tracking: #2581 · delivery issue #2586 · recorded 2026-09-30.
 
-This audit sets out, per source, what the Legal pack's treaties provider
-(`legal.treaties`, features `treaties-untc`, `treaties-eu`, `treaties-coe`) may
-acquire, how, and on what terms. **The official pages could not be fetched from
-this runtime: the egress proxy blocks `treaties.un.org`, `www.un.org`,
-`www.coe.int`, `op.europa.eu` and `publications.europa.eu`.** Terms and
-endpoints below come from search-result extracts of the official pages, read on
-2026-09-30 and cited with their URLs, and from the Legal pack's existing CELLAR
-adapter. Every item marked _verify_ must be checked against the live page, the
-live terms and a real response before the first dated live run (TR13, #2645).
-No source is `live` until that run exists.
-
-The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
-`LICENCE_DECISIONS`, `MINIMISATION`, `BOUNDED_COVERAGE` and `LIVE_VERIFICATION`
-in `src/ingestion/treaties_sources.py`; each source entry in
+This audit sets out, per source, what the Legal pack's `legal.treaties`
+provider may acquire, how, and on what terms. **It was written without network
+access: the sources' terms and documentation pages were not re-read live for
+this audit.** Endpoints, element structures, fields and terms come from the
+sources' public documentation as the author knows it and from the issue's
+references. **Every item marked _verify_ must be checked against the live
+documentation, the live terms and a real response before the first dated live
+run (TR13, #2645). No source is `live` until that run exists.** The
+machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`MINIMISATION`, `BOUNDED_COVERAGE` and `LIVE_VERIFICATION` in
+`src/ingestion/treaties_sources.py`; each source entry in
 `config/source_packs/legal.json` (`legal-research` 1.5.0, earlier sources
-verbatim) states `treaties.live_verification` and `treaties.licence_decision`,
-and the MCP tool `treaties_source_contracts` returns the same decisions.
+verbatim) states `treaties.live_verification: unverified-live` and the
+minimisation policy `treaties-minimisation-v1`, and the MCP tool
+`treaties_source_contracts` returns the same decisions.
 
 Non-goals for every source: no legal advice, no inference of obligations or
-compliance, no interpretation of the legal effect of reservations, declarations
-or objections, and no treaty-text redistribution beyond what each source
-licenses (treaty texts are linked, never stored).
+compliance, no interpretation of the legal effect of reservations, and no
+treaty-text redistribution beyond what each source licenses (texts are
+referenced by link, never mirrored).
 
 ## Access decisions
 
 | Source (source-pack id) | Provider | Delivers | Decision | Reason |
 | --- | --- | --- | --- | --- |
-| `untc-multilateral-status` | UN Treaty Collection (UN Office of Legal Affairs, Treaty Section) | status pages of multilateral treaties deposited with the Secretary-General: participants, signatures, consents, declarations, reservations, objections, notes | `declined` (not implemented for acquisition) | The UN terms of use allow downloading for personal, non-commercial use "without any right to resell or redistribute them or to compile or create derivative works"; the online collection is stated to be proprietary and reusable only with prior written permission. Building a status store is a compilation. The adapter and parser exist and are fixture-tested, but refuse to fetch (`licence_declined`) until an operator records an accepted decision with its permission reference. |
-| `cellar-eu-international-agreements` | Publications Office of the EU (CELLAR SPARQL) | EU international agreements (CELEX sector 2): expressions, signature and entry-into-force dates, linked EU acts | `unverified-live` | Reuse of EUR-Lex/CELLAR documents is authorised with acknowledgement (Commission Decision 2011/833/EU). Reuses the Legal pack's CELLAR adapter, whose base query has prior live evidence; the agreement query's `cdm:resource_legal_date_signature` and any declared relation IRIs are _verify_. |
-| `coe-treaty-office-charts` | Council of Europe Treaty Office | chart of signatures and ratifications; reservations, declarations, withdrawals and denunciations | `unverified-live` | Reproduction of Council of Europe web material is authorised for private, informational and educational use with the source acknowledged; commercial use needs prior permission (the operator confirms the use). No documented API was found; the chart and declarations pages are parsed in the published layout, which is _verify_. |
+| `untc-treaty-status` | UN Treaty Collection status pages (`treaties.un.org`) | treaty header, participants, signatures and consents to be bound, declarations, reservations, objections, notes | `unverified-live` | No documented API; the status page is public HTML. The parser reads the element structure recorded in the authored fixture (`treaty-header`, `treaty-info`, `participants`, `declarations`, `objections`, `notes`); the live page's element ids and date formats are _verify_ |
+| `eu-cellar-agreements` | CELLAR SPARQL endpoint (Publications Office) | agreement work, language expressions, dates as stated, contracting parties, EU acts pointing at the agreement | `unverified-live` | The work/expression query is the Legal pack's reviewed CELLAR query (prior live evidence 2026-09-09, `docs/development/workflow-review-evidence/cellar-native-2026-09-09.json`). The agreement-date, contracting-party and act-relation predicates are _verify_ |
+| `coe-treaty-office` | Council of Europe Treaty Office (`www.coe.int/conventions`) | chart of signatures and ratifications, entry into force per state, denunciations, reservations, declarations and objections | `unverified-live` | No documented API; public HTML chart and declarations list. Element structure and query parameters are _verify_ |
 
-### UN Treaty Collection licence decision
-
-* UN terms of use: "The United Nations grants permission to Users to visit the
-  Site and to download and copy the information, documents and materials ...
-  for the User's personal, non-commercial use, without any right to resell or
-  redistribute them or to compile or create derivative works therefrom"
-  (search extract of <https://www.un.org/en/about-us/terms-of-use> and the
-  same standard text at
-  <https://www.un.org/Depts/los/LEGISLATIONANDTREATIES/terms_and_conditions.htm>,
-  read 2026-09-30; the pages themselves were not fetchable - _verify_).
-* "Permission is required to reuse content from any and all United Nations'
-  online platforms and databases, including legal and statistical databases";
-  permissions are requested through the Copyright Clearance Center (search
-  extract of <https://shop.un.org/rights-permissions>, read 2026-09-30 -
-  _verify_).
-* "While each individual treaty text is in the public domain, the online UN
-  Treaty Collection is proprietary and cannot be reproduced, translated,
-  distributed, sold or otherwise used without a prior written permission"
-  (search extract, attributed to the UN, of
-  <https://commons.wikimedia.org/wiki/Commons:Copyright_rules_by_territory/United_Nations>,
-  read 2026-09-30 - a secondary source; _verify_ against the UN's own notice).
-
-Decision (`declined`, recorded 2026-09-30): the `untc-multilateral-status`
-entry makes no request and stores no record; readiness and every answer list
-UNTC as "not acquired (declined licence decision)". The `treaties-untc`
-feature stays selectable, and the subdomain's offline coverage rests on the
-CELLAR and Council of Europe sources. An operator who obtains written
-permission records it in the entry's `licence_decision` (`status: accepted`,
-`reference` to the permission) and sets `live_verification: unverified-live`;
-the adapter then fetches the declared status pages only.
+No candidate source is recorded as "not implemented": the three sources'
+public-status information may be reproduced with attribution for the intended
+non-commercial research use, subject to the _verify_ items below. The UNTS
+full-text database (treaty texts) is **documented, not acquired**: texts are
+referenced by their published link only.
 
 ## Per-source contract
 
-| Source | Endpoints (relative to the declared endpoint) | Key handling | Rate limits and pagination | Identifiers (stored as published) | Revision model |
+| Source | Endpoints | Authentication and keys | Rate limits and bounds | Identifiers (stored as published) | Updates, corrections and removals |
 | --- | --- | --- | --- | --- | --- |
-| UNTC | `/Pages/ViewDetails.aspx?mtdsg_no={chapter-number}&chapter={chapter}&clang=_en` (URL pattern seen in search results for <https://treaties.un.org/pages/ViewDetails.aspx?mtdsg_no=XVIII-10&chapter=18&clang=_en>, read 2026-09-30 - _verify_) | none | none published (_verify_); one page per declared treaty | MTDSG chapter and number, UNTS registration number, UNTS volume reference, participant as published | the page's "Status as at" stamp is the depositary revision; a changed record is a new revision; an action no longer listed is a `removed-by-source` revision |
-| CELLAR | the public SPARQL endpoint `https://publications.europa.eu/webapi/rdf/sparql`: the Legal CELLAR adapter's bounded query, plus one agreement query on the same host | none | no published quota (_verify_); 1-20 CELEX per source, one page of at most `page_size` rows (a full page is `budget_exhausted`, never truncated) | CELEX, ELI, CELLAR work/expression/manifestation/item URIs, linked acts' CELEX | no source stamp: a changed result is a new revision dated by the acquisition |
-| Council of Europe | `/full-list?module=signatures-by-treaty&treatynum={number}` (seen in search results for <https://www.coe.int/en/web/conventions/full-list?module=signatures-by-treaty&treatynum=185>, read 2026-09-30) and `/full-list?module=declarations-by-treaty&treatynum={number}` (_verify_) | none | none published (_verify_); two pages per declared treaty | CETS/ETS number, state or organisation as charted | the chart's "Status as of" date is the depositary revision; denunciations and withdrawals are actions, never deletions |
+| UNTC | `/Pages/ViewDetails.aspx?src=TREATY&mtdsg_no={chapter}-{number}&chapter={n}&clang=_en` | none; no key is issued or handled | none documented (_verify_); one page per declared treaty, sequential, at most 20 treaties, 250 participants and 1,000 statements per page (larger is `budget_exhausted`, never truncated) | UNTC chapter and number (`mtdsg_no`), UNTS registration number, depositary notification (C.N.) references in notes | The page states "Status as at" (date and time): that stamp is the depositary revision. A changed row or statement is a new revision naming its predecessor; a corrected date is a revision (the depositary's correction note is kept verbatim); a row the page no longer shows is a `removed-by-source` revision, never a deletion |
+| CELLAR | `https://publications.europa.eu/webapi/rdf/sparql` (two bounded queries per agreement) | none | fair use; queries time out after 60 s (_verify_); at most 20 agreements, three expressions (ENG, FRA, DEU) | CELEX (sector 2), ELI where published, CELLAR work/expression/manifestation/item URIs, authority-table country codes for contracting parties | No per-work revision stamp is queried; each acquisition with different bindings is a new revision. Corrigenda are separate works linked by an explicit CDM triple |
+| Council of Europe | `/en/web/conventions/full-list?module=signatures-by-treaty&treatynum={cets}`, `...?module=declarations-by-treaty&numSte={cets}&codeNature=0` | none | none documented (_verify_); two pages per declared treaty, sequential, at most 20 treaties | CETS/ETS number, state name, member or non-member as published | The chart states "Status as of" (date): the depositary revision. Denunciations and withdrawals are actions with their dates, never deletions; a row no longer shown is a `removed-by-source` revision |
 
-**CELLAR agreement facts.** CDM names a "Date of signature" data property
-(`cdm:resource_legal_date_signature`) and a "Date of entry into force"
-(`cdm:resource_legal_date_entry-into-force`, which can be multi-valued - every
-value is kept, never collapsed) (search extracts of
-<https://publications.europa.eu/resource/ontology/cdm> and
-<https://github.com/Honeyfield-Org/eurlex-mcp-server/issues/48>, read
-2026-09-30 - _verify_). CDM also has an object property labelled "Decision or
-regulation associates an international agreement"; its IRI could not be
-verified, so it is not used by default: an operator may declare verified CDM
-relation IRIs in `selection.act_relations`. By default the linked acts are
-those CELLAR relates to the agreement by `cdm:work_cites_work` (either
-direction), a predicate the Legal adapter already queries. No conclusion-date
-property was verified, so the record states `conclusion.date: null` with that
-reason and cites the linked acts with their own document dates; the act's role
-(signing, concluding, implementing) is never inferred.
-
-**Council of Europe terms.** "Unless otherwise indicated, reproduction of
-material posted on Council of Europe websites ... is authorised for private use
-and for informational and educational uses relating to the Council of Europe's
-work"; reproduction is authorised with the source acknowledged, and commercial
-use needs prior permission (search extracts of
-<https://www.coe.int/en/web/portal/disclaimer> and
-<https://www.coe.int/en/web/portal/copyright-licensing-permissions>, read
-2026-09-30 - _verify_). The Treaty Office legal notice states that online
-documents may not exactly reproduce the adopted text and that only the treaties
-published by the Secretary General in the Council of Europe Treaty Series are
-authentic (search extract of <https://www.coe.int/en/web/conventions/disclaimer>,
-read 2026-09-30). Noesis therefore links texts and stores only the chart
-entries and the declarations as published, with the attribution
+**Licences and attribution.**
+UNTC: UN website terms of use allow reproduction of content for
+non-commercial purposes with attribution (_verify_ the current wording and any
+commercial-use clause); attribution `UN_ATTRIBUTION`.
+CELLAR: Commission Decision 2011/833/EU authorises reuse with acknowledgement
+of the source; attribution `EU_ATTRIBUTION`.
+Council of Europe: website terms allow reproduction with the source cited,
+not for commercial purposes without permission (_verify_); attribution
 `COE_ATTRIBUTION`.
+Treaty texts (UNTS PDFs, official CoE texts, EUR-Lex items) are **linked,
+never mirrored** by any source.
 
-**Updates, corrections and removals.** Each run re-reads the declared pages.
-A record whose content is unchanged adds nothing (a new status stamp alone is
-not a change). A depositary correction (a corrected date, a changed text) is a
-new revision with the new stamp; an action the source no longer lists for a
-re-published treaty is a `removed-by-source` revision and a later re-listing a
-`relisted` revision. Nothing is overwritten or deleted.
-
-**Unavailable-access fallback.** A failed unit (HTTP error, redirect to another
-host, schema drift, an over-budget page) fails the run for that source with its
-code; earlier revisions stay current, and nothing is marked withdrawn or
-corrected because of a failure.
+**Unavailable-access fallback.** A failed unit (HTTP error, redirect to
+another host, schema drift, a page longer than its bound) fails the run for
+that source with its code; earlier revisions stay current and nothing is
+marked withdrawn, corrected or in force because of a failure.
 
 ## Minimisation decision
 
-Treaty sources name states and organisations, not private individuals, but
-official texts (declarations, notes) can mention an office holder. The
-decision, enforced at write time by `check_minimisation` and on every MCP
-answer by `guarded`:
+Treaty sources are about states and organisations, but some published text
+names people: signatories and plenipotentiaries appear in treaty texts and
+depositary notifications, and Council of Europe declarations designating a
+national authority can carry an official's contact details. The decision,
+enforced both at parsing (`src/ingestion/treaties_sources.py`) and at write
+time (`src/kb/treaties_records.py`, `minimisation_violation`):
 
-* **Stored:** participants as the source names them (state, international
-  organisation or the EU; the kind as the source's section states it), the
-  codes a source publishes for them, and the texts of reservations,
-  declarations, objections, withdrawals, denunciations and notes verbatim.
-* **Never stored:** signatory or representative names as fields, contact
-  details, and treaty full texts (linked, not reproduced). A record carrying a
-  `signatory`, `representative`, `person`, `contact`, `email`, `address` or
-  similar key is refused (`minimisation_violation`).
-* **Person text:** an office holder mentioned in an official text stays in the
-  quoted text; it is never parsed into a person record, used as a query key or
-  a subscription target.
-* **Retention:** revisions are kept for as long as the namespace retains Legal
-  records; corrections and removals by the source are revisions.
-* **Who may query:** `knowledge:legal:read` with namespace read access;
-  identity review needs `knowledge:legal:review`.
+* **Subjects.** Participants are states, international organisations and the
+  EU as each source names them. No natural person is ever a participant, a
+  key, an identity candidate, a link or a monitor target.
+* **Stored.** Participant name as published, codes the source publishes,
+  action type and dates as published, verbatim statement text (the
+  depositary's publication of a state's act), anchors and footnotes.
+* **Never stored.** Signatory, plenipotentiary or representative names as
+  separate fields (`signatory`, `representative`, `person`, `official_name`,
+  ...), contact details as fields (`contact`, `email`, `telephone`, ...), and
+  any per-person index or profile. A record carrying such a field is refused.
+* **Redacted.** Telephone numbers and e-mail addresses inside a verbatim
+  statement are replaced by `[contact details withheld: TR01]` before a record
+  exists; the statement records `contact_details_withheld: true`. The rest of
+  the statement stays verbatim.
+* **Retention.** Retained with the treaty record; revisions are immutable and
+  superseded, never purged. No personal identifier is stored as a field, so
+  nothing personal remains to purge.
+* **Who may query.** Callers with the Legal read scope
+  (`knowledge:legal:read`) and namespace access. Statements are returned only
+  in treaty and participant answers and are never searchable by a person's
+  name.
 
-## Bounded coverage
+## Bounded first coverage
 
-| Source | First coverage | Justification |
-| --- | --- | --- |
-| UNTC | the declared MTDSG treaties, at most 20 per source (fixture: fictional XXIX-99, 2098) | declined: nothing is acquired until written permission is recorded |
-| CELLAR | 1-20 declared sector-2 CELEX numbers and 1-24 languages (fixture: fictional 22099A0101(01), ENG and FRA, two linked acts) | the Legal CELLAR adapter's own bounds; one page per query |
-| Council of Europe | at most 20 declared CETS/ETS treaties, every state or organisation the chart lists (fixture: fictional CETS No. 990, 2098-2100) | two pages per treaty; charts are small |
-| Periods | whatever the declared pages cover | as-of answers use the published dates only |
+| Source | Selection | Caps | Justification |
+| --- | --- | --- | --- |
+| UNTC | treaties named by `mtdsg_no` and chapter; first live selection: named treaties of chapters IV (human rights), XXVII (environment) and X (trade), chosen for their links to Sanctions, Legislation and Trade flows | 20 treaties, 250 participants, 1,000 statements per treaty | status pages are one request per treaty; the chapters are those the Legal, Sanctions and Trade flows packs already cite |
+| CELLAR | EU agreements named by sector-2 CELEX | 20 agreements, 3 expressions each | the EU agreements that conclude or implement a selected UNTC or CoE treaty |
+| Council of Europe | treaties named by CETS/ETS number | 20 treaties, all states listed | the conventions the EU has signed or concluded, for cross-source matching |
+| Period | the status as published at acquisition time | - | earlier statuses only as revisions this runtime has itself observed; no back-filled history |
 
-Offline fixtures (`tests/fixtures/treaties/`) are authored in each provider's
-documented page or result shape for fictional treaties, participants' actions
-and texts; nothing in them is live coverage.
+The pinned fixtures (`tests/fixtures/source_packs/legal-treaties-*.json`)
+select one fictional treaty per source (`XXVII-99`, CELEX `22090A0510(01)`,
+CETS `999`); the live selection replaces them in TR13.
 
 ## LIVE_VERIFICATION
 
-| Source | Status | Evidence |
-| --- | --- | --- |
-| `untc-multilateral-status` | `declined` | not acquired: written permission required |
-| `cellar-eu-international-agreements` | `unverified-live` | fixtures only; a dated live run is TR13 (#2645) |
-| `coe-treaty-office-charts` | `unverified-live` | fixtures only; a dated live run is TR13 (#2645) |
+All three providers are `unverified-live`. Before TR13 marks a provider
+`verified-live`, a dated bounded run must confirm: the element ids and date
+formats of the UNTC status page and the CoE chart and declarations list; the
+CELLAR predicates `resource_legal_date_signature`,
+`resource_legal_date_entry-into-force`,
+`agreement_international_has_contracting_party` and the act relations
+`resource_legal_based_on_resource_legal` and `work_cites_work`; the licence
+wording above; and that a replayed page adds no revision.
+
+## Record model
+
+`noesis-treaty-record-v2` (`contracts/schemas/jsonschema/noesis-treaty-record-v2.json`):
+`treaty` (identifiers, title as published, adoption, entry-into-force
+conditions and date, registration, depositary status stamp, text links,
+footnotes, cross-references, citations), `treaty-expression` (one language
+version), `participant`, `treaty-action` (participant as published, action
+type and heading as published, action date, deposit date, effective date) and
+`treaty-statement` (reservation, declaration, objection, communication or
+note, verbatim with its anchor, linked to the action and to the objected
+statement where the source links it). Stored by `src/kb/treaties_records.py`
+with source, record revision and as-of time on every revision.

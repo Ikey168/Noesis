@@ -1,0 +1,104 @@
+{
+ "notices": [
+  {
+   "id": 99000001,
+   "type": "DMCA",
+   "title": "DMCA (Copyright) Complaint to Exampla Social",
+   "body": "Placeholder notice body with contact details of the sender",
+   "date_sent": "2099-05-03T09:00:00Z",
+   "date_received": "2099-05-03T10:00:00Z",
+   "sender_name": "Northwind Records Ltd",
+   "principal_name": "Northwind Records Ltd",
+   "recipient_name": "Exampla Social",
+   "topics": [
+    "Copyright"
+   ],
+   "jurisdictions": [
+    "US"
+   ],
+   "action_taken": "Yes",
+   "sender_address": "1 Placeholder Street",
+   "works": [
+    {
+     "description": "Placeholder work",
+     "infringing_urls": [
+      {
+       "url": "https://exampla.example/post/0"
+      },
+      {
+       "url": "https://exampla.example/post/1"
+      },
+      {
+       "url": "https://exampla.example/post/2"
+      }
+     ],
+     "copyrighted_urls": [
+      {
+       "url": "https://northwind.example/track"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 99000002,
+   "type": "Defamation",
+   "title": "Complaint to Exampla Social [REDACTED]",
+   "body": "Placeholder notice body with contact details of the sender",
+   "date_sent": "2099-05-09T09:00:00Z",
+   "date_received": "2099-05-09T10:00:00Z",
+   "sender_name": "[Private]",
+   "principal_name": "[Private]",
+   "recipient_name": "Exampla Social",
+   "topics": [
+    "Defamation"
+   ],
+   "jurisdictions": [
+    "US"
+   ],
+   "action_taken": "Yes",
+   "sender_address": "1 Placeholder Street",
+   "works": [
+    {
+     "description": "Placeholder work",
+     "infringing_urls": [
+      {
+       "url": "https://exampla.example/post/0"
+      }
+     ],
+     "copyrighted_urls": [
+      {
+       "url": "https://northwind.example/track"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": 99000003,
+   "type": "CourtOrder",
+   "title": "Court order to Exampla Social",
+   "body": "Placeholder notice body with contact details of the sender",
+   "date_sent": "2099-05-20T09:00:00Z",
+   "date_received": "2099-05-20T10:00:00Z",
+   "sender_name": "Example District Court",
+   "principal_name": "Example District Court",
+   "recipient_name": "Exampla Social",
+   "topics": [
+    "Court Orders"
+   ],
+   "jurisdictions": [
+    "US"
+   ],
+   "action_taken": "Yes",
+   "sender_address": "1 Placeholder Street",
+   "works": []
+  }
+ ],
+ "meta": {
+  "current_page": 1,
+  "next_page": null,
+  "total_pages": 1,
+  "total_entries": 3
+ }
+}

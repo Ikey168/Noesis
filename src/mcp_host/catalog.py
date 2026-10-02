@@ -402,20 +402,20 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.labour import LABOUR_WRITES
     if name in LABOUR_WRITES:
         return "write"
-    from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_WRITES
-    if name in EXTRACTIVES_WRITES:
-        return "write"
     from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_WRITES
     if name in WEB_ARCHIVE_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.education_statistics import EDUCATION_WRITES
     if name in EDUCATION_WRITES:
         return "write"
-    from tools.knowledge_engine_mcp.lifesci import LIFESCI_WRITES
+    from tools.knowledge_engine_mcp.life_sciences import LIFESCI_WRITES
     if name in LIFESCI_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.logistics import LOGISTICS_WRITES
     if name in LOGISTICS_WRITES:
+        return "write"
+    from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_WRITES
+    if name in EXTRACTIVES_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_WRITES
     if name in LEGISLATION_WRITES:
@@ -426,11 +426,11 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.fact_checks import FACT_CHECK_WRITES
     if name in FACT_CHECK_WRITES:
         return "write"
-    from tools.knowledge_engine_mcp.income_distribution import INCOME_WRITES
-    if name in INCOME_WRITES:
+    from tools.knowledge_engine_mcp.research_entities import RESEARCH_ENTITIES_WRITES
+    if name in RESEARCH_ENTITIES_WRITES:
         return "write"
-    from tools.knowledge_engine_mcp.research_entities import RESEARCH_ENTITY_WRITES
-    if name in RESEARCH_ENTITY_WRITES:
+    from tools.knowledge_engine_mcp.society_income import INCOME_WRITES
+    if name in INCOME_WRITES:
         return "write"
     from tools.knowledge_engine_mcp.platform_transparency import (
         PLATFORM_TRANSPARENCY_WRITES,
@@ -1137,27 +1137,28 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     from tools.knowledge_engine_mcp.labour import required_scopes as labour_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LABOUR_TOOLS:
         return labour_scopes(tool_name, mutability)
-    from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_TOOLS
-    from tools.knowledge_engine_mcp.extractives import (
-        required_scopes as extractives_scopes,
-    )
-
-    if server_stem == "knowledge_engine_mcp" and tool_name in EXTRACTIVES_TOOLS:
-        return extractives_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.education_statistics import EDUCATION_TOOLS
     from tools.knowledge_engine_mcp.education_statistics import (
         required_scopes as education_scopes,
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in EDUCATION_TOOLS:
         return education_scopes(tool_name, mutability)
-    from tools.knowledge_engine_mcp.lifesci import LIFESCI_TOOLS
-    from tools.knowledge_engine_mcp.lifesci import required_scopes as lifesci_scopes
+    from tools.knowledge_engine_mcp.life_sciences import LIFESCI_TOOLS
+    from tools.knowledge_engine_mcp.life_sciences import (
+        required_scopes as lifesci_scopes,
+    )
     if server_stem == "knowledge_engine_mcp" and tool_name in LIFESCI_TOOLS:
         return lifesci_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.logistics import LOGISTICS_TOOLS
     from tools.knowledge_engine_mcp.logistics import required_scopes as logistics_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in LOGISTICS_TOOLS:
         return logistics_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.extractives import EXTRACTIVES_TOOLS
+    from tools.knowledge_engine_mcp.extractives import (
+        required_scopes as extractives_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in EXTRACTIVES_TOOLS:
+        return extractives_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.legislation import LEGISLATION_TOOLS
     from tools.knowledge_engine_mcp.legislation import (
         required_scopes as legislation_scopes,
@@ -1176,20 +1177,18 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in FACT_CHECK_TOOLS:
         return fact_check_scopes(tool_name, mutability)
-    from tools.knowledge_engine_mcp.income_distribution import INCOME_TOOLS
-    from tools.knowledge_engine_mcp.income_distribution import (
+    from tools.knowledge_engine_mcp.research_entities import RESEARCH_ENTITIES_TOOLS
+    from tools.knowledge_engine_mcp.research_entities import (
+        required_scopes as research_entities_scopes,
+    )
+    if server_stem == "knowledge_engine_mcp" and tool_name in RESEARCH_ENTITIES_TOOLS:
+        return research_entities_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.society_income import INCOME_TOOLS
+    from tools.knowledge_engine_mcp.society_income import (
         required_scopes as income_scopes,
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in INCOME_TOOLS:
         return income_scopes(tool_name, mutability)
-    from tools.knowledge_engine_mcp.research_entities import (
-        RESEARCH_ENTITY_TOOLS,
-    )
-    from tools.knowledge_engine_mcp.research_entities import (
-        required_scopes as research_entity_scopes,
-    )
-    if server_stem == "knowledge_engine_mcp" and tool_name in RESEARCH_ENTITY_TOOLS:
-        return research_entity_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.platform_transparency import (
         PLATFORM_TRANSPARENCY_TOOLS,
     )

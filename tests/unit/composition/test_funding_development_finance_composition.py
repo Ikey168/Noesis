@@ -139,7 +139,7 @@ def test_descriptor_declares_capabilities_operations_scopes_stores_probes_and_so
     manifest = json.loads((ROOT / "config/source_packs/economic.json").read_text())
     # 1.5.0 adds the Economics trade sources (#2210) and 1.6.0 the labour sources (#2219); the CRS source and the
     # ^1.4.0 pin are unchanged.
-    assert manifest["version"] == "1.7.0"  # 1.7.0 adds the extractives sources (#2653)
+    assert manifest["version"] == "1.6.0"
 
 
 def test_the_feature_and_profile_are_declared_off_by_default():

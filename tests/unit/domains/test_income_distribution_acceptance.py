@@ -1,220 +1,120 @@
-"""Offline country-to-poverty-and-inequality acceptance for the Society bundle's ``society.income`` (IP12, #2643).
+"""IP12 (#2643): offline country-to-poverty-and-inequality acceptance for the Society bundle's society.income.
 
-The pinned World Bank PIP, Eurostat EU-SILC and OECD IDD fixtures (authored in the documented shapes; every value is
-fictional) replay through the real ``income-distribution`` adapter - the SDMX sources through the SDMX connector - and
-the runtime's projector, with the Society bundle and its link features selected in the composition plan and sockets
-blocked. The journey takes a country to cited poverty and inequality figures from each source side by side, with
-definitions, release vintages (a PPP revision among them) and comparability notes. Offline evidence only, never live
-coverage (``docs/development/income-distribution-evidence/``).
+One journey, no network: the pinned PIP, EU-SILC and OECD IDD fixtures (and their recorded revisions) run through
+the real adapters and projector; a country resolves to a Geospatial place through reviewed identity; each source's
+poverty and inequality figures come back side by side as of a release, with definitions, vintages and comparability
+notes; the series history shows revisions and PPP revisions; Demographics and Labour links are cited with pinned
+revisions; a subject with no records answers "none on record"; the exclusions and the minimisation decision hold.
 """
 
 from __future__ import annotations
 
-import asyncio
+import json
 import socket
 
-import duckdb
 import pytest
 
-from src.domains import registry as domain_registry
-from src.ingestion.income_distribution_sources import personal_keys
-from src.ingestion.source_pack_runtime import PROJECTORS
-from src.ingestion.source_packs import SourcePackConformance
+from src.evidence_bundle.verifier import verify_bundle
 from src.kb.income_distribution_identity import IncomeIdentity
 from src.kb.income_distribution_links import IncomeLinks
-from src.kb.income_distribution_monitoring import IncomeMonitor
 from src.kb.income_distribution_queries import IncomeQueries
-from src.kb.income_distribution_records import (
-    IncomeError,
-    feature_enabled,
-    forbidden_keys,
-    minimised,
-)
-from src.kb.income_distribution_store import IncomeStore, readiness
+from src.kb.income_distribution_records import PERSONAL_DATA_FIELDS, IncomeError
+from src.kb.society_bundle import export_profile, income_profile
 from tests.unit import demographics_harness as dh
 from tests.unit import income_distribution_harness as h
 from tests.unit import labour_harness as lh
-from tests.unit.composition.test_migration import _migrated
 
-FEATURES = ["pip", "eu-silc", "oecd-idd", "demographics-links", "labour-links"]
+SCOPES = h.SCOPES | {"knowledge:demographics:read", "knowledge:labour:read"}
 
 
-@pytest.fixture(autouse=True)
-def no_network(monkeypatch):
-    def refuse(*_args, **_kwargs):
-        raise AssertionError("offline acceptance must not open sockets")
+@pytest.fixture()
+def offline(monkeypatch):
+    def refuse(*args, **kwargs):
+        raise AssertionError("the acceptance journey must not open network connections")
 
     monkeypatch.setattr(socket, "create_connection", refuse)
     monkeypatch.setattr(socket.socket, "connect", refuse)
 
 
-@pytest.fixture(autouse=True)
-def isolated_registry():
-    saved = (dict(domain_registry._REGISTRY), set(domain_registry._ENABLED), domain_registry._AUTHORITY)
-    yield
-    domain_registry._REGISTRY.clear()
-    domain_registry._REGISTRY.update(saved[0])
-    domain_registry._ENABLED.clear()
-    domain_registry._ENABLED.update(saved[1])
-    domain_registry.set_authority(saved[2])
-
-
-def stored_values(conn):
-    """Every value the stores hold, as published: an answer may only show these."""
-    return {(r[0], r[1], r[2]) for r in conn.execute(
-        "SELECT v.series_id, o.period, o.value FROM income_observations o JOIN income_vintages v ON "
-        "v.namespace=o.namespace AND v.vintage_id=o.vintage_id").fetchall()}
-
-
-def accept_all(identity, proposed, namespace=h.NS):
-    for assertion in proposed:
-        if assertion["state"] == "proposed":
-            identity.review(namespace, assertion["assertion_id"], "accept", "published code",
-                            principal_id="reviewer", scopes=h.SCOPES)
-
-
-def test_country_to_cited_poverty_and_inequality_figures_from_each_source_side_by_side(tmp_path, monkeypatch):
-    conn, coordinator, bundles, _ = _migrated(h.connection())
-    coordinator.select("society", bundles["society"]["version"], features=FEATURES)
-    assert coordinator.activate("income-acceptance")["status"] == "published"
-    assert all(feature_enabled(conn, f) for f in FEATURES)
-    assert "noesis-income-distribution-record-v1" in PROJECTORS
-
-    # The pinned fixtures replay offline through the real adapter and match their recorded output hashes.
-    replay = SourcePackConformance(h.ROOT).offline(h.manifest())
-    assert replay["valid"] and replay["coverage"]["verified"] == 3
-
-    # First releases (retrieved 2099-12-01), a monitor on Germany, then every source re-published (2100-01-01).
-    h.load_all(conn)
-    monitor = IncomeMonitor(conn, now=lambda: h.FIRST_RETRIEVAL + 1)
-    watch = monitor.create(h.NS, "germany", target={"place": {"scheme": "iso3166-1-alpha3", "code": "DEU"}},
-                           principal_id="alice", scopes=h.SCOPES)
-    assert {n["kind"] for n in monitor.run(watch["subscription_id"], principal_id="alice",
-                                           scopes=h.SCOPES)["notifications"]} == {"new_period"}
+def test_country_to_cited_poverty_and_inequality_figures_from_each_source(offline):
+    conn = h.connection()
+    # Acquisition (first releases, then the recorded later releases) through the real adapters.
     h.load_all(conn, revisions=True)
-    status = readiness(conn)
-    assert all(p["live_verification"] == "unverified-live" and p["live_releases"] == 0
-               for p in status["providers"].values())
-
-    # Cross-pack stores the links point into: Labour and Demographics fixtures.
+    dh.apply(conn, "eurostat", 0)
     lh.load_all(conn)
-    dh.load_all(conn)
+    places = h.register_places(conn, keys=("de",))
 
-    # Reviewable identity: places by published ISO, Eurostat GEO and World Bank region codes; related indicators.
-    places = h.register_places(conn)
+    # Reviewable identity: proposed by one principal, accepted by another; nothing auto-merged.
     identity = IncomeIdentity(conn)
-    proposed = identity.propose_places(h.NS, principal_id="analyst", scopes=h.SCOPES, geo_namespace="geo")
-    assert {a["subject"]["code"]: a["target"]["place_id"] for a in proposed["assertions"]
-            if a["subject"]["code"] in {"DEU", "DE"}} == {"DEU": places["de"], "DE": places["de"]}
-    accept_all(identity, proposed["assertions"])
-    from src.kb.labour_identity import LabourIdentity
+    proposed = identity.propose_places(h.NS, principal_id="analyst", scopes=SCOPES)
+    assert {a["state"] for a in proposed["proposed"]} == {"proposed"}
+    assert [u["code"] for u in proposed["unmatched"]] == ["ECA"]
+    for assertion in proposed["proposed"]:
+        identity.review(h.NS, assertion["assertion_id"], "accept", "published identifier", principal_id="reviewer",
+                        scopes=SCOPES)
+    related = identity.propose_related(h.NS, principal_id="analyst", scopes=SCOPES)["proposed"]
+    assert related and all(a["evidence"]["merge"] is False for a in related)
 
-    labour_identity = LabourIdentity(conn)
-    for a in labour_identity.propose_places(lh.NS, principal_id="analyst", scopes=lh.SCOPES,
-                                            geo_namespace="geo")["assertions"]:
-        if a["state"] == "proposed":
-            labour_identity.review(lh.NS, a["assertion_id"], "accept", "code", principal_id="reviewer",
-                                   scopes=lh.SCOPES)
-    accept_all(identity, identity.propose_related(h.NS, principal_id="analyst", scopes=h.SCOPES)["assertions"])
-
-    # Cross-pack links by citation, shared identifier and accepted match, pointing at record revisions.
+    # Cross-pack links by basis, pinned to revisions on both sides.
     links = IncomeLinks(conn)
-    demographics = links.link_demographics(h.NS, principal_id="svc", scopes=h.SCOPES)
-    labour = links.link_labour(h.NS, principal_id="svc", scopes=h.SCOPES)
-    assert demographics["linked"] and labour["linked"] and labour["missing"]
-    made = [links.link(h.NS, i) for i in demographics["linked"] + labour["linked"]]
-    assert {m["basis"] for m in made} == {"shared_identifier", "accepted_match"}
-    assert all(m["income_vintage_id"] and m["target"]["vintage_id"] for m in made)
+    links.link_demographics(h.NS, principal_id="svc", scopes=SCOPES)
+    links.link_labour(h.NS, principal_id="svc", scopes=SCOPES)
+    linked = [link for link in links.links(h.NS, scopes=h.READ_ONLY) if link["state"] == "linked"]
+    assert {link["kind"] for link in linked} == {"denominator", "labour"}
+    assert {link["basis"] for link in linked} >= {"shared-identifier", "accepted-match"}
+    assert all(link["vintage_id"] and link["target"]["vintage_id"] for link in linked)
 
+    # As-of answers: each source side by side, as released by the date, never combined.
+    profile = income_profile(conn, h.NS, scopes=SCOPES, place_id=places["de"], as_of="2099-01-31")
+    headcount = profile["answers"]["poverty_headcount"]
+    assert {r["provider"] for r in headcount["results"]} == {"pip", "eurostat-silc", "oecd-idd"}
+    assert headcount["combined_value"] is None
+    lines = {(r["provider"], json.dumps(r["poverty_line"], sort_keys=True), r["ppp_base_year"])
+             for r in headcount["results"]}
+    assert len(lines) == len(headcount["results"]) == 4  # PIP 2017 and 2021 PPP, EU-SILC 60 %, OECD 50 %
+    for row in headcount["results"]:
+        assert row["definition"]["content"]["welfare_concept"] == row["welfare_concept"]
+        assert row["citation"]["vintage_id"] and row["citation"]["as_of"] and row["citation"]["provider"]
+        assert row["citation"]["live_verification"] == "unverified-live"
+    silc = next(r for r in headcount["results"] if r["provider"] == "eurostat-silc")
+    assert silc["vintage"]["release_at"] == "2098-06-10T11:00:00Z"
+    later = income_profile(conn, h.NS, scopes=SCOPES, place_id=places["de"], as_of="2099-07-01")
+    silc_later = next(r for r in later["answers"]["poverty_headcount"]["results"] if r["provider"] == "eurostat-silc")
+    assert silc_later["vintage"]["release_at"] == "2099-05-12T11:00:00Z"
+
+    # Revision history with comparability notes; unknown pairs said so.
     queries = IncomeQueries(conn)
-    before = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"],
-                                         as_of_ms=h.day_ms("2026-07-01"))
-    after = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["de"],
-                                        as_of_ms=h.day_ms("2100-02-01"), history=True)
-    # Each source side by side for Germany, never one series.
-    assert {r["provider"] for r in after["results"]} == {"pip", "eu-silc", "oecd-idd"}
-    gini = {(r["provider"], r["methodology_version"] or "") for r in after["results"]
-            if r["indicator"]["concept"] == "gini_index"}
-    assert len(gini) == 4  # PIP, EU-SILC and both OECD methodologies
-    assert all(p["combined"] is False for p in after["comparability"])
-    silc = lambda answer: next(r for r in answer["results"] if r["provider"] == "eu-silc"
-                               and r["indicator"]["concept"] == "poverty_headcount_ratio")
-    assert {v["period"]: v["value"] for v in silc(before)["values"]}["2098"] == "14.4"
-    assert {v["period"]: v["value"] for v in silc(after)["values"]}["2098"] == "14.3"
-    assert silc(after)["vintage"]["revision_of"] == silc(before)["vintage"]["vintage_id"]
-    assert silc(after)["definition"]["content"]["equivalence_scale"]["code"] == "modified-oecd"
-    pip = next(r for r in after["results"] if r["provider"] == "pip" and r["indicator"]["code"] == "headcount")
-    assert pip["poverty_line"]["ppp_base_year"] == "2017" and pip["welfare_concept"] == "income"
-    assert pip["revision_history"][-1]["changes"]["ppp_revision"] is True
-    assert pip["related_series"] and any(n["relation"] == "break_in_series" for n in pip["source_notes"])
-    for result in after["results"]:
-        for value in result["values"]:
-            citation = value["citation"]
-            assert citation["vintage_id"] and citation["definition_id"] and citation["retrieved_at"]
-            assert citation["as_of"] == after["as_of"]
+    pip = h.series(conn, "pip", "pip:DEU:national:income:headcount", ppp=2017)
+    history = queries.series_history(h.NS, pip["series_id"], scopes=h.READ_ONLY)
+    assert [v["release_label"] for v in history["vintages"]] == ["20980915_2017_01_02_PROD",
+                                                                 "20990320_2017_02_02_PROD"]
+    assert history["pairs"][0]["notes"][0]["kind"] == "ppp_revision"
+    silc_history = queries.series_history(h.NS, silc["series_id"], scopes=h.READ_ONLY)
+    assert silc_history["pairs"][0]["comparability"] == "comparability_unknown"
 
-    # History across releases and the PPP revision, with comparability stated or unknown.
-    history = queries.history(h.NS, pip["series_id"], scopes=h.READ_ONLY)
-    assert history["comparability"][0]["status"] == "noted"
-    threshold = h.series_where(conn, "eu-silc", concept="poverty_threshold")
-    assert queries.history(h.NS, threshold["series_id"], scopes=h.READ_ONLY)["comparability"][0]["status"] == (
-        "comparability_unknown")
+    # A subject with no records.
+    nothing = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, concept="poverty_headcount",
+                                          area={"scheme": "iso3166-1-alpha3", "code": "ZZX"})
+    assert nothing["results"] == [] and len(nothing["none_on_record"]) == 3
 
-    # A subject with no records, a withdrawn series and a confidential cell stay explicit.
-    france = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place={"scheme": "iso3166-1-alpha3",
-                                                                          "code": "FRA"})
-    assert france["status"] == "none_published" and france["results"] == []
-    austria = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["at"], concept="gini_index")
-    assert austria["unavailable_by_as_of"][0]["reason"] == "withdrawn_by_source"
-    berlin = queries.indicator_for_place(h.NS, scopes=h.READ_ONLY, place=places["be"])
-    assert berlin["results"][0]["withheld_periods"][0]["status"] == "confidential"
+    # Cited evidence-bundle export: every figure with source, record revision and as-of time.
+    bundle = export_profile(later, created_at_ms=h.SECOND_RETRIEVAL)
+    assert not verify_bundle(bundle).errors
+    cited = [o["payload"] for o in bundle["objects"] if o["payload"].get("kind") == "income-series-vintage"]
+    assert cited and all(c["citation"]["source"] and c["citation"]["record_revision"] and c["citation"]["as_of"]
+                         for c in cited)
 
-    # The evidence bundle cites every value with source, record revision and as-of time.
-    bundle = queries.export_bundle(after, created_at_ms=h.SECOND_RETRIEVAL)
-    cited = [o["payload"] for o in bundle["objects"] if o["payload"].get("kind") == "income-value"]
-    assert len(cited) == sum(len(r["values"]) for r in after["results"])
-    assert all(c["source"]["file_sha256"] and c["record_revision"]["vintage_id"] and c["as_of"] for c in cited)
-
-    # The subscription hears the PPP revision, revisions and new years once; a restart replays nothing.
-    later = IncomeMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 1)
-    kinds = {n["kind"] for n in later.run(watch["subscription_id"], principal_id="alice",
-                                          scopes=h.SCOPES)["notifications"]}
-    assert {"ppp_revision", "revised_value", "new_period", "definition_change"} <= kinds
-    assert IncomeMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 2).run(
-        watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
-
-    # Exclusions and minimisation: only stored published values, no later year, no derived key, no person data.
-    published = stored_values(conn)
-    latest = {}
-    for series_id, period, _ in published:
-        latest[series_id] = max(latest.get(series_id, period), period)
-    for answer in (before, after, france, austria, berlin, history):
-        assert forbidden_keys(answer) == [] and personal_keys(answer) == []
-        for result in answer.get("results") or []:
-            for value in result["values"]:
-                assert (result["series_id"], value["period"], value["value"]) in published
-                assert value["period"] <= latest[result["series_id"]]
-    assert "setting or applying poverty lines no source published" in after["exclusions"]
+    # Exclusions and the minimisation decision.
+    text = json.dumps(later)
+    assert not any(f'"{field}"' in text for field in PERSONAL_DATA_FIELDS)
+    for forbidden in ("nowcast", "gap_filled", "blended_value", "harmonised_value"):
+        assert f'"{forbidden}"' not in text
+    assert "blending PIP, EU-SILC and OECD figures into one series" in later["exclusions"]
+    item = json.loads(json.dumps(h.fetch("silc")[0][0]["income_item"]))
+    item["observations"][0]["attributes"]["respondent_id"] = "R-1"
+    header = h.fetch("silc")[0][0]["income_release"]
+    result = h.store(conn).apply_release(h.NS, {**header, "file_sha256": "0" * 64}, [item], source_id="x",
+                                         run_id="leak", principal_id="svc", scopes=h.SCOPES)
+    assert result["rejected"][0]["code"] == "personal_data"
     with pytest.raises(IncomeError):
-        minimised({"results": [{"household_id": "H-1"}]})
-
-    # Re-ingestion adds nothing.
-    releases = len(IncomeStore(conn).releases(h.NS))
-    h.load_all(conn, revisions=True)
-    assert len(IncomeStore(conn).releases(h.NS)) == releases
-
-    # The MCP tools answer the same journey from a file-backed store with read scopes only.
-    from tools.knowledge_engine_mcp import server
-
-    path = str(tmp_path / "income-acceptance.duckdb")
-    file_conn = duckdb.connect(path)
-    h.load_all(file_conn, revisions=True)
-    file_conn.close()
-    monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.READ_ONLY)))
-    monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
-    answer = tools["income_indicator_for_place"].fn(
-        namespace="global", place={"scheme": "iso3166-1-alpha3", "code": "DEU"}, concept="gini_index",
-        as_of_ms=h.day_ms("2100-02-01"))
-    assert answer["side_by_side"] is True and {r["provider"] for r in answer["results"]} == {"pip", "oecd-idd"}
-    assert forbidden_keys(answer) == [] and answer["minimisation"]
+        queries.indicator_for_place(h.NS, scopes={"knowledge:income:read"}, concept="gini", place_id=places["de"])

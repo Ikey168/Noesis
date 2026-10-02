@@ -1,90 +1,96 @@
-"""Extractives monitors through platform.subscriptions: new, revised and unchanged cases (#2702)."""
+"""Extractives monitors through subscriptions (#2653, EX10 #2702)."""
 
 from __future__ import annotations
-
-import json
 
 import pytest
 
 from src.ingestion.extractives_sources import fixture_transport
 from src.kb.extractives_monitoring import ExtractivesMonitor
-from src.kb.extractives_records import ExtractivesError
+from src.kb.extractives_records import ExtractivesError, forbidden_keys
 from tests.unit import extractives_harness as h
 
 
+def _monitor(conn, now):
+    return ExtractivesMonitor(conn, now=lambda: now)
+
+
 def _kinds(result):
-    return sorted(n["kind"] for n in result["notifications"])
+    out: dict[str, list] = {}
+    for notice in result["notifications"]:
+        out.setdefault(notice["kind"], []).append(notice)
+    return out
 
 
-def test_country_and_commodity_monitors_hear_new_reports_revisions_and_releases_once():
-    conn = h.connection()
-    h.load_first(conn)
-    h.import_concordances(conn)
-    from src.kb.extractives_identity import ExtractivesIdentity
-
-    identity = ExtractivesIdentity(conn)
-    h.review_all(identity, identity.propose_commodities(h.NS, principal_id="a", scopes=h.SCOPES)["assertions"])
-    h.review_all(identity, identity.propose_countries(h.NS, principal_id="a", scopes=h.SCOPES)["assertions"])
-    monitor = ExtractivesMonitor(conn, now=lambda: h.FIRST_RETRIEVAL + 1)
-    country = monitor.create(h.NS, "peru", target={"country": "PER"}, principal_id="alice", scopes=h.SCOPES)
-    copper = monitor.create(h.NS, "copper-peru", target={"commodity": {"hs_code": "2603"}, "country": "PER",
-                                                         "statistic": "production"},
-                            principal_id="alice", scopes=h.SCOPES)
-    assert "no new scheduler" in country["refresh"]
-    first = monitor.run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)
-    assert _kinds(first) == ["new_report", "new_report"]
-    assert all(n["source_revision"]["release_id"] and n["record_id"] for n in first["notifications"])
-    assert _kinds(monitor.run(copper["subscription_id"], principal_id="alice", scopes=h.SCOPES)) == [
-        "new_release", "new_release"]
-    # Unchanged: re-acquiring the same files adds nothing and a re-run emits nothing.
-    h.load_first(conn)
-    assert monitor.run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
-    # New and revised: the revised EITI report and the next USGS release and BGS edition.
-    h.load_later(conn)
-    later = ExtractivesMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 1)
-    revised = later.run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)
-    assert _kinds(revised) == ["report_revision"]
-    notice = revised["notifications"][0]
-    assert notice["previous_record_id"] and notice["record_id"].endswith("@2")
-    assert notice["detail"]["changes"]["lines_changed"][0]["after"]["amount_text"] == "800000.00"
-    releases = _kinds(later.run(copper["subscription_id"], principal_id="alice", scopes=h.SCOPES))
-    assert releases.count("new_release") == 2 and "revised_values" in releases and "removed_periods" in releases
-    # A restart replays nothing.
-    again = ExtractivesMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 2)
-    assert again.run(copper["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
-    polled = again.poll(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)
-    assert polled
-
-
-def test_company_monitors_follow_accepted_matches():
+def test_country_and_company_monitors_cite_new_revised_and_removed_records_and_stay_quiet_when_unchanged():
     conn = h.connection()
     h.reviewed(conn)
-    monitor = ExtractivesMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 1)
-    watch = monitor.create(h.NS, "exampla", target={"company": h.HOLD_ENTITY, "ownership_namespace": h.OWN_NS,
-                                                    "group": True}, principal_id="alice", scopes=h.SCOPES)
-    kinds = _kinds(monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES))
-    assert kinds == ["new_report", "new_report", "report_revision"]
+    monitor = _monitor(conn, h.FIRST_RETRIEVAL)
     with pytest.raises(ExtractivesError):
-        monitor.create(h.NS, "bad", target={"statistic": "production"}, principal_id="alice", scopes=h.SCOPES)
+        monitor.create(h.NS, "bad", watch={"licences": ["x"]}, principal_id="alice", scopes=h.SCOPES)
+    country = monitor.create(h.NS, "nl", watch={"countries": ["nl"]}, principal_id="alice", scopes=h.SCOPES)
+    company = monitor.create(h.NS, "exampla-int", watch={"companies": [h.INT_ENTITY, h.NORTHWIND]},
+                             principal_id="alice", scopes=h.SCOPES)
+    first = _kinds(monitor.run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES))
+    assert set(first) == {"new_report"}
+    (report,) = first["new_report"]
+    assert report["report_key"] == h.NL_REPORT and report["summary"]["added"] == 15
+    assert report["citation"]["release_version"] == "1" and report["citation"]["release_id"]
+    payments = _kinds(monitor.run(company["subscription_id"], principal_id="alice", scopes=h.SCOPES))
+    assert set(payments) == {"new_payment"}
+    assert {n["record_key"] for n in payments["new_payment"]} >= {h.CIT_PAYMENT, h.NW_PAYMENT}
+    # An unchanged re-acquisition emits nothing.
+    h.load_all(conn)
+    assert monitor.run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
+    assert monitor.run(company["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
+    # The revised report version: one report notice and the changed and removed payments, with before and after.
+    h.apply(conn, "eiti", revision=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
+    later = _monitor(conn, h.SECOND_RETRIEVAL)
+    revised = _kinds(later.run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES))
+    (notice,) = revised["report_revised"]
+    assert notice["report_version"] == "2" and notice["summary"] == {"added": 0, "revised": 3, "removed": 1}
+    assert {c["record_key"] for c in notice["changes"] if c["change"] == "removed"} == {h.NW_PAYMENT}
+    changed = _kinds(later.run(company["subscription_id"], principal_id="alice", scopes=h.SCOPES))
+    assert set(changed) == {"payment_revised", "payment_removed"}
+    (payment,) = changed["payment_revised"]
+    assert payment["record_key"] == h.CIT_PAYMENT and payment["previous_revision_id"] and payment["revision_id"]
+    assert payment["before"]["company_reported"]["value"] == "1250000"
+    assert payment["after"]["company_reported"]["value"] == "1200000"
+    assert payment["citation"]["release_version"] == "2" and "record change" in payment["note"]
+    (removed,) = changed["payment_removed"]
+    assert removed["record_key"] == h.NW_PAYMENT and removed["after"] is None
+    assert forbidden_keys(changed) == []
+    # A restart replays the same watermark and emits nothing.
+    again = _monitor(conn, h.SECOND_RETRIEVAL).run(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)
+    assert again["notifications"] == []
+    assert monitor.poll(country["subscription_id"], principal_id="alice", scopes=h.SCOPES)
 
 
-def test_refresh_is_bounded_idempotent_and_receipted():
+def test_commodity_monitors_report_new_releases_and_revised_values_and_refresh_is_bounded_and_idempotent():
     conn = h.connection()
-    monitor = ExtractivesMonitor(conn, now=lambda: h.FIRST_RETRIEVAL)
-    item = h.source("eiti")
-    first = monitor.refresh(h.NS, item, principal_id="op", scopes=h.SCOPES,
-                            transport=fixture_transport(h.pages("eiti")), max_documents=1)
-    assert first["status"] == "bounded" and first["new_releases"] == 1
-    full = monitor.refresh(h.NS, item, principal_id="op", scopes=h.SCOPES,
-                           transport=fixture_transport(h.pages("eiti")))
-    assert full["status"] == "complete" and full["unchanged_releases"] == 1 and full["new_releases"] == 1
-    again = monitor.refresh(h.NS, item, principal_id="op", scopes=h.SCOPES,
-                            transport=fixture_transport(h.pages("eiti")))
-    assert again["new_releases"] == 0 and again["unchanged_releases"] == 2
-    limited = [{**p, "status": 429, "headers": {"Retry-After": "3600"}, "body": ""} for p in h.pages("eiti")]
-    stopped = monitor.refresh(h.NS, item, principal_id="op", scopes=h.SCOPES, transport=fixture_transport(limited))
+    h.apply(conn, "bgs", retrieved_at_ms=h.FIRST_RETRIEVAL)
+    monitor = _monitor(conn, h.FIRST_RETRIEVAL)
+    sub = monitor.create(h.NS, "copper-cl", watch={"commodities": ["copper"], "countries": ["CL"]},
+                         principal_id="alice", scopes=h.SCOPES)
+    first = _kinds(monitor.run(sub["subscription_id"], principal_id="alice", scopes=h.SCOPES))
+    assert set(first) == {"new_commodity_release"}
+    source = h.source("bgs", revision=True)
+    later = _monitor(conn, h.SECOND_RETRIEVAL)
+    receipt = later.refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
+                            transport=fixture_transport(h.pages("bgs", True)))
+    assert receipt["status"] == "complete" and receipt["new_releases"] == 1 and receipt["receipt_id"]
+    again = later.refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
+                          transport=fixture_transport(h.pages("bgs", True)))
+    assert again["new_releases"] == 0 and again["unchanged_releases"] == 1  # idempotent
+    notices = _kinds(later.run(sub["subscription_id"], principal_id="alice", scopes=h.SCOPES))
+    (revised,) = notices["revised_values"]
+    assert revised["changed_values"][0]["period"] == "2022" and revised["added_periods"] == ["2023"]
+    assert revised["changed_values"][0]["before"]["value_text"] == "5300000"
+    assert revised["citation"]["release_version"] == "2019-2023" and revised["vintage_id"]
+    limited = [{"request": p["request"], "status": 429, "headers": {"Retry-After": "120"}, "body": ""}
+               for p in h.pages("bgs", True)]
+    stopped = _monitor(conn, h.SECOND_RETRIEVAL + 1).refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
+                                                             transport=fixture_transport(limited))
     assert stopped["status"] == "stopped" and stopped["stopped"]["code"] == "rate_limited"
-    wait = monitor.refresh(h.NS, item, principal_id="op", scopes=h.SCOPES, transport=fixture_transport(limited))
-    assert wait["status"] == "rate_limited_wait"
-    receipts = monitor.receipts(h.NS, scopes=h.READ_ONLY)
-    assert len(receipts) == 5 and all("contact@example.invalid" not in json.dumps(r) for r in receipts)
+    waiting = _monitor(conn, h.SECOND_RETRIEVAL + 2).refresh(h.NS, source, principal_id="svc", scopes=h.SCOPES,
+                                                             transport=fixture_transport(limited))
+    assert waiting["status"] == "rate_limited_wait"

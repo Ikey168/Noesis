@@ -1,0 +1,400 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "data": [
+     {
+      "ad_creation_time": "2099-04-01",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-04-01",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000001&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "Paid for by Example Holdings Ltd",
+      "currency": "GBP",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000001",
+      "impressions": {
+       "lower_bound": "1000",
+       "upper_bound": "4999"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000001",
+      "page_name": "Example Holdings Ltd",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "100",
+       "upper_bound": "199"
+      }
+     },
+     {
+      "ad_creation_time": "2099-04-10",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-04-10",
+      "ad_delivery_stop_time": "2099-04-20",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000002&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "Paid for by Example Holdings Ltd",
+      "currency": "GBP",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000002",
+      "impressions": {
+       "lower_bound": "0",
+       "upper_bound": "999"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000001",
+      "page_name": "Example Holdings Ltd",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "0",
+       "upper_bound": "99"
+      }
+     },
+     {
+      "ad_creation_time": "2099-04-01",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-04-01",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000099&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "Paid for by Unrelated",
+      "currency": "GBP",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000099",
+      "impressions": {
+       "lower_bound": "0",
+       "upper_bound": "999"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000099",
+      "page_name": "Unrelated Page",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "0",
+       "upper_bound": "99"
+      }
+     }
+    ],
+    "paging": {
+     "cursors": {
+      "after": "C1",
+      "before": "B0"
+     },
+     "next": "https://graph.facebook.com/v21.0/ads_archive?after=C1"
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v21.0/ads_archive?ad_active_status=ALL&ad_delivery_date_max=2099-05-07&ad_delivery_date_min=2099-04-01&ad_reached_countries=%5B%22GB%22%5D&ad_type=POLITICAL_AND_ISSUE_ADS&fields=id%2Cpage_id%2Cpage_name%2Cbylines%2Cad_creation_time%2Cad_delivery_start_time%2Cad_delivery_stop_time%2Cspend%2Cimpressions%2Ccurrency%2Cestimated_audience_size%2Clanguages%2Cpublisher_platforms%2Cad_snapshot_url&limit=100&search_page_ids=%5B%22999000001%22%5D",
+   "status": 200
+  },
+  {
+   "body": {
+    "data": [
+     {
+      "ad_creation_time": "2099-04-15",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-04-15",
+      "ad_delivery_stop_time": "2099-04-30",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000003&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "Paid for by Example Holdings Ltd",
+      "currency": "GBP",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000003",
+      "impressions": {
+       "lower_bound": "100000",
+       "upper_bound": "124999"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000001",
+      "page_name": "Example Holdings Ltd",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "1000",
+       "upper_bound": "1499"
+      }
+     }
+    ],
+    "paging": {
+     "cursors": {
+      "after": "END",
+      "before": "B0"
+     }
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v21.0/ads_archive?ad_active_status=ALL&ad_delivery_date_max=2099-05-07&ad_delivery_date_min=2099-04-01&ad_reached_countries=%5B%22GB%22%5D&ad_type=POLITICAL_AND_ISSUE_ADS&after=C1&fields=id%2Cpage_id%2Cpage_name%2Cbylines%2Cad_creation_time%2Cad_delivery_start_time%2Cad_delivery_stop_time%2Cspend%2Cimpressions%2Ccurrency%2Cestimated_audience_size%2Clanguages%2Cpublisher_platforms%2Cad_snapshot_url&limit=100&search_page_ids=%5B%22999000001%22%5D",
+   "status": 200
+  },
+  {
+   "body": {
+    "data": [
+     {
+      "ad_creation_time": "2099-09-01",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-09-01",
+      "ad_delivery_stop_time": "2099-10-31",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000011&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "FUTURE EXAMPLES ACTION FUND",
+      "currency": "USD",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000011",
+      "impressions": {
+       "lower_bound": "1000000"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000002",
+      "page_name": "Future Examples Action Fund",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "10000",
+       "upper_bound": "14999"
+      }
+     },
+     {
+      "ad_creation_time": "2099-10-01",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-10-01",
+      "ad_delivery_stop_time": "2099-11-02",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000012&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "FUTURE EXAMPLES ACTION FUND",
+      "currency": "USD",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000012",
+      "impressions": {
+       "lower_bound": "500000",
+       "upper_bound": "599999"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000002",
+      "page_name": "Future Examples Action Fund",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "5000",
+       "upper_bound": "9999"
+      }
+     }
+    ],
+    "paging": {
+     "cursors": {
+      "after": "END",
+      "before": "B0"
+     }
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v21.0/ads_archive?ad_active_status=ALL&ad_delivery_date_max=2099-11-03&ad_delivery_date_min=2099-09-01&ad_reached_countries=%5B%22US%22%5D&ad_type=POLITICAL_AND_ISSUE_ADS&fields=id%2Cpage_id%2Cpage_name%2Cbylines%2Cad_creation_time%2Cad_delivery_start_time%2Cad_delivery_stop_time%2Cspend%2Cimpressions%2Ccurrency%2Cestimated_audience_size%2Clanguages%2Cpublisher_platforms%2Cad_snapshot_url&limit=100&search_page_ids=%5B%22999000002%22%5D",
+   "status": 200
+  },
+  {
+   "body": {
+    "data": [
+     {
+      "ad_creation_time": "2099-04-20",
+      "ad_creative_bodies": [
+       "Placeholder creative text that names a private person PAT PLACEHOLDER"
+      ],
+      "ad_delivery_start_time": "2099-04-20",
+      "ad_delivery_stop_time": "2099-05-06",
+      "ad_snapshot_url": "https://www.facebook.com/ads/archive/render_ad/?id=880000000000021&access_token=FIXTURE-TOKEN-NOT-REAL",
+      "bylines": "Jordan Sample",
+      "currency": "GBP",
+      "delivery_by_region": [
+       {
+        "percentage": "1",
+        "region": "Exampleshire"
+       }
+      ],
+      "demographic_distribution": [
+       {
+        "age": "25-34",
+        "gender": "female",
+        "percentage": "0.4"
+       }
+      ],
+      "estimated_audience_size": {
+       "lower_bound": "10000",
+       "upper_bound": "50000"
+      },
+      "id": "880000000000021",
+      "impressions": {
+       "lower_bound": "1000",
+       "upper_bound": "4999"
+      },
+      "languages": [
+       "en"
+      ],
+      "page_id": "999000003",
+      "page_name": "Jordan Sample",
+      "publisher_platforms": [
+       "facebook",
+       "instagram"
+      ],
+      "spend": {
+       "lower_bound": "0",
+       "upper_bound": "99"
+      }
+     }
+    ],
+    "paging": {
+     "cursors": {
+      "after": "END",
+      "before": "B0"
+     }
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/v21.0/ads_archive?ad_active_status=ALL&ad_delivery_date_max=2099-05-07&ad_delivery_date_min=2099-04-01&ad_reached_countries=%5B%22GB%22%5D&ad_type=POLITICAL_AND_ISSUE_ADS&fields=id%2Cpage_id%2Cpage_name%2Cbylines%2Cad_creation_time%2Cad_delivery_start_time%2Cad_delivery_stop_time%2Cspend%2Cimpressions%2Ccurrency%2Cestimated_audience_size%2Clanguages%2Cpublisher_platforms%2Cad_snapshot_url&limit=100&search_page_ids=%5B%22999000003%22%5D",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape; every platform, page, advertiser, funding entity, notice and statement is fictional, and placeholder personal text is discarded by the parser (SP01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-free-text"
+ ]
+}

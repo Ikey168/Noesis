@@ -54,7 +54,7 @@
         "provider": "economics.extractives",
         "contract": {
           "name": "noesis-extractives-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       }
     ],
@@ -91,11 +91,16 @@
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.7.0",
-        "range": "^1.7.0"
+        "version": "1.6.0",
+        "range": "^1.6.0"
       },
       {
         "pack_id": "economic-shipping-and-logistics",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      },
+      {
+        "pack_id": "economic-extractives",
         "version": "1.0.0",
         "range": "^1.0.0"
       }
@@ -210,23 +215,23 @@
       },
       {
         "id": "economics.extractives",
-        "description": "Extractives and mineral resources: a company (and its group), a country or a commodity to cited extractive-sector payments per EITI report version and to mineral production and reserves per source and vintage, side by side",
+        "description": "Extractives and natural resources: a company (and its group), a country or a commodity to cited EITI payments per report version and USGS/BGS production and reserves per vintage, sources side by side, with reviewable company, commodity and project matches",
         "workflow_defaults": {
-          "as_of": "the report revision or series vintage released on or before the requested date, cited per figure; revision history on request",
-          "payments": "government- and company-reported figures side by side with EITI's own discrepancies; currencies as reported, never converted or summed across reports",
-          "sources": "USGS Mineral Commodity Summaries and BGS World Mineral Statistics side by side; never blended",
-          "gaps": "withheld, unavailable and estimated values shown as such; nothing filled",
-          "identity": "companies, commodities, countries and projects through accepted matches only; unmatched records stay visible"
+          "as_of": "the EITI report version or statistics vintage published on or before the requested date, cited per record; all versions and vintages listed on request",
+          "payments": "government- and company-reported figures side by side with the discrepancy as the report publishes it; currency as reported, never converted or summed across reports",
+          "companies": "only through reviewed matches; unmatched companies shown as reported",
+          "sources": "USGS and BGS side by side; never blended",
+          "withheld": "withheld values stay withheld; estimated and revised values stay marked"
         },
         "vocabulary": {
-          "EITI report": "an implementing country's report for one fiscal period; a re-publication is a new revision",
-          "revenue stream": "a payment type as reported, with its IMF GFS classification code",
+          "EITI report version": "one publication of a country's EITI report for a fiscal period; a revised report is a new version",
+          "revenue stream": "a government revenue type as the report classifies it (GFS code and name)",
           "discrepancy": "the difference between government- and company-reported figures as the report publishes it",
-          "withheld (W)": "a USGS value withheld to avoid disclosing company proprietary data",
-          "vintage": "one publication of a series (USGS annual release, BGS edition)"
+          "withheld (W)": "a value USGS does not publish to avoid disclosing company proprietary data",
+          "vintage": "one release of a series' values"
         },
         "source_packs": [
-          "economic-statistics-and-filings"
+          "economic-extractives"
         ]
       }
     ]
@@ -519,19 +524,19 @@
     {
       "id": "extractives-eiti",
       "default": false,
-      "description": "EITI summary data: report revisions per country and fiscal period with government revenues by GFS revenue stream, company payments reported by companies and by government agencies per company and project as reported, and the report's own discrepancies; reviewable company identity against ownership entities (degrading to unmatched when Corporate Ownership is absent), public-finance and infrastructure links by shared identifier or accepted match, evidence bundles and subscription monitors. No reconciliation beyond EITI's, no currency conversion or sums across reports, no risk scoring.",
+      "description": "EITI summary data: report versions, government agencies, revenue streams, companies, projects and licences, company payments with government- and company-reported figures and the report's discrepancies as published, personal fields minimised, reviewable company matches to ownership entities, payments by a company group per report version, citation links to public-finance lines and subscription monitors. No reconciliation of payment discrepancies beyond the reports, own reserve estimate, corruption or governance risk score or price forecast; ownership, trade, Energy and infrastructure links degrade to provider_absent when those stores are not held.",
       "requires": [
         {
           "capability": "economics.extractives",
           "contract": "noesis-extractives-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
-          "capability": "economics.knowledge",
-          "contract": "noesis-economic-knowledge",
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
           "range": "^1.0.0",
-          "reason": "commodity values and vintages live in the Economics series storage"
+          "reason": "accepted and reverted company matches are entity identity decisions"
         },
         {
           "capability": "platform.subscriptions",
@@ -543,26 +548,26 @@
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "summaries and releases are acquired through the source-pack runtime"
+          "reason": "reports and statistics are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "extractives-usgs",
       "default": false,
-      "description": "USGS Mineral Commodity Summaries: world production, capacity and reserves per commodity and country as annual release vintages in the Economics series storage, withheld and estimated values marked, reviewable commodity-to-HS and country mappings, trade links by HS code and monitors. Never blended with BGS; no own reserve estimates or forecasts.",
+      "description": "USGS Mineral Commodity Summaries world production and reserves as annual vintages in the Economics series storage, withheld and estimated values as published, commodities to HS headings through a recorded published concordance, trade-flow links and subscription monitors; USGS and BGS series side by side, never blended. No reconciliation of payment discrepancies beyond the reports, own reserve estimate, corruption or governance risk score or price forecast; ownership, trade, Energy and infrastructure links degrade to provider_absent when those stores are not held.",
       "requires": [
         {
           "capability": "economics.extractives",
           "contract": "noesis-extractives-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
           "capability": "economics.knowledge",
           "contract": "noesis-economic-knowledge",
           "range": "^1.0.0",
-          "reason": "commodity values and vintages live in the Economics series storage"
+          "reason": "commodity series and vintages live in the Economics series storage"
         },
         {
           "capability": "platform.subscriptions",
@@ -574,26 +579,26 @@
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "summaries and releases are acquired through the source-pack runtime"
+          "reason": "reports and statistics are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "extractives-bgs",
       "default": false,
-      "description": "BGS World Mineral Statistics: production, imports and exports per commodity and country as publication vintages in the Economics series storage, Open Government Licence attribution recorded, reviewable commodity-to-HS mappings, trade and Energy links by HS code or named series and monitors. Never blended with USGS; no forecasts.",
+      "description": "BGS World Mineral Statistics production, imports and exports as publication vintages in the Economics series storage with BGS attribution, hydrocarbon series linked to Energy balances by SIEC code, trade-flow links and subscription monitors; BGS and USGS series side by side, never blended. No reconciliation of payment discrepancies beyond the reports, own reserve estimate, corruption or governance risk score or price forecast; ownership, trade, Energy and infrastructure links degrade to provider_absent when those stores are not held.",
       "requires": [
         {
           "capability": "economics.extractives",
           "contract": "noesis-extractives-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
           "capability": "economics.knowledge",
           "contract": "noesis-economic-knowledge",
           "range": "^1.0.0",
-          "reason": "commodity values and vintages live in the Economics series storage"
+          "reason": "commodity series and vintages live in the Economics series storage"
         },
         {
           "capability": "platform.subscriptions",
@@ -605,7 +610,7 @@
           "capability": "platform.source-acquisition",
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
-          "reason": "summaries and releases are acquired through the source-pack runtime"
+          "reason": "reports and statistics are acquired through the source-pack runtime"
         }
       ]
     }

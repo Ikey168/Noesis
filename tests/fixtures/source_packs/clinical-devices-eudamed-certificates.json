@@ -1,0 +1,17 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"content\": [\n  {\n   \"certificateNumber\": \"EX-9999-0001\",\n   \"notifiedBodyNumber\": \"9999\",\n   \"notifiedBodyName\": \"Fictional Notified Body 9999\",\n   \"certificateType\": \"EU technical documentation assessment certificate (MDR Annex IX Chapter II)\",\n   \"certificateStatus\": \"Valid\",\n   \"issueDate\": \"2022-01-10\",\n   \"startingValidityDate\": \"2022-01-10\",\n   \"expiryDate\": \"2027-01-09\",\n   \"manufacturerSrn\": \"US-MF-000099902\",\n   \"basicUdiDis\": [\n    \"0899999EXFLOWSENSEZ7\"\n   ],\n   \"statusChangeReason\": null,\n   \"versionNumber\": \"1\",\n   \"lastUpdateDate\": \"2022-01-10\"\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/tools/eudamed/api/certificates?certificateNumber=EX-9999-0001&notifiedBody=9999",
+   "status": 200
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

@@ -1,0 +1,71 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-fact-check-record-v2.json",
+  "title": "Fact-check or fact-check publisher record as published",
+  "description": "One acquired record (#2659): a fact-check (one publisher's review of one claim, keyed by the publisher, the review URL and the reviewed claim) from the Google Fact Check Tools API or a Data Commons ClaimReview release, or a publisher (an IFCN signatory keyed by its website domain with its status as published). A fact-check keeps the publisher, review URL, title, date and language, the claim text as quoted, the claimant as named, the claim date, appearance URLs and the rating text and any numeric rating with its scale exactly as published. Corrections and removals by the source are revisions (status absent-from-release or absent-from-listing), never deletions. FC01 minimisation: no claimant image, job title, contact details, birth date or social profile, no review author who is a person, and social-platform appearances only as host plus the SHA-256 of the canonical URL. No record carries a truth verdict or a normalised rating.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "record_kind", "record_key", "publisher_key", "review_key", "scope_key", "native_revision", "revision_order", "effective_on", "title", "locator", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-fact-check-record-v2"},
+    "format": {"enum": ["google-factcheck-claims-search-json", "datacommons-claimreview-feed-jsonld", "ifcn-signatories-html"]},
+    "provider": {"enum": ["google-fact-check-tools", "datacommons-claimreview", "ifcn-signatories"]},
+    "record_kind": {"enum": ["fact-check", "publisher"]},
+    "record_key": {"type": "string", "pattern": "^fact-check:(review|publisher):[a-z0-9.-]+(:[0-9a-f]+){0,2}$"},
+    "publisher_key": {"type": ["string", "null"], "pattern": "^fact-check:publisher:[a-z0-9.-]+$"},
+    "review_key": {"type": ["string", "null"], "pattern": "^fact-check:review:[a-z0-9.-]+:[0-9a-f]+$"},
+    "scope_key": {"type": ["string", "null"]},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "effective_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "minimisation": {
+      "type": "object",
+      "required": ["policy", "withheld"],
+      "properties": {
+        "policy": {"const": "fact-checks-minimisation-v1"},
+        "withheld": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "fields": {
+      "type": "object",
+      "required": ["status"],
+      "properties": {
+        "status": {"enum": ["published", "absent-from-release", "absent-from-listing"]},
+        "ifcn_status": {"enum": ["verified", "expired", "under-review", "other"]},
+        "claims": {
+          "type": "array", "minItems": 1, "maxItems": 1,
+          "items": {
+            "type": "object",
+            "required": ["claim_text", "claimant", "rating", "appearances"],
+            "properties": {
+              "claim_text": {"type": "string", "minLength": 1},
+              "claimant": {
+                "type": ["object", "null"],
+                "propertyNames": {"enum": ["name_as_published", "type_as_published", "identifiers"]},
+                "properties": {"identifiers": {"type": "array", "items": {"type": "object", "properties": {"scheme": {"enum": ["wikidata", "ror"]}}}}}
+              },
+              "rating": {
+                "type": "object",
+                "propertyNames": {"enum": ["text", "value", "best", "worst", "scale_as_published"]},
+                "properties": {"value": {"type": ["string", "null"]}, "best": {"type": ["string", "null"]}, "worst": {"type": ["string", "null"]}}
+              },
+              "appearances": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "if": {"properties": {"platform_post": {"const": true}}},
+                  "then": {"required": ["host", "url_sha256"], "not": {"anyOf": [{"required": ["url"]}, {"required": ["url_canonical"]}]}}
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "not": {"anyOf": [{"required": ["truth_verdict"]}, {"required": ["verdict"]}, {"required": ["normalized_rating"]},
+                    {"required": ["normalised_rating"]}, {"required": ["veracity_score"]}]}
+}

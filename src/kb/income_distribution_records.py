@@ -1,28 +1,28 @@
-"""Income, poverty and inequality record definitions for the Society bundle's ``society.income`` provider (#2583, IP02).
+"""Income, poverty and inequality series records for the ``society.income`` provider (IP02, #2592).
 
-Records follow contract ``noesis-income-distribution-record-v1``. Numeric values and their vintages live in the
-existing Economics series storage (``economic_indicators``, ``economic_series_map``, ``economic_vintages`` and
-``dataset_observations`` through :func:`src.domains.economic.model.register_series`); the income-specific metadata
-lives in :mod:`src.kb.income_distribution_store`. The record types are:
+One record contract, ``noesis-income-distribution-record-v2``, covers the record types the provider owns:
 
-* **release** - one acquired publication (a PIP response pinned to a PIP release version, or an SDMX-CSV response)
-  with its release clock (PIP release date, Eurostat ``LAST UPDATE``, a declared release or the retrieval time) and
-  basis label, digests, the release or dataflow version and the evidence origin;
-* **series** - keyed by source, indicator, welfare concept (income or consumption), equivalence scale, poverty line
-  and its PPP base year, reference-year basis (survey year, PIP's reference-year "lineup" or income year), survey,
-  coverage, area and unit (:func:`series_key`). Two sources, lines, PPP rounds or welfare concepts are never one
-  series;
-* **definition** - the indicator's definition as the source states it (income definition, equivalence scale,
-  poverty line, methodology version, notes), revisioned;
-* **vintage** - one release of a series with release and retrieval clocks, ``revision_of`` and the recorded changes
-  (new, revised and removed periods, a PPP revision, a definition or version change, a withdrawal). A PPP revision
-  that restates past values is a new vintage, never an overwrite; a withdrawal by the source is a vintage too;
-* **observation** - the reference year, the value as published (exact text), status, flags and the per-value
-  attributes (welfare type, survey year, income reference year, survey acronym, PIP's estimation label);
-* **comparability note** - typed, cited and reviewable (the labour/demographics pattern).
+* ``release`` - one acquired publication (a PIP release version, an EU-SILC dataset as of its ``LAST UPDATE`` or an
+  OECD IDD response) with its release clock and basis, retrieval clock, PPP round, dataflow version and digests;
+* ``series`` - keyed by source, indicator concept and native measure, welfare concept (income, consumption or PIP's
+  ``mixed`` regional aggregate), equivalence scale, poverty line with its PPP base year, place, coverage, survey,
+  income definition and methodology. Reference years are the periods of the series' observations; the survey year
+  and the income reference year are kept per value;
+* ``definition`` - the definition as the source states it (threshold, equivalence scale, income definition,
+  methodology notes and cited methodology documents), revisioned: a changed definition is a new revision;
+* ``vintage`` - one release of one series with release and retrieval clocks, the definition revision, PPP round and
+  dataflow version in force and the changes against the previous vintage. A PPP revision that restates past values is
+  a new vintage, never an overwrite; a removal by the source is a vintage too, never a deletion;
+* ``observation`` - period, value exactly as published, status, estimation type as the source labels it, survey and
+  income reference years, flags verbatim;
+* ``comparability_note`` - source-stated breaks and recorded differences between series, cited.
 
-Records are immutable revisions: nothing is updated in place or deleted. The IP01 minimisation decision is enforced
-at write time: a record carrying a person- or household-level key is refused (``personal_data_refused``).
+Numeric values also live in the Economics series storage (``economic_vintages``, ``dataset_observations`` through
+:func:`src.domains.economic.model.register_series`, domain ``society``).
+
+**Minimisation decision (IP01).** The sources publish aggregate statistics only; no record carries data about a
+person or a household. :func:`check_item` refuses, at write time, any key that would carry personal or microdata
+fields and any key that would carry a derived, filled, blended or forecast value.
 """
 
 from __future__ import annotations
@@ -30,64 +30,63 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable, Mapping
-from datetime import UTC, date, datetime
+from datetime import UTC, datetime
+from pathlib import Path
 from typing import Any
 
 from src.ingestion.income_distribution_sources import (
-    AGGREGATE_WELFARE,
     CONCEPTS,
     EQUIVALENCE_SCALES,
-    FORMATS,
-    REFERENCE_YEAR_BASES,
-    SOURCE_FEATURES,
+    ESTIMATION_TYPES,
+    EXCLUSIONS,
+    LINE_BASES,
+    PROVIDERS,
     STATUSES,
     WELFARE_CONCEPTS,
-    personal_keys,
 )
 
-CONTRACT = "noesis-income-distribution-record-v1"
+CONTRACT = "noesis-income-distribution-record-v2"
 ANSWER_CONTRACT = "noesis-income-distribution-answer-v1"
-COMPARABILITY_CONTRACT = "noesis-income-comparability-v1"
 READ_SCOPE = "knowledge:income:read"
 WRITE_SCOPE = "knowledge:income:write"
 REVIEW_SCOPE = "knowledge:income:review"
 DEFAULT_NAMESPACE = "global"
-BUNDLE = "society"
-PROVIDER = "society.income"
-SERIES_DOMAIN = "economics"  # the Economics series storage holds the values
+ECONOMIC_DOMAIN = "society"
+PROVIDER_ID = "society.income"
 RECORD_TYPES = ("release", "series", "definition", "vintage", "observation", "comparability_note")
-LINK_FEATURES = ("demographics-links", "labour-links")
-FEATURES = tuple(SOURCE_FEATURES.values()) + LINK_FEATURES
-RELATIONS = (
-    "different_welfare_concept",
-    "different_equivalence_scale",
-    "different_poverty_line",
-    "different_ppp_base_year",
-    "different_reference_year_basis",
-    "different_survey",
-    "different_methodology",
-    "ppp_revision",
-    "break_in_series",
-    "source_note",
-    "same_underlying_survey",
-    "not_comparable",
-)
-SINGLE_SIDED = ("break_in_series", "source_note", "ppp_revision")
-ACTIVE_STATES = ("source-stated", "proposed", "accepted")
-CHANGE_KINDS = ("new_period", "revised_value", "removed_period", "ppp_revision", "definition_change", "withdrawn")
-# Keys that would carry a derived, estimated, blended or forecast number of ours.
-FORBIDDEN_KEYS = frozenset({
-    "nowcast", "nowcasted", "forecast", "forecast_value", "projection", "predicted", "imputed", "imputed_value",
-    "gap_filled", "filled_value", "blended", "blended_value", "combined_value", "average_value", "harmonised_value",
-    "rebased_value", "derived_value", "own_poverty_line", "converted_value", "ppp_converted_value",
+CHANGE_KINDS = ("new_series", "new_period", "revised_value", "ppp_revision", "definition_change", "removed_by_source")
+SCHEMA_FILE = "contracts/schemas/jsonschema/noesis-income-distribution-record-v2.json"
+# Keys that would carry data about a person or a household (microdata); refused anywhere in a record.
+PERSONAL_DATA_FIELDS = frozenset({
+    "person_id", "person_name", "full_name", "first_name", "last_name", "name_of_person", "household_id",
+    "hh_id", "respondent_id", "date_of_birth", "birth_date", "address", "home_address", "email", "phone",
+    "national_id", "tax_id", "income_of_person", "household_income", "person_weight", "household_weight",
+    "microdata", "record_weight",
 })
+# Keys that would carry a derived, estimated, filled, blended or forecast number.
+FORBIDDEN_KEYS = frozenset({
+    "nowcast", "nowcasted", "forecast", "projection", "predicted", "imputed", "imputed_value", "gap_filled",
+    "filled_value", "blended", "blended_value", "combined_value", "average_value", "harmonised_value",
+    "reharmonised_value", "derived_value", "own_poverty_line",
+})
+MINIMISATION = {
+    "decision": "aggregate statistics only; no person-level or household-level field is stored",
+    "stored": "published aggregates per place, year and series key, with flags, notes and citations",
+    "redacted": "nothing (no personal field is ever acquired)",
+    "excluded": "EU-SILC user database (UDB) and any other microdata, PIP survey microdata, LIS microdata",
+    "retention": "release revisions are kept for provenance; nothing is personal, so no erasure workflow applies",
+    "who_may_query": f"principals holding {READ_SCOPE} and access to the namespace",
+    "enforced_by": "income_distribution_records.check_item at write time",
+}
 
 
 class IncomeError(ValueError):
     def __init__(self, code: str, message: str, **details: Any) -> None:
         super().__init__(message)
-        self.code = code
-        self.details = details
+        self.code, self.message, self.details = code, message, details
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"code": self.code, "message": self.message, **({"details": self.details} if self.details else {})}
 
 
 def canonical(value: Any) -> str:
@@ -102,201 +101,160 @@ def load(value: Any, default: Any) -> Any:
     return default if value in (None, "") else json.loads(value)
 
 
+def to_ms(value: Any) -> int | None:
+    """ISO date/time (or epoch ms) to epoch milliseconds; naive values are UTC."""
+    if value is None or value == "":
+        return None
+    if isinstance(value, (int, float)):
+        return int(value)
+    text = str(value).strip().replace("Z", "+00:00")
+    if len(text) == 10:
+        text += "T00:00:00+00:00"
+    parsed = datetime.fromisoformat(text)
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=UTC)
+    return int(parsed.timestamp() * 1000)
+
+
+def iso(ms: int | None) -> str | None:
+    if ms is None:
+        return None
+    return datetime.fromtimestamp(ms / 1000, tz=UTC).isoformat().replace("+00:00", "Z")
+
+
 def authorize(namespace: str, scopes: Iterable[str], required: str, *, write: bool = False) -> None:
-    scopes = set(scopes)
+    scopes = set(scopes or ())
     if "operator" in scopes:
         return
-    needed = (
-        {f"namespace:{namespace}:write"}
-        if write
-        else {f"namespace:{namespace}:read", f"namespace:{namespace}:write"}
-    )
+    needed = {f"namespace:{namespace}:write"} if write else {f"namespace:{namespace}:read",
+                                                             f"namespace:{namespace}:write"}
     if required not in scopes or not needed & scopes:
         raise IncomeError("unauthorized", f"{required} and namespace access are required")
-
-
-def require_scope(scopes: Iterable[str], required: str) -> None:
-    scopes = set(scopes)
-    if "operator" not in scopes and required not in scopes:
-        raise IncomeError("unauthorized", f"{required} is required for this part of the answer")
 
 
 def table_exists(conn: Any, table: str) -> bool:
     return bool(conn.execute("SELECT 1 FROM information_schema.tables WHERE table_name=?", [table]).fetchone())
 
 
-def forbidden_keys(value: Any, path: str = "$") -> list[str]:
-    """Keys anywhere in a value that would carry a derived, filled, blended or forecast number."""
-    found = []
+def _paths(value: Any, names: frozenset[str], path: str = "$") -> list[str]:
+    found: list[str] = []
     if isinstance(value, Mapping):
         for key, item in value.items():
-            if str(key).casefold() in FORBIDDEN_KEYS:
-                found.append(f"{path}.{key}")
-            found += forbidden_keys(item, f"{path}.{key}")
-    elif isinstance(value, list):
+            here = f"{path}.{key}"
+            if str(key).casefold() in names:
+                found.append(here)
+            found += _paths(item, names, here)
+    elif isinstance(value, (list, tuple)):
         for index, item in enumerate(value):
-            found += forbidden_keys(item, f"{path}[{index}]")
+            found += _paths(item, names, f"{path}[{index}]")
     return found
 
 
-def minimised(value: Any) -> Any:
-    """Enforce the IP01 minimisation decision on an output: refuse any person- or household-level key."""
-    found = personal_keys(value)
-    if found:
-        raise IncomeError("personal_data_refused", "an answer carries no person- or household-level field",
-                          paths=found[:10])
-    return value
+def personal_data_paths(value: Any) -> list[str]:
+    return _paths(value, PERSONAL_DATA_FIELDS)
 
 
-def release_ms(published_on: str | None, published_at: str | None, retrieved_ms: int) -> int:
-    """The release clock (UTC epoch ms): the stated instant, a date's midnight, else the retrieval time."""
-    if published_at:
-        stamp = datetime.fromisoformat(str(published_at))
-        if stamp.tzinfo is None:
-            stamp = stamp.replace(tzinfo=UTC)
-        return int(stamp.timestamp() * 1000)
-    if published_on:
-        return int(datetime.combine(date.fromisoformat(published_on), datetime.min.time(),
-                                    tzinfo=UTC).timestamp() * 1000)
-    return int(retrieved_ms)
-
-
-def iso_from_ms(value: int | None) -> str | None:
-    return None if value is None else datetime.fromtimestamp(int(value) / 1000, tz=UTC).isoformat()
+def forbidden_paths(value: Any) -> list[str]:
+    return _paths(value, FORBIDDEN_KEYS)
 
 
 def check_item(item: Mapping[str, Any]) -> None:
-    """Write-time validation of one series item: minimisation, no derived values, complete key, known vocabularies."""
-    if personal_keys(dict(item)):
-        raise IncomeError("personal_data_refused", "income records carry no person- or household-level field")
-    if forbidden_keys(dict(item)):
-        raise IncomeError("invalid_release", "published records carry no derived, filled or forecast value")
-    for key in ("provider", "native_key", "indicator", "definition", "unit", "area", "frequency", "survey",
-                "coverage", "equivalence_scale", "reference_year_basis"):
+    """Validate one published series item before anything is written (IP02 rules and the IP01 minimisation)."""
+    leaked = personal_data_paths(dict(item))
+    if leaked:
+        raise IncomeError("personal_data", "records never carry person- or household-level data", fields=leaked)
+    derived = forbidden_paths(dict(item))
+    if derived:
+        raise IncomeError("derived_value", "published records carry no derived, filled, blended or forecast value",
+                          fields=derived)
+    for key in ("provider", "native_key", "indicator", "definition", "area", "welfare_concept", "equivalence_scale"):
         if not item.get(key):
-            raise IncomeError("invalid_release", f"an income series states its {key}")
-    if item["provider"] not in {f["provider"] for f in FORMATS.values()}:
-        raise IncomeError("invalid_release", "unknown income provider")
+            raise IncomeError("invalid_record", f"an income series states its {key}")
+    if item["provider"] not in PROVIDERS:
+        raise IncomeError("invalid_record", f"provider is one of {PROVIDERS}")
     if dict(item["indicator"]).get("concept") not in CONCEPTS:
-        raise IncomeError("invalid_release", "unknown indicator concept")
-    if item.get("welfare_concept") not in WELFARE_CONCEPTS + (AGGREGATE_WELFARE,):
-        raise IncomeError("invalid_release", "an income series states its welfare concept (income or consumption)")
-    if dict(item["equivalence_scale"]).get("code") not in EQUIVALENCE_SCALES:
-        raise IncomeError("invalid_release", "an income series states its equivalence scale")
-    if item["reference_year_basis"] not in REFERENCE_YEAR_BASES:
-        raise IncomeError("invalid_release", "an income series states its reference-year basis")
+        raise IncomeError("invalid_record", f"indicator concept is one of {CONCEPTS}")
+    if item["welfare_concept"] not in WELFARE_CONCEPTS:
+        raise IncomeError("invalid_record", f"welfare concept is one of {WELFARE_CONCEPTS}")
+    if item["welfare_concept"] == "mixed" and dict(item.get("coverage") or {}).get("reporting_level") != "regional":
+        raise IncomeError("invalid_record", "only a source's regional aggregate states a mixed welfare concept")
+    if item["equivalence_scale"] not in EQUIVALENCE_SCALES:
+        raise IncomeError("invalid_record", f"equivalence scale is one of {EQUIVALENCE_SCALES}")
     line = item.get("poverty_line")
-    if line is not None and dict(line).get("kind") == "absolute" and not dict(line).get("ppp_base_year"):
-        raise IncomeError("invalid_release", "an absolute poverty line states its PPP base year")
+    if line is not None:
+        if dict(line).get("basis") not in LINE_BASES:
+            raise IncomeError("invalid_record", f"a poverty line basis is one of {LINE_BASES}")
+        if line["basis"] == "absolute-ppp" and not line.get("ppp_base_year"):
+            raise IncomeError("invalid_record", "an absolute PPP poverty line states its PPP base year")
+    elif dict(item["indicator"]).get("concept") in {"poverty_headcount", "poverty_gap"}:
+        raise IncomeError("invalid_record", "a poverty measure states the line the source published it at")
     periods = set()
     for obs in item.get("observations") or []:
         if obs.get("status") not in STATUSES:
-            raise IncomeError("invalid_release", "each observation states its status")
+            raise IncomeError("invalid_record", "each observation states its status")
         if obs.get("status") != "reported" and obs.get("value") is not None:
-            raise IncomeError("invalid_release", "a confidential or unpublished observation carries no value")
+            raise IncomeError("invalid_record", "a confidential or unpublished observation carries no value")
+        if obs.get("estimation_type") not in ESTIMATION_TYPES:
+            raise IncomeError("invalid_record", f"estimation type is one of {ESTIMATION_TYPES}")
         if obs["period"] in periods:
-            raise IncomeError("invalid_release", "a series states a reference year twice")
+            raise IncomeError("invalid_record", "a series states a reference year twice")
         periods.add(obs["period"])
-        if item["provider"] == "pip" and not dict(obs.get("attributes") or {}).get("welfare_type"):
-            raise IncomeError("invalid_release", "a PIP value states its welfare type")
 
 
-def series_key(item: Mapping[str, Any]) -> list[Any]:
-    """Source, indicator, welfare concept, equivalence scale, poverty line with its PPP base year, PPP base year,
-    reference-year basis, survey, coverage, methodology, area and unit: PIP, EU-SILC and OECD never share a key, nor
-    do two lines, PPP rounds or welfare concepts."""
-    indicator = dict(item["indicator"])
-    return [
-        item["provider"],
-        str(indicator.get("code") or ""),
-        indicator["concept"],
-        indicator["measure"],
-        item["welfare_concept"],
-        dict(item["equivalence_scale"])["code"],
-        None if item.get("poverty_line") is None else canonical(dict(item["poverty_line"])),
-        item.get("ppp_base_year"),
-        item["reference_year_basis"],
-        item["survey"],
-        item["coverage"],
-        item.get("methodology_version"),
-        item["area"]["scheme"],
-        str(item["area"]["code"]),
-        str(item["native_key"]),
-        dict(item["unit"]).get("code") or dict(item["unit"]).get("label"),
-    ]
+def comparability_basis(left: Mapping[str, Any], right: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Recorded differences between two series keys (facts of the keys; nothing is re-harmonised)."""
+    differences = []
+    for field in ("provider", "welfare_concept", "equivalence_scale", "poverty_line", "ppp_base_year", "survey",
+                  "income_definition", "methodology", "coverage", "measure"):
+        if left.get(field) != right.get(field):
+            differences.append({"field": field, "left": left.get(field), "right": right.get(field)})
+    return differences
 
 
-def definition_key(item: Mapping[str, Any]) -> str:
-    definition = dict(item["definition"])
-    return "inc-definition:" + digest([
-        item["provider"], definition.get("indicator_code"), definition["concept"], definition["measure"],
-        definition["welfare_concept"], canonical(definition.get("equivalence_scale")),
-        canonical(definition.get("poverty_line")), definition.get("reference_year_basis"),
-        definition.get("methodology_version"),
-    ])[:24]
+def schema_definitions(root: Path | None = None) -> dict[str, dict[str, Any]]:
+    base = root or Path(__file__).resolve().parents[2]
+    return {CONTRACT: json.loads((base / SCHEMA_FILE).read_text())}
 
 
-def _selected_features(conn: Any) -> list[str] | None:
-    """The Society bundle's selected features, or ``None`` when the bundle is not composition-managed."""
-    try:
-        tables = {
-            r[0]
-            for r in conn.execute(
-                "SELECT table_name FROM information_schema.tables WHERE table_name IN "
-                "('composition_authority', 'composition_active', 'composition_generations', 'composition_plans')"
-            ).fetchall()
+def register_schemas(conn: Any, *, principal_id: str, scopes: Iterable[str], root: Path | None = None) -> list[dict]:
+    """Register the record schema in the existing schema registry (idempotent per version)."""
+    from src.kb.schema_registry import SchemaRegistry
+
+    registry = SchemaRegistry(conn)
+    results = []
+    for name, content in sorted(schema_definitions(root).items()):
+        definition = {
+            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": "2.0.0",
+            "content": content, "owner": PROVIDER_ID, "dependencies": [], "compatibility_policy": "backward",
+            "provenance": {"kind": "imported", "source": "packs/society"},
+            "actor": {"principal_id": principal_id, "kind": "service"},
         }
-        if len(tables) < 4:
-            return None
-        managed = conn.execute("SELECT authority FROM composition_authority WHERE bundle=?", [BUNDLE]).fetchone()
-        if not managed or managed[0] != "composition":
-            return None
-        row = conn.execute(
-            "SELECT p.plan_json FROM composition_active a JOIN composition_generations g "
-            "ON g.generation_id=a.generation_id JOIN composition_plans p ON p.digest=g.plan_digest WHERE a.slot=1"
-        ).fetchone()
-        plan = json.loads(row[0]) if row else {}
-    except Exception:  # noqa: BLE001 - an unreadable plan never enables a feature
-        return []
-    if not any(p.get("id") == BUNDLE for p in plan.get("packs") or []):
-        return []
-    return list((plan.get("features") or {}).get(BUNDLE) or [])
-
-
-def feature_state(conn: Any, feature: str) -> str:
-    """``selected`` / ``not_selected`` under composition management, ``unmanaged`` otherwise."""
-    if feature not in FEATURES:
-        raise IncomeError("invalid_feature", f"feature is one of {FEATURES}")
-    selected = _selected_features(conn)
-    if selected is None:
-        return "unmanaged"
-    return "selected" if feature in selected else "not_selected"
-
-
-def feature_enabled(conn: Any, feature: str) -> bool:
-    """Whether an optional Society feature is selected in the active plan (False when not composition-managed)."""
-    return feature_state(conn, feature) == "selected"
+        results.append(registry.register(definition, f"income-schema:{name}:2.0.0:{digest(content)[:16]}",
+                                         principal_id=principal_id, scopes=set(scopes)))
+    return results
 
 
 __all__ = [
     "ANSWER_CONTRACT",
-    "BUNDLE",
     "CHANGE_KINDS",
-    "COMPARABILITY_CONTRACT",
     "CONTRACT",
-    "FEATURES",
-    "PROVIDER",
+    "ECONOMIC_DOMAIN",
+    "EXCLUSIONS",
+    "MINIMISATION",
     "READ_SCOPE",
-    "RELATIONS",
+    "RECORD_TYPES",
     "REVIEW_SCOPE",
     "WRITE_SCOPE",
     "IncomeError",
     "authorize",
+    "canonical",
     "check_item",
-    "definition_key",
-    "feature_enabled",
-    "feature_state",
-    "forbidden_keys",
-    "minimised",
-    "series_key",
+    "comparability_basis",
+    "digest",
+    "forbidden_paths",
+    "iso",
+    "personal_data_paths",
+    "register_schemas",
+    "table_exists",
+    "to_ms",
 ]

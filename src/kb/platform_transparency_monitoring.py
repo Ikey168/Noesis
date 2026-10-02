@@ -1,30 +1,27 @@
-"""Monitor advertisers, elections and platforms through subscriptions (#2580, SP11).
+"""Monitor new ads, removed ads and new dump releases through subscriptions (#2580, SP11).
 
 A platform-transparency monitor is an ordinary knowledge subscription
-(:class:`src.kb.subscriptions.SubscriptionStore`), following
-:mod:`src.kb.campaign_finance_monitoring`: its query names an advertiser (a
-Meta page id, a Google advertiser id, a subject key, a declared name, or a
-record another pack owns reached through accepted identity decisions), an
-election (SP08 links) or a platform (its DSA dump releases). There is no
-monitor table and no scheduler: the ``bounded-public-osint`` source-pack
-schedule (left disabled; runs are explicit) acquires, the maintenance
-orchestrator commits the watermarks, and each evaluation turns differences into
-subscription events delivered through the existing poll and outbox paths.
+(:class:`src.kb.subscriptions.SubscriptionStore`, the ``platform.subscriptions``
+provider), following :mod:`src.kb.campaign_finance_monitoring`: its query
+names an advertiser (a platform advertiser or funding entity, or another
+owner's record reached through accepted identity), an election (SP08 links)
+or a platform (its DSA dump releases). There is no monitor table and no
+scheduler: source-pack runs acquire, the maintenance orchestrator commits the
+watermarks, and each evaluation turns differences into subscription events
+delivered through the existing poll and outbox paths.
 
 Notices are record changes, not assessments. Each cites the new (and the
-previous) record revision and states what changed: ``ad_published``,
-``ad_ranges_revised`` (spend and impression ranges as published, before and
-after), ``ad_revised``, ``ad_not_returned`` (the removal revision and its
-listing), ``ad_relisted``, ``dump_released`` and ``dump_republished`` (the
-published SHA-1 before and after). A notice never carries a point estimate,
-a user identifier or a coordination reading.
-
-A revision acquired *live* from a provider whose access is still
-``unverified-live`` is withheld until a dated live run verifies it; fixture
+previous) record revision and states what changed: ``new_ad``, ``ad_revised``
+(delivery dates, spend or impression ranges as published, before and after),
+``ad_not_returned`` (the removal revision), ``ad_listed_again``,
+``new_dump_release`` and ``dump_republished`` (file digest and statement count
+before and after). A revision that only restates the source's refresh time
+notifies nothing. A revision acquired *live* from a provider that is not yet
+``verified-live`` is withheld until a dated live run verifies it; fixture
 replays are notified and marked as fixture evidence.
 :meth:`PlatformTransparencyMonitor.refresh` re-reads one declared source
-selection through the real adapter within its page budget; re-reading unchanged
-responses adds nothing and every unit leaves a receipt.
+selection through the real adapter within its page budget; re-reading
+unchanged responses adds nothing and every unit leaves a receipt.
 """
 
 from __future__ import annotations
@@ -55,16 +52,17 @@ def notifiable(row: Mapping[str, Any]) -> bool:
 def _summary(row: Mapping[str, Any]) -> dict[str, Any]:
     fields = row["record"]["fields"]
     if row["record_kind"] == "dump-release":
-        return {"platform": fields.get("platform"), "date": fields.get("date"), "version": fields.get("version"),
-                "sha1_as_published": fields.get("sha1_as_published"), "statements": fields.get("statements")}
-    return {"ad_id": fields.get("ad_id"), "advertiser_as_declared": fields.get("advertiser_as_declared"),
-            "funding_entity_as_declared": fields.get("funding_entity_as_declared"),
-            "delivery_start": fields.get("ad_delivery_start_time") or fields.get("date_range_start"),
-            "delivery_stop": fields.get("ad_delivery_stop_time") or fields.get("date_range_end"),
-            "spend_range_as_published": fields.get("spend"),
-            "impressions_range_as_published": fields.get("impressions"),
-            "listing_state": fields.get("listing_state"),
-            "not_returned_basis": fields.get("not_returned_basis")}
+        return {"file_name": fields.get("file_name"), "day": fields.get("day"), "sha256": fields.get("sha256"),
+                "statements": fields.get("statements"), "listing_status": row["record"].get("listing_status")}
+    return {"listing_status": row["record"].get("listing_status"), "delivery_start": fields.get("delivery_start"),
+            "delivery_stop": fields.get("delivery_stop"),
+            "spend_as_published": fields.get("spend_range_as_published") or {
+                "bucket_usd": fields.get("spend_bucket_usd_as_published"),
+                "ranges": fields.get("spend_ranges_as_published")},
+            "impressions_as_published": fields.get("impressions_range_as_published") or fields.get(
+                "impressions_bucket_as_published"),
+            "advertiser_as_declared": fields.get("advertiser_as_declared"),
+            "funding_entity_as_declared": fields.get("funding_entity_as_declared")}
 
 
 class PlatformTransparencyMonitor:
@@ -83,6 +81,8 @@ class PlatformTransparencyMonitor:
         key = str(key or "").strip()
         if watch not in WATCH_KINDS or not key:
             raise PlatformTransparencyError("invalid_watch", f"watch one of {WATCH_KINDS} with a key")
+        if watch == "election" and ":" not in key:
+            raise PlatformTransparencyError("invalid_watch", "an election is watched by its elections id")
         if watch == "platform":
             key = slug(key)
         query = {"operation": "search", "kind": "platform-transparency-monitor", "watch": watch, "key": key}
@@ -90,7 +90,7 @@ class PlatformTransparencyMonitor:
             {"namespace": namespace, "domain": "osint", "query": query, "filters": {"watch": watch},
              "cadence": {"trigger": "watermark"}, "delivery": delivery or {"kind": "poll"}},
             "platform-transparency-monitor:" + request_key, principal_id=principal_id, scopes=scopes)
-        return {**created, "refresh": "explicit bounded-public-osint source-pack runs and the maintenance "
+        return {**created, "refresh": "the osint-platform-transparency source-pack runs and the maintenance "
                                       "orchestrator commit the watermarks this monitor evaluates; no new scheduler"}
 
     def _subscription(self, subscription_id: str, principal_id: str, scopes: set[str]) -> dict[str, Any]:
@@ -102,7 +102,8 @@ class PlatformTransparencyMonitor:
     def _rows(self, subscription: Mapping[str, Any], scopes: set[str]) -> list[dict[str, Any]]:
         namespace, query = subscription["namespace"], subscription["query"]
         if query["watch"] == "platform":
-            return self.store.records(namespace, scopes=scopes, kinds=["dump-release"], platform=query["key"])
+            return [d for d in self.store.records(namespace, scopes=scopes, kinds=["dump-release"])
+                    if slug(d["record"]["fields"].get("platform_uid")) == query["key"]]
         if query["watch"] == "election":
             from src.kb.platform_transparency_links import PlatformTransparencyLinks
 
@@ -110,12 +111,11 @@ class PlatformTransparencyMonitor:
                                                                                  kind="election",
                                                                                  target_key=query["key"])
             keys = sorted({link["record_key"] for link in links})
-            return self.store.records(namespace, scopes=scopes, record_keys=keys) if keys else []
-        from src.kb.platform_transparency_links import ad_keys_of
+            return self.store.records(namespace, scopes=scopes, kinds=["ad"], record_keys=keys) if keys else []
         from src.kb.platform_transparency_queries import PlatformTransparencyQueries
 
-        subjects, _ = PlatformTransparencyQueries(self.conn).subjects_for(namespace, query["key"], scopes)
-        keys = sorted({k for s in subjects for k in ad_keys_of(self.store, namespace, s, scopes)})
+        answer = PlatformTransparencyQueries(self.conn).ads_for_advertiser(namespace, query["key"], scopes=scopes)
+        keys = sorted({ad["record_key"] for ad in answer.get("ads") or []})
         return self.store.records(namespace, scopes=scopes, kinds=["ad"], record_keys=keys) if keys else []
 
     def snapshot(self, subscription: Mapping[str, Any], scopes: set[str]) -> tuple[dict[str, Any], int]:
@@ -127,9 +127,9 @@ class PlatformTransparencyMonitor:
             items.append({
                 "id": f"{row['source_id']}:{row['record_key']}", "kind": row["record_kind"],
                 "record_key": row["record_key"], "source_id": row["source_id"], "provider": row["provider"],
-                "platform": row["platform"], "revision_id": row["revision_id"], "revision_no": row["revision_no"],
-                "change": row["change"], "source_as_of": row["source_as_of"],
-                "evidence_origin": row["evidence_origin"], "summary": _summary(row),
+                "platform": row["record"]["platform"], "revision_id": row["revision_id"],
+                "revision_no": row["revision_no"], "change": row["change"], "evidence_origin": row["evidence_origin"],
+                "summary": _summary(row),
             })
         return {"items": items, "coverage": {"complete": True}}, withheld
 
@@ -172,39 +172,40 @@ class PlatformTransparencyMonitor:
                     "kind": kind, "object": key, "record_key": new["record_key"], "message": message,
                     "cites": {"record_key": new["record_key"], "revision_id": new["revision_id"],
                               "previous_revision_id": old["revision_id"] if old else None,
-                              "source_id": new["source_id"], "provider": new["provider"],
-                              "source_as_of": new["source_as_of"]},
+                              "source_id": new["source_id"], "platform": new["platform"]},
                     "evidence_origin": new["evidence_origin"], **detail}
 
         summary, prior = new["summary"], (old or {}).get("summary") or {}
         label = new["record_key"]
         if new["kind"] == "dump-release":
             if old is None:
-                return [note("dump_released", f"{label}: dump {summary.get('date')} ({summary.get('version')}) "
-                                              f"published with SHA-1 {summary.get('sha1_as_published')} and "
-                                              f"{summary.get('statements')} statements.",
-                             sha1_as_published=summary.get("sha1_as_published"))]
-            return [note("dump_republished", f"{label}: the dump was republished with another SHA-1.",
-                         before=prior.get("sha1_as_published"), after=summary.get("sha1_as_published"),
-                         statements_before=prior.get("statements"), statements_after=summary.get("statements"))]
+                return [note("new_dump_release", f"{summary.get('file_name')}: dump for {summary.get('day')} with "
+                                                 f"{summary.get('statements')} statements on record.",
+                             file_name=summary.get("file_name"), sha256=summary.get("sha256"))]
+            if summary.get("sha256") != prior.get("sha256"):
+                return [note("dump_republished", f"{summary.get('file_name')}: republished (statements "
+                                                 f"{prior.get('statements')} -> {summary.get('statements')}).",
+                             before={"sha256": prior.get("sha256"), "statements": prior.get("statements")},
+                             after={"sha256": summary.get("sha256"), "statements": summary.get("statements")})]
+            return []
         if old is None:
-            return [note("ad_published", f"{label}: ad by {summary.get('advertiser_as_declared')} delivered from "
-                                         f"{summary.get('delivery_start')}; ranges as published.",
-                         spend_range_as_published=summary.get("spend_range_as_published"),
-                         impressions_range_as_published=summary.get("impressions_range_as_published"))]
-        if summary.get("listing_state") == "not-returned" and prior.get("listing_state") != "not-returned":
-            return [note("ad_not_returned", f"{label}: a complete listing of its declared unit no longer returned "
-                                            "this ad (the platform did not state why).",
-                         removal_revision_id=new["revision_id"], basis=summary.get("not_returned_basis"))]
-        if prior.get("listing_state") == "not-returned" and summary.get("listing_state") == "listed":
-            return [note("ad_relisted", f"{label}: the ad is returned again for its declared unit.")]
-        ranges = ("spend_range_as_published", "impressions_range_as_published")
-        if any(summary.get(k) != prior.get(k) for k in ranges):
-            return [note("ad_ranges_revised", f"{label}: the platform now publishes other ranges.",
-                         before={k: prior.get(k) for k in ranges}, after={k: summary.get(k) for k in ranges})]
-        return [note("ad_revised", f"{label}: revision {new['revision_no']} recorded.",
-                     before={k: v for k, v in prior.items() if summary.get(k) != v},
-                     after={k: v for k, v in summary.items() if prior.get(k) != v})]
+            if summary.get("listing_status") == "not-returned":
+                return []
+            return [note("new_ad", f"{label}: new ad by {summary.get('advertiser_as_declared')}, delivered "
+                                   f"{summary.get('delivery_start')} to {summary.get('delivery_stop') or 'not published'}"
+                                   f"; spend as published {summary.get('spend_as_published')}.", summary=summary)]
+        if summary.get("listing_status") == "not-returned" and prior.get("listing_status") != "not-returned":
+            return [note("ad_not_returned", f"{label}: no longer returned by the source for the declared selection "
+                                            "(an observed absence, not a stated deletion).",
+                         removal_revision_id=new["revision_id"])]
+        if prior.get("listing_status") == "not-returned" and summary.get("listing_status") != "not-returned":
+            return [note("ad_listed_again", f"{label}: returned again by the source.", summary=summary)]
+        changed = {k: {"before": prior.get(k), "after": summary.get(k)} for k in sorted(set(summary) | set(prior))
+                   if summary.get(k) != prior.get(k)}
+        if not changed:
+            return []  # only the source's refresh time changed
+        return [note("ad_revised", f"{label}: revision {new['revision_no']} changed {', '.join(changed)} as "
+                                   "published.", changed=changed)]
 
     def poll(self, subscription_id: str, *, principal_id: str, scopes: Iterable[str], cursor: str = ""
              ) -> dict[str, Any]:

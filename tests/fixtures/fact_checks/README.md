@@ -1,9 +1,7 @@
-# Fact-checks fixtures (synthetic)
-
-Authored responses in the documented shapes of the Google Fact Check Tools API (`claims:search` JSON), the Data
-Commons ClaimReview `DataFeed` (schema.org JSON-LD) and the IFCN signatories listing (HTML; markup assumptions per
-`docs/development/fact-checks-evidence/source-audit.md`). Every publisher, site, claimant, reviewer and claim is
-fictional (`*.example.*` hosts, a fictional Wikidata-shaped identifier). Placeholder reviewer and appearance-author
-names, images, logos and job titles exist only to prove that the parsers discard them (FC01 minimisation). `v2/`
-holds later acquisitions: a publisher's revised rating, a review dropped from a later release and an IFCN status
-change with a signatory missing from the listing. Nothing here is live coverage.
+Authored fixtures for the News pack's fact-checks provider (#2659). Every publisher, claimant, claim, URL
+and identifier is fictional (`.example` hosts; Wikidata `Q99999901` and ROR `0abcd1234` are placeholders).
+The shapes follow the providers' documented formats as known without network access (Fact Check Tools
+`claims:search` JSON, Data Commons ClaimReview `DataFeed` JSON-LD) and an assumed IFCN listing markup;
+none of it is live evidence. Personal fields (a job title, an image, a social profile, a review's author)
+are present on purpose so tests can show that the parser drops them. `v2/` holds the later responses
+(a revised review, a later release and a later listing).

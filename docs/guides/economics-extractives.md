@@ -1,80 +1,122 @@
-# Economics extractives guide
+# Economics extractives and natural resources guide
 
-Given a company (and its group), a country or a commodity, what have the
-sources published about extractive-sector payments to governments and about
-mineral and hydrocarbon production and reserves, in which report version or
-release vintage, as of a date? The Economics bundle's optional
-`extractives-eiti`, `extractives-usgs` and `extractives-bgs` features (#2653)
-answer from EITI summary data, USGS Mineral Commodity Summaries and BGS World
-Mineral Statistics. No new pack exists: the `economics.extractives` provider
-lives in `packs/economics/`, and commodity values and vintages live in the
-Economics series storage (`economic_indicators`, `economic_series_map`,
-`economic_vintages`, `dataset_observations`); `ex_*` tables hold report
-revisions, payment and discrepancy lines, series metadata and value flags.
+The Economics pack's `economics.extractives` provider (#2653) answers two
+questions: what did a company, its group or a country's extractive sector pay
+governments according to each EITI report version, and what mineral and
+hydrocarbon production and reserves did each statistics publisher report for a
+commodity and a country, as of a date? It covers EITI summary data, the USGS
+Mineral Commodity Summaries and the BGS World Mineral Statistics. Each source is
+its own optional feature (`extractives-eiti`, `extractives-usgs`,
+`extractives-bgs`), all off by default.
 
-Exclusions: no reconciliation of payment discrepancies beyond those EITI
-reports, no own reserve estimates, no corruption or governance risk scoring, no
-price forecasts, no currency conversion or sums across reports, no blending of
-USGS and BGS series, no filled withheld values, no inferred project ownership.
+Figures are stored as published. EITI government-reported and company-reported
+amounts are shown side by side with the discrepancy the report itself states,
+in the currency as reported; currencies are never converted and nothing is
+summed across reports. USGS and BGS series are separate series, shown side by
+side and never blended; withheld values stay withheld and estimated or revised
+values stay marked. Nothing reconciles discrepancies beyond the reports,
+estimates reserves, scores corruption or governance risk or forecasts prices.
 
-## Enable and acquire
+Source contracts, the personal-data minimisation decision and the bounded
+coverage are in the [source audit](../development/extractives-evidence/source-audit.md).
+The audit was written without live access to the providers; no provider is
+live until a dated run verifies it (#2717).
 
-Select any of the three features in the composition plan (for example
-`features: ["extractives-eiti", "extractives-usgs"]`); each binds
+## Enable it
+
+Select one or more of `features: ["extractives-eiti", "extractives-usgs",
+"extractives-bgs"]` in the Economics bundle composition. Each binds
 `economics.extractives`, `platform.subscriptions` and
-`platform.source-runtime`. Corporate Ownership, Trade, Energy, public-finance
-and infrastructure stores are used when held and degrade to unmatched or
-`provider_absent` when not. Acquisition runs through the
-`economic-statistics-and-filings` source pack (1.7.0): `eiti-summary-data`,
-`usgs-mineral-commodity-summaries` and `bgs-world-mineral-statistics`. Every
-provider is `unverified-live` until a dated live run
-([source audit](../development/extractives-evidence/source-audit.md)).
+`platform.source-runtime`; `extractives-eiti` also binds
+`platform.entity-identity`. The sources ship in the separate source pack
+`economic-extractives` 1.0.0 (`config/source_packs/economic-extractives.json`);
+the Economics bundle's `economic-statistics-and-filings` pin does not change.
+Ownership, trade, Energy, public-finance and infrastructure records are not
+required: links to them report `provider_absent` when their stores are not
+held.
 
-## Records
+## Acquire
 
-- **EITI report revision**: country and fiscal period, report label and
-  version, currency; a changed or withdrawn summary is a new revision.
-- **Payment line**: government agency, revenue stream (GFS code as reported),
-  company and project as reported, who reported it (government or company),
-  amount with the currency the report states.
-- **Discrepancy**: the report's own government and company figures, the
-  discrepancy and its explanation.
-- **Commodity series**: source, commodity and form, statistic (production,
-  reserves, capacity, imports, exports), unit and country; one vintage per USGS
-  release or BGS publication with new, revised and removed years.
-- **Observation**: value text, status (reported, withheld, not available,
-  symbol only), estimated and revised flags as published.
+Install the source pack and run its sources through the source-pack runtime
+(`noesis-extractives-record-v2` pages are projected by
+`src.kb.extractives_store.ExtractivesProjector`). Each declared document is one
+publication:
 
-Contact persons are never stored and natural-person entities are redacted
-(EX01 minimisation decision).
+- an EITI summary-data document names its country, fiscal period and the
+  report version with its publication date; a revised report is declared as a
+  new version;
+- a USGS MCS table names its commodity, the meaning of each value column
+  (statistic, year, unit, estimated) and the operator-declared ISO and M49
+  codes of each published country name;
+- a BGS query names its commodity, the statistic types it maps and the country
+  codes.
 
-## Identity and links
-
-`propose_extractives_company_matches` offers reporting companies to ownership
-entities (published identifiers first, names as low evidence); a reviewer
-accepts or rejects with `review_extractives_company_match`, and reverts are
-recorded as entity-identity decisions. `import_extractives_concordance` and
-`propose_extractives_identity` map commodities to HS codes (a stated HS code,
-else a cited table), country names to ISO codes (a published code, else a cited
-code list) and projects to infrastructure assets (a published identifier or
-coinciding published coordinates). `link_extractives_records` links payments to
-public-finance budget lines, commodities to trade series, hydrocarbon series to
-Energy series and projects to infrastructure assets; each link records its basis
-and target revision, and missing providers or targets stay unresolved.
+A release is never truncated: a run whose result budget is smaller than a
+release fails with `budget_exhausted`. Replays add nothing; changed content under
+an unchanged version is refused (`vintage_conflict`) and an older report version
+arriving after a newer one is refused (`stale_version`).
 
 ## Ask
 
-`extractive_payments_for_company` takes an extractives company key or an
-ownership entity (with `ownership_namespace` and `group=true` for its group) and
-returns every matched company's payments per EITI report revision in force at
-`as_of_ms`, government- and company-reported figures side by side with EITI's
-discrepancies, each citing its report revision. `extractive_payments_for_country`
-lists a country's reports. `commodity_production_side_by_side` takes a
-commodity (name or `{hs_code}`) and a country (name or ISO alpha-3) and returns
-each source's vintage current at the date, withheld and estimated values
-marked. `export_extractives_evidence_bundle` cites every item with source,
-record revision and as-of time. `create_extractives_monitor` subscribes to a
-company, country or commodity and notifies new reports, report revisions and new
-or revised commodity releases.
+| Tool | Answers |
+| --- | --- |
+| `query_extractives_company_payments` | payments of a company (and with `group=true` its group as of the date) per EITI report version and revenue stream, through reviewed company matches; `all_versions=true` lists each version's payments |
+| `query_extractives_country_payments` | a country's reports, versions, revenue streams with government-reported totals and payments with each company's match status |
+| `query_extractives_production` | a commodity (or `hs:<heading>` through accepted concordance matches) and a country to production and reserves per source and vintage |
+| `extractives_record_history` | every revision of an EITI record with its report version |
+| `export_extractives_evidence_bundle` | an evidence bundle whose assertions cite source, record revision and as-of time |
 
-The offline journey is `tests/unit/domains/test_extractives_acceptance.py`.
+"No payment on record" is never a clean bill: only acquired report versions and
+reviewed matches are searched. Similar-name unmatched companies are listed as
+unknowns on request and never counted.
+
+## Review identity
+
+- Companies: `propose_extractives_company_matches` offers EITI companies to the
+  legal entities of an ownership namespace, published identifiers first (a KvK
+  number is the GLEIF `RA000463` number, a Companies House number the
+  `RA000585` one), equal names as low-evidence candidates. A reviewer accepts,
+  rejects or reverts each (`review_extractives_company_match`,
+  `revert_extractives_company_match`). Individual payers are never offered.
+- Commodities: `import_extractives_concordance` records the publisher's
+  commodity-to-HS correspondence with its citation;
+  `propose_extractives_commodity_matches` proposes matches from it only.
+- Projects: `propose_extractives_project_matches` proposes infrastructure
+  assets that share a published identifier or published coordinates with a
+  project. Names are never matched.
+
+Nothing is merged: records stay as published and unmatched records stay
+visible.
+
+## Link
+
+`link_extractives_trade_flows` (accepted HS heading and published country
+code), `link_extractives_energy` (shared SIEC and country code),
+`link_extractives_infrastructure` (accepted project match) and
+`link_extractives_public_finance` (explicit citation) record the basis and the
+subject and target revisions of every link. Linked values are listed side by
+side, never combined. `list_extractives_links` shows them, including the
+`provider_absent` and `target_not_found` attempts.
+
+## Monitor
+
+`create_extractives_monitor` subscribes to companies, countries or commodities.
+`run_extractives_monitor` reports new and revised EITI report versions,
+new, revised and removed payments (with amounts before and after) and new or
+revised commodity releases, each citing the record revision and release. Notices
+are record changes, not assessments; unchanged releases and restarts emit
+nothing.
+
+## Personal data
+
+Contact persons, beneficial owners and signatories are never parsed. A payer the
+report marks as an individual keeps its payments with its name withheld and its
+identifier dropped. The store refuses personal fields at write time and every
+tool checks its answer before returning it.
+
+## Evidence
+
+Offline: `tests/unit/domains/test_extractives_*.py`, including the acceptance
+journey `test_extractives_acceptance.py`, replay authored fixtures of fictional
+companies and figures with sockets blocked. Live: none yet (#2717). Offline
+coverage is never reported as live coverage.

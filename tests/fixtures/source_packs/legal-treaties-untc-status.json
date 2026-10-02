@@ -1,7 +1,0 @@
-{
- "normalized": [],
- "note": "The UNTC parser is exercised offline with the authored page in tests/fixtures/treaties/ under a test-only accepted decision.",
- "scenarios": [
-  "licence declined: no request, no record; readiness and answers report not acquired (written permission required)"
- ]
-}

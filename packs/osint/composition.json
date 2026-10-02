@@ -153,13 +153,19 @@
     {
       "id": "platform-transparency-dsa",
       "default": false,
-      "description": "EU DSA Transparency Database statements of reasons from light daily dumps of declared platforms and days, keyed by platform and statement uuid, with dump versions and published SHA-1; counts by platform, ground and period over stored records only. No platform user or content identifier, notifier identity or free text is stored (SP01)",
+      "description": "EU DSA Transparency Database statements of reasons from declared daily dumps: platform, decision type, ground, content type and automated flags as published; counts only over stored statements with the window and dump versions stated. Every record cites source, record revision and as-of time; reviewable advertiser identity; elections, campaign-finance, lobbying and ownership links degrade when those providers are absent. No user-level profiling, private content, coordination inference or point estimates of ranges",
       "requires": [
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "advertiser and funding-entity matches are reviewed in the shared ownership identity state machine"
         },
         {
           "capability": "platform.subscriptions",
@@ -178,12 +184,12 @@
     {
       "id": "platform-transparency-meta",
       "default": false,
-      "description": "Meta Ad Library political and issue ads of declared pages, countries and windows: advertiser and funding entity as declared, delivery dates and spend and impression ranges exactly as published, removals as revisions, reviewable advertiser identity; election, campaign-finance and lobbying links degrade gracefully when those features are absent. No point estimates, targeting or demographic data",
+      "description": "Meta Ad Library political and issue ads for declared pages, countries and windows (NOESIS_META_AD_LIBRARY_TOKEN): advertiser and funding entity as declared, spend and impression ranges as published. Every record cites source, record revision and as-of time; reviewable advertiser identity; elections, campaign-finance, lobbying and ownership links degrade when those providers are absent. No user-level profiling, private content, coordination inference or point estimates of ranges",
       "requires": [
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
         },
         {
@@ -209,12 +215,12 @@
     {
       "id": "platform-transparency-google",
       "default": false,
-      "description": "Google political ads (BigQuery public dataset) of declared advertisers and regions: published advertiser identifiers, spend range and impression bucket exactly as published, data refresh date per record, reviewable advertiser identity; links degrade gracefully when the Political features are absent. No point estimates or targeting data",
+      "description": "Google political ads for declared advertiser ids from the transparency bundle: published public ids and election labels, spend ranges and impression buckets as published, refresh time per record. Every record cites source, record revision and as-of time; reviewable advertiser identity; elections, campaign-finance, lobbying and ownership links degrade when those providers are absent. No user-level profiling, private content, coordination inference or point estimates of ranges",
       "requires": [
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
         },
         {
@@ -240,13 +246,31 @@
     {
       "id": "platform-transparency-lumen",
       "default": false,
-      "description": "Lumen takedown notices under research access: recorded as not implemented (no research token is held and the API terms could not be verified); enabling the feature adds the takedown-notice record kind and its minimisation rule but no source",
+      "description": "Lumen takedown notices under researcher access only (NOESIS_LUMEN_API_TOKEN; access not granted to this deployment, so the source reports gated-not-granted): permitted metadata with Lumen's redactions preserved, returned only with the notices scope. Every record cites source, record revision and as-of time; reviewable advertiser identity; elections, campaign-finance, lobbying and ownership links degrade when those providers are absent. No user-level profiling, private content, coordination inference or point estimates of ranges",
       "requires": [
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
+        },
+        {
+          "capability": "ownership.identity",
+          "contract": "noesis-ownership-identity-candidate",
+          "range": "^1.0.0",
+          "reason": "advertiser and funding-entity matches are reviewed in the shared ownership identity state machine"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "advertiser, election and platform monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "platform-transparency sources run through the source-pack runtime with receipts"
         }
       ]
     }
@@ -290,7 +314,7 @@
         "provider": "osint.platform-transparency",
         "contract": {
           "name": "noesis-platform-transparency-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       }
     ],

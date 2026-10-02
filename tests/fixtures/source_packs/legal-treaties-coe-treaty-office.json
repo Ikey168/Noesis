@@ -1,0 +1,27 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Chart of signatures and ratifications of Treaty 999 (authored fixture)</title></head>\n<body>\n<div id=\"treaty-header\">\n<h1 class=\"treaty-title\">Council of Europe Convention on Example Data Cooperation (CETS No. 999)</h1>\n<table id=\"treaty-info\">\n<tr><th>Opening for signature</th><td>Place: Strasbourg. Date: 10/05/2090</td></tr>\n<tr><th>Entry into force</th><td>Conditions: 3 Ratifications including 3 member States. Date: 01/09/2091</td></tr>\n<tr><th>Treaty series</th><td>CETS No. 999</td></tr>\n<tr><th>Status</th><td>Signatures not followed by ratifications: 2. Ratifications/Accessions: 2.</td></tr>\n<tr><th>Text</th><td><a href=\"https://rm.coe.int/example-cets-999/0000000000000999\">Treaty text (official versions)</a></td></tr>\n</table>\n<p class=\"status-date\">Status as of 01/02/2099</p>\n</div>\n<table id=\"signatures\">\n<tr><th>States</th><th>Signature</th><th>Ratification</th><th>Entry into force</th><th>Notes</th><th>R.</th><th>D.</th><th>A.</th><th>T.</th><th>C.</th><th>O.</th></tr>\n<tr data-membership=\"member\"><td>Exampland</td><td>10/05/2090</td><td>12/03/2091</td><td>01/09/2091</td><td></td><td>X</td><td>X</td><td></td><td></td><td></td><td></td></tr>\n<tr data-membership=\"member\"><td>Northwind Republic</td><td>10/05/2090</td><td>15/06/2091</td><td>01/10/2091</td><td>Denunciation: 30/06/2098; Effective: 01/01/2099</td><td></td><td></td><td></td><td></td><td></td><td>X</td></tr>\n<tr data-membership=\"non-member\"><td>Southland</td><td>20/01/2092</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>\n<tr data-membership=\"non-member\"><td>European Union</td><td>20/01/2092</td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td></tr>\n</table>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "text/html"
+   },
+   "request": "/en/web/conventions/full-list?module=signatures-by-treaty&treatynum=999",
+   "status": 200
+  },
+  {
+   "body": "<!DOCTYPE html>\n<html lang=\"en\"><head><meta charset=\"utf-8\"><title>Reservations and Declarations for Treaty No.999 (authored fixture)</title></head>\n<body>\n<h1>Reservations and Declarations for Treaty No.999 - Council of Europe Convention on Example Data Cooperation</h1>\n<div class=\"declaration\" id=\"coe-999-exampland-r1\" data-state=\"Exampland\" data-kind=\"Reservation\">\n<p class=\"decl-head\">Reservation contained in the instrument of ratification deposited on 12 March 2091 - Or. Engl.</p>\n<p class=\"decl-text\">In accordance with Article 18 of the Convention, Exampland reserves the right not to apply Article 7, paragraph 2, in respect of data held by its regional authorities.</p>\n<p class=\"decl-period\">Period covered: 01/09/2091 -</p>\n<p class=\"decl-articles\">Articles concerned: 7</p>\n</div>\n<div class=\"declaration\" id=\"coe-999-exampland-d1\" data-state=\"Exampland\" data-kind=\"Declaration\">\n<p class=\"decl-head\">Declaration contained in the instrument of ratification deposited on 12 March 2091 - Or. Engl.</p>\n<p class=\"decl-text\">In accordance with Article 11 of the Convention, Exampland designates the Example Data Office as its central authority. Contact: Example Data Office, 1 Example Square, Exampletown. Tel. +99 123 456 789, e-mail: central.authority@example.org</p>\n<p class=\"decl-period\">Period covered: 01/09/2091 -</p>\n<p class=\"decl-articles\">Articles concerned: 11</p>\n</div>\n<div class=\"declaration\" id=\"coe-999-northwind-o1\" data-state=\"Northwind Republic\" data-kind=\"Objection\" data-objects-to=\"coe-999-exampland-r1\">\n<p class=\"decl-head\">Objection contained in a Note verbale from the Permanent Representation of the Northwind Republic, dated 2 April 2092, registered at the Secretariat General on 3 April 2092 - Or. Engl.</p>\n<p class=\"decl-text\">The Northwind Republic objects to the reservation made by Exampland in respect of Article 7, paragraph 2. This objection does not preclude the entry into force of the Convention between the Northwind Republic and Exampland.</p>\n<p class=\"decl-period\">Period covered: 03/04/2092 -</p>\n<p class=\"decl-articles\">Articles concerned: 7</p>\n</div>\n</body></html>\n",
+   "headers": {
+    "Content-Type": "text/html"
+   },
+   "request": "/en/web/conventions/full-list?codeNature=0&module=declarations-by-treaty&numSte=999",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the element structure and SPARQL shape recorded in the TR01 audit (verify live); every treaty, state, code (user-assigned XEA/XNW), act and date is fictional placeholder data (years 2090-2099).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-treaties"
+ ]
+}

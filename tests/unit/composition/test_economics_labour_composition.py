@@ -99,8 +99,7 @@ def test_each_selection_resolves_independently_and_together(selection):
     assert ("economics.labour" in bound(plan)) == labour
     if selection == ["labour-statistics"]:
         assert bound(plan) == FEATURE_PROVIDERS
-        # The bundle now pins 1.7.0 (the extractives sources, #2653); this provider still declares ^1.6.0.
-        assert {**PACK, "version": "1.7.0", "range": "^1.7.0"} in plan["source_packs"]
+        assert PACK in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     assert ("noesis-knowledge-engine.labour_indicators_for_place" in view.tools) == labour
     assert "noesis-kb.kb_economic" in view.tools

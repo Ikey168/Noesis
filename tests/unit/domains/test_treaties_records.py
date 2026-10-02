@@ -1,108 +1,120 @@
-"""Treaty, participant and treaty-action records with immutable revisions and as-of lookup (#2590)."""
+"""Treaty, participant, action and statement records with immutable revisions and as-of lookup (#2590, TR02)."""
 
 from __future__ import annotations
 
 import copy
 import json
 
+import jsonschema
 import pytest
-from jsonschema import Draft202012Validator
 
-from src.kb.treaties_records import TreatiesError, check_minimisation, feature_enabled
-from src.kb.treaties_store import TreatyStore, content_hash
+from src.kb.treaties_records import (
+    TreatiesError,
+    TreatiesStore,
+    content_hash,
+    forbidden_keys,
+    validate,
+)
 from tests.unit import treaties_harness as h
 
-GERMANY_RATIFICATION = "treaties:action:untc:XXIX-99:germany:ratification:table"
-EXAMPLONIA_SIGNATURE = "treaties:action:untc:XXIX-99:examplonia:signature:table"
+ACCESSION = "treaties:untc:action:XXVII-99:northwind-republic:accession:1"
+OLDLAND = "treaties:untc:action:XXVII-99:oldland:succession:1"
 
 
-@pytest.fixture()
-def conn():
-    connection = h.connection()
-    h.load_all(connection)
-    yield connection
-    connection.close()
+@pytest.fixture
+def loaded():
+    conn = h.connection()
+    h.load_all(conn, observed_at_ms=1_000)
+    yield conn
+    conn.close()
 
 
-def all_records(v2=False):
-    return [r for source_id in (h.UNTC, *h.SOURCES) for r in h.records(source_id, v2=v2)]
+def test_every_record_follows_the_contract_and_carries_source_revision_and_as_of(loaded):
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-treaty-record-v2.json").read_text())
+    validator = jsonschema.Draft202012Validator(schema)
+    store = TreatiesStore(loaded)
+    rows = store.records(h.NS, scopes=h.READ_ONLY)
+    assert {r["provider"] for r in rows} == {"untc", "eu-cellar", "coe-treaty-office"}
+    for row in rows:
+        assert not list(validator.iter_errors(row["record"])), row["record_key"]
+        citation = row["citation"]
+        assert citation["source_id"] in h.SOURCES and citation["revision_id"].startswith("treaty-rev:")
+        assert citation["as_of_ms"] == 1_000 and citation["evidence_origin"] == "fixture"
+        assert citation["locator"].startswith("https://")
+    untc = next(r for r in rows if r["record_key"] == h.UNTC)
+    assert untc["citation"]["depositary_revision"] == "2099-01-15T09:15:00"
+    assert not forbidden_keys([r["record"] for r in rows])
 
 
-def test_records_validate_against_the_contract_and_round_trip():
-    validator = Draft202012Validator(json.loads(
-        (h.ROOT / "contracts/schemas/jsonschema/noesis-treaty-record-v1.json").read_text()))
-    records = all_records() + all_records(v2=True)
-    assert {r["record_kind"] for r in records} == {"treaty", "treaty-action"}
-    for record in records:
-        validator.validate(record)
-        assert json.loads(json.dumps(record)) == record
-    person = copy.deepcopy(next(r for r in records if r["record_kind"] == "treaty-action"))
-    person["fields"]["signatory_name"] = "A. Person"
-    assert list(validator.iter_errors(person))
-    effect = copy.deepcopy(records[0])
-    effect["fields"]["legal_effect"] = "binding"
-    assert list(validator.iter_errors(effect))
-    pack = json.loads((h.ROOT / "packs/legal/pack.json").read_text())
-    assert pack["schema_versions"]["treaty-record"] == "1.0.0"
-
-
-def test_minimisation_is_enforced_at_write_time(conn):
-    record = copy.deepcopy(next(r for r in h.records(h.COE) if r["record_kind"] == "treaty-action"))
-    record["fields"]["representative"] = "Permanent Representative (name)"
-    with pytest.raises(TreatiesError) as error:
-        TreatyStore(conn).project(h.NS, [record], run_id="bad", source_id=h.COE)
-    assert error.value.code == "minimisation_violation"
-    person = copy.deepcopy(next(r for r in h.records(h.COE) if r["record_kind"] == "treaty-action"))
-    person["fields"]["participant"]["kind"] = "natural-person"
-    with pytest.raises(TreatiesError):
-        check_minimisation(person)
-    stored = json.dumps(conn.execute("SELECT record_json FROM treaty_action_revisions").fetchall())
-    assert "signatory" not in stored and "representative_name" not in stored
-
-
-def test_replays_add_nothing_and_a_new_stamp_alone_is_no_change(conn):
-    before = conn.execute("SELECT count(*) FROM treaty_action_revisions").fetchone()[0]
-    h.load_all(conn)
-    assert conn.execute("SELECT count(*) FROM treaty_action_revisions").fetchone()[0] == before
-    record = next(r for r in h.records(h.COE) if r["record_kind"] == "treaty-action")
-    restamped = {**record, "depositary_revision": "Status as of 01/01/2100", "depositary_date": "2100-01-01"}
-    assert content_hash(record) == content_hash(restamped)
-    counts = TreatyStore(conn).project(h.NS, [restamped], run_id="restamp", source_id=h.COE)
-    assert counts["unchanged"] == 1
-
-
-def test_corrections_and_removals_are_revisions_never_overwrites(conn):
-    store = TreatyStore(conn)
-    first = store.revisions(h.NS, GERMANY_RATIFICATION)
-    h.load_all(conn, v2=True)
-    chain = store.revisions(h.NS, GERMANY_RATIFICATION)
-    assert [r["change"] for r in chain] == ["new", "revised"] and chain[0] == first[0]
-    assert [r["action_date"] for r in chain] == ["2098-09-03", "2098-09-04"]
-    assert [r["depositary_date"] for r in chain] == ["2099-09-30", "2100-04-15"]
-    removed = store.revisions(h.NS, EXAMPLONIA_SIGNATURE)
+def test_a_depositary_correction_is_a_new_revision_and_a_dropped_row_is_removed_by_source(loaded):
+    store = TreatiesStore(loaded)
+    result = h.apply(loaded, "untc-treaty-status", v2=True, observed_at_ms=2_000)[0]
+    assert result["counts"]["revised"] >= 2 and result["counts"]["new"] >= 3
+    assert result["counts"]["removed-by-source"] == 2  # Oldland's participant and succession rows
+    history = store.history(h.NS, ACCESSION, scopes=h.READ_ONLY)
+    assert [r["change"] for r in history] == ["new", "revised"]
+    assert history[0]["record"]["fields"]["deposit_date"] == "2092-05-10"
+    assert history[1]["record"]["fields"]["deposit_date"] == "2092-05-11"
+    assert history[1]["previous_revision_id"] == history[0]["revision_id"]
+    assert history[1]["native_revision"] == "2099-06-20T10:00:00"
+    removed = store.history(h.NS, OLDLAND, scopes=h.READ_ONLY)
     assert [r["change"] for r in removed] == ["new", "removed-by-source"]
-    assert removed[1]["action_date"] == "2098-03-01"  # the removal keeps what was published
-    h.load_all(conn)  # the earlier page again: the signature is listed again, the date is re-published
-    assert [r["change"] for r in store.revisions(h.NS, EXAMPLONIA_SIGNATURE)] == ["new", "removed-by-source",
-                                                                                   "relisted"]
+    assert removed[-1]["publication_status"] == "no-longer-published"
+    assert removed[-1]["record"]["fields"] == removed[0]["record"]["fields"]  # kept, never deleted
+    assert OLDLAND not in {r["record_key"] for r in store.records(h.NS, scopes=h.READ_ONLY)}
+    assert OLDLAND in {r["record_key"] for r in store.records(h.NS, scopes=h.READ_ONLY, include_removed=True)}
+    # An unchanged action is not re-revised because the page stamp moved on.
+    signature = store.history(h.NS, "treaties:untc:action:XXVII-99:exampland:signature:1", scopes=h.READ_ONLY)
+    assert [r["change"] for r in signature] == ["new"]
 
 
-def test_as_of_lookup_selects_the_revision_published_by_a_date(conn):
-    store = TreatyStore(conn)
-    h.load_all(conn, v2=True)
-    assert store.as_of(h.NS, GERMANY_RATIFICATION, "2100-01-01")["action_date"] == "2098-09-03"
-    assert store.as_of(h.NS, GERMANY_RATIFICATION, "2100-05-01")["action_date"] == "2098-09-04"
-    assert store.as_of(h.NS, GERMANY_RATIFICATION)["revision_no"] == 2
-    assert store.as_of(h.NS, GERMANY_RATIFICATION, "2099-01-01") is None
+def test_replays_are_idempotent_and_an_older_page_never_becomes_current(loaded):
+    store = TreatiesStore(loaded)
+    again = h.apply(loaded, "untc-treaty-status", observed_at_ms=1_500)[0]
+    assert again["counts"]["new"] == again["counts"]["revised"] == again["counts"]["removed-by-source"] == 0
+    h.apply(loaded, "untc-treaty-status", v2=True, observed_at_ms=2_000)
+    older = h.apply(loaded, "untc-treaty-status", run_id="replay-v1", observed_at_ms=3_000)[0]
+    assert older["counts"]["revised"] == 0 and older["counts"]["removed-by-source"] == 0
+    assert older["counts"]["unchanged"] + older["counts"]["older-observation"] == older["records"]
+    current = store.records(h.NS, scopes=h.READ_ONLY, record_keys=[ACCESSION])[0]
+    assert current["record"]["fields"]["deposit_date"] == "2092-05-11"
+    assert OLDLAND not in {r["record_key"] for r in store.records(h.NS, scopes=h.READ_ONLY)}
+
+
+def test_as_of_lookup_by_record_time_and_by_depositary_revision(loaded):
+    store = TreatiesStore(loaded)
+    h.apply(loaded, "untc-treaty-status", v2=True, observed_at_ms=2_000)
+    assert store.as_known_at(h.NS, ACCESSION, 1_500, scopes=h.READ_ONLY)["record"]["fields"]["deposit_date"] == \
+        "2092-05-10"
+    assert store.as_known_at(h.NS, ACCESSION, 2_500, scopes=h.READ_ONLY)["record"]["fields"]["deposit_date"] == \
+        "2092-05-11"
+    assert store.as_known_at(h.NS, ACCESSION, 500, scopes=h.READ_ONLY) is None
+    assert store.as_of_depositary(h.NS, ACCESSION, "2099-03-01", scopes=h.READ_ONLY)["revision_no"] == 1
+    assert store.as_of_depositary(h.NS, ACCESSION, "2099-07-01", scopes=h.READ_ONLY)["revision_no"] == 2
+    assert store.as_of_depositary(h.NS, ACCESSION, "2098-12-31", scopes=h.READ_ONLY) is None
+
+
+def test_minimisation_and_exclusions_are_enforced_at_write_time(loaded):
+    store = TreatiesStore(loaded)
+    record = copy.deepcopy(h.records("coe-treaty-office")[0])
+    for bad, code in ((dict(record, fields={**record["fields"], "signatory_name": "A. Person"}),
+                       "minimisation_violation"),
+                      (dict(record, fields={**record["fields"], "representative": {"name": "A. Person"}}),
+                       "minimisation_violation"),
+                      (dict(record, minimisation=None), "minimisation_violation"),
+                      (dict(record, fields={**record["fields"], "legal_effect": "binding"}), "assessment_forbidden")):
+        with pytest.raises(TreatiesError) as exc:
+            store.project(h.NS, [bad], run_id="bad", source_id="coe-treaty-office")
+        assert exc.value.code == code
+    statement = next(r for r in h.records("coe-treaty-office") if r["record_kind"] == "treaty-statement")
+    leaked = dict(statement, fields={**statement["fields"], "text_verbatim": "Contact: Tel. +99 123 456 789 or desk@example.org"})
+    with pytest.raises(TreatiesError) as exc:
+        validate(leaked)
+    assert exc.value.code == "minimisation_violation"
+    participant = next(r for r in h.records("coe-treaty-office") if r["record_kind"] == "participant")
     with pytest.raises(TreatiesError):
-        store.as_of(h.NS, GERMANY_RATIFICATION, "not a date")
-
-
-def test_receipts_and_feature_flags(conn):
-    receipts = TreatyStore(conn).receipts(h.NS, f"run:{h.COE}:v1", scopes=h.READ_ONLY)
-    assert receipts[0]["contract"] == "noesis-treaty-acquisition-receipt-v1" and receipts[0]["records"] == 12
-    assert feature_enabled(conn, "treaties-coe") is False
-    with pytest.raises(TreatiesError):
-        feature_enabled(conn, "treaties")
-    with pytest.raises(TreatiesError):
-        TreatyStore(conn).receipts(h.NS, "x", scopes={"knowledge:legal:read"})
+        validate(dict(participant, fields={**participant["fields"], "participant_type": "person"}))
+    with pytest.raises(TreatiesError) as exc:
+        store.records(h.NS, scopes={"knowledge:legal:read"})
+    assert exc.value.code == "unauthorized"
+    assert content_hash(record) == content_hash(dict(record, native_revision="2100-01-01"))

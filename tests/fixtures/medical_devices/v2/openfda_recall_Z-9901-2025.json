@@ -1,0 +1,42 @@
+{
+ "meta": {
+  "disclaimer": "Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.",
+  "terms": "https://open.fda.gov/terms/",
+  "license": "https://open.fda.gov/license/",
+  "last_updated": "2025-09-30",
+  "results": {
+   "skip": 0,
+   "limit": 1,
+   "total": 1
+  }
+ },
+ "results": [
+  {
+   "product_res_number": "Z-9901-2025",
+   "res_event_number": "99901",
+   "recall_status": "Terminated",
+   "recalling_firm": "Exampla Medical Devices Inc.",
+   "address_1": "1 Example Way",
+   "city": "Springfield",
+   "state": "MA",
+   "postal_code": "01999",
+   "country": "United States",
+   "reason_for_recall": "Software anomaly may cause the pump to display an incorrect occlusion alarm.",
+   "root_cause_description": "Software design",
+   "action": "Firm sent an urgent field safety notice on 2025-04-02 instructing users to install software version 2.1.",
+   "product_code": "ZXA",
+   "product_description": "Exampla FlowSense Infusion Pump, model FS-100",
+   "code_info": "Serial numbers FS100-0001 to FS100-0500",
+   "k_numbers": [
+    "K999001"
+   ],
+   "pma_numbers": [],
+   "event_date_initiated": "2025-04-02",
+   "event_date_posted": "2025-05-12",
+   "event_date_terminated": "2025-09-10",
+   "openfda": {
+    "device_class": "2"
+   }
+  }
+ ]
+}

@@ -11,35 +11,34 @@
     {
       "id": "legal.enforcement",
       "contract": {
-        "name": "noesis-enforcement-action",
-        "version": "1.0.0"
+        "name": "noesis-enforcement-record",
+        "version": "2.0.0"
       },
       "operations": [
         "enforcement-source-contracts",
         "enforcement-readiness",
         "enforcement-actions-for-entity",
-        "enforcement-actions-for-identifier",
         "enforcement-actions-by-authority",
         "enforcement-action-history",
         "export-enforcement-evidence-bundle",
         "list-enforcement-links",
         "link-enforcement-records",
         "list-enforcement-identity-candidates",
-        "propose-enforcement-respondent-matches",
-        "review-enforcement-respondent-match",
-        "revert-enforcement-respondent-match",
+        "propose-enforcement-identity-matches",
+        "review-enforcement-identity-match",
+        "revert-enforcement-identity-match",
         "create-enforcement-monitor",
         "run-enforcement-monitor",
         "poll-enforcement-monitor"
       ],
       "semantic_constraints": {
-        "records": "SEC litigation releases and administrative proceedings, FCA final notices, EPA ECHO case reports and EDPB Article 60 register entries as published: authority, native identifier, respondents, legal bases, key dates, outcome, penalties and appeals; every published update is an immutable revision and a correction or removal by the source is a revision, never a deletion",
-        "outcomes": "outcomes are quoted as published; a settlement keeps its stated admission wording ('without admitting or denying') and is never merged into a finding; an initiated action is not a finding of wrongdoing",
-        "penalties": "type, amount text, amount and currency as published; before and after a settlement discount kept apart; never converted or summed across currencies or authorities; unpublished figures stay explicit unknowns",
-        "minimisation": "natural-person respondents keep an action-scoped pseudonym and role only; names, reference numbers, addresses and dates of birth are never stored; individual-only actions are not recorded; natural persons are never matched, queried or monitored; no personal profile",
-        "identity": "authorities are source identities; organisation respondents reach entities only through reviewable, reversible identity candidates (published identifiers before names), never auto-accepted; unmatched respondents stay visible",
-        "links": "legislation and rules, competition cases, court dockets and Market issuers are linked by exact citation, published identifier or accepted match only, at specific revisions; missing providers and targets are reported; no causal inference",
-        "exclusions": "no risk or compliance scoring, no inference of wrongdoing, no profiling of named individuals, no legal advice"
+        "records": "SEC litigation releases and administrative proceedings, FCA final notices, EPA ECHO cases and EDPB Article 60 final decisions as published: authority, action, organisational respondents, notices as versioned documents, penalties and appeals; every published change, correction or removal is an immutable revision with source, record revision and as-of time",
+        "outcomes": "outcomes, settlement admission wording ('without admitting or denying') and penalties are quoted as published; a settled outcome is never merged into a finding and an initiated action is never treated as proof of wrongdoing",
+        "penalties": "amounts are the published text with their currency; undisclosed amounts stay explicit; nothing is converted or summed across currencies or authorities",
+        "minimisation": "EN01: organisational respondents only; individuals are counted, never named, matched, profiled or monitored; personal attributes are rejected at write time and in every tool output",
+        "identity": "respondents reach ownership entities only through reviewable, reversible identity candidates (published identifiers before names), never auto-accepted; authorities are source identities",
+        "links": "competition cases, court dockets and Legal works by exact citation, market filings by a published CIK, ownership entities by accepted match; missing providers or targets are reported, never dropped; no causal link to market events",
+        "exclusions": "no risk or compliance scoring, no inference of wrongdoing from an initiated action, no merging of settled outcomes into findings, no profiling of named individuals, no legal advice"
       }
     }
   ],
@@ -85,21 +84,6 @@
       ]
     },
     {
-      "id": "enforcement-actions-for-identifier",
-      "tool": "noesis-knowledge-engine.enforcement_actions_for_identifier",
-      "side_effect": "read-only",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "actions",
-      "required_scopes": [
-        "knowledge:legal:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
       "id": "enforcement-actions-by-authority",
       "tool": "noesis-knowledge-engine.enforcement_actions_by_authority",
       "side_effect": "read-only",
@@ -138,7 +122,8 @@
       },
       "readiness_probe": "actions",
       "required_scopes": [
-        "knowledge:legal:read"
+        "knowledge:legal:read",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -169,7 +154,8 @@
       "readiness_probe": "actions",
       "required_scopes": [
         "knowledge:legal:read",
-        "knowledge:legal:write"
+        "knowledge:legal:write",
+        "knowledge:ownership:read"
       ],
       "required_context": [
         "namespace"
@@ -192,8 +178,8 @@
       ]
     },
     {
-      "id": "propose-enforcement-respondent-matches",
-      "tool": "noesis-knowledge-engine.propose_enforcement_respondent_matches",
+      "id": "propose-enforcement-identity-matches",
+      "tool": "noesis-knowledge-engine.propose_enforcement_identity_matches",
       "side_effect": "local-mutation",
       "idempotency": {
         "supported": true
@@ -209,8 +195,8 @@
       ]
     },
     {
-      "id": "review-enforcement-respondent-match",
-      "tool": "noesis-knowledge-engine.review_enforcement_respondent_match",
+      "id": "review-enforcement-identity-match",
+      "tool": "noesis-knowledge-engine.review_enforcement_identity_match",
       "side_effect": "local-mutation",
       "idempotency": {
         "supported": true
@@ -225,8 +211,8 @@
       ]
     },
     {
-      "id": "revert-enforcement-respondent-match",
-      "tool": "noesis-knowledge-engine.revert_enforcement_respondent_match",
+      "id": "revert-enforcement-identity-match",
+      "tool": "noesis-knowledge-engine.revert_enforcement_identity_match",
       "side_effect": "local-mutation",
       "idempotency": {
         "supported": true

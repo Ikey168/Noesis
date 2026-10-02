@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-platform-transparency-record-v2.json",
+  "title": "Platform transparency record as published by a platform or database",
+  "description": "One acquired record (#2580): a DSA Transparency Database statement of reasons or dump release, a Meta or Google political ad, an advertiser, or a Lumen takedown notice. Each carries its provider, platform, the declared selection it was acquired under, revision order, the source's data refresh time where published, locator and evidence origin. Ads keep the advertiser and funding entity as declared and spend and impression ranges and currency exactly as published (never point estimates). A record the source no longer returns for the same selection is stored as a not-returned revision. Under the SP01 minimisation decision no record carries DSA decision facts, explanations, content ids or notifier identity, ad creative text or audience distributions, Lumen bodies, works or URLs, or any access token.",
+  "type": "object",
+  "required": ["contract", "format", "provider", "platform", "record_kind", "record_key", "advertiser_key", "selection_key", "native_revision", "revision_order", "effective_on", "data_as_of", "listing_status", "title", "locator", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-platform-transparency-record-v2"},
+    "format": {"enum": ["dsa-sor-dump-csv", "meta-ad-library-json", "google-political-ads-bundle", "lumen-notices-json"]},
+    "provider": {"enum": ["dsa-transparency-database", "meta-ad-library", "google-political-ads", "lumen"]},
+    "platform": {"type": "string", "minLength": 1},
+    "record_kind": {"enum": ["dump-release", "statement-of-reasons", "advertiser", "ad", "takedown-notice"]},
+    "record_key": {"type": "string", "pattern": "^platform-transparency:(dsa|meta|google|lumen):[a-z-]+:[A-Za-z0-9:._-]+$"},
+    "advertiser_key": {"type": ["string", "null"]},
+    "selection_key": {"type": "string", "minLength": 1},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "effective_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "data_as_of": {"type": ["string", "null"]},
+    "listing_status": {"enum": ["listed", "not-returned"]},
+    "not_returned": {"type": "object"},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "minimisation": {
+      "type": "object",
+      "required": ["policy", "withheld"],
+      "properties": {
+        "policy": {"const": "platform-transparency-minimisation-v1"},
+        "withheld": {"type": "array", "items": {"type": "string"}}
+      },
+      "additionalProperties": false
+    },
+    "fields": {
+      "type": "object",
+      "not": {
+        "anyOf": [
+          {"required": ["decision_facts"]}, {"required": ["illegal_content_explanation"]},
+          {"required": ["incompatible_content_explanation"]}, {"required": ["puid"]}, {"required": ["source_identity"]},
+          {"required": ["ad_creative_bodies"]}, {"required": ["demographic_distribution"]},
+          {"required": ["delivery_by_region"]}, {"required": ["body"]}, {"required": ["works"]},
+          {"required": ["access_token"]}
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

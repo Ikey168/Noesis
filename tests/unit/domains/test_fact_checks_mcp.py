@@ -1,4 +1,4 @@
-"""Fact-checks MCP entry points: catalog registration, declared scopes, exclusions and minimised answers (#2712)."""
+"""Fact-checks MCP entry points: catalog registration, declared scopes, minimised answers and reviews (#2712)."""
 
 from __future__ import annotations
 
@@ -18,12 +18,15 @@ from tools.knowledge_engine_mcp.fact_checks import (
     FACT_CHECK_WRITES,
 )
 
+WITHHELD = ("Chief Spokesperson", "images.example", "robinsample_fake", "Pat Reviewer")
+
 
 @pytest.fixture()
 def mcp_env(tmp_path, monkeypatch):
     path = str(tmp_path / "fact-checks-mcp.duckdb")
     conn = duckdb.connect(path)
     h.load_all(conn)
+    h.load_all(conn, version="v2")
     h.load_news(conn)
     h.load_source_identity(conn)
     conn.close()
@@ -33,7 +36,7 @@ def mcp_env(tmp_path, monkeypatch):
     return asyncio.run(server.mcp.get_tools()), state
 
 
-def test_tools_are_registered_with_every_scope_they_read_and_write_and_declare_exclusions(mcp_env):
+def test_tools_are_registered_with_every_scope_they_read_and_write(mcp_env):
     tools, _ = mcp_env
     assert FACT_CHECK_TOOLS <= set(tools)
     assert set(FACT_CHECK_SCOPES) == FACT_CHECK_TOOLS
@@ -44,50 +47,47 @@ def test_tools_are_registered_with_every_scope_they_read_and_write_and_declare_e
     catalog = json.loads((h.ROOT / "contracts/generated/noesis-mcp-catalog-v1.json").read_text())
     assert FACT_CHECK_TOOLS <= {t["name"] for t in catalog["tools"]}
     descriptor = json.loads((h.ROOT / "packs/news/providers/news.fact-checks.json").read_text())
-    assert {op["tool"].split(".", 1)[1] for op in descriptor["operations"]} <= FACT_CHECK_TOOLS
-    description = tools["fact_checks_for_claim"].description.lower()
-    assert "no truth verdict" in description and "no rating normalisation" in description
-    assert "claimant scope" in tools["fact_checks_for_claimant"].description.lower()
+    assert {op["tool"].split(".", 1)[1] for op in descriptor["operations"]} == FACT_CHECK_TOOLS
+    for name in ("fact_checks_of_claim_or_claimant", "fact_checks_citing_article"):
+        description = tools[name].description.lower()
+        assert "verbatim" in description and "cited" in description
+    assert "no truth verdict" in tools["fact_checks_of_claim_or_claimant"].description.lower()
 
 
-def test_claims_matches_links_bundles_and_monitors_through_mcp_honour_minimisation(mcp_env):
+def test_answers_identity_links_bundles_and_monitors_through_mcp_honour_minimisation(mcp_env):
     tools, state = mcp_env
-    proposed = tools["propose_fact_check_matches"].fn(namespace=h.NS)
-    seals = [m for m in proposed["matches"] if m["right_key"] == "argument-claim:claim-seals"]
-    assert len(seals) == 2
+    proposed = tools["propose_fact_check_identity_matches"].fn(namespace=h.NS)
+    assert proposed["candidates"] and {c["state"] for c in proposed["candidates"]} == {"proposed"}
+    (claim,) = [c for c in proposed["candidates"] if c["right_key"] == "claim-widgets"
+                and c["method"] == "shared-appearance-url"]
     state["principal"] = "bob"
-    for match in seals:
-        reviewed = tools["review_fact_check_match"].fn(namespace=h.NS, match_id=match["match_id"], decision="accept",
-                                                       reason="the claim appeared in this article")
-        assert reviewed["state"] == "accepted" and reviewed["reviewer"] == "bob"
-    answer = tools["fact_checks_for_claim"].fn(namespace=h.NS, claim_id="claim-seals", as_of="2025-12-31")
-    assert answer["status"] == "answered" and forbidden_keys(answer) == []
-    text = json.dumps(answer)
-    for withheld in ("Mayor of Example Bay", "Reviewer Placeholder", "Sam Placeholder", "mayor.jpg"):
-        assert withheld not in text
+    reviewed = tools["review_fact_check_identity_match"].fn(namespace=h.NS, candidate_id=claim["candidate_id"],
+                                                            decision="accept", reason="same claim, same article")
+    assert reviewed["state"] == "accepted" and reviewed["reviewer"] == "bob"
     linked = tools["link_fact_checks"].fn(namespace=h.NS)
     assert linked["status"] == "linked"
-    assert tools["list_fact_check_links"].fn(namespace=h.NS, kind="news-article")["links"]
-    citing = tools["fact_checks_citing_url"].fn(namespace=h.NS, url=h.APPEARANCE)
-    assert len(citing["fact_checks"]) == 2
-    bundle = tools["export_fact_checks_evidence_bundle"].fn(namespace=h.NS, query="claim", key="claim-seals")
-    assert bundle["evidence_bundle"]["bibliography"] and bundle["exclusions"]
-    history = tools["fact_check_history"].fn(namespace=h.NS, record_key="fact-checks:ifcn:verifica-example")
-    assert history["revisions"][0]["record"]["fields"]["status_as_published"] == "Under renewal"
-    status = tools["fact_checks_publisher_status"].fn(namespace=h.NS, site="https://verifica.example.net",
-                                                      as_of="2025-03-12")
-    assert status["signatories"][0]["status_as_published"] == "Under renewal"
-    monitor = tools["create_fact_checks_monitor"].fn(namespace=h.NS, request_key="mcp", watch="query", key="seals")
+    answer = tools["fact_checks_of_claim_or_claimant"].fn(namespace=h.NS, claim_id="claim-widgets",
+                                                          as_of="2099-08-31")
+    assert answer["status"] == "answered" and forbidden_keys(answer) == []
+    citing = tools["fact_checks_citing_article"].fn(namespace=h.NS, document_id="doc-widgets")
+    assert citing["fact_checks"] and citing["subject"]["url_rule"]["rules"] == "wa-canon-v1"
+    history = tools["fact_check_revision_history"].fn(namespace=h.NS,
+                                                     record_key="fact-check:publisher:northwind-verify.example")
+    assert [r["record"]["fields"]["ifcn_status"] for r in history["revisions"]] == ["verified", "expired"]
+    bundle = tools["export_fact_check_evidence_bundle"].fn(namespace=h.NS, query="claim", key="claim-widgets")
+    assert bundle["evidence_bundle"]["bibliography"]
+    listed = tools["list_fact_check_links"].fn(namespace=h.NS, kind="news-article")
+    assert listed["links"] and all(link["record_revision_id"] for link in listed["links"])
+    monitor = tools["create_fact_check_monitor"].fn(namespace=h.NS, request_key="mcp", watch="publisher",
+                                                    key="factdesk.example")
     assert monitor["subscription_id"]
+    everything = json.dumps([proposed, answer, citing, history, bundle, listed])
+    assert not [p for p in WITHHELD if p in everything]
     state["scopes"] = set(h.READ_ONLY)
-    refused = tools["fact_checks_for_claimant"].fn(namespace=h.NS, claimant="Mayor Alex Example")
-    assert refused["ok"] is False and refused["error"]["code"] == "unauthorized"
-    listed = tools["list_fact_check_matches"].fn(namespace=h.NS)
-    assert not [m for m in listed["matches"] if m["match_kind"] == "claimant-entity"]
-    assert "withheld" in listed["unmatched"]["claimants"]
-    reverted = tools["revert_fact_check_match"].fn(namespace=h.NS, match_id=seals[0]["match_id"], reason="x")
-    assert reverted["ok"] is False
-    contracts = tools["fact_checks_source_contracts"].fn()
-    assert contracts["live_verification"]["ifcn"]["status"] == "unverified-live"
+    refused = tools["revert_fact_check_identity_match"].fn(namespace=h.NS, candidate_id=claim["candidate_id"],
+                                                           reason="x")
+    assert refused["ok"] is False
+    contracts = tools["fact_check_source_contracts"].fn()
+    assert contracts["live_verification"]["google-fact-check-tools"]["status"] == "unverified-live"
     assert contracts["minimisation"]["policy"] == "fact-checks-minimisation-v1"
-    assert "truth verdicts by Noesis" in contracts["exclusions"]
+    assert "no truth verdicts by Noesis" in contracts["exclusions"]

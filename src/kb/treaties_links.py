@@ -1,32 +1,31 @@
-"""Treaty records linked to other packs by citation, shared identifier or accepted match (#2581, TR07).
+"""Treaty records linked to other packs by citation, shared identifier or accepted match only (#2581, TR07).
 
-Every link records its **basis** and points at **specific record revisions**
-on both sides (the treaty revision, and the target's work version, list
-snapshot or identity assertion):
+* **Legislation** (Legal works, ``legal.core``): an agreement's own CELEX and
+  the CELEX numbers of the EU acts CELLAR states point at it (``citations``,
+  explicit CDM triples) are looked up exactly in ``legal_works``
+  (:meth:`src.kb.legal.LegalStore.lookup`). Basis ``shared-identifier`` for the
+  agreement's own CELEX, ``citation`` for a cited act.
+* **Sanctions** (``legal.sanctions``): a sanctions legal basis whose CELEX
+  equals a treaty's CELEX, or whose citation text contains one of the treaty's
+  exact identifiers (``CETS No. 999``, the UNTC ``mtdsg_no``, the UNTS
+  registration number with ``UNTS``), basis ``citation``.
+* **Trade flows** (``economics.trade``): a participant's published ISO 3166-1
+  alpha-3 code equal to a trade series reporter's published ISO code (basis
+  ``shared-identifier``), or a participant reaching a geospatial place carrying
+  that code through an accepted TR06 match (basis ``accepted-match``, naming the
+  decision). A link says the reporter publishes trade under the same code; it
+  never says a trade flow is governed by, or complies with, the treaty.
 
-* ``eu-act`` (Legal ``legislation-regulation``, :mod:`src.kb.legal`) - an EU act
-  CELLAR links to an agreement (``eu_acts`` of the agreement record) resolved
-  to a Legal work by exact CELEX through :meth:`src.kb.legal.LegalStore.lookup`;
-  basis ``citation``. The act's role (signing, concluding, implementing) is
-  never inferred: the CELLAR relation is quoted.
-* ``legal-work`` - the agreement itself acquired as a Legal work (same CELEX
-  or ELI); basis ``shared-identifier``.
-* ``sanctions-legal-basis`` (Legal ``sanctions``, :mod:`src.kb.sanctions`) - a
-  list's legal-basis citation that states the treaty's CELEX or ELI, or cites
-  its CETS/ETS, UNTS or MTDSG number exactly; basis ``citation``. A basis
-  citing a treaty number with no treaty record here is a ``missing_target``.
-* ``participant-trade-reporter`` (Economics ``trade``, :mod:`src.kb.trade_identity`)
-  - a participant whose accepted TR06 place match is the place an accepted
-  trade identity assertion maps a reporter/partner area code to; basis
-  ``accepted-match``. Nothing says the treaty governs that trade.
-
-A missing target or an absent provider is reported (``missing_target``,
-``provider_unavailable``), never dropped. Links are recomputed idempotently;
-a link made against an earlier revision stays as history.
+Every link names the treaty record revision it was made from and the target's
+revision where the target has one. A missing provider or a missing target is
+reported (``provider-missing`` / ``target-missing``), never dropped. No
+implementation, obligation or compliance relationship is inferred.
 """
 
 from __future__ import annotations
 
+import json
+import re
 import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
@@ -34,207 +33,229 @@ from typing import Any
 from src.kb.treaties_records import (
     READ_SCOPE,
     WRITE_SCOPE,
-    TreatiesError,
+    TreatiesStore,
     authorize,
     canonical,
     digest,
-    load,
     table_exists,
 )
 
-CONTRACT = "noesis-treaty-link-v1"
-LINK_KINDS = ("eu-act", "legal-work", "sanctions-legal-basis", "participant-trade-reporter")
+TARGET_KINDS = ("legal-work", "sanctions-legal-basis", "trade-reporter")
+BASES = ("citation", "shared-identifier", "accepted-match")
+STATUSES = ("resolved", "target-missing", "provider-missing")
+NOTICE = "links record a citation, a shared published identifier or an accepted match; no implementation, " \
+         "obligation or compliance relationship is inferred"
 _DDL = """
 CREATE TABLE IF NOT EXISTS treaty_links (
-  namespace TEXT NOT NULL, link_id TEXT NOT NULL, link_kind TEXT NOT NULL, treaty_key TEXT NOT NULL,
-  treaty_revision_id TEXT NOT NULL, subject_key TEXT, target_pack TEXT NOT NULL, target_key TEXT NOT NULL,
-  target_revision TEXT, basis TEXT NOT NULL, status TEXT NOT NULL, evidence_json TEXT NOT NULL,
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, treaty_key TEXT NOT NULL, treaty_revision_id TEXT NOT NULL,
+  source_id TEXT NOT NULL, subject_key TEXT NOT NULL, target_kind TEXT NOT NULL, target_key TEXT NOT NULL,
+  target_revision TEXT, target_namespace TEXT, basis TEXT NOT NULL, status TEXT NOT NULL, evidence_json TEXT NOT NULL,
   created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
 );
 """
 
 
+def treaty_identifiers(record: Mapping[str, Any]) -> dict[str, list[str]]:
+    """Exact identifiers a treaty record publishes, as tokens another record may cite."""
+    fields = record["fields"]
+    ids = fields.get("identifiers") or {}
+    out: dict[str, list[str]] = {"celex": [], "tokens": []}
+    if ids.get("celex"):
+        out["celex"].append(ids["celex"])
+    if ids.get("untc_mtdsg"):
+        out["tokens"].append(ids["untc_mtdsg"])
+    if ids.get("unts_registration"):
+        out["tokens"].append(f"UNTS {ids['unts_registration']}")
+    for ref in fields.get("cross_references") or []:
+        if ref["scheme"] == "cets":
+            out["tokens"].append(f"CETS No. {ref['value']}")
+        if ref["scheme"] == "celex" and ref["value"] not in out["celex"]:
+            out["celex"].append(ref["value"])
+    return out
+
+
+def _mentions(text: str, token: str) -> bool:
+    return bool(re.search(r"(?<![\w-])" + re.escape(token) + r"(?![\w-])", text or ""))
+
+
 class TreatiesLinks:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
-        from src.kb.treaties_identity import TreatiesIdentity
-
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
-        self.identity = TreatiesIdentity(conn, now=self.now, initialize=initialize)
-        self.store = self.identity.store
+        self.store = TreatiesStore(conn, initialize=initialize, now=self.now)
         if initialize:
             conn.execute(_DDL)
 
-    def _record(self, namespace: str, kind: str, treaty_row: Mapping[str, Any], subject: str | None, target_pack: str,
-                target_key: str, target_revision: str | None, basis: str, status: str, evidence: Mapping[str, Any],
-                principal_id: str) -> dict[str, Any]:
-        link_id = "treaty-link:" + digest([namespace, kind, treaty_row["revision_id"], subject, target_key,
-                                           target_revision, status])[:24]
-        if not self.conn.execute("SELECT 1 FROM treaty_links WHERE namespace=? AND link_id=?",
-                                 [namespace, link_id]).fetchone():
-            self.conn.execute("INSERT INTO treaty_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-                              [namespace, link_id, kind, treaty_row["record_key"], treaty_row["revision_id"], subject,
-                               target_pack, target_key, target_revision, basis, status, canonical(dict(evidence)),
-                               principal_id, self.now()])
+    def _put(self, namespace, row, subject, kind, target, revision, target_namespace, basis, status, evidence,
+             principal_id) -> dict[str, Any]:
+        link_id = "treaty-link:" + digest([namespace, row["revision_id"], subject, kind, target, basis])[:24]
+        self.conn.execute(
+            "INSERT OR IGNORE INTO treaty_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            [namespace, link_id, row["treaty_key"], row["revision_id"], row["source_id"], subject, kind, target,
+             revision, target_namespace, basis, status, canonical(evidence), principal_id, self.now()])
         return self.link(namespace, link_id)
-
-    def link(self, namespace: str, link_id: str) -> dict[str, Any]:
-        row = self.conn.execute(
-            "SELECT link_id, link_kind, treaty_key, treaty_revision_id, subject_key, target_pack, target_key, "
-            "target_revision, basis, status, evidence_json, created_by, created_at_ms FROM treaty_links WHERE "
-            "namespace=? AND link_id=?", [namespace, link_id]).fetchone()
-        if row is None:
-            raise TreatiesError("not_found", "no such treaty link")
-        return {"contract": CONTRACT, **dict(zip(("link_id", "link_kind", "treaty_key", "treaty_revision_id",
-                                                  "subject_key", "target_pack", "target_key", "target_revision",
-                                                  "basis", "status"), row[:10])),
-                "evidence": load(row[10], {}), "created_by": row[11], "created_at_ms": row[12]}
-
-    # ------------------------------------------------------------------ build
 
     def link_all(self, namespace: str, *, principal_id: str, scopes: Iterable[str], legal_namespace: str | None = None,
                  sanctions_namespace: str | None = None, trade_namespace: str | None = None) -> dict[str, Any]:
-        """Link every current treaty revision; idempotent. Absent providers and missing targets are reported."""
+        """Create links for every current treaty record; idempotent per treaty revision and target."""
         scopes = set(scopes)
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
-        out: list[dict[str, Any]] = []
-        unavailable: dict[str, str] = {}
-        treaties = [r for r in (self.store.as_of(namespace, k) for k in self.store.treaty_keys(namespace)) if r]
-        out += self._legal(namespace, treaties, legal_namespace or namespace, principal_id, scopes, unavailable)
-        out += self._sanctions(namespace, treaties, sanctions_namespace or namespace, principal_id, unavailable)
-        out += self._trade(namespace, treaties, trade_namespace or namespace, principal_id, scopes, unavailable)
-        return {"links": out, "linked": sum(1 for x in out if x["status"] == "linked"),
-                "missing_targets": [x for x in out if x["status"] == "missing_target"],
-                "provider_unavailable": [{"pack": pack, "reason": reason} for pack, reason in sorted(
-                    unavailable.items())],
-                "notice": "links follow citations, shared identifiers and accepted matches only; no implementation "
-                          "or trade relationship is inferred"}
-
-    def _legal(self, namespace, treaties, legal_namespace, principal_id, scopes, unavailable) -> list[dict[str, Any]]:
-        cellar = [t for t in treaties if t["provider"] == "cellar"]
-        if not cellar:
-            return []
+        treaties = self.store.records(namespace, scopes=scopes, kinds=["treaty"])
+        made, unavailable = [], []
+        legal_ns = legal_namespace or namespace
         if not table_exists(self.conn, "legal_works"):
-            unavailable["legal.core"] = "the Legal work store is not present; EU act citations stay unresolved"
-            return []
-        from src.kb.legal import READ_SCOPE as LEGAL_READ
-        from src.kb.legal import LegalStore
-
-        legal = LegalStore(self.conn, initialize=False, now=self.now)
-        legal_scopes = {LEGAL_READ, f"namespace:{legal_namespace}:read"}
-        del scopes
-        out = []
-        for treaty in cellar:
-            fields = self.store.record(treaty)["fields"]
-            targets = [("legal-work", ident["value"], "shared-identifier",
-                        {"identifier": ident, "note": "the agreement itself acquired as a Legal work"})
-                       for ident in fields.get("identifiers") or [] if ident["scheme"] in {"celex", "eli"}]
-            targets += [("eu-act", act["celex"], "citation",
-                         {"cellar_relation": act["relation"], "direction": act["direction"],
-                          "document_date": act["document_date"], "url": act["url"],
-                          "note": "CELLAR states the relation; the act's role is not inferred"})
-                        for act in fields.get("eu_acts") or []]
-            for kind, identifier, basis, evidence in targets:
-                found = legal.lookup(legal_namespace, scopes=legal_scopes, identifier=identifier)
-                works = {w["work_id"] for w in found["works"]}
-                if len(works) == 1:
-                    work_id = next(iter(works))
-                    versions = [v["version_id"] for v in legal.versions(legal_namespace, work_id)]
-                    out.append(self._record(namespace, kind, treaty, None, "legal.core", work_id,
-                                            versions[-1] if versions else None, basis, "linked",
-                                            {**evidence, "identifier": identifier, "legal_namespace": legal_namespace,
-                                             "version_ids": versions}, principal_id))
-                elif kind == "eu-act":
-                    out.append(self._record(namespace, kind, treaty, None, "legal.core", f"celex:{identifier}", None,
-                                            basis, "ambiguous" if works else "missing_target",
-                                            {**evidence, "identifier": identifier, "lookup_status": found["status"],
-                                             "note": "the cited act is not (uniquely) acquired in the Legal store"},
-                                            principal_id))
-        return out
-
-    def _sanctions(self, namespace, treaties, sanctions_namespace, principal_id, unavailable) -> list[dict[str, Any]]:
+            unavailable.append({"provider": "legal.core", "reason": "no Legal works store (Legislation links "
+                                                                   "degrade to target-missing records)"})
+        sanctions_ns = sanctions_namespace or namespace
         if not table_exists(self.conn, "sanctions_legal_bases"):
-            unavailable["legal.sanctions"] = "the sanctions store is not present; no legal-basis citation was read"
-            return []
-        from src.ingestion.treaties_sources import citations_in
+            unavailable.append({"provider": "legal.sanctions", "reason": "the sanctions feature's store is absent"})
+        trade_ns = trade_namespace or namespace
+        if not table_exists(self.conn, "trade_series"):
+            unavailable.append({"provider": "economics.trade", "reason": "no trade series store"})
+        for row in treaties:
+            ids = treaty_identifiers(row["record"])
+            made += self._legislation(namespace, row, ids, legal_ns, principal_id, scopes)
+            made += self._sanctions(namespace, row, ids, sanctions_ns, principal_id)
+        made += self._trade(namespace, trade_ns, principal_id, scopes)
+        return {"links": made, "unavailable": unavailable, "notice": NOTICE,
+                "counts": {s: sum(1 for m in made if m["status"] == s) for s in STATUSES}}
 
-        by_identifier: dict[tuple[str, str], list[Mapping[str, Any]]] = {}
-        for treaty in treaties:
-            for ident in self.store.record(treaty)["fields"].get("identifiers") or []:
-                by_identifier.setdefault((ident["scheme"], str(ident["value"]).lstrip("0")), []).append(treaty)
+    # ------------------------------------------------------------------ Legislation
+
+    def _legislation(self, namespace, row, ids, legal_ns, principal_id, scopes) -> list[dict[str, Any]]:
+        wanted = [(celex, "shared-identifier", {"identifier": celex, "as_published": "the agreement's own CELEX"})
+                  for celex in ids["celex"]]
+        for citation in row["record"]["fields"].get("citations") or []:
+            wanted.append((citation["celex"], "citation", {"identifier": citation["celex"], "citation": citation}))
         out = []
-        rows = self.conn.execute(
-            "SELECT basis_id, list_id, citation, celex, eli, first_snapshot_id FROM sanctions_legal_bases WHERE "
-            "namespace=? ORDER BY basis_id", [sanctions_namespace]).fetchall()
-        for basis_id, list_id, citation, celex, eli, snapshot in rows:
-            cited = [("celex", celex, celex), ("eli", eli, eli)] + [
-                (c["scheme"], c["value"], c["as_written"]) for c in citations_in(citation)]
-            for scheme, value, written in cited:
-                if not value:
-                    continue
-                evidence = {"list_id": list_id, "basis_id": basis_id, "citation_as_published": citation,
-                            "cited": {"scheme": scheme, "value": value, "as_written": written},
-                            "sanctions_namespace": sanctions_namespace}
-                matches = by_identifier.get((scheme, str(value).lstrip("0")), [])
-                for treaty in matches:
-                    out.append(self._record(namespace, "sanctions-legal-basis", treaty, None, "legal.sanctions",
-                                            basis_id, snapshot, "citation", "linked", evidence, principal_id))
-                if not matches and scheme in {"cets", "unts-registration", "untc-mtdsg"}:
-                    out.append(self._record(
-                        namespace, "sanctions-legal-basis", {"record_key": f"{scheme}:{value}",
-                                                             "revision_id": "none"}, None, "legal.sanctions",
-                        basis_id, snapshot, "citation", "missing_target",
-                        {**evidence, "note": "the list cites a treaty that has no treaty record in this namespace"},
-                        principal_id))
+        for celex, basis, evidence in wanted:
+            if not table_exists(self.conn, "legal_works"):
+                out.append(self._put(namespace, row, row["record_key"], "legal-work", f"celex:{celex}", None,
+                                     legal_ns, basis, "provider-missing", evidence, principal_id))
+                continue
+            from src.kb.legal import LegalStore
+
+            found = LegalStore(self.conn).lookup(legal_ns, scopes={READ_SCOPE, f"namespace:{legal_ns}:read"}
+                                                 | set(scopes), identifier=celex)
+            works = found.get("works") or []
+            if not works:
+                out.append(self._put(namespace, row, row["record_key"], "legal-work", f"celex:{celex}", None,
+                                     legal_ns, basis, "target-missing", evidence, principal_id))
+                continue
+            work = works[0]
+            revision = None
+            if table_exists(self.conn, "legal_versions"):
+                latest = self.conn.execute("SELECT version_id FROM legal_versions WHERE work_id=? ORDER BY "
+                                           "version_id DESC LIMIT 1", [work["work_id"]]).fetchone()
+                revision = latest[0] if latest else None
+            out.append(self._put(namespace, row, row["record_key"], "legal-work", work["work_id"], revision, legal_ns,
+                                 basis, "resolved", {**evidence, "match": "exact identifier lookup",
+                                                     "work_title": work.get("title")}, principal_id))
         return out
 
-    def _trade(self, namespace, treaties, trade_namespace, principal_id, scopes, unavailable) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "trade_identity_assertions"):
-            unavailable["economics.trade"] = "the Trade flows identity store is not present; no reporter was read"
+    # ------------------------------------------------------------------ Sanctions
+
+    def _sanctions(self, namespace, row, ids, sanctions_ns, principal_id) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "sanctions_legal_bases"):
             return []
-        del scopes
-        areas: dict[str, list[dict[str, Any]]] = {}
-        for assertion_id, subject, target in self.conn.execute(
-                "SELECT assertion_id, subject_json, target_json FROM trade_identity_assertions WHERE namespace=? AND "
-                "kind='area' AND state='accepted' ORDER BY assertion_id", [trade_namespace]).fetchall():
-            place = load(target, {}) or {}
-            if place.get("place_id"):
-                areas.setdefault(place["place_id"], []).append({"assertion_id": assertion_id, "area": load(subject, {}),
-                                                                "place": place})
         out = []
-        for treaty in treaties:
-            participants = sorted({k for k in (self.conn.execute(
-                "SELECT DISTINCT participant_key FROM treaty_action_revisions WHERE namespace=? AND treaty_key=?",
-                [namespace, treaty["record_key"]]).fetchall() if table_exists(self.conn, "treaty_action_revisions")
-                else [])})
-            for (participant,) in participants:
-                place = self.identity.accepted_place(namespace, participant)
-                if not place:
-                    continue
-                for area in areas.get(place["place_id"], []):
-                    subject = area["area"]
-                    out.append(self._record(
-                        namespace, "participant-trade-reporter", treaty, participant, "economics.trade",
-                        f"trade-area:{subject.get('scheme')}:{subject.get('code')}", area["assertion_id"],
-                        "accepted-match", "linked",
-                        {"participant_place_match": place["candidate_id"], "trade_area_assertion": area["assertion_id"],
-                         "place_id": place["place_id"], "trade_namespace": trade_namespace,
-                         "note": "the participant and the trade area reach the same place through two accepted "
-                                 "matches; nothing says the treaty governs that trade"}, principal_id))
+        rows = self.conn.execute("SELECT basis_id, list_id, citation, celex, first_snapshot_id FROM "
+                                 "sanctions_legal_bases WHERE namespace=? ORDER BY basis_id",
+                                 [sanctions_ns]).fetchall()
+        for basis_id, list_id, citation, celex, snapshot in rows:
+            hit = None
+            if celex and celex in ids["celex"]:
+                hit = {"identifier": celex, "field": "celex"}
+            else:
+                token = next((t for t in ids["tokens"] + ids["celex"] if _mentions(citation, t)), None)
+                if token:
+                    hit = {"identifier": token, "field": "citation text", "citation_as_published": citation}
+            if hit:
+                out.append(self._put(namespace, row, row["record_key"], "sanctions-legal-basis", basis_id, snapshot,
+                                     sanctions_ns, "citation", "resolved", {**hit, "list_id": list_id},
+                                     principal_id))
+        return out
+
+    # ------------------------------------------------------------------ Trade flows
+
+    def _reporters(self, trade_ns: str) -> dict[str, list[tuple[str, str, str, str]]]:
+        if not table_exists(self.conn, "trade_series"):
+            return {}
+        out: dict[str, list[tuple[str, str, str, str]]] = {}
+        for series_id, scheme, code, reporter_json, release in self.conn.execute(
+                "SELECT series_id, reporter_scheme, reporter_code, reporter_json, first_release_id FROM trade_series "
+                "WHERE namespace=? ORDER BY series_id", [trade_ns]).fetchall():
+            iso3 = (json.loads(reporter_json or "{}") or {}).get("iso3")
+            if iso3:
+                out.setdefault(str(iso3).upper(), []).append((series_id, scheme, code, release))
+        return out
+
+    def _trade(self, namespace, trade_ns, principal_id, scopes) -> list[dict[str, Any]]:
+        reporters = self._reporters(trade_ns)
+        if not reporters:
+            return []
+        from src.kb.treaties_identity import TreatiesIdentity
+
+        identity = TreatiesIdentity(self.conn, initialize=False)
+        out = []
+        for row in self.store.records(namespace, scopes=scopes, kinds=["participant"]):
+            fields = row["record"]["fields"]
+            routes = []
+            for code in fields.get("codes") or []:
+                if code["scheme"] == "iso3166-1-alpha3":
+                    routes.append((code["value"].upper(), "shared-identifier", {"participant_code": code}))
+            for link in self._accepted_places(identity, namespace, row["record_key"], scopes):
+                routes.append((link["iso3"], "accepted-match", {"candidate_id": link["candidate_id"],
+                                                                "decision_id": link["decision_id"],
+                                                                "place": link["record_key"]}))
+            for iso3, basis, evidence in routes:
+                for series_id, scheme, code, release in reporters.get(iso3, [])[:1]:
+                    series = [s[0] for s in reporters[iso3]][:20]
+                    out.append(self._put(namespace, row, row["record_key"], "trade-reporter",
+                                         f"trade-reporter:{scheme}:{code}", release, trade_ns, basis, "resolved",
+                                         {**evidence, "iso3": iso3, "series": series,
+                                          "meaning": "the reporter publishes trade under the same ISO code"},
+                                         principal_id))
+        return out
+
+    def _accepted_places(self, identity, namespace, participant, scopes) -> list[dict[str, Any]]:
+        try:
+            accepted = identity.accepted(namespace, participant, scopes=scopes)
+        except Exception:  # noqa: BLE001 - identity is optional; no accepted match means no route
+            return []
+        out = []
+        for link in accepted:
+            if not link["record_key"].startswith("geospatial:place:"):
+                continue
+            row = self.conn.execute("SELECT source_ids_json FROM geospatial_place_revisions WHERE place_id=? "
+                                    "ORDER BY revision DESC LIMIT 1", [link["record_key"].split(":", 2)[2]]
+                                    ).fetchone() if table_exists(self.conn, "geospatial_place_revisions") else None
+            iso3 = (json.loads(row[0]) if row else {}).get("iso3166-1-alpha3")
+            if iso3:
+                out.append({**link, "iso3": str(iso3).upper()})
         return out
 
     # ------------------------------------------------------------------ reads
 
+    def link(self, namespace: str, link_id: str) -> dict[str, Any]:
+        row = self.conn.execute(
+            "SELECT link_id, treaty_key, treaty_revision_id, source_id, subject_key, target_kind, target_key, "
+            "target_revision, target_namespace, basis, status, evidence_json, created_by, created_at_ms FROM "
+            "treaty_links WHERE namespace=? AND link_id=?", [namespace, link_id]).fetchone()
+        keys = ("link_id", "treaty_key", "treaty_revision_id", "source_id", "subject_key", "target_kind", "target_key",
+                "target_revision", "target_namespace", "basis", "status", "evidence", "created_by", "created_at_ms")
+        out = dict(zip(keys, row))
+        out["evidence"] = json.loads(out["evidence"])
+        return out
+
     def links(self, namespace: str, *, scopes: Iterable[str], treaty_key: str | None = None,
-              link_kind: str | None = None, status: str | None = None) -> list[dict[str, Any]]:
-        authorize(namespace, scopes, READ_SCOPE)
+              subject_key: str | None = None, target_kind: str | None = None) -> list[dict[str, Any]]:
+        authorize(namespace, set(scopes), READ_SCOPE)
         if not table_exists(self.conn, "treaty_links"):
             return []
         rows = self.conn.execute(
             "SELECT link_id FROM treaty_links WHERE namespace=? AND (? IS NULL OR treaty_key=?) AND "
-            "(? IS NULL OR link_kind=?) AND (? IS NULL OR status=?) ORDER BY treaty_key, link_kind, target_key, "
-            "created_at_ms", [namespace, treaty_key, treaty_key, link_kind, link_kind, status, status]).fetchall()
+            "(? IS NULL OR subject_key=?) AND (? IS NULL OR target_kind=?) ORDER BY target_kind, treaty_key, "
+            "target_key, created_at_ms", [namespace, treaty_key, treaty_key, subject_key, subject_key, target_kind,
+                                          target_kind]).fetchall()
         return [self.link(namespace, r[0]) for r in rows]
-
-
-__all__ = ["CONTRACT", "LINK_KINDS", "TreatiesLinks"]

@@ -1,4 +1,4 @@
-"""Companies, commodities, countries and projects through reviewable identity (#2682)."""
+"""Reviewable identity for companies, commodities and projects (#2653, EX06 #2682)."""
 
 from __future__ import annotations
 
@@ -6,110 +6,112 @@ import pytest
 
 from src.kb.extractives_identity import ExtractivesIdentity
 from src.kb.extractives_records import ExtractivesError
+from src.kb.ownership_identity import OwnershipIdentityService
 from tests.unit import extractives_harness as h
 
 
-@pytest.fixture()
-def env():
+def test_without_ownership_records_every_company_stays_unmatched():
     conn = h.connection()
     h.load_all(conn)
-    h.import_concordances(conn)
-    return conn, ExtractivesIdentity(conn)
+    result = ExtractivesIdentity(conn).propose_companies(h.NS, ownership_namespace=h.OWN_NS, principal_id="analyst",
+                                                         scopes=h.SCOPES)
+    assert result["status"] == "ownership_absent" and result["candidates"] == []
+    assert {u["key"] for u in result["unmatched"]} == {h.INT_COMPANY, h.NORTHWIND, h.HOLD_COMPANY, h.UK_COMPANY}
 
 
-def test_companies_are_offered_by_published_identifier_first_and_never_accepted_automatically(env):
-    conn, identity = env
+def test_company_candidates_use_published_identifiers_first_names_as_low_evidence_and_nothing_is_accepted():
+    conn = h.connection()
     h.ownership(conn)
+    h.load_all(conn)
+    identity = ExtractivesIdentity(conn)
     result = identity.propose_companies(h.NS, ownership_namespace=h.OWN_NS, principal_id="analyst", scopes=h.SCOPES)
-    views = result["candidates"]
-    assert views and {v["state"] for v in views} == {"proposed"}
-    methods = {v["method"] for v in views}
-    assert "exact-identifier" in methods
-    assert all(v["low_evidence"] == (v["method"] == "name-jurisdiction") for v in views)
-    lei = next(v for v in views if v["ownership_key"] == h.INT_ENTITY)
-    assert lei["method"] == "exact-identifier" and lei["evidence"][0]["identifiers"][0]["scheme"] == "lei"
-    # Nothing is merged: every reporting company stays unmatched until a reviewer decides.
-    names = {u["name_as_reported"] for u in result["unmatched"]}
-    assert {"Andes Cobre S.A. (fixture)", "[natural person - redacted]"} <= names
-    assert not any(v["subject_key"] == u["key"] for v in views for u in result["unmatched"] if u["redacted"])
-    accepted = identity.review_company(h.NS, lei["candidate_id"], "accept", "LEI agrees", principal_id="reviewer",
-                                       scopes=h.SCOPES)
-    assert accepted["state"] == "accepted" and accepted["reviewer"] == "reviewer" and accepted["decision_id"]
-    assert "Exampla Intermediate B.V." not in {u["name_as_reported"] for u in identity.unmatched_companies(
-        h.NS, scopes=h.SCOPES)}
-    reverted = identity.revert_company(h.NS, lei["candidate_id"], "wrong register", principal_id="reviewer",
-                                       scopes=h.SCOPES)
-    assert reverted["state"] == "reverted"
-    assert "Exampla Intermediate B.V." in {u["name_as_reported"] for u in identity.unmatched_companies(
-        h.NS, scopes=h.SCOPES)}
-    # Re-proposing never changes a reviewed candidate silently and adds no duplicate.
+    candidates = result["candidates"]
+    assert candidates and {c["state"] for c in candidates} == {"proposed"}  # nothing auto-accepted
+    by_subject: dict[str, set[str]] = {}
+    for c in candidates:
+        by_subject.setdefault(c["subject_key"], set()).add(c["method"])
+        assert c["confidence"] and c["evidence"] and c["history"]
+    # The KvK number the NL report publishes is the GLEIF RA000463 number: an exact identifier candidate.
+    exact_int = [c for c in candidates if c["subject_key"] == h.INT_COMPANY and c["method"] == "exact-identifier"]
+    assert h.INT_ENTITY in {c["ownership_key"] for c in exact_int}
+    assert "exact-identifier" in by_subject[h.HOLD_COMPANY]
+    # Exampla UK Limited is published without an identifier: name candidates only, low evidence.
+    assert by_subject[h.UK_COMPANY] == {"name-jurisdiction"}
+    assert all(c["low_evidence"] for c in candidates if c["subject_key"] == h.UK_COMPANY)
+    # Northwind has no ownership record; the individual payer is never offered.
+    assert h.NORTHWIND not in by_subject
+    assert not any(":individual:" in c["subject_key"] for c in candidates)
+    assert {u["key"] for u in result["unmatched"]} == {h.INT_COMPANY, h.NORTHWIND, h.HOLD_COMPANY, h.UK_COMPANY}
+    # Re-proposing is idempotent.
     again = identity.propose_companies(h.NS, ownership_namespace=h.OWN_NS, principal_id="analyst", scopes=h.SCOPES)
-    assert len(again["candidates"]) == len(views)
+    assert again["proposed"] == []
 
 
-def test_without_the_ownership_store_companies_stay_unmatched(env):
-    _, identity = env
-    result = identity.propose_companies(h.NS, ownership_namespace=h.OWN_NS, principal_id="analyst", scopes=h.SCOPES)
-    assert result["candidates"] == [] and len(result["unmatched"]) == 4
-
-
-def test_commodities_use_the_stated_hs_code_first_then_a_cited_concordance(env):
-    _, identity = env
-    assertions = identity.propose_commodities(h.NS, principal_id="analyst", scopes=h.SCOPES)["assertions"]
-    by = {(a["subject"]["provider"], a["subject"]["name"]): a for a in assertions}
-    stated = by[("eiti", "Copper ores and concentrates")]
-    assert stated["method"] == "published-hs-code" and stated["target"]["codes"][0]["code"] == "260300"
-    usgs = by[("usgs-mcs", "Copper")]
-    assert usgs["method"] == "published-concordance" and usgs["relation"] == "partial"
-    assert usgs["target"]["codes"][0]["concordance"]["citation"]["file_sha256"]
-    assert all(a["confidence"] and a["evidence"] is not None for a in assertions if a["state"] == "proposed")
-    # Nothing is used before review: an HS query finds no series yet.
-    assert identity.commodity_keys_for(h.NS, {"hs_code": "2603"})["keys"] == []
-    h.review_all(identity, assertions)
-    keys = identity.commodity_keys_for(h.NS, {"hs_code": "2603"})["keys"]
-    assert {k["provider"] for k in keys} == {"usgs-mcs", "bgs-wms", "eiti"}
-    assert {k["relation"] for k in keys if k["provider"] == "eiti"} == {"narrower"}
-
-
-def test_countries_use_published_codes_before_names_and_aggregates_stay_unmatched(env):
-    _, identity = env
-    assertions = identity.propose_countries(h.NS, principal_id="analyst", scopes=h.SCOPES)["assertions"]
-    by = {(a["subject"]["provider"], a["subject"]["name"]): a for a in assertions}
-    assert by[("bgs-wms", "Peru")]["method"] == "published-code"
-    assert by[("usgs-mcs", "Peru")]["method"] == "published-code-list"
-    world = by[("usgs-mcs", "World total (rounded)")]
-    assert world["state"] == "unmatched" and "aggregate" in world["reason"]
-    h.review_all(identity, assertions)
-    names = identity.country_names_for(h.NS, "PER")["names"]
-    assert {(n["provider"], n["name"]) for n in names} == {("usgs-mcs", "Peru"), ("bgs-wms", "Peru")}
-
-
-def test_projects_match_assets_by_published_identifier_or_coordinates_only(env):
-    conn, identity = env
-    empty = identity.propose_projects(h.NS, infra_namespace=h.INFRA_NS, principal_id="a", scopes=h.SCOPES)
-    assert {a["state"] for a in empty["assertions"]} == {"unmatched"}
-    assets = h.seed_infrastructure(conn)
-    fresh = ExtractivesIdentity(conn)
-    result = fresh.propose_projects(h.NS, infra_namespace=h.INFRA_NS, principal_id="a", scopes=h.SCOPES)
-    by = {a["subject"]["name_as_reported"]: a for a in result["assertions"]}
-    cerro = by["Cerro Ejemplo (fixture)"]
-    assert cerro["method"] == "published-identifier" and cerro["target"]["asset_id"] == assets["M-FIX-1"]
-    tajo = by["Tajo Norte (fixture)"]
-    assert tajo["method"] == "published-coordinates" and tajo["low_evidence"]
-    assert tajo["target"]["asset_id"] == assets["M-FIX-2"] and tajo["evidence"]["distance_m"] <= tajo["evidence"][
-        "tolerance_m"]
+def test_review_accepts_rejects_and_reverts_with_reviewer_and_never_regroups_ownership_entities():
+    conn = h.connection()
+    state = h.reviewed(conn)
+    identity = state["identity"]
+    clusters_before = OwnershipIdentityService(conn).clusters(h.OWN_NS)
+    accepted = [c for c in identity.company_candidates(h.NS, scopes=h.SCOPES) if c["state"] == "accepted"]
+    assert accepted and all(c["reviewer"] == "reviewer" and c["decision_id"] for c in accepted)
+    assert all(c["method"] == "exact-identifier" for c in accepted)
+    unmatched = {u["key"]: u for u in identity.unmatched_companies(h.NS, scopes=h.SCOPES)}
+    assert set(unmatched) == {h.NORTHWIND, h.UK_COMPANY} and unmatched[h.UK_COMPANY]["pending_candidates"] >= 1
     with pytest.raises(ExtractivesError):
-        fresh.propose_projects(h.NS, infra_namespace=h.INFRA_NS, principal_id="a", scopes={
-            "knowledge:extractives:write", "namespace:global:write"})
+        identity.review_company(h.NS, accepted[0]["candidate_id"], "accept", "again", principal_id="reviewer",
+                                scopes=h.SCOPES)  # lacks the ownership review scope
+    reverted = identity.revert_company(h.NS, accepted[0]["candidate_id"], "register number re-checked",
+                                       principal_id="reviewer", scopes=h.REVIEW_SCOPES)
+    assert reverted["state"] == "reverted" and reverted["reason"] == "register number re-checked"
+    # The ownership namespace's clusters are unchanged by extractives links.
+    assert OwnershipIdentityService(conn).clusters(h.OWN_NS) == clusters_before
 
 
-def test_review_requires_a_reason_and_only_proposals_are_reviewed(env):
-    _, identity = env
-    (first, *_) = identity.propose_countries(h.NS, principal_id="a", scopes=h.SCOPES)["assertions"]
+def test_commodities_map_to_hs_headings_only_through_a_recorded_published_concordance():
+    conn = h.connection()
+    h.load_all(conn)
+    identity = ExtractivesIdentity(conn)
+    first = identity.propose_commodities(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    assert first["proposed"] == [] and {u["subject_key"] for u in first["unmatched"]} == {
+        "commodity:copper", "commodity:crude-petroleum", "commodity:lithium"}
     with pytest.raises(ExtractivesError):
-        identity.review(h.NS, first["assertion_id"], "accept", " ", principal_id="r", scopes=h.SCOPES)
-    world = next(a for a in identity.assertions(h.NS, scopes=h.SCOPES, kind="country") if a["state"] == "unmatched")
+        identity.import_concordance(h.NS, {**h.CONCORDANCE, "citation": {"url": "http://x"}}, principal_id="op",
+                                    scopes=h.SCOPES)
+    recorded = identity.import_concordance(h.NS, h.CONCORDANCE, principal_id="op", scopes=h.SCOPES)
+    assert recorded["created"] and not identity.import_concordance(h.NS, h.CONCORDANCE, principal_id="op",
+                                                                   scopes=h.SCOPES)["created"]
+    result = identity.propose_commodities(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    matches = {m["subject_key"]: m for m in result["matches"]}
+    assert set(matches) == {"commodity:copper", "commodity:crude-petroleum"}
+    assert [u["subject_key"] for u in result["unmatched"]] == ["commodity:lithium"]  # never guessed
+    copper = matches["commodity:copper"]
+    assert copper["state"] == "proposed" and copper["method"] == "published-concordance"
+    assert copper["target"]["id"] == "hs:HS2022:2603" and copper["evidence"]["citation"]["url"].startswith("https")
+    assert identity.accepted_hs_codes(h.NS, "copper") == []
+    identity.review(h.NS, copper["match_id"], "accept", "BGS table checked", principal_id="reviewer",
+                    scopes=h.SCOPES)
+    assert identity.accepted_hs_codes(h.NS, "copper")[0]["hs_code"] == "2603"
+    reverted = identity.revert(h.NS, copper["match_id"], "edition to be re-checked", principal_id="reviewer",
+                               scopes=h.SCOPES)
+    assert reverted["state"] == "reverted" and identity.accepted_hs_codes(h.NS, "copper") == []
     with pytest.raises(ExtractivesError):
-        identity.review(h.NS, world["assertion_id"], "accept", "x", principal_id="r", scopes=h.SCOPES)
-    with pytest.raises(ExtractivesError):
-        identity.review(h.NS, first["assertion_id"], "accept", "x", principal_id="r", scopes=h.READ_ONLY)
+        identity.review(h.NS, copper["match_id"], "accept", "x", principal_id="reviewer", scopes=h.READ_ONLY)
+
+
+def test_projects_map_to_infrastructure_only_through_published_identifiers_or_coordinates():
+    conn = h.connection()
+    h.load_all(conn)
+    identity = ExtractivesIdentity(conn)
+    absent = identity.propose_projects(h.NS, infrastructure_namespace="infra", principal_id="analyst",
+                                       scopes=h.SCOPES)
+    assert absent["status"] == "provider_absent" and len(absent["unmatched"]) == 2
+    asset_id = h.seed_infrastructure(conn)
+    result = identity.propose_projects(h.NS, infrastructure_namespace="infra", principal_id="analyst",
+                                       scopes=h.SCOPES)
+    (match,) = result["matches"]
+    assert match["subject_key"] == f"{h.DE_REPORT}:project:p1" and match["target"]["id"] == asset_id
+    assert match["method"] == "shared-identifier" and match["state"] == "proposed"
+    assert match["evidence"]["identifiers"] == [{"scheme": "gem-mine-id", "value": "M9001"}]
+    assert match["subject_revision_id"] and match["target"]["revision_id"]
+    # The NL gas field publishes neither an identifier nor coordinates an asset shares: unmatched, not name-matched.
+    assert [u["subject_key"] for u in result["unmatched"]] == [f"{h.NL_REPORT}:project:p1"]

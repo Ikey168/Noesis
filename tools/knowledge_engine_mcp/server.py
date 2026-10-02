@@ -9380,6 +9380,11 @@ from tools.knowledge_engine_mcp.education_statistics import (
 )
 
 register_education_statistics_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.life_sciences import (
+    register as register_life_sciences_tools,
+)
+
+register_life_sciences_tools(mcp, _intake_safe, _intake_context)
 from tools.knowledge_engine_mcp.legislation import (
     register as register_legislation_tools,
 )
@@ -9425,12 +9430,11 @@ from tools.knowledge_engine_mcp.campaign_finance import (
 )
 
 register_campaign_finance_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.fact_checks import (
-    register as register_fact_check_tools,
+from tools.knowledge_engine_mcp.society_income import (
+    register as register_society_income_tools,
 )
 
-register_fact_check_tools(mcp, _intake_safe, _intake_context)
-
+register_society_income_tools(mcp, _intake_safe, _intake_context)
 from tools.knowledge_engine_mcp.platform_transparency import (
     register as register_platform_transparency_tools,
 )
@@ -9442,29 +9446,23 @@ from tools.knowledge_engine_mcp.logistics import (
 )
 
 register_logistics_tools(mcp, _intake_safe, _intake_context)
-from tools.knowledge_engine_mcp.income_distribution import (
-    register as register_income_distribution_tools,
+from tools.knowledge_engine_mcp.fact_checks import (
+    register as register_fact_check_tools,
 )
 
-register_income_distribution_tools(mcp, _intake_safe, _intake_context)
-
-from tools.knowledge_engine_mcp.research_entities import (
-    register as register_research_entity_tools,
-)
-
-register_research_entity_tools(mcp, _intake_safe, _intake_context)
-
-from tools.knowledge_engine_mcp.lifesci import (
-    register as register_lifesci_tools,
-)
-
-register_lifesci_tools(mcp, _intake_safe, _intake_context)
+register_fact_check_tools(mcp, _intake_safe, _intake_context)
 
 from tools.knowledge_engine_mcp.extractives import (
     register as register_extractives_tools,
 )
 
 register_extractives_tools(mcp, _intake_safe, _intake_context)
+
+from tools.knowledge_engine_mcp.research_entities import (
+    register as register_research_entities_tools,
+)
+
+register_research_entities_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,93 @@
+{
+ "description": "EEA Discodata WISE WFD geometry and status rows. Authored offline fixture in the provider's documented response shape. Stations, identifiers, codes, coordinates, values and statuses are FICTIONAL and ILLUSTRATIVE, not live evidence; verify against the live sources before any live run (WA13, #2647).",
+ "scenarios": [
+  "two reporting cycles",
+  "an unknown ecological status",
+  "a water body without a published geometry",
+  "a water body not yet reported"
+ ],
+ "native_pages": [
+  {
+   "request": "/sql?nrOfHits=3&p=1&query=SELECT+euSurfaceWaterBodyCode%2C+cYear%2C+geometryGeoJSON+FROM+%5BWISE_WFD_Spatial%5D.%5Blatest%5D.%5BSurfaceWaterBody_Geometry%5D+WHERE+euSurfaceWaterBodyCode+IN+%28%27DEFX_EXAMPLA_01%27%2C%27DEFX_EXAMPLA_02%27%2C%27DEFX_NORTHWIND_03%27%29+ORDER+BY+euSurfaceWaterBodyCode%2C+cYear",
+   "status": 200,
+   "body": {
+    "results": [
+     {
+      "euSurfaceWaterBodyCode": "DEFX_EXAMPLA_01",
+      "cYear": 2022,
+      "geometryGeoJSON": "{\"type\": \"LineString\", \"coordinates\": [[13.38, 52.51], [13.41, 52.52], [13.44, 52.53]]}"
+     },
+     {
+      "euSurfaceWaterBodyCode": "DEFX_EXAMPLA_02",
+      "cYear": 2022,
+      "geometryGeoJSON": null
+     }
+    ]
+   }
+  },
+  {
+   "request": "/sql?nrOfHits=6&p=1&query=SELECT+countryCode%2C+euRBDCode%2C+rbdName%2C+euSurfaceWaterBodyCode%2C+surfaceWaterBodyName%2C+surfaceWaterBodyCategory%2C+naturalAWBHMWB%2C+cYear%2C+swEcologicalStatusOrPotentialValue%2C+swEcologicalAssessmentYear%2C+swChemicalStatusValue%2C+swChemicalAssessmentYear+FROM+%5BWISE_WFD%5D.%5Blatest%5D.%5BSWB_SurfaceWaterBody_Status%5D+WHERE+euSurfaceWaterBodyCode+IN+%28%27DEFX_EXAMPLA_01%27%2C%27DEFX_EXAMPLA_02%27%2C%27DEFX_NORTHWIND_03%27%29+AND+cYear+IN+%282016%2C2022%29+ORDER+BY+euSurfaceWaterBodyCode%2C+cYear",
+   "status": 200,
+   "body": {
+    "results": [
+     {
+      "countryCode": "DE",
+      "euRBDCode": "DEFX9990",
+      "rbdName": "Nordfluss basin (fixture)",
+      "euSurfaceWaterBodyCode": "DEFX_EXAMPLA_01",
+      "surfaceWaterBodyName": "Nordfluss Exampla reach (fixture)",
+      "surfaceWaterBodyCategory": "RW",
+      "naturalAWBHMWB": "Natural",
+      "cYear": 2016,
+      "swEcologicalStatusOrPotentialValue": "3",
+      "swEcologicalAssessmentYear": "2015",
+      "swChemicalStatusValue": "3",
+      "swChemicalAssessmentYear": "2015"
+     },
+     {
+      "countryCode": "DE",
+      "euRBDCode": "DEFX9990",
+      "rbdName": "Nordfluss basin (fixture)",
+      "euSurfaceWaterBodyCode": "DEFX_EXAMPLA_01",
+      "surfaceWaterBodyName": "Nordfluss Exampla reach (fixture)",
+      "surfaceWaterBodyCategory": "RW",
+      "naturalAWBHMWB": "Natural",
+      "cYear": 2022,
+      "swEcologicalStatusOrPotentialValue": "4",
+      "swEcologicalAssessmentYear": "2021",
+      "swChemicalStatusValue": "3",
+      "swChemicalAssessmentYear": "2021"
+     },
+     {
+      "countryCode": "DE",
+      "euRBDCode": "DEFX9990",
+      "rbdName": "Nordfluss basin (fixture)",
+      "euSurfaceWaterBodyCode": "DEFX_EXAMPLA_02",
+      "surfaceWaterBodyName": "Exampla lake (fixture)",
+      "surfaceWaterBodyCategory": "LW",
+      "naturalAWBHMWB": "Natural",
+      "cYear": 2016,
+      "swEcologicalStatusOrPotentialValue": "2",
+      "swEcologicalAssessmentYear": "2015",
+      "swChemicalStatusValue": "2",
+      "swChemicalAssessmentYear": "2015"
+     },
+     {
+      "countryCode": "DE",
+      "euRBDCode": "DEFX9990",
+      "rbdName": "Nordfluss basin (fixture)",
+      "euSurfaceWaterBodyCode": "DEFX_EXAMPLA_02",
+      "surfaceWaterBodyName": "Exampla lake (fixture)",
+      "surfaceWaterBodyCategory": "LW",
+      "naturalAWBHMWB": "Natural",
+      "cYear": 2022,
+      "swEcologicalStatusOrPotentialValue": "Unknown",
+      "swEcologicalAssessmentYear": "2021",
+      "swChemicalStatusValue": "3",
+      "swChemicalAssessmentYear": "2021"
+     }
+    ]
+   }
+  }
+ ]
+}

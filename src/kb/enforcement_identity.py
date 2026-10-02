@@ -1,32 +1,31 @@
-"""Respondents and authorities through reviewable identity (#2651, EN07).
+"""Respondents matched to ownership entities through reviewable identity; authorities as source identities (EN07).
 
-Authorities are **source identities**: each action names the regulator that
-published it (``us-sec``, ``uk-fca``, ``us-epa``, or the EU supervisory
-authority the EDPB register names as lead, ``eu-sa-xx``) and
-:func:`authority_identity` describes it; nothing is inferred about an
-authority.
-
-Organisation respondents (natural persons are **never** subjects, EN01) are
-*proposed* against the legal entities of an ownership namespace into the
+Subjects are the **organisational** respondents of the current action
+revisions (name and role as published). Natural persons are never subjects:
+they are not stored by name (EN01), so there is nothing to offer. Each subject
+is *proposed* against the legal entities of an ownership namespace - which
+include the GLEIF-projected LEI records and the SEC EDGAR and Companies House
+registrations, each registered as a ``canonical_entities`` row - into the
 shared reviewable state machine
 (:class:`src.kb.ownership_identity.OwnershipIdentityService`, whose accepted
 and reverted decisions are :class:`src.kb.entity_history.EntityHistoryStore`
-decisions with reviewer and time recorded); nothing is accepted automatically
-and nothing is merged:
+decisions with reviewer and time). Nothing is accepted automatically and
+nothing is merged:
 
-* ``exact-identifier`` first - an identifier the regulator published for the
-  respondent (a CIK stated in an SEC release, an LEI or company number) equal
-  to one an ownership record carries (``SCHEME_ALIASES``); an FCA Firm
-  Reference Number or an EPA FRS id is kept as published but no ownership
-  source carries one, so it never matches deterministically;
-* ``name-jurisdiction`` - equal normalized names; **low evidence**, marked as
-  such and never auto-accepted.
+* ``exact-identifier`` first - a published identifier the respondent carries
+  (SEC CIK, FCA FRN, LEI, company number) equal to one an ownership record
+  carries, under ``SCHEME_ALIASES``;
+* ``name-jurisdiction`` - equal normalized names whose countries do not
+  contradict; **low evidence**, never auto-accepted.
 
 A respondent without an accepted match stays as published and is reported as
-**unmatched**. Candidate keys start with ``enforcement:`` (in
+**unmatched**; candidates spanning several ownership clusters are
+**conflicts**. Candidate keys start with ``enforcement:`` (in
 ``FOREIGN_KEY_PREFIXES``), so these links never regroup ownership entities.
-When the ownership store is absent the proposal answers
-``ownership_unavailable`` and every respondent stays unmatched.
+
+Authorities are **source identities**: each ``authority`` record is keyed by
+the regulator's code and cited by every action; they are listed, never
+matched against companies.
 """
 
 from __future__ import annotations
@@ -44,28 +43,8 @@ from src.kb.enforcement import (
 )
 
 NAME_BASES = frozenset({"name-jurisdiction", "similar-name"})
-SCHEME_ALIASES = {"sec-cik": {"sec-cik", "cik"}, "lei": {"lei"}, "gb-coh": {"gb-coh", "ra:RA000585"},
-                  "nl-kvk": {"nl-kvk", "ra:RA000463"}}
-AUTHORITIES = {
-    "us-sec": {"name": "U.S. Securities and Exchange Commission", "jurisdiction": "US",
-               "provider": "us-sec", "site": "https://www.sec.gov"},
-    "uk-fca": {"name": "Financial Conduct Authority", "jurisdiction": "GB", "provider": "uk-fca",
-               "site": "https://www.fca.org.uk"},
-    "us-epa": {"name": "U.S. Environmental Protection Agency", "jurisdiction": "US", "provider": "us-epa-echo",
-               "site": "https://echo.epa.gov"},
-}
-
-
-def authority_identity(authority: str) -> dict[str, Any]:
-    """The source identity of an authority as the acquired records state it; never a resolved entity."""
-    if authority in AUTHORITIES:
-        return {"authority": authority, **AUTHORITIES[authority], "basis": "source identity (the publisher)"}
-    if authority.startswith("eu-sa-"):
-        code = authority.rsplit("-", 1)[-1].upper()
-        return {"authority": authority, "name": f"supervisory authority of {code} (as the EDPB register codes it)",
-                "jurisdiction": code, "provider": "edpb", "site": "https://www.edpb.europa.eu",
-                "basis": "the lead or concerned authority code published in the Article 60 register"}
-    raise EnforcementError("invalid_authority", "unknown enforcement authority")
+SCHEME_ALIASES = {"gb-coh": {"gb-coh", "ra:RA000585"}, "lei": {"lei"}, "sec-cik": {"sec-cik"},
+                  "gb-fca-frn": {"gb-fca-frn"}, "nl-kvk": {"nl-kvk", "ra:RA000463"}}
 
 
 def _scheme_set(scheme: str) -> set[str]:
@@ -93,34 +72,34 @@ def entity_for(key: str) -> str:
 
 class EnforcementIdentity:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
+        from src.kb.ownership_identity import OwnershipIdentityService
+
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
-        self.initialize = initialize
+        self.service = OwnershipIdentityService(conn, now=self.now, initialize=initialize)
         self.store = EnforcementStore(conn, initialize=initialize, now=self.now)
-        self._service = None
-
-    @property
-    def service(self):
-        if self._service is None:
-            from src.kb.ownership_identity import OwnershipIdentityService
-
-            self._service = OwnershipIdentityService(self.conn, now=self.now, initialize=self.initialize)
-        return self._service
 
     # -------------------------------------------------------------- subjects
 
+    def authorities(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """The regulators as source identities (never matched against companies)."""
+        authorize(namespace, scopes, READ_SCOPE)
+        return [{"key": v["record"]["record_key"], "authority": v["record"]["authority"],
+                 "name_as_published": v["record"]["name_as_published"],
+                 "jurisdiction": v["record"].get("jurisdiction"), "revision_id": v["revision_id"],
+                 "identity": "source identity: the publishing regulator"}
+                for v in self.store.views(namespace, ("authority",))]
+
     def subjects(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Organisation respondents of the current revisions, as published; natural persons are never subjects."""
+        """Organisational respondents of the current revisions, as published."""
         authorize(namespace, scopes, READ_SCOPE)
         out = []
         for view in self.store.views(namespace, ("respondent",)):
             body = view["record"]
-            if body["party_type"] != "organisation":
-                continue
             out.append({"key": body["record_key"], "action_key": body["action_key"], "authority": body["authority"],
-                        "name_as_published": body["name_as_published"],
-                        "role_as_published": body["role_as_published"], "country": body.get("country"),
-                        "identifiers": body.get("identifiers") or [], "revision_id": view["revision_id"]})
+                        "name_as_published": body["name_as_published"], "role_as_published": body["role_as_published"],
+                        "country": body.get("country"), "identifiers": body.get("identifiers") or [],
+                        "revision_id": view["revision_id"]})
         return sorted(out, key=lambda s: s["key"])
 
     # ------------------------------------------------------------- proposals
@@ -130,17 +109,13 @@ class EnforcementIdentity:
         """Offer identifier candidates first and name candidates as low evidence; idempotent, never accepts."""
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        if not table_exists(self.conn, "ownership_records"):
-            return {"status": "ownership_unavailable", "proposed": [], "candidates": [],
-                    "unmatched": self.unmatched(namespace, scopes=scopes),
-                    "note": "the Corporate Ownership store is not installed; respondents stay as published"}
-        entities = [e for e in self.service._entities(ownership_namespace, principal_id, scopes)
-                    if e["record"].get("kind") != "person"]
+        entities = self.service._entities(ownership_namespace, principal_id, scopes) \
+            if table_exists(self.conn, "ownership_records") else []
         offered = []
         for subject in self.subjects(namespace, scopes=scopes):
             left = {"record_key": subject["key"], "name_as_published": subject["name_as_published"],
                     "role_as_published": subject["role_as_published"], "revision_id": subject["revision_id"],
-                    "authority": subject["authority"], "ownership_namespace": ownership_namespace}
+                    "ownership_namespace": ownership_namespace}
             published = {(scheme, _value(i["value"])) for i in subject["identifiers"]
                          for scheme in _scheme_set(i["scheme"])}
             for entity in entities:
@@ -152,19 +127,27 @@ class EnforcementIdentity:
                 if shared:
                     offered.append(self._offer(namespace, subject, body["record_key"], right_entity,
                                                "exact-identifier", {"identifiers": shared, "left": left,
-                                                                    "right": right}, principal_id, scopes))
+                                                                    "right": right, "confidence_basis":
+                                                                    "published identifier"}, principal_id, scopes))
                     continue
-                if not body.get("name") or _name(body.get("name")) != _name(subject["name_as_published"]):
+                if _name(body.get("name")) != _name(subject["name_as_published"]):
                     continue
+                theirs = str(body.get("jurisdiction") or "").split("-")[0].upper() or None
+                ours = subject.get("country")
+                if ours and theirs and ours != theirs:
+                    continue  # a contradicting country is not a candidate
                 offered.append(self._offer(namespace, subject, body["record_key"], right_entity, "name-jurisdiction", {
-                    "normalized_name": _name(body.get("name")), "jurisdiction": body.get("jurisdiction"),
+                    "normalized_name": _name(body.get("name")), "country": ours or theirs,
+                    "country_basis": ("stated on both" if ours and theirs else
+                                      "not published for the respondent" if not ours else
+                                      "not stated by the register"),
                     "left": left, "right": right, "low_evidence": True,
                     "note": "a name is low evidence and never accepted automatically; a reviewer decides"},
                     principal_id, scopes))
-        return {"status": "proposed",
-                "proposed": sorted({o["candidate_id"] for o in offered if o["created"] or o.get("change")}),
+        return {"proposed": sorted({o["candidate_id"] for o in offered if o["created"] or o.get("change")}),
                 "candidates": self.candidates(namespace, scopes=scopes),
-                "unmatched": self.unmatched(namespace, scopes=scopes)}
+                "unmatched": self.unmatched(namespace, scopes=scopes),
+                "authorities": self.authorities(namespace, scopes=scopes)}
 
     def _offer(self, namespace, subject, right_key, right_entity, basis, evidence, principal_id, scopes):
         return self.service.offer(namespace, left_key=subject["key"], right_key=right_key,
@@ -181,17 +164,17 @@ class EnforcementIdentity:
         other_entity = candidate["right_entity"] if other == right else candidate["left_entity"]
         return {"candidate_id": candidate["candidate_id"], "state": candidate["state"],
                 "method": candidate["basis"], "confidence": candidate["confidence"],
-                "low_evidence": candidate["basis"] in NAME_BASES, "subject_key": subject,
-                "ownership_key": other, "ownership_entity": other_entity, "decision_id": candidate["decision_id"],
+                "low_evidence": candidate["basis"] in NAME_BASES, "evidence": candidate["evidence"],
+                "subject_key": subject, "ownership_key": other, "ownership_entity": other_entity,
+                "decision_id": candidate["decision_id"],
                 "reviewer": last.get("by") if candidate["state"] != "proposed" else None,
                 "reviewed_at_ms": last.get("at_ms") if candidate["state"] != "proposed" else None,
-                "reason": last.get("reason"), "evidence": candidate["evidence"], "history": candidate["history"],
+                "reason": last.get("reason"), "history": candidate["history"],
                 "notice": "a reviewable identity decision; enforcement records are never merged or rewritten"}
 
     def candidates(self, namespace: str, *, scopes: Iterable[str], subject_key: str | None = None
                    ) -> list[dict[str, Any]]:
         if not table_exists(self.conn, "ownership_identity_candidates"):
-            authorize(namespace, scopes, READ_SCOPE)
             return []
         rows = [c for c in self.service.candidates(namespace, scopes=scopes, record_key=subject_key)
                 if c["left_key"].startswith("enforcement:") or c["right_key"].startswith("enforcement:")]
@@ -226,7 +209,7 @@ class EnforcementIdentity:
     # ------------------------------------------------------------ reporting
 
     def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Organisation respondents with no accepted match: kept as published, with their pending candidate count."""
+        """Respondents with no accepted match: kept as published, with their pending candidate count."""
         views = self.candidates(namespace, scopes=scopes)
         out = []
         for subject in self.subjects(namespace, scopes=scopes):
@@ -235,9 +218,22 @@ class EnforcementIdentity:
                 continue
             out.append({"key": subject["key"], "action_key": subject["action_key"],
                         "authority": subject["authority"], "name_as_published": subject["name_as_published"],
-                        "identifiers": subject["identifiers"],
+                        "role_as_published": subject["role_as_published"],
                         "pending_candidates": sum(v["state"] == "proposed" for v in mine), "status": "unmatched"})
         return out
+
+    def conflicts(self, namespace: str, *, ownership_namespace: str, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Respondents whose open or accepted candidates point at more than one ownership cluster."""
+        clusters = self.service.clusters(ownership_namespace)
+        grouped: dict[str, dict[str, list[str]]] = {}
+        for view in self.candidates(namespace, scopes=scopes):
+            if view["state"] not in {"proposed", "accepted"}:
+                continue
+            cluster = clusters.get(view["ownership_key"], view["ownership_key"])
+            grouped.setdefault(view["subject_key"], {}).setdefault(cluster, []).append(view["candidate_id"])
+        return [{"subject_key": key, "clusters": [{"cluster": c, "candidates": ids} for c, ids in sorted(groups.items())],
+                 "status": "conflict", "note": "one respondent, several ownership entities: a reviewer decides"}
+                for key, groups in sorted(grouped.items()) if len(groups) > 1]
 
     def accepted_links(self, namespace: str, ownership_keys: Iterable[str], *, scopes: Iterable[str]
                        ) -> list[dict[str, Any]]:
@@ -248,6 +244,3 @@ class EnforcementIdentity:
                  "reviewer": v["reviewer"], "reviewed_at_ms": v["reviewed_at_ms"], "decision_id": v["decision_id"]}
                 for v in self.candidates(namespace, scopes=scopes)
                 if v["state"] == "accepted" and ({v["ownership_key"], v["ownership_entity"]} & wanted)]
-
-    def all_accepted(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        return [v for v in self.candidates(namespace, scopes=scopes) if v["state"] == "accepted"]

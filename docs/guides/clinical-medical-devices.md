@@ -1,108 +1,107 @@
 # Clinical Evidence: medical devices
 
-The `clinical.devices` provider of the Clinical Evidence bundle (#2654) keeps
-medical-device regulatory records as regulators published them: openFDA 510(k)
-clearances, PMA approvals with their supplements, product-code classifications,
-recalls and enforcement reports, MAUDE adverse-event reports and report counts,
-AccessGUDID device identifiers and EUDAMED public actor, device and certificate
-records. Every record carries its source, record revision and as-of time.
+The Clinical Evidence bundle's `clinical.devices` provider (#2654) answers:
+*given a device, a manufacturer or an FDA product code, which regulatory
+records did the regulators publish - device identifiers, clearances and
+approvals with supplements, recalls and adverse-event reports - each with its
+source, record revision and as-of time?*
 
-It answers a device's regulatory history as of a date and adverse-event report
-counts with the source's caveats. It does **not** detect safety signals, infer
-causality from adverse-event reports, give clinical advice or store patient data
-beyond what regulators publish.
+It records what FDA and the EUDAMED public modules published. It never
+detects safety signals, infers causality from adverse-event reports, gives
+clinical advice or stores patient data beyond what regulators publish.
 
-Source contracts, licences, rate limits, EUDAMED module availability and the
-data-minimisation decision:
+## Features
+
+openFDA, AccessGUDID and EUDAMED coverage are three independent optional
+features of the `clinical-evidence` bundle, all default off:
+`medical-devices-fda`, `medical-devices-gudid` and `medical-devices-eudamed`.
+Selecting any one binds the `clinical.devices` provider (capabilities
+`clinical.devices-records`, `-identity` and `-monitoring`). Product safety,
+Medicines and Corporate Ownership links degrade gracefully when those packs
+are absent: the link is reported as `provider-missing`, never dropped.
+
+## Sources
+
+Nine sources in the `clinical-evidence` source pack (0.1.4), connector
+`medical-devices`, all `unverified-live` until the dated live run (MD14,
+#2723). Access decisions, licences, rate limits, revision models, EUDAMED
+module availability and the minimisation decision are in the
 [source audit](../development/medical-devices-evidence/source-audit.md).
 
-## Enable
-
-Three optional features of `packs/clinical-evidence/manifest.json`, all off by
-default and independent of each other:
-
-| Feature | Sources (`clinical-evidence` 0.1.4) |
-| --- | --- |
-| `medical-devices-fda` | `devices-fda-510k`, `devices-fda-pma`, `devices-fda-classification`, `devices-fda-recalls`, `devices-fda-enforcement`, `devices-fda-maude-reports`, `devices-fda-maude-counts` |
-| `medical-devices-gudid` | `devices-gudid-identifiers` |
-| `medical-devices-eudamed` | `devices-eudamed-actors`, `devices-eudamed-devices`, `devices-eudamed-certificates` |
-
-Selecting any of them binds `clinical.devices` together with the ownership
-identity state machine, entity identity, subscriptions and the source runtime.
-Product safety, Medicines, trial, Products and ownership links are optional and
-report `provider_unavailable` when those providers or records are absent.
-
-Each source declares a bounded selection (product codes, recall numbers,
-product-code windows of at most 366 days, primary DIs or EUDAMED documents).
-Acquire through the shared runtime (`run_source_pack_execution` with pack
-`clinical-evidence`). The openFDA sources use the optional
-`NOESIS_OPENFDA_API_KEY`, sent only as a request parameter. Every source is
-`unverified-live`; the EUDAMED document paths are placeholders until MD14.
-
-## Records and revisions
-
-| Record kind | Key | Revision when |
+| Source | Publisher | Units |
 | --- | --- | --- |
-| `classification` | product code | the published class, regulation or panel changes |
-| `clearance` | K number | a published field changes |
-| `approval` | P number | a supplement is newly listed, or a published field changes |
-| `supplement` | P number and supplement number | a published field changes |
-| `recall` | recall number (one chain per source: recall and enforcement endpoints) | status, class or dates change |
-| `adverse-event-report` | MAUDE report number | a published field changes |
-| `adverse-event-count` | product code and window | the published counts change |
-| `device-identifier` | GUDID primary DI | a new GUDID version is published |
-| `actor`, `eudamed-device`, `certificate` | SRN, Basic UDI-DI, certificate number | version or certificate status changes |
+| `clinical-devices-openfda-510k` | openFDA `/device/510k.json` | declared K numbers |
+| `clinical-devices-openfda-pma` | openFDA `/device/pma.json` | declared P numbers (original and supplements) |
+| `clinical-devices-openfda-classification` | openFDA `/device/classification.json` | declared product codes |
+| `clinical-devices-openfda-recalls` | openFDA `/device/recall.json` + `/device/enforcement.json` | declared recall numbers |
+| `clinical-devices-openfda-maude` | openFDA `/device/event.json` | product code + received-date window (at most one year) |
+| `clinical-devices-accessgudid` | AccessGUDID device lookup | declared primary DIs |
+| `clinical-devices-eudamed-actors` | EUDAMED actor module | declared SRNs |
+| `clinical-devices-eudamed-devices` | EUDAMED UDI/device module | declared Basic UDI-DIs |
+| `clinical-devices-eudamed-certificates` | EUDAMED notified bodies and certificates | declared certificate + notified body |
 
-Corrections and removals by the source are revisions, never deletions; an older
-publication delivered later is kept as an `older-observation` and never becomes
-current. `medical_device_record_history` returns the chain and the revision in
-force at a date, by the source's own date or by observation.
+Acquisition runs through `noesis-knowledge-engine.run_source_pack_execution`
+with the `clinical-evidence` pack and these source ids. EUDAMED vigilance,
+clinical-investigation and market-surveillance modules are not public; every
+answer lists them as gaps.
 
-## Ask
+## Records
 
-- `medical_device_regulatory_history(namespace, subject, as_of)` — subject is a
-  DI, Basic UDI-DI, K or P number, product code, recall number or SRN. US and EU
-  are shown separately; each event cites its revision; decisions after the date
-  are listed as later events; EUDAMED modules that are not acquired are stated;
-  a subject with no records is `none_on_record`.
-- `medical_device_adverse_event_counts(namespace, subject, window_from,
-  window_to)` — MAUDE report counts per event type and period as openFDA
-  published them, beside the reports on record counted per month. Counts are
-  reports, never rates or causal events; the caveats, window and source
-  revisions come with every answer.
-- `export_medical_devices_evidence_bundle` — either answer as an evidence
-  bundle whose every assertion cites source, record revision and as-of time.
+`noesis-medical-device-record-v2` (`src/kb/medical_devices_records.py`):
+classification (product code), clearance (K number), approval and
+approval-supplement (P number + supplement number), recall (recall number,
+class and status as published), adverse-event report (report number, event
+type and dates, FDA's caveats attached), published report count (product code
+and window), device identifier (primary DI with package DIs and public
+version), EUDAMED actor (SRN), device (Basic UDI-DI) and certificate (notified
+body + number, status revisions). Every revision is immutable; a changed
+publication is a new revision, an older version observed later never becomes
+current, and a record the publisher stops answering becomes a `not-published`
+revision - never a deletion.
 
-## Identity and links
-
-`propose_medical_device_identity_matches` offers reviewable candidates:
-devices across GUDID and EUDAMED by UDI-DI, devices and Products identities by
-GTIN, manufacturers through an accepted device match or a shared K/P number, and
-manufacturers and Corporate Ownership entities by name and country (low
-confidence). Nothing is merged or accepted automatically, devices are never
-matched by name, and unmatched subjects stay visible
-(`list_medical_devices_unmatched`). Review with
-`review_medical_device_identity_match`, undo with
-`revert_medical_device_identity_match`.
-
-`link_medical_device_records` links recalls to Product safety notices by recall
-number, records citing a Drugs@FDA application to the Medicines record, devices
-to trials naming their K/P number or DI, and manufacturers and devices to
-ownership and Products records through accepted matches. Links cite both
-revisions and their basis; missing targets are reported.
-
-## Monitor
-
-`create_medical_devices_monitor` watches a device, a manufacturer or a product
-code; `run_medical_devices_monitor` reports new clearances, approvals,
-supplements, recalls, recall status and class changes, certificate status
-changes and GUDID versions, citing the new and previous revisions.
-Adverse-event reports are never notified. Monitors are knowledge subscriptions;
-there is no new scheduler.
-
-## Minimisation
-
-Contact persons, street addresses, telephone numbers, e-mail addresses and
-MAUDE patient blocks are dropped by the parsers and refused by the store. MAUDE
-narratives are kept as published and returned only with
+**Minimisation** (`medical-devices-minimisation-v1`): patient sections,
+reporter and contact persons, PRRCs, phones, emails and street addresses are
+never stored; the store refuses any record carrying one. MAUDE narratives are
+stored as FDA released them and returned only with
 `knowledge:clinical:devices:narratives:read`.
+
+## Journey
+
+1. `propose_medical_device_identities` - devices across FDA, GUDID and EUDAMED
+   by UDI-DI and premarket numbers (a shared product code is low evidence;
+   names are never used for devices), manufacturers against Corporate
+   Ownership entities by DUNS, LEI or SRN first (names as low evidence) and
+   GUDID DIs against Products GTINs. `review_medical_device_identity` accepts
+   or rejects with a reason (an entity identity decision with reviewer and
+   time); `revert_medical_device_identity` reverts;
+   `list_medical_device_identity_candidates` shows unmatched subjects.
+2. `link_medical_device_records` - recalls to Product safety notices by recall
+   number, combination products to Medicines records by drug application
+   number, devices to trial registrations naming their identifiers, and
+   manufacturers to ownership entities by accepted match; every link names its
+   basis and both record revisions.
+3. `medical_device_regulatory_history` - a device (K/P number, DI, Basic
+   UDI-DI) or product code to its clearances, approvals, supplements, recalls
+   and EU certificates as of a date, each citing the revision the source had
+   published by then; US and EU side by side; later events, removals and gaps
+   listed; a subject with no record says so.
+4. `medical_device_adverse_event_counts` - MAUDE report counts per event type
+   and period as published, beside the reports on record, with FDA's caveats,
+   the query window and source revisions. Counts are **reports**, never rates,
+   incidence or causal events.
+5. `export_medical_device_evidence_bundle` - every item cited with source,
+   record revision and as-of time; narratives are never exported.
+6. `create_medical_device_monitor` / `run_medical_device_monitor` /
+   `poll_medical_device_monitor` - subscribe to a device, manufacturer or
+   product code; notices cite the new and previous revision and state what
+   changed (new clearance, approval, supplement or recall; recall status or
+   class change; certificate status change; removal). Platform subscriptions
+   at committed watermarks; no new scheduler.
+
+## Evidence
+
+Offline only: `tests/unit/domains/test_medical_devices_*.py` (including the
+acceptance journey `test_medical_devices_acceptance.py`) and
+`tests/unit/composition/test_clinical_devices_composition.py` over fictional
+fixtures. No live coverage is claimed; the live run and cited demo are MD14
+(#2723).

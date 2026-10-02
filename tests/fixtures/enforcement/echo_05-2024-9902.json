@@ -1,0 +1,19 @@
+{
+  "Results": {
+    "Message": "Success",
+    "CaseNumber": "05-2024-9902",
+    "CaseName": "Northwind Chemicals Inc.",
+    "CivilCriminal": "Civil",
+    "CaseCategoryDesc": "Administrative - Formal",
+    "CaseStatusDesc": "Closed",
+    "FiledDate": "10/01/2024",
+    "SettlementDate": "01/20/2025",
+    "EnforcementOutcome": "Final Order with Penalty",
+    "ViolationDescription": "Late submission of toxic release inventory reports",
+    "DataRefreshDate": "2025-02-01",
+    "Laws": [{"Law": "EPCRA", "Sections": "313"}],
+    "Defendants": [{"DefendantName": "Northwind Chemicals Inc."}],
+    "Facilities": [{"RegistryID": "110099990002", "FacilityName": "Northwind Chemicals Inc. - Lakeside Plant", "Latitude": null, "Longitude": null, "State": "OH"}],
+    "Penalties": {"FedPenalty": "$42,000", "CostRecovery": "$0"}
+  }
+}

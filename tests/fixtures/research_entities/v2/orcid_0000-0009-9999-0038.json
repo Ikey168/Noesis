@@ -1,0 +1,5 @@
+{
+ "response-code": 409,
+ "developer-message": "409 Conflict: The ORCID record is deactivated (fictional fixture)",
+ "error-code": 9044
+}

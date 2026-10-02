@@ -1,0 +1,41 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\n  \"terms\": \"https://open.fda.gov/terms/\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"last_updated\": \"2025-06-30\",\n  \"results\": {\n   \"skip\": 0,\n   \"limit\": 100,\n   \"total\": 3\n  }\n },\n \"results\": [\n  {\n   \"report_number\": \"9999001-2025-00001\",\n   \"mdr_report_key\": \"9999001\",\n   \"event_type\": \"Malfunction\",\n   \"date_received\": \"20250214\",\n   \"date_of_event\": \"20250201\",\n   \"date_report\": \"20250214\",\n   \"report_source_code\": \"Manufacturer report\",\n   \"adverse_event_flag\": \"N\",\n   \"product_problem_flag\": \"Y\",\n   \"product_problems\": [\n    \"Incorrect Display\"\n   ],\n   \"reporter_occupation_code\": \"NURSE\",\n   \"manufacturer_contact_f_name\": \"Jane\",\n   \"manufacturer_contact_l_name\": \"Fictional\",\n   \"manufacturer_contact_phone_number\": \"5550100\",\n   \"device\": [\n    {\n     \"brand_name\": \"EXAMPLA FLOWSENSE\",\n     \"generic_name\": \"PUMP, INFUSION\",\n     \"manufacturer_d_name\": \"EXAMPLA MEDICAL DEVICES INC.\",\n     \"manufacturer_d_address_1\": \"1 EXAMPLE WAY\",\n     \"device_report_product_code\": \"ZXA\",\n     \"model_number\": \"FS-100\",\n     \"catalog_number\": \"FS-100-US\",\n     \"udi_di\": \"00899999000011\",\n     \"device_sequence_number\": \"1\",\n     \"device_operator\": \"HEALTH PROFESSIONAL\"\n    }\n   ],\n   \"patient\": [\n    {\n     \"patient_sequence_number\": \"1\",\n     \"patient_age\": \"63\",\n     \"patient_sex\": \"Female\",\n     \"patient_weight\": \"70\",\n     \"sequence_number_outcome\": [\n      \"Required Intervention\"\n     ]\n    }\n   ],\n   \"mdr_text\": [\n    {\n     \"text_type_code\": \"Description of Event or Problem\",\n     \"text\": \"IT WAS REPORTED THAT THE PUMP DISPLAYED AN OCCLUSION ALARM WITHOUT AN OCCLUSION (FICTIONAL).\"\n    },\n    {\n     \"text_type_code\": \"Additional Manufacturer Narrative\",\n     \"text\": \"The manufacturer investigated the fictional report; no conclusion is recorded.\"\n    }\n   ]\n  },\n  {\n   \"report_number\": \"9999001-2025-00002\",\n   \"mdr_report_key\": \"9999002\",\n   \"event_type\": \"Injury\",\n   \"date_received\": \"20250320\",\n   \"date_of_event\": \"20250311\",\n   \"date_report\": \"20250320\",\n   \"report_source_code\": \"Manufacturer report\",\n   \"adverse_event_flag\": \"Y\",\n   \"product_problem_flag\": \"Y\",\n   \"product_problems\": [\n    \"Delayed Delivery\"\n   ],\n   \"reporter_occupation_code\": \"NURSE\",\n   \"manufacturer_contact_f_name\": \"Jane\",\n   \"manufacturer_contact_l_name\": \"Fictional\",\n   \"manufacturer_contact_phone_number\": \"5550100\",\n   \"device\": [\n    {\n     \"brand_name\": \"EXAMPLA FLOWSENSE\",\n     \"generic_name\": \"PUMP, INFUSION\",\n     \"manufacturer_d_name\": \"EXAMPLA MEDICAL DEVICES INC.\",\n     \"manufacturer_d_address_1\": \"1 EXAMPLE WAY\",\n     \"device_report_product_code\": \"ZXA\",\n     \"model_number\": \"FS-100\",\n     \"catalog_number\": \"FS-100-US\",\n     \"udi_di\": \"00899999000011\",\n     \"device_sequence_number\": \"1\",\n     \"device_operator\": \"HEALTH PROFESSIONAL\"\n    }\n   ],\n   \"patient\": [\n    {\n     \"patient_sequence_number\": \"1\",\n     \"patient_age\": \"63\",\n     \"patient_sex\": \"Female\",\n     \"patient_weight\": \"70\",\n     \"sequence_number_outcome\": [\n      \"Required Intervention\"\n     ]\n    }\n   ],\n   \"mdr_text\": [\n    {\n     \"text_type_code\": \"Description of Event or Problem\",\n     \"text\": \"IT WAS REPORTED THAT DELIVERY WAS DELAYED AND INTERVENTION WAS REQUIRED (FICTIONAL).\"\n    },\n    {\n     \"text_type_code\": \"Additional Manufacturer Narrative\",\n     \"text\": \"The manufacturer investigated the fictional report; no conclusion is recorded.\"\n    }\n   ]\n  },\n  {\n   \"report_number\": \"9999001-2025-00003\",\n   \"mdr_report_key\": \"9999003\",\n   \"event_type\": \"Malfunction\",\n   \"date_received\": \"20250605\",\n   \"date_of_event\": \"20250528\",\n   \"date_report\": \"20250605\",\n   \"report_source_code\": \"Manufacturer report\",\n   \"adverse_event_flag\": \"N\",\n   \"product_problem_flag\": \"Y\",\n   \"product_problems\": [\n    \"Alarm, Audible\"\n   ],\n   \"reporter_occupation_code\": \"NURSE\",\n   \"manufacturer_contact_f_name\": \"Jane\",\n   \"manufacturer_contact_l_name\": \"Fictional\",\n   \"manufacturer_contact_phone_number\": \"5550100\",\n   \"device\": [\n    {\n     \"brand_name\": \"EXAMPLA FLOWSENSE\",\n     \"generic_name\": \"PUMP, INFUSION\",\n     \"manufacturer_d_name\": \"EXAMPLA MEDICAL DEVICES INC.\",\n     \"manufacturer_d_address_1\": \"1 EXAMPLE WAY\",\n     \"device_report_product_code\": \"ZXA\",\n     \"model_number\": \"FS-100\",\n     \"catalog_number\": \"FS-100-US\",\n     \"udi_di\": null,\n     \"device_sequence_number\": \"1\",\n     \"device_operator\": \"HEALTH PROFESSIONAL\"\n    }\n   ],\n   \"patient\": [\n    {\n     \"patient_sequence_number\": \"1\",\n     \"patient_age\": \"63\",\n     \"patient_sex\": \"Female\",\n     \"patient_weight\": \"70\",\n     \"sequence_number_outcome\": [\n      \"Required Intervention\"\n     ]\n    }\n   ],\n   \"mdr_text\": [\n    {\n     \"text_type_code\": \"Description of Event or Problem\",\n     \"text\": \"IT WAS REPORTED THAT THE ALARM SOUNDED INTERMITTENTLY (FICTIONAL).\"\n    },\n    {\n     \"text_type_code\": \"Additional Manufacturer Narrative\",\n     \"text\": \"The manufacturer investigated the fictional report; no conclusion is recorded.\"\n    }\n   ]\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/event.json?limit=100&search=device.device_report_product_code%3A%22ZXA%22+AND+date_received%3A%5B20250101+TO+20250630%5D",
+   "status": 200
+  },
+  {
+   "body": "{\n \"meta\": {\n  \"disclaimer\": \"Do not rely on openFDA to make decisions regarding medical care. While we make every effort to ensure that data is accurate, you should assume all results are unvalidated. We may limit or otherwise restrict your access to the API in line with our Terms of Service.\",\n  \"terms\": \"https://open.fda.gov/terms/\",\n  \"license\": \"https://open.fda.gov/license/\",\n  \"last_updated\": \"2025-06-30\"\n },\n \"results\": [\n  {\n   \"term\": \"Malfunction\",\n   \"count\": 2\n  },\n  {\n   \"term\": \"Injury\",\n   \"count\": 1\n  }\n ]\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/event.json?count=event_type.exact&search=device.device_report_product_code%3A%22ZXA%22+AND+date_received%3A%5B20250101+TO+20250630%5D",
+   "status": 200
+  },
+  {
+   "body": "{\n \"error\": {\n  \"code\": \"NOT_FOUND\",\n  \"message\": \"No matches found!\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/event.json?limit=100&search=device.device_report_product_code%3A%22ZXB%22+AND+date_received%3A%5B20250101+TO+20250630%5D",
+   "status": 404
+  },
+  {
+   "body": "{\n \"error\": {\n  \"code\": \"NOT_FOUND\",\n  \"message\": \"No matches found!\"\n }\n}\n",
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/device/event.json?count=event_type.exact&search=device.device_report_product_code%3A%22ZXB%22+AND+date_received%3A%5B20250101+TO+20250630%5D",
+   "status": 404
+  }
+ ],
+ "scenarios": [
+  "authored fictional responses (tests/fixtures/medical_devices)",
+  "personal fields present in the responses and dropped by the parser (MD01)"
+ ]
+}

@@ -2,7 +2,7 @@
   "contract": "noesis-provider-descriptor-v1",
   "id": "osint.platform-transparency",
   "version": "1.0.0",
-  "description": "Platform transparency records under the SP01 data-minimisation decision (#2580): EU DSA Transparency Database statements of reasons from light daily dumps with their dump versions, Meta Ad Library and Google political ads with advertisers and funding entities as declared and spend and impression ranges exactly as published, each a revision with source and as-of time; reviewable advertiser identity through ownership.identity, citation links to elections, campaign-finance filings and lobbying registers, answers by advertiser, election and platform, and monitors through platform.subscriptions. Lumen takedown notices are recorded as not implemented.",
+  "description": "Platform transparency records (#2580): EU DSA Transparency Database statements of reasons from declared daily dumps, Meta Ad Library and Google political ads with advertisers and funding entities as declared and spend and impression ranges as published, and Lumen takedown notices under researcher access (gated); every record with source, record revision and as-of time, reviewable advertiser identity, and links to elections, campaign finance, lobbying and ownership by declared selection, published identifier or accepted match.",
   "implementation": {
     "name": "src.kb.platform_transparency_records",
     "version": "1.0.0",
@@ -13,44 +13,74 @@
       "id": "osint.platform-transparency",
       "contract": {
         "name": "noesis-platform-transparency-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
-        "ads-by-advertiser",
+        "source-contracts",
+        "readiness",
+        "ads-for-advertiser",
         "ads-for-election",
-        "moderation-statements",
+        "moderation-statement-counts",
         "record-history",
+        "takedown-notices",
         "export-evidence-bundle",
         "list-identity-candidates",
         "list-links",
         "propose-identity-matches",
         "review-identity-match",
         "revert-identity-match",
-        "register-platforms",
-        "link-elections",
-        "link-campaign-finance",
-        "link-lobbying",
+        "link-records",
         "create-monitor",
         "run-monitor",
         "poll-monitor"
       ],
       "semantic_constraints": {
-        "optional_features": "platform-transparency-dsa, platform-transparency-meta, platform-transparency-google and platform-transparency-lumen are separate and default off; Lumen is recorded as not implemented (no research token, terms not verifiable) and enabling it adds no source",
-        "default_enabled": false,
-        "records": "statements of reasons keyed by platform and statement uuid with the dump version (platform, day, light, published SHA-1) they were read from; ads keyed by platform ad id with the advertiser and funding entity as declared, delivery dates, and spend and impression ranges with currency as published; every record carries source, record revision and as-of time",
-        "revisions": "records are immutable revisions; corrections, republished dumps and ads a complete listing no longer returns are revisions, never deletions",
-        "ranges": "spend and impression ranges are never converted into midpoints, sums of midpoints or any point estimate",
-        "matching": "advertisers and funding entities match committees, regulated entities, party lists, lobbying registrants and legal entities through reviewable, reversible identity decisions (published FEC ids before names); nothing is merged or auto-accepted; natural persons are never targets; platforms are source identities",
-        "links": "election, campaign-finance and lobbying links rest on accepted matches or published identifiers, point at specific revisions and report missing providers and targets; they degrade gracefully when the Political features are absent",
-        "minimisation": "the SP01 decision: no platform user or content identifier, notifier identity, free-text explanation, targeting or demographic breakdown, creative text or snapshot URL is stored or returned; tool outputs are refused if they would carry one",
-        "exclusions": "no user-level profiling, no collection of private content, no inference of coordinated behaviour, no conversion of spend or impression ranges into point estimates"
+        "optional_features": "platform-transparency-dsa, platform-transparency-meta, platform-transparency-google and platform-transparency-lumen, each default off; the osint-platform-transparency source pack is in a plan only when one of them is selected",
+        "records": "statements of reasons (platform, decision id, decision type, ground, content type, automated-detection and automated-decision flags and dates as published), DSA dump releases (file, variant, digest), ads (platform, ad id, advertiser and funding entity as declared, delivery dates, spend and impression ranges and currency as published), advertisers and takedown notices; every record cites source, record revision and as-of time",
+        "revisions": "records are immutable revisions; corrections and removals by the source (a record no longer returned for the same declared selection) are revisions, never deletions",
+        "ranges": "spend and impression ranges are stored and returned exactly as published; never converted to midpoints, point estimates or sums",
+        "aggregates": "moderation counts are computed only over stored statements, state the stored window, the days without a dump and the dump versions used",
+        "identity": "advertisers and funding entities match campaign-finance committees and regulated entities, lobbying registrants and clients and ownership entities through reviewable ownership.identity decisions (published FEC ids before names); nothing is merged or auto-accepted; unmatched subjects stay visible",
+        "links": "election, campaign-finance, lobbying and ownership links record their basis and point at ad revisions; absent providers degrade only their own link kind and missing targets are reported",
+        "minimisation": "the SP01 decision (platform-transparency-minimisation-v1): DSA free text, content ids and notifier identity, ad creative text and audience distributions, and Lumen bodies, works and URLs are never stored; natural-person records are never identity targets; Lumen notices are returned only with knowledge:osint:platform-transparency:notices:read",
+        "gated": "Lumen needs a researcher token (NOESIS_LUMEN_API_TOKEN); access has not been granted to this deployment, so the source reports gated-not-granted and live runs fail with authentication_failed",
+        "monitoring": "advertiser, election and platform monitors are platform.subscriptions knowledge subscriptions; no new scheduler",
+        "exclusions": "no user-level profiling, no collection of private content, no inference of coordinated behaviour, no conversion of spend or impression ranges into point estimates",
+        "no_new_store": false
       }
     }
   ],
   "operations": [
     {
-      "id": "ads-by-advertiser",
-      "tool": "noesis-knowledge-engine.platform_transparency_ads_by_advertiser",
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.platform_transparency_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "source",
+      "required_scopes": [
+        "knowledge:read"
+      ]
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.platform_transparency_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "ads-for-advertiser",
+      "tool": "noesis-knowledge-engine.political_ads_for_advertiser",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
@@ -66,7 +96,7 @@
     },
     {
       "id": "ads-for-election",
-      "tool": "noesis-knowledge-engine.platform_transparency_ads_for_election",
+      "tool": "noesis-knowledge-engine.political_ads_for_election",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
@@ -80,8 +110,8 @@
       ]
     },
     {
-      "id": "moderation-statements",
-      "tool": "noesis-knowledge-engine.platform_transparency_moderation_statements",
+      "id": "moderation-statement-counts",
+      "tool": "noesis-knowledge-engine.moderation_statement_counts",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
@@ -97,6 +127,21 @@
     {
       "id": "record-history",
       "tool": "noesis-knowledge-engine.platform_transparency_record_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "records",
+      "required_scopes": [
+        "knowledge:osint:platform-transparency:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "takedown-notices",
+      "tool": "noesis-knowledge-engine.platform_takedown_notices",
       "side_effect": "read-only",
       "idempotency": {
         "supported": true
@@ -206,24 +251,8 @@
       ]
     },
     {
-      "id": "register-platforms",
-      "tool": "noesis-knowledge-engine.register_platform_transparency_platforms",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "records",
-      "required_scopes": [
-        "knowledge:osint:platform-transparency:read",
-        "knowledge:source-identity:write"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "link-elections",
-      "tool": "noesis-knowledge-engine.link_platform_transparency_elections",
+      "id": "link-records",
+      "tool": "noesis-knowledge-engine.link_platform_transparency_records",
       "side_effect": "local-mutation",
       "idempotency": {
         "supported": true
@@ -239,42 +268,6 @@
       ]
     },
     {
-      "id": "link-campaign-finance",
-      "tool": "noesis-knowledge-engine.link_platform_transparency_campaign_finance",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "records",
-      "required_scopes": [
-        "knowledge:osint:platform-transparency:read",
-        "knowledge:osint:platform-transparency:write",
-        "knowledge:ownership:read",
-        "knowledge:political:campaign-finance:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
-      "id": "link-lobbying",
-      "tool": "noesis-knowledge-engine.link_platform_transparency_lobbying",
-      "side_effect": "local-mutation",
-      "idempotency": {
-        "supported": true
-      },
-      "readiness_probe": "records",
-      "required_scopes": [
-        "knowledge:osint:platform-transparency:read",
-        "knowledge:osint:platform-transparency:write",
-        "knowledge:ownership:read",
-        "knowledge:political:lobbying:read"
-      ],
-      "required_context": [
-        "namespace"
-      ]
-    },
-    {
       "id": "create-monitor",
       "tool": "noesis-knowledge-engine.create_platform_transparency_monitor",
       "side_effect": "local-mutation",
@@ -284,6 +277,7 @@
       "readiness_probe": "records",
       "required_scopes": [
         "knowledge:osint:platform-transparency:read",
+        "knowledge:ownership:read",
         "knowledge:subscriptions:write"
       ],
       "required_context": [
@@ -355,14 +349,14 @@
     {
       "id": "source",
       "kind": "source-pack-enabled",
-      "target": "bounded-public-osint"
+      "target": "osint-platform-transparency"
     }
   ],
   "source_packs": [
     {
-      "pack_id": "bounded-public-osint",
-      "version": "1.2.0",
-      "range": "^1.2.0"
+      "pack_id": "osint-platform-transparency",
+      "version": "1.0.0",
+      "range": "^1.0.0"
     }
   ]
 }

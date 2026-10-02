@@ -1,44 +1,47 @@
-"""Published fact-checks for the News bundle: ClaimReview records and IFCN signatory status (#2659, FC01, FC03-FC05).
+"""Published fact-checks for the News pack: Google Fact Check Tools, Data Commons ClaimReview and the IFCN signatory
+list (#2659, FC01, FC03-FC05).
 
 One native connector, ``fact-checks``, reads a bounded, declared selection from
-one documented provider per source and emits ``noesis-fact-check-record-v1``
-records exactly as the publishers published them:
+one documented provider per source and emits ``noesis-fact-check-record-v2``
+records exactly as the publisher published them:
 
-* ``google-factcheck-claimsearch-json`` - the Google Fact Check Tools API
-  ``claims:search`` method for declared queries or review-publisher sites. Each
-  (publisher site, review URL) becomes one fact-check record with every claim
-  the page reviewed: the claim text as quoted, the claimant as named, the claim
-  date and the textual rating exactly as the publisher wrote them;
-* ``datacommons-claimreview-feed-json`` - the Data Commons ClaimReview
-  ``DataFeed`` (schema.org ``ClaimReview`` markup). A release is one vintage;
-  items are filtered to the declared publisher sites and review-date window;
-  ``reviewRating`` values (``ratingValue``, ``bestRating``, ``worstRating``,
-  ``alternateName``) are stored verbatim with the publisher's own scale;
-* ``ifcn-signatories-html`` - the IFCN Code of Principles signatories listing:
-  one publisher record per signatory profile with the status label and any
-  status date exactly as published (verified, expired, under renewal or under
-  review). The listing publishes no API or download; a live fetch is refused
-  until an operator records a terms confirmation for the source (FC01).
+* ``google-factcheck-claims-search-json`` - the Fact Check Tools API
+  ``claims:search`` (v1alpha1) for declared queries or publisher sites: each
+  ``claimReview`` of a returned claim becomes a ``fact-check`` record keyed by
+  the publisher, the review URL and the reviewed claim, with the claim text as
+  quoted, the claimant as named, the claim date, the review date and the
+  ``textualRating`` verbatim. The API publishes no revision stamp: a changed
+  review date or rating is a new revision of the same record;
+* ``datacommons-claimreview-feed-jsonld`` - a Data Commons ClaimReview
+  ``DataFeed`` release filtered to declared publisher sites and a review-date
+  window. Each release is a **vintage**; the ``reviewRating`` (``alternateName``,
+  ``ratingValue``, ``bestRating``, ``worstRating``) is kept verbatim with its
+  scale, appearance URLs as published. A release is complete within its declared
+  scope, so a review that a later release no longer carries becomes an
+  ``absent-from-release`` revision, never a deletion;
+* ``ifcn-signatories-html`` - the IFCN Code of Principles signatory listing: one
+  ``publisher`` record per signatory website domain with the status as published
+  (verified, expired, under review) and its dates; a status change is a dated
+  revision and a signatory missing from a later listing is an
+  ``absent-from-listing`` revision.
 
-**No verdicts and no normalisation.** A rating is the publisher's text (and any
-numeric value with the publisher's own scale); nothing here maps ratings onto a
-common scale, derives a verdict or matches a claim to anything. The legacy
-lookup in :mod:`src.argument_mining.factcheck` (which normalises verdicts and
-attaches the first review to a claim) is not used by this provider.
+**Data minimisation (FC01).** Claimants are kept as the publisher named them
+(name and published ``@type``); a claimant's ``sameAs`` survives only when it is
+an identifier URL (Wikidata, ROR). Social-media profile URLs, images, job titles,
+contact details and birth dates are dropped *here*, before any record, document or
+receipt exists, and listed under ``minimisation.withheld``. Appearance URLs on
+social platforms are stored as the host plus the SHA-256 of the canonical URL
+(``wa-canon-v1``), so a caller holding the URL can still match it while the record
+never exposes an account handle. A review's individual author (a Person) is
+dropped; the publishing organisation is kept. The store refuses any record that
+still carries one of these fields.
 
-**Data minimisation (FC01).** Records keep the publisher, review URL, title and
-date, language, claim text as quoted, claimant as named (with the claimant type
-and any ``sameAs`` identifiers the publisher published), claim date and
-appearance URLs. Review authors who are natural persons, images, job titles and
-any other personal attribute of claimants or authors are dropped *here*, before
-any record exists, and listed under ``minimisation.withheld``; the store refuses
-any record that still carries them.
-
-A unit is all-or-nothing: a result set longer than the declared page bound is
+A unit is all-or-nothing: a result longer than the declared page bound is
 ``budget_exhausted``, never truncated; a redirect to another host is a
 network-policy failure. Receipts name every request path, status and response
 digest; the Google API key travels in the ``X-Goog-Api-Key`` header and never
-appears in a URL, a receipt or a record.
+appears in a URL, a receipt or a record. Nothing here issues a truth verdict,
+normalises a rating or matches a claim.
 """
 
 from __future__ import annotations
@@ -47,181 +50,155 @@ import hashlib
 import json
 import re
 from collections.abc import Callable, Mapping, Sequence
-from datetime import datetime
+from datetime import date
 from html.parser import HTMLParser
 from typing import Any
-from urllib.parse import urlencode, urljoin, urlsplit
+from urllib.parse import urlencode, urlsplit
 
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-fact-check-record-v1"
+RECORD_CONTRACT = "noesis-fact-check-record-v2"
 MINIMISATION_POLICY = "fact-checks-minimisation-v1"
+URL_RULES = "wa-canon-v1"
 CONNECTOR = "fact-checks"
 GOOGLE_PAGE_SIZE = 50
-MAX_PAGES_PER_UNIT = 5
+MAX_PAGES_PER_UNIT = 4
 MAX_UNITS = 20
-FEED_RECORD_CAP = 2000
-LISTING_RECORD_CAP = 500
-MAX_WINDOW_DAYS = 366
-GOOGLE_ATTRIBUTION = ("ClaimReview data via the Google Fact Check Tools API; each fact-check belongs to its "
-                      "publisher.")
-DC_ATTRIBUTION = ("Data Commons ClaimReview data (compilation licensed CC BY); the structured data of each markup "
-                  "is licensed as its sdLicense states and each fact-check belongs to its publisher.")
-IFCN_ATTRIBUTION = "IFCN Code of Principles signatories as published by the International Fact-Checking Network."
-REVIEW_BOUNDARY = ("Records are what the publishers published. No truth verdict by Noesis, no rating normalisation "
-                   "presented as the publisher's, no automatic claim matching without review and no scraping "
-                   "beyond each publisher's terms.")
-EXCLUSIONS = ("truth verdicts by Noesis", "rating normalisation presented as the publisher's",
-              "automatic claim matching without review", "scraping beyond each publisher's terms")
+MAX_RELEASE_RECORDS = 2000
+MAX_SIGNATORIES = 500
+REVIEW_BOUNDARY = ("Records are what fact-check publishers published. Noesis issues no truth verdict, never "
+                   "normalises a rating into its own scale or presents one as the publisher's, never matches a claim "
+                   "without review and never scrapes beyond each publisher's terms.")
+EXCLUSIONS = ("no truth verdicts by Noesis", "no rating normalisation presented as the publisher's",
+              "no automatic claim matching without review", "no scraping beyond each publisher's terms")
 
-# format -> provider, the selection list it reads, whether an API key is required, and whether one unit's response
-# is a complete listing (so a record missing from a later acquisition is a source removal, stored as a revision).
 FORMATS: dict[str, dict[str, Any]] = {
-    "google-factcheck-claimsearch-json": {"provider": "google-fact-check-tools", "unit": "queries", "keyed": True,
-                                          "complete": False, "kind": "fact-check"},
-    "datacommons-claimreview-feed-json": {"provider": "datacommons", "unit": "releases", "keyed": False,
-                                          "complete": True, "kind": "fact-check"},
-    "ifcn-signatories-html": {"provider": "ifcn", "unit": "listings", "keyed": False, "complete": True,
-                              "kind": "publisher"},
+    "google-factcheck-claims-search-json": {"provider": "google-fact-check-tools", "unit": "searches",
+                                            "keyed": True, "feature": "fact-checks-google"},
+    "datacommons-claimreview-feed-jsonld": {"provider": "datacommons-claimreview", "unit": "releases",
+                                            "keyed": False, "feature": "fact-checks-datacommons"},
+    "ifcn-signatories-html": {"provider": "ifcn-signatories", "unit": "listings", "keyed": False,
+                              "feature": "fact-checks-ifcn"},
 }
-PROVIDERS = ("google-fact-check-tools", "datacommons", "ifcn")
+PROVIDERS = tuple(spec["provider"] for spec in FORMATS.values())
 RECORD_KINDS = ("fact-check", "publisher")
 STATUSES = ("published", "absent-from-release", "absent-from-listing")
-FEATURES = {"google-fact-check-tools": "fact-checks-google", "datacommons": "fact-checks-datacommons",
-            "ifcn": "fact-checks-ifcn"}
+IFCN_STATUSES = ("verified", "expired", "under-review", "other")
 
-# FC01 access decisions (docs/development/fact-checks-evidence/source-audit.md). The official pages could not be
-# fetched from this runtime (egress blocked, 2026-09-30); every item marked "verify" is checked before a dated live
-# run (FC13, #2722).
+# FC01 access decisions. Endpoints, fields and terms are recorded from the providers' published documentation as
+# known without network access (the documentation hosts were unreachable from this runtime on 2026-09-30); every item
+# marked ``verify`` must be checked before a dated live run (FC13, #2722).
 PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     "google-fact-check-tools": {
-        "publisher": "Google (Fact Check Tools API v1alpha1, Fact Checked Claim Search)",
+        "publisher": "Google Fact Check Tools API (claims:search, v1alpha1)",
         "endpoints": ["https://factchecktools.googleapis.com/v1alpha1/claims:search"],
-        "formats": ["google-factcheck-claimsearch-json"],
+        "formats": ["google-factcheck-claims-search-json"],
         "authentication": "Google Cloud API key (required-secret NOESIS_GOOGLE_FACTCHECK_API_KEY) sent as the "
-        "X-Goog-Api-Key header, never as the key query parameter, in a URL or in a receipt (verify that the header "
-        "is accepted; the legacy GOOGLE_FACTCHECK_API_KEY lookup is not reused)",
-        "rate_limits": "not stated in the material read; per-project quota in the Google Cloud console (verify); at "
-        "most 5 pages of 50 claims per declared unit",
-        "pagination": "pageSize/pageToken; a unit longer than 5 pages is budget_exhausted, never truncated",
-        "parameters": ["query", "languageCode", "reviewPublisherSiteFilter", "maxAgeDays", "pageSize", "pageToken"],
-        "identifiers": ["claimReview.url (review URL)", "claimReview.publisher.site"],
-        "revisions": "no revision stamp; reviewDate as published orders revisions; a changed review (date, title, "
-        "rating text, claims) is a new revision of the (publisher site, review URL) record; a search result that "
-        "stops appearing is not a removal (ranking and maxAgeDays), so absence is never recorded",
-        "licence": "Google APIs Terms of Service (verify the Fact Check Tools API terms for storage and display); "
-        "each fact-check and rating belongs to its publisher and is shown as a cited quotation with a link",
-        "attribution": GOOGLE_ATTRIBUTION,
+        "X-Goog-Api-Key header, never as the key query parameter, in a URL or in a receipt; restrict the key to this "
+        "API in the Cloud console",
+        "rate_limits": "per-project quota set in the Google Cloud console (verify the default); HTTP 429 with "
+        "Retry-After is rate_limited; one request per page, at most 4 pages of 50 claims per declared search",
+        "pagination": "pageSize/pageToken; a search whose nextPageToken survives the page bound is budget_exhausted, "
+        "never truncated",
+        "identifiers": ["publisher site", "review URL", "claim text as quoted"],
+        "revisions": "no revision stamp: the API returns the current ClaimReview markup; a changed reviewDate, title, "
+        "textualRating or claim is a new revision of the record keyed by publisher, review URL and reviewed claim; a "
+        "review missing from a later search is not a removal (search results are not a complete listing)",
+        "licence": "Google APIs Terms of Service; the ClaimReview content is the publishers' own markup, returned for "
+        "attribution with a link to the review; records keep the publisher, the review URL and short fields only and "
+        "never mirror the review article (verify the current API terms)",
+        "attribution": "Fact-check by <publisher>, via the Google Fact Check Tools API; link to the review URL.",
         "access_decision": "unverified-live",
-        "reason": "fixture-verified parser in the documented claims:search JSON shape (claims[].text, claimant, "
-        "claimDate, claimReview[].publisher.name/site, url, title, reviewDate, textualRating, languageCode); header "
-        "authentication and quotas must be verified",
+        "reason": "fixture-verified parser in the documented v1alpha1 claims:search JSON shape; the quota, the "
+        "header-key support and the current terms must be verified",
     },
-    "datacommons": {
-        "publisher": "Data Commons (ClaimReview data feed and research dataset)",
+    "datacommons-claimreview": {
+        "publisher": "Data Commons ClaimReview data feed (DataFeed of schema.org ClaimReview)",
         "endpoints": ["https://storage.googleapis.com/datacommons-feeds/claimreview/latest/data.json"],
-        "formats": ["datacommons-claimreview-feed-json"],
+        "formats": ["datacommons-claimreview-feed-jsonld"],
         "authentication": "none",
-        "rate_limits": "none documented; one request per declared release",
-        "pagination": "whole release file within the source byte budget; a larger file is budget_exhausted, never "
-        f"truncated; at most {FEED_RECORD_CAP} fact-check records per release after filtering",
-        "identifiers": ["ClaimReview url (review URL)", "author/publisher url (site)", "DataFeedItem dateModified"],
-        "revisions": "each release is a vintage (feed dateModified and response digest in the receipt); a markup "
-        "changed in a later release is a new revision; a record absent from a later release of the same selection "
-        "is an absent-from-release revision, never a deletion",
-        "licence": "compilation and feed licensed CC BY (download page, as excerpted 2026-09-30; verify); the "
-        "structured data of each markup is licensed as its sdLicense states; publishers' own terms apply to their "
-        "articles, which are never fetched",
-        "attribution": DC_ATTRIBUTION,
+        "rate_limits": "a static file; one request per declared release; the whole file must fit the source's "
+        "max_bytes budget or the unit fails as response_too_large (verify the current file size)",
+        "pagination": "none: one file per release, filtered after download to the declared publisher sites and "
+        "review-date window; more than 2000 matching reviews is budget_exhausted",
+        "identifiers": ["ClaimReview url (review URL)", "author.url (publisher site)", "itemReviewed.appearance"],
+        "revisions": "each release is a vintage (dateModified, else the declared release label and the response "
+        "digest); a changed review is a revision, a review a later release no longer carries within the declared "
+        "scope is an absent-from-release revision",
+        "licence": "Data Commons terms of use; the fact-check feed is published for research reuse with attribution "
+        "to the fact-checking publishers (verify whether the feed carries CC BY 4.0 or another licence before any "
+        "redistribution; until then records are kept for local research only)",
+        "attribution": "Fact-check by <publisher>; ClaimReview data via Data Commons.",
         "access_decision": "unverified-live",
-        "reason": "fixture-verified parser for the schema.org DataFeed/ClaimReview shape; the feed path and size and "
-        "the release cadence must be verified",
+        "reason": "fixture-verified parser for the documented DataFeed/ClaimReview JSON-LD shape; the release path, "
+        "dateModified and the licence must be verified",
     },
-    "datacommons-research-dataset": {
-        "publisher": "Data Commons (historical ClaimReview research dataset)",
-        "endpoints": ["https://datacommons.org/factcheck/download"],
-        "formats": [],
-        "authentication": "none",
-        "rate_limits": "none documented",
-        "pagination": "whole dataset files",
-        "identifiers": ["ClaimReview url"],
-        "revisions": "dated historical compilation; not updated",
-        "licence": "CC BY (download page excerpt; verify)",
-        "attribution": DC_ATTRIBUTION,
-        "access_decision": "documented-not-acquired",
-        "reason": "a historical, unmaintained compilation superseded by the feed for the bounded window; reserved for "
-        "the FC13 cross-check",
-    },
-    "ifcn": {
-        "publisher": "International Fact-Checking Network at Poynter (Code of Principles signatories)",
+    "ifcn-signatories": {
+        "publisher": "International Fact-Checking Network (Poynter), Code of Principles signatory list",
         "endpoints": ["https://ifcncodeofprinciples.poynter.org/signatories"],
         "formats": ["ifcn-signatories-html"],
         "authentication": "none",
-        "rate_limits": "none documented; one request per declared listing, weekly at most",
-        "pagination": f"one listing page per unit; at most {LISTING_RECORD_CAP} signatories",
-        "identifiers": ["IFCN profile path per signatory", "signatory website (domain)"],
-        "revisions": "the listing publishes the current status label (and where shown a status date); a changed "
-        "status is a dated revision of the signatory's publisher record; a signatory absent from a later listing "
-        "is an absent-from-listing revision",
-        "licence": "no API, download or reuse terms found in the material read (verify); a live fetch is refused "
-        "until an operator records a terms confirmation on the source (terms_confirmation); the CC0 GitHub list "
-        "IFCN/verified-signatories is historical and not used",
-        "attribution": IFCN_ATTRIBUTION,
+        "rate_limits": "undocumented; one request per declared listing, at most daily",
+        "pagination": "one listing page; more than 500 signatories is budget_exhausted",
+        "identifiers": ["signatory website (domain)", "profile path"],
+        "revisions": "the listing publishes the current status only: each acquisition is dated, a changed status or "
+        "status date is a dated revision, a signatory missing from a later listing is an absent-from-listing "
+        "revision; the listing states no revision stamp",
+        "licence": "Poynter website terms of use; no documented API or bulk export. Only the listing page is read "
+        "(no profile pages, no assessments), at most once a day (verify that the terms allow this reuse; if they do "
+        "not, the source stays declared-but-not-run and publisher status is reported as unavailable)",
+        "attribution": "Signatory status as published by the IFCN (Poynter).",
         "access_decision": "unverified-live",
-        "requires_terms_confirmation": True,
-        "reason": "fixture-verified tolerant parser (profile links, status labels, website, country); the listing "
-        "markup and the site terms must be verified before a live run",
+        "reason": "fixture-verified parser for an authored listing shape; the listing markup, the status labels and "
+        "the terms must be verified before a live run",
     },
 }
 LIVE_VERIFICATION = {
     provider: {"status": contract["access_decision"], "note": "no dated live run from this runtime; offline "
-                                                              "fixtures only"}
+               "fixtures only; terms were not re-verified live (documentation hosts unreachable)"}
     for provider, contract in PROVIDER_CONTRACTS.items()
 }
-# Bounded first coverage (FC01): nothing implies complete coverage of a publisher, a language or a period.
+# Bounded first coverage (FC01): nothing implies complete coverage of a publisher, a language or a topic.
 BOUNDED_COVERAGE = {
-    "google": f"declared queries or review-publisher sites, at most {MAX_UNITS} units per source, maxAgeDays at most "
-    f"{MAX_WINDOW_DAYS}, at most {MAX_PAGES_PER_UNIT} pages of {GOOGLE_PAGE_SIZE} claims per unit",
-    "datacommons": f"one release per unit filtered to at most 50 declared publisher sites and a review-date window of "
-    f"at most {MAX_WINDOW_DAYS} days; at most {FEED_RECORD_CAP} fact-check records per release",
-    "ifcn": f"the signatories listing, at most {LISTING_RECORD_CAP} signatories; status history is what successive "
-    "acquisitions observed plus any status date the listing publishes",
-    "claims": "argument claims, news articles and claimants are reached only through citations and reviewed matches",
+    "google-fact-check-tools": f"at most {MAX_UNITS} declared searches (a query and/or a publisher site, optional "
+    f"language and maxAgeDays <= 3650), {MAX_PAGES_PER_UNIT} pages of {GOOGLE_PAGE_SIZE} claims each",
+    "datacommons-claimreview": f"at most 3 declared releases, each filtered to 1-20 publisher sites and a review-date "
+    f"window of at most 366 days; at most {MAX_RELEASE_RECORDS} reviews per release",
+    "ifcn-signatories": f"the one signatory listing page, at most {MAX_SIGNATORIES} signatories, no profile pages",
+    "links": "news articles, OSINT corroboration and claim timelines reached only by URL citation or accepted matches",
 }
+# Social platforms whose appearance URLs identify an account; stored as host + digest only.
+SOCIAL_HOSTS = frozenset({
+    "facebook.com", "fb.com", "instagram.com", "twitter.com", "x.com", "tiktok.com", "youtube.com", "youtu.be",
+    "t.me", "telegram.me", "threads.net", "reddit.com", "linkedin.com", "vk.com", "whatsapp.com", "bsky.app",
+    "mastodon.social", "truthsocial.com", "rumble.com", "social.example",
+})
+IDENTIFIER_HOSTS = {"wikidata.org": "wikidata", "ror.org": "ror"}
 # FC01 data-minimisation decision (docs/development/fact-checks-evidence/source-audit.md).
 MINIMISATION: dict[str, Any] = {
     "policy": MINIMISATION_POLICY,
-    "stored": ["publisher name and site as published", "review URL, title, date and language", "claim text as quoted",
-               ("claimant as named by the publisher, the claimant type and any sameAs identifiers the publisher "
-                "published"), "claim date and appearance URLs",
-               "rating text and any numeric rating with the publisher's scale",
-               "IFCN signatory name, website, country and status as published"],
-    "never_stored": ["names of review authors who are natural persons", "images of claimants, authors or ratings",
-                     "claimant job titles, birth dates, addresses, e-mail or telephone", "appearance authors",
-                     "article bodies of fact-checks or appearances"],
-    "claimants": "a claimant is the publisher's published attribution, stored as named and never enriched; claimant "
-    "matches to canonical entities are reviewable proposals only and never inferred for unnamed or generic "
-    "claimants (e.g. 'social media users')",
-    "query_scope": "fact-checks are read with knowledge:news:fact-checks:read (claimants shown as named, as cited "
-    "quotations); searching, matching or subscribing by claimant needs "
-    "knowledge:news:fact-checks:claimant:read in addition",
-    "retention": "retained with the revision chain; a publisher's removal or correction is a revision; an erasure "
-    "request for a claimant is an operator action outside the first coverage (none automated)",
+    "stored": ["publisher organisation name and site as published", "review URL, title, date and language",
+               "claim text as quoted by the publisher",
+               "claimant name and published @type as named by the publisher",
+               "claimant identifier URLs (Wikidata, ROR) only", "claim date",
+               "appearance URLs on news and web hosts", "rating text, value and scale verbatim",
+               "IFCN signatory organisation, website, country, status and status dates as published"],
+    "redacted": [("appearance and first-appearance URLs on social platforms: host plus SHA-256 of the wa-canon-v1 "
+                  "canonical URL, never the URL or account handle")],
+    "never_stored": ["claimant image", "claimant job title", "claimant contact details (address, email, telephone)",
+                     "claimant birth date", "claimant social-media profile URLs (sameAs)",
+                     "a review's individual author (Person)", "IFCN profile pages and named staff",
+                     "review article bodies"],
+    "matching": "claimants are matched to canonical entities only as reviewable assertions (published identifier "
+    "first, then the name as published); claimant accounts and social-platform appearances are never matched",
+    "query_scope": "knowledge:news:fact-checks:read plus namespace read access; the redacted social appearance URLs "
+    "can only be matched by a caller who already holds the URL",
+    "retention": "retained with each record revision; no personal identifier beyond the name as published is "
+    "stored, and a publisher's removal is a revision that stops the record being current",
 }
-# Keys that must never appear anywhere in a record's fields (personal attributes or a Noesis verdict).
-FORBIDDEN_PERSONAL_KEYS = frozenset({
-    "author_name", "reviewer", "reviewer_name", "image", "image_url", "job_title", "jobtitle", "birth_date",
-    "birthdate", "address", "email", "telephone", "author_image", "claimant_image", "appearance_author",
-})
-FORBIDDEN_VERDICT_KEYS = frozenset({
-    "verdict", "normalized_rating", "normalised_rating", "truth", "truth_value", "veracity", "noesis_rating",
-    "rating_normalised", "rating_normalized", "score", "credibility",
-})
-RATING_KEYS = ("textual_rating", "rating_value", "best_rating", "worst_rating", "rating_name")
-CLAIM_KEYS = ("claim_text_as_quoted", "claimant_as_named", "claimant_type_as_published", "claimant_same_as",
-              "claim_date", "appearance_urls", "first_appearance_url", "rating")
-IFCN_STATUS_LABELS = ("verified active", "verified", "under renewal", "under review", "expired", "renewal in progress")
+PERSONAL_KEYS = frozenset({"image", "job_title", "jobtitle", "email", "telephone", "address", "birth_date",
+                           "birthdate", "review_author", "reviewer", "reviewer_name", "same_as"})
 
 
 class FactCheckFormatError(ValueError):
@@ -230,420 +207,143 @@ class FactCheckFormatError(ValueError):
         self.code = code
 
 
+def _digest(value: Any) -> str:
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+                          ).hexdigest()
+
+
 def _clean(value: Any) -> str | None:
     text = " ".join(str(value if value is not None else "").split())
     return text or None
 
 
-def slug(value: Any) -> str:
-    return re.sub(r"[^a-z0-9]+", "-", str(value or "").casefold()).strip("-") or "none"
-
-
-def day(value: Any) -> str | None:
-    """An ISO day from an ISO date/time, or from ``d Month yyyy`` / ``Month d, yyyy``."""
-    text = str(value or "").strip()
-    if re.match(r"^\d{4}-\d{2}-\d{2}", text):
-        return text[:10]
-    for pattern in ("%d %B %Y", "%B %d, %Y", "%d %b %Y", "%b %d, %Y"):
-        try:
-            return datetime.strptime(text, pattern).date().isoformat()  # noqa: DTZ007 - a calendar day, no time
-        except ValueError:
-            continue
-    return None
-
-
-def site_of(value: Any) -> str | None:
-    """The host of a URL or a bare site name, lower-cased, without ``www.``."""
-    text = str(value or "").strip()
-    if not text:
-        return None
-    host = urlsplit(text if "://" in text else f"https://{text}").hostname or ""
-    host = host.casefold().removeprefix("www.")
-    return host or None
-
-
 def canonical_url(url: Any) -> tuple[str, list[str]]:
-    """The versioned URL canonicalisation shared with the web-archives provider (``wa-canon-v1``)."""
+    """The ``wa-canon-v1`` canonical key of a URL and the rules that changed it (shared with web archives)."""
     from src.kb.web_archive_identity import canonicalize
 
     return canonicalize(str(url or ""))
 
 
-def url_rule() -> dict[str, Any]:
-    from src.kb.web_archive_identity import CANONICALISATION_VERSION, RULES
-
-    return {"version": CANONICALISATION_VERSION, "rules": [{"id": r, "description": d} for r, d in RULES]}
+def url_digest(url: Any) -> str:
+    return hashlib.sha256(canonical_url(url)[0].encode()).hexdigest()
 
 
-def review_key(site: str, review_url: str) -> str:
-    return f"fact-checks:review:{site}:{hashlib.sha256(canonical_url(review_url)[0].encode()).hexdigest()[:20]}"
+def domain(value: Any) -> str | None:
+    """The host of a site or URL, lowercased, without ``www.``."""
+    text = str(value or "").strip()
+    if not text:
+        return None
+    host = (urlsplit(text if "://" in text else f"https://{text}").hostname or "").casefold().removeprefix("www.")
+    return host or None
 
 
-def ifcn_key(profile: str) -> str:
-    return f"fact-checks:ifcn:{slug(profile)}"
+def social_host(url: Any) -> str | None:
+    host = domain(url)
+    if not host:
+        return None
+    for social in SOCIAL_HOSTS:
+        if host == social or host.endswith("." + social):
+            return social
+    return None
+
+
+def claim_digest(text: Any) -> str:
+    folded = re.sub(r"[^\w\s]", "", " ".join(str(text or "").casefold().split()))
+    return hashlib.sha256(folded.encode()).hexdigest()
+
+
+def publisher_key(site: Any) -> str:
+    return f"fact-check:publisher:{domain(site) or 'unknown'}"
+
+
+def review_key(site: Any, review_url: Any) -> str:
+    return f"fact-check:review:{domain(site) or 'unknown'}:{url_digest(review_url)[:20]}"
+
+
+def fact_check_key(site: Any, review_url: Any, claim_text: Any) -> str:
+    """Keyed by publisher and review URL, plus the reviewed claim (one review page may review several claims)."""
+    return f"{review_key(site, review_url)}:{claim_digest(claim_text)[:10]}"
+
+
+def _day(value: Any) -> str | None:
+    text = str(value or "").strip()
+    match = re.match(r"^(\d{4})-(\d{2})-(\d{2})", text)
+    if not match:
+        return None
+    try:
+        return date(int(match[1]), int(match[2]), int(match[3])).isoformat()
+    except ValueError:
+        return None
 
 
 def _https(value: Any) -> str | None:
     text = _clean(value)
-    if not text:
-        return None
-    if text.startswith("http://"):
-        text = "https://" + text[len("http://"):]
-    return text if text.startswith("https://") else None
+    return text if text and text.startswith("https://") else None
 
 
-def _record(fmt: str, record_key: str, *, unit_key: str, title: Any, locator: str, fields: Mapping[str, Any],
-            publisher_site: str | None, native_revision: Any = None, revision_order: str = "",
-            effective_on: Any = None, language: Any = None, withheld: Sequence[str] = (),
-            review_url_canonical: str | None = None) -> dict[str, Any]:
-    spec = FORMATS[fmt]
-    if not str(locator or "").startswith("https://"):
-        raise FactCheckFormatError("schema_drift", f"{record_key} has no HTTPS locator")
-    return {
-        "contract": RECORD_CONTRACT,
-        "format": fmt,
-        "provider": spec["provider"],
-        "record_kind": spec["kind"],
-        "record_key": record_key,
-        "unit_key": unit_key,
-        "publisher_site": publisher_site,
-        "review_url_canonical": review_url_canonical,
-        "status": "published",
-        "native_revision": _clean(native_revision),
-        "revision_order": revision_order,
-        "effective_on": day(effective_on) if effective_on else None,
-        "language": _clean(language),
-        "title": _clean(title) or record_key,
-        "locator": locator,
-        "minimisation": {"policy": MINIMISATION_POLICY, "withheld": sorted(set(withheld))},
-        "fields": dict(fields),
-    }
-
-
-def _rating(textual: Any, value: Any = None, best: Any = None, worst: Any = None, name: Any = None
-            ) -> dict[str, Any]:
-    """A rating exactly as published: strings stay strings, numbers stay numbers; nothing is mapped or scaled."""
-    def verbatim(item: Any) -> Any:
-        if isinstance(item, (int, float)) and not isinstance(item, bool):
-            return item
-        return _clean(item)
-
-    return {"textual_rating": _clean(textual), "rating_value": verbatim(value), "best_rating": verbatim(best),
-            "worst_rating": verbatim(worst), "rating_name": _clean(name)}
-
-
-def _unit_key(fmt: str, unit: Mapping[str, Any]) -> str:
-    return f"{fmt}:" + hashlib.sha256(json.dumps(dict(unit), sort_keys=True).encode()).hexdigest()[:16]
-
-
-# ------------------------------------------------------------------ Google Fact Check Tools
-
-
-def parse_claim_search(pages: Sequence[Any], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
-    fmt = "google-factcheck-claimsearch-json"
-    grouped: dict[tuple[str, str], dict[str, Any]] = {}
-    for payload in pages:
-        if not isinstance(payload, Mapping) or not isinstance(payload.get("claims", []), list):
-            raise FactCheckFormatError("schema_drift", "claims:search response has no claims list")
-        for claim in payload.get("claims") or []:
-            if not isinstance(claim, Mapping) or not isinstance(claim.get("claimReview", []), list):
-                raise FactCheckFormatError("schema_drift", "a claim is not an object with claimReview")
-            for review in claim.get("claimReview") or []:
-                publisher = dict(review.get("publisher") or {})
-                url = _https(review.get("url"))
-                site = site_of(publisher.get("site")) or site_of(url)
-                if not url or not site:
-                    raise FactCheckFormatError("schema_drift", "a claimReview has no review URL or publisher site")
-                entry = grouped.setdefault((site, canonical_url(url)[0]), {
-                    "url": url, "site": site, "publisher": _clean(publisher.get("name")), "claims": [],
-                    "titles": set(), "dates": set(), "languages": set()})
-                if review.get("title"):
-                    entry["titles"].add(_clean(review["title"]))
-                if review.get("reviewDate"):
-                    entry["dates"].add(str(review["reviewDate"]))
-                if review.get("languageCode"):
-                    entry["languages"].add(_clean(review["languageCode"]))
-                entry["claims"].append({
-                    "claim_text_as_quoted": _clean(claim.get("text")),
-                    "claimant_as_named": _clean(claim.get("claimant")),
-                    "claimant_type_as_published": None,
-                    "claimant_same_as": [],
-                    "claim_date": day(claim.get("claimDate")),
-                    "appearance_urls": [],
-                    "first_appearance_url": None,
-                    "rating": _rating(review.get("textualRating")),
-                })
-    out = []
-    unit_key = _unit_key(fmt, unit)
-    for (site, canon), entry in sorted(grouped.items()):
-        claims = sorted({json.dumps(c, sort_keys=True): c for c in entry["claims"]}.values(),
-                        key=lambda c: (c["claim_text_as_quoted"] or "", c["claimant_as_named"] or ""))
-        review_date = max(entry["dates"]) if entry["dates"] else None
-        fields = {
-            "publisher": {"name_as_published": entry["publisher"], "site": site},
-            "review_url": entry["url"], "review_url_canonical": canon, "canonicalisation": url_rule()["version"],
-            "review_title": min(entry["titles"]) if entry["titles"] else None,
-            "review_date": review_date, "claims": claims, "sd_license": None,
-            "rating_scale_note": "textual rating only; the API publishes no numeric rating",
-        }
-        out.append(_record(fmt, review_key(site, entry["url"]), unit_key=unit_key, title=fields["review_title"],
-                           locator=entry["url"], fields=fields, publisher_site=site, native_revision=review_date,
-                           revision_order=review_date or "", effective_on=review_date,
-                           language=min(entry["languages"]) if entry["languages"] else None,
-                           review_url_canonical=canon))
-    return out
-
-
-# ------------------------------------------------------------------ Data Commons ClaimReview feed
-
-
-def _as_list(value: Any) -> list[Any]:
-    if value is None:
-        return []
-    return list(value) if isinstance(value, list) else [value]
-
-
-def _type(node: Any) -> str | None:
-    if not isinstance(node, Mapping):
-        return None
-    kind = node.get("@type")
-    return _clean(kind[0] if isinstance(kind, list) and kind else kind)
-
-
-def _language(value: Any) -> str | None:
-    if isinstance(value, Mapping):
-        return _clean(value.get("alternateName") or value.get("name"))
-    return _clean(value)
-
-
-def parse_datafeed(payload: Any, unit: Mapping[str, Any]) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """(records, release) for one Data Commons release filtered to the unit's sites and review window."""
-    fmt = "datacommons-claimreview-feed-json"
-    if not isinstance(payload, Mapping) or not isinstance(payload.get("dataFeedElement"), list):
-        raise FactCheckFormatError("schema_drift", "the ClaimReview feed has no dataFeedElement list")
-    sites = {site_of(s) for s in unit.get("publisher_sites") or []}
-    start, end = day(unit.get("from")), day(unit.get("to"))
-    release = {"date_modified": _clean(payload.get("dateModified")), "item_count": len(payload["dataFeedElement"])}
-    grouped: dict[tuple[str, str], dict[str, Any]] = {}
-    for element in payload["dataFeedElement"]:
-        if not isinstance(element, Mapping):
-            raise FactCheckFormatError("schema_drift", "a feed element is not an object")
-        for item in _as_list(element.get("item")):
-            if _type(item) != "ClaimReview":
-                continue
-            url = _https(item.get("url"))
-            publisher = item.get("publisher") if isinstance(item.get("publisher"), Mapping) else item.get("author")
-            publisher = publisher[0] if isinstance(publisher, list) and publisher else publisher
-            publisher = dict(publisher) if isinstance(publisher, Mapping) else {}
-            site = site_of(publisher.get("url")) or site_of(url)
-            if not url or not site:
-                raise FactCheckFormatError("schema_drift", "a ClaimReview has no review URL or publisher site")
-            published = day(item.get("datePublished"))
-            if site not in sites or not published or not (start <= published <= end):
-                continue
-            withheld = []
-            person_author = _type(publisher) == "Person"
-            if person_author:
-                withheld.append("ClaimReview.author (natural-person review author)")
-            for key in ("image", "logo"):
-                if publisher.get(key):
-                    withheld.append(f"ClaimReview.author.{key}")
-            reviewed = dict(item.get("itemReviewed") or {})
-            claimant = reviewed.get("author")
-            claimant = claimant[0] if isinstance(claimant, list) and claimant else claimant
-            claimant = dict(claimant) if isinstance(claimant, Mapping) else {}
-            for key in ("image", "jobTitle", "birthDate", "address", "email", "telephone"):
-                if claimant.get(key):
-                    withheld.append(f"itemReviewed.author.{key}")
-            appearances, first = [], None
-            for node in _as_list(reviewed.get("appearance")):
-                link = _https(node.get("url") if isinstance(node, Mapping) else node)
-                if link:
-                    appearances.append(link)
-                if isinstance(node, Mapping) and (node.get("author") or node.get("creator")):
-                    withheld.append("itemReviewed.appearance.author")
-            first_node = reviewed.get("firstAppearance")
-            if first_node:
-                first = _https(first_node.get("url") if isinstance(first_node, Mapping) else first_node)
-                if isinstance(first_node, Mapping) and (first_node.get("author") or first_node.get("creator")):
-                    withheld.append("itemReviewed.firstAppearance.author")
-            rating = dict(item.get("reviewRating") or {})
-            if rating.get("image"):
-                withheld.append("reviewRating.image")
-            same_as = [s for s in (_https(v) for v in _as_list(claimant.get("sameAs"))) if s]
-            entry = grouped.setdefault((site, canonical_url(url)[0]), {
-                "url": url, "site": site, "publisher": None if person_author else _clean(publisher.get("name")),
-                "claims": [], "titles": set(), "dates": set(), "modified": set(), "languages": set(),
-                "licences": set(), "withheld": set()})
-            entry["withheld"].update(withheld)
-            if item.get("name") or item.get("headline"):
-                entry["titles"].add(_clean(item.get("name") or item.get("headline")))
-            entry["dates"].add(published)
-            if element.get("dateModified") or item.get("dateModified"):
-                entry["modified"].add(str(item.get("dateModified") or element.get("dateModified")))
-            if _language(item.get("inLanguage")):
-                entry["languages"].add(_language(item.get("inLanguage")))
-            if item.get("sdLicense"):
-                entry["licences"].add(_clean(item["sdLicense"]))
-            entry["claims"].append({
-                "claim_text_as_quoted": _clean(item.get("claimReviewed")),
-                "claimant_as_named": _clean(claimant.get("name")),
-                "claimant_type_as_published": _type(claimant),
-                "claimant_same_as": sorted(set(same_as)),
-                "claim_date": day(reviewed.get("datePublished")),
-                "appearance_urls": sorted(set(appearances)),
-                "first_appearance_url": first,
-                "rating": _rating(rating.get("alternateName"), rating.get("ratingValue"), rating.get("bestRating"),
-                                  rating.get("worstRating"), rating.get("name")),
-            })
-    out = []
-    unit_key = _unit_key(fmt, unit)
-    for (site, canon), entry in sorted(grouped.items()):
-        claims = sorted({json.dumps(c, sort_keys=True): c for c in entry["claims"]}.values(),
-                        key=lambda c: (c["claim_text_as_quoted"] or "", c["claimant_as_named"] or ""))
-        review_date = max(entry["dates"])
-        modified = max(entry["modified"]) if entry["modified"] else None
-        fields = {
-            "publisher": {"name_as_published": entry["publisher"], "site": site},
-            "review_url": entry["url"], "review_url_canonical": canon, "canonicalisation": url_rule()["version"],
-            "review_title": min(entry["titles"]) if entry["titles"] else None,
-            "review_date": review_date, "date_modified_as_published": modified, "claims": claims,
-            "sd_license": min(entry["licences"]) if entry["licences"] else None,
-            "rating_scale_note": "textual_rating is reviewRating.alternateName; ratingValue, bestRating and worstRating "
-                                 "are the publisher's own scale as published",
-        }
-        out.append(_record(fmt, review_key(site, entry["url"]), unit_key=unit_key, title=fields["review_title"],
-                           locator=entry["url"], fields=fields, publisher_site=site,
-                           native_revision=modified or review_date,
-                           revision_order="|".join(p for p in (review_date, modified) if p),
-                           effective_on=max(review_date, day(modified) or ""),
-                           language=min(entry["languages"]) if entry["languages"] else None,
-                           withheld=sorted(entry["withheld"]), review_url_canonical=canon))
-    if len(out) > FEED_RECORD_CAP:
-        raise FactCheckFormatError("input_limit", "the filtered release exceeds the record cap; never truncated")
-    return out, release
-
-
-# ------------------------------------------------------------------ IFCN signatories listing
-
-
-class _ListingParser(HTMLParser):
-    """Collect one card per signatory profile link: the link text, card text and outbound links.
-
-    The parser is deliberately tolerant: a card starts at an anchor whose path contains ``/profile/`` and runs to
-    the next such anchor. Markup assumptions are recorded in the FC01 audit and verified in FC13.
-    """
-
-    def __init__(self, base: str) -> None:
-        super().__init__(convert_charrefs=True)
-        self.base = base
-        self.cards: list[dict[str, Any]] = []
-        self._anchor: dict[str, Any] | None = None
-        self._class_stack: list[str] = []
-
-    _VOID = frozenset({"img", "br", "hr", "meta", "link", "input", "source", "wbr", "area", "base", "col"})
-
-    def handle_starttag(self, tag, attrs):
-        attributes = dict(attrs)
-        if tag not in self._VOID:
-            self._class_stack.append(str(attributes.get("class") or ""))
-        if tag == "a":
-            href = urljoin(self.base, str(attributes.get("href") or ""))
-            if "/profile/" in urlsplit(href).path:
-                self.cards.append({"profile": href, "name": [], "text": [], "links": [], "country": [],
-                                   "status": []})
-                self._anchor = self.cards[-1]
-            elif self.cards and href.startswith(("http://", "https://")):
-                self.cards[-1]["links"].append(href)
-        if tag == "img" and self.cards:
-            self.cards[-1].setdefault("images", 0)
-
-    def handle_endtag(self, tag):
-        if self._class_stack and tag not in self._VOID:
-            self._class_stack.pop()
-        if tag == "a":
-            self._anchor = None
-
-    def handle_data(self, data):
-        text = _clean(data)
-        if not text or not self.cards:
-            return
-        card = self.cards[-1]
-        if self._anchor is card:
-            card["name"].append(text)
-            return
-        classes = " ".join(self._class_stack).casefold()
-        if "country" in classes:
-            card["country"].append(text)
-        if "status" in classes:
-            card["status"].append(text)
-        card["text"].append(text)
-
-
-_STATUS_DATE = re.compile(r"(?i)\b(verified on|verified since|expired on|expires on|expiration date|renewal "
-                          r"due|since)\s*:?\s*([0-9]{4}-[0-9]{2}-[0-9]{2}|[0-9]{1,2} [A-Za-z]+ [0-9]{4}|[A-Za-z]+ "
-                          r"[0-9]{1,2}, [0-9]{4})")
-
-
-def parse_signatories(raw: bytes, unit: Mapping[str, Any], *, base: str) -> list[dict[str, Any]]:
-    fmt = "ifcn-signatories-html"
+def _json(raw: bytes) -> Any:
     try:
-        text = raw.decode("utf-8-sig")
-    except UnicodeDecodeError as exc:
-        raise FactCheckFormatError("schema_drift", "the signatories listing is not UTF-8") from exc
-    parser = _ListingParser(base)
-    parser.feed(text)
-    if not parser.cards:
-        raise FactCheckFormatError("schema_drift", "no signatory profile links in the listing; nothing is inferred")
-    if len(parser.cards) > LISTING_RECORD_CAP:
-        raise FactCheckFormatError("input_limit", "the listing exceeds the signatory cap; never truncated")
-    unit_key = _unit_key(fmt, unit)
-    wanted = {slug(p) for p in unit.get("profiles") or []}
-    out = {}
-    for card in parser.cards:
-        profile = _https(card["profile"])
-        name = _clean(" ".join(card["name"]))
-        if not profile or not name:
-            raise FactCheckFormatError("schema_drift", "a signatory card has no profile link or name")
-        profile_slug = urlsplit(profile).path.rstrip("/").rsplit("/", 1)[-1]
-        if wanted and slug(profile_slug) not in wanted:
-            continue
-        body = " ".join(card["text"])
-        status = _clean(" ".join(card["status"])) or next(
-            (label for label in IFCN_STATUS_LABELS if re.search(rf"(?i)\b{re.escape(label)}\b", body)), None)
-        if status:
-            status = next((m.group(0) for m in [re.search(rf"(?i)\b{re.escape(status)}\b", body)] if m), status)
-        dated = _STATUS_DATE.search(body)
-        website = next((link for link in card["links"] if site_of(link) and site_of(link) != site_of(base)), None)
-        fields = {
-            "name_as_published": name, "ifcn_profile_url": profile, "website": _https(website) or _clean(website),
-            "site": site_of(website), "country_as_published": _clean(" ".join(card["country"])),
-            "status_as_published": status, "status_date_label": _clean(dated.group(1)) if dated else None,
-            "status_date_as_published": day(dated.group(2)) if dated else None,
-        }
-        withheld = ["signatory logo image"] if "images" in card else []
-        out[ifcn_key(profile_slug)] = _record(
-            fmt, ifcn_key(profile_slug), unit_key=unit_key, title=name, locator=profile, fields=fields,
-            publisher_site=fields["site"], native_revision=fields["status_date_as_published"],
-            revision_order=fields["status_date_as_published"] or "",
-            effective_on=fields["status_date_as_published"], withheld=withheld)
-    return [out[k] for k in sorted(out)]
+        return json.loads(raw.decode("utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise FactCheckFormatError("schema_drift", "response is not valid UTF-8 JSON") from exc
 
 
-# ------------------------------------------------------------------ minimisation guard
+# ------------------------------------------------------------------ minimisation
+
+
+def appearance(url: Any) -> dict[str, Any] | None:
+    """An appearance as stored: the URL on news and web hosts; host and digest only on social platforms."""
+    text = _clean(url)
+    if not text or not text.startswith(("https://", "http://")):
+        return None
+    social = social_host(text)
+    if social:
+        return {"host": social, "url_sha256": url_digest(text), "platform_post": True, "url_withheld": True}
+    canonical, rules = canonical_url(text)
+    return {"url": text, "url_canonical": canonical, "canonical_rules": rules, "platform_post": False}
+
+
+def claimant(value: Any, withheld: list[str], path: str) -> dict[str, Any] | None:
+    """A claimant as the publisher named it; only identifier ``sameAs`` URLs survive (FC01)."""
+    if value is None:
+        return None
+    if isinstance(value, str):
+        name = _clean(value)
+        return {"name_as_published": name, "type_as_published": None, "identifiers": []} if name else None
+    if not isinstance(value, Mapping):
+        return None
+    for key in value:
+        folded = str(key).casefold()
+        if folded in {"image", "jobtitle", "job_title", "email", "telephone", "address", "birthdate"}:
+            withheld.append(f"{path}.{key}")
+    identifiers = []
+    same = value.get("sameAs")
+    for item in ([same] if isinstance(same, str) else same if isinstance(same, list) else []):
+        host = domain(item)
+        scheme = IDENTIFIER_HOSTS.get(host or "")
+        if scheme == "wikidata" and re.search(r"/(Q\d+)$", str(item)):
+            identifiers.append({"scheme": "wikidata", "value": re.search(r"/(Q\d+)$", str(item))[1]})
+        elif scheme == "ror" and re.search(r"/(0[a-z0-9]{8})$", str(item)):
+            identifiers.append({"scheme": "ror", "value": re.search(r"/(0[a-z0-9]{8})$", str(item))[1]})
+        elif item:
+            withheld.append(f"{path}.sameAs({host or 'unparsed'})")
+    name = _clean(value.get("name"))
+    if not name and not identifiers:
+        return None
+    return {"name_as_published": name, "type_as_published": _clean(value.get("@type")),
+            "identifiers": sorted(identifiers, key=lambda i: (i["scheme"], i["value"]))}
 
 
 def minimisation_violations(record: Mapping[str, Any]) -> list[str]:
-    """Paths of personal attributes or Noesis verdict fields a record still carries (empty when it honours FC01)."""
-    found = []
+    """Paths of personal fields a stored record must not carry (FC01)."""
+    found: list[str] = []
 
     def walk(value: Any, path: str) -> None:
         if isinstance(value, Mapping):
+            if value.get("platform_post") is True and ("url" in value or "url_canonical" in value):
+                found.append(f"{path}.url")
             for key, item in value.items():
-                bare = str(key).casefold()
-                if bare in FORBIDDEN_PERSONAL_KEYS and item not in (None, "", [], {}):
-                    found.append(f"{path}.{key}")
-                if bare in FORBIDDEN_VERDICT_KEYS:
+                if str(key).casefold() in PERSONAL_KEYS:
                     found.append(f"{path}.{key}")
                 walk(item, f"{path}.{key}")
         elif isinstance(value, list):
@@ -652,82 +352,347 @@ def minimisation_violations(record: Mapping[str, Any]) -> list[str]:
 
     walk(record.get("fields") or {}, "$.fields")
     for index, claim in enumerate((record.get("fields") or {}).get("claims") or []):
-        extra = set(claim) - set(CLAIM_KEYS)
-        found += [f"$.fields.claims[{index}].{k}" for k in sorted(extra)]
-        found += [f"$.fields.claims[{index}].rating.{k}" for k in sorted(set(claim.get("rating") or {})
-                                                                          - set(RATING_KEYS))]
+        for identifier in ((claim.get("claimant") or {}).get("identifiers") or []):
+            if identifier.get("scheme") not in set(IDENTIFIER_HOSTS.values()):
+                found.append(f"$.fields.claims[{index}].claimant.identifiers")
+        for entry in (claim.get("appearances") or []) + [claim.get("first_appearance") or {}]:
+            if entry.get("url") and social_host(entry["url"]):
+                found.append(f"$.fields.claims[{index}].appearances")
     return sorted(set(found))
 
 
+# ------------------------------------------------------------------ records
+
+
+def _record(fmt: str, kind: str, record_key: str, *, title: Any, locator: str, fields: Mapping[str, Any],
+            publisher: str | None, review: str | None = None, native_revision: Any = None, revision_order: str = "",
+            effective_on: Any = None, scope_key: str | None = None, withheld: Sequence[str] = ()) -> dict[str, Any]:
+    spec = FORMATS[fmt]
+    if kind not in RECORD_KINDS:
+        raise FactCheckFormatError("schema_drift", f"unknown record kind {kind!r}")
+    if not str(locator or "").startswith("https://"):
+        raise FactCheckFormatError("schema_drift", f"{record_key} has no HTTPS locator")
+    return {
+        "contract": RECORD_CONTRACT,
+        "format": fmt,
+        "provider": spec["provider"],
+        "record_kind": kind,
+        "record_key": record_key,
+        "publisher_key": publisher,
+        "review_key": review,
+        "scope_key": scope_key,
+        "native_revision": _clean(native_revision),
+        "revision_order": revision_order,
+        "effective_on": _day(effective_on),
+        "title": _clean(title) or record_key,
+        "locator": locator,
+        "minimisation": {"policy": MINIMISATION_POLICY, "withheld": sorted(set(withheld))},
+        "fields": dict(fields),
+    }
+
+
+def _rating(text: Any, value: Any = None, best: Any = None, worst: Any = None) -> dict[str, Any]:
+    """The rating exactly as published: text, and any numeric value with its scale, never converted."""
+    def published(item: Any) -> str | None:
+        return None if item is None or item == "" else str(item)
+
+    value, best, worst = published(value), published(best), published(worst)
+    scale = None
+    if value is not None and (best is not None or worst is not None):
+        scale = f"{value} on a scale from {worst if worst is not None else '?'} to {best if best is not None else '?'}"
+    return {"text": _clean(text), "value": value, "best": best, "worst": worst, "scale_as_published": scale}
+
+
+def _fact_check(fmt: str, *, site: str, publisher_name: Any, review_url: str, review_title: Any, review_date: Any,
+                language: Any, claim: Mapping[str, Any], native_revision: Any, revision_order: str,
+                scope_key: str | None, withheld: list[str]) -> dict[str, Any]:
+    canonical, rules = canonical_url(review_url)
+    fields = {
+        "publisher": {"name_as_published": _clean(publisher_name), "site_as_published": _clean(site),
+                      "domain": domain(site)},
+        "review_url": review_url, "review_url_canonical": canonical, "canonical_rules": rules,
+        "review_title": _clean(review_title), "review_date": _clean(review_date), "review_day": _day(review_date),
+        "language": _clean(language), "status": "published",
+        "claims": [dict(claim)],
+    }
+    return _record(fmt, "fact-check", fact_check_key(site, review_url, claim.get("claim_text")),
+                   title=review_title or claim.get("claim_text"), locator=review_url, fields=fields,
+                   publisher=publisher_key(site), review=review_key(site, review_url),
+                   native_revision=native_revision, revision_order=revision_order, effective_on=review_date,
+                   scope_key=scope_key, withheld=withheld)
+
+
+def parse_google(pages: Sequence[bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+    """Fact Check Tools ``claims:search`` pages -> one fact-check record per (publisher, review URL, claim)."""
+    fmt = "google-factcheck-claims-search-json"
+    out: dict[str, dict[str, Any]] = {}
+    for raw in pages:
+        payload = _json(raw)
+        if not isinstance(payload, Mapping):
+            raise FactCheckFormatError("schema_drift", "claims:search response is not an object")
+        claims = payload.get("claims", [])
+        if not isinstance(claims, list):
+            raise FactCheckFormatError("schema_drift", "claims:search response has no claims list")
+        for item in claims:
+            if not isinstance(item, Mapping) or not isinstance(item.get("claimReview", []), list):
+                raise FactCheckFormatError("schema_drift", "a claim has no claimReview list")
+            text = _clean(item.get("text"))
+            if not text:
+                continue
+            for review in item.get("claimReview") or []:
+                url = _https(review.get("url"))
+                publisher = dict(review.get("publisher") or {})
+                site = publisher.get("site") or domain(url)
+                if not url or not site:
+                    continue
+                withheld: list[str] = []
+                claim = {"claim_ref": claim_digest(text)[:10], "claim_text": text,
+                         "claimant": claimant(item.get("claimant"), withheld, "claimant"),
+                         "claim_date": _clean(item.get("claimDate")), "claim_day": _day(item.get("claimDate")),
+                         "appearances": [], "first_appearance": None,
+                         "rating": _rating(review.get("textualRating"))}
+                record = _fact_check(fmt, site=site, publisher_name=publisher.get("name"), review_url=url,
+                                     review_title=review.get("title"), review_date=review.get("reviewDate"),
+                                     language=review.get("languageCode"), claim=claim,
+                                     native_revision=review.get("reviewDate"),
+                                     revision_order=_day(review.get("reviewDate")) or "", scope_key=None,
+                                     withheld=withheld)
+                out.setdefault(record["record_key"], record)
+    del unit
+    return [out[k] for k in sorted(out)]
+
+
+def _first(value: Any) -> Any:
+    return value[0] if isinstance(value, list) and value else value
+
+
+def _work_url(value: Any) -> Any:
+    """The URL of a schema.org CreativeWork given as an object or as a bare URL string."""
+    value = _first(value)
+    return value.get("url") if isinstance(value, Mapping) else value
+
+
+def parse_datacommons(raw: bytes, unit: Mapping[str, Any], scope_key: str) -> tuple[list[dict[str, Any]], str]:
+    """A ClaimReview DataFeed release filtered to the declared publisher sites and review-date window."""
+    fmt = "datacommons-claimreview-feed-jsonld"
+    payload = _json(raw)
+    if not isinstance(payload, Mapping) or not isinstance(payload.get("dataFeedElement"), list):
+        raise FactCheckFormatError("schema_drift", "ClaimReview feed has no dataFeedElement list")
+    vintage = _clean(payload.get("dateModified")) or f"{unit['release']}:sha256:{hashlib.sha256(raw).hexdigest()[:12]}"
+    order = _day(payload.get("dateModified")) or ""
+    sites = {domain(s) for s in unit["publishers"]}
+    start, end = unit["from"], unit["to"]
+    out: dict[str, dict[str, Any]] = {}
+    for element in payload["dataFeedElement"]:
+        if not isinstance(element, Mapping):
+            raise FactCheckFormatError("schema_drift", "a feed element is not an object")
+        items = element.get("item") or []
+        for review in items if isinstance(items, list) else [items]:
+            if not isinstance(review, Mapping) or review.get("@type") != "ClaimReview":
+                continue
+            url = _https(review.get("url"))
+            author = _first(review.get("author")) or {}
+            withheld: list[str] = []
+            if isinstance(author, Mapping) and author.get("@type") == "Person":
+                withheld.append("review.author(Person)")
+                author = {}
+            publisher = _first(review.get("publisher"))
+            if not author and isinstance(publisher, Mapping) and publisher.get("@type") != "Person":
+                author = publisher  # the publishing organisation when the review's author is a person
+            site = domain((author or {}).get("url")) if isinstance(author, Mapping) else None
+            site = site or domain(url)
+            if not url or site not in sites:
+                continue
+            day = _day(review.get("datePublished"))
+            if day is None or not start <= day <= end:
+                continue
+            item = review.get("itemReviewed") or {}
+            text = _clean(review.get("claimReviewed"))
+            if not text or not isinstance(item, Mapping):
+                continue
+            listed = item.get("appearance") or []
+            listed = listed if isinstance(listed, list) else [listed]
+            appearances = [a for a in (appearance(_work_url(x)) for x in listed) if a]
+            first = appearance(_work_url(item.get("firstAppearance"))) if item.get("firstAppearance") else None
+            rating = review.get("reviewRating") or {}
+            rating = rating if isinstance(rating, Mapping) else {}
+            claim = {"claim_ref": claim_digest(text)[:10], "claim_text": text,
+                     "claimant": claimant(_first(item.get("author")), withheld, "itemReviewed.author"),
+                     "claim_date": _clean(item.get("datePublished")), "claim_day": _day(item.get("datePublished")),
+                     "appearances": sorted(appearances, key=lambda a: a.get("url_canonical") or a["url_sha256"]),
+                     "first_appearance": first,
+                     "rating": _rating(rating.get("alternateName"), rating.get("ratingValue"),
+                                       rating.get("bestRating"), rating.get("worstRating"))}
+            record = _fact_check(fmt, site=site, publisher_name=(author or {}).get("name"), review_url=url,
+                                 review_title=review.get("name") or review.get("headline"),
+                                 review_date=review.get("datePublished"), language=review.get("inLanguage"),
+                                 claim=claim, native_revision=vintage, revision_order=order, scope_key=scope_key,
+                                 withheld=withheld)
+            out.setdefault(record["record_key"], record)
+    if len(out) > MAX_RELEASE_RECORDS:
+        raise FactCheckFormatError("input_limit", "release scope holds more reviews than the declared bound")
+    return [out[k] for k in sorted(out)], vintage
+
+
+class _SignatoryParser(HTMLParser):
+    """Collects ``div.signatory`` blocks: name, country, website, status text, dated status fields, profile path."""
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.items: list[dict[str, Any]] = []
+        self.current: dict[str, Any] | None = None
+        self.depth = 0
+        self.field: str | None = None
+        self.date_kind: str | None = None
+
+    def handle_starttag(self, tag, attrs):
+        attrs = dict(attrs)
+        classes = set(str(attrs.get("class") or "").split())
+        if self.current is None:
+            if tag == "div" and "signatory" in classes:
+                self.current = {"data_status": attrs.get("data-status"), "dates": {}, "text": {}}
+                self.depth = 1
+            return
+        if tag == "div":
+            self.depth += 1
+        for name in ("signatory-name", "signatory-country", "signatory-status", "signatory-date", "signatory-website",
+                     "signatory-profile"):
+            if name in classes:
+                self.field = name
+                if name == "signatory-date":
+                    self.date_kind = str(attrs.get("data-kind") or "date")
+                if name == "signatory-website":
+                    self.current["website"] = attrs.get("href")
+                if name == "signatory-profile":
+                    self.current["profile"] = attrs.get("href")
+
+    def handle_endtag(self, tag):
+        if self.current is None:
+            return
+        if tag == "div":
+            self.depth -= 1
+            if self.depth == 0:
+                self.items.append(self.current)
+                self.current = None
+        self.field = None
+
+    def handle_data(self, data):
+        if self.current is None or not self.field or not data.strip():
+            return
+        if self.field == "signatory-date":
+            self.current["dates"][self.date_kind] = " ".join(data.split())
+        else:
+            key = self.field.removeprefix("signatory-")
+            self.current["text"][key] = " ".join((self.current["text"].get(key, "") + " " + data).split())
+
+
+def ifcn_status(text: Any, data_status: Any = None) -> str:
+    folded = f"{data_status or ''} {text or ''}".casefold()
+    if "expired" in folded:
+        return "expired"
+    if "review" in folded or "renewal" in folded:
+        return "under-review"
+    if "verified" in folded:
+        return "verified"
+    return "other"
+
+
+def parse_ifcn(raw: bytes, unit: Mapping[str, Any], scope_key: str, endpoint: str) -> list[dict[str, Any]]:
+    fmt = "ifcn-signatories-html"
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise FactCheckFormatError("schema_drift", "listing is not UTF-8 HTML") from exc
+    parser = _SignatoryParser()
+    parser.feed(text)
+    if not parser.items:
+        raise FactCheckFormatError("schema_drift", "listing carries no signatory blocks")
+    if len(parser.items) > MAX_SIGNATORIES:
+        raise FactCheckFormatError("input_limit", "listing holds more signatories than the declared bound")
+    base = endpoint.rstrip("/")
+    out: dict[str, dict[str, Any]] = {}
+    for item in parser.items:
+        site = domain(item.get("website"))
+        name = item["text"].get("name")
+        if not site or not name:
+            continue
+        status_text = item["text"].get("status")
+        status = ifcn_status(status_text, item.get("data_status"))
+        dates = {k: _day(v) or v for k, v in sorted(item["dates"].items())}
+        status_date = dates.get("expired") if status == "expired" else dates.get("verified") \
+            if status == "verified" else dates.get("review") or dates.get("submitted")
+        profile = item.get("profile")
+        profile_url = (profile if str(profile or "").startswith("https://")
+                       else base + str(profile) if str(profile or "").startswith("/") else None)
+        fields = {"name_as_published": name, "website": _clean(item.get("website")), "domain": site,
+                  "country_as_published": item["text"].get("country"), "status": "published", "ifcn_status": status,
+                  "status_as_published": status_text or item.get("data_status"), "status_dates": dates,
+                  "status_date": _day(status_date), "profile_url": profile_url, "listing": "ifcn-signatories"}
+        key = publisher_key(site)
+        out[key] = _record(fmt, "publisher", key, title=name, locator=profile_url or base + "/signatories",
+                           fields=fields, publisher=key, native_revision=f"{status}:{status_date or ''}",
+                           revision_order=_day(status_date) or "", effective_on=status_date, scope_key=scope_key)
+    del unit
+    return [out[k] for k in sorted(out)]
+
+
 # ------------------------------------------------------------------ units and requests
+
+_SITE = re.compile(r"^[a-z0-9][a-z0-9.-]{0,252}\.[a-z0-9-]{2,63}$")
+_RELEASE = re.compile(r"^(latest|\d{4}-\d{2}-\d{2}|[a-z0-9][a-z0-9-]{0,40})$")
 
 
 def _units(fmt: str, selection: Mapping[str, Any]) -> list[dict[str, Any]]:
     key = FORMATS[fmt]["unit"]
     units = [dict(u) for u in selection.get(key) or [] if isinstance(u, Mapping)]
     if not 1 <= len(units) <= MAX_UNITS or len(units) != len(selection.get(key) or []):
-        raise SourcePackError("invalid_manifest", f"a fact-checks selection names 1-{MAX_UNITS} {key} objects")
+        raise SourcePackError("invalid_manifest", f"a fact-checks selection names 1-{MAX_UNITS} {key}")
     for unit in units:
-        if key == "queries":
-            if not (_clean(unit.get("query")) or _clean(unit.get("publisher_site"))):
-                raise SourcePackError("invalid_manifest", "a claim search names a query or a publisher site")
-            if not 1 <= int(unit.get("max_age_days") or 0) <= MAX_WINDOW_DAYS:
-                raise SourcePackError("invalid_manifest", f"a claim search declares maxAgeDays 1-{MAX_WINDOW_DAYS}")
-        if key == "releases":
-            sites = unit.get("publisher_sites") or []
-            start, end = day(unit.get("from")), day(unit.get("to"))
-            if not str(unit.get("path") or "").startswith("/") or not 1 <= len(sites) <= 50:
-                raise SourcePackError("invalid_manifest", "a release names its path and 1-50 publisher sites")
-            if not start or not end or end < start or \
-                    (datetime.fromisoformat(end) - datetime.fromisoformat(start)).days > MAX_WINDOW_DAYS:
-                raise SourcePackError("invalid_manifest", f"a release declares a review window of at most "
-                                                          f"{MAX_WINDOW_DAYS} days")
-        if key == "listings" and not str(unit.get("path") or "").startswith("/"):
-            raise SourcePackError("invalid_manifest", "a listing names its path")
+        if key == "searches":
+            query, site = _clean(unit.get("query")), _clean(unit.get("publisher_site"))
+            if not query and not site:
+                raise SourcePackError("invalid_manifest", "a search names a query or a publisher site")
+            if site and not _SITE.fullmatch(site):
+                raise SourcePackError("invalid_manifest", f"not a publisher site: {site!r}")
+            if unit.get("max_age_days") is not None and not 1 <= int(unit["max_age_days"]) <= 3650:
+                raise SourcePackError("invalid_manifest", "max_age_days is 1-3650")
+        elif key == "releases":
+            if len(units) > 3:
+                raise SourcePackError("invalid_manifest", "at most three Data Commons releases per source")
+            if not _RELEASE.fullmatch(str(unit.get("release") or "")):
+                raise SourcePackError("invalid_manifest", "a release is 'latest', a date or a release label")
+            sites = unit.get("publishers") or []
+            if not 1 <= len(sites) <= 20 or not all(_SITE.fullmatch(str(s)) for s in sites):
+                raise SourcePackError("invalid_manifest", "a release is filtered to 1-20 publisher sites")
+            start, end = _day(unit.get("from")), _day(unit.get("to"))
+            if not start or not end or end < start or (date.fromisoformat(end) - date.fromisoformat(start)).days > 366:
+                raise SourcePackError("invalid_manifest", "a release names a review-date window of at most a year")
+        elif key == "listings":
+            if len(units) != 1 or unit.get("page") != "signatories":
+                raise SourcePackError("invalid_manifest", "the IFCN source reads the one signatory listing")
     return units
 
 
-def requests_for(fmt: str, unit: Mapping[str, Any]) -> tuple[str, dict[str, Any], str]:
-    """The request path (relative to the endpoint), its parameters and the paging style for one unit."""
-    if fmt == "google-factcheck-claimsearch-json":
-        params: dict[str, Any] = {"pageSize": GOOGLE_PAGE_SIZE, "maxAgeDays": int(unit["max_age_days"])}
-        if _clean(unit.get("query")):
-            params["query"] = _clean(unit["query"])
-        if _clean(unit.get("publisher_site")):
-            params["reviewPublisherSiteFilter"] = site_of(unit["publisher_site"])
-        if _clean(unit.get("language")):
-            params["languageCode"] = _clean(unit["language"])
-        return "/claims:search", params, "token"
-    if fmt == "datacommons-claimreview-feed-json":
-        return str(unit["path"]), {}, "whole"
-    if fmt == "ifcn-signatories-html":
-        return str(unit["path"]), {}, "whole"
-    raise SourcePackError("invalid_manifest", f"unknown fact-checks format {fmt!r}")
+def scope_key(source_id: str, fmt: str, unit: Mapping[str, Any]) -> str:
+    return "fact-check-scope:" + _digest([source_id, fmt, {k: v for k, v in unit.items() if k != "release"}])[:20]
 
 
-def parse_unit(fmt: str, responses: Sequence[bytes], unit: Mapping[str, Any], *, base: str = ""
-               ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
-    """Parse the responses of one unit; every emitted record honours the minimisation decision."""
-    release: dict[str, Any] = {}
-    if fmt == "google-factcheck-claimsearch-json":
-        records = parse_claim_search([_json(raw) for raw in responses], unit)
-    elif fmt == "datacommons-claimreview-feed-json":
-        records, release = parse_datafeed(_json(responses[0]), unit)
-    elif fmt == "ifcn-signatories-html":
-        records = parse_signatories(responses[0], unit, base=base)
-    else:
-        raise FactCheckFormatError("schema_drift", f"unknown fact-checks format {fmt!r}")
-    for record in records:
-        if minimisation_violations(record):
-            raise FactCheckFormatError("minimisation_violation", f"{record['record_key']} carries withheld fields")
-    return records, release
-
-
-def _json(raw: bytes) -> Any:
-    try:
-        return json.loads(raw.decode("utf-8-sig"))
-    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
-        raise FactCheckFormatError("schema_drift", "response is not valid UTF-8 JSON") from exc
+def requests_for(fmt: str, unit: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
+    """The request path (relative to the endpoint) and parameters for one unit (first page)."""
+    if fmt == "google-factcheck-claims-search-json":
+        params: dict[str, Any] = {"pageSize": GOOGLE_PAGE_SIZE}
+        if unit.get("query"):
+            params["query"] = str(unit["query"])
+        if unit.get("publisher_site"):
+            params["reviewPublisherSiteFilter"] = str(unit["publisher_site"])
+        if unit.get("language"):
+            params["languageCode"] = str(unit["language"])
+        if unit.get("max_age_days"):
+            params["maxAgeDays"] = int(unit["max_age_days"])
+        return "/v1alpha1/claims:search", params
+    if fmt == "datacommons-claimreview-feed-jsonld":
+        return f"/datacommons-feeds/claimreview/{unit['release']}/data.json", {}
+    return "/signatories", {}
 
 
 def fact_checks_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
@@ -741,7 +706,7 @@ def fact_checks_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
         raise SourcePackError("invalid_manifest", "fact-checks sources declare the FC01 minimisation policy")
     _units(fmt, dict(declared.get("selection") or {}))
     if FORMATS[fmt]["keyed"] != (dict(source.get("auth") or {}).get("kind") == "required-secret"):
-        raise SourcePackError("invalid_manifest", "keyed fact-checks formats declare a required secret")
+        raise SourcePackError("invalid_manifest", "the keyed fact-checks format declares a required secret")
     return declared
 
 
@@ -758,14 +723,9 @@ class FactChecksAdapter:
         self.source = json.loads(json.dumps(source))
         self.declared = fact_checks_declaration(self.source)
         self.format = self.declared["format"]
-        self.provider = self.declared["provider"]
         self.units = _units(self.format, dict(self.declared.get("selection") or {}))
         self.secret = secret
         if transport is None:
-            if PROVIDER_CONTRACTS[self.provider].get("requires_terms_confirmation") and \
-                    not _clean(self.declared.get("terms_confirmation")):
-                raise SourcePackError("licensing", "this source's terms are unconfirmed; an operator records a terms "
-                                                   "confirmation before any live fetch (FC01)")
             from functools import partial
 
             transport = partial(HTTPSPageAdapter._request, max_bytes=int(source["budgets"]["max_bytes"]))
@@ -775,7 +735,7 @@ class FactChecksAdapter:
             "endpoint": source["endpoint"], "operations": list(source["operations"]),
             "source_hash": source["source_hash"], "mapping": source["mapping"],
             "extractor_versions": source["extractor_versions"], "limits": source["budgets"],
-            "fact_checks": {"provider": self.provider, "format": self.format, "units": len(self.units),
+            "fact_checks": {"provider": self.declared["provider"], "format": self.format, "units": len(self.units),
                             "keyed": bool(FORMATS[self.format]["keyed"]), "minimisation": MINIMISATION_POLICY},
         }
 
@@ -796,7 +756,7 @@ class FactChecksAdapter:
         endpoint = self.source["endpoint"].rstrip("/")
         url = endpoint + path
         host = (urlsplit(endpoint).hostname or "").casefold()
-        headers = {"Accept": "application/json, text/html"}
+        headers = {"Accept": "application/json, application/ld+json, text/html"}
         if FORMATS[self.format]["keyed"]:
             if not self.secret:
                 raise SourcePackError("authentication_failed", "this fact-checks source needs its API key")
@@ -827,9 +787,8 @@ class FactChecksAdapter:
                      "origin": "fixture" if response.get("origin") == "fixture" else "live"}
 
     def _collect(self, unit: Mapping[str, Any]) -> tuple[list[bytes], list[dict[str, Any]]]:
-        """All pages of one unit (all-or-nothing within MAX_PAGES_PER_UNIT)."""
-        path, params, paging = requests_for(self.format, unit)
-        if paging == "whole":
+        path, params = requests_for(self.format, unit)
+        if self.format != "google-factcheck-claims-search-json":
             raw, receipt = self._get(path, params)
             return [raw], [receipt]
         pages, receipts, request = [], [], dict(params)
@@ -838,13 +797,14 @@ class FactChecksAdapter:
             pages.append(raw)
             receipts.append(receipt)
             try:
-                token = _json(raw).get("nextPageToken")
-            except (FactCheckFormatError, AttributeError) as exc:
-                raise SourcePackError("schema_drift", f"claims:search response is not an object: {exc}") from exc
+                payload = _json(raw)
+            except FactCheckFormatError as exc:
+                raise SourcePackError("schema_drift", f"{exc.code}: {exc}") from exc
+            token = payload.get("nextPageToken") if isinstance(payload, Mapping) else None
             if not token:
                 return pages, receipts
             if len(pages) >= MAX_PAGES_PER_UNIT:
-                raise SourcePackError("budget_exhausted", "unit is longer than its page bound; never truncated")
+                raise SourcePackError("budget_exhausted", "search is longer than its page bound; never truncated")
             request = {**params, "pageToken": str(token)}
 
     def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
@@ -856,8 +816,15 @@ class FactChecksAdapter:
             raise SourcePackError("cursor_drift", "cursor is outside the declared selection")
         unit = self.units[index]
         responses, requests = self._collect(unit)
+        scope = scope_key(self.source["source_id"], self.format, unit)
+        vintage = None
         try:
-            records, release = parse_unit(self.format, responses, unit, base=self.source["endpoint"])
+            if self.format == "google-factcheck-claims-search-json":
+                records = parse_google(responses, unit)
+            elif self.format == "datacommons-claimreview-feed-jsonld":
+                records, vintage = parse_datacommons(responses[0], unit, scope)
+            else:
+                records = parse_ifcn(responses[0], unit, scope, self.source["endpoint"])
         except FactCheckFormatError as exc:
             raise SourcePackError("budget_exhausted" if exc.code == "input_limit" else "schema_drift",
                                   f"{exc.code}: {exc}") from exc
@@ -865,26 +832,28 @@ class FactChecksAdapter:
         if len(records) > limit:
             raise SourcePackError("budget_exhausted", "unit has more records than the run's result budget")
         origin = "fixture" if all(r["origin"] == "fixture" for r in requests) else "live"
-        vintage = None
-        if self.format == "datacommons-claimreview-feed-json":
-            vintage = f"{release.get('date_modified') or 'undated'}|{requests[0]['sha256'][:16]}"
+        complete = self.format != "google-factcheck-claims-search-json"
         receipt = {
-            "contract": "noesis-fact-checks-acquisition-receipt-v1", "source_id": self.source["source_id"],
-            "provider": self.provider, "format": self.format, "unit_index": index, "unit": unit,
-            "unit_key": _unit_key(self.format, unit), "complete_listing": bool(FORMATS[self.format]["complete"]),
-            "release": release or None, "vintage": vintage, "requests": requests, "records": len(records),
-            "record_keys": [r["record_key"] for r in records], "evidence_origin": origin,
+            "contract": "noesis-fact-check-acquisition-receipt-v1", "source_id": self.source["source_id"],
+            "provider": self.declared["provider"], "format": self.format, "unit_index": index, "unit": unit,
+            "requests": requests, "records": len(records), "evidence_origin": origin,
             "live_verification": self.declared["live_verification"], "minimisation": MINIMISATION_POLICY,
             "withheld_fields": sum(len(r["minimisation"]["withheld"]) for r in records),
+            "scope": {"scope_key": scope, "complete": complete, "vintage": vintage,
+                      "vintage_order": (max((r["revision_order"] for r in records), default="")
+                                        if vintage else ""),
+                      "record_kind": "publisher" if self.format == "ifcn-signatories-html" else "fact-check",
+                      "absence": ("absent-from-listing" if self.format == "ifcn-signatories-html"
+                                  else "absent-from-release") if complete else None},
             "final_page": index + 1 >= len(self.units),
         }
         out = []
         for record in records:
-            record = {**record, "evidence_origin": origin, "vintage": vintage}
+            record = {**record, "evidence_origin": origin}
             out.append({
                 "id": record["record_key"], "title": record["title"], "url": record["locator"],
-                "language": record["language"] or "und", "published_at": record["effective_on"],
-                "updated_at": record["native_revision"],
+                "language": (record["fields"].get("language") or "und"),
+                "published_at": record["effective_on"], "updated_at": record["native_revision"],
                 "content": json.dumps(record, sort_keys=True, ensure_ascii=False),
                 "fact_check_record": record, "fact_check_receipt": receipt,
             })
@@ -949,7 +918,6 @@ __all__ = [
     "fact_checks_declaration",
     "fixture_transport",
     "minimisation_violations",
-    "parse_unit",
     "replay_native_fixture",
     "requests_for",
 ]

@@ -1,0 +1,142 @@
+{
+ "orcid-identifier": {
+  "uri": "https://orcid.org/0000-0009-9999-0038",
+  "path": "0000-0009-9999-0038",
+  "host": "orcid.org"
+ },
+ "preferences": {
+  "locale": "en"
+ },
+ "history": {
+  "creation-method": "MEMBER-REFERRED",
+  "submission-date": {
+   "value": 3786912000000
+  },
+  "last-modified-date": {
+   "value": 4071744000000
+  },
+  "claimed": true,
+  "verified-email": true
+ },
+ "person": {
+  "last-modified-date": {
+   "value": 4071744000000
+  },
+  "name": {
+   "given-names": {
+    "value": "Bo"
+   },
+   "family-name": {
+    "value": "Northwind"
+   },
+   "credit-name": null,
+   "visibility": "PUBLIC",
+   "path": "0000-0009-9999-0038"
+  },
+  "other-names": {
+   "other-name": [],
+   "path": "/0000-0009-9999-0038/other-names"
+  },
+  "biography": null,
+  "researcher-urls": {
+   "researcher-url": [],
+   "path": "/0000-0009-9999-0038/researcher-urls"
+  },
+  "emails": {
+   "email": [],
+   "path": "/0000-0009-9999-0038/email"
+  },
+  "addresses": {
+   "address": [],
+   "path": "/0000-0009-9999-0038/address"
+  },
+  "keywords": {
+   "keyword": [],
+   "path": "/0000-0009-9999-0038/keywords"
+  },
+  "external-identifiers": {
+   "external-identifier": [],
+   "path": "/0000-0009-9999-0038/external-identifiers"
+  },
+  "path": "/0000-0009-9999-0038/person"
+ },
+ "activities-summary": {
+  "last-modified-date": {
+   "value": 4071744000000
+  },
+  "educations": {
+   "affiliation-group": []
+  },
+  "employments": {
+   "affiliation-group": [
+    {
+     "last-modified-date": {
+      "value": 4071744000000
+     },
+     "external-ids": {
+      "external-id": []
+     },
+     "summaries": [
+      {
+       "employment-summary": {
+        "put-code": 1301,
+        "created-date": {
+         "value": 4070908800000
+        },
+        "last-modified-date": {
+         "value": 4070908800000
+        },
+        "source": {
+         "source-orcid": {
+          "uri": "https://orcid.org/0000-0009-9999-0038",
+          "path": "0000-0009-9999-0038",
+          "host": "orcid.org"
+         },
+         "source-client-id": null,
+         "source-name": {
+          "value": "PERSONAL NAME OF SOURCE"
+         }
+        },
+        "department-name": null,
+        "role-title": null,
+        "start-date": {
+         "year": {
+          "value": "2094"
+         }
+        },
+        "end-date": null,
+        "organization": {
+         "name": "Northwind Polytechnic",
+         "address": {
+          "city": "Northwind",
+          "region": null,
+          "country": "NL"
+         },
+         "disambiguated-organization": {
+          "disambiguated-organization-identifier": "https://ror.org/0zznwd303",
+          "disambiguation-source": "ROR"
+         }
+        },
+        "url": null,
+        "external-ids": null,
+        "display-index": "0",
+        "visibility": "PUBLIC",
+        "path": "/employment/1301"
+       }
+      }
+     ]
+    }
+   ]
+  },
+  "fundings": {
+   "group": []
+  },
+  "peer-reviews": {
+   "group": []
+  },
+  "works": {
+   "group": []
+  }
+ },
+ "path": "/0000-0009-9999-0038"
+}

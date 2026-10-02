@@ -1,89 +1,105 @@
-"""Devices and manufacturers matched across registries through reviewable identity (#2690, MD07)."""
+"""Devices and manufacturers matched across FDA, GUDID and EUDAMED through reviewable identity (MD07)."""
 
 from __future__ import annotations
 
 import pytest
 
-from src.kb.medical_devices_identity import MedicalDevicesIdentity
-from src.kb.ownership_identity import OwnershipIdentityService
+from src.kb.medical_devices_identity import MedicalDeviceIdentity
+from src.kb.medical_devices_records import MedicalDeviceError
 from tests.unit import medical_devices_harness as h
 
-GUDID_B = f"medical-devices:gudid:di:{h.FIXTURE_DI}"
-EUDAMED = "medical-devices:eudamed:basic-udi-di:4099999FIXTUREFLOWA1"
 
-
-def world():
+@pytest.fixture()
+def proposed():
     conn = h.connection()
     h.load_all(conn)
-    h.load_ownership(conn)
-    h.load_product_identity(conn)
-    return conn, MedicalDevicesIdentity(conn)
+    entities = h.seed_ownership(conn)
+    identity = MedicalDeviceIdentity(conn)
+    result = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, ownership_namespace=h.OWN_NS,
+                              products_namespace=h.PRODUCTS_NS)
+    return conn, identity, result, entities
 
 
-def by_method(candidates):
-    out = {}
-    for c in candidates:
-        out.setdefault(c["method"], []).append(c)
-    return out
+def by_pair(result):
+    return {(c["subject_key"], c["target_key"]): c for c in result["candidates"]}
 
 
-def test_identifiers_come_before_names_and_nothing_is_merged_or_accepted():
-    conn, identity = world()
-    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES, ownership_namespace=h.OWN_NS,
-                                products_namespace=h.PRODUCTS_NS)
-    assert proposed["unavailable"] == []
-    methods = by_method(proposed["candidates"])
-    assert set(methods) == {"udi-di", "gtin", "premarket-number", "name+country"}
-    assert all(c["state"] == "proposed" and c["evidence"] for c in proposed["candidates"])
-    (udi,) = methods["udi-di"]
-    assert set(udi["records"]) == {GUDID_B, EUDAMED} and udi["basis"] == "exact-identifier"
-    assert udi["evidence"][0]["value"] == h.FIXTURE_DI and udi["confidence"] == 0.95
-    assert all(c["confidence"] < 0.5 for c in methods["name+country"])
-    # devices are never proposed by name: every device candidate rests on an identifier
-    for candidate in proposed["candidates"]:
-        if any(":gudid:di:" in r or ":basic-udi-di:" in r for r in candidate["records"]):
-            assert candidate["method"] in {"udi-di", "gtin"}
-    # a re-proposal is idempotent
-    again = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES, ownership_namespace=h.OWN_NS,
-                             products_namespace=h.PRODUCTS_NS)
-    assert again["proposed"] == []
-    # accepted matches never regroup ownership entities (foreign keys stay outside the ownership clusters)
-    for candidate in proposed["candidates"]:
-        identity.review(h.NS, candidate["candidate_id"], "accept", "fixture review", principal_id="rev",
+def test_published_identifiers_come_first_and_names_are_never_used_for_devices(proposed):
+    _, _, result, entities = proposed
+    pairs = by_pair(result)
+    assert pairs[(h.EU_DEVICE, h.GUDID_PUMP)]["method"] == "udi-di"
+    assert pairs[(h.PUMP_CLEARANCE, h.GUDID_PUMP)]["method"] == "premarket-number"
+    assert pairs[(h.PMA, f"medical-devices:gudid:di:{h.LEAD_DI}")]["method"] == "premarket-number"
+    low = pairs[("medical-devices:fda:510k:K999002", h.GUDID_PUMP)]
+    assert low["method"] == "product-code" and low["low_evidence"] and low["confidence"] < 0.5
+    # Devices are only ever matched on identifiers: every device candidate names shared identifiers or codes.
+    for item in result["candidates"]:
+        if item["subject_kind"] == "device" and item["target_kind"] == "device":
+            assert item["evidence"].get("shared_identifiers") or item["evidence"].get("shared_product_codes")
+    duns = pairs[("medical-devices:manufacturer:duns:999000111", entities["exampla"])]
+    assert duns["method"] == "exact-identifier" and not duns["low_evidence"]
+    names = [c for c in result["candidates"] if c["method"] == "name-jurisdiction"]
+    assert names and all(c["low_evidence"] and c["target_key"] == entities["exampla"] for c in names)
+    assert entities["decoy"] not in {c["target_key"] for c in result["candidates"]}  # contradicting country
+    assert result["coverage"]["products"].startswith("provider missing")
+
+
+def test_nothing_is_accepted_automatically_and_unmatched_subjects_stay_visible(proposed):
+    _, identity, result, _ = proposed
+    assert {c["state"] for c in result["candidates"]} == {"proposed"}
+    unmatched = {u["key"] for u in result["unmatched"]}
+    assert "medical-devices:eudamed:actor:DE-MF-000099901" in unmatched  # Northwind has no candidate at all
+    assert h.GUDID_PUMP in unmatched  # proposed but not reviewed is still unmatched
+    again = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, ownership_namespace=h.OWN_NS)
+    assert again["proposed"] == [] and len(again["candidates"]) == len(result["candidates"])
+
+
+def test_review_accept_reject_and_revert_are_recorded_decisions(proposed):
+    conn, identity, result, _ = proposed
+    udi = by_pair(result)[(h.EU_DEVICE, h.GUDID_PUMP)]
+    accepted = identity.review(h.NS, udi["candidate_id"], "accept", "UDI-DI 00899999000011 on both",
+                               principal_id="reviewer", scopes=h.REVIEW_SCOPES)
+    assert accepted["state"] == "accepted" and accepted["reviewer"] == "reviewer" and accepted["decision_id"]
+    assert conn.execute("SELECT decision_type FROM entity_identity_decisions WHERE decision_id=?",
+                        [accepted["decision_id"]]).fetchone()[0] == "match"
+    assert [m["key"] for m in identity.accepted(h.NS, h.GUDID_PUMP, scopes=h.SCOPES)] == [h.EU_DEVICE]
+    reverted = identity.revert(h.NS, udi["candidate_id"], "wrong DI transcribed", principal_id="reviewer",
+                               scopes=h.REVIEW_SCOPES)
+    assert reverted["state"] == "reverted" and [s["state"] for s in reverted["history"]] == [
+        "proposed", "accepted", "reverted"]
+    assert identity.accepted(h.NS, h.GUDID_PUMP, scopes=h.SCOPES) == []
+    low = by_pair(result)[("medical-devices:fda:510k:K999002", h.GUDID_PUMP)]
+    rejected = identity.review(h.NS, low["candidate_id"], "reject", "a product code is a device type",
+                               principal_id="reviewer", scopes=h.REVIEW_SCOPES)
+    assert rejected["state"] == "rejected"
+    with pytest.raises(MedicalDeviceError):
+        identity.review(h.NS, low["candidate_id"], "accept", "again", principal_id="reviewer",
                         scopes=h.REVIEW_SCOPES)
-    clusters = OwnershipIdentityService(conn, initialize=False).clusters(h.NS)
-    assert not [k for k in clusters if k.startswith("medical-devices:")]
+    with pytest.raises(MedicalDeviceError):
+        identity.review(h.NS, udi["candidate_id"], "accept", "no review scope", principal_id="analyst",
+                        scopes=h.SCOPES)
+    # Records are never merged or rewritten by a decision.
+    assert conn.execute("SELECT count(*) FROM medical_device_records WHERE record_key=?",
+                        [h.GUDID_PUMP]).fetchone()[0] == 1
 
 
-def test_review_revert_and_the_manufacturer_match_through_an_accepted_device_match():
-    _, identity = world()
-    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    assert {u["provider"] for u in proposed["unavailable"]} == {"ownership.core", "products.core"}
-    (udi,) = by_method(proposed["candidates"])["udi-di"]
-    assert "accepted-device-match" not in by_method(proposed["candidates"])
-    accepted = identity.review(h.NS, udi["candidate_id"], "accept", "same GS1 DI", principal_id="bob",
-                               scopes=h.REVIEW_SCOPES)
-    assert accepted["state"] == "accepted" and accepted["reviewer"] == "bob" and accepted["decision_id"]
-    followed = by_method(identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)["candidates"])
-    (manufacturer,) = followed["accepted-device-match"]
-    assert set(manufacturer["records"]) == {"medical-devices:gudid:labeler:999999902",
-                                            "medical-devices:eudamed:actor:DE-MF-000099901"}
-    assert identity.identity(h.NS, GUDID_B, scopes=h.SCOPES)["state"] == "matched"
-    reverted = identity.revert(h.NS, udi["candidate_id"], "reviewer error", principal_id="bob",
-                               scopes=h.REVIEW_SCOPES)
-    assert reverted["state"] == "reverted" and [e["state"] for e in reverted["history"]][-1] == "reverted"
-    assert identity.identity(h.NS, GUDID_B, scopes=h.SCOPES)["state"] == "unmatched"
-    unmatched = {u["record_key"] for u in identity.unmatched(h.NS, scopes=h.SCOPES)["unmatched"]}
-    assert {GUDID_B, EUDAMED} <= unmatched
+def test_accepted_device_matches_form_a_cluster(proposed):
+    _, identity, result, _ = proposed
+    pairs = by_pair(result)
+    for pair in ((h.EU_DEVICE, h.GUDID_PUMP), (h.PUMP_CLEARANCE, h.GUDID_PUMP)):
+        identity.review(h.NS, pairs[pair]["candidate_id"], "accept", "identifiers agree", principal_id="reviewer",
+                        scopes=h.REVIEW_SCOPES)
+    assert set(identity.device_cluster(h.NS, h.PUMP_CLEARANCE, scopes=h.SCOPES)) == {
+        h.PUMP_CLEARANCE, h.GUDID_PUMP, h.EU_DEVICE}
 
 
-def test_review_needs_the_review_scope_and_a_candidate_of_this_feature():
-    _, identity = world()
-    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    candidate = proposed["candidates"][0]["candidate_id"]
-    with pytest.raises(Exception) as refused:
-        identity.review(h.NS, candidate, "accept", "x", principal_id="alice", scopes=h.SCOPES)
-    assert getattr(refused.value, "code", None) == "unauthorized"
-    with pytest.raises(Exception) as missing:
-        identity.review(h.NS, "own-idc:unknown", "accept", "x", principal_id="bob", scopes=h.REVIEW_SCOPES)
-    assert getattr(missing.value, "code", None) == "not_found"
+def test_devices_match_products_identities_by_gtin():
+    conn = h.connection()
+    h.apply(conn, "clinical-devices-accessgudid")
+    conn.execute("CREATE TABLE product_identities (identity_id TEXT, namespace TEXT, identifiers_json TEXT)")
+    conn.execute("INSERT INTO product_identities VALUES ('product-identity:fixture-pump', ?, ?)",
+                 [h.PRODUCTS_NS, '{"gtin": [{"value": "0899999000011", "state": "valid"}]}'])
+    result = MedicalDeviceIdentity(conn).propose(h.NS, principal_id="analyst", scopes=h.SCOPES,
+                                                 products_namespace=h.PRODUCTS_NS)
+    (match,) = [c for c in result["candidates"] if c["target_kind"] == "products-identity"]
+    assert match["method"] == "gtin-udi-di" and match["subject_key"] == h.GUDID_PUMP and match["state"] == "proposed"

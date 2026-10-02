@@ -1,400 +1,435 @@
-"""Devices and manufacturers matched across openFDA, GUDID and EUDAMED through reviewable identity (#2654, MD07).
+"""Devices and manufacturers matched across registries through reviewable identity (#2654, MD07).
 
-Every subject stays the record its registry published - a GUDID primary DI, a
-EUDAMED Basic UDI-DI, a EUDAMED actor SRN, a company as an FDA record or a GUDID
-record names it - and links to other records are *proposed* into the shared
-reviewable state machine (:class:`src.kb.ownership_identity.OwnershipIdentityService`,
-whose accepted and reverted decisions are
-:class:`src.kb.entity_history.EntityHistoryStore` decisions). Nothing is merged
-and nothing is accepted automatically; each candidate carries its method,
-evidence and confidence and is proposed, reviewed (accepted or rejected) or
-reverted.
+Three kinds of candidate are *proposed*, never accepted automatically and never
+merged:
 
-Methods, published identifiers first:
+* **device <-> device** across FDA (510(k), PMA), AccessGUDID and EUDAMED, by
+  published identifiers only: ``udi-di`` (a GUDID primary or package DI equal
+  to a EUDAMED UDI-DI), ``premarket-number`` (a GUDID premarket submission
+  number equal to a K or P number) and, as **low evidence** where no stronger
+  identifier links the pair, ``product-code`` (a shared FDA product code is a
+  device type, not a device). Device names are never used;
+* **manufacturer -> ownership entity**: an organisation as a regulator
+  published it (a 510(k) or PMA applicant, a GUDID labeler with its DUNS, a
+  EUDAMED actor with its SRN, a recalling firm) against the legal entities of
+  an ownership namespace (:class:`src.kb.ownership_store.OwnershipStore`):
+  ``exact-identifier`` (DUNS, LEI, SRN) first, ``name-jurisdiction`` (equal
+  normalized names, countries not contradicting) as low evidence;
+* **device -> Products identity**: a GUDID DI equal to a GTIN a Products
+  identity carries (``gtin-udi-di``).
 
-* ``udi-di`` (``exact-identifier``) - a GUDID primary or package DI listed as a
-  UDI-DI of a EUDAMED device (the GS1 identifier is the same code in both
-  registries);
-* ``gtin`` (``exact-identifier``) - a GS1-issued GUDID DI equal to a GTIN on a
-  Products identity (``products.identities``);
-* ``accepted-device-match`` (``cross-referenced-identifier``) - the GUDID labeler
-  and the EUDAMED manufacturer (SRN) of two devices whose ``udi-di`` match was
-  accepted;
-* ``premarket-number`` (``cross-referenced-identifier``) - an FDA applicant and a
-  GUDID labeler whose records name the same K or P number, with the names as
-  published;
-* ``name+country`` (``name-jurisdiction``, low confidence) - a manufacturer and a
-  Corporate Ownership legal entity with equal normalised names in one country.
-
-Product codes are categories, not identities: records sharing a product code are
-grouped by the queries through the published code and are never proposed as the
-same device. **Devices are never matched by name alone.** Subjects without an
-accepted decision stay visible as ``unmatched``; no person is ever a subject.
+Every candidate carries its method, evidence and confidence, and moves
+``proposed`` -> ``accepted`` / ``rejected`` -> ``reverted`` with a reason;
+accept, reject and revert are :class:`src.kb.entity_history.EntityHistoryStore`
+decisions with reviewer and time (the state machine of
+:mod:`src.kb.ownership_identity`). Subjects without an accepted match are
+reported as **unmatched** and stay as published.
 """
 
 from __future__ import annotations
 
 import json
-import re
 import time
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 from typing import Any
 
-from src.ingestion.medical_devices_sources import slug
 from src.kb.medical_devices_records import (
     READ_SCOPE,
-    MedicalDevicesError,
-    MedicalDevicesStore,
+    REVIEW_SCOPE,
+    WRITE_SCOPE,
+    MedicalDeviceError,
+    MedicalDeviceStore,
     authorize,
+    canonical,
+    digest,
     table_exists,
 )
 
-SUBJECT_KINDS = ("gudid-device", "eudamed-device", "fda-manufacturer", "gudid-labeler", "eudamed-actor")
-DEVICE_KINDS = ("gudid-device", "eudamed-device")
-MANUFACTURER_KINDS = ("fda-manufacturer", "gudid-labeler", "eudamed-actor")
-NOTICE = "a reviewable identity decision; records are never merged and devices are never matched by name alone"
-_LEGAL_FORMS = re.compile(r"\b(inc|incorporated|llc|ltd|limited|gmbh|ag|sa|sas|bv|nv|plc|corp|corporation|co|"
-                          r"company)\b\.?")
-_COUNTRIES = {"united states": "US", "usa": "US", "us": "US", "germany": "DE", "deutschland": "DE"}
+CONTRACT = "noesis-medical-device-identity-candidate-v1"
+CONFIDENCE = {"udi-di": 0.95, "premarket-number": 0.9, "gtin-udi-di": 0.9, "exact-identifier": 0.95,
+              "product-code": 0.3, "name-jurisdiction": 0.35}
+LOW_EVIDENCE = frozenset({"product-code", "name-jurisdiction"})
+DEVICE_KINDS = ("clearance", "approval", "device-identifier", "eudamed-device")
+STATES = ("proposed", "accepted", "rejected", "reverted")
+_ENTITY_HISTORY_SCOPES = {"knowledge:entity-history:write", "knowledge:entity-history:review",
+                          "knowledge:entity-history:execute", "knowledge:entity-history:read"}
+_DDL = """
+CREATE TABLE IF NOT EXISTS medical_device_identity_candidates (
+  namespace TEXT NOT NULL, candidate_id TEXT NOT NULL, subject_key TEXT NOT NULL, subject_kind TEXT NOT NULL,
+  target_key TEXT NOT NULL, target_kind TEXT NOT NULL, target_namespace TEXT NOT NULL, method TEXT NOT NULL,
+  confidence DOUBLE NOT NULL, evidence_json TEXT NOT NULL, state TEXT NOT NULL, decision_id TEXT,
+  created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL, history_json TEXT NOT NULL,
+  PRIMARY KEY(namespace, candidate_id)
+);
+"""
+_COLUMNS = ("candidate_id", "subject_key", "subject_kind", "target_key", "target_kind", "target_namespace", "method",
+            "confidence", "evidence_json", "state", "decision_id", "created_by", "created_at_ms", "history_json")
 
 
 def _norm(value: Any) -> str:
+    return "".join(ch for ch in str(value or "").upper() if ch.isalnum()).lstrip("0") or "0"
+
+
+def _name(value: Any) -> str:
     from src.kb.entities import normalize_surface
 
     return normalize_surface(str(value or ""))
 
 
-def company_norm(value: Any) -> str:
-    """A company name for comparison only: normalised, legal-form words removed."""
-    text = _LEGAL_FORMS.sub(" ", _norm(value).casefold())
-    return " ".join(re.sub(r"[^a-z0-9 ]+", " ", text).split())
+_COUNTRIES = {"UNITED STATES": "US", "USA": "US", "GERMANY": "DE", "UNITED KINGDOM": "GB"}
 
 
-def country_code(value: Any) -> str | None:
-    text = str(value or "").strip()
-    if len(text) == 2 and text.isalpha():
-        return text.upper()
-    return _COUNTRIES.get(text.casefold())
+def _country(value: Any) -> str | None:
+    text = str(value or "").strip().upper()
+    if not text:
+        return None
+    return _COUNTRIES.get(text, text.split("-")[0] if len(text.split("-")[0]) == 2 else None)
 
 
-def entity(record_key: str) -> str:
-    from src.kb.ownership_store import canonical_entity_id
-
-    return canonical_entity_id(record_key)
+def entity_for(key: str) -> str:
+    return "ent-md-" + digest(key)[:24]
 
 
-def gtin14(value: Any) -> str | None:
-    digits = re.sub(r"\D", "", str(value or ""))
-    return digits.zfill(14) if 8 <= len(digits) <= 14 else None
+def manufacturer_key(provider: str, name: str | None, *, duns: str | None = None) -> str:
+    if duns:
+        return f"medical-devices:manufacturer:duns:{_norm(duns)}"
+    return f"medical-devices:manufacturer:{provider}:{_name(name).replace(' ', '-')}"
 
 
-def manufacturer_key(name: Any, country: Any) -> str:
-    return f"medical-devices:fda:manufacturer:{slug(company_norm(name))}:{(country_code(country) or 'xx').lower()}"
-
-
-def labeler_key(duns: Any, name: Any) -> str:
-    return f"medical-devices:gudid:labeler:{duns or slug(company_norm(name))}"
-
-
-class MedicalDevicesIdentity:
+class MedicalDeviceIdentity:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
-        from src.kb.ownership_identity import OwnershipIdentityService
+        from src.kb.entity_history import EntityHistoryStore
 
         self.conn = conn
         self.now = now or (lambda: int(time.time() * 1000))
-        self.store = MedicalDevicesStore(conn, initialize=initialize, now=self.now)
-        self.service = OwnershipIdentityService(conn, now=self.now, initialize=initialize)
+        self.store = MedicalDeviceStore(conn, initialize=initialize, now=self.now)
+        self.history = EntityHistoryStore(conn, now=self.now, initialize=initialize)
+        if initialize:
+            conn.execute(_DDL)
 
-    # ------------------------------------------------------------------ subjects
+    def _ready(self) -> bool:
+        return table_exists(self.conn, "medical_device_identity_candidates")
 
-    def subjects(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Devices and manufacturers as published, each citing the record revisions it was read from."""
-        out: dict[str, dict[str, Any]] = {}
+    # -------------------------------------------------------------- subjects
 
-        def add(key: str, kind: str, row: Mapping[str, Any], **extra: Any) -> dict[str, Any]:
-            subject = out.setdefault(key, {"record_key": key, "kind": kind, "entity_id": entity(key), "names": set(),
-                                           "country": None, "identifiers": {}, "premarket_numbers": set(),
-                                           "records": set(), "cited": []})
-            for field, value in extra.items():
-                if field == "name":
-                    if value:
-                        subject["names"].add(value)
-                elif field == "premarket_numbers":
-                    subject["premarket_numbers"] |= set(value or [])
-                elif value is not None:
-                    subject[field] = value
-            subject["records"].add(row["record_key"])
-            subject["cited"].append({"record_key": row["record_key"], "source_id": row["source_id"],
-                                     "revision_id": row["revision_id"]})
-            return subject
-
-        for row in self.store.records(namespace, scopes=scopes):
-            record, fields, kind = row["record"], row["record"]["fields"], row["record_kind"]
-            if kind == "device-identifier":
-                subject = add(row["record_key"], "gudid-device", row, name=fields.get("brand_name"),
-                              premarket_numbers=record.get("premarket_numbers"))
-                subject["identifiers"] = {"primary_di": fields.get("primary_di"),
-                                          "issuing_agency": fields.get("issuing_agency"),
-                                          "dis": sorted(record.get("udi_dis") or []),
-                                          "product_codes": record.get("product_codes") or []}
-                if fields.get("company_name"):
-                    labeler = add(labeler_key(fields.get("duns_number"), fields["company_name"]), "gudid-labeler",
-                                  row, name=fields["company_name"], premarket_numbers=record.get("premarket_numbers"))
-                    labeler["identifiers"]["duns"] = fields.get("duns_number")
-                    subject["labeler"] = labeler["record_key"]
-            elif kind == "eudamed-device":
-                subject = add(row["record_key"], "eudamed-device", row, name=fields.get("device_name"),
-                              country=None)
-                subject["identifiers"] = {"basic_udi_di": fields.get("basic_udi_di"),
-                                          "dis": sorted(record.get("udi_dis") or []),
-                                          "manufacturer_srn": fields.get("manufacturer_srn")}
-            elif kind == "actor":
-                subject = add(row["record_key"], "eudamed-actor", row, name=fields.get("name"),
-                              country=country_code(fields.get("country")))
-                subject["identifiers"] = {"srn": fields.get("srn")}
-            elif kind in {"clearance", "approval", "supplement", "recall"} and record.get("manufacturer"):
-                country = fields.get("country_code") or fields.get("country") or ("US" if fields.get("state") else None)
-                add(manufacturer_key(record["manufacturer"], country), "fda-manufacturer", row,
-                    name=record["manufacturer"], country=country_code(country),
-                    premarket_numbers=record.get("premarket_numbers"))
-        subjects = []
-        for subject in out.values():
-            subject["names"] = sorted(subject["names"])
-            subject["premarket_numbers"] = sorted(subject["premarket_numbers"])
-            subject["records"] = sorted(subject["records"])
-            seen, cited = set(), []
-            for c in subject["cited"]:
-                if c["revision_id"] not in seen:
-                    seen.add(c["revision_id"])
-                    cited.append(c)
-            subject["cited"] = cited[:20]
-            subjects.append(subject)
-        return sorted(subjects, key=lambda s: s["record_key"])
-
-    # ------------------------------------------------------------------ targets (other owners, optional)
-
-    def _ownership_entities(self, namespace: str, principal_id: str, scopes: set[str]) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "ownership_records"):
-            return []
-        from src.kb.ownership_store import OwnershipStore
-
-        return [e for e in OwnershipStore(self.conn, initialize=False).records(
-            namespace, principal_id=principal_id, scopes=scopes, kinds=("legal_entity",)) if not e.get("redacted")]
-
-    def _product_identities(self, namespace: str, scopes: set[str]) -> list[dict[str, Any]]:
-        if not table_exists(self.conn, "product_identities"):
-            return []
-        from src.kb.products import READ_SCOPE as PRODUCTS_READ
-
-        if "operator" not in scopes and PRODUCTS_READ not in scopes:
-            raise MedicalDevicesError("unauthorized", f"{PRODUCTS_READ} is required to read Products identities")
+    def devices(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Published device records of every registry with their published identifiers."""
         out = []
-        for identity_id, brand, designation, identifiers in self.conn.execute(
-                "SELECT identity_id, brand, designation, identifiers_json FROM product_identities WHERE namespace=? "
-                "ORDER BY identity_id", [namespace]).fetchall():
-            gtins = sorted({g for g in (gtin14(i.get("value")) for i in (json.loads(identifiers or "{}")
-                                                                         .get("gtin") or [])
-                                        if isinstance(i, Mapping) and i.get("state", "valid") == "valid") if g})
-            if gtins:
-                out.append({"identity_id": identity_id, "brand": brand, "designation": designation, "gtins": gtins})
+        for view in self.store.records(namespace, scopes=scopes, kinds=DEVICE_KINDS, include_unpublished=False):
+            record, fields = view["record"], view["record"]["fields"]
+            ids = {(i["scheme"], i["value"]) for i in record.get("identifiers") or []}
+            ids |= {(i["scheme"], i["value"]) for i in record.get("links_as_published") or []}
+            codes = {v for s, v in ids if s == "fda-product-code"}
+            if record["record_kind"] == "device-identifier":
+                codes |= {c["code"] for c in fields.get("product_codes") or [] if c.get("code")}
+            out.append({"key": record["record_key"], "kind": record["record_kind"], "provider": record["provider"],
+                        "jurisdiction": record["jurisdiction"], "revision_id": view["revision_id"],
+                        "identifiers": sorted(ids), "product_codes": sorted(codes)})
         return out
 
-    # ------------------------------------------------------------------ proposals
+    def manufacturers(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Organisations as regulators published them, grouped by provider and name (or DUNS / SRN)."""
+        grouped: dict[str, dict[str, Any]] = {}
+
+        def add(key, provider, name, country, identifiers, view):
+            entry = grouped.setdefault(key, {"key": key, "provider": provider, "name_as_published": name,
+                                             "country": _country(country), "identifiers": [], "records": []})
+            for item in identifiers:
+                if item not in entry["identifiers"]:
+                    entry["identifiers"].append(item)
+            entry["records"].append({"record_key": view["record_key"], "revision_id": view["revision_id"]})
+
+        for view in self.store.records(namespace, scopes=scopes, include_unpublished=False,
+                                       kinds=("clearance", "approval", "recall", "device-identifier",
+                                              "eudamed-actor")):
+            record, fields = view["record"], view["record"]["fields"]
+            kind = record["record_kind"]
+            if kind in {"clearance", "approval"} and (fields.get("applicant") or {}).get("name_as_published"):
+                firm = fields["applicant"]
+                add(manufacturer_key(record["provider"], firm["name_as_published"]), record["provider"],
+                    firm["name_as_published"], firm.get("country"), [], view)
+            elif kind == "recall" and (fields.get("recalling_firm") or {}).get("name_as_published"):
+                firm = fields["recalling_firm"]
+                add(manufacturer_key(record["provider"], firm["name_as_published"]), record["provider"],
+                    firm["name_as_published"], firm.get("country"), [], view)
+            elif kind == "device-identifier" and fields.get("company_name"):
+                duns = fields.get("labeler_duns")
+                add(manufacturer_key("accessgudid", fields["company_name"], duns=duns), "accessgudid",
+                    fields["company_name"], "US" if duns else None,
+                    [{"scheme": "duns", "value": duns}] if duns else [], view)
+            elif kind == "eudamed-actor":
+                add(record["record_key"], "eudamed", fields.get("name"), fields.get("country"),
+                    [{"scheme": "eudamed-srn", "value": fields["srn"]}], view)
+        return [grouped[k] for k in sorted(grouped)]
+
+    # ------------------------------------------------------------- proposals
+
+    def _offer(self, namespace, subject_key, subject_kind, target_key, target_kind, target_namespace, method,
+               evidence, principal_id) -> dict[str, Any]:
+        candidate_id = "md-idc:" + digest([namespace, subject_key, target_namespace, target_key])[:24]
+        evidence = {**evidence, "method": method, "low_evidence": method in LOW_EVIDENCE}
+        row = self.conn.execute("SELECT state, method, evidence_json, history_json FROM "
+                                "medical_device_identity_candidates WHERE namespace=? AND candidate_id=?",
+                                [namespace, candidate_id]).fetchone()
+        now = self.now()
+        if row is None:
+            self.conn.execute(
+                "INSERT INTO medical_device_identity_candidates VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                [namespace, candidate_id, subject_key, subject_kind, target_key, target_kind, target_namespace,
+                 method, CONFIDENCE[method], canonical(evidence), "proposed", None, principal_id, now,
+                 canonical([{"state": "proposed", "by": principal_id, "at_ms": now}])])
+            return {"candidate_id": candidate_id, "change": "created"}
+        state, old_method, old_evidence, history = row[0], row[1], json.loads(row[2]), json.loads(row[3])
+        stronger = CONFIDENCE[method] > CONFIDENCE[old_method]
+        new = digest(evidence) != digest(old_evidence)
+        if state == "proposed" and stronger:
+            change = "upgraded"
+        elif state in {"rejected", "reverted"} and new:
+            change = "reproposed"
+        else:
+            return {"candidate_id": candidate_id, "change": None}
+        history.append({"state": "proposed", "by": principal_id, "at_ms": now, "change": change,
+                        "previous_state": state, "previous_method": old_method, "previous_evidence": old_evidence})
+        self.conn.execute("UPDATE medical_device_identity_candidates SET state='proposed', decision_id=NULL, "
+                          "method=?, confidence=?, evidence_json=?, history_json=? WHERE namespace=? AND "
+                          "candidate_id=?", [method, CONFIDENCE[method], canonical(evidence), canonical(history),
+                                             namespace, candidate_id])
+        return {"candidate_id": candidate_id, "change": change}
 
     def propose(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
                 ownership_namespace: str | None = None, products_namespace: str | None = None) -> dict[str, Any]:
-        """Offer reviewable candidates; idempotent, identifiers before names, never an automatic merge."""
+        """Offer identifier candidates first and low-evidence ones only where no identifier links a pair."""
         scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        subjects = self.subjects(namespace, scopes=scopes)
-        offered, unavailable = [], []
-        gudid = [s for s in subjects if s["kind"] == "gudid-device"]
-        eudamed = [s for s in subjects if s["kind"] == "eudamed-device"]
-        by_key = {s["record_key"]: s for s in subjects}
-        # 1. devices across registries by UDI-DI
-        for left in gudid:
-            for right in eudamed:
-                shared = sorted(set(left["identifiers"]["dis"]) & set(right["identifiers"]["dis"]))
-                if shared:
-                    offered.append(self._offer(namespace, left, right["record_key"], right["entity_id"],
-                                               "exact-identifier", "udi-di", {
-                                                   "scheme": "udi-di", "value": shared[0], "shared": shared,
-                                                   "right": {"record_key": right["record_key"],
-                                                             "cited": right["cited"][:1]}}, principal_id, scopes))
-        # 2. manufacturers through an accepted device match
-        for left in gudid:
-            for match in self.accepted(namespace, left["record_key"], scopes=scopes):
-                right = by_key.get(match["record_key"])
-                if not right or right["kind"] != "eudamed-device" or not left.get("labeler"):
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        if not self._ready():
+            self.conn.execute(_DDL)
+        offered = []
+        devices = self.devices(namespace, scopes=scopes)
+        strong_pairs = set()
+        for left in devices:
+            for right in devices:
+                if left["key"] >= right["key"] or left["provider"] == right["provider"] and \
+                        left["kind"] == right["kind"]:
                     continue
-                srn = right["identifiers"].get("manufacturer_srn")
-                actor = by_key.get(f"medical-devices:eudamed:actor:{srn}") if srn else None
-                labeler = by_key.get(left["labeler"])
-                if actor and labeler:
-                    offered.append(self._offer(namespace, labeler, actor["record_key"], actor["entity_id"],
-                                               "cross-referenced-identifier", "accepted-device-match", {
-                                                   "via_candidate": match["candidate_id"], "srn": srn,
-                                                   "device_records": [left["record_key"], right["record_key"]],
-                                                   "names_as_published": [labeler["names"], actor["names"]],
-                                                   "right": {"record_key": actor["record_key"],
-                                                             "cited": actor["cited"][:1]}}, principal_id, scopes))
-        # 3. FDA applicants and GUDID labelers naming the same K or P number
-        labelers = [s for s in subjects if s["kind"] == "gudid-labeler"]
-        for left in [s for s in subjects if s["kind"] == "fda-manufacturer"]:
-            for right in labelers:
-                shared = sorted(set(left["premarket_numbers"]) & set(right["premarket_numbers"]))
-                if shared and {company_norm(n) for n in left["names"]} & {company_norm(n) for n in right["names"]}:
-                    offered.append(self._offer(namespace, left, right["record_key"], right["entity_id"],
-                                               "cross-referenced-identifier", "premarket-number", {
-                                                   "scheme": "premarket-number", "value": shared[0],
-                                                   "shared": shared,
-                                                   "names_as_published": [left["names"], right["names"]],
-                                                   "right": {"record_key": right["record_key"],
-                                                             "cited": right["cited"][:1]}}, principal_id, scopes))
-        # 4. devices and Products identities by GTIN (GS1-issued DIs only)
-        if products_namespace:
-            try:
-                products = self._product_identities(products_namespace, scopes)
-            except MedicalDevicesError as exc:
-                products = []
-                unavailable.append({"provider": "products.core", "reason": exc.code})
-            if not products:
-                unavailable.append({"provider": "products.core", "reason": "no product identity carries a GTIN"})
-            for left in gudid:
-                if str(left["identifiers"].get("issuing_agency") or "").upper() != "GS1":
+                shared = sorted(set(map(tuple, left["identifiers"])) & set(map(tuple, right["identifiers"])))
+                udi = [i for i in shared if i[0] in {"udi-di", "udi-di-package"}]
+                premarket = [i for i in shared if i[0] in {"fda-510k", "fda-pma"}]
+                method = "udi-di" if udi else "premarket-number" if premarket else None
+                if method:
+                    strong_pairs.add((left["key"], right["key"]))
+                    offered.append(self._offer(
+                        namespace, left["key"], "device", right["key"], "device", namespace, method,
+                        {"shared_identifiers": [{"scheme": s, "value": v} for s, v in (udi or premarket)],
+                         "left": {"record_key": left["key"], "revision_id": left["revision_id"]},
+                         "right": {"record_key": right["key"], "revision_id": right["revision_id"]}}, principal_id))
+        for left in devices:
+            for right in devices:
+                if left["key"] >= right["key"] or left["provider"] == right["provider"] or \
+                        (left["key"], right["key"]) in strong_pairs:
                     continue
-                mine = {gtin14(d) for d in left["identifiers"]["dis"]} - {None}
-                for product in products:
-                    shared = sorted(mine & set(product["gtins"]))
-                    if shared:
-                        offered.append(self._offer(namespace, left, product["identity_id"],
-                                                   entity(product["identity_id"]), "exact-identifier", "gtin", {
-                                                       "scheme": "gtin", "value": shared[0],
-                                                       "right": {"identity_id": product["identity_id"],
-                                                                 "products_namespace": products_namespace,
-                                                                 "brand": product["brand"],
-                                                                 "designation": product["designation"]}},
-                                                   principal_id, scopes))
-        else:
-            unavailable.append({"provider": "products.core", "reason": "no products namespace given"})
-        # 5. manufacturers and Corporate Ownership legal entities (names in one country: low confidence)
-        manufacturers = [s for s in subjects if s["kind"] in MANUFACTURER_KINDS]
+                codes = sorted(set(left["product_codes"]) & set(right["product_codes"]))
+                if codes:
+                    offered.append(self._offer(
+                        namespace, left["key"], "device", right["key"], "device", namespace, "product-code",
+                        {"shared_product_codes": codes, "note": "a product code is a device type, not a device; "
+                                                                "low evidence, a reviewer decides",
+                         "left": {"record_key": left["key"], "revision_id": left["revision_id"]},
+                         "right": {"record_key": right["key"], "revision_id": right["revision_id"]}}, principal_id))
+        coverage = {"ownership": "not requested", "products": "not requested"}
         if ownership_namespace:
-            try:
-                owned = self._ownership_entities(ownership_namespace, principal_id, scopes)
-            except Exception as exc:  # noqa: BLE001 - ownership access is optional; report it
-                owned = []
-                unavailable.append({"provider": "ownership.core", "reason": getattr(exc, "code", "unavailable")})
-            if not owned:
-                unavailable.append({"provider": "ownership.core", "reason": "no legal entities in the namespace"})
-            for subject in manufacturers:
-                names = {company_norm(n) for n in subject["names"]}
-                for view in owned:
-                    body = view["record"]
-                    country = country_code(str(body.get("jurisdiction") or "").split("-")[0])
-                    if not names or company_norm(body.get("name")) not in names:
-                        continue
-                    if subject["country"] and country and subject["country"] != country:
-                        continue  # the published countries contradict the pairing
-                    offered.append(self._offer(namespace, subject, body["record_key"], entity(body["record_key"]),
-                                               "name-jurisdiction", "name+country", {
-                                                   "value": body.get("name"), "country": country,
-                                                   "subject_country": subject["country"],
-                                                   "right": {"record_key": body["record_key"],
-                                                             "record_id": view["record_id"],
-                                                             "revision": view["revision"],
-                                                             "ownership_namespace": ownership_namespace},
-                                                   "note": "equal company names in one country are a weak signal; "
-                                                           "a reviewer decides"}, principal_id, scopes))
-        else:
-            unavailable.append({"provider": "ownership.core", "reason": "no ownership namespace given"})
-        return {"proposed": sorted({o["candidate_id"] for o in offered if o["created"] or o.get("change")}),
-                "candidates": self.candidates(namespace, scopes=scopes), "unavailable": unavailable,
-                "notice": NOTICE}
+            coverage["ownership"] = self._propose_ownership(namespace, ownership_namespace, principal_id, scopes,
+                                                            offered)
+        if products_namespace:
+            coverage["products"] = self._propose_products(namespace, products_namespace, devices, principal_id,
+                                                          scopes, offered)
+        return {"proposed": sorted({o["candidate_id"] for o in offered if o["change"]}),
+                "coverage": coverage, "candidates": self.candidates(namespace, scopes=scopes),
+                "unmatched": self.unmatched(namespace, scopes=scopes)}
 
-    def _offer(self, namespace, subject, right_key, right_entity, basis, method, evidence, principal_id, scopes):
-        return self.service.offer(
-            namespace, left_key=subject["record_key"], right_key=right_key, left_entity=subject["entity_id"],
-            right_entity=right_entity, basis=basis,
-            evidence=[{**evidence, "method": method,
-                       "left": {"record_key": subject["record_key"], "kind": subject["kind"],
-                                "names_as_published": subject["names"], "cited": subject["cited"][:5]}}],
-            principal_id=principal_id, scopes=scopes)
+    def _propose_ownership(self, namespace, ownership_namespace, principal_id, scopes, offered) -> str:
+        from src.kb.ownership_records import READ_SCOPE as OWNERSHIP_READ
+        from src.kb.ownership_store import OwnershipError, OwnershipStore
 
-    # ------------------------------------------------------------------ review and reads
+        if not table_exists(self.conn, "ownership_records"):
+            return "provider missing: no ownership records in this deployment"
+        try:
+            entities = OwnershipStore(self.conn, initialize=False).records(
+                ownership_namespace, principal_id=principal_id, scopes=scopes, kinds=("legal_entity",))
+        except OwnershipError as exc:
+            raise MedicalDeviceError(exc.code, f"ownership namespace: {exc} ({OWNERSHIP_READ})") from exc
+        for subject in self.manufacturers(namespace, scopes=scopes):
+            published = {(i["scheme"], _norm(i["value"])) for i in subject["identifiers"]}
+            for entity in entities:
+                body = entity["record"]
+                right = {"record_key": body["record_key"], "revision": entity["revision"],
+                         "revision_id": entity["revision_id"]}
+                shared = [i for i in body.get("identifiers") or [] if (i["scheme"], _norm(i["value"])) in published]
+                left = {"key": subject["key"], "name_as_published": subject["name_as_published"],
+                        "records": subject["records"]}
+                if shared:
+                    offered.append(self._offer(namespace, subject["key"], "manufacturer", body["record_key"],
+                                               "ownership-entity", ownership_namespace, "exact-identifier",
+                                               {"identifiers": shared, "left": left, "right": right}, principal_id))
+                    continue
+                if _name(body.get("name")) != _name(subject["name_as_published"]):
+                    continue
+                theirs = _country(body.get("jurisdiction"))
+                ours = subject.get("country")
+                if ours and theirs and ours != theirs:
+                    continue  # a contradicting country is not a candidate
+                offered.append(self._offer(namespace, subject["key"], "manufacturer", body["record_key"],
+                                           "ownership-entity", ownership_namespace, "name-jurisdiction",
+                                           {"normalized_name": _name(body.get("name")), "country": ours or theirs,
+                                            "left": left, "right": right,
+                                            "note": "a name is low evidence and never accepted automatically"},
+                                           principal_id))
+        return "proposed"
 
-    @staticmethod
-    def view(candidate: Mapping[str, Any]) -> dict[str, Any]:
-        last = candidate["history"][-1]
-        evidence = candidate["evidence"][0] if candidate["evidence"] else {}
-        return {
-            "candidate_id": candidate["candidate_id"], "state": candidate["state"],
-            "review_state": {"accepted": "reviewed-match", "rejected": "reviewed-non-match",
-                             "reverted": "reverted", "proposed": "unreviewed-candidate"}[candidate["state"]],
-            "basis": candidate["basis"], "method": evidence.get("method"), "confidence": candidate["confidence"],
-            "records": [candidate["left_key"], candidate["right_key"]],
-            "entities": [candidate["left_entity"], candidate["right_entity"]],
-            "decision_id": candidate["decision_id"],
-            "reviewer": last.get("by") if candidate["state"] != "proposed" else None,
-            "reason": last.get("reason"), "evidence": candidate["evidence"], "history": candidate["history"],
-            "notice": NOTICE,
-        }
+    def _propose_products(self, namespace, products_namespace, devices, principal_id, scopes, offered) -> str:
+        if not table_exists(self.conn, "product_identities"):
+            return "provider missing: no Products identities in this deployment"
+        authorize(products_namespace, scopes, "knowledge:products:read")
+        rows = self.conn.execute("SELECT identity_id, identifiers_json FROM product_identities WHERE namespace=? "
+                                 "ORDER BY identity_id", [products_namespace]).fetchall()
+        gtins: dict[str, list[str]] = {}
+        for identity_id, identifiers in rows:
+            for gtin in (json.loads(identifiers or "{}") or {}).get("gtin") or []:
+                gtins.setdefault(_norm(gtin.get("value")), []).append(identity_id)
+        for device in devices:
+            if device["kind"] != "device-identifier":
+                continue
+            for scheme, value in device["identifiers"]:
+                if scheme not in {"udi-di", "udi-di-package"}:
+                    continue
+                for identity_id in gtins.get(_norm(value), []):
+                    offered.append(self._offer(namespace, device["key"], "device", identity_id, "products-identity",
+                                               products_namespace, "gtin-udi-di",
+                                               {"udi_di": value, "gtin_scheme": scheme,
+                                                "left": {"record_key": device["key"],
+                                                         "revision_id": device["revision_id"]},
+                                                "right": {"identity_id": identity_id}}, principal_id))
+        return "proposed"
 
-    def candidates(self, namespace: str, *, scopes: Iterable[str], record_key: str | None = None
-                   ) -> list[dict[str, Any]]:
-        rows = [c for c in self.service.candidates(namespace, scopes=scopes, record_key=record_key)
-                if c["left_key"].startswith("medical-devices:") or c["right_key"].startswith("medical-devices:")]
-        return [self.view(c) for c in rows]
+    # --------------------------------------------------------------- reviews
+
+    def _row(self, namespace: str, candidate_id: str) -> dict[str, Any]:
+        row = self.conn.execute("SELECT " + ", ".join(_COLUMNS) + " FROM medical_device_identity_candidates "
+                                "WHERE namespace=? AND candidate_id=?", [namespace, candidate_id]).fetchone() \
+            if self._ready() else None
+        if row is None:
+            raise MedicalDeviceError("not_found", "no medical-device identity candidate with that id")
+        item = dict(zip(_COLUMNS, row))
+        history = json.loads(item.pop("history_json"))
+        evidence = json.loads(item.pop("evidence_json"))
+        last = history[-1]
+        reviewed = item["state"] != "proposed"
+        return {"contract": CONTRACT, "namespace": namespace, **item,
+                "evidence": evidence, "low_evidence": item["method"] in LOW_EVIDENCE,
+                "reviewer": last.get("by") if reviewed else None, "reviewed_at_ms": last.get("at_ms") if reviewed
+                else None, "reason": last.get("reason"), "history": history,
+                "notice": "a reviewable identity proposal; records are never merged or rewritten"}
+
+    def candidates(self, namespace: str, *, scopes: Iterable[str], state: str | None = None,
+                   subject_key: str | None = None) -> list[dict[str, Any]]:
+        authorize(namespace, set(scopes), READ_SCOPE)
+        if not self._ready():
+            return []
+        rows = self.conn.execute(
+            "SELECT candidate_id FROM medical_device_identity_candidates WHERE namespace=? AND (? IS NULL OR "
+            "state=?) AND (? IS NULL OR subject_key=? OR target_key=?) ORDER BY candidate_id",
+            [namespace, state, state, subject_key, subject_key, subject_key]).fetchall()
+        return [self._row(namespace, r[0]) for r in rows]
+
+    def _transition(self, namespace, candidate, state, decision_id, principal_id, reason) -> dict[str, Any]:
+        history = candidate["history"] + [{"state": state, "by": principal_id, "reason": reason, "at_ms": self.now(),
+                                           "decision_id": decision_id}]
+        self.conn.execute("UPDATE medical_device_identity_candidates SET state=?, decision_id=?, history_json=? "
+                          "WHERE namespace=? AND candidate_id=?",
+                          [state, decision_id, canonical(history), namespace, candidate["candidate_id"]])
+        return self._row(namespace, candidate["candidate_id"])
 
     def review(self, namespace: str, candidate_id: str, decision: str, reason: str, *, principal_id: str,
                scopes: Iterable[str]) -> dict[str, Any]:
-        self._own(namespace, candidate_id, scopes)
-        return self.view(self.service.review(namespace, candidate_id, decision, reason, principal_id=principal_id,
-                                             scopes=scopes))
+        """Accept or reject a proposed candidate with a reason (an entity identity decision; nothing is merged)."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        if decision not in {"accept", "reject"} or not str(reason or "").strip():
+            raise MedicalDeviceError("invalid_decision", "accept or reject with a reason")
+        candidate = self._row(namespace, candidate_id)
+        if candidate["state"] != "proposed":
+            raise MedicalDeviceError("invalid_state", f"candidate is {candidate['state']}; propose again to review")
+        left, right = entity_for(candidate["subject_key"]), entity_for(candidate["target_key"])
+        for entity, key in ((left, candidate["subject_key"]), (right, candidate["target_key"])):
+            self.history.register_entity(namespace, entity, [key], principal_id=principal_id,
+                                         scopes=_ENTITY_HISTORY_SCOPES)
+        recorded = self.history.decide(
+            namespace, "match" if decision == "accept" else "non-match", [left, right],
+            {"candidate_id": candidate_id, "method": candidate["method"], "confidence": candidate["confidence"],
+             "evidence": candidate["evidence"], "reason": reason.strip(),
+             "provenance": {"producer": "clinical.devices", "records": [candidate["subject_key"],
+                                                                        candidate["target_key"]]},
+             "policy": {"merge": False, "note": "identity decision only; records stay separate"}},
+            reviewer_id=principal_id, principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES,
+            event_key=f"medical-device-identity:{namespace}:{candidate_id}")
+        return self._transition(namespace, candidate, "accepted" if decision == "accept" else "rejected",
+                                recorded["decision_id"], principal_id, reason.strip())
 
     def revert(self, namespace: str, candidate_id: str, reason: str, *, principal_id: str,
                scopes: Iterable[str]) -> dict[str, Any]:
-        self._own(namespace, candidate_id, scopes)
-        return self.view(self.service.revert(namespace, candidate_id, reason, principal_id=principal_id,
-                                             scopes=scopes))
+        scopes = set(scopes)
+        authorize(namespace, scopes, REVIEW_SCOPE, write=True)
+        if not str(reason or "").strip():
+            raise MedicalDeviceError("invalid_decision", "a revert needs a reason")
+        candidate = self._row(namespace, candidate_id)
+        if candidate["state"] not in {"accepted", "rejected"}:
+            raise MedicalDeviceError("invalid_state", "only an accepted or rejected candidate can be reverted")
+        undo = self.history.undo(namespace, candidate["decision_id"], reviewer_id=principal_id,
+                                 principal_id=principal_id, scopes=_ENTITY_HISTORY_SCOPES)
+        return self._transition(namespace, candidate, "reverted", undo["decision_id"], principal_id, reason.strip())
 
-    def _own(self, namespace: str, candidate_id: str, scopes: Iterable[str]) -> None:
-        if not any(c["candidate_id"] == candidate_id for c in self.candidates(namespace, scopes=scopes)):
-            raise MedicalDevicesError("not_found", "no medical-devices identity candidate with that id")
+    # ------------------------------------------------------------ reporting
 
-    def accepted(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
-        """Accepted, unreverted links of one subject: the other record, method and decision."""
-        try:
-            views = self.candidates(namespace, scopes=scopes, record_key=record_key)
-        except Exception:  # noqa: BLE001 - identity access is optional for an answer
-            return []
+    def accepted(self, namespace: str, key: str, *, scopes: Iterable[str], target_kind: str | None = None
+                 ) -> list[dict[str, Any]]:
+        """Accepted, unreverted counterparts of a record or manufacturer key (either side of the candidate)."""
         out = []
-        for view in views:
-            if view["state"] != "accepted":
+        for item in self.candidates(namespace, scopes=scopes, state="accepted", subject_key=key):
+            other = item["target_key"] if item["subject_key"] == key else item["subject_key"]
+            other_kind = item["target_kind"] if item["subject_key"] == key else item["subject_kind"]
+            if target_kind and other_kind != target_kind:
                 continue
-            other = view["records"][1] if view["records"][0] == record_key else view["records"][0]
-            out.append({"candidate_id": view["candidate_id"], "record_key": other, "basis": view["basis"],
-                        "method": view["method"], "confidence": view["confidence"],
-                        "decision_id": view["decision_id"], "reviewer": view["reviewer"]})
+            out.append({"key": other, "kind": other_kind, "namespace": item["target_namespace"],
+                        "candidate_id": item["candidate_id"], "method": item["method"],
+                        "confidence": item["confidence"], "low_evidence": item["low_evidence"],
+                        "reviewer": item["reviewer"], "reviewed_at_ms": item["reviewed_at_ms"],
+                        "decision_id": item["decision_id"]})
         return out
 
-    def identity(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        """Accepted links and open candidates for one subject; without an accepted link it is unmatched."""
-        try:
-            views = self.candidates(namespace, scopes=scopes, record_key=record_key)
-        except Exception as exc:  # noqa: BLE001 - identity access is optional for an answer
-            return {"state": "unmatched", "links": [], "candidates": [], "unavailable": [getattr(exc, "code", "x")]}
-        links = [v for v in views if v["state"] == "accepted"]
-        return {"state": "matched" if links else "unmatched",
-                "links": [{"candidate_id": v["candidate_id"], "records": v["records"], "method": v["method"],
-                           "confidence": v["confidence"], "reviewer": v["reviewer"]} for v in links],
-                "candidates": [v["candidate_id"] for v in views if v["state"] == "proposed"]}
+    def device_cluster(self, namespace: str, key: str, *, scopes: Iterable[str]) -> list[str]:
+        """The device records reachable from one through accepted device matches (the record itself first)."""
+        seen, queue = [key], [key]
+        while queue:
+            current = queue.pop()
+            for item in self.accepted(namespace, current, scopes=scopes, target_kind="device"):
+                if item["key"] not in seen:
+                    seen.append(item["key"])
+                    queue.append(item["key"])
+        return seen
 
-    def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        """Device and manufacturer subjects without an accepted link (visible, never dropped)."""
-        scopes = set(scopes)
-        return {"unmatched": [{"record_key": s["record_key"], "kind": s["kind"], "names": s["names"],
-                               "state": "unmatched"}
-                              for s in self.subjects(namespace, scopes=scopes)
-                              if self.identity(namespace, s["record_key"], scopes=scopes)["state"] == "unmatched"],
-                "notice": NOTICE}
+    def unmatched(self, namespace: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
+        """Devices and manufacturers with no accepted match: kept as published, with pending candidate counts."""
+        views = self.candidates(namespace, scopes=scopes)
+        out = []
+        subjects = [(d["key"], "device", d["provider"], None) for d in self.devices(namespace, scopes=scopes)]
+        subjects += [(m["key"], "manufacturer", m["provider"], m["name_as_published"])
+                     for m in self.manufacturers(namespace, scopes=scopes)]
+        for key, kind, provider, name in subjects:
+            mine = [v for v in views if key in (v["subject_key"], v["target_key"])]
+            if any(v["state"] == "accepted" for v in mine):
+                continue
+            out.append({"key": key, "subject": kind, "provider": provider, "name_as_published": name,
+                        "pending_candidates": sum(v["state"] == "proposed" for v in mine), "status": "unmatched"})
+        return out
+
+
+__all__ = ["CONFIDENCE", "CONTRACT", "LOW_EVIDENCE", "MedicalDeviceIdentity", "entity_for", "manufacturer_key"]

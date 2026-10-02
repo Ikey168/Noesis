@@ -1,5 +1,5 @@
-"""Research-entities source audit contracts and ROR/ORCID/DataCite/CORDIS acquisition (#2584, #2594, #2601, #2606,
-#2609)."""
+"""Research-entities source audit, declared sources and acquisition through the real adapter (#2584, #2594, #2601,
+#2606, #2609)."""
 
 from __future__ import annotations
 
@@ -8,165 +8,196 @@ import json
 
 import pytest
 
-from src.ingestion.research_entities_sources import (
-    BOUNDED_COVERAGE,
-    LIVE_VERIFICATION,
-    MINIMISATION,
-    NOT_IMPLEMENTED,
-    ORCID_EXCLUDED,
-    PROVIDER_CONTRACTS,
-    ResearchEntitiesAdapter,
-    ResearchEntitiesFormatError,
-    doi,
-    fixture_transport,
-    orcid_id,
-    research_declaration,
-    ror_id,
-)
-from src.ingestion.source_packs import SourcePackConformance, SourcePackError
+from src.ingestion import research_entities_sources as re_src
+from src.ingestion.source_packs import SourcePackError, _digest, replay_native_fixture
 from tests.unit import research_entities_harness as h
 
 
-def items(name, later=False):
-    return [r["research_entity"] for page in h.fetch(name, later=later) for r in page]
+def by_key(records):
+    return {r["record_key"]: r for r in records}
 
 
-def test_audit_contracts_cover_every_source_with_terms_limits_revisions_and_unverified_live():
-    assert set(PROVIDER_CONTRACTS) == {"ror", "orcid", "datacite", "cordis"}
-    for provider, contract in PROVIDER_CONTRACTS.items():
-        for key in ("entry_points", "authentication", "key_handling", "licence", "rate_limits", "revision_model",
-                    "corrections_and_removals", "personal_data", "sources"):
-            assert contract[key], (provider, key)
-        assert all(s["read_on"] == "2026-09-30" and s["url"].startswith("https://") for s in contract["sources"])
-        assert LIVE_VERIFICATION[provider]["status"] == "unverified-live"
-        assert provider in BOUNDED_COVERAGE
-    assert "openaire-graph" in NOT_IMPLEMENTED and NOT_IMPLEMENTED["openaire-graph"]["decision"] == "not_implemented"
-    assert "emails" in ORCID_EXCLUDED and "biography" in ORCID_EXCLUDED
-    assert "researchers" in MINIMISATION["access"] and "never" in MINIMISATION["merges"]
+def test_the_audit_records_contracts_terms_minimisation_and_bounded_coverage():
+    audit = (h.ROOT / "docs/development/research-entities-evidence/source-audit.md").read_text()
+    for source_id in h.SOURCES:
+        assert f"`{source_id}`" in audit
+    for needed in ("NOESIS_ORCID_PUBLIC_TOKEN", "CC0", "Decision\n  2011/833/EU", "not_in_response", "withdrawn",
+                   "metadataVersion", "contentUpdateDate", "Retention", "Who may query them",
+                   "researchers:read", "Bounded first coverage", "documented-not-acquired",
+                   "Terms were not\nre-verified live"):
+        assert needed in audit, needed
+    assert set(re_src.PROVIDER_CONTRACTS) == {"ror", "orcid", "datacite", "cordis", "openaire-graph"}
+    for contract in re_src.PROVIDER_CONTRACTS.values():
+        assert {"endpoints", "authentication", "rate_limits", "licence", "revisions", "corrections_and_removals",
+                "access_decision"} <= set(contract)
+    assert re_src.PROVIDER_CONTRACTS["openaire-graph"]["access_decision"] == "documented-not-acquired"
+    assert "inferred" in re_src.PROVIDER_CONTRACTS["openaire-graph"]["reason"]
+    assert all(v["status"] != "verified-live" for v in re_src.LIVE_VERIFICATION.values())
+    assert "biography" in re_src.MINIMISATION["never_stored_for_researchers"]
+    assert "never matched" in re_src.MINIMISATION["matching"]
+    assert set(re_src.BOUNDED_COVERAGE) >= {"ror", "orcid", "datacite", "cordis", "periods", "caps"}
 
 
-def test_source_pack_entries_validate_replay_and_declare_live_verification():
+def test_the_pack_declares_every_source_bounded_minimised_and_replaying_its_pinned_output():
     manifest = h.manifest()
-    ours = [s for s in manifest["sources"] if s["connector"] == "research-entities"]
-    assert {s["source_id"] for s in ours} == set(h.SOURCES.values())
-    assert all(s["research_entities"]["live_verification"] == "unverified-live" for s in ours)
-    orcid = next(s for s in ours if s["research_entities"]["provider"] == "orcid")
-    assert orcid["auth"] == {"kind": "optional-secret", "secret_ref": "NOESIS_ORCID_READ_PUBLIC_TOKEN"}
-    report = SourcePackConformance(h.ROOT).offline(json.loads((h.ROOT / "config/source_packs/research.json")
-                                                              .read_text()))
-    assert all(r["valid"] for r in report["sources"] if r["connector"] == "research-entities")
+    assert manifest["version"] == "1.5.0"
+    ours = {s["source_id"]: s for s in manifest["sources"] if s["connector"] == "research-entities"}
+    assert set(ours) == set(h.SOURCES)
+    for source_id, item in ours.items():
+        declared = item["research_entities"]
+        assert declared["live_verification"] == "unverified-live"
+        assert declared["minimisation"] == re_src.MINIMISATION_POLICY
+        assert declared["format"] == h.FORMATS[source_id]
+        keyed = re_src.FORMATS[declared["format"]]["keyed"]
+        assert (item["auth"] == {"kind": "required-secret", "secret_ref": "NOESIS_ORCID_PUBLIC_TOKEN"}) is keyed
+        fixture = json.loads((h.ROOT / item["fixture"]["path"]).read_text())
+        assert fixture == json.loads(json.dumps(h.source_pack_fixture(source_id)))  # generated from the harness
+        assert _digest(list(replay_native_fixture(item, fixture))) == item["fixture"]["expected_output_hash"]
+    earlier = [s for s in manifest["sources"] if s["connector"] != "research-entities"]
+    assert {s["source_id"] for s in earlier} >= {"crossref-works", "openalex-works", "datacite-dois"}
 
 
-def test_identifiers_are_validated():
-    assert ror_id("0re1ab101") == "https://ror.org/0re1ab101"
-    assert orcid_id("https://orcid.org/0009-0001-2345-6786") == h.R1
-    assert doi("https://doi.org/10.9999/RENT.Paper1") == "10.9999/rent.paper1"
-    for parser, bad in ((ror_id, "0ILOU0001"), (orcid_id, "0009-0001-2345-6787"), (doi, "not-a-doi")):
-        with pytest.raises(ResearchEntitiesFormatError):
-            parser(bad)
+def test_ror_releases_are_vintages_keeping_withdrawn_records_successors_and_external_ids():
+    records, receipts = h.fetch(h.ROR_SOURCE)
+    first = [r for r in records if r["release"]["label"] == "v9.1"]
+    second = [r for r in records if r["release"]["label"] == "v9.2"]
+    assert {r["native_id"] for r in first} == {h.EXAMPLA, h.MARINE, h.HOSPITAL, h.NORTHWIND_POLY}
+    assert receipts[0]["not_in_response"] == [h.NORTHWIND_TECH]  # reported, never a deletion
+    assert "0zzzzz999" not in json.dumps(records)  # undeclared organisations are not kept
+    poly = by_key(second)["research-entities:ror:0zznwd303"]
+    assert poly["status"] == "withdrawn" and poly["fields"]["successors"] == [h.NORTHWIND_TECH]
+    assert by_key(second)["research-entities:ror:0zznwd404"]["fields"]["predecessors"] == [h.NORTHWIND_POLY]
+    exampla = by_key(first)["research-entities:ror:0zzexa101"]
+    assert {e["type"] for e in exampla["fields"]["external_ids"]} == {"fundref", "grid", "isni", "wikidata"}
+    assert next(e for e in exampla["fields"]["external_ids"] if e["type"] == "fundref")["preferred"] is None
+    assert exampla["as_of"] == "2099-03-01" and exampla["native_revision"] == "release:v9.1"
+    assert first[0]["revision_order"] < second[0]["revision_order"]
+    assert all(r["evidence_origin"] == "fixture" for r in records)
+    assert receipts[0]["requests"][0]["path"].startswith("/records/99999901/files/")
 
 
-def test_ror_release_keeps_declared_ids_status_relationships_external_ids_and_reports_missing():
-    first = {i["native_id"]: i for i in items("ror")}
-    assert set(first) == {h.A1, h.A2, h.M1, h.MISSING}  # the undeclared record is never read
-    assert first[h.MISSING]["status"] == "not_in_release" and first[h.MISSING]["body"] == {}
-    a1 = first[h.A1]
-    assert a1["revision"] == {"marker": "v9.1-2099-01-15", "basis": "ror-release",
-                              "effective_at": "2099-01-15T00:00:00+00:00", "provider_modified": "2098-11-20"}
-    assert {e["type"] for e in a1["body"]["external_ids"]} == {"grid", "isni", "wikidata", "fundref"}
-    assert a1["body"]["relationships"] == [{"type": "child", "id": h.A2, "label": "Examplia Institute for Data"}]
-    later = {i["native_id"]: i for i in items("ror", later=True)}
-    assert later[h.M1]["status"] == "inactive"
-    assert later[h.M1]["body"]["relationships"][0] == {"type": "successor", "id": h.A1,
-                                                      "label": "Universitaet Beispielstadt"}
+def test_orcid_records_keep_only_the_minimised_public_fields_and_works_as_asserted_identifiers():
+    records, receipts = h.fetch(h.ORCID_SOURCE)
+    ada = by_key(records)[f"research-entities:orcid:{h.ADA}"]
+    fields = ada["fields"]
+    assert set(fields) <= re_src.RESEARCHER_ALLOWED_FIELDS
+    assert fields["name"] == {"given_names": "Ada", "family_name": "Exampla", "credit_name": "A. Exampla"}
+    assert fields["last_modified"] == "2099-02-14T09:00:00+00:00" == ada["as_of"]
+    assert [w["external_ids"][0]["value"] for w in fields["works"]] == [h.PAPER1, h.DS1]
+    assert {w["asserted_by"]["kind"] for w in fields["works"]} == {"self", "member-client"}
+    assert all(w["asserted_by"]["name"] is None for w in fields["works"] if w["asserted_by"]["kind"] == "self")
+    assert [e["organisation"]["disambiguated"]["ror_id"] for e in fields["employments"]] == [
+        h.NORTHWIND_POLY, h.EXAMPLA]  # the private employment is not stored
+    assert {"biography", "emails", "educations", "keywords", "other-names"} <= set(fields["withheld_sections"])
+    limited = by_key(records)[f"research-entities:orcid:{h.CY}"]["fields"]
+    assert limited["name"] is None and limited["name_status"] == "not-public"
+    text = json.dumps([records, receipts])
+    assert not [p for p in h.PERSONAL if p in text]
+    assert re_src.FIXTURE_SECRET not in text
 
 
-def test_orcid_record_is_reduced_to_the_minimised_public_fields():
-    records = {i["native_id"]: i for i in items("orcid")}
-    r1 = records[h.R1]
-    assert set(r1["body"]) == {"orcid", "display_name", "employments", "works"}
-    text = json.dumps(r1)
-    for leaked in ("example.invalid", "biography", "Scopus", "Fictional School", "Hidden Employer",
-                   "Researcher", "Fictional Department", "rent.private", "rent.book1", "Fictional Journal"):
-        assert leaked not in text, leaked
-    assert r1["revision"]["basis"] == "orcid-last-modified"
-    assert [w["identifiers"] for w in r1["body"]["works"]] == [
-        [{"type": "doi", "value": "10.9999/rent.paper1"}],
-        [{"type": "arxiv", "value": "2098.00001"}, {"type": "doi", "value": "10.9999/rent.paper2"}]]
-    assert r1["body"]["employments"][0]["organisation"]["disambiguated"] == {"source": "ROR", "identifier": h.A1}
-    later = {i["native_id"]: i for i in items("orcid", later=True)}
-    assert later[h.R2]["status"] == "deactivated" and later[h.R2]["body"] == {}
+def test_a_deactivated_orcid_record_is_a_withdrawn_revision_without_personal_fields():
+    records, _ = h.fetch(h.ORCID_SOURCE, "v2")
+    bo = by_key(records)[f"research-entities:orcid:{h.BO}"]
+    assert bo["status"] == "deactivated" and bo["fields"]["name"] is None and bo["fields"]["works"] == []
+    assert bo["native_revision"] == "http-409" and bo["as_of"] is None
+    assert "Northwind\"" not in json.dumps(bo)
 
 
-def test_orcid_unknown_and_locked_records_become_removal_statements():
-    source = h.source("orcid")
-    for status, expected in ((404, "not_found"), (409, "locked")):
-        pages = [{"request": f"/v3.0/{d['orcid']}/record", "status": status, "body": "{}"}
-                 for d in source["research_entities"]["documents"]]
-        out = h.fetch("orcid", transport=fixture_transport(pages))
-        assert {r["research_entity"]["status"] for page in out for r in page} == {expected}
+def test_orcid_needs_its_client_token_and_reports_the_source_unavailable_without_it():
+    fetcher = h.adapter(h.ORCID_SOURCE, secret=None)
+    with pytest.raises(SourcePackError) as caught:
+        fetcher.fetch_page({"operation": "selection", "parameters": {}, "limit": 50}, cursor=None)
+    assert caught.value.code == "authentication_failed"
+    seen = {}
+
+    def transport(**kwargs):
+        seen.update(kwargs)
+        return h.fixture_transport(h.native_pages(h.ORCID_SOURCE))(**kwargs)
+
+    h.ResearchEntitiesAdapter(h.source(h.ORCID_SOURCE), transport=transport, secret="token").fetch_page(
+        {"operation": "selection", "parameters": {}, "limit": 50}, cursor=None)
+    assert seen["headers"]["Authorization"] == "Bearer token"
+    assert seen["headers"]["Accept"] == "application/vnd.orcid+json"
 
 
-def test_datacite_keeps_related_identifiers_as_published_and_minimises_creators():
-    records = items("datacite")
-    d1 = next(i for i in records if i["native_id"] == "10.9999/rent.data1")
-    assert d1["revision"]["marker"] == "v1:2099-02-10T09:30:00+00:00"
-    assert {r["relationType"] for r in d1["body"]["related_identifiers"]} == {"IsSupplementTo", "Cites",
-                                                                              "IsDocumentedBy"}
-    assert d1["body"]["related_identifiers"][1]["relatedIdentifier"] == "10.9999/RENT.PAPER2"  # as published
-    person, organisation = d1["body"]["creators"]
-    assert person == {"position": 0, "name_type": "Personal", "name": None, "orcid": h.R1,
-                      "affiliation_identifiers": [{"scheme": "ROR", "identifier": h.A1}]}
-    assert organisation["name"] == "Examplia Institute for Data"
-    text = json.dumps(d1)
-    for leaked in ("Beispiel, Ada", "citationCount", "viewCount", "Contact, Fictional", "description"):
-        assert leaked not in text
-    later = next(i for i in items("datacite", later=True) if i["native_id"] == "10.9999/rent.data1")
-    assert later["body"]["metadata_version"] == 2
-    assert "IsVersionOf" in {r["relationType"] for r in later["body"]["related_identifiers"]}
+def test_datacite_keeps_metadata_versions_related_identifiers_and_minimised_creators():
+    records, _ = h.fetch(h.DATACITE_SOURCE)
+    ds1 = by_key(records)[f"research-entities:doi:{h.DS1}"]
+    fields = ds1["fields"]
+    assert fields["metadata_version"] == 2 and ds1["as_of"] == "2099-02-15T12:00:00+00:00"
+    assert {(r["relation_type"], r["doi"]) for r in fields["related_identifiers"]} == {
+        ("IsSupplementTo", h.PAPER1), ("Cites", "10.99998/exampla.paper.009"), ("IsVersionOf", "10.99999/exampla.ds.000")}
+    persons = [c for c in fields["creators"] if c["name_type"] == "Personal"]
+    assert persons == [
+        {"position": 0, "name_type": "Personal", "orcid": h.ADA, "affiliation_ids": [h.EXAMPLA], "contributor_type": None},
+        {"position": 1, "name_type": "Personal", "orcid": None, "affiliation_ids": [h.MARINE], "contributor_type": None}]
+    organisation = next(c for c in fields["creators"] if c["name_type"] == "Organizational")
+    assert organisation["name"] == "Exampla Institute of Marine Research"
+    assert fields["funding_references"][0]["award_number"] == h.EXAMPLAR
+    assert "creators.givenName" in ds1["minimisation"]["withheld"]
+    assert not [p for p in h.PERSONAL if p in json.dumps(records)]
+    later, _ = h.fetch(h.DATACITE_SOURCE, "v2")
+    assert by_key(later)[f"research-entities:doi:{h.DS1}"]["fields"]["metadata_version"] == 3
+    gone = by_key(later)[f"research-entities:doi:{h.DS2}"]
+    assert gone["status"] == "unavailable" and gone["native_revision"] == "http-404"
 
 
-def test_cordis_projects_keep_participants_pic_and_contributions_with_currency_as_published():
-    records = {i["native_id"]: i for i in items("cordis")}
-    assert set(records) == {"HORIZON:101999001", "HORIZON:101999002", "HORIZON:101999003"}
-    assert records["HORIZON:101999003"]["status"] == "not_in_release"
-    project = records["HORIZON:101999001"]["body"]
-    assert project["programme"] == "HORIZON" and project["grant_doi"] == "10.9999/cordis.101999001"
-    coordinator = project["participants"][0]
-    assert coordinator["pic"] == "999999901" and coordinator["role"] == "coordinator"
-    assert coordinator["ec_contribution"] == {"amount": "2000000", "currency": "EUR", "published": "2000000",
-                                              "currency_basis": "declared by the document"}
-    assert "street" not in json.dumps(project) and "Fictional Street" not in json.dumps(project)
-    poly = records["HORIZON:101999002"]["body"]
-    assert poly["total_cost"]["amount"] == "800000.50" and poly["total_cost"]["published"] == "800000,50"
+def test_cordis_projects_keep_programme_participants_pic_and_contributions_with_currency():
+    records, receipts = h.fetch(h.CORDIS_SOURCE)
+    assert set(by_key(records)) == {f"research-entities:cordis:HORIZON:{h.EXAMPLAR}",
+                                    f"research-entities:cordis:HORIZON:{h.NORTHWAVE}"}
+    northwave = by_key(records)[f"research-entities:cordis:HORIZON:{h.NORTHWAVE}"]["fields"]
+    assert northwave["programme"] == "HORIZON" and northwave["topics"] == ["HORIZON-CL5-2092-EXAMPLE-02"]
+    coordinator = northwave["participants"][0]
+    assert (coordinator["pic"], coordinator["name"], coordinator["role"]) == (
+        h.PIC_NORTHWIND, "NORTHWIND POLYTECHNIC", "coordinator")
+    assert coordinator["ec_contribution"] == {
+        "amount": "500000.5", "currency": "EUR", "as_published": "500000,5",
+        "currency_basis": "CORDIS exports publish euro amounts without a currency column; stated as EUR"}
+    assert all("street" not in p and "contact_form" not in p for p in northwave["participants"])
+    assert "UNDECLARED" not in json.dumps(records)
+    assert receipts[0]["unit"] == {"programme": "HORIZON", "path": "/data/cordis-HORIZONprojects-csv.zip"}
+    assert not [p for p in h.PERSONAL if p in json.dumps(records)]
 
 
-def test_bounded_acquisition_receipts_and_refusals():
-    source = h.source("ror")
-    adapter = ResearchEntitiesAdapter(source, transport=fixture_transport(h.pages("ror")))
-    page = adapter.fetch_page({"operation": "registry-records", "parameters": {}, "limit": 200}, cursor=None)
-    assert page.receipt["evidence_origin"] == "fixture" and page.receipt["missing"] == [h.MISSING]
-    assert page.records[0]["research_entities_release"]["live_verification"] == "unverified-live"
-    with pytest.raises(SourcePackError) as budget:
-        adapter.fetch_page({"operation": "registry-records", "parameters": {}, "limit": 2}, cursor=None)
-    assert budget.value.code == "budget_exhausted"
-    with pytest.raises(SourcePackError) as params:
-        adapter.fetch_page({"operation": "registry-records", "parameters": {"query": "x"}}, cursor=None)
-    assert params.value.code == "parameter_forbidden"
-    limited = [{**p, "status": 429, "headers": {"Retry-After": "30"}} for p in h.pages("ror")]
-    with pytest.raises(SourcePackError) as rate:
-        ResearchEntitiesAdapter(source, transport=fixture_transport(limited)).fetch_page(
-            {"operation": "registry-records", "parameters": {}}, cursor=None)
-    assert rate.value.code == "rate_limited"
-    wrong = copy.deepcopy(source)
-    wrong["endpoint"] = "https://example.org/records"
+def test_declarations_refuse_unbounded_foreign_or_unminimised_selections():
+    item = h.source(h.ORCID_SOURCE)
+    bad = copy.deepcopy(item)
+    bad["research_entities"]["selection"]["orcids"] = ["0000-0009-9999-0012"]  # checksum fails
     with pytest.raises(SourcePackError):
-        research_declaration(wrong)
-    unbounded = copy.deepcopy(source)
-    unbounded["research_entities"]["documents"][0]["ror_ids"] = []
+        re_src.ResearchEntitiesAdapter(bad)
+    bad = copy.deepcopy(item)
+    bad["research_entities"]["minimisation"] = "none"
     with pytest.raises(SourcePackError):
-        research_declaration(unbounded)
-    no_reason = copy.deepcopy(h.source("orcid"))
-    del no_reason["research_entities"]["documents"][0]["reason"]
+        re_src.ResearchEntitiesAdapter(bad)
+    bad = copy.deepcopy(item)
+    bad["endpoint"] = "https://orcid.example"
     with pytest.raises(SourcePackError):
-        research_declaration(no_reason)
+        re_src.ResearchEntitiesAdapter(bad)
+    bad = copy.deepcopy(h.source(h.CORDIS_SOURCE))
+    bad["research_entities"]["selection"]["programmes"][0]["path"] = "/data/other.zip"
+    with pytest.raises(SourcePackError):
+        re_src.ResearchEntitiesAdapter(bad)
+
+
+def test_a_redirect_to_another_host_rate_limits_and_budgets_are_explicit_failures():
+    item = h.source(h.DATACITE_SOURCE)
+    pages = h.native_pages(h.DATACITE_SOURCE)
+    pages[0]["final_url"] = "https://elsewhere.example/dois/x"
+    fetcher = re_src.ResearchEntitiesAdapter(item, transport=h.fixture_transport(pages))
+    with pytest.raises(SourcePackError) as caught:
+        fetcher.fetch_page({"operation": "selection", "parameters": {}, "limit": 50}, cursor=None)
+    assert caught.value.code == "network_policy"
+    pages = h.native_pages(h.DATACITE_SOURCE)
+    pages[0].update({"status": 429, "headers": {"Retry-After": "30"}})
+    fetcher = re_src.ResearchEntitiesAdapter(item, transport=h.fixture_transport(pages))
+    with pytest.raises(SourcePackError) as caught:
+        fetcher.fetch_page({"operation": "selection", "parameters": {}, "limit": 50}, cursor=None)
+    assert caught.value.code == "rate_limited"
+    fetcher = h.adapter(h.ROR_SOURCE)
+    with pytest.raises(SourcePackError) as caught:
+        fetcher.fetch_page({"operation": "selection", "parameters": {}, "limit": 2}, cursor=None)
+    assert caught.value.code == "budget_exhausted"  # never a truncated release
+    with pytest.raises(SourcePackError):
+        fetcher.fetch_page({"operation": "selection", "parameters": {"q": "x"}, "limit": 2}, cursor=None)

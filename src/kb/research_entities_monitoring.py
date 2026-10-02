@@ -1,26 +1,24 @@
-"""Monitor research-entity registry changes through subscriptions (#2579, RE11 #2634).
+"""Monitor research-entity registry changes through subscriptions (#2579, RE11).
 
 A research-entities monitor is an ordinary knowledge subscription (:class:`src.kb.subscriptions.SubscriptionStore`,
-delivered through :mod:`src.kb.subscription_delivery`) whose query names one organisation (ROR ID), researcher
-(ORCID iD), project (CORDIS programme and id) or dataset (DOI): no watcher table and no scheduler. Each run evaluates a
-committed watermark against a snapshot of the watched records; a replay, an idempotent re-acquisition or a restart
-emits nothing, and a release that changes nothing emits nothing.
+delivered through the existing poll and outbox paths), following :mod:`src.kb.campaign_finance_monitoring`: its query
+watches an **organisation** (ROR id: its record, the datasets any acquired revision of which cites it - so a dataset
+no longer served stays watched and its removal is notified - and the CORDIS participations reached through accepted
+matches), a **researcher** (ORCID iD: the record and each asserted work; needs the researcher scope) or a
+**project** (CORDIS programme and id: the record and the datasets naming it as their award). There is no monitor
+table and no scheduler: the ``research-discovery`` source-pack schedule acquires, the maintenance orchestrator commits
+the watermarks, and each evaluation turns differences into subscription events.
 
-Notices are record changes, never assessments. Each cites the new or revised record revision and states what changed:
+Notices are record changes, not assessments. Each cites the new (and previous) record revision and states what changed:
+``new_record``, ``record_revised`` (the changed fields), ``status_changed`` (ROR active/inactive/withdrawn, ORCID
+deactivation, a DataCite DOI no longer served), ``successor_published``, ``new_asserted_work`` and
+``asserted_work_withdrawn`` (ORCID-asserted, never verified authorship), ``new_dataset`` and ``dataset_revised``,
+``new_project_participation`` and ``project_revised``. Notices carry the minimised fields only (RE01).
 
-* ``new_record`` - the first revision of a watched record;
-* ``registry_change`` - a later revision: the changed fields (status, relationships, names, participants,
-  contributions, related identifiers ...) with the revision it revises; removals are registry changes too;
-* ``new_asserted_work`` - a work identifier newly asserted in a watched researcher's ORCID record (an assertion, not
-  authorship);
-* ``new_dataset`` - a DataCite dataset that newly names a watched organisation (affiliation identifier) or researcher
-  (ORCID iD) or relates to a watched dataset;
-* ``new_project`` - a CORDIS project in which a participant accepted as the watched organisation takes part.
-
-Researcher monitors need the researchers scope. :meth:`ResearchEntitiesMonitor.refresh` re-acquires a source's declared
-documents through its runtime adapter within the page budget, records one receipt per run, stops at the first
-rate-limit answer and refuses to request again before its Retry-After. Live records from providers still
-``unverified-live`` are withheld from notices.
+A revision acquired *live* from a provider whose access is still ``unverified-live`` is withheld until a dated live
+run verifies it; fixture replays are notified and marked as fixture evidence. :meth:`ResearchEntityMonitor.refresh`
+re-reads one declared source selection through the real adapter within its page budget; re-reading unchanged responses
+adds nothing and every unit leaves a receipt.
 """
 
 from __future__ import annotations
@@ -29,228 +27,158 @@ import json
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
-from src.ingestion.research_entities_sources import unverified
+from src.ingestion.research_entities_sources import (
+    LIVE_VERIFICATION,
+    normalize_doi,
+    ror_id,
+    valid_orcid,
+)
 from src.kb.research_entities_records import (
     READ_SCOPE,
     RESEARCHER_SCOPE,
     WRITE_SCOPE,
-    ResearchEntitiesError,
-    ResearchEntitiesProjector,
-    ResearchEntitiesStore,
+    ResearchEntityError,
+    ResearchEntityStore,
     authorize,
-    canonical,
-    digest,
-    iso_from_ms,
-    native_for,
-    require_scope,
+    may_read_researchers,
     table_exists,
 )
 
 CONTRACT = "noesis-research-entity-notification-v1"
-WATCH_KEYS = ("ror", "orcid", "project", "doi")
-EVENT_TYPES = ("new_record", "registry_change", "new_asserted_work", "new_dataset", "new_project")
-MESSAGES = {
-    "new_record": "A watched registry record was acquired for the first time",
-    "registry_change": "A registry published a revised version of a watched record",
-    "new_asserted_work": "A watched researcher's ORCID record asserts a new work identifier",
-    "new_dataset": "A DataCite dataset newly names the watched record",
-    "new_project": "A CORDIS project lists a participant accepted as the watched organisation",
-}
-KIND_OF = {"ror": "organisation", "orcid": "researcher", "project": "project", "doi": "dataset"}
-_DDL = """
-CREATE TABLE IF NOT EXISTS rentity_refresh_receipts (
-  namespace TEXT NOT NULL, receipt_id TEXT NOT NULL, source_id TEXT NOT NULL, started_at_ms BIGINT NOT NULL,
-  status TEXT NOT NULL, retry_at_ms BIGINT, receipt_json TEXT NOT NULL, PRIMARY KEY(namespace, receipt_id)
-);
-"""
+WATCH_KINDS = ("organisation", "researcher", "project")
 
 
-def notifiable(citation: Mapping[str, Any]) -> bool:
-    """Fixture or operator evidence, or live evidence from a provider whose live access is verified."""
-    return citation["evidence_origin"] != "live" or not unverified(citation["provider"])
+def notifiable(row: Mapping[str, Any]) -> bool:
+    return (row["evidence_origin"] == "fixture"
+            or LIVE_VERIFICATION.get(row["provider"], {}).get("status") == "verified-live")
 
 
-def changed_fields(before: Mapping[str, Any] | None, after: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """Top-level differences between two statements (status and body keys), before and after as recorded."""
-    if before is None:
-        return []
-    out = []
-    if before["status"] != after["status"]:
-        out.append({"field": "status", "before": before["status"], "after": after["status"]})
-    keys = sorted(set(before["body"]) | set(after["body"]))
-    for key in keys:
-        if key == "provider_modified":
-            continue
-        if canonical(before["body"].get(key)) != canonical(after["body"].get(key)):
-            out.append({"field": key, "before": before["body"].get(key), "after": after["body"].get(key)})
-    return out
+def resolve_watch(watch: str, key: str) -> str:
+    key = str(key or "").strip()
+    if watch == "organisation":
+        rid = ror_id(key.rsplit(":", 1)[-1] if key.startswith("research-entities:") else key)
+        if rid:
+            return f"research-entities:ror:{rid}"
+    elif watch == "researcher":
+        orcid = valid_orcid(key.rsplit(":", 1)[-1] if key.startswith("research-entities:") else key)
+        if orcid:
+            return f"research-entities:orcid:{orcid}"
+    elif watch == "project":
+        if key.startswith("research-entities:cordis:"):
+            return key
+        programme, _, project_id = key.rpartition(":")
+        if project_id.isdigit():
+            return f"research-entities:cordis:{(programme or 'HORIZON').upper()}:{project_id}"
+    raise ResearchEntityError("invalid_watch", f"watch one of {WATCH_KINDS} by ROR id, ORCID iD or "
+                              "PROGRAMME:project id")
 
 
-class ResearchEntitiesMonitor:
+def _summary(row: Mapping[str, Any]) -> dict[str, Any]:
+    record = row["record"]
+    fields = record["fields"]
+    kind = row["record_kind"]
+    if kind == "organisation":
+        return {"status": fields["status"], "display_name": fields["display_name"],
+                "names": sorted(n["value"] for n in fields["names"] if n.get("value")),
+                "relationships": [[r["type"], r["id"]] for r in fields["relationships"]],
+                "external_ids": [[e["type"], e["all"]] for e in fields["external_ids"]],
+                "release": (record.get("release") or {}).get("label")}
+    if kind == "researcher":
+        return {"status": fields["status"], "last_modified": fields["last_modified"],
+                "employments": sorted(e["put_code"] for e in fields.get("employments") or []),
+                "works": sorted(w["put_code"] for w in fields.get("works") or [])}
+    if kind == "dataset":
+        return {"status": row["status"], "doi": fields["doi"], "metadata_version": fields.get("metadata_version"),
+                "version": fields.get("version"),
+                "related_identifiers": [[r["relation_type"], r["identifier"]]
+                                        for r in fields.get("related_identifiers") or []]}
+    return {"status": fields["status"], "content_update_date": fields["content_update_date"],
+            "participants": [[p["pic"], p["role"], (p.get("ec_contribution") or {}).get("amount"),
+                              (p.get("ec_contribution") or {}).get("currency")] for p in fields["participants"]]}
+
+
+class ResearchEntityMonitor:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
         from src.kb.subscriptions import SubscriptionStore
 
         self.conn = conn
-        self.store = ResearchEntitiesStore(conn, initialize=initialize, now=now)
+        self.store = ResearchEntityStore(conn, initialize=initialize, now=now)
         self.now = self.store.now
         self.subscriptions = SubscriptionStore(conn, initialize=initialize)
-        if initialize:
-            conn.execute(_DDL)
 
-    @staticmethod
-    def _watch(watch: Mapping[str, Any]) -> dict[str, Any]:
-        raw = dict(watch or {})
-        chosen = [k for k in WATCH_KEYS if raw.get(k)]
-        if set(raw) - set(WATCH_KEYS) - {"programme"} or len(chosen) != 1:
-            raise ResearchEntitiesError("invalid_watch", f"a monitor names one of {WATCH_KEYS}")
-        key = chosen[0]
-        return {"key": key, "kind": KIND_OF[key], "native_id": native_for(KIND_OF[key], raw[key], raw.get("programme"))}
-
-    def create(self, namespace: str, request_key: str, *, watch: Mapping[str, Any], principal_id: str,
+    def create(self, namespace: str, request_key: str, *, watch: str, key: str, principal_id: str,
                scopes: Iterable[str], delivery: dict[str, Any] | None = None) -> dict[str, Any]:
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        wanted = self._watch(watch)
-        if wanted["kind"] == "researcher":
-            require_scope(scopes, RESEARCHER_SCOPE)
+        if watch not in WATCH_KINDS:
+            raise ResearchEntityError("invalid_watch", f"watch one of {WATCH_KINDS}")
+        if watch == "researcher" and not may_read_researchers(scopes):
+            raise ResearchEntityError("unauthorized", f"{RESEARCHER_SCOPE} is required to watch a researcher")
+        key = resolve_watch(watch, key)
+        query = {"operation": "search", "kind": "research-entities-monitor", "watch": watch, "key": key}
         created = self.subscriptions.create(
-            {
-                "namespace": namespace,
-                "domain": "scientific",
-                "query": {"operation": "search", "kind": "research-entities-monitor", "filter": wanted},
-                "filters": {"watch": "research-entities"},
-                "cadence": {"trigger": "watermark"},
-                "delivery": delivery or {"kind": "poll"},
-            },
-            "research-entities-monitor:" + request_key,
-            principal_id=principal_id,
-            scopes=scopes,
-        )
-        return {**created, "refresh": "the research-discovery source-pack schedule (or refresh()) acquires records "
-                "and commits the watermarks this monitor evaluates; no new scheduler"}
+            {"namespace": namespace, "domain": "scientific", "query": query, "filters": {"watch": watch},
+             "cadence": {"trigger": "watermark"}, "delivery": delivery or {"kind": "poll"}},
+            "research-entities-monitor:" + request_key, principal_id=principal_id, scopes=scopes)
+        return {**created, "refresh": "the research-discovery source-pack schedule and the maintenance orchestrator "
+                                      "commit the watermarks this monitor evaluates; no new scheduler"}
 
     def _subscription(self, subscription_id: str, principal_id: str, scopes: set[str]) -> dict[str, Any]:
         subscription = self.subscriptions.inspect(subscription_id, principal_id=principal_id, scopes=scopes)
         if subscription["query"].get("kind") != "research-entities-monitor":
-            raise ResearchEntitiesError("monitor_not_found", "subscription is not a research-entities monitor")
+            raise ResearchEntityError("monitor_not_found", "subscription is not a research-entities monitor")
+        if subscription["query"]["watch"] == "researcher" and not may_read_researchers(scopes):
+            raise ResearchEntityError("unauthorized", f"{RESEARCHER_SCOPE} is required for a researcher monitor")
         return subscription
 
-    # ------------------------------------------------------------------ snapshot
+    def _related(self, namespace: str, key: str, scopes: set[str]) -> list[tuple[str, dict[str, Any]]]:
+        """(item role, current record view) pairs a watched key reaches through links and accepted matches."""
+        from src.kb.research_entities_links import ResearchEntityLinks
 
-    def _chain(self, namespace: str, record_id: str) -> list[tuple[dict[str, Any], dict[str, Any], dict[str, Any]]]:
-        return [(r, self.store.statement(namespace, r["revision_id"]), self.store.citation(namespace, r))
-                for r in self.store.revisions(namespace, record_id)]
-
-    def _record_items(self, namespace: str, wanted: Mapping[str, Any]) -> list[dict[str, Any]]:
-        record_id = self.store.find(namespace, wanted["kind"], wanted["native_id"])
-        if record_id is None:
+        if not table_exists(self.conn, "research_entity_links"):
             return []
-        items, previous = [], None
-        for revision, statement, citation in self._chain(namespace, record_id):
-            changes = changed_fields(previous, statement)
-            if wanted["kind"] == "researcher":
-                # Personal fields are named, never repeated in a notice (minimisation decision).
-                changes = [{"field": c["field"], "changed": True} for c in changes]
-            kind = "new_record" if previous is None else "registry_change"
-            items.append({"id": f"revision:{revision['revision_id']}", "item": kind,
-                          "record": {"kind": wanted["kind"], "native_id": wanted["native_id"]},
-                          "status": statement["status"], "changes": changes,
-                          "previous_revision_id": revision["previous_revision_id"],
-                          "record_ids": [record_id, revision["revision_id"]]
-                          + ([revision["previous_revision_id"]] if revision["previous_revision_id"] else []),
-                          "citation": citation})
-            if wanted["kind"] == "researcher":
-                before = {i["value"] for w in (previous or {"body": {}})["body"].get("works") or []
-                          for i in w["identifiers"]} if previous else set()
-                for work in statement["body"].get("works") or []:
-                    for identifier in work["identifiers"]:
-                        if previous is not None and identifier["value"] not in before:
-                            items.append({"id": f"work:{revision['revision_id']}:{identifier['value']}",
-                                          "item": "new_asserted_work", "work": {**identifier,
-                                                                               "title": work.get("title")},
-                                          "assertion": "orcid-asserted, not verified authorship",
-                                          "record_ids": [record_id, revision["revision_id"]], "citation": citation})
-            previous = statement
-        return items
+        links = ResearchEntityLinks(self.conn, initialize=False).links(namespace, scopes=scopes, status="resolved")
+        roles: dict[str, str] = {}
+        if key.startswith("research-entities:ror:"):
+            pics = {link["source_key"].rsplit(":", 1)[1] for link in links
+                    if link["kind"] == "participant-organisation" and link["target_key"] == key}
+            projects = {r["record_key"] for r in self.store.records(namespace, scopes=scopes, kinds=["project"])
+                        if any(p.get("pic") in pics for p in r["record"]["fields"]["participants"])}
+            roles.update({p: "project" for p in projects})
+            for link in links:
+                if (link["kind"] == "dataset-creator-affiliation" and link["target_key"] == key) or (
+                        link["kind"] == "dataset-funded-by-project" and link["target_key"] in projects):
+                    roles[link["source_key"]] = "dataset"
+        elif key.startswith("research-entities:cordis:"):
+            for link in links:
+                if link["kind"] == "dataset-funded-by-project" and link["target_key"] == key:
+                    roles[link["source_key"]] = "dataset"
+        rows = self.store.records(namespace, scopes=scopes, record_keys=list(roles)) if roles else []
+        return [(roles[r["record_key"]], r) for r in rows]
 
-    def _dataset_items(self, namespace: str, wanted: Mapping[str, Any]) -> list[dict[str, Any]]:
-        items = []
-        for record in self.store.records(namespace, kind="dataset"):
-            if wanted["kind"] == "dataset" and record["native_id"] == wanted["native_id"]:
+    def snapshot(self, subscription: Mapping[str, Any], scopes: set[str]) -> tuple[dict[str, Any], int]:
+        namespace, key = subscription["namespace"], subscription["query"]["key"]
+        rows = [("record", r) for r in self.store.records(namespace, scopes=scopes, record_keys=[key])]
+        rows += self._related(namespace, key, scopes)
+        items, withheld = [], 0
+        for role, row in rows:
+            if not notifiable(row):
+                withheld += 1
                 continue
-            for revision, statement, citation in self._chain(namespace, record["record_id"]):
-                body = statement["body"]
-                if not body:
-                    continue
-                names = False
-                if wanted["kind"] == "organisation":
-                    names = any(a["identifier"] == wanted["native_id"] for c in body["creators"]
-                                for a in c["affiliation_identifiers"])
-                elif wanted["kind"] == "researcher":
-                    names = any(c.get("orcid") == wanted["native_id"] for c in body["creators"])
-                elif wanted["kind"] == "dataset":
-                    names = any(str(r.get("relatedIdentifier") or "").casefold() == wanted["native_id"]
-                                for r in body["related_identifiers"])
-                if names:
-                    items.append({"id": f"dataset:{record['record_id']}", "item": "new_dataset",
-                                  "dataset": {"doi": body["doi"], "titles": body["titles"]},
-                                  "record_ids": [record["record_id"], revision["revision_id"]], "citation": citation})
-                    break
-        return items
-
-    def _project_items(self, namespace: str, wanted: Mapping[str, Any]) -> list[dict[str, Any]]:
-        if wanted["kind"] != "organisation" or not table_exists(self.conn, "rentity_identity_matches"):
-            return []
-        from src.kb.research_entities_identity import ResearchEntitiesIdentity
-
-        pics = {a["pic"]: a for a in ResearchEntitiesIdentity(self.conn, initialize=False).accepted_pics(
-            namespace, wanted["native_id"])}
-        items = []
-        for record in self.store.records(namespace, kind="project"):
-            for revision, statement, citation in self._chain(namespace, record["record_id"]):
-                mine = [p for p in statement["body"].get("participants") or [] if p["pic"] in pics]
-                if mine:
-                    items.append({"id": f"project:{record['record_id']}", "item": "new_project",
-                                  "project": {"native_id": record["native_id"],
-                                              "acronym": statement["body"].get("acronym"),
-                                              "roles": sorted({str(p.get("role")) for p in mine})},
-                                  "identity": [pics[p["pic"]] for p in mine],
-                                  "record_ids": [record["record_id"], revision["revision_id"]],
-                                  "citation": citation})
-                    break
-        return items
-
-    def snapshot(self, subscription: Mapping[str, Any]) -> tuple[dict[str, Any], int]:
-        namespace, wanted = subscription["namespace"], subscription["query"]["filter"]
-        items = (self._record_items(namespace, wanted) + self._dataset_items(namespace, wanted)
-                 + self._project_items(namespace, wanted))
-        kept = [i for i in items if notifiable(i["citation"])]
-        return {"items": kept, "coverage": {"complete": True}}, len(items) - len(kept)
-
-    def default_watermark(self, namespace: str) -> tuple[int, dict[str, Any]]:
-        """The namespace's current research-entity state as a watermark: reused when this state was already
-        committed (a restart replays it and emits nothing), else a new one after every committed watermark."""
-        latest = self.store.latest_retrieval_ms(namespace)
-        if latest is None:
-            raise ResearchEntitiesError("not_ready", "no research-entity record yet; acquire first")
-        state = [r[0] for r in self.conn.execute(
-            "SELECT revision_id FROM rentity_revisions WHERE namespace=? ORDER BY revision_id", [namespace]).fetchall()]
-        if table_exists(self.conn, "rentity_identity_matches"):
-            state += [f"{r[0]}:{r[1]}" for r in self.conn.execute(
-                "SELECT match_id, state FROM rentity_identity_matches WHERE namespace=? ORDER BY match_id",
-                [namespace]).fetchall()]
-        generation = digest(state)[:24]
-        rows = (
-            self.conn.execute("SELECT watermark, detail_json FROM knowledge_subscription_watermarks WHERE namespace=? "
-                              "ORDER BY watermark", [namespace]).fetchall()
-            if table_exists(self.conn, "knowledge_subscription_watermarks") else []
-        )
-        for watermark, committed in reversed(rows):
-            if json.loads(committed or "{}").get("research_entities_generation") == generation:
-                return int(watermark), json.loads(committed)
-        highest = int(rows[-1][0]) if rows else 0
-        return max(latest, highest + 1), {"research_entities_generation": generation,
-                                          "observed_at": iso_from_ms(latest)}
+            base = {"kind": row["record_kind"], "role": role, "record_key": row["record_key"],
+                    "source_id": row["source_id"], "provider": row["provider"], "revision_id": row["revision_id"],
+                    "revision_no": row["revision_no"], "source_as_of": row["source_as_of"],
+                    "evidence_origin": row["evidence_origin"], "summary": _summary(row)}
+            items.append({"id": f"{role}:{row['record_key']}", **base})
+            if row["record_kind"] == "researcher":
+                for work in row["record"]["fields"].get("works") or []:
+                    items.append({"id": f"work:{row['record_key']}:{work['put_code']}", **base, "role": "work",
+                                  "summary": {"put_code": work["put_code"], "type": work["type"],
+                                              "title": work["title"], "asserted_by": work["asserted_by"]["kind"],
+                                              "dois": [normalize_doi(e["value"]) or e["value"]
+                                                       for e in work.get("external_ids") or []
+                                                       if e.get("type") == "doi"]}})
+        return {"items": items, "coverage": {"complete": True}}, withheld
 
     def run(self, subscription_id: str, watermark: int | None = None, *, principal_id: str,
             scopes: Iterable[str]) -> dict[str, Any]:
@@ -258,114 +186,107 @@ class ResearchEntitiesMonitor:
         subscription = self._subscription(subscription_id, principal_id, scopes)
         namespace = subscription["namespace"]
         authorize(namespace, scopes, READ_SCOPE)
-        if subscription["query"]["filter"]["kind"] == "researcher":
-            require_scope(scopes, RESEARCHER_SCOPE)
         if watermark is None:
-            watermark, detail = self.default_watermark(namespace)
-            self.subscriptions.commit_watermark(namespace, watermark, kind="ingestion", detail=detail)
-        result, withheld = self.snapshot(subscription)
-        evaluated = self.subscriptions.evaluate(subscription_id, int(watermark), result, principal_id=principal_id,
+            row = self.conn.execute("SELECT max(watermark) FROM knowledge_subscription_watermarks WHERE namespace=?",
+                                    [namespace]).fetchone()
+            if row is None or row[0] is None:
+                raise ResearchEntityError("watermark_uncommitted", "no committed watermark yet; source-pack runs and "
+                                          "the maintenance orchestrator commit them")
+            watermark = int(row[0])
+        result, withheld = self.snapshot(subscription, scopes)
+        evaluated = self.subscriptions.evaluate(subscription_id, watermark, result, principal_id=principal_id,
                                                 scopes=scopes, observed_at_ms=self.now())
         notifications = []
         for event_id in evaluated.get("event_ids", []):
-            row = self.conn.execute(
-                "SELECT event_type, object_key, after_json FROM knowledge_subscription_events WHERE event_id=?",
-                [event_id]).fetchone()
+            row = self.conn.execute("SELECT event_type, object_key, before_json, after_json FROM "
+                                    "knowledge_subscription_events WHERE event_id=?", [event_id]).fetchone()
             notifications.extend(self._classify(event_id, *row))
-        return {"subscription_id": subscription_id, "status": evaluated["status"], "watermark": int(watermark),
-                "notifications": notifications, "withheld_unverified_live_items": withheld,
-                "delivery": subscription["delivery"],
-                "note": "notices report published record changes; they never judge a change"}
+        return {"subscription_id": subscription_id, "status": evaluated["status"], "watermark": watermark,
+                "notifications": notifications, "withheld_unverified_live_revisions": withheld,
+                "delivery": subscription["delivery"]}
 
     @staticmethod
-    def _classify(event_id: str, event_type: str, key: str, after: str | None) -> list[dict[str, Any]]:
-        if event_type != "added" or not after:
+    def _classify(event_id: str, event_type: str, key: str, before: str | None, after: str | None
+                  ) -> list[dict[str, Any]]:
+        old = json.loads(before) if before else None
+        new = json.loads(after) if after else None
+        if event_type not in {"added", "changed", "corrected", "removed"}:
             return []
-        item = json.loads(after)
-        citation = item["citation"]
-        cited = f" ({citation['provider']} {citation['native_id']}, revision {citation['revision']}, " \
-            f"{citation['revision_marker']})"
-        return [{
-            "contract": CONTRACT,
-            "event_id": event_id,
-            "notification_id": f"{event_id}:{item['item']}",
-            "object": key,
-            "kind": item["item"],
-            "message": f"{MESSAGES[item['item']]}{cited}.",
-            "record_ids": item["record_ids"],
-            "citation": citation,
-            **{k: item[k] for k in ("record", "status", "changes", "previous_revision_id", "work", "assertion",
-                                    "dataset", "project", "identity") if k in item},
-            "note": "a registry record change reported as recorded; nothing is concluded about the change",
-        }]
+        subject = new or old
 
-    def poll(self, subscription_id: str, *, principal_id: str, scopes: Iterable[str], cursor: str = "") -> dict:
+        def note(kind: str, message: str, **detail: Any) -> dict[str, Any]:
+            return {"contract": CONTRACT, "notification_id": f"{event_id}:{kind}", "event_id": event_id,
+                    "kind": kind, "object": key, "record_key": subject["record_key"], "message": message,
+                    "cites": {"record_key": subject["record_key"], "source_id": subject["source_id"],
+                              "revision_id": new["revision_id"] if new else None,
+                              "previous_revision_id": old["revision_id"] if old else None,
+                              "source_as_of": subject["source_as_of"]},
+                    "evidence_origin": subject["evidence_origin"], **detail}
+
+        label = subject["record_key"]
+        if subject["role"] == "work":
+            if new is None:
+                return [note("asserted_work_withdrawn", f"{label}: the public ORCID record no longer asserts work "
+                             f"{old['summary']['put_code']}.", work=old["summary"])]
+            if old is None:
+                return [note("new_asserted_work", f"{label}: ORCID-asserted work {new['summary']['title']} "
+                             f"{new['summary']['dois']} (not verified authorship).", work=new["summary"])]
+            return []
+        if new is None or (old and old["revision_id"] == new["revision_id"]):
+            return []
+        summary, prior = new["summary"], (old or {}).get("summary") or {}
+        if old is None:
+            kind = {"dataset": "new_dataset", "project": "new_project_participation"}.get(new["role"], "new_record")
+            return [note(kind, f"{label}: {new['kind']} record on file (revision {new['revision_no']}, as of "
+                         f"{new['source_as_of'] or 'not stated'}).", summary=summary)]
+        changed = sorted(k for k in set(summary) | set(prior) if summary.get(k) != prior.get(k))
+        notes = []
+        if summary.get("status") != prior.get("status"):
+            notes.append(note("status_changed", f"{label}: status {prior.get('status')} -> {summary.get('status')} "
+                              "as published.", before=prior.get("status"), after=summary.get("status")))
+        if new["kind"] == "organisation":
+            added = [r for r in summary.get("relationships") or [] if r not in (prior.get("relationships") or [])]
+            for relation in [r for r in added if r[0] == "successor"]:
+                notes.append(note("successor_published", f"{label}: ROR publishes successor {relation[1]}.",
+                                  successor=relation[1]))
+        kind = {"dataset": "dataset_revised", "project": "project_revised"}.get(new["role"], "record_revised")
+        notes.append(note(kind, f"{label}: revision {new['revision_no']} recorded; changed {changed}.",
+                          changed_fields=changed, before={k: prior.get(k) for k in changed},
+                          after={k: summary.get(k) for k in changed}))
+        return notes
+
+    def poll(self, subscription_id: str, *, principal_id: str, scopes: Iterable[str], cursor: str = ""
+             ) -> dict[str, Any]:
         scopes = set(scopes)
         subscription = self._subscription(subscription_id, principal_id, scopes)
         authorize(subscription["namespace"], scopes, READ_SCOPE)
-        if subscription["query"]["filter"]["kind"] == "researcher":
-            require_scope(scopes, RESEARCHER_SCOPE)
         return self.subscriptions.poll(subscription_id, principal_id=principal_id, scopes=scopes, cursor=cursor)
 
-    # ------------------------------------------------------------------ bounded refresh
-
-    def refresh(self, namespace: str, source: Mapping[str, Any], *, principal_id: str, scopes: Iterable[str],
-                transport: Callable[..., Mapping[str, Any]] | None = None, max_documents: int | None = None,
-                secret: str | None = None) -> dict[str, Any]:
-        """Acquire a source's declared documents within its page budget; idempotent by file, one receipt per run,
-        stopped at the first rate-limit answer and refused before the provider's Retry-After has passed."""
+    def refresh(self, source: Mapping[str, Any], *, run_id: str, principal_id: str, scopes: Iterable[str],
+                transport: Callable[..., Mapping[str, Any]] | None = None, secret: str | None = None
+                ) -> dict[str, Any]:
+        """Re-read one declared selection within its budget; idempotent, and every unit leaves a receipt."""
         from src.ingestion.research_entities_sources import ResearchEntitiesAdapter
-        from src.ingestion.source_packs import SourcePackError
+        from src.kb.research_entities_records import ResearchEntityProjector
 
         scopes = set(scopes)
+        namespace = ResearchEntityProjector._namespace(source)
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
-        source = dict(source)
-        now = self.now()
-        waiting = self.conn.execute(
-            "SELECT retry_at_ms FROM rentity_refresh_receipts WHERE namespace=? AND source_id=? "
-            "ORDER BY started_at_ms DESC, rowid DESC LIMIT 1", [namespace, source["source_id"]]).fetchone()
-        if waiting and waiting[0] is not None and waiting[0] > now:
-            return self._receipt(namespace, source, now, "rate_limited_wait", [], None, waiting[0], principal_id,
-                                 note="the provider asked to wait; nothing was requested")
         adapter = ResearchEntitiesAdapter(source, transport=transport, secret=secret)
-        documents = len(adapter.declared["documents"])
-        limit = min(documents, int(max_documents or documents))
-        projector = ResearchEntitiesProjector(self.conn)
-        projector.store.now = self.now
-        releases, stopped, retry_at, cursor = [], None, None, None
-        for _ in range(limit):
-            try:
-                page = adapter.fetch_page({"operation": "registry-records", "parameters": {},
-                                           "limit": int(source["budgets"]["max_results"])}, cursor=cursor)
-            except SourcePackError as exc:
-                stopped = {"code": exc.code, "message": exc.message, **exc.details}
-                if exc.code == "rate_limited":
-                    retry_at = now + int(exc.details.get("retry_after_ms") or 60_000)
-                break
-            applied = projector.project_page(run_id=f"refresh:{source['source_id']}:{now}", manifest=None,
-                                             source=source, records=page.records, documents=None,
-                                             page_receipt=page.receipt, principal_id=principal_id)
-            releases += [{"release_id": a["release_id"], "status": a["status"],
-                          "revisions": a.get("created", 0) + a.get("revised", 0) + a.get("removed", 0),
-                          "provider_receipt": dict(page.receipt or {})} for a in applied]
+        counts: dict[str, int] = {}
+        cursor, units = None, 0
+        while units < min(len(adapter.units), int(source["budgets"]["max_pages"])):
+            page = adapter.fetch_page({"operation": min(source["operations"]), "parameters": {},
+                                       "limit": int(source["budgets"]["max_results"])}, cursor=cursor)
+            result = self.store.project(namespace, [r["research_entity_record"] for r in page.records],
+                                        run_id=run_id, source_id=source["source_id"], receipt=dict(page.receipt or {}))
+            for change, count in result["counts"].items():
+                counts[change] = counts.get(change, 0) + count
+            units += 1
             cursor = page.next_cursor
             if cursor is None:
                 break
-        status = "stopped" if stopped else "complete" if cursor is None else "bounded"
-        return self._receipt(namespace, source, now, status, releases, stopped, retry_at, principal_id)
-
-    def _receipt(self, namespace, source, now, status, releases, stopped, retry_at, principal_id, note=None):
-        body = {
-            "source_id": source["source_id"], "status": status, "releases": releases,
-            "new_releases": sum(1 for r in releases if r["status"] == "applied"),
-            "unchanged_releases": sum(1 for r in releases if r["status"] == "unchanged"),
-            "stopped": stopped, "retry_at": iso_from_ms(retry_at), "requested_by": principal_id,
-            "at": iso_from_ms(now), "note": note,
-        }
-        receipt_id = "rentity-refresh:" + digest([namespace, body])[:24]
-        self.conn.execute("INSERT OR IGNORE INTO rentity_refresh_receipts VALUES (?,?,?,?,?,?,?)",
-                          [namespace, receipt_id, source["source_id"], now, status, retry_at, canonical(body)])
-        return {"receipt_id": receipt_id, **body}
-
-
-__all__ = ["EVENT_TYPES", "ResearchEntitiesMonitor", "changed_fields", "notifiable"]
+        del principal_id
+        return {"run_id": run_id, "source_id": source["source_id"], "units": units, "counts": counts,
+                "complete": cursor is None,
+                "receipts": self.store.receipts(namespace, run_id, scopes=scopes | {READ_SCOPE})}

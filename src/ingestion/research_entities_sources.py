@@ -1,29 +1,26 @@
-"""Research-entity registry sources for the Science ``research-entities`` features (#2579).
+"""Research-entity registries for the Science ``research-entities`` features (#2579).
 
-Four providers are recorded under an access contract (:data:`PROVIDER_CONTRACTS`, RE01 #2584) and implemented as
-formats of the ``research-entities`` source-pack connector:
+Four providers are recorded under an access contract (:data:`PROVIDER_CONTRACTS`, RE01) and implemented as formats of
+the ``research-entities`` source-pack connector; a fifth candidate (the OpenAIRE Graph) is documented and not acquired:
 
-* **ROR** (``ror``, format ``ror-dump-zip``, RE03 #2594) - one declared ROR data-dump release (a Zenodo file: a zip
-  holding the schema v2 JSON) per document. Only the declared ROR IDs are read from it; each release is a vintage.
-  Status (``active``, ``inactive``, ``withdrawn``), relationships (``parent``, ``child``, ``related``,
-  ``predecessor``, ``successor``) and external identifiers (GRID, ISNI, Wikidata, FundRef) are kept as published. A
-  declared ID the release does not contain is reported as ``not_in_release``.
-* **ORCID** (``orcid``, format ``orcid-record-json``, RE04 #2601) - one public ORCID record (``/v3.0/{iD}/record`` on
-  the Public API) per document. Only the fields the RE01 data-minimisation decision allows are kept
-  (:data:`ORCID_KEPT` / :data:`ORCID_EXCLUDED`): the iD, the public display name, public employments (organisation,
-  its disambiguated identifier, start and end) and public works as asserted identifiers (DOI, arXiv, PMID), with the
-  record's last-modified time as the revision marker. Works are what the researcher asserts, never authorship facts.
-* **DataCite** (``datacite``, format ``datacite-doi-json``, RE05 #2606) - one DOI (``/dois/{doi}``) or one bounded
-  query page per document; ``metadataVersion`` and ``updated`` mark the metadata version, related identifiers are
-  kept exactly as published, and creators keep only an ORCID iD, an organisational name and affiliation identifiers.
-* **CORDIS** (``cordis``, format ``cordis-csv-zip``, RE06 #2609) - one declared CORDIS bulk file (a zip of
-  semicolon-separated CSVs) per document; only the declared project IDs are read, keyed by project ID and programme,
-  with every participant's PIC, name, role and contributions as published and the currency the document declares.
+* **ROR** (``ror``, format ``ror-dump-zip``) - a declared ROR data dump release (a Zenodo zip holding the v2 JSON
+  member) read for a declared set of ROR ids. Each release is a vintage; withdrawn and inactive records are kept with
+  their successor relationships; external identifiers (GRID, ISNI, Wikidata, FundRef) are stored as published.
+* **ORCID** (``orcid``, format ``orcid-record-json``) - the public ORCID API v3.0 ``/{orcid}/record`` for a declared
+  set of ORCID iDs, with a registered public-API client token (``NOESIS_ORCID_PUBLIC_TOKEN``). Only the fields the
+  RE01 minimisation decision allows are stored (:data:`MINIMISATION`): the iD, the public name, the record's
+  last-modified time, public employments and public works as asserted identifiers - never as authorship facts.
+* **DataCite** (``datacite``, format ``datacite-doi-json``) - the DataCite REST API ``/dois/{doi}`` for a declared set
+  of DOIs: metadata version, related identifiers (IsSupplementTo, Cites, IsVersionOf, ...) and funding references as
+  published; personal creators and contributors are reduced to their published ORCID iD and affiliation identifiers.
+* **CORDIS** (``cordis``, format ``cordis-projects-csv-zip``) - the CORDIS open-data project export of a framework
+  programme (a zip holding ``project.csv`` and ``organization.csv``) read for a declared set of project ids:
+  programme, participants with their PIC and names as published and contributions with the currency as published.
 
-Every provider is ``unverified-live`` until a dated live run (RE14, #2649); endpoint, file and field names marked
-*verify* come from the providers' public documentation as audited in
+Every provider is ``unverified-live`` until a dated live run (RE14, #2649); endpoint, parameter and column names marked
+*verify* come from the providers' documentation as recorded in
 ``docs/development/research-entities-evidence/source-audit.md``. Nothing here ranks researchers or organisations,
-counts citations, infers affiliation from co-authorship, or matches authors by name.
+computes a metric, infers an affiliation from co-authorship or disambiguates authors by name.
 """
 
 from __future__ import annotations
@@ -38,290 +35,260 @@ from collections.abc import Callable, Mapping, Sequence
 from datetime import UTC, date, datetime
 from decimal import Decimal, InvalidOperation
 from typing import Any
-from urllib.parse import parse_qsl, quote, urlencode, urlsplit
+from urllib.parse import quote, urlencode, urlsplit
 
 from src.ingestion.source_packs import SourcePackError
 
 CONNECTOR = "research-entities"
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RELEASE_CONTRACT = "noesis-research-entities-release-v1"
-RECORD_CONTRACT = "noesis-research-entity-record-v1"
-NEVER_SENTENCE = (
-    "Registry records as ROR, ORCID, DataCite and CORDIS published them, each with source, record revision and as-of "
-    "time: no researcher rankings or metrics, no inference of affiliation from co-authorship, no author "
-    "disambiguation by name and no personal data beyond the public ORCID fields the minimisation decision allows."
-)
+RECORD_CONTRACT = "noesis-research-entity-record-v2"
+RECEIPT_CONTRACT = "noesis-research-entity-acquisition-receipt-v1"
+MINIMISATION_POLICY = "research-entities-minimisation-v1"
+MAX_UNITS = 50
+MAX_SELECTED_IDS = 200
+REVIEW_BOUNDARY = ("Registry records as each registry published them. No researcher rankings or metrics, no "
+                   "inference of affiliation from co-authorship, no author disambiguation by name and no personal data "
+                   "beyond the public ORCID fields the RE01 minimisation decision allows.")
 EXCLUSIONS = (
-    "researcher rankings, league tables or metrics (h-index, citation or usage counts, impact scores)",
+    "researcher rankings, league tables or metrics (h-index, citation counts, productivity scores)",
     "inference of affiliation from co-authorship",
     "author disambiguation or matching by name",
-    "personal data beyond the public ORCID fields the data-minimisation decision allows",
-    "entity merges of researchers",
-    "summing contributions across currencies or converting currencies",
+    "personal data beyond the public ORCID fields allowed by the RE01 minimisation decision",
+    "summing contributions across currencies",
     "inferred collaboration or influence links",
 )
 
-PROVIDERS = ("ror", "orcid", "datacite", "cordis")
+# format -> provider, record kind, the selection list it reads and whether a secret (client token) is required
+FORMATS: dict[str, dict[str, Any]] = {
+    "ror-dump-zip": {"provider": "ror", "kind": "organisation", "unit": "releases", "keyed": False},
+    "orcid-record-json": {"provider": "orcid", "kind": "researcher", "unit": "orcids", "keyed": True},
+    "datacite-doi-json": {"provider": "datacite", "kind": "dataset", "unit": "dois", "keyed": False},
+    "cordis-projects-csv-zip": {"provider": "cordis", "kind": "project", "unit": "programmes", "keyed": False},
+}
+RECORD_KINDS = ("organisation", "researcher", "dataset", "project")
 PROVIDER_HOSTS = {
     "ror": {"zenodo.org"},
     "orcid": {"pub.orcid.org"},
     "datacite": {"api.datacite.org"},
     "cordis": {"cordis.europa.eu"},
 }
-FORMATS = {
-    "ror-dump-zip": {"provider": "ror", "record_kind": "organisation"},
-    "orcid-record-json": {"provider": "orcid", "record_kind": "researcher"},
-    "datacite-doi-json": {"provider": "datacite", "record_kind": "dataset"},
-    "cordis-csv-zip": {"provider": "cordis", "record_kind": "project"},
-}
-RECORD_KINDS = ("organisation", "researcher", "dataset", "project")
-ROR_STATUSES = ("active", "inactive", "withdrawn")
-ROR_RELATIONSHIPS = ("parent", "child", "related", "predecessor", "successor")
-ROR_EXTERNAL_TYPES = ("grid", "isni", "wikidata", "fundref")
-REMOVAL_STATUSES = ("not_in_release", "not_found", "deactivated", "locked")
-# Work identifier types kept from ORCID works (all bibliographic, none personal).
-ORCID_WORK_IDS = ("doi", "arxiv", "pmid")
+FEATURES = {"ror": "research-entities-ror", "orcid": "research-entities-orcid",
+            "datacite": "research-entities-datacite", "cordis": "research-entities-cordis"}
 
-# RE01 data-minimisation decision: the only researcher fields ever stored (enforced by the store at write time).
-ORCID_KEPT = {
-    "record": ("orcid", "display_name", "employments", "works"),
-    "employment": ("put_code", "organisation", "start", "end", "last_modified"),
-    "organisation": ("name", "city", "country", "disambiguated"),
-    "work": ("put_code", "title", "type", "publication_year", "identifiers", "last_modified"),
-}
-ORCID_EXCLUDED = (
-    "emails",
-    "addresses",
-    "biography",
-    "keywords",
-    "other-names",
-    "researcher-urls",
-    "person external-identifiers",
-    "educations",
-    "qualifications",
-    "invited-positions",
-    "distinctions",
-    "memberships",
-    "services",
-    "fundings",
-    "peer-reviews",
-    "research-resources",
-    "employment department-name and role-title",
-    "work contributors, citations, journal titles and URLs",
-    "items whose visibility is not public",
-)
-DATACITE_CREATOR_KEPT = ("position", "name_type", "name", "orcid", "affiliation_identifiers")
-DATACITE_EXCLUDED = (
-    "personal creator and contributor names",
-    "given and family names",
-    "affiliation names of personal creators (only published affiliation identifiers are kept)",
-    "contributors",
-    "citationCount, viewCount, downloadCount and other usage metrics",
-    "descriptions and subjects beyond titles",
-)
-CORDIS_EXCLUDED = ("street", "postCode", "geolocation", "contactForm", "organizationURL outside website-domain evidence",
-                   "objective texts")
-
+# RE01 access decisions. Recorded without network access to the providers' documentation (the audit host's proxy
+# refused the documentation hosts); every item marked ``verify`` must be checked before a dated live run (RE14, #2649).
 PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     "ror": {
-        "delivers": "research organisations keyed by ROR ID with names, types, status, relationships, successors and "
-        "external identifiers, per data-dump release",
+        "publisher": "Research Organization Registry (ROR)",
+        "delivers": "organisation records keyed by ROR id: names, types, status (active, inactive, withdrawn), "
+        "locations, links, external identifiers and relationships (parent, child, related, predecessor, successor)",
         "access_decision": "unverified-live",
-        "reason": "the ROR data dump is published on Zenodo under CC0 without authentication; the release file and "
-        "member names and the dump size against the byte budget are not yet checked live from this runtime",
-        "access": "bulk file: one ROR data-dump release (zip holding the schema v2 JSON) per declared document",
-        "entry_points": ["https://zenodo.org/records/{record}/files/{file} (verify)",
-                         "concept DOI https://doi.org/10.5281/zenodo.6347574 (all releases)"],
-        "format": "zip holding a JSON array of ROR schema v2 records (a CSV copy is not read)",
-        "authentication": "none",
-        "key_handling": "no credential",
-        "rate_limits": "Zenodo download limits apply (not documented per file; verify); one download per declared "
-        "release, bounded by max_bytes (100 MB ceiling; verify the dump size) and the declared ROR IDs",
-        "identifiers": {"organisation": "ROR ID (https://ror.org/0xxxxxxxx)",
-                        "external": "GRID, ISNI, Wikidata, FundRef as published in external_ids"},
-        "licence": "CC0 1.0 (ROR data dump)",
-        "attribution": "Research Organization Registry (ROR), data dump release as named",
-        "update_cadence": "roughly monthly data-dump releases, each with a version and date (verify)",
-        "revision_model": "each release is a vintage; a record whose content changed between releases gains a "
-        "revision; inactive and withdrawn records stay in the dump with their status and successors",
-        "corrections_and_removals": "ROR does not delete records: a record is made inactive or withdrawn and names "
-        "a successor where one exists; a declared ID missing from a release is recorded as not_in_release",
-        "temporal_semantics": "the declared release date dates the vintage; admin.last_modified is kept as the "
-        "provider's modification date",
-        "personal_data": "none (organisation records)",
-        "retained_evidence": "zip digest, member name, release version",
-        "verify": ["Zenodo record and file names per release", "JSON member name", "dump size against max_bytes"],
-        "sources": [
-            {"url": "https://ror.readme.io/docs/data-dump", "read_on": "2026-09-30",
-             "note": "not fetched (egress blocked); the web-search summary states CC0, all statuses in the dump"},
-            {"url": "https://ror.readme.io/docs/zenodo", "read_on": "2026-09-30",
-             "note": "not fetched; retrieval of releases from Zenodo (verify)"},
+        "access": "bulk file: the ROR data dump release published on Zenodo (a zip holding the v2 schema JSON member)",
+        "endpoints": [
+            "https://zenodo.org/records/{record}/files/{release}-ror-data.zip (verify the file path per release)",
+            ("https://api.ror.org/v2/organizations/{id} (the API serves the latest release only; used by "
+             "src/ingestion/ror.py, not by this connector)"),
         ],
+        "authentication": "none (the ROR API introduces an optional client id for higher limits; verify)",
+        "rate_limits": "the dump is one download per release; the API allows about 2000 requests per 5 minutes "
+        "(verify); this connector never calls the API",
+        "licence": "CC0 1.0 (ROR data is public domain dedicated; attribution appreciated)",
+        "attribution": "Research Organization Registry (ROR), data dump release as cited",
+        "redistribution": "unrestricted (CC0)",
+        "identifiers": {"organisation": "ROR id (https://ror.org/0xxxxxxNN)",
+                        "external": "GRID, ISNI, Wikidata, FundRef (Crossref Funder id) as published"},
+        "revisions": "each dump release (vN.N, dated) is a vintage; a record's admin.last_modified states its own "
+        "change date; records are never deleted: a withdrawn or inactive record stays with its successor or "
+        "predecessor relationships (verify that successor relationships are always published)",
+        "corrections_and_removals": "corrections appear as changed records in a later release; removals appear as "
+        "status withdrawn (with a successor where merged); a declared id missing from a release is reported as "
+        "not_in_release and never read as a deletion",
+        "personal_data": "none (organisations only)",
+        "verify": ["Zenodo record and file names per release", "member name inside the zip", "v2 field names"],
     },
     "orcid": {
-        "delivers": "public ORCID records for a bounded list of iDs: display name, public employments and public "
-        "works as asserted identifiers, with the record's last-modified time",
+        "publisher": "ORCID, Inc. (public API v3.0)",
+        "delivers": "a researcher's public ORCID record: iD, public name, record last-modified time, public "
+        "employments and public works (identifiers as asserted)",
         "access_decision": "unverified-live",
-        "reason": "the ORCID Public API (pub.orcid.org, v3.0) serves public data; its terms grant a non-commercial "
-        "licence, so an operator must confirm non-commercial use (or use the CC0 annual public data file) before "
-        "enabling it; not yet run live",
-        "access": "api (ORCID Public API v3.0, JSON), one record per declared iD",
-        "entry_points": ["https://pub.orcid.org/v3.0/{orcid}/record (verify)"],
-        "format": "JSON (Accept: application/json)",
-        "authentication": "optional /read-public bearer token (client credentials); anonymous reads have lower quotas",
-        "key_handling": "the token is referenced as NOESIS_ORCID_READ_PUBLIC_TOKEN and resolved at run time; never "
-        "stored in manifests, receipts or records",
-        "rate_limits": "12 requests/second for the Public and Anonymous APIs (from February 2025), burst 40, and a "
-        "usage quota of 100 000 reads a day per client (verify); one request per declared iD",
-        "identifiers": {"researcher": "ORCID iD (ISO 7064 11,2 check digit)",
-                        "works": "DOI, arXiv, PMID as external-ids with relationship self",
-                        "employer": "disambiguated-organization identifier (ROR, GRID, Ringgold, FundRef)"},
-        "licence": "ORCID Public API terms: limited royalty-free licence for non-commercial use; the annual public "
-        "data file is CC0 (verify the current terms text)",
-        "attribution": "ORCID, record as retrieved",
-        "update_cadence": "records change whenever the researcher or a trusted party edits them",
-        "revision_model": "history.last-modified-date is the revision marker; a changed record is a new revision",
-        "corrections_and_removals": "an item made private disappears from the public record (a new revision without "
-        "it); a deactivated record states a deactivation date; a locked record answers HTTP 409 and an unknown iD "
-        "404 (verify): each becomes a removal revision without personal fields",
-        "temporal_semantics": "the record's last-modified time dates the revision",
-        "personal_data": "yes: governed by the data-minimisation decision in the audit (ORCID_KEPT / ORCID_EXCLUDED)",
-        "retained_evidence": "response digest per record",
-        "verify": ["path and media type", "deactivation and lock responses", "current terms text", "quotas"],
-        "sources": [
-            {"url": "https://info.orcid.org/documentation/features/public-api/", "read_on": "2026-09-30",
-             "note": "not fetched (egress blocked); facts from the web-search summaries of the pages below"},
-            {"url": "https://info.orcid.org/refining-api-traffic-management/", "read_on": "2026-09-30",
-             "note": "search summary: 24 req/s reduced to 12 for Public/Anonymous APIs from Feb 2025; burst 40; "
-             "100k reads a day per client"},
-            {"url": "https://info.orcid.org/terms-of-use/", "read_on": "2026-09-30",
-             "note": "search summary: Public API free for non-commercial use; public data file CC0"},
-        ],
+        "access": "api (GET https://pub.orcid.org/v3.0/{orcid}/record, Accept: application/vnd.orcid+json)",
+        "endpoints": ["https://pub.orcid.org/v3.0/{orcid}/record (verify)",
+                      "https://orcid.org/oauth/token (client-credentials /read-public token; operator-side)"],
+        "authentication": "registered public-API client credentials; the /read-public bearer token is supplied as "
+        "the secret NOESIS_ORCID_PUBLIC_TOKEN and never stored in a manifest, record or receipt; without it the "
+        "source fails with authentication_failed and the feature reports itself degraded",
+        "rate_limits": "public API: about 24 requests per second and a burst of 40 per client (verify); the connector "
+        "makes one request per declared iD",
+        "licence": "ORCID public data is released under CC0 (verify); the ORCID Public API terms of service apply "
+        "to the client and forbid presenting ORCID data as verified by ORCID (verify wording)",
+        "attribution": "ORCID public record as cited (https://orcid.org/{orcid})",
+        "redistribution": "CC0 for public data; only the minimised fields are stored or exported",
+        "identifiers": {"researcher": "ORCID iD with ISO 7064 11,2 checksum", "works": "external ids (DOI etc.) as "
+                        "asserted", "organisations": "disambiguated organisation ids (ROR, GRID, Ringgold, FundRef)"},
+        "revisions": "history.last-modified-date dates a record version; each changed public record is a revision",
+        "corrections_and_removals": "an item made private or deleted by the researcher disappears from the next "
+        "response and becomes a revision without it; a deactivated or deprecated record (HTTP 409/410, verify) "
+        "becomes a withdrawn revision with no personal field",
+        "personal_data": "yes - see MINIMISATION",
+        "verify": ["response codes for deactivated, locked and deprecated records", "rate limits", "licence wording"],
     },
     "datacite": {
-        "delivers": "DataCite DOI metadata for declared DOIs or a bounded query page: titles, publisher, year, "
-        "resource type, version, rights and related identifiers as published",
+        "publisher": "DataCite (REST API)",
+        "delivers": "DOI metadata of datasets: titles, publisher, publication year, version, metadata version, "
+        "related identifiers, funding references, creators and contributors",
         "access_decision": "unverified-live",
-        "reason": "the DataCite REST API serves findable DOI metadata without authentication under CC0; not yet run "
-        "live from this runtime",
-        "access": "api (DataCite REST API, JSON:API)",
-        "entry_points": ["https://api.datacite.org/dois/{doi}?affiliation=true&publisher=true (verify)",
-                         "https://api.datacite.org/dois?query=...&page[size]=N&affiliation=true (verify)"],
-        "format": "JSON:API",
-        "authentication": "none for retrieval; identified requests (mailto) get a higher limit",
-        "key_handling": "no credential",
-        "rate_limits": "3000 requests per 5 minutes per IP for authenticated, 1000 for identified and 500 for "
-        "unidentified requests (verify); one request per declared document",
-        "identifiers": {"dataset": "DOI", "creators": "ORCID nameIdentifier", "affiliations": "ROR "
-                        "affiliationIdentifier"},
-        "licence": "DataCite metadata is CC0 1.0 (the waiver covers the metadata, not the described datasets)",
-        "attribution": "DataCite, DOI metadata",
-        "update_cadence": "whenever the registering client updates the DOI metadata",
-        "revision_model": "metadataVersion and updated mark a metadata version; a changed record is a new revision",
-        "corrections_and_removals": "metadata updates raise metadataVersion; a DOI that is no longer findable "
-        "answers 404 and becomes a removal revision",
-        "temporal_semantics": "attributes.updated dates the metadata version",
-        "personal_data": "creator names and affiliations: only ORCID iDs, organisational creator names and "
-        "affiliation identifiers are kept (minimisation decision)",
-        "retained_evidence": "response digest per call",
-        "verify": ["affiliation and publisher parameters", "query syntax for related identifiers", "rate limits"],
-        "sources": [
-            {"url": "https://support.datacite.org/docs/api", "read_on": "2026-09-30",
-             "note": "not fetched (egress blocked); facts from the web-search summaries of the pages below"},
-            {"url": "https://support.datacite.org/docs/rate-limit", "read_on": "2026-09-30",
-             "note": "search summary: 3000/1000/500 requests per 5 minutes per IP by tier"},
-            {"url": "https://support.datacite.org/docs/datacite-metadata-license", "read_on": "2026-09-30",
-             "note": "search summary: metadata waived under CC0 1.0"},
-        ],
+        "access": "api (GET https://api.datacite.org/dois/{doi}?affiliation=true, JSON:API)",
+        "endpoints": ["https://api.datacite.org/dois/{doi} (verify parameter names)"],
+        "authentication": "none for public (findable) DOIs",
+        "rate_limits": "about 3000 requests per 5 minutes per client IP (verify); one request per declared DOI",
+        "licence": "DataCite metadata is CC0 (verify)",
+        "attribution": "DataCite DOI metadata as cited (https://doi.org/{doi})",
+        "redistribution": "unrestricted (CC0); personal creators are minimised before storage",
+        "identifiers": {"dataset": "DOI (case-insensitive, stored lower-case)",
+                        "related": "relatedIdentifier with relatedIdentifierType and relationType as published"},
+        "revisions": "attributes.metadataVersion and attributes.updated identify a metadata version; each changed "
+        "response is a revision",
+        "corrections_and_removals": "a changed metadata version is a revision; a DOI no longer served (HTTP 404: "
+        "made registered-only or deleted draft) becomes an unavailable revision, never a deletion",
+        "personal_data": "creators and contributors of nameType Personal - see MINIMISATION",
+        "verify": ["affiliation=true parameter", "metadataVersion semantics", "404 behaviour for registered DOIs"],
     },
     "cordis": {
-        "delivers": "EU framework-programme projects keyed by project ID and programme with participants (PIC, "
-        "name, role, activity type, country) and contributions as published",
+        "publisher": "European Commission, CORDIS (open data project exports)",
+        "delivers": "EU framework-programme projects: identifiers, programme, topics and calls, dates, costs and EU "
+        "contributions, participants with PIC, role and contribution as published",
         "access_decision": "unverified-live",
-        "reason": "CORDIS bulk project files are published for reuse (CC BY 4.0 for EU-owned CORDIS content under "
-        "the Commission reuse decision 2011/833/EU); file names, delimiter and number format not yet checked live",
-        "access": "bulk file: one CORDIS zip of CSVs (project.csv, organization.csv) per declared document",
-        "entry_points": ["https://cordis.europa.eu/data/cordis-HORIZONprojects-csv.zip (verify)",
-                         "https://cordis.europa.eu/data/cordis-h2020projects-csv.zip (verify)",
-                         ("catalogue: https://data.europa.eu/data/datasets/cordis-eu-research-projects-under-"
-                          "horizon-europe-2021-2027")],
-        "format": "zip of CSVs; delimiter and decimal separator declared per document (semicolon and comma; verify)",
+        "access": "bulk file: the CORDIS project export of a programme (zip with project.csv and organization.csv, "
+        "semicolon-delimited)",
+        "endpoints": ["https://cordis.europa.eu/data/cordis-HORIZONprojects-csv.zip (verify)",
+                      "https://cordis.europa.eu/data/cordis-h2020projects-csv.zip (verify)"],
         "authentication": "none",
-        "key_handling": "no credential",
-        "rate_limits": "not documented; one download per declared file, bounded by max_bytes and the declared "
-        "project IDs",
-        "identifiers": {"project": "CORDIS project id with frameworkProgramme", "participant": "PIC (organisationID) "
-                        "and VAT number as published"},
-        "licence": "CC BY 4.0 for EU-owned CORDIS content (Commission Decision 2011/833/EU); attribution to CORDIS "
-        "(verify the file-level licence on data.europa.eu)",
-        "attribution": "European Commission, CORDIS",
-        "update_cadence": "bulk files regenerated periodically; each row states contentUpdateDate",
-        "revision_model": "each declared file release is a vintage; a project whose content changed is a new "
-        "revision; contentUpdateDate is kept as the provider's modification date",
-        "corrections_and_removals": "corrected rows carry a later contentUpdateDate; a declared project missing from "
-        "a later file is recorded as not_in_release",
-        "temporal_semantics": "the project's contentUpdateDate, else the declared file date, dates the revision",
-        "personal_data": "none kept: participants are organisations; addresses, contact forms and geolocations are "
-        "dropped",
-        "retained_evidence": "zip digest, member names, row numbers",
-        "verify": ["file names per programme", "column names", "delimiter", "decimal separator", "licence"],
-        "sources": [
-            {"url": "https://cordis.europa.eu/about/services", "read_on": "2026-09-30",
-             "note": "not fetched (egress blocked); facts from the web-search summaries of the pages below"},
-            {"url": "https://cordis.europa.eu/about/legal", "read_on": "2026-09-30",
-             "note": "search summary: CORDIS content reusable under CC BY 4.0 (Decision 2011/833/EU)"},
-            {"url": "https://data.europa.eu/data/datasets/cordish2020projects?locale=en", "read_on": "2026-09-30",
-             "note": "search summary: organization.csv columns projectID, organisationID, vatNumber, name, role, "
-             "ecContribution, netEcContribution, totalCost, contentUpdateDate"},
-        ],
+        "rate_limits": "not documented; one download per declared programme per run, bounded by max_bytes",
+        "licence": "Commission reuse policy (Decision 2011/833/EU), CC BY 4.0 with attribution to CORDIS (verify)",
+        "attribution": "CORDIS - EU research results, European Commission",
+        "redistribution": "reuse with attribution",
+        "identifiers": {"project": "CORDIS project id (the grant agreement number) within its framework programme",
+                        "participant": "organisationID (the participant identification code, PIC; verify) and VAT "
+                        "number as published"},
+        "revisions": "contentUpdateDate per project and participant row dates a version; each changed export row "
+        "set is a revision of the project record",
+        "corrections_and_removals": "a corrected row is a revision; a declared project missing from a later export "
+        "is reported as not_in_export and never read as a deletion",
+        "personal_data": "participant contact forms and street addresses are not needed and never stored; "
+        "participants are organisations",
+        "verify": ["file names", "column names and delimiter", "decimal separator", "that organisationID is the PIC"],
     },
-}
-NOT_IMPLEMENTED = {
     "openaire-graph": {
-        "decision": "not_implemented",
-        "reason": "a gap-table candidate outside the tracker's initial sources; its graph deduplicates organisations "
-        "and derives inferred author and affiliation relations, which the exclusions forbid unless filtered; needs "
-        "its own audit before any use (not audited here)",
-    },
-    "orcid-member-api": {
-        "decision": "not_implemented",
-        "reason": "the Member API reads limited-visibility data; the minimisation decision allows public fields only",
+        "publisher": "OpenAIRE (OpenAIRE Graph)",
+        "delivers": "an aggregated research graph (publications, datasets, projects, organisations, links)",
+        "access_decision": "documented-not-acquired",
+        "access": "none in the first coverage",
+        "endpoints": ["https://api.openaire.eu/graph/ (verify)"],
+        "authentication": "none for the public API (verify)",
+        "rate_limits": "undocumented here (verify)",
+        "licence": "CC BY 4.0 for the graph dumps (verify)",
+        "attribution": "OpenAIRE Graph",
+        "redistribution": "reuse with attribution",
+        "identifiers": {"all": "OpenAIRE identifiers with original PIDs"},
+        "revisions": "graph releases",
+        "corrections_and_removals": "graph releases",
+        "personal_data": "author names as aggregated",
+        "reason": "an aggregator: its organisation and author links include inferred and deduplicated relations "
+        "(the exclusions forbid inferred affiliation and name-based author disambiguation), and every record it "
+        "holds for the first coverage is available from the primary registries (ROR, ORCID, DataCite, CORDIS); "
+        "recorded as not implemented until a decision allows filtering to asserted links only",
+        "verify": ["whether provenance of each relation is exposed"],
     },
 }
 LIVE_VERIFICATION = {
-    provider: {"status": contract["access_decision"], "note": "no dated live run from this runtime; offline fixtures "
-               "only (RE14 #2649 records live evidence)"}
+    provider: {"status": contract["access_decision"],
+               "note": "no dated live run from this runtime; offline fixtures only (RE14 #2649 records live evidence)"}
     for provider, contract in PROVIDER_CONTRACTS.items()
 }
-# The bounded first coverage (RE01). No record set implies complete coverage of any provider.
 BOUNDED_COVERAGE = {
-    "ror": {"records": "at most 200 declared ROR IDs per release (the organisations of the journeys and their "
-                       "declared relatives)", "releases": "the two most recent data-dump releases"},
-    "orcid": {"records": "at most 50 declared ORCID iDs, each named by an operator for a reason recorded in the "
-                         "source entry; no search, no crawling of co-authors", "revisions": "one fetch per run"},
-    "datacite": {"records": "at most 100 declared DOIs, or query pages of at most 100 DOIs of resource type Dataset "
-                            "for a declared repository client or related paper DOI", "revisions": "one fetch per run"},
-    "cordis": {"programmes": ["HORIZON (2021-2027)", "H2020 (2014-2020)"],
-               "records": "at most 200 declared project IDs per file", "releases": "the two most recent files"},
-    "out_of_scope": "researcher rankings or metrics, citation and usage counts, co-authorship graphs and any "
-    "personal data outside ORCID_KEPT are never acquired or stored",
+    "ror": {"releases": "the two most recent dump releases", "organisations": "a declared list of ROR ids (at most "
+            "200): the organisations of the declared CORDIS participants and ORCID employments, their parents, "
+            "children and successors", "why": "enough to answer lineage across two releases without mirroring the "
+            "registry (about 110 000 records)"},
+    "orcid": {"researchers": "a declared list of ORCID iDs (at most 50) whose records name a declared ROR "
+              "organisation; each record read once per run", "why": "researcher records are personal data; the "
+              "coverage is limited to named, declared iDs and never expanded through co-authorship"},
+    "datacite": {"dois": "a declared list of dataset DOIs (at most 200): datasets whose metadata cites a declared "
+                 "organisation's ROR id or a declared CORDIS project", "why": "DataCite holds tens of millions of "
+                 "DOIs; related datasets are reached by declared DOI, never by crawling"},
+    "cordis": {"programmes": ["HORIZON (Horizon Europe, 2021-2027)", "H2020 (Horizon 2020, 2014-2020)"],
+               "projects": "a declared list of project ids per programme (at most 200)",
+               "why": "the exports hold every project of a programme; only declared projects are kept"},
+    "periods": "records as published in the acquired releases; no backfill of earlier ROR releases or CORDIS "
+    "exports",
+    "caps": {"units_per_source": MAX_UNITS, "selected_ids_per_unit": MAX_SELECTED_IDS},
 }
-MINIMISATION = {
-    "decision": "RE01 data-minimisation decision (docs/development/research-entities-evidence/source-audit.md)",
-    "orcid_kept": ORCID_KEPT,
-    "orcid_excluded": list(ORCID_EXCLUDED),
-    "datacite_creator_kept": list(DATACITE_CREATOR_KEPT),
-    "datacite_excluded": list(DATACITE_EXCLUDED),
-    "cordis_excluded": list(CORDIS_EXCLUDED),
-    "retention": "revisions are immutable and kept for as-of answers; once ORCID reports a record deactivated, locked "
-    "or unknown, answers withhold the display name of every earlier revision",
-    "access": "researcher records are answered only with knowledge:research-entities:researchers in addition to the "
-    "read scope; organisation, dataset and project records need the read scope",
-    "merges": "researchers are never subjects of entity merges or identity matches",
+MINIMISATION: dict[str, Any] = {
+    "policy": MINIMISATION_POLICY,
+    "subjects": "natural persons: ORCID record holders; DataCite creators and contributors of nameType Personal",
+    "stored_for_researchers": [
+        "ORCID iD",
+        "public name (given names, family name, credit name) exactly as published with PUBLIC visibility",
+        "record last-modified time",
+        ("public employments: organisation name, city, region and country, disambiguated organisation id, "
+         "department, role title, start and end dates, put-code, asserting source kind, last-modified time"),
+        ("public works: put-code, type, title, publication year, external ids as asserted, asserting source kind, "
+         "last-modified time"),
+    ],
+    "never_stored_for_researchers": [
+        "biography", "emails", "addresses (country of residence)", "keywords", "other names", "researcher URLs",
+        "person external identifiers", "educations and qualifications",
+        "distinctions, invited positions, memberships and services", "fundings", "peer reviews",
+        "research resources", "non-public items of any section", "the name of a self-asserting source",
+    ],
+    "stored_for_dataset_persons": ["name type", "ORCID iD when the metadata publishes one",
+                                   "affiliation identifiers (ROR) when published", "position in the creator list",
+                                   "contributor type"],
+    "never_stored_for_dataset_persons": ["given name", "family name", "full name", "affiliation names of persons",
+                                         "other name identifiers"],
+    "matching": "researchers are never matched, merged or disambiguated by name; a researcher links to papers only "
+    "through DOIs asserted in their public ORCID record and to organisations only through the disambiguated "
+    "organisation id of an asserted employment; persons in dataset metadata are never matched",
+    "query_scope": "researcher records are returned only to principals holding "
+    "knowledge:science:research-entities:researchers:read in addition to the read scope; others see that a "
+    "researcher record exists behind a count",
+    "retention": "revisions are retained with the minimised fields; a deactivated or deprecated ORCID record becomes a "
+    "withdrawn revision without name, and an operator redaction (ResearchEntityStore.redact_researcher) removes the "
+    "name from every stored revision of that researcher and records the redaction",
+    "notices_and_exports": "monitor notices and evidence bundles carry the ORCID iD and the minimised fields only",
 }
+RESEARCHER_ALLOWED_FIELDS = frozenset({"orcid", "name", "name_status", "last_modified", "status", "employments",
+                                       "works", "withheld_sections"})
+NAME_KEYS = frozenset({"given_names", "family_name", "credit_name"})
+EMPLOYMENT_KEYS = frozenset({"put_code", "organisation", "department", "role", "start_date", "end_date",
+                             "asserted_by", "last_modified"})
+WORK_KEYS = frozenset({"put_code", "type", "title", "publication_year", "external_ids", "asserted_by",
+                       "last_modified"})
+PERSON_FORBIDDEN_KEYS = frozenset({"name", "given_name", "givenname", "family_name", "familyname", "full_name",
+                                   "affiliation_names"})
+PARTICIPANT_FORBIDDEN_KEYS = frozenset({"street", "post_code", "postcode", "contact_form", "contactform",
+                                        "geolocation"})
+ROR_RELATIONSHIP_TYPES = ("parent", "child", "related", "predecessor", "successor")
+ROR_STATUSES = ("active", "inactive", "withdrawn")
+RELATION_TYPES = frozenset({
+    "IsCitedBy", "Cites", "IsSupplementTo", "IsSupplementedBy", "IsContinuedBy", "Continues", "IsDescribedBy",
+    "Describes", "HasMetadata", "IsMetadataFor", "HasVersion", "IsVersionOf", "IsNewVersionOf",
+    "IsPreviousVersionOf", "IsPartOf", "HasPart", "IsPublishedIn", "IsReferencedBy", "References",
+    "IsDocumentedBy", "Documents", "IsCompiledBy", "Compiles", "IsVariantFormOf", "IsOriginalFormOf",
+    "IsIdenticalTo", "IsReviewedBy", "Reviews", "IsDerivedFrom", "IsSourceOf", "IsRequiredBy", "Requires",
+    "IsObsoletedBy", "Obsoletes", "IsCollectedBy", "Collects",
+})
+ROR_ID = re.compile(r"^0[0-9a-hj-km-np-tv-z]{6}[0-9]{2}$")
+DOI = re.compile(r"^10\.\d{4,9}/\S+$")
+CORDIS_PROGRAMMES = {"HORIZON": "/data/cordis-HORIZONprojects-csv.zip", "H2020": "/data/cordis-h2020projects-csv.zip"}
+PROJECT_COLUMNS = ("id", "acronym", "status", "title", "startDate", "endDate", "totalCost", "ecMaxContribution",
+                   "frameworkProgramme", "contentUpdateDate")
+ORGANIZATION_COLUMNS = ("projectID", "organisationID", "name", "role", "ecContribution", "country",
+                        "contentUpdateDate")
+CORDIS_CURRENCY = "EUR"
 
 
-class ResearchEntitiesFormatError(ValueError):
+class ResearchEntityFormatError(ValueError):
     def __init__(self, code: str, message: str) -> None:
         super().__init__(message)
         self.code = code
@@ -335,11 +302,7 @@ def digest(value: Any) -> str:
     return hashlib.sha256(canonical(value).encode()).hexdigest()
 
 
-def unverified(provider: str) -> bool:
-    return PROVIDER_CONTRACTS.get(provider, {}).get("access_decision") != "verified-live"
-
-
-def text(value: Any) -> str | None:
+def clean(value: Any) -> str | None:
     if value is None:
         return None
     raw = str(value).strip()
@@ -347,7 +310,7 @@ def text(value: Any) -> str | None:
 
 
 def iso_day(value: Any) -> str | None:
-    raw = text(value)
+    raw = clean(value)
     if raw is None:
         return None
     try:
@@ -357,14 +320,14 @@ def iso_day(value: Any) -> str | None:
 
 
 def iso_instant(value: Any) -> str | None:
-    """An ISO instant (UTC) from ISO text or epoch milliseconds."""
+    """An ISO timestamp (or epoch milliseconds) as UTC ISO text; a bare date means its start."""
     if isinstance(value, (int, float)) and not isinstance(value, bool):
-        return datetime.fromtimestamp(int(value) / 1000, tz=UTC).isoformat()
-    raw = text(value)
+        return datetime.fromtimestamp(value / 1000, tz=UTC).isoformat()
+    raw = clean(value)
     if raw is None:
         return None
-    if raw.isdigit() and len(raw) > 8:
-        return datetime.fromtimestamp(int(raw) / 1000, tz=UTC).isoformat()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw):
+        raw += "T00:00:00+00:00"
     try:
         stamp = datetime.fromisoformat(raw)
     except ValueError:
@@ -374,560 +337,625 @@ def iso_instant(value: Any) -> str | None:
     return stamp.astimezone(UTC).isoformat()
 
 
-# ------------------------------------------------------------------ identifiers
-
-_ROR = re.compile(r"0[0-9a-hj-km-np-tv-z]{6}[0-9]{2}")
-_ORCID = re.compile(r"\d{4}-\d{4}-\d{4}-\d{3}[\dX]")
-_DOI = re.compile(r"10\.\d{4,9}/\S+")
+def ror_id(value: Any) -> str | None:
+    raw = str(value or "").strip().removeprefix("https://ror.org/").removeprefix("http://ror.org/").lower()
+    return raw if ROR_ID.fullmatch(raw) else None
 
 
-def ror_id(value: Any) -> str:
-    """A ROR ID as its canonical URL; refused when it is not a ROR ID."""
-    raw = str(value or "").strip().removeprefix("https://ror.org/").removeprefix("ror.org/")
-    if not _ROR.fullmatch(raw):
-        raise ResearchEntitiesFormatError("invalid_identifier", "not a ROR identifier")
-    return "https://ror.org/" + raw
+def ror_url(value: Any) -> str | None:
+    rid = ror_id(value)
+    return None if rid is None else "https://ror.org/" + rid
 
 
-def orcid_id(value: Any) -> str:
-    """An ORCID iD (bare, ``0000-0000-0000-0000``) with a valid ISO 7064 11,2 check digit."""
+def normalize_doi(value: Any) -> str | None:
     raw = str(value or "").strip()
-    for prefix in ("https://orcid.org/", "http://orcid.org/", "orcid.org/"):
-        raw = raw.removeprefix(prefix)
-    raw = raw.upper()
-    if not _ORCID.fullmatch(raw):
-        raise ResearchEntitiesFormatError("invalid_identifier", "not an ORCID iD")
-    total = 0
-    for char in raw.replace("-", "")[:-1]:
-        total = (total + int(char)) * 2
-    check = (12 - total % 11) % 11
-    if raw[-1] != ("X" if check == 10 else str(check)):
-        raise ResearchEntitiesFormatError("invalid_identifier", "ORCID iD check digit does not match")
-    return raw
+    raw = re.sub(r"^(https?://(dx\.)?doi\.org/|doi:)", "", raw, flags=re.IGNORECASE).lower()
+    return raw if DOI.fullmatch(raw) else None
 
 
-def doi(value: Any) -> str:
-    """A DOI in its case-insensitive normal form (lower case, no resolver prefix)."""
-    raw = str(value or "").strip()
-    for prefix in ("https://doi.org/", "http://doi.org/", "https://dx.doi.org/", "doi.org/", "doi:"):
-        if raw.casefold().startswith(prefix):
-            raw = raw[len(prefix):]
-    raw = raw.casefold()
-    if not _DOI.fullmatch(raw):
-        raise ResearchEntitiesFormatError("invalid_identifier", "not a DOI")
-    return raw
-
-
-def _safe(parser: Callable[[Any], str], value: Any) -> str | None:
-    try:
-        return parser(value)
-    except ResearchEntitiesFormatError:
+def valid_orcid(value: Any) -> str | None:
+    raw = str(value or "").strip().removeprefix("https://orcid.org/").removeprefix("http://orcid.org/").upper()
+    if not re.fullmatch(r"\d{4}-\d{4}-\d{4}-\d{3}[\dX]", raw):
         return None
+    total = 0
+    for digit in raw.replace("-", "")[:-1]:
+        total = (total + int(digit)) * 2
+    check = (12 - total % 11) % 11
+    return raw if raw[-1] == ("X" if check == 10 else str(check)) else None
 
 
-def decimal_text(value: Any, separator: str = ".") -> str | None:
-    """A published amount as exact decimal text; ``None`` for a missing or non-numeric value (never zero)."""
-    raw = text(value)
+def organisation_key(value: Any) -> str:
+    return f"research-entities:ror:{ror_id(value)}"
+
+
+def researcher_key(value: Any) -> str:
+    return f"research-entities:orcid:{valid_orcid(value)}"
+
+
+def dataset_key(value: Any) -> str:
+    return f"research-entities:doi:{normalize_doi(value)}"
+
+
+def project_key(programme: Any, project_id: Any) -> str:
+    return f"research-entities:cordis:{str(programme).upper()}:{str(project_id).strip()}"
+
+
+def participant_key(pic: Any) -> str:
+    return f"research-entities:cordis-participant:{str(pic).strip()}"
+
+
+def unverified(provider: str) -> bool:
+    return PROVIDER_CONTRACTS.get(provider, {}).get("access_decision") != "verified-live"
+
+
+def amount(value: Any) -> str | None:
+    """A published amount as exact decimal text (CORDIS may use a decimal comma); ``None`` when not numeric."""
+    raw = clean(value)
     if raw is None:
         return None
-    if separator == ",":
-        raw = raw.replace(".", "").replace(" ", "").replace(",", ".")
+    if "," in raw and "." not in raw:
+        raw = raw.replace(",", ".")
     try:
         number = Decimal(raw)
     except InvalidOperation:
         return None
     if not number.is_finite():
         return None
-    return format(number, "f")
+    return format(number.normalize(), "f") if number == number.to_integral_value() else format(number, "f")
 
 
-# ------------------------------------------------------------------ declarations
+def _order(*parts: Any) -> str:
+    out = []
+    for part in parts:
+        if isinstance(part, int) or (isinstance(part, str) and part.isdigit()):
+            out.append(f"{int(part):012d}")
+        else:
+            out.append(str(part or ""))
+    return "|".join(out)
 
 
-def check_document(fmt: str, document: Mapping[str, Any]) -> None:
-    if not text(document.get("label")):
-        raise ResearchEntitiesFormatError("invalid_document", "a document has a label")
-    release = dict(document.get("release") or {})
-    if release and (iso_day(release.get("published_on")) is None or not text(release.get("label"))):
-        raise ResearchEntitiesFormatError("invalid_document", "a declared release states its label and date")
-    if fmt == "ror-dump-zip":
-        if not re.fullmatch(r"\d{1,12}", str(document.get("record") or "")) or not text(document.get("file")) \
-                or not text(document.get("member")) or not text(document.get("version")) or not release:
-            raise ResearchEntitiesFormatError("invalid_document", "a ROR document names the Zenodo record, file, JSON "
-                                              "member, version and release date")
-        ids = list(document.get("ror_ids") or [])
-        if not ids or len(ids) > 200 or any(_safe(ror_id, i) is None for i in ids):
-            raise ResearchEntitiesFormatError("invalid_document", "a ROR document declares 1-200 ROR IDs")
-    elif fmt == "orcid-record-json":
-        if _safe(orcid_id, document.get("orcid")) is None:
-            raise ResearchEntitiesFormatError("invalid_document", "an ORCID document declares one valid ORCID iD")
-        if not text(document.get("reason")):
-            raise ResearchEntitiesFormatError("invalid_document", "an ORCID document records why the researcher is "
-                                              "in the bounded set")
-    elif fmt == "datacite-doi-json":
-        query = dict(document.get("query") or {})
-        if bool(document.get("doi")) == bool(query):
-            raise ResearchEntitiesFormatError("invalid_document", "a DataCite document names one DOI or one query")
-        if document.get("doi") and _safe(doi, document["doi"]) is None:
-            raise ResearchEntitiesFormatError("invalid_document", "a DataCite document names a valid DOI")
-        if query and (set(query) - {"query", "resource_type_id", "client_id", "page_size"}
-                      or not (text(query.get("query")) or text(query.get("client_id")))
-                      or not 1 <= int(query.get("page_size") or 25) <= 100):
-            raise ResearchEntitiesFormatError("invalid_document", "a DataCite query names a query or client and a "
-                                              "page size of at most 100")
-    elif fmt == "cordis-csv-zip":
-        if not text(document.get("programme")) or not re.fullmatch(r"[A-Za-z0-9._-]+\.zip", str(document.get("file")
-                                                                                              or "")):
-            raise ResearchEntitiesFormatError("invalid_document", "a CORDIS document names its programme and zip file")
-        if not text(document.get("project_member")) or not text(document.get("organization_member")) or not release:
-            raise ResearchEntitiesFormatError("invalid_document", "a CORDIS document names its CSV members and "
-                                              "release")
-        ids = list(document.get("project_ids") or [])
-        if not ids or len(ids) > 200 or not all(re.fullmatch(r"\d{1,12}", str(i)) for i in ids):
-            raise ResearchEntitiesFormatError("invalid_document", "a CORDIS document declares 1-200 project IDs")
-        if not re.fullmatch(r"[A-Z]{3}", str(document.get("currency") or "")):
-            raise ResearchEntitiesFormatError("invalid_document", "a CORDIS document declares the currency of its "
-                                              "amounts as the documentation states it")
-
-
-def document_url(fmt: str, document: Mapping[str, Any], endpoint: str = "") -> str:
-    if fmt == "ror-dump-zip":
-        return f"https://zenodo.org/records/{document['record']}/files/{quote(str(document['file']))}"
-    if fmt == "orcid-record-json":
-        base = str(endpoint or "https://pub.orcid.org/v3.0").rstrip("/")
-        return f"{base}/{orcid_id(document['orcid'])}/record"
-    if fmt == "datacite-doi-json":
-        base = str(endpoint or "https://api.datacite.org/dois").rstrip("/")
-        if document.get("doi"):
-            return f"{base}/{quote(doi(document['doi']), safe='/')}?" + urlencode(
-                [("affiliation", "true"), ("publisher", "true")])
-        query = dict(document["query"])
-        params = [("affiliation", "true"), ("page[size]", str(int(query.get("page_size") or 25)))]
-        if query.get("query"):
-            params.append(("query", str(query["query"])))
-        if query.get("resource_type_id"):
-            params.append(("resource-type-id", str(query["resource_type_id"])))
-        if query.get("client_id"):
-            params.append(("client-id", str(query["client_id"])))
-        return f"{base}?" + urlencode(sorted(params))
-    if fmt == "cordis-csv-zip":
-        return f"https://cordis.europa.eu/data/{document['file']}"
-    raise ResearchEntitiesFormatError("invalid_document", f"no URL for format {fmt}")
-
-
-def research_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
-    declared = dict(source.get("research_entities") or {})
-    fmt = declared.get("format")
-    if fmt not in FORMATS or FORMATS[fmt]["provider"] != declared.get("provider"):
-        raise SourcePackError("invalid_manifest", "research-entity sources declare a known provider and its format")
-    documents = list(declared.get("documents") or [])
-    if not documents:
-        raise SourcePackError("invalid_manifest", "a research-entity source declares its documents")
-    if len(documents) > int(dict(source.get("budgets") or {}).get("max_pages", 1)):
-        raise SourcePackError("invalid_manifest", "more declared documents than the source's page budget")
-    host = (urlsplit(source["endpoint"]).hostname or "").casefold()
-    if host not in PROVIDER_HOSTS[declared["provider"]]:
-        raise SourcePackError("invalid_manifest", "the endpoint is not the provider's documented host")
-    urls = []
-    for document in documents:
-        try:
-            check_document(fmt, document)
-            url = document_url(fmt, document, source["endpoint"])
-        except ResearchEntitiesFormatError as exc:
-            raise SourcePackError("invalid_manifest", str(exc)) from exc
-        parts = urlsplit(url)
-        if parts.scheme != "https" or (parts.hostname or "").casefold() != host:
-            raise SourcePackError("invalid_manifest", "declared documents are HTTPS resources on the endpoint's host")
-        urls.append(url)
-    if len(set(urls)) != len(urls):
-        raise SourcePackError("invalid_manifest", "each declared document is a distinct request")
-    return declared
-
-
-# ------------------------------------------------------------------ parsers
-
-
-def _statement(kind: str, provider: str, native_id: str, status: str, revision: Mapping[str, Any],
-               body: Mapping[str, Any], citation: Mapping[str, Any]) -> dict[str, Any]:
-    return {"contract": RECORD_CONTRACT, "record_kind": kind, "provider": provider, "native_id": native_id,
-            "status": status, "revision": dict(revision), "body": dict(body), "citation": dict(citation)}
-
-
-def _zip_member(raw: bytes, member: str) -> bytes:
-    try:
-        archive = zipfile.ZipFile(io.BytesIO(raw))
-    except zipfile.BadZipFile as exc:
-        raise ResearchEntitiesFormatError("schema_drift", "the release file is not a zip archive") from exc
-    if member not in archive.namelist():
-        raise ResearchEntitiesFormatError("schema_drift", f"the archive has no member {member}")
-    info = archive.getinfo(member)
-    if info.file_size > 2_000_000_000:
-        raise ResearchEntitiesFormatError("input_limit", "the member exceeds the decompression limit")
-    return archive.read(member)
-
-
-def _ror_body(native: Mapping[str, Any]) -> dict[str, Any]:
-    names = [{"value": str(n.get("value")), "types": sorted(str(t) for t in n.get("types") or []),
-              "lang": n.get("lang")} for n in native.get("names") or [] if n.get("value")]
-    if not names:
-        raise ResearchEntitiesFormatError("schema_drift", "a ROR record has names")
-    display = next((n["value"] for n in names if "ror_display" in n["types"]), names[0]["value"])
-    relationships = []
-    for relation in native.get("relationships") or []:
-        if relation.get("type") not in ROR_RELATIONSHIPS:
-            raise ResearchEntitiesFormatError("schema_drift", "unknown ROR relationship type")
-        relationships.append({"type": relation["type"], "id": ror_id(relation.get("id")),
-                              "label": relation.get("label")})
-    external = []
-    for item in native.get("external_ids") or []:
-        kind = str(item.get("type") or "").casefold()
-        if kind not in ROR_EXTERNAL_TYPES:
-            continue
-        external.append({"type": kind, "all": [str(v) for v in item.get("all") or []],
-                         "preferred": item.get("preferred")})
-    locations = []
-    for location in native.get("locations") or []:
-        details = dict(location.get("geonames_details") or {})
-        locations.append({"geonames_id": location.get("geonames_id"), "name": details.get("name"),
-                          "country_code": details.get("country_code"), "country_name": details.get("country_name")})
-    admin = dict(native.get("admin") or {})
+def _record(fmt: str, record_key: str, *, native_id: str, title: Any, locator: str, fields: Mapping[str, Any],
+            as_of: str | None, native_revision: Any, revision_order: str, status: str,
+            release: Mapping[str, Any] | None = None, minimisation: Mapping[str, Any] | None = None
+            ) -> dict[str, Any]:
+    spec = FORMATS[fmt]
+    if not str(locator or "").startswith("https://"):
+        raise ResearchEntityFormatError("schema_drift", f"{record_key} has no HTTPS locator")
     return {
-        "ror_id": ror_id(native.get("id")),
-        "display_name": display,
-        "names": sorted(names, key=lambda n: (n["value"], canonical(n["types"]))),
-        "types": sorted(str(t) for t in native.get("types") or []),
-        "established": native.get("established"),
-        "external_ids": sorted(external, key=lambda e: e["type"]),
-        "links": sorted(({"type": link.get("type"), "value": link.get("value")} for link in native.get("links") or []),
-                        key=canonical),
-        "domains": sorted(str(d) for d in native.get("domains") or []),
-        "locations": locations,
-        "relationships": sorted(relationships, key=lambda r: (r["type"], r["id"])),
-        "provider_modified": dict(admin.get("last_modified") or {}).get("date"),
+        "contract": RECORD_CONTRACT,
+        "format": fmt,
+        "provider": spec["provider"],
+        "record_kind": spec["kind"],
+        "record_key": record_key,
+        "native_id": native_id,
+        "native_revision": clean(native_revision),
+        "revision_order": revision_order,
+        "as_of": as_of,
+        "status": status,
+        "release": dict(release) if release else None,
+        "title": clean(title) or record_key,
+        "locator": locator,
+        "minimisation": dict(minimisation or {"policy": MINIMISATION_POLICY, "subject": "organisation",
+                                              "withheld": []}),
+        "fields": dict(fields),
     }
 
 
-def parse_ror(raw: bytes, *, document: Mapping[str, Any], url: str) -> dict[str, Any]:
-    body = _zip_member(raw, str(document["member"]))
+# ------------------------------------------------------------------ minimisation guard
+
+
+def minimisation_violations(record: Mapping[str, Any]) -> list[str]:
+    """Paths of personal fields a record still carries against the RE01 decision (empty when it complies)."""
+    found: list[str] = []
+    fields = dict(record.get("fields") or {})
+    kind = record.get("record_kind")
+    if kind == "researcher":
+        found += [f"$.fields.{k}" for k in sorted(set(fields) - RESEARCHER_ALLOWED_FIELDS)]
+        name = fields.get("name")
+        if name is not None:
+            if not isinstance(name, Mapping):
+                found.append("$.fields.name")
+            else:
+                found += [f"$.fields.name.{k}" for k in sorted(set(name) - NAME_KEYS)]
+                if fields.get("name_status") != "public" and any(v is not None for v in name.values()):
+                    found.append("$.fields.name")
+        for index, item in enumerate(fields.get("employments") or []):
+            found += [f"$.fields.employments[{index}].{k}" for k in sorted(set(item) - EMPLOYMENT_KEYS)]
+            if (item.get("asserted_by") or {}).get("name") and (item.get("asserted_by") or {}).get("kind") == "self":
+                found.append(f"$.fields.employments[{index}].asserted_by.name")
+        for index, item in enumerate(fields.get("works") or []):
+            found += [f"$.fields.works[{index}].{k}" for k in sorted(set(item) - WORK_KEYS)]
+            if (item.get("asserted_by") or {}).get("name") and (item.get("asserted_by") or {}).get("kind") == "self":
+                found.append(f"$.fields.works[{index}].asserted_by.name")
+    elif kind == "dataset":
+        for role in ("creators", "contributors"):
+            for index, person in enumerate(fields.get(role) or []):
+                if person.get("name_type") == "Organizational":
+                    continue
+                for key, value in person.items():
+                    if str(key).casefold() in PERSON_FORBIDDEN_KEYS and value not in (None, "", [], {}):
+                        found.append(f"$.fields.{role}[{index}].{key}")
+    elif kind == "project":
+        for index, participant in enumerate(fields.get("participants") or []):
+            for key, value in participant.items():
+                if str(key).casefold() in PARTICIPANT_FORBIDDEN_KEYS and value not in (None, "", [], {}):
+                    found.append(f"$.fields.participants[{index}].{key}")
+    return sorted(set(found))
+
+
+# ------------------------------------------------------------------ ROR
+
+
+def parse_ror_release(raw: bytes, unit: Mapping[str, Any], ror_ids: Sequence[str]) -> tuple[list[dict], list[str]]:
+    """The declared organisations of one ROR dump release (zip with the v2 JSON member), as published."""
     try:
-        records = json.loads(body)
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            member = str(unit["member"])
+            if member not in archive.namelist():
+                raise ResearchEntityFormatError("schema_drift", f"the release has no member {member}")
+            info = archive.getinfo(member)
+            if info.file_size > 400_000_000:
+                raise ResearchEntityFormatError("input_limit", "the dump member is larger than the parser allows")
+            payload = json.loads(archive.read(member))
+    except zipfile.BadZipFile as exc:
+        raise ResearchEntityFormatError("schema_drift", "the release is not a zip file") from exc
     except json.JSONDecodeError as exc:
-        raise ResearchEntitiesFormatError("schema_drift", "the ROR member is not JSON") from exc
-    if not isinstance(records, list):
-        raise ResearchEntitiesFormatError("schema_drift", "the ROR dump is a JSON array of records")
-    wanted = {ror_id(i) for i in document["ror_ids"]}
-    release = dict(document["release"])
-    revision = {"marker": str(document["version"]), "basis": "ror-release",
-                "effective_at": iso_instant(release["published_on"])}
-    citation = {"url": url, "licence": "CC0-1.0", "attribution": PROVIDER_CONTRACTS["ror"]["attribution"],
-                "release": str(document["version"])}
-    items, found = [], set()
-    for native in records:
-        identifier = _safe(ror_id, dict(native).get("id"))
-        if identifier not in wanted:
+        raise ResearchEntityFormatError("schema_drift", "the dump member is not JSON") from exc
+    if not isinstance(payload, list):
+        raise ResearchEntityFormatError("schema_drift", "the dump member is not a list of organisations")
+    wanted = {ror_id(i) for i in ror_ids}
+    release = {"label": str(unit["label"]), "published_on": iso_day(unit["published_on"]),
+               "path": str(unit["path"]), "member": str(unit["member"])}
+    out = []
+    for native in payload:
+        rid = ror_id(native.get("id")) if isinstance(native, Mapping) else None
+        if rid is None:
+            raise ResearchEntityFormatError("schema_drift", "a dump item has no ROR id")
+        if rid not in wanted:
             continue
-        if native.get("status") not in ROR_STATUSES:
-            raise ResearchEntitiesFormatError("schema_drift", "unknown ROR status")
-        found.add(identifier)
-        body_view = _ror_body(native)
-        items.append(_statement("organisation", "ror", identifier, native["status"],
-                                {**revision, "provider_modified": body_view["provider_modified"]}, body_view,
-                                {**citation, "record_url": identifier}))
-    for identifier in sorted(wanted - found):
-        items.append(_statement("organisation", "ror", identifier, "not_in_release", revision, {},
-                                {**citation, "record_url": identifier}))
-    return {"items": items, "published_on": iso_day(release["published_on"]), "basis": "declared_release",
-            "label": str(release.get("label") or document["version"]), "missing": sorted(wanted - found),
-            "excluded_fields": ["CSV copy", "undeclared records"]}
+        status = clean(native.get("status"))
+        if status not in ROR_STATUSES:
+            raise ResearchEntityFormatError("schema_drift", f"unknown ROR status {status!r}")
+        names = [{"value": clean(n.get("value")), "types": sorted(n.get("types") or []), "lang": clean(n.get("lang"))}
+                 for n in native.get("names") or []]
+        if not names:
+            raise ResearchEntityFormatError("schema_drift", f"ROR record {rid} has no names")
+        display = next((n["value"] for n in names if "ror_display" in n["types"]), names[0]["value"])
+        relationships = []
+        for relation in native.get("relationships") or []:
+            if relation.get("type") not in ROR_RELATIONSHIP_TYPES or ror_id(relation.get("id")) is None:
+                raise ResearchEntityFormatError("schema_drift", f"unknown relationship in {rid}")
+            relationships.append({"type": relation["type"], "id": ror_url(relation["id"]),
+                                  "label": clean(relation.get("label"))})
+        relationships.sort(key=lambda r: (r["type"], r["id"]))
+        external_ids = [{"type": clean(e.get("type")), "all": [str(v) for v in e.get("all") or []],
+                         "preferred": clean(e.get("preferred"))} for e in native.get("external_ids") or []]
+        external_ids.sort(key=lambda e: str(e["type"]))
+        locations = []
+        for location in native.get("locations") or []:
+            details = dict(location.get("geonames_details") or {})
+            locations.append({"geonames_id": location.get("geonames_id"), "name": clean(details.get("name")),
+                              "country_code": clean(details.get("country_code")),
+                              "country_name": clean(details.get("country_name"))})
+        admin = dict(native.get("admin") or {})
+        last_modified = iso_day((admin.get("last_modified") or {}).get("date"))
+        fields = {
+            "ror_id": ror_url(rid), "display_name": display, "names": names,
+            "types": sorted(native.get("types") or []), "status": status, "established": native.get("established"),
+            "links": [{"type": clean(link.get("type")), "value": clean(link.get("value"))}
+                      for link in native.get("links") or []],
+            "locations": locations, "external_ids": external_ids, "relationships": relationships,
+            "successors": [r["id"] for r in relationships if r["type"] == "successor"],
+            "predecessors": [r["id"] for r in relationships if r["type"] == "predecessor"],
+            "admin_last_modified": last_modified,
+            "schema_version": clean((admin.get("last_modified") or {}).get("schema_version")),
+            "domains": sorted(str(d) for d in native.get("domains") or []),
+        }
+        out.append(_record("ror-dump-zip", organisation_key(rid), native_id=ror_url(rid), title=display,
+                           locator=ror_url(rid), fields=fields, as_of=release["published_on"],
+                           native_revision=f"release:{release['label']}",
+                           revision_order=_order(release["published_on"], release["label"]), status=status,
+                           release=release))
+    found = {r["fields"]["ror_id"] for r in out}
+    missing = sorted(ror_url(i) for i in wanted if ror_url(i) not in found)
+    out.sort(key=lambda r: r["record_key"])
+    return out, missing
 
 
-def _date_parts(value: Any) -> str | None:
+# ------------------------------------------------------------------ ORCID
+
+
+def _asserted_by(source: Mapping[str, Any] | None, orcid: str) -> dict[str, Any]:
+    source = dict(source or {})
+    own = (source.get("source-orcid") or {}).get("path")
+    client = (source.get("source-client-id") or {}).get("path")
+    assertion = (source.get("assertion-origin-orcid") or {}).get("path")
+    if own == orcid or (not client and assertion == orcid) or (not client and not own):
+        return {"kind": "self", "name": None, "client_id": None}
+    return {"kind": "member-client" if client else "other-orcid-holder",
+            "name": clean((source.get("source-name") or {}).get("value")) if client else None,
+            "client_id": clean(client)}
+
+
+def _orcid_date(value: Mapping[str, Any] | None) -> str | None:
     value = dict(value or {})
-    parts = []
-    for key in ("year", "month", "day"):
-        part = dict(value.get(key) or {}).get("value")
-        if part is None:
-            break
-        parts.append(str(part).zfill(4 if key == "year" else 2))
-    return "-".join(parts) or None
+    parts = [(value.get(k) or {}).get("value") for k in ("year", "month", "day")]
+    parts = [p for p in parts if p]
+    return "-".join(parts) if parts else None
 
 
-def _public(item: Mapping[str, Any]) -> bool:
-    return str(item.get("visibility") or "public").casefold() == "public"
+def _last_modified(item: Mapping[str, Any]) -> str | None:
+    return iso_instant((item.get("last-modified-date") or {}).get("value"))
 
 
-def parse_orcid(raw: bytes, *, status: int, document: Mapping[str, Any], url: str) -> dict[str, Any]:
-    """A public ORCID record reduced to the fields :data:`ORCID_KEPT` allows (nothing else is read)."""
-    identifier = orcid_id(document["orcid"])
-    citation = {"url": url, "licence": "ORCID Public API terms (non-commercial)", "record_url":
-                f"https://orcid.org/{identifier}", "attribution": PROVIDER_CONTRACTS["orcid"]["attribution"]}
-    if status in {404, 410, 409}:
-        removal = {404: "not_found", 410: "not_found", 409: "locked"}[status]
-        return {"items": [_statement("researcher", "orcid", identifier, removal,
-                                     {"marker": f"http-{status}", "basis": "orcid-response", "effective_at": None},
-                                     {}, citation)],
-                "published_on": None, "basis": "retrieval_time", "label": f"ORCID {identifier} ({removal})",
-                "missing": [identifier], "excluded_fields": list(ORCID_EXCLUDED)}
+def parse_orcid_record(raw: bytes, orcid: str, *, status: int = 200) -> dict[str, Any]:
+    """One public ORCID record reduced to the fields allowed by the RE01 minimisation decision."""
+    locator = f"https://orcid.org/{orcid}"
+    withheld_sections = ["biography", "emails", "addresses", "keywords", "other-names", "researcher-urls",
+                         "external-identifiers", "educations", "qualifications", "distinctions", "invited-positions",
+                         "memberships", "services", "fundings", "peer-reviews", "research-resources"]
+    if status in {409, 410}:
+        fields = {"orcid": orcid, "name": None, "name_status": "withheld", "last_modified": None,
+                  "status": "deactivated" if status == 409 else "deprecated", "employments": [], "works": [],
+                  "withheld_sections": withheld_sections}
+        return _record("orcid-record-json", researcher_key(orcid), native_id=locator, title=orcid, locator=locator,
+                       fields=fields, as_of=None, native_revision=f"http-{status}", revision_order="",
+                       status=fields["status"],
+                       minimisation={"policy": MINIMISATION_POLICY, "subject": "natural-person",
+                                     "withheld": ["name", *withheld_sections]})
     try:
-        native = json.loads(raw)
+        payload = json.loads(raw)
     except json.JSONDecodeError as exc:
-        raise ResearchEntitiesFormatError("schema_drift", "the ORCID record is not JSON") from exc
-    stated = dict(native.get("orcid-identifier") or {}).get("path")
-    if orcid_id(stated) != identifier:
-        raise ResearchEntitiesFormatError("identity_mismatch", "the ORCID record names another iD")
-    history = dict(native.get("history") or {})
-    modified = iso_instant(dict(history.get("last-modified-date") or {}).get("value"))
-    if modified is None:
-        raise ResearchEntitiesFormatError("schema_drift", "the ORCID record states no last-modified date")
-    revision = {"marker": modified, "basis": "orcid-last-modified", "effective_at": modified}
-    if history.get("deactivation-date"):
-        return {"items": [_statement("researcher", "orcid", identifier, "deactivated", revision, {}, citation)],
-                "published_on": modified[:10], "basis": "provider_modified", "label": f"ORCID {identifier}",
-                "missing": [], "excluded_fields": list(ORCID_EXCLUDED)}
-    name = dict(dict(native.get("person") or {}).get("name") or {})
-    display = None
-    if name and _public(name):
-        credit = dict(name.get("credit-name") or {}).get("value")
-        given = dict(name.get("given-names") or {}).get("value")
-        family = dict(name.get("family-name") or {}).get("value")
-        display = text(credit) or text(" ".join(p for p in (given, family) if p))
-    activities = dict(native.get("activities-summary") or {})
+        raise ResearchEntityFormatError("schema_drift", "the ORCID response is not JSON") from exc
+    if (payload.get("orcid-identifier") or {}).get("path") != orcid:
+        raise ResearchEntityFormatError("schema_drift", "the ORCID response identifies another record")
+    person = dict(payload.get("person") or {})
+    name = dict(person.get("name") or {})
+    public = name.get("visibility") == "PUBLIC"
+    stored_name = ({"given_names": clean((name.get("given-names") or {}).get("value")),
+                    "family_name": clean((name.get("family-name") or {}).get("value")),
+                    "credit_name": clean((name.get("credit-name") or {}).get("value"))} if public else None)
+    withheld = [k for k in ("biography", "emails", "addresses", "keywords", "other-names", "researcher-urls",
+                            "external-identifiers")
+                if isinstance(person.get(k), Mapping)
+                and any(v for key, v in person[k].items() if key not in {"last-modified-date", "path"})]
+    activities = dict(payload.get("activities-summary") or {})
     employments = []
-    for group in dict(activities.get("employments") or {}).get("affiliation-group") or []:
+    for group in (activities.get("employments") or {}).get("affiliation-group") or []:
         for summary in group.get("summaries") or []:
             item = dict(summary.get("employment-summary") or {})
-            if not item or not _public(item):
+            if item.get("visibility") != "PUBLIC":
                 continue
             organisation = dict(item.get("organization") or {})
             address = dict(organisation.get("address") or {})
             disambiguated = dict(organisation.get("disambiguated-organization") or {})
-            source = text(disambiguated.get("disambiguation-source"))
-            value = text(disambiguated.get("disambiguated-organization-identifier"))
-            if source and source.upper() == "ROR" and value:
-                value = _safe(ror_id, value) or value
+            source = clean(disambiguated.get("disambiguation-source"))
+            identifier = clean(disambiguated.get("disambiguated-organization-identifier"))
             employments.append({
                 "put_code": item.get("put-code"),
-                "organisation": {"name": text(organisation.get("name")), "city": text(address.get("city")),
-                                 "country": text(address.get("country")),
-                                 "disambiguated": {"source": source, "identifier": value} if source and value
-                                 else None},
-                "start": _date_parts(item.get("start-date")),
-                "end": _date_parts(item.get("end-date")),
-                "last_modified": iso_instant(dict(item.get("last-modified-date") or {}).get("value")),
+                "organisation": {"name": clean(organisation.get("name")), "city": clean(address.get("city")),
+                                 "region": clean(address.get("region")), "country": clean(address.get("country")),
+                                 "disambiguated": ({"source": source, "id": identifier,
+                                                    "ror_id": ror_url(identifier) if source == "ROR" else None}
+                                                   if identifier else None)},
+                "department": clean(item.get("department-name")), "role": clean(item.get("role-title")),
+                "start_date": _orcid_date(item.get("start-date")), "end_date": _orcid_date(item.get("end-date")),
+                "asserted_by": _asserted_by(item.get("source"), orcid), "last_modified": _last_modified(item),
             })
+    for section in ("educations", "qualifications", "distinctions", "invited-positions", "memberships", "services",
+                    "fundings", "peer-reviews", "research-resources"):
+        if (activities.get(section) or {}).get("affiliation-group") or (activities.get(section) or {}).get("group"):
+            withheld.append(section)
     works = []
-    for group in dict(activities.get("works") or {}).get("group") or []:
+    for group in (activities.get("works") or {}).get("group") or []:
         for summary in group.get("work-summary") or []:
-            if not _public(summary):
+            if summary.get("visibility") != "PUBLIC":
                 continue
-            identifiers = []
-            for external in dict(summary.get("external-ids") or {}).get("external-id") or []:
-                kind = str(external.get("external-id-type") or "").casefold()
-                if kind not in ORCID_WORK_IDS or str(external.get("external-id-relationship") or "self") != "self":
-                    continue
-                value = dict(external.get("external-id-normalized") or {}).get("value") or \
-                    external.get("external-id-value")
+            external = []
+            for ext in (summary.get("external-ids") or {}).get("external-id") or []:
+                kind = clean(ext.get("external-id-type"))
+                value = clean((ext.get("external-id-normalized") or {}).get("value")) or clean(
+                    ext.get("external-id-value"))
                 if kind == "doi":
-                    value = _safe(doi, value)
-                if value:
-                    identifiers.append({"type": kind, "value": str(value)})
-            publication = dict(summary.get("publication-date") or {})
+                    value = normalize_doi(value) or value
+                external.append({"type": kind, "value": value, "relationship": clean(ext.get("external-id-relationship"))})
+            external.sort(key=lambda e: (str(e["type"]), str(e["value"])))
+            year = ((summary.get("publication-date") or {}).get("year") or {}).get("value")
             works.append({
-                "put_code": summary.get("put-code"),
-                "title": text(dict(dict(summary.get("title") or {}).get("title") or {}).get("value")),
-                "type": text(summary.get("type")),
-                "publication_year": text(dict(publication.get("year") or {}).get("value")),
-                "identifiers": sorted(identifiers, key=lambda i: (i["type"], i["value"])),
-                "last_modified": iso_instant(dict(summary.get("last-modified-date") or {}).get("value")),
+                "put_code": summary.get("put-code"), "type": clean(summary.get("type")),
+                "title": clean(((summary.get("title") or {}).get("title") or {}).get("value")),
+                "publication_year": clean(year), "external_ids": external,
+                "asserted_by": _asserted_by(summary.get("source"), orcid), "last_modified": _last_modified(summary),
             })
-    body = {"orcid": identifier, "display_name": display,
-            "employments": sorted(employments, key=lambda e: (str(e["start"] or ""), str(e["put_code"]))),
-            "works": sorted(works, key=lambda w: (str(w["publication_year"] or ""), str(w["put_code"])))}
-    return {"items": [_statement("researcher", "orcid", identifier, "active", revision, body, citation)],
-            "published_on": modified[:10], "basis": "provider_modified", "label": f"ORCID {identifier}",
-            "missing": [], "excluded_fields": list(ORCID_EXCLUDED)}
+    employments.sort(key=lambda e: (str(e["start_date"] or ""), str(e["put_code"])))
+    works.sort(key=lambda w: str(w["put_code"]))
+    last_modified = iso_instant(((payload.get("history") or {}).get("last-modified-date") or {}).get("value"))
+    fields = {"orcid": orcid, "name": stored_name, "name_status": "public" if public else "not-public",
+              "last_modified": last_modified, "status": "active", "employments": employments, "works": works,
+              "withheld_sections": sorted(set(withheld))}
+    display = None
+    if stored_name:
+        display = stored_name["credit_name"] or " ".join(
+            v for v in (stored_name["given_names"], stored_name["family_name"]) if v) or None
+    return _record("orcid-record-json", researcher_key(orcid), native_id=locator, title=display or orcid,
+                   locator=locator, fields=fields, as_of=last_modified, native_revision=last_modified,
+                   revision_order=_order(last_modified), status="active",
+                   minimisation={"policy": MINIMISATION_POLICY, "subject": "natural-person",
+                                 "withheld": sorted(set(withheld) | ({"name"} if not public else set()))})
 
 
-def _datacite_item(data: Mapping[str, Any], url: str) -> dict[str, Any]:
+# ------------------------------------------------------------------ DataCite
+
+
+def _person(person: Mapping[str, Any], position: int) -> tuple[dict[str, Any], list[str]]:
+    kind = clean(person.get("nameType")) or "Personal"
+    affiliation_ids = sorted({ror_url(a.get("affiliationIdentifier")) for a in person.get("affiliation") or []
+                              if isinstance(a, Mapping) and ror_url(a.get("affiliationIdentifier"))})
+    identifiers = [{"scheme": clean(i.get("nameIdentifierScheme")), "value": clean(i.get("nameIdentifier"))}
+                   for i in person.get("nameIdentifiers") or []]
+    if kind == "Organizational":
+        return ({"position": position, "name_type": kind, "name": clean(person.get("name")),
+                 "identifiers": identifiers, "affiliation_ids": affiliation_ids,
+                 "contributor_type": clean(person.get("contributorType"))}, [])
+    orcid = next((valid_orcid(i["value"]) for i in identifiers if str(i["scheme"] or "").upper() == "ORCID"
+                  and valid_orcid(i["value"])), None)
+    withheld = [k for k in ("name", "givenName", "familyName") if clean(person.get(k))]
+    if any(isinstance(a, Mapping) and clean(a.get("name")) for a in person.get("affiliation") or []):
+        withheld.append("affiliation names")
+    if any(str(i["scheme"] or "").upper() != "ORCID" for i in identifiers):
+        withheld.append("other name identifiers")
+    return ({"position": position, "name_type": "Personal", "orcid": orcid, "affiliation_ids": affiliation_ids,
+             "contributor_type": clean(person.get("contributorType"))}, withheld)
+
+
+def parse_datacite_doi(raw: bytes, doi: str, *, status: int = 200) -> dict[str, Any]:
+    locator = f"https://doi.org/{doi}"
+    if status == 404:
+        fields = {"doi": doi, "state": "not-served", "note": "DataCite no longer serves this DOI (HTTP 404)"}
+        return _record("datacite-doi-json", dataset_key(doi), native_id=doi, title=doi, locator=locator, fields=fields,
+                       as_of=None, native_revision="http-404", revision_order="",
+                       status="unavailable",
+                       minimisation={"policy": MINIMISATION_POLICY, "subject": "organisation", "withheld": []})
+    try:
+        payload = json.loads(raw)
+    except json.JSONDecodeError as exc:
+        raise ResearchEntityFormatError("schema_drift", "the DataCite response is not JSON") from exc
+    data = dict(payload.get("data") or {})
     attributes = dict(data.get("attributes") or {})
-    identifier = doi(attributes.get("doi") or data.get("id"))
-    creators = []
-    for position, creator in enumerate(attributes.get("creators") or []):
-        creator = dict(creator)
-        name_type = text(creator.get("nameType"))
-        orcid = None
-        for name_id in creator.get("nameIdentifiers") or []:
-            if str(dict(name_id).get("nameIdentifierScheme") or "").upper() == "ORCID":
-                orcid = _safe(orcid_id, dict(name_id).get("nameIdentifier")) or orcid
-        affiliations = []
-        for affiliation in creator.get("affiliation") or []:
-            if not isinstance(affiliation, Mapping):
-                continue
-            scheme, value = text(affiliation.get("affiliationIdentifierScheme")), \
-                text(affiliation.get("affiliationIdentifier"))
-            if scheme and value:
-                if scheme.upper() == "ROR":
-                    value = _safe(ror_id, value) or value
-                affiliations.append({"scheme": scheme.upper(), "identifier": value})
-        creators.append({"position": position, "name_type": name_type,
-                         "name": text(creator.get("name")) if name_type == "Organizational" else None,
-                         "orcid": orcid, "affiliation_identifiers": affiliations})
+    if normalize_doi(attributes.get("doi") or data.get("id")) != doi:
+        raise ResearchEntityFormatError("schema_drift", "the DataCite response describes another DOI")
+    withheld: set[str] = set()
+    creators, contributors = [], []
+    for position, person in enumerate(attributes.get("creators") or []):
+        view, dropped = _person(person, position)
+        creators.append(view)
+        withheld |= {f"creators.{d}" for d in dropped}
+    for position, person in enumerate(attributes.get("contributors") or []):
+        view, dropped = _person(person, position)
+        contributors.append(view)
+        withheld |= {f"contributors.{d}" for d in dropped}
     related = []
     for item in attributes.get("relatedIdentifiers") or []:
-        item = dict(item)
-        related.append({k: item[k] for k in ("relatedIdentifier", "relatedIdentifierType", "relationType",
-                                              "resourceTypeGeneral", "relatedMetadataScheme", "schemeUri",
-                                              "schemeType") if item.get(k) is not None})
-    publisher = attributes.get("publisher")
-    if isinstance(publisher, Mapping):
-        publisher = publisher.get("name")
+        relation = clean(item.get("relationType"))
+        if relation not in RELATION_TYPES:
+            raise ResearchEntityFormatError("schema_drift", f"unknown relationType {relation!r}")
+        identifier_type = clean(item.get("relatedIdentifierType"))
+        value = clean(item.get("relatedIdentifier"))
+        related.append({"relation_type": relation, "identifier_type": identifier_type, "identifier": value,
+                        "doi": normalize_doi(value) if identifier_type == "DOI" else None,
+                        "resource_type_general": clean(item.get("resourceTypeGeneral"))})
+    related.sort(key=lambda r: (r["relation_type"], str(r["identifier_type"]), str(r["identifier"])))
+    funding = [{"funder_name": clean(f.get("funderName")), "funder_identifier": clean(f.get("funderIdentifier")),
+                "funder_identifier_type": clean(f.get("funderIdentifierType")),
+                "award_number": clean(f.get("awardNumber")), "award_title": clean(f.get("awardTitle")),
+                "award_uri": clean(f.get("awardUri"))} for f in attributes.get("fundingReferences") or []]
+    titles = [clean(t.get("title")) for t in attributes.get("titles") or [] if clean(t.get("title"))]
     types = dict(attributes.get("types") or {})
     updated = iso_instant(attributes.get("updated"))
-    version = attributes.get("metadataVersion")
-    body = {
-        "doi": identifier,
-        "titles": [str(dict(t).get("title")) for t in attributes.get("titles") or [] if dict(t).get("title")],
-        "publisher": text(publisher),
-        "publication_year": text(attributes.get("publicationYear")),
-        "resource_type_general": text(types.get("resourceTypeGeneral")),
-        "resource_type": text(types.get("resourceType")),
-        "version": text(attributes.get("version")),
-        "rights": [{k: dict(r).get(k) for k in ("rights", "rightsIdentifier", "rightsUri") if dict(r).get(k)}
-                   for r in attributes.get("rightsList") or []],
-        "url": text(attributes.get("url")),
-        "state": text(attributes.get("state")),
-        "created": iso_instant(attributes.get("created")),
-        "registered": iso_instant(attributes.get("registered")),
-        "metadata_version": version,
-        "creators": creators,
-        "related_identifiers": related,
+    metadata_version = attributes.get("metadataVersion")
+    publisher = attributes.get("publisher")
+    fields = {
+        "doi": doi, "state": clean(attributes.get("state")),
+        "resource_type_general": clean(types.get("resourceTypeGeneral")), "resource_type": clean(types.get("resourceType")),
+        "titles": titles, "publisher": clean(publisher.get("name") if isinstance(publisher, Mapping) else publisher),
+        "publication_year": attributes.get("publicationYear"), "version": clean(attributes.get("version")),
+        "metadata_version": metadata_version, "created": iso_instant(attributes.get("created")),
+        "registered": iso_instant(attributes.get("registered")), "updated": updated,
+        "url": clean(attributes.get("url")), "creators": creators, "contributors": contributors,
+        "related_identifiers": related, "funding_references": funding,
+        "rights": sorted({clean(r.get("rightsIdentifier")) or clean(r.get("rights")) or ""
+                          for r in attributes.get("rightsList") or []} - {""}),
     }
-    marker = f"v{version}:{updated}" if version is not None else f"updated:{updated}"
-    return _statement("dataset", "datacite", identifier, "findable" if body["state"] in (None, "findable")
-                      else str(body["state"]),
-                      {"marker": marker, "basis": "datacite-metadata-version", "effective_at": updated,
-                       "provider_modified": updated}, body,
-                      {"url": url, "record_url": f"https://doi.org/{identifier}", "licence": "CC0-1.0",
-                       "attribution": PROVIDER_CONTRACTS["datacite"]["attribution"]})
+    return _record("datacite-doi-json", dataset_key(doi), native_id=doi, title=titles[0] if titles else doi,
+                   locator=locator, fields=fields, as_of=updated,
+                   native_revision=f"metadataVersion:{metadata_version}|updated:{updated}",
+                   revision_order=_order(updated, metadata_version if isinstance(metadata_version, int) else 0),
+                   status=clean(attributes.get("state")) or "findable",
+                   minimisation={"policy": MINIMISATION_POLICY,
+                                 "subject": "natural-person" if withheld else "organisation",
+                                 "withheld": sorted(withheld)})
 
 
-def parse_datacite(raw: bytes, *, status: int, document: Mapping[str, Any], url: str) -> dict[str, Any]:
-    if status in {404, 410} and document.get("doi"):
-        identifier = doi(document["doi"])
-        return {"items": [_statement("dataset", "datacite", identifier, "not_found",
-                                     {"marker": f"http-{status}", "basis": "datacite-response", "effective_at": None},
-                                     {}, {"url": url, "record_url": f"https://doi.org/{identifier}",
-                                          "licence": "CC0-1.0",
-                                          "attribution": PROVIDER_CONTRACTS["datacite"]["attribution"]})],
-                "published_on": None, "basis": "retrieval_time", "label": f"DataCite {identifier} (not found)",
-                "missing": [identifier], "excluded_fields": list(DATACITE_EXCLUDED)}
+# ------------------------------------------------------------------ CORDIS
+
+
+def _csv_member(archive: zipfile.ZipFile, member: str, required: Sequence[str]) -> list[dict[str, str]]:
+    names = {n.rsplit("/", 1)[-1]: n for n in archive.namelist()}
+    if member not in names:
+        raise ResearchEntityFormatError("schema_drift", f"the export has no {member}")
+    text = archive.read(names[member]).decode("utf-8-sig")
+    reader = csv.DictReader(io.StringIO(text), delimiter=";")
+    header = [h.strip() for h in reader.fieldnames or []]
+    missing = [c for c in required if c not in header]
+    if missing:
+        raise ResearchEntityFormatError("schema_drift", f"{member} lacks columns {missing}")
+    return [{str(k).strip(): (v if v is None else str(v)) for k, v in row.items()} for row in reader]
+
+
+def _money(value: Any) -> dict[str, Any] | None:
+    raw = clean(value)
+    if raw is None:
+        return None
+    return {"amount": amount(raw), "currency": CORDIS_CURRENCY, "as_published": raw,
+            "currency_basis": "CORDIS exports publish euro amounts without a currency column; stated as EUR"}
+
+
+def parse_cordis_export(raw: bytes, unit: Mapping[str, Any], project_ids: Sequence[str]
+                        ) -> tuple[list[dict], list[str]]:
+    programme = str(unit["programme"]).upper()
     try:
-        native = json.loads(raw)
-    except json.JSONDecodeError as exc:
-        raise ResearchEntitiesFormatError("schema_drift", "the DataCite response is not JSON") from exc
-    data = native.get("data")
-    rows = data if isinstance(data, list) else [data] if isinstance(data, Mapping) else None
-    if rows is None:
-        raise ResearchEntitiesFormatError("schema_drift", "the DataCite response has no data")
-    if document.get("doi") and (len(rows) != 1 or doi(dict(rows[0].get("attributes") or {}).get("doi")
-                                                       or rows[0].get("id")) != doi(document["doi"])):
-        raise ResearchEntitiesFormatError("identity_mismatch", "the DataCite response names another DOI")
-    items = [_datacite_item(dict(row), url) for row in rows]
-    stamps = sorted(i["revision"]["effective_at"] for i in items if i["revision"]["effective_at"])
-    label = f"DataCite {document.get('doi') or canonical(document.get('query'))}"
-    return {"items": items, "published_on": stamps[-1][:10] if stamps else None,
-            "basis": "provider_modified" if stamps else "retrieval_time", "label": label, "missing": [],
-            "excluded_fields": list(DATACITE_EXCLUDED)}
-
-
-def _csv(body: bytes, delimiter: str) -> list[dict[str, str]]:
-    reader = csv.DictReader(io.StringIO(body.decode("utf-8-sig")), delimiter=delimiter)
-    return [{str(k).strip(): (v if v is None else str(v)) for k, v in row.items() if k is not None} for row in reader]
-
-
-def parse_cordis(raw: bytes, *, document: Mapping[str, Any], url: str) -> dict[str, Any]:
-    delimiter = str(document.get("delimiter") or ";")
-    separator = str(document.get("decimal_separator") or ",")
-    currency = str(document["currency"])
-    projects = _csv(_zip_member(raw, str(document["project_member"])), delimiter)
-    organisations = _csv(_zip_member(raw, str(document["organization_member"])), delimiter)
-    if projects and not {"id", "frameworkProgramme"} <= set(projects[0]):
-        raise ResearchEntitiesFormatError("schema_drift", "project.csv lacks id or frameworkProgramme")
-    if organisations and not {"projectID", "organisationID", "name", "role"} <= set(organisations[0]):
-        raise ResearchEntitiesFormatError("schema_drift", "organization.csv lacks projectID, organisationID, name or "
-                                          "role")
-    wanted = {str(i) for i in document["project_ids"]}
-    release = dict(document["release"])
-
-    def money(value: Any) -> dict[str, Any] | None:
-        amount = decimal_text(value, separator)
-        return None if amount is None else {"amount": amount, "currency": currency, "published": text(value),
-                                            "currency_basis": "declared by the document"}
-
+        with zipfile.ZipFile(io.BytesIO(raw)) as archive:
+            projects = _csv_member(archive, "project.csv", PROJECT_COLUMNS)
+            organisations = _csv_member(archive, "organization.csv", ORGANIZATION_COLUMNS)
+    except zipfile.BadZipFile as exc:
+        raise ResearchEntityFormatError("schema_drift", "the export is not a zip file") from exc
+    wanted = {str(p) for p in project_ids}
     participants: dict[str, list[dict[str, Any]]] = {}
-    for number, row in enumerate(organisations, start=2):
-        project = text(row.get("projectID"))
-        if project not in wanted:
+    for row in organisations:
+        pid = clean(row.get("projectID"))
+        if pid not in wanted:
             continue
-        pic = text(row.get("organisationID"))
-        if pic is None:
-            raise ResearchEntitiesFormatError("schema_drift", "a participant row states no organisationID (PIC)")
-        participants.setdefault(project, []).append({
-            "pic": pic, "vat_number": text(row.get("vatNumber")), "name": text(row.get("name")),
-            "short_name": text(row.get("shortName")), "role": text(row.get("role")), "order": text(row.get("order")),
-            "activity_type": text(row.get("activityType")), "sme": text(row.get("SME")),
-            "city": text(row.get("city")), "country": text(row.get("country")),
-            "website": text(row.get("organizationURL")),
-            "ec_contribution": money(row.get("ecContribution")),
-            "net_ec_contribution": money(row.get("netEcContribution")),
-            "total_cost": money(row.get("totalCost")),
-            "end_of_participation": text(row.get("endOfParticipation")), "active": text(row.get("active")),
-            "content_update_date": text(row.get("contentUpdateDate")), "row": number,
+        participants.setdefault(pid, []).append({
+            "pic": clean(row.get("organisationID")), "name": clean(row.get("name")),
+            "short_name": clean(row.get("shortName")), "vat_number": clean(row.get("vatNumber")),
+            "sme": clean(row.get("SME")), "activity_type": clean(row.get("activityType")),
+            "city": clean(row.get("city")), "country": clean(row.get("country")),
+            "nuts_code": clean(row.get("nutsCode")), "organization_url": clean(row.get("organizationURL")),
+            "role": clean(row.get("role")), "order": clean(row.get("order")),
+            "ec_contribution": _money(row.get("ecContribution")),
+            "net_ec_contribution": _money(row.get("netEcContribution")),
+            "total_cost": _money(row.get("totalCost")),
+            "end_of_participation": clean(row.get("endOfParticipation")), "active": clean(row.get("active")),
+            "content_update_date": iso_instant(row.get("contentUpdateDate")),
         })
-    items, found = [], set()
+    out = []
     for row in projects:
-        project = text(row.get("id"))
-        if project not in wanted:
+        pid = clean(row.get("id"))
+        if pid not in wanted:
             continue
-        found.add(project)
-        programme = str(row.get("frameworkProgramme") or document["programme"])
-        updated = iso_instant(row.get("contentUpdateDate")) or iso_instant(release["published_on"])
-        body = {
-            "project_id": project, "programme": programme, "acronym": text(row.get("acronym")),
-            "title": text(row.get("title")), "status": text(row.get("status")),
+        if str(row.get("frameworkProgramme") or "").upper() != programme:
+            raise ResearchEntityFormatError("schema_drift", f"project {pid} names another programme")
+        members = sorted(participants.get(pid, []), key=lambda p: (int(p["order"]) if str(p["order"] or "").isdigit()
+                                                                   else 10**6, str(p["pic"])))
+        updates = [iso_instant(row.get("contentUpdateDate"))] + [p["content_update_date"] for p in members]
+        updated = max(u for u in updates if u) if any(updates) else None
+        fields = {
+            "project_id": pid, "programme": programme, "acronym": clean(row.get("acronym")),
+            "title": clean(row.get("title")), "status": clean(row.get("status")),
             "start_date": iso_day(row.get("startDate")), "end_date": iso_day(row.get("endDate")),
-            "total_cost": money(row.get("totalCost")), "ec_max_contribution": money(row.get("ecMaxContribution")),
-            "legal_basis": text(row.get("legalBasis")), "funding_scheme": text(row.get("fundingScheme")),
-            "topics": text(row.get("topics")), "grant_doi": _safe(doi, row.get("grantDoi")),
-            "content_update_date": text(row.get("contentUpdateDate")),
-            "participants": sorted(participants.get(project, []), key=lambda p: (str(p["order"] or ""), p["pic"])),
+            "total_cost": _money(row.get("totalCost")), "ec_max_contribution": _money(row.get("ecMaxContribution")),
+            "legal_basis": clean(row.get("legalBasis")),
+            "topics": sorted(t.strip() for t in str(row.get("topics") or "").split(",") if t.strip()),
+            "master_call": clean(row.get("masterCall")), "sub_call": clean(row.get("subCall")),
+            "funding_scheme": clean(row.get("fundingScheme")), "ec_signature_date": iso_day(row.get("ecSignatureDate")),
+            "grant_doi": normalize_doi(row.get("grantDoi")), "rcn": clean(row.get("rcn")),
+            "content_update_date": iso_instant(row.get("contentUpdateDate")), "participants": members,
+            "withheld_as_unneeded": ["street", "postCode", "contactForm", "geolocation"],
         }
-        items.append(_statement("project", "cordis", f"{programme}:{project}", "published",
-                                {"marker": f"{document['release']['label']}:{row.get('contentUpdateDate')}",
-                                 "basis": "cordis-content-update", "effective_at": updated,
-                                 "provider_modified": text(row.get("contentUpdateDate"))},
-                                body, {"url": url, "record_url": f"https://cordis.europa.eu/project/id/{project}",
-                                       "licence": "CC-BY-4.0",
-                                       "attribution": PROVIDER_CONTRACTS["cordis"]["attribution"],
-                                       "release": release["label"]}))
-    programme = str(document["programme"])
-    for project in sorted(wanted - found):
-        items.append(_statement("project", "cordis", f"{programme}:{project}", "not_in_release",
-                                {"marker": f"{release['label']}:absent", "basis": "cordis-content-update",
-                                 "effective_at": iso_instant(release["published_on"])}, {},
-                                {"url": url, "record_url": f"https://cordis.europa.eu/project/id/{project}",
-                                 "licence": "CC-BY-4.0", "attribution": PROVIDER_CONTRACTS["cordis"]["attribution"],
-                                 "release": release["label"]}))
-    return {"items": items, "published_on": iso_day(release["published_on"]), "basis": "declared_release",
-            "label": str(release["label"]), "missing": sorted(wanted - found),
-            "excluded_fields": list(CORDIS_EXCLUDED)}
+        locator = f"https://cordis.europa.eu/project/id/{quote(pid)}"
+        out.append(_record("cordis-projects-csv-zip", project_key(programme, pid), native_id=pid,
+                           title=fields["acronym"] or fields["title"], locator=locator, fields=fields, as_of=updated,
+                           native_revision=f"contentUpdateDate:{updated}", revision_order=_order(updated),
+                           status=fields["status"] or "unknown",
+                           release={"label": f"{programme} export", "path": str(unit["path"])}))
+    found = {r["native_id"] for r in out}
+    out.sort(key=lambda r: r["record_key"])
+    return out, sorted(wanted - found)
+
+
+# ------------------------------------------------------------------ declarations and units
+
+
+def _units(fmt: str, selection: Mapping[str, Any]) -> list[dict[str, Any]]:
+    key = FORMATS[fmt]["unit"]
+    raw = selection.get(key) or []
+    units = [dict(u) if isinstance(u, Mapping) else {"id": u} for u in raw]
+    if not 1 <= len(units) <= MAX_UNITS:
+        raise SourcePackError("invalid_manifest", f"a research-entities selection names 1-{MAX_UNITS} {key}")
+    for unit in units:
+        if fmt == "ror-dump-zip":
+            if not clean(unit.get("label")) or iso_day(unit.get("published_on")) is None:
+                raise SourcePackError("invalid_manifest", "a ROR release states its label and publication date")
+            if not str(unit.get("path") or "").startswith("/records/") or not clean(unit.get("member")):
+                raise SourcePackError("invalid_manifest", "a ROR release names its Zenodo file path and JSON member")
+        elif fmt == "orcid-record-json":
+            if valid_orcid(unit.get("id")) is None:
+                raise SourcePackError("invalid_manifest", f"not a valid ORCID iD: {unit.get('id')!r}")
+        elif fmt == "datacite-doi-json":
+            if normalize_doi(unit.get("id")) is None:
+                raise SourcePackError("invalid_manifest", f"not a DOI: {unit.get('id')!r}")
+        elif fmt == "cordis-projects-csv-zip":
+            programme = str(unit.get("programme") or "").upper()
+            if programme not in CORDIS_PROGRAMMES or unit.get("path") != CORDIS_PROGRAMMES[programme]:
+                raise SourcePackError("invalid_manifest", "a CORDIS unit names a known programme and its export path")
+            ids = [str(i) for i in unit.get("project_ids") or []]
+            if not 1 <= len(ids) <= MAX_SELECTED_IDS or not all(re.fullmatch(r"\d{5,9}", i) for i in ids):
+                raise SourcePackError("invalid_manifest", "a CORDIS unit declares 1-200 numeric project ids")
+    if fmt == "ror-dump-zip":
+        ids = selection.get("ror_ids") or []
+        if not 1 <= len(ids) <= MAX_SELECTED_IDS or any(ror_id(i) is None for i in ids):
+            raise SourcePackError("invalid_manifest", "a ROR selection declares 1-200 valid ROR ids")
+    return units
+
+
+def research_entities_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
+    declared = dict(source.get("research_entities") or {})
+    fmt = declared.get("format")
+    if fmt not in FORMATS or FORMATS[fmt]["provider"] != declared.get("provider"):
+        raise SourcePackError("invalid_manifest", "research-entities sources declare a matching provider and format")
+    if declared.get("live_verification") not in {"unverified-live", "verified-live"}:
+        raise SourcePackError("invalid_manifest", "research-entities sources state their LIVE_VERIFICATION status")
+    if declared.get("minimisation") != MINIMISATION_POLICY:
+        raise SourcePackError("invalid_manifest", "research-entities sources declare the RE01 minimisation policy")
+    host = (urlsplit(str(source.get("endpoint") or "")).hostname or "").casefold()
+    if host not in PROVIDER_HOSTS[declared["provider"]]:
+        raise SourcePackError("invalid_manifest", "the endpoint is not the provider's documented host")
+    units = _units(fmt, dict(declared.get("selection") or {}))
+    if len(units) > int(dict(source.get("budgets") or {}).get("max_pages", 1)):
+        raise SourcePackError("invalid_manifest", "more declared units than the source's page budget")
+    if FORMATS[fmt]["keyed"] != (dict(source.get("auth") or {}).get("kind") == "required-secret"):
+        raise SourcePackError("invalid_manifest", "keyed research-entities formats declare a required secret")
+    return declared
+
+
+def request_for(fmt: str, unit: Mapping[str, Any]) -> tuple[str, dict[str, Any]]:
+    """The request path (relative to the endpoint) and its parameters for one unit."""
+    if fmt == "ror-dump-zip":
+        return str(unit["path"]), {}
+    if fmt == "orcid-record-json":
+        return f"/{valid_orcid(unit['id'])}/record", {}
+    if fmt == "datacite-doi-json":
+        return f"/dois/{quote(normalize_doi(unit['id']) or '', safe='/')}", {"affiliation": "true", "publisher": "true"}
+    if fmt == "cordis-projects-csv-zip":
+        return str(unit["path"]), {}
+    raise SourcePackError("invalid_manifest", f"unknown research-entities format {fmt!r}")
+
+
+def parse_unit(fmt: str, raw: bytes, unit: Mapping[str, Any], selection: Mapping[str, Any], *, status: int = 200
+               ) -> tuple[list[dict[str, Any]], list[str]]:
+    """Parse one unit's response; every record honours the RE01 minimisation decision."""
+    if fmt == "ror-dump-zip":
+        records, missing = parse_ror_release(raw, unit, list(selection.get("ror_ids") or []))
+    elif fmt == "orcid-record-json":
+        records, missing = [parse_orcid_record(raw, valid_orcid(unit["id"]) or "", status=status)], []
+    elif fmt == "datacite-doi-json":
+        records, missing = [parse_datacite_doi(raw, normalize_doi(unit["id"]) or "", status=status)], []
+    elif fmt == "cordis-projects-csv-zip":
+        records, missing = parse_cordis_export(raw, unit, [str(i) for i in unit["project_ids"]])
+    else:
+        raise ResearchEntityFormatError("schema_drift", f"unknown research-entities format {fmt!r}")
+    for record in records:
+        if minimisation_violations(record):
+            raise ResearchEntityFormatError("minimisation_violation", f"{record['record_key']} carries personal "
+                                            "fields the RE01 decision does not allow")
+    return records, missing
 
 
 # ------------------------------------------------------------------ runtime adapter
 
 
 class ResearchEntitiesAdapter:
-    """Fetch the declared registry documents on the runtime's default transport; one page per document."""
+    """Fetch one declared unit (a release, an iD, a DOI or a programme export) per page and emit its records."""
 
     accepts_transport = True
     connector = CONNECTOR
@@ -937,29 +965,25 @@ class ResearchEntitiesAdapter:
         from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 
         self.source = json.loads(json.dumps(source))
-        self.declared = research_declaration(self.source)
-        # Only ORCID takes an optional /read-public token; it is used as a header and never stored.
-        self._secret = secret if self.declared["provider"] == "orcid" else None
+        self.declared = research_entities_declaration(self.source)
+        self.format = self.declared["format"]
+        self.selection = dict(self.declared.get("selection") or {})
+        self.units = _units(self.format, self.selection)
+        self.secret = secret
         if transport is None:
             from functools import partial
 
             transport = partial(HTTPSPageAdapter._request, max_bytes=int(source["budgets"]["max_bytes"]))
         self.transport = transport
         self.definition = {
-            "contract": ADAPTER_CONTRACT,
-            "source_id": source["source_id"],
-            "connector": source["connector"],
-            "endpoint": source["endpoint"],
-            "operations": list(source["operations"]),
-            "source_hash": source["source_hash"],
-            "mapping": source["mapping"],
-            "extractor_versions": source["extractor_versions"],
-            "limits": source["budgets"],
-            "research_entities": {
-                "provider": self.declared["provider"],
-                "format": self.declared["format"],
-                "live_verification": LIVE_VERIFICATION[self.declared["provider"]]["status"],
-            },
+            "contract": ADAPTER_CONTRACT, "source_id": source["source_id"], "connector": source["connector"],
+            "endpoint": source["endpoint"], "operations": list(source["operations"]),
+            "source_hash": source["source_hash"], "mapping": source["mapping"],
+            "extractor_versions": source["extractor_versions"], "limits": source["budgets"],
+            "research_entities": {"provider": self.declared["provider"], "format": self.format,
+                                  "units": len(self.units), "keyed": bool(FORMATS[self.format]["keyed"]),
+                                  "minimisation": MINIMISATION_POLICY,
+                                  "live_verification": self.declared["live_verification"]},
         }
 
     def describe(self) -> dict[str, Any]:
@@ -971,24 +995,26 @@ class ResearchEntitiesAdapter:
         if set(request) - {"operation", "parameters", "limit", "from_ms", "to_ms"}:
             raise SourcePackError("parameter_forbidden", "runtime adapter received undeclared controls")
         if dict(request.get("parameters") or {}):
-            raise SourcePackError("parameter_forbidden", "research-entity runs fetch the declared documents only")
+            raise SourcePackError("parameter_forbidden", "research-entities runs fetch the declared selection only")
 
-    def _get(self, url: str, *, removable: bool) -> tuple[bytes, int, str]:
+    def _get(self, path: str, params: Mapping[str, Any]) -> tuple[bytes, dict[str, Any]]:
         from src.ingestion.source_pack_runtime import _retry_after_ms
 
-        host = (urlsplit(self.source["endpoint"]).hostname or "").casefold()
-        parts = urlsplit(url)
-        if (parts.hostname or "").casefold() != host or parts.scheme != "https":
-            raise SourcePackError("network_policy", "declared documents are fetched from the endpoint's host only")
-        base, _, query = url.partition("?")
-        headers = {"Accept": "application/json, application/zip, application/octet-stream"}
-        if self._secret:
-            headers["Authorization"] = f"Bearer {self._secret}"
-        response = self.transport(url=base, params=parse_qsl(query, keep_blank_values=True), headers=headers,
+        endpoint = self.source["endpoint"].rstrip("/")
+        url = endpoint + path
+        host = (urlsplit(endpoint).hostname or "").casefold()
+        headers = {"Accept": "application/vnd.orcid+json" if self.format == "orcid-record-json"
+                   else "application/vnd.api+json, application/json, application/zip"}
+        if FORMATS[self.format]["keyed"]:
+            if not self.secret:
+                raise SourcePackError("authentication_failed", "the ORCID public API needs its client token "
+                                      "(NOESIS_ORCID_PUBLIC_TOKEN); the source is unavailable without it")
+            headers["Authorization"] = "Bearer " + self.secret
+        response = self.transport(url=url, params=dict(sorted(params.items())), headers=headers,
                                   timeout=int(self.definition["limits"]["timeout_ms"]) / 1000)
         final_host = (urlsplit(str(response.get("final_url") or url)).hostname or "").casefold()
         if final_host != host:
-            raise SourcePackError("network_policy", "response was served from another host")
+            raise SourcePackError("network_policy", "research-entities response was served from another host")
         status = int(response.get("status", 200))
         headers_in = {str(k).casefold(): v for k, v in dict(response.get("headers") or {}).items()}
         content = response.get("content", b"")
@@ -1002,91 +1028,57 @@ class ResearchEntitiesAdapter:
             raise SourcePackError("authentication_failed", f"request refused (HTTP {status})")
         if status >= 500:
             raise SourcePackError("source_unavailable", f"provider returned HTTP {status}")
-        if status >= 400 and not (removable and status in {404, 409, 410}):
+        removal = (self.format == "orcid-record-json" and status in {409, 410}) or (
+            self.format == "datacite-doi-json" and status == 404)
+        if status >= 400 and not removal:
             raise SourcePackError("schema_drift", f"request returned HTTP {status}")
-        return raw, status, "fixture" if response.get("origin") == "fixture" else "live"
+        query = urlencode(sorted(params.items()))
+        return raw, {"path": path + ("?" + query if query else ""), "status": status,
+                     "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
+                     "origin": "fixture" if response.get("origin") == "fixture" else "live"}
 
     def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
         from src.ingestion.source_pack_runtime import RuntimePage
 
         self._check(request)
-        documents = list(self.declared["documents"])
         index = 0 if cursor is None else int(cursor) if str(cursor).isdigit() else -1
-        if not 0 <= index < len(documents):
-            raise SourcePackError("cursor_drift", "cursor names no declared document")
-        document = dict(documents[index])
-        fmt, provider = self.declared["format"], self.declared["provider"]
-        url = document_url(fmt, document, self.source["endpoint"])
-        removable = fmt == "orcid-record-json" or (fmt == "datacite-doi-json" and bool(document.get("doi")))
-        raw, status, origin = self._get(url, removable=removable)
+        if not 0 <= index < len(self.units):
+            raise SourcePackError("cursor_drift", "cursor is outside the declared selection")
+        unit = self.units[index]
+        path, params = request_for(self.format, unit)
+        raw, receipt_request = self._get(path, params)
         try:
-            if fmt == "ror-dump-zip":
-                release = parse_ror(raw, document=document, url=url)
-            elif fmt == "orcid-record-json":
-                release = parse_orcid(raw, status=status, document=document, url=url)
-            elif fmt == "datacite-doi-json":
-                release = parse_datacite(raw, status=status, document=document, url=url)
-            else:
-                release = parse_cordis(raw, document=document, url=url)
-        except ResearchEntitiesFormatError as exc:
-            raise SourcePackError(
-                "response_too_large" if exc.code == "input_limit" else "schema_drift", f"{exc.code}: {exc}"
-            ) from exc
+            records, missing = parse_unit(self.format, raw, unit, self.selection, status=receipt_request["status"])
+        except ResearchEntityFormatError as exc:
+            raise SourcePackError("response_too_large" if exc.code == "input_limit" else "schema_drift",
+                                  f"{exc.code}: {exc}") from exc
         limit = int(request.get("limit") or self.definition["limits"]["max_results"])
-        if len(release["items"]) > limit:
-            # Never a truncated release: a missing record would read as a removal.
-            raise SourcePackError("budget_exhausted", "document has more records than the run's result budget")
-        items = sorted(release["items"], key=lambda i: (i["record_kind"], i["native_id"]))
-        file_sha = hashlib.sha256(raw).hexdigest()
-        header = {
-            "contract": RELEASE_CONTRACT,
-            "provider": provider,
-            "format": fmt,
-            "document": document,
-            "label": release["label"],
-            "published_on": release["published_on"],
-            "release_basis": release["basis"],
-            "http_status": status,
-            "file_sha256": file_sha,
-            "content_sha256": digest(items),
-            "item_count": len(items),
-            "missing": release["missing"],
-            "excluded_fields": release["excluded_fields"],
-            # Only a fixture transport says so; the runtime's HTTPS transport is live evidence.
-            "evidence_origin": origin,
-            "live_verification": LIVE_VERIFICATION[provider]["status"],
-            "url": url,
-        }
-        records = [
-            {
-                "id": f"{file_sha[:16]}:{number}",
-                "title": f"{item['record_kind']} {item['native_id']} ({release['label']})",
-                "url": item["citation"].get("record_url") or url,
-                "language": "en",
-                "published_at": release["published_on"],
-                "content": json.dumps(item, sort_keys=True, ensure_ascii=False),
-                "research_entities_release": header,
-                "research_entity": item,
-            }
-            for number, item in enumerate(items)
-        ]
+        if len(records) > limit:
+            # Never a truncated unit: a missing record would read as one the registry did not publish.
+            raise SourcePackError("budget_exhausted", "unit has more records than the run's result budget")
+        origin = receipt_request["origin"]
         receipt = {
-            "status": status,
-            "provider": provider,
-            "document": document.get("label"),
-            "published_on": release["published_on"],
-            "release_basis": release["basis"],
-            "file_sha256": file_sha,
-            "items": len(records),
-            "missing": release["missing"],
-            "evidence_origin": origin,
-            "final_page": index + 1 >= len(documents),
+            "contract": RECEIPT_CONTRACT, "source_id": self.source["source_id"],
+            "provider": self.declared["provider"], "format": self.format, "unit_index": index,
+            "unit": {k: v for k, v in unit.items() if k != "project_ids"},
+            "requests": [receipt_request], "records": len(records), "not_in_response": missing,
+            "evidence_origin": origin, "live_verification": self.declared["live_verification"],
+            "minimisation": MINIMISATION_POLICY, "final_page": index + 1 >= len(self.units),
         }
-        next_cursor = str(index + 1) if index + 1 < len(documents) else None
-        return RuntimePage(tuple(records), next_cursor, len(raw), receipt=receipt)
+        out = []
+        for record in records:
+            record = {**record, "evidence_origin": origin}
+            out.append({
+                "id": record["record_key"], "title": record["title"], "url": record["locator"], "language": "en",
+                "published_at": record["as_of"], "updated_at": record["native_revision"],
+                "content": json.dumps(record, sort_keys=True, ensure_ascii=False),
+                "research_entity_record": record, "research_entity_receipt": receipt,
+            })
+        next_cursor = None if receipt["final_page"] else str(index + 1)
+        return RuntimePage(tuple(out), next_cursor, len(raw), receipt=receipt)
 
 
-FIXTURE_SECRET = None
+FIXTURE_SECRET = "fixture-token-not-a-real-credential"
 ADAPTERS = {CONNECTOR: ResearchEntitiesAdapter}
 
 
@@ -1098,8 +1090,7 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
 
     def transport(*, url, params, headers, timeout):
         del headers, timeout
-        pairs = list(params.items()) if isinstance(params, Mapping) else list(params or [])
-        query = urlencode(sorted(pairs))
+        query = urlencode(sorted(dict(params or {}).items()))
         key = urlsplit(url).path + ("?" + query if query else "")
         page = by_key.get(key)
         if page is None:
@@ -1116,25 +1107,25 @@ def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mappi
     return transport
 
 
-def fixture_request(fmt: str, document: Mapping[str, Any], endpoint: str = "") -> str:
-    """The key :func:`fixture_transport` files a response under (path and sorted query)."""
-    parts = urlsplit(document_url(fmt, document, endpoint))
-    query = urlencode(sorted(parse_qsl(parts.query, keep_blank_values=True)))
-    return parts.path + ("?" + query if query else "")
+def fixture_request(fmt: str, unit: Mapping[str, Any], endpoint: str) -> str:
+    """The key :func:`fixture_transport` files a response under (endpoint path + request path and sorted query)."""
+    path, params = request_for(fmt, unit)
+    query = urlencode(sorted(params.items()))
+    return (urlsplit(endpoint).path.rstrip("/") + path) + ("?" + query if query else "")
 
 
 def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any]) -> list[dict[str, Any]]:
-    adapter = ResearchEntitiesAdapter(source, transport=fixture_transport(list(fixture["native_pages"])))
+    adapter = ResearchEntitiesAdapter(source, transport=fixture_transport(list(fixture["native_pages"])),
+                                      secret=FIXTURE_SECRET)
     records, cursor = [], None
-    while True:
-        page = adapter.fetch_page(
-            {"operation": min(source["operations"]), "parameters": {}, "limit": int(source["budgets"]["max_results"])},
-            cursor=cursor,
-        )
+    for _ in range(len(adapter.units)):
+        page = adapter.fetch_page({"operation": min(source["operations"]), "parameters": {},
+                                   "limit": int(source["budgets"]["max_results"])}, cursor=cursor)
         records += [dict(item) for item in page.records]
         cursor = page.next_cursor
         if cursor is None:
-            return records
+            break
+    return records
 
 
 __all__ = [
@@ -1142,24 +1133,23 @@ __all__ = [
     "BOUNDED_COVERAGE",
     "CONNECTOR",
     "EXCLUSIONS",
+    "FIXTURE_SECRET",
     "FORMATS",
     "LIVE_VERIFICATION",
     "MINIMISATION",
-    "NEVER_SENTENCE",
-    "NOT_IMPLEMENTED",
-    "ORCID_EXCLUDED",
-    "ORCID_KEPT",
     "PROVIDER_CONTRACTS",
+    "RECORD_CONTRACT",
+    "REVIEW_BOUNDARY",
     "ResearchEntitiesAdapter",
-    "ResearchEntitiesFormatError",
-    "doi",
+    "ResearchEntityFormatError",
     "fixture_request",
     "fixture_transport",
-    "orcid_id",
-    "parse_cordis",
-    "parse_datacite",
-    "parse_orcid",
-    "parse_ror",
+    "minimisation_violations",
+    "normalize_doi",
+    "parse_unit",
     "replay_native_fixture",
-    "ror_id",
+    "request_for",
+    "research_entities_declaration",
+    "ror_url",
+    "valid_orcid",
 ]

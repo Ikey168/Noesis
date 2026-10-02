@@ -1,30 +1,26 @@
-"""Monitor new actions, decisions, penalties, appeals and corrections through subscriptions (#2651, EN11).
+"""Monitor enforcement actions, decisions, appeals and corrections through subscriptions (#2651, EN11).
 
 An enforcement monitor is an ordinary knowledge subscription
-(:class:`src.kb.subscriptions.SubscriptionStore`), following
-:mod:`src.kb.competition_monitoring` and :mod:`src.kb.campaign_finance_monitoring`:
-its query names an **entity** (an ownership entity reached through accepted
-respondent matches, optionally with its group), a published **identifier**
-(``scheme:value``), an **authority**, a **legal basis** or one **action**
-(record key). There is no monitor table and no scheduler: the
-``legal-research`` source-pack schedule acquires, the maintenance orchestrator
-commits watermarks, and each evaluation turns differences into subscription
-events delivered through the existing poll and outbox paths. A natural person
-is never a monitor target.
+(:class:`src.kb.subscriptions.SubscriptionStore`, provider
+``platform.subscriptions``), following the campaign-finance and competition
+monitors: its query names an **entity** (an ownership entity, optionally with
+group expansion, reached through accepted identity matches), an **authority**,
+a **legal basis** or one **action**. There is no monitor table and no
+scheduler: the ``legal-research`` source-pack schedule acquires, the
+maintenance orchestrator commits watermarks, and each evaluation turns
+differences into subscription events delivered through the existing poll and
+outbox paths.
 
-Notifications cite the new and the previous revision and state what changed
-(the fields whose published value differs): ``new_action``,
+Notices are record changes, not assessments. Each cites the new and the
+previous revision and states which published fields changed: ``new_action``,
 ``action_revised``, ``action_corrected``, ``action_removed_by_source``,
-``new_decision``, ``decision_revised``, ``new_penalty``, ``penalty_revised``,
-``new_appeal``, ``appeal_revised``, ``new_notice_document`` and
-``notice_document_revised``. Unchanged payloads emit nothing. A revision
-acquired *live* from a provider whose access is still ``unverified-live`` is
-withheld (the latest notifiable revision is used instead) until a dated live
-run verifies it; fixture replays are notified and marked as fixture evidence.
-Notices are record changes, not assessments.
-:meth:`EnforcementMonitor.refresh` re-reads one declared source selection
-through the real adapter within its budget; unchanged responses add nothing
-and every unit leaves a receipt.
+``new_decision``, ``decision_corrected``, ``new_penalty``, ``penalty_revised``,
+``new_appeal`` and ``appeal_revised``. Unchanged payloads emit nothing.
+Revisions acquired *live* from a provider still ``unverified-live`` are
+withheld until a dated live run verifies it; fixture replays are notified and
+marked as fixture evidence. :meth:`EnforcementMonitor.refresh` re-reads one
+declared selection through the real adapter within its budget; replays are
+idempotent and every unit leaves a receipt.
 """
 
 from __future__ import annotations
@@ -44,20 +40,17 @@ from src.kb.enforcement import (
 )
 
 CONTRACT = "noesis-enforcement-notification-v1"
-WATCH_KINDS = ("entity", "identifier", "authority", "legal_basis", "action")
-# Summary fields per kind; a change in any of them is stated in the notification.
-SUMMARY_FIELDS = {
-    "enforcement_action": ("title", "authority", "action_type_as_published", "legal_bases", "initiated_on",
-                           "decided_on", "published_on", "outcome_as_published", "settled", "admission_wording",
-                           "appeal_status_as_published", "publication_status"),
-    "decision": ("decision_type_as_published", "decided_on", "outcome_as_published", "settled", "admission_wording",
-                 "corrective_measures"),
-    "penalty": ("penalty_type", "amount_as_published", "currency", "status", "stage"),
-    "appeal": ("forum_as_published", "reference", "status_as_published", "stated_on"),
-    "notice_document": ("url", "title", "published_on", "content_sha256"),
+WATCH_KINDS = ("entity", "authority", "legal_basis", "action")
+_SUMMARY = {
+    "enforcement_action": ("title", "status_as_published", "source_status", "decided_on", "outcome_as_published",
+                           "settlement", "legal_bases"),
+    "enforcement_decision": ("document_type_as_published", "document_date", "amended_on", "source_status",
+                             "content_sha256", "correction_as_published"),
+    "penalty": ("penalty_type", "amount_as_published", "currency", "amount_status"),
+    "appeal": ("forum_as_published", "reference", "status_as_published", "lodged_on", "decided_on"),
 }
-ITEM_KIND = {"enforcement_action": "action", "decision": "decision", "penalty": "penalty", "appeal": "appeal",
-             "notice_document": "notice_document"}
+_KIND = {"enforcement_action": "action", "enforcement_decision": "decision", "penalty": "penalty",
+         "appeal": "appeal"}
 
 
 def notifiable(source: Mapping[str, Any]) -> bool:
@@ -77,8 +70,6 @@ class EnforcementMonitor:
     def create(self, namespace: str, request_key: str, *, watch: str, key: str, principal_id: str,
                scopes: Iterable[str], ownership_namespace: str | None = None, group: bool = False,
                delivery: dict[str, Any] | None = None) -> dict[str, Any]:
-        from src.kb.enforcement_records import authority_valid
-
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
         key = str(key or "").strip()
@@ -86,15 +77,8 @@ class EnforcementMonitor:
             raise EnforcementError("invalid_watch", f"watch one of {WATCH_KINDS} with a key")
         if watch == "action" and not key.startswith("enforcement:action:"):
             raise EnforcementError("invalid_watch", "an action is watched by its record key (enforcement:action:...)")
-        if watch == "authority" and not authority_valid(key):
-            raise EnforcementError("invalid_watch", "an authority is us-sec, uk-fca, us-epa or eu-sa-xx")
-        if watch == "identifier" and ":" not in key:
-            raise EnforcementError("invalid_watch", "an identifier is watched as scheme:value (e.g. sec-cik:...)")
-        if watch == "entity":
-            if not ownership_namespace:
-                raise EnforcementError("invalid_watch", "entities are ownership entities; name the ownership namespace")
-            authorize(ownership_namespace, scopes, "knowledge:ownership:read")
-            self._refuse_person(ownership_namespace, key, principal_id, scopes)
+        if watch == "entity" and not ownership_namespace:
+            raise EnforcementError("invalid_watch", "an entity is an ownership entity; name the ownership namespace")
         query = {"operation": "search", "kind": "enforcement-monitor", "watch": watch, "key": key,
                  **({"ownership_namespace": ownership_namespace} if ownership_namespace else {}),
                  **({"group": True} if group else {})}
@@ -104,19 +88,6 @@ class EnforcementMonitor:
             "enforcement-monitor:" + request_key, principal_id=principal_id, scopes=scopes)
         return {**created, "refresh": "the legal-research source-pack schedule and the maintenance orchestrator "
                                       "commit the watermarks this monitor evaluates; no new scheduler"}
-
-    def _refuse_person(self, ownership_namespace: str, key: str, principal_id: str, scopes: set[str]) -> None:
-        from src.kb.enforcement import table_exists
-
-        if not table_exists(self.conn, "ownership_records"):
-            return
-        from src.kb.ownership_store import OwnershipStore
-
-        for view in OwnershipStore(self.conn, initialize=False).records(
-                ownership_namespace, principal_id=principal_id, scopes=scopes, kinds=("person",)):
-            if key in {view["record_id"], view["record"].get("record_key")}:
-                raise EnforcementError("natural_person_not_a_query_key",
-                                       "natural persons are never a monitor target (EN01 minimisation decision)")
 
     def _subscription(self, subscription_id: str, principal_id: str, scopes: set[str]) -> dict[str, Any]:
         subscription = self.subscriptions.inspect(subscription_id, principal_id=principal_id, scopes=scopes)
@@ -132,62 +103,45 @@ class EnforcementMonitor:
         withheld[0] += len(history) - len(visible)
         return visible[-1] if visible else None
 
-    @staticmethod
-    def _cite(view: Mapping[str, Any]) -> dict[str, Any]:
-        return {"record_key": view["record"]["record_key"], "revision_id": view["revision_id"],
-                "revision": view["revision"], "provider": view["record"]["source"]["provider"],
-                "observed_at_ms": view["observed_at_ms"],
-                "evidence_origin": view["record"]["source"].get("evidence_origin")}
-
     def _action_items(self, namespace: str, action_keys: Iterable[str], items: list, withheld: list[int]) -> None:
         for key in sorted(set(action_keys)):
             view = self._visible(namespace, key, withheld)
             if view is None:
                 continue
-            children = self.store.action_children(namespace, key)
-            for shown in [view] + [self._visible(namespace, c["record"]["record_key"], withheld)
-                                   for kind in ("decision", "penalty", "appeal", "notice_document")
-                                   for c in children[kind]]:
+            keys = [key] + [v["record"]["record_key"] for group in
+                            self.store.action_children(namespace, key).values() for v in group
+                            if v["record"]["kind"] in _SUMMARY]
+            for record_key in keys:
+                shown = view if record_key == key else self._visible(namespace, record_key, withheld)
                 if shown is None:
                     continue
                 body = shown["record"]
-                summary = {f: body.get(f) for f in SUMMARY_FIELDS[body["kind"]]}
-                items.append({"id": f"{ITEM_KIND[body['kind']]}:{body['record_key']}", "kind": ITEM_KIND[body["kind"]],
-                              "action_key": key, "cite": self._cite(shown), "summary": summary,
-                              **({"corrected": True} if body.get("publication_status") == "corrected" else {})})
-
-    def _action_keys(self, subscription: Mapping[str, Any], scopes: set[str]) -> list[str]:
-        from src.kb.enforcement_links import basis_keys, parse_references
-        from src.kb.enforcement_queries import (
-            actions_for_entity,
-            actions_for_identifier,
-        )
-
-        namespace, query = subscription["namespace"], subscription["query"]
-        watch, key = query["watch"], query["key"]
-        if watch == "action":
-            return [key]
-        if watch == "entity":
-            answer = actions_for_entity(self.conn, namespace, key, ownership_namespace=query["ownership_namespace"],
-                                        scopes=scopes, group=bool(query.get("group")))
-            return [row["action_key"] for row in answer["actions"]]
-        if watch == "identifier":
-            scheme, value = key.split(":", 1)
-            return [row["action_key"] for row in actions_for_identifier(self.conn, namespace, scheme, value,
-                                                                         scopes=scopes)["actions"]]
-        actions = self.store.views(namespace, ("enforcement_action",))
-        if watch == "authority":
-            return [v["record"]["record_key"] for v in actions if v["record"]["authority"] == key]
-        wanted = {c["key"] for c in parse_references(key)}
-        normal = " ".join(key.lower().split())
-        return [v["record"]["record_key"] for v in actions
-                if normal in {" ".join(b.lower().split()) for b in v["record"].get("legal_bases") or []}
-                or (wanted and wanted & basis_keys(v["record"]))]
+                items.append({"id": f"{_KIND[body['kind']]}:{record_key}", "kind": _KIND[body["kind"]],
+                              "cite": {"record_key": record_key, "revision_id": shown["revision_id"],
+                                       "revision": shown["revision"], "provider": body["source"]["provider"],
+                                       "url": body["source"].get("url"),
+                                       "evidence_origin": body["source"].get("evidence_origin")},
+                              "summary": {"action_key": key, "authority": body["authority"],
+                                          **{f: body.get(f) for f in _SUMMARY[body["kind"]]}}})
 
     def snapshot(self, subscription: Mapping[str, Any], scopes: set[str]) -> tuple[dict[str, Any], int]:
+        from src.kb.enforcement_queries import actions_by_authority, actions_for_entity
+
+        namespace, query = subscription["namespace"], subscription["query"]
         items: list[dict[str, Any]] = []
         withheld = [0]
-        self._action_items(subscription["namespace"], self._action_keys(subscription, scopes), items, withheld)
+        watch, key = query["watch"], query["key"]
+        if watch == "action":
+            actions = [key]
+        elif watch == "entity":
+            answer = actions_for_entity(self.conn, namespace, key, ownership_namespace=query["ownership_namespace"],
+                                        scopes=scopes, group=bool(query.get("group")), include_removed=True)
+            actions = [r["action_key"] for r in answer["actions"]]
+        else:
+            answer = actions_by_authority(self.conn, namespace, scopes=scopes, include_removed=True,
+                                          **({"authority": key} if watch == "authority" else {"legal_basis": key}))
+            actions = [r["action_key"] for r in answer["actions"]]
+        self._action_items(namespace, actions, items, withheld)
         return {"items": items, "coverage": {"complete": True}}, withheld[0]
 
     # ------------------------------------------------------------------ evaluation
@@ -224,30 +178,40 @@ class EnforcementMonitor:
         new = json.loads(after) if after else None
         if event_type == "removed" or new is None:
             return []
-        changed = sorted(f for f in new["summary"] if old is None or old["summary"].get(f) != new["summary"].get(f))
-        kind = new["kind"]
-        if old is None:
-            label = f"new_{kind}"
-        elif kind == "action" and new["summary"].get("publication_status") == "removed_by_source":
-            label = "action_removed_by_source"
-        elif kind == "action" and new.get("corrected"):
-            label = "action_corrected"
-        else:
-            label = f"{kind}_revised"
         if old is not None and old["cite"]["revision_id"] == new["cite"]["revision_id"]:
             return []
-        message = (f"{new['action_key']}: new {kind.replace('_', ' ')}" if old is None else
-                   f"{new['action_key']}: {kind.replace('_', ' ')} revision {new['cite']['revision']} changed "
-                   + ", ".join(changed))
-        return [{"contract": CONTRACT, "notification_id": f"{event_id}:{label}", "event_id": event_id,
-                 "kind": label, "object": key, "action_key": new["action_key"], "message": message,
-                 "changed_fields": changed if old is not None else [],
-                 "changes": {f: {"before": (old or {}).get("summary", {}).get(f), "after": new["summary"].get(f)}
-                             for f in changed} if old is not None else {},
-                 "summary": new["summary"], "previous_summary": (old or {}).get("summary"),
+        summary, kind = new["summary"], new["kind"]
+        changed = sorted(f for f in summary if (old or {}).get("summary", {}).get(f) != summary.get(f)) if old else []
+        if kind == "action":
+            if old is None:
+                name = "new_action"
+            elif summary.get("source_status") == "removed_by_source":
+                name = "action_removed_by_source"
+            elif summary.get("source_status") == "corrected":
+                name = "action_corrected"
+            else:
+                name = "action_revised"
+        elif kind == "decision":
+            name = "new_decision" if old is None else "decision_corrected"
+        else:
+            name = f"new_{kind}" if old is None else f"{kind}_revised"
+        detail = {"new_action": f"{summary['authority']}: {summary.get('title')}",
+                  "new_decision": f"{summary['action_key']}: {summary.get('document_type_as_published')} "
+                                  f"{summary.get('document_date') or ''}".strip(),
+                  "new_penalty": f"{summary['action_key']}: {summary.get('penalty_type')} "
+                                 f"{summary.get('amount_as_published') or 'amount not published'}",
+                  "new_appeal": f"{summary['action_key']}: {summary.get('forum_as_published')} "
+                                f"{summary.get('reference') or ''} ({summary.get('status_as_published')})"}
+        message = detail.get(name) or f"{new['cite']['record_key']}: revision {new['cite']['revision']} changed " \
+                                      f"{', '.join(changed) or 'published content'}"
+        return [{"contract": CONTRACT, "notification_id": f"{event_id}:{name}", "event_id": event_id, "kind": name,
+                 "object": key, "message": message, "changed_fields": changed,
+                 "changes": {f: {"before": old["summary"].get(f), "after": summary.get(f)} for f in changed}
+                 if old else {},
+                 "summary": summary, "previous_summary": (old or {}).get("summary"),
                  "cites": {**new["cite"], "previous": (old or {}).get("cite")},
                  "evidence_origin": new["cite"].get("evidence_origin"),
-                 "note": "a record change as the regulator published it; not an assessment"}]
+                 "notice": "a record change as published, not an assessment"}]
 
     def poll(self, subscription_id: str, *, principal_id: str, scopes: Iterable[str], cursor: str = ""
              ) -> dict[str, Any]:

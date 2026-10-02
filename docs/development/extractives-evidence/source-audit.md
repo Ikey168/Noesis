@@ -1,115 +1,112 @@
-# Extractives: source audit and bounded provider coverage (EX01)
+# Extractives and natural resources: source audit, minimisation decision and bounded coverage (EX01)
 
 Tracking: #2653 · delivery issue #2657 · recorded 2026-09-30.
 
-This audit sets out, per source, what the Economics bundle's optional
-`extractives-eiti`, `extractives-usgs` and `extractives-bgs` features may
-acquire, how, and on what terms. **The official pages could not be read from
-this runtime on 2026-09-30: the egress proxy blocked `eiti.org`,
-`www.usgs.gov`, `www.sciencebase.gov`, `www.bgs.ac.uk`, `ogcapi.bgs.ac.uk`,
-`www.data.gov.uk` and `energydata.info`.** What follows is recorded from web
-search-result summaries of those pages (read the same day) and is marked
-_unverified_ wherever it states an endpoint, a field name, a limit or a term.
-Every such item must be checked against the live page, the live terms and a
-real response before the first dated live run (EX13, #2717). No provider is
-`live` until that run exists. The machine-readable copy of these decisions is
-`PROVIDER_CONTRACTS`, `LIVE_VERIFICATION`, `MINIMISATION` and
-`BOUNDED_COVERAGE` in `src/ingestion/extractives_sources.py`; the MCP tool
-`extractives_source_contracts` returns them, and each source entry in
-`config/source_packs/economic.json` carries its
-`extractives.live_verification` status.
+This audit sets out, per source, what the Economics bundle's `economics.extractives`
+provider may acquire, how, and on what terms. **It was written without network
+access to the providers: eiti.org, usgs.gov, sciencebase.gov and bgs.ac.uk were
+unreachable from the authoring environment (egress blocked), so the terms,
+endpoints, field names and column headers below come from the providers'
+published documentation as the author knows it and from the tracker's
+references, and were not re-verified live.** Every item marked _verify_ must be
+checked against the live documentation, the live terms and a real response
+before the first dated live run (EX13, #2717). No provider is `live` until that
+run exists.
 
-Non-goals for every source: no reconciliation of payment discrepancies beyond
-those the EITI report publishes, no own reserve or resource estimates, no
-corruption or governance risk scoring, no price or production forecasts, no
-currency conversion and no sums across reports, no blending of USGS and BGS
-series, no filled withheld values and no inferred project ownership.
+The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`MINIMISATION`, `LIVE_VERIFICATION` and `BOUNDED_COVERAGE` in
+`src/ingestion/extractives_sources.py`; the MCP tool
+`extractives_source_contracts` returns them, and every source entry of the
+source pack `config/source_packs/economic-extractives.json`
+(`economic-extractives` 1.0.0) carries its `extractives.live_verification`
+status (`unverified-live`).
 
-## Pages consulted (2026-09-30)
+**Source-pack placement.** The issue asked for entries in
+`config/source_packs/economic.json`. They live in a separate economics-domain
+source pack instead, following the logistics feature's precedent: adding them
+to `economic-statistics-and-filings` would bump that pack's version and the
+Economics bundle's pin, which the other Economics features depend on. The
+Economics bundle pins both packs; `economic.json` is unchanged.
 
-| Page | Read | What was recorded |
-| --- | --- | --- |
-| https://eiti.org/open-data | blocked; search summary only (_unverified_) | summary data is published in a standardised open format covering government revenues, company payments, reporting entities and project-level data; downloadable as CSV per country and served through an API |
-| https://eiti.org/how-we-collect-and-publish-eiti-summary-data | blocked; search summary only (_unverified_) | summary data files are imported to eiti.org and available as CSV or through the API; revenue streams are classified by the IMF GFS framework; commodities by HS code, currencies by ISO code |
-| https://eiti.org/guidance-notes/eiti-summary-data-template | blocked; search summary only (_unverified_) | template parts for reporting entities (government agencies, companies, projects) and company- and project-level data by revenue stream; version 2.1 of the template applies from January 2026 |
-| https://eiti.org/document/18610 (open data policy guidance) | blocked; search summary only (_unverified_) | open data should be licensed for any reuse; the concrete licence of eiti.org summary data was not found |
-| https://www.usgs.gov/centers/national-minerals-information-center/mineral-commodity-summaries | blocked (_unverified_) | none directly |
-| https://www.sciencebase.gov/catalog/item/677eaf95d34e760b392c4970 and https://www.sciencebase.gov/catalog/item/6798fd34d34ea8c18376e8ee | blocked; search summary only (_unverified_) | MCS 2025 data release; world production, capacity and reserves table `MCS2025_World_Data.csv` with a metadata XML, published 2025-01-31 |
-| https://www.bgs.ac.uk/mineralsuk/statistics/world-mineral-statistics/ | blocked (_unverified_) | none directly |
-| https://www.data.gov.uk/dataset/fb34d76e-346f-4fbb-be43-4080625e1e5d (BGS WMS WFS) | blocked; search summary only (_unverified_) | WFS 2.0 over the archive from 1970; Open Government Licence; acknowledgement "Contains British Geological Survey materials © UKRI [year]" |
-| https://ogcapi.bgs.ac.uk/collections/world-mineral-statistics | blocked; search summary only (_unverified_) | OGC API Features collection; item properties include `bgs_commodity_trans`, `country_trans`, `year`, `erml_commodity` and a statistic type |
+Non-goals for every source: payments, production and reserves are stored as
+each publisher released them. No reconciliation of payment discrepancies beyond
+what the EITI report states, no own reserve or production estimate (a withheld
+value stays withheld), no corruption or governance risk scoring, no price
+forecast, no currency conversion and no sum across reports, no blending of
+USGS and BGS series, and no project ownership inferred from names or places.
 
-## Access decisions (`LIVE_VERIFICATION`)
+## Access decisions
 
-| Source | Access | Authentication and keys | Rate limits | Decision |
+| Source | Delivers | Feature | Decision (`LIVE_VERIFICATION`) | Reason |
 | --- | --- | --- | --- | --- |
-| EITI summary data (eiti.org) | JSON API `https://eiti.org/api/v1.0/summary_data` (_unverified_ path, filters, paging and field names); CSV per country page | none stated (_unverified_) | none published (_unverified_); each run is bounded by the declared documents and `max_pages` | `unverified-live` |
-| USGS Mineral Commodity Summaries (ScienceBase) | annual data-release files (CSV plus metadata XML) on `www.sciencebase.gov` (_unverified_ file URL pattern) | none | none published (_unverified_); one request per declared file | `unverified-live` |
-| BGS World Mineral Statistics (ogcapi.bgs.ac.uk) | OGC API Features, GeoJSON items (_unverified_ property names and paging); WFS 2.0 at `ogc2.bgs.ac.uk` also served | none | none published (_unverified_); one page per declared request, refused (never truncated) when `numberMatched` exceeds the page | `unverified-live` |
+| EITI summary data (eiti.org) | per implementing country, fiscal period and report version: report, government agencies, GFS-classified revenue streams, companies, projects and licences as reported, company payments with government- and company-reported figures and the report's reconciliation discrepancies | `extractives-eiti` | `unverified-live` | Open data without authentication. The API path (`/api/v2.0/summary_data/...`), the JSON field names of the summary-data template and the report-version metadata are _verify_ |
+| USGS Mineral Commodity Summaries (sciencebase.gov) | world mine production and reserves by country per commodity, one data release per year | `extractives-usgs` | `unverified-live` | US federal data release without authentication; the ScienceBase item ids, file names and per-year column headers are _verify_ |
+| BGS World Mineral Statistics (www2.bgs.ac.uk) | production, imports and exports by country and commodity | `extractives-bgs` | `unverified-live` | Free download that requires accepting the BGS terms in the query; the query parameters, CSV layout and licence wording are _verify_ |
 
-No source needs a key, so no secret is declared (`auth.kind` is `none`). No
-source's terms, as far as they could be established, forbid the intended use;
-no source is recorded as not implemented. Should the live EITI licence turn out
-to restrict redistribution, the `extractives-eiti` feature must be recorded as
-not implemented before EX13.
+No source was found whose terms forbid the intended use, so no provider is
+recorded as "not implemented". If the live check finds BGS redistribution
+restricted to non-commercial use, the BGS feature stays off by default (it
+already is) and the restriction is added to its licence entry before any live
+run.
 
-## Reuse terms
+## Per-source contract
 
-| Source | Terms | Attribution recorded per release |
+| Source | Endpoint, authentication and key handling | Identifiers | Licence and redistribution | Rate limits | Updates, corrections and removals |
+| --- | --- | --- | --- | --- | --- |
+| EITI | `GET https://eiti.org/api/v2.0/summary_data/{id}` (_verify_), JSON rendering of the summary data template v2; no authentication, no key is handled | report = ISO 3166-1 alpha-2 country + fiscal period start and end; revenue streams by GFS code as published (`1112E1`, `1415E1`); companies by the identification number and register the report publishes, else the name as reported; projects and licences as reported | EITI open data: free reuse with attribution to EITI and the national report (_verify_ the licence statement) | not documented; one request per declared report version, bounded by `max_pages` | a revised report is a **new report version** declared by the operator (version and publication date); each changed record adds a revision; a record the new version no longer states becomes a `removed` revision; an older version arriving after a newer one is refused (`stale_version`) |
+| USGS MCS | `GET https://www.sciencebase.gov/catalog/file/get/{item}?name={file}` (_verify_), CSV per commodity table; no authentication | commodity = MCS commodity name with declared unit and definition; countries as published names, ISO 3166-1 alpha-2 and M49 codes **declared by the operator** per name (basis `operator-declared`), world total kept as a published aggregate row | US federal government works, public domain; cite USGS (_verify_) | not documented; one download per declared table | each annual release (late January) is a **vintage**; the latest year's column is estimated (flag stored), `e`/`r` markers stored as published, `W` (withheld to avoid disclosing company proprietary data) stays withheld, never filled; a year estimated in one release and final in the next shows both vintages |
+| BGS WMS | `GET https://www2.bgs.ac.uk/mineralsuk/statistics/wms.cfc?method=listResults&...&agreeToTsAndCs=agreed` (_verify_), CSV export; no account | commodity and sub-commodity names as published; statistic type (Production, Imports, Exports) mapped to `production`, `imports`, `exports`; countries as published names with operator-declared codes | acknowledgement "British Geological Survey (c) UKRI" required; redistribution terms (Open Government Licence or BGS non-commercial terms) _verify_ | not documented; one download per declared query | each BGS publication is a **vintage**; later publications revise earlier years; values `..` and similar markers stay `not_available` |
+
+## Personal data and the minimisation decision
+
+| Source | Personal data | Decision |
 | --- | --- | --- |
-| EITI | EITI open-data policy expects open licensing; the licence of eiti.org summary data is _unverified_ | the report label, version and URL |
-| USGS | USGS-authored data are generally US public domain; cite the data release (_unverified_) | the data-release label and publication date |
-| BGS | Open Government Licence; "Contains British Geological Survey materials © UKRI [year]" and a link to the OGL where possible (_unverified_) | `structure.attribution` of each BGS release |
+| EITI | contact persons of national secretariats, multi-stakeholder groups and reporting entities (names, e-mail, telephone); beneficial owners (natural persons) where beneficial-ownership disclosure is attached; signatories; payers or licence holders the report marks as individuals (e.g. artisanal licence holders) | **Excluded:** contact persons, beneficial owners, signatories - never parsed into a record. **Redacted:** an individual payer or licence holder keeps its payments under a report-local key; its name is replaced by `[natural person - name withheld]` and its identifier dropped. **Stored:** legal-person company names and published company identifiers, government agency names, project names, licence numbers and published coordinates, amounts as reported. |
+| USGS MCS | none | no decision needed |
+| BGS WMS | none | no decision needed |
 
-## Updates, corrections and removals
+- **Retention:** a record is kept as long as the report revision it belongs to;
+  redaction applies to every revision.
+- **Who may query:** holders of `knowledge:extractives:read` in the namespace.
+  Because no personal field is stored, no tool can return one.
+- **Enforcement at write time:** `check_minimised` in
+  `src/kb/extractives_records.py` refuses any record carrying a personal key
+  (`contact`, `email`, `phone`, `beneficial_owners`, `signatory`, ...) or an
+  individual whose name is not withheld (`personal_data_refused`); the parser
+  never copies those fields. Individual payers are never offered to identity
+  matching.
 
-| Source | Update signal | Correction or removal | Vintage or revision |
-| --- | --- | --- | --- |
-| EITI | report publication date in the summary (`report.published`, _unverified_), else the summary's change stamp, else the retrieval time (labelled) | a re-published summary for the same country and fiscal period with changed content is a new report revision; a summary stating `withdrawn` is a revision recording the withdrawal; lines absent from a revision stay in the earlier one | report revision keyed by country and fiscal period |
-| USGS | annual release (late January / early February), declared per document | a year re-stated in a later release is a revised value; a year the later table no longer states is a removed year; the earlier vintage keeps both | one vintage per annual release |
-| BGS | publication (World Mineral Production edition), declared per document with its request window | a figure changed in a later edition is a revised value | one vintage per publication |
+## Bounded coverage (selected)
 
-## Value conventions
+| Provider | Scope | Places | Periods | Caps |
+| --- | --- | --- | --- | --- |
+| EITI | summary data of two implementing countries | NL (Netherlands EITI), DE (D-EITI) | the two most recent reported fiscal years, every published version | `max_results` records per report version (a version is never truncated), 2 documents per run |
+| USGS MCS | copper and lithium world production and reserves tables | every country row of the declared tables and the world total | the two most recent annual releases | `max_results` series per table |
+| BGS WMS | copper production and ores imports/exports; crude petroleum production | CL, PE, DE, NL | five reference years per publication, the two most recent publications | `max_results` series per query |
 
-- USGS: `W` withheld to avoid disclosing company proprietary data, `NA` not
-  available, a trailing `e` a published estimate and `r` a published revision,
-  a separate estimated column where the release has one (_unverified_ against
-  each release's metadata). Withheld and unavailable values carry no number and
-  are never filled; aggregates such as "World total (rounded)" stay separate
-  rows and are never mapped to a country.
-- BGS: a missing quantity is `not_available`; units are stored per series as
-  published.
-- EITI: amounts keep the text and the currency the report states; the
-  discrepancy is the report's own figure with its explanation.
+Justification: copper is published by all three sources (EITI payments of
+mining companies, USGS and BGS production), so the side-by-side answer and the
+trade link (HS heading 2603) are exercised on one commodity; crude petroleum
+exercises the Energy balance link by its SIEC code; the Netherlands and
+Germany are EITI implementing countries whose reports can name companies of the
+Corporate Ownership fixtures' Exampla group. The offline fixtures use these
+selections with fictional companies and values; every declared release date
+lies in the past, so a real retrieval always follows it.
 
-## Personal data: minimisation decision
+## Gap against existing components
 
-EITI summary data names legal entities; some files also name contact persons
-and, for artisanal or individual licence holders, natural persons.
-
-| Aspect | Decision |
-| --- | --- |
-| Stored | legal-entity names and identifiers as reported, government agencies, revenue streams, projects, amounts with currency, discrepancies and explanations |
-| Excluded | contact persons, e-mail addresses, telephone numbers, signatories, beneficial-owner names and any other natural-person field (dropped by the parser; only the excluded field paths are recorded) |
-| Redacted | a reporting entity the summary flags as a natural person keeps its payment lines with the name replaced by `[natural person - redacted]` and no identifiers; it is never proposed for identity matching |
-| Retention | as long as the report revision it came from is retained |
-| Access | `knowledge:extractives:read` with namespace access; no personal field is stored, and every MCP answer is checked before it leaves the tool |
-
-The store refuses any item carrying a natural-person key or an unredacted
-natural-person entity (`personal_data_refused`), so the decision holds at write
-time as well as in answers.
-
-## Bounded first coverage
-
-| Dimension | Selection | Why |
-| --- | --- | --- |
-| Countries | Peru (EITI, USGS, BGS), Chile (USGS, BGS; not an EITI implementing country) | one country with payments and production from all three sources, one production-only country for side-by-side series |
-| Commodities | copper (mine production, reserves, exports), lithium (withheld US production), crude petroleum (BGS, Energy link) | covers withheld values, estimates, imports/exports and a hydrocarbon |
-| Companies | the reporting companies of the declared EITI summaries | matched to ownership entities only by review |
-| Periods | two most recent fiscal periods per EITI country; two most recent MCS releases and BGS editions | shows a revision and a new vintage |
-| Caps | `max_results` items per response and `max_pages` requests per run; a response over the budget is refused, never truncated | a missing item would read as unpublished |
-
-Commodity-to-HS mappings use the HS code the EITI summary states, else a
-published table an operator imports with its citation (for example the tariff
-items of an MCS commodity chapter); country names map to ISO 3166-1 alpha-3
-through a published code list (UN M49) unless the source publishes the code.
+- The Economics series storage (`register_series`, `dataset_*`,
+  `economic_vintages`) keys a series by one geography string and has no place for
+  withheld/estimated/revised markers, notes or the operator-declared country code
+  basis. Those live in `extractives_values` and `extractives_series` beside it;
+  every number is registered once in the shared storage with its release clock.
+- EITI records are not numeric series: they are revisioned records per report
+  version in `extractives_records`, following the append-only pattern of
+  `src/kb/entity_history.py`.
+- Company matching reuses the ownership reviewable identity state machine
+  (`src/kb/ownership_identity.py`); `extractives:` joins its foreign-key prefixes
+  so these links never regroup ownership entities.
+- Commodity-to-HS mapping needs a published correspondence; none is bundled with
+  the trade concordances (which map HS editions, not commodities), so an
+  operator records the one the publisher states (BGS lists the HS headings it
+  uses for trade statistics, _verify_) with its citation.

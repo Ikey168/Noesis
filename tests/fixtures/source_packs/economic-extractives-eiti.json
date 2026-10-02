@@ -2,24 +2,398 @@
  "captured": null,
  "native_pages": [
   {
-   "request": "/api/v1.0/summary_data?filter%5Bcountry.iso3%5D=PER&filter%5Byear%5D=2022",
-   "status": 200,
-   "body": "{\"data\": [{\"changed\": \"2023-06-30T00:00:00Z\", \"commodities\": [{\"hs_code\": \"260300\", \"name\": \"Copper ores and concentrates\"}], \"contact\": {\"email\": \"contact@example.invalid\", \"name\": \"Fixture Contact\", \"phone\": \"+00 000\"}, \"country\": {\"iso3\": \"PER\", \"label\": \"Peru\"}, \"currency_code\": \"PEN\", \"id\": \"sd-fixture-per-2022\", \"reconciliation\": [{\"company\": {\"identifiers\": [{\"scheme\": \"lei\", \"value\": \"724500EXAMPLAINTBV75\"}], \"name\": \"Exampla Intermediate B.V.\"}, \"company_value\": \"800000.00\", \"currency\": \"PEN\", \"discrepancy\": \"0.00\", \"explanation\": null, \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_value\": \"800000.00\", \"revenue_stream\": \"Regalias mineras\"}], \"report\": {\"label\": \"Peru EITI report 2022 (fixture)\", \"published\": \"2023-06-30\", \"url\": \"https://eiti.org/documents/fixture-peru-eiti-report-2022\", \"version\": \"1\"}, \"revenue_company\": [{\"company\": {\"identifiers\": [{\"scheme\": \"lei\", \"value\": \"724500EXAMPLAINTBV75\"}], \"name\": \"Exampla Intermediate B.V.\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"project\": {\"coordinates\": [\"-70.1234\", \"-15.5678\"], \"id\": \"PRJ-001\", \"identifiers\": [{\"scheme\": \"gem-mine-id\", \"value\": \"M-FIX-1\"}], \"name\": \"Cerro Ejemplo (fixture)\"}, \"reported_by\": \"company\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"800000.00\"}, {\"company\": {\"identifiers\": [{\"scheme\": \"lei\", \"value\": \"724500EXAMPLAINTBV75\"}], \"name\": \"Exampla Intermediate B.V.\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"project\": {\"coordinates\": [\"-70.1234\", \"-15.5678\"], \"id\": \"PRJ-001\", \"identifiers\": [{\"scheme\": \"gem-mine-id\", \"value\": \"M-FIX-1\"}], \"name\": \"Cerro Ejemplo (fixture)\"}, \"reported_by\": \"government\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"800000.00\"}], \"revenue_government\": [{\"budget_reference\": {\"code\": \"1.3.1.1.1\", \"scheme\": \"pe-siaf-ingresos\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"1250000.00\"}, {\"currency\": \"PEN\", \"gfs_code\": \"1112E1\", \"gfs_label\": \"Taxes on income, profits and capital gains\", \"government_entity\": \"SUNAT (fixture)\", \"revenue_stream\": \"Impuesto a la renta\", \"value\": \"3400000.00\"}], \"year_end\": \"2022-12-31\", \"year_start\": \"2022-01-01\"}], \"meta\": {\"count\": 1}}"
+   "body": {
+    "summary_data": {
+     "companies": [
+      {
+       "beneficial_owners": [
+        {
+         "name": "Fixture Owner"
+        }
+       ],
+       "commodities": [
+        "natural gas"
+       ],
+       "id": "C1",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990003"
+        }
+       ],
+       "name": "Exampla Intermediate B.V.",
+       "sector": "oil and gas",
+       "type": "company"
+      },
+      {
+       "commodities": [
+        "natural gas"
+       ],
+       "id": "C2",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990077"
+        }
+       ],
+       "name": "Northwind Offshore B.V.",
+       "sector": "oil and gas",
+       "type": "company"
+      },
+      {
+       "id": "C3",
+       "identification": [
+        {
+         "scheme": "nl-kvk",
+         "value": "99990099"
+        }
+       ],
+       "name": "A. Fixture-Person",
+       "sector": "sand and gravel",
+       "type": "individual"
+      }
+     ],
+     "contact": {
+      "email": "msg@example.org",
+      "name": "Fixture MSG Contact"
+     },
+     "country": {
+      "iso2": "NL",
+      "name": "Netherlands"
+     },
+     "fiscal_year": {
+      "end": "2021-12-31",
+      "start": "2021-01-01"
+     },
+     "government_agencies": [
+      {
+       "id": "GA1",
+       "name": "Belastingdienst Fixture"
+      },
+      {
+       "id": "GA2",
+       "name": "Ministry of Economic Affairs Fixture"
+      }
+     ],
+     "payments": [
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "1250000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "explanation": "timing difference, as stated in the report",
+        "value": "-50000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "1200000"
+       },
+       "id": "PAY1",
+       "project": "P1",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "800000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "800000"
+       },
+       "id": "PAY2",
+       "project": "P1",
+       "revenue_stream": "RS2"
+      },
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "government_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "id": "PAY3",
+       "revenue_stream": "RS3"
+      },
+      {
+       "company": "C2",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "300000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "300000"
+       },
+       "id": "PAY4",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C3",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "5000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "5000"
+       },
+       "id": "PAY5",
+       "revenue_stream": "RS2"
+      }
+     ],
+     "projects": [
+      {
+       "commodities": [
+        "natural gas"
+       ],
+       "company": "C1",
+       "id": "P1",
+       "licences": [
+        {
+         "commodity": "natural gas",
+         "holder": "C1",
+         "number": "NL-WIN-0001",
+         "type": "production licence"
+        }
+       ],
+       "name": "Exampla Gas Field A (fixture)"
+      }
+     ],
+     "report": {
+      "currency": "EUR",
+      "published": "2023-05-31",
+      "reconciliation_note": "Discrepancies as reported by the independent administrator (fixture).",
+      "title": "NL-EITI report 2021 (fixture)",
+      "unit": "EUR",
+      "url": "https://eiti.org/documents/fixture-netherlands-2021",
+      "version": "1"
+     },
+     "revenue_streams": [
+      {
+       "agency": "GA1",
+       "gfs_code": "1112E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "1500000"
+       },
+       "id": "RS1",
+       "name": "Corporate income tax"
+      },
+      {
+       "agency": "GA2",
+       "budget_reference": "NL-BUDGET-XIII-ART9 (fixture)",
+       "gfs_code": "1415E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "805000"
+       },
+       "id": "RS2",
+       "name": "Royalties"
+      },
+      {
+       "agency": "GA2",
+       "gfs_code": "1415E4",
+       "government_reported": {
+        "currency": "USD",
+        "value": "100000"
+       },
+       "id": "RS3",
+       "name": "Signature bonus"
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v2.0/summary_data/NL-2021",
+   "status": 200
   },
   {
-   "request": "/api/v1.0/summary_data?filter%5Bcountry.iso3%5D=PER&filter%5Byear%5D=2023",
-   "status": 200,
-   "body": "{\"data\": [{\"changed\": \"2024-06-30T00:00:00Z\", \"commodities\": [{\"hs_code\": \"260300\", \"name\": \"Copper ores and concentrates\"}], \"contact\": {\"email\": \"contact@example.invalid\", \"name\": \"Fixture Contact\", \"phone\": \"+00 000\"}, \"country\": {\"iso3\": \"PER\", \"label\": \"Peru\"}, \"currency_code\": \"PEN\", \"id\": \"sd-fixture-per-2023\", \"reconciliation\": [{\"company\": {\"identifiers\": [{\"scheme\": \"lei\", \"value\": \"724500EXAMPLAINTBV75\"}], \"name\": \"Exampla Intermediate B.V.\"}, \"company_value\": \"800000.00\", \"currency\": \"PEN\", \"discrepancy\": \"-10000.00\", \"explanation\": \"timing difference stated by the Independent Administrator (fixture)\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_value\": \"790000.00\", \"revenue_stream\": \"Regalias mineras\"}], \"report\": {\"label\": \"Peru EITI report 2023 (fixture)\", \"published\": \"2024-06-30\", \"url\": \"https://eiti.org/documents/fixture-peru-eiti-report-2023\", \"version\": \"1\"}, \"revenue_company\": [{\"company\": {\"identifiers\": [{\"scheme\": \"lei\", \"value\": \"724500EXAMPLAINTBV75\"}], \"name\": \"Exampla Intermediate B.V.\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"project\": {\"coordinates\": [\"-70.1234\", \"-15.5678\"], \"id\": \"PRJ-001\", \"identifiers\": [{\"scheme\": \"gem-mine-id\", \"value\": \"M-FIX-1\"}], \"name\": \"Cerro Ejemplo (fixture)\"}, \"reported_by\": \"company\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"800000.00\"}, {\"company\": {\"identifiers\": [{\"scheme\": \"lei\", \"value\": \"724500EXAMPLAINTBV75\"}], \"name\": \"Exampla Intermediate B.V.\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"project\": {\"coordinates\": [\"-70.1234\", \"-15.5678\"], \"id\": \"PRJ-001\", \"identifiers\": [{\"scheme\": \"gem-mine-id\", \"value\": \"M-FIX-1\"}], \"name\": \"Cerro Ejemplo (fixture)\"}, \"reported_by\": \"government\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"790000.00\"}, {\"company\": {\"identifiers\": [{\"scheme\": \"gb-coh\", \"value\": \"09990002\"}], \"name\": \"EXAMPLA UK LIMITED\"}, \"currency\": \"USD\", \"gfs_code\": \"1112E1\", \"gfs_label\": \"Taxes on income, profits and capital gains\", \"government_entity\": \"SUNAT (fixture)\", \"project\": {\"coordinates\": [\"-71.50\", \"-16.25\"], \"name\": \"Tajo Norte (fixture)\"}, \"reported_by\": \"company\", \"revenue_stream\": \"Impuesto a la renta\", \"value\": \"350000.00\"}, {\"company\": {\"identifiers\": [{\"scheme\": \"gb-coh\", \"value\": \"09990002\"}], \"name\": \"EXAMPLA UK LIMITED\"}, \"currency\": \"USD\", \"gfs_code\": \"1112E1\", \"gfs_label\": \"Taxes on income, profits and capital gains\", \"government_entity\": \"SUNAT (fixture)\", \"project\": {\"coordinates\": [\"-71.50\", \"-16.25\"], \"name\": \"Tajo Norte (fixture)\"}, \"reported_by\": \"government\", \"revenue_stream\": \"Impuesto a la renta\", \"value\": \"350000.00\"}, {\"company\": {\"name\": \"Andes Cobre S.A. (fixture)\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"reported_by\": \"company\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"450000.00\"}, {\"company\": {\"name\": \"Andes Cobre S.A. (fixture)\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"reported_by\": \"government\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"450000.00\"}, {\"company\": {\"entity_type\": \"individual\", \"identification\": \"FIX-000\", \"identification_type\": \"pe-dni\", \"name\": \"Juan Ejemplo (fictional)\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"reported_by\": \"company\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"1000.00\"}], \"revenue_government\": [{\"budget_reference\": {\"code\": \"1.3.1.1.1\", \"scheme\": \"pe-siaf-ingresos\"}, \"currency\": \"PEN\", \"gfs_code\": \"1141E1\", \"gfs_label\": \"Royalties\", \"government_entity\": \"Ministerio de Economia y Finanzas (fixture)\", \"revenue_stream\": \"Regalias mineras\", \"value\": \"1250000.00\"}, {\"currency\": \"PEN\", \"gfs_code\": \"1112E1\", \"gfs_label\": \"Taxes on income, profits and capital gains\", \"government_entity\": \"SUNAT (fixture)\", \"revenue_stream\": \"Impuesto a la renta\", \"value\": \"3400000.00\"}], \"year_end\": \"2023-12-31\", \"year_start\": \"2023-01-01\"}], \"meta\": {\"count\": 1}}"
+   "body": {
+    "summary_data": {
+     "companies": [
+      {
+       "commodities": [
+        "copper"
+       ],
+       "id": "C1",
+       "identification": [
+        {
+         "scheme": "gb-coh",
+         "value": "09990001"
+        }
+       ],
+       "name": "Exampla Holdings PLC",
+       "sector": "mining",
+       "type": "company"
+      },
+      {
+       "commodities": [
+        "copper"
+       ],
+       "id": "C2",
+       "name": "Exampla UK Limited",
+       "sector": "mining",
+       "type": "company"
+      }
+     ],
+     "contact": {
+      "email": "secretariat@example.org",
+      "name": "Fixture Secretariat Contact",
+      "phone": "+49 30 0000000"
+     },
+     "country": {
+      "iso2": "DE",
+      "name": "Germany"
+     },
+     "fiscal_year": {
+      "end": "2021-12-31",
+      "start": "2021-01-01"
+     },
+     "government_agencies": [
+      {
+       "id": "GA1",
+       "name": "Landesbergbehoerde Fixture"
+      },
+      {
+       "id": "GA2",
+       "name": "Finanzamt Fixture"
+      }
+     ],
+     "payments": [
+      {
+       "company": "C1",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "2000000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "value": "0"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "2000000"
+       },
+       "id": "PAY1",
+       "project": "P1",
+       "revenue_stream": "RS1"
+      },
+      {
+       "company": "C2",
+       "company_reported": {
+        "currency": "EUR",
+        "value": "410000"
+       },
+       "discrepancy": {
+        "currency": "EUR",
+        "explanation": "unexplained, as stated in the report",
+        "value": "-10000"
+       },
+       "government_reported": {
+        "currency": "EUR",
+        "value": "400000"
+       },
+       "id": "PAY2",
+       "revenue_stream": "RS2"
+      }
+     ],
+     "projects": [
+      {
+       "commodities": [
+        "copper"
+       ],
+       "company": "C1",
+       "coordinates": {
+        "lat": "51.5000",
+        "lon": "11.5000",
+        "published": "51.5000 N 11.5000 E"
+       },
+       "id": "P1",
+       "identifiers": [
+        {
+         "scheme": "gem-mine-id",
+         "value": "M9001"
+        }
+       ],
+       "licences": [
+        {
+         "commodity": "copper",
+         "holder": "C1",
+         "number": "DE-BW-0001",
+         "type": "mining licence"
+        }
+       ],
+       "name": "Exampla Kupfer Mine (fixture)"
+      }
+     ],
+     "report": {
+      "currency": "EUR",
+      "published": "2023-03-31",
+      "reconciliation_note": "Payments were reconciled for companies above the materiality threshold (fixture).",
+      "title": "D-EITI report 2021 (fixture)",
+      "unit": "EUR",
+      "url": "https://eiti.org/documents/fixture-germany-2021",
+      "version": "1"
+     },
+     "revenue_streams": [
+      {
+       "agency": "GA1",
+       "gfs_code": "1415E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "2100000"
+       },
+       "id": "RS1",
+       "name": "Royalties (Feldes- und Foerderabgabe)"
+      },
+      {
+       "agency": "GA2",
+       "gfs_code": "1112E1",
+       "government_reported": {
+        "currency": "EUR",
+        "value": "950000"
+       },
+       "id": "RS2",
+       "name": "Corporate income tax"
+      }
+     ]
+    }
+   },
+   "headers": {
+    "Content-Type": "application/json"
+   },
+   "request": "/api/v2.0/summary_data/DE-2021",
+   "status": 200
   }
  ],
- "note": "authored in the provider's documented shape as recorded in the source audit (field names to verify); every value, company and project is fictional (not live coverage)",
+ "note": "Authored fixture in the documented shape as known to the author (not re-verified live); every company, project, amount and figure is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "provider": "authored",
  "scenarios": [
   "authored-fixture",
+  "report-version",
   "government-and-company-reported",
-  "eiti-discrepancy",
-  "project-level",
-  "several-currencies",
-  "natural-person-redacted",
-  "contact-excluded"
+  "discrepancy-as-published",
+  "project-level-payments",
+  "personal-fields-dropped",
+  "individual-payer-withheld",
+  "currency-as-reported"
  ]
 }

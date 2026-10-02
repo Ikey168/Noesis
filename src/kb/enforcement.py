@@ -1,27 +1,26 @@
-"""Regulatory enforcement in the Legal pack: revisioned store, projector, features and readiness (#2651, EN02).
+"""Regulatory enforcement in the Legal pack: revisioned store, projector, receipts and readiness (#2651, EN02).
 
-``noesis-enforcement-record-v1`` records (:mod:`src.kb.enforcement_records`)
+``noesis-enforcement-record-v2`` records (:mod:`src.kb.enforcement_records`)
 arrive through the ``legal-research`` source-pack runtime (connector
 ``enforcement``) and are persisted here, following the
-:mod:`src.kb.entity_history` and ownership-store pattern: one stable record per
-namespace and ``record_key`` (``enforcement_records``), immutable revisions
-(``enforcement_record_revisions``) with the run and observation time that
-produced them, and a new revision only when the published content changes, so
-replayed pages are no-ops. Any read can be pinned to a record time
-(``known_at_ms``) or to exact revisions.
+:mod:`src.kb.entity_history` / ownership-store revision pattern:
 
-Removals and corrections by a source are revisions, never deletions: when a
-declared notice is withdrawn (the publisher answers 404 or 410) the adapter
-emits a removal marker and the store appends a revision of the action whose
-``publication_status`` is ``removed_by_source``; every earlier revision stays
-readable. Acquisition receipts are kept per run and unit
-(``enforcement_receipts``).
+* one stable ``record_id`` per namespace and ``record_key``;
+* an **immutable revision** only when the published content changes (a replay
+  of an unchanged page is a no-op), each with the run and observation time
+  that produced it;
+* corrections and removals by the source arrive as new revisions
+  (``source_status``), never as deletions - nothing in this module deletes;
+* any read can be pinned to a record time (``known_at_ms``: the revision the
+  store held then) or to exact revisions.
 
-Coverage is four optional Legal features, default off and independent:
-``enforcement-sec``, ``enforcement-fca``, ``enforcement-epa`` and
-``enforcement-edpb``. Nothing here scores risk or compliance, infers wrongdoing
-from an initiated action, merges a settled "neither admit nor deny" outcome
-into a finding or profiles a named individual.
+Acquisition receipts are kept per run and unit. Coverage is four optional Legal
+features (``enforcement-sec``, ``enforcement-fca``, ``enforcement-epa``,
+``enforcement-edpb``; default off), selected through the active composition
+plan. It records what regulators published and never
+scores risk or compliance, infers wrongdoing from an initiated action, merges
+a settled "neither admit nor deny" outcome into a finding, profiles named
+individuals or gives legal advice.
 """
 
 from __future__ import annotations
@@ -32,9 +31,8 @@ from collections.abc import Callable, Iterable, Mapping, Sequence
 from typing import Any
 
 from src.kb.enforcement_records import (
-    CONTRACT as RECORD_CONTRACT,
-)
-from src.kb.enforcement_records import (
+    CONTRACT,
+    PERSONAL_FIELDS,
     EnforcementRecordError,
     canonical,
     digest,
@@ -43,26 +41,25 @@ from src.kb.enforcement_records import (
 
 READ_SCOPE = "knowledge:legal:read"
 WRITE_SCOPE = "knowledge:legal:write"
-DEFAULT_NAMESPACE = "enforcement"
+REVIEW_SCOPE = "knowledge:legal:review"
+DEFAULT_NAMESPACE = "global"
+# SEC, FCA, EPA and EDPB coverage are separate optional Legal features (EN12), each default off.
+FEATURES = ("enforcement-sec", "enforcement-fca", "enforcement-epa", "enforcement-edpb")
 BUNDLE = "legal"
-# Provider -> optional Legal feature: SEC, FCA, EPA and EDPB coverage are separate features (EN12).
-FEATURES = {"us-sec": "enforcement-sec", "uk-fca": "enforcement-fca", "us-epa-echo": "enforcement-epa",
-            "edpb": "enforcement-edpb"}
-REMOVAL_CONTRACT = "noesis-enforcement-removal-v1"
-# Keys no answer may carry (#2651 exclusions).
-FORBIDDEN_KEYS = frozenset({"risk_score", "compliance_score", "risk_rating", "severity_score", "wrongdoing",
-                            "inferred_wrongdoing", "finding_of_wrongdoing", "guilty", "found_liable",
-                            "liability_finding", "violation_found", "culpability", "recidivism", "person_profile",
-                            "prediction", "legal_advice", "penalty_total", "total_penalties", "sum"})
-NOTICE = ("Enforcement actions as each regulator published them, authority by authority. Outcomes are quoted as "
-          "published (a settlement 'without admitting or denying' stays that wording, never a finding), an initiated "
-          "action is not a finding of wrongdoing, penalties are never summed across currencies or authorities, "
-          "natural persons are pseudonymised and nothing here is a risk or compliance score or legal advice.")
+PACK_ID = "legal-research"
+RECORD_CONTRACT = CONTRACT
+# Keys no answer may carry (#2651 exclusions); the EN01 minimisation decision adds the personal fields.
+FORBIDDEN_KEYS = frozenset({"risk_score", "compliance_score", "risk_rating", "compliance_rating", "wrongdoing",
+                            "finding_of_wrongdoing", "violation_found", "guilty", "culpability", "prediction",
+                            "predicted_outcome", "legal_advice", "person_profile"}) | frozenset(PERSONAL_FIELDS)
+EXCLUSIONS = ("no risk or compliance scoring, no inference of wrongdoing from an initiated action, no merging of "
+              "settled 'neither admit nor deny' outcomes into findings, no profiling of named individuals, no legal "
+              "advice")
 _DDL = """
 CREATE TABLE IF NOT EXISTS enforcement_records (
   namespace TEXT NOT NULL, record_id TEXT NOT NULL, kind TEXT NOT NULL, record_key TEXT NOT NULL,
-  provider TEXT NOT NULL, action_key TEXT NOT NULL, current_revision BIGINT NOT NULL, created_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, record_id)
+  provider TEXT NOT NULL, authority TEXT NOT NULL, action_key TEXT, current_revision BIGINT NOT NULL,
+  created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, record_id)
 );
 CREATE TABLE IF NOT EXISTS enforcement_record_revisions (
   namespace TEXT NOT NULL, record_id TEXT NOT NULL, revision BIGINT NOT NULL, revision_id TEXT NOT NULL,
@@ -72,7 +69,7 @@ CREATE TABLE IF NOT EXISTS enforcement_record_revisions (
 CREATE TABLE IF NOT EXISTS enforcement_receipts (
   receipt_id TEXT PRIMARY KEY, namespace TEXT NOT NULL, run_id TEXT NOT NULL, source_id TEXT NOT NULL,
   provider TEXT NOT NULL, unit_json TEXT NOT NULL, requests_json TEXT NOT NULL, counts_json TEXT NOT NULL,
-  withheld_json TEXT NOT NULL, evidence_origin TEXT NOT NULL, recorded_at_ms BIGINT NOT NULL
+  evidence_origin TEXT NOT NULL, recorded_at_ms BIGINT NOT NULL
 );
 """
 
@@ -99,11 +96,11 @@ def table_exists(conn: Any, name: str) -> bool:
 
 
 def forbidden_keys(value: Any, path: str = "") -> list[str]:
-    """Paths of any forbidden (score, inferred-wrongdoing, profile, summed-penalty) key in an answer."""
+    """Paths of any forbidden (score, inferred finding, advice, personal attribute) key in an answer."""
     found = []
     if isinstance(value, Mapping):
         for key, item in value.items():
-            if str(key) in FORBIDDEN_KEYS:
+            if str(key).lower() in FORBIDDEN_KEYS:
                 found.append(f"{path}/{key}")
             found += forbidden_keys(item, f"{path}/{key}")
     elif isinstance(value, list):
@@ -112,24 +109,20 @@ def forbidden_keys(value: Any, path: str = "") -> list[str]:
     return found
 
 
-def feature_enabled(conn: Any, feature: str) -> bool:
-    """Whether an optional Legal enforcement feature is selected in the active composition plan (reads only)."""
+def feature_enabled(conn: Any, feature: str | None = None) -> bool:
+    """Whether an optional Legal enforcement feature (any of them when ``feature`` is None) is selected.
+
+    Features default to off and are selected through the active composition plan; reads only.
+    """
     from src.kb.legal import legal_feature_enabled
 
-    if feature not in FEATURES.values():
-        raise EnforcementError("invalid_feature", f"feature is one of {sorted(FEATURES.values())}")
-    return legal_feature_enabled(conn, feature)
+    if feature is not None and feature not in FEATURES:
+        raise EnforcementError("invalid_feature", f"feature is one of {FEATURES}")
+    return any(legal_feature_enabled(conn, f) for f in ([feature] if feature else FEATURES))
 
 
 def record_id(namespace: str, record_key: str) -> str:
     return "enf:" + digest([namespace, record_key])[:24]
-
-
-def removal_marker(provider: str, action: str, *, http_status: int, url: str, unit: Mapping[str, Any]
-                   ) -> dict[str, Any]:
-    """A page item saying the publisher no longer serves a declared notice; the store turns it into a revision."""
-    return {"contract": REMOVAL_CONTRACT, "action_key": action, "provider": provider, "http_status": int(http_status),
-            "url": url, "unit": dict(unit)}
 
 
 class EnforcementStore:
@@ -143,81 +136,82 @@ class EnforcementStore:
 
     # ------------------------------------------------------------- writes
 
-    def _current(self, namespace: str, rid: str) -> tuple | None:
-        return self.conn.execute(
-            "SELECT r.current_revision, v.record_hash, v.payload_json FROM enforcement_records r JOIN "
-            "enforcement_record_revisions v ON v.namespace=r.namespace AND v.record_id=r.record_id AND "
-            "v.revision=r.current_revision WHERE r.namespace=? AND r.record_id=?", [namespace, rid]).fetchone()
-
-    def _append(self, namespace: str, item: dict[str, Any], run_id: str, observed_at_ms: int,
-                counts: dict[str, int]) -> None:
-        rid = record_id(namespace, item["record_key"])
-        record_hash = digest({k: v for k, v in item.items() if k != "source"} |
-                             {"source": {k: v for k, v in item["source"].items() if k != "evidence_origin"}})
-        row = self._current(namespace, rid)
-        if row and row[1] == record_hash:
-            counts["unchanged"] += 1
-            return
-        revision = 1 if row is None else int(row[0]) + 1
-        revision_id = "enf-rev:" + digest([rid, revision, record_hash])[:24]
-        self.conn.execute("INSERT INTO enforcement_record_revisions VALUES (?,?,?,?,?,?,?,?)",
-                          [namespace, rid, revision, revision_id, record_hash, canonical(item), run_id,
-                           int(observed_at_ms)])
-        if row is None:
-            action = item["record_key"] if item["kind"] == "enforcement_action" else item["action_key"]
-            self.conn.execute("INSERT INTO enforcement_records VALUES (?,?,?,?,?,?,?,?)",
-                              [namespace, rid, item["kind"], item["record_key"], item["source"]["provider"], action,
-                               revision, int(observed_at_ms)])
-            counts["inserted"] += 1
-        else:
-            self.conn.execute("UPDATE enforcement_records SET current_revision=? WHERE namespace=? AND record_id=?",
-                              [revision, namespace, rid])
-            counts["revised"] += 1
-
     def apply(self, namespace: str, records: Sequence[Mapping[str, Any]], *, run_id: str,
               observed_at_ms: int | None = None) -> dict[str, int]:
-        """Validate and append records; content-identical replays are no-ops; removals become revisions."""
-        observed = int(observed_at_ms if observed_at_ms is not None else self.now())
-        counts = {"inserted": 0, "revised": 0, "unchanged": 0, "removed_by_source": 0, "removal_not_on_record": 0}
-        items, removals = [], []
-        for item in records:
-            if item.get("contract") == REMOVAL_CONTRACT:
-                removals.append(dict(item))
-            elif item.get("contract") != RECORD_CONTRACT:
-                raise EnforcementError("invalid_record", "page record is not an enforcement record")
+        """Validate (minimisation enforced) and append revisions; content-identical replays are no-ops.
+
+        A ``removal`` marker (a declared unit the publisher answers with 404 or
+        410) becomes a ``removed_by_source`` revision of the stored action,
+        carrying the previous content forward; nothing is deleted.
+        """
+        counts = {"inserted": 0, "revised": 0, "unchanged": 0}
+        items = [dict(item) for item in records]
+        removals = [item for item in items if item.get("kind") == "removal"]
+        items = [item for item in items if item.get("kind") != "removal"]
+        for marker in removals:
+            removed = self._removed(namespace, marker)
+            if removed is None:
+                counts["removal_unmatched"] = counts.get("removal_unmatched", 0) + 1
             else:
-                try:
-                    items.append(validate_record(dict(item)))
-                except EnforcementRecordError as exc:
-                    raise EnforcementError(exc.code, str(exc)) from exc
+                items.append(removed)
+        try:
+            validated = [validate_record(item) for item in items]
+        except EnforcementRecordError as exc:
+            raise EnforcementError(exc.code, str(exc)) from exc
+        observed = int(observed_at_ms if observed_at_ms is not None else self.now())
         self.conn.execute("BEGIN")
         try:
-            for item in items:
-                self._append(namespace, item, run_id, observed, counts)
-            for marker in removals:
-                row = self._current(namespace, record_id(namespace, marker["action_key"]))
-                if row is None:
-                    counts["removal_not_on_record"] += 1
-                    continue
-                body = json.loads(row[2])
-                if body.get("publication_status") == "removed_by_source":
+            for item in validated:
+                rid = record_id(namespace, item["record_key"])
+                # The evidence origin describes the acquisition, not the published content.
+                record_hash = digest({**item, "source": {k: v for k, v in item["source"].items()
+                                                         if k != "evidence_origin"}})
+                row = self.conn.execute(
+                    "SELECT r.current_revision, v.record_hash FROM enforcement_records r JOIN "
+                    "enforcement_record_revisions v ON v.namespace=r.namespace AND v.record_id=r.record_id AND "
+                    "v.revision=r.current_revision WHERE r.namespace=? AND r.record_id=?", [namespace, rid]).fetchone()
+                if row and row[1] == record_hash:
                     counts["unchanged"] += 1
                     continue
-                native = dict(body.get("native") or {})
-                native["removal"] = {"http_status": marker["http_status"], "url": marker["url"],
-                                     "note": "the publisher no longer serves this notice; earlier revisions remain"}
-                body.update(publication_status="removed_by_source", native=native)
-                self._append(namespace, validate_record(body), run_id, observed, counts)
-                counts["revised"] -= 1
-                counts["removed_by_source"] += 1
+                revision = 1 if row is None else int(row[0]) + 1
+                revision_id = "enf-rev:" + digest([rid, revision, record_hash])[:24]
+                self.conn.execute("INSERT INTO enforcement_record_revisions VALUES (?,?,?,?,?,?,?,?)",
+                                  [namespace, rid, revision, revision_id, record_hash, canonical(item), run_id,
+                                   observed])
+                if row is None:
+                    self.conn.execute("INSERT INTO enforcement_records VALUES (?,?,?,?,?,?,?,?,?)",
+                                      [namespace, rid, item["kind"], item["record_key"], item["source"]["provider"],
+                                       item["authority"], item.get("action_key"), revision, observed])
+                    counts["inserted"] += 1
+                else:
+                    self.conn.execute("UPDATE enforcement_records SET current_revision=? WHERE namespace=? AND "
+                                      "record_id=?", [revision, namespace, rid])
+                    counts["revised"] += 1
             self.conn.execute("COMMIT")
         except Exception:
             self.conn.execute("ROLLBACK")
             raise
         return counts
 
-    def put(self, namespace: str, records: Sequence[Mapping[str, Any]], *, run_id: str, scopes: Iterable[str]
-            ) -> dict[str, int]:
+    def _removed(self, namespace: str, marker: Mapping[str, Any]) -> dict[str, Any] | None:
+        current = self.by_key(namespace, marker["record_key"]) if marker.get("record_key") else None
+        if current is None and marker.get("action_number") and table_exists(self.conn, "enforcement_records"):
+            row = self.conn.execute(
+                "SELECT record_key FROM enforcement_records WHERE namespace=? AND kind='enforcement_action' AND "
+                "provider=? AND record_key LIKE ?", [namespace, marker.get("provider"),
+                                                     f"%:{marker['action_number']}"]).fetchone()
+            current = self.by_key(namespace, row[0]) if row else None
+        if current is None:
+            return None
+        body = dict(current["record"])
+        body["source_status"] = "removed_by_source"
+        body["source"] = {**body["source"], "revision": f"removed by source (HTTP {marker.get('http_status')})",
+                          "evidence_origin": marker.get("evidence_origin") or body["source"].get("evidence_origin")}
+        body.pop("unknowns", None)
+        return body
+
+    def put(self, namespace: str, records: Sequence[Mapping[str, Any]], *, run_id: str,
+            scopes: Iterable[str]) -> dict[str, int]:
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
         return self.apply(namespace, records, run_id=run_id)
 
@@ -227,103 +221,92 @@ class EnforcementStore:
             return
         receipt_id = "enforcement-receipt:" + digest([namespace, run_id, receipt.get("source_id"),
                                                       receipt.get("unit_index"), receipt.get("requests")])[:24]
-        self.conn.execute("INSERT OR IGNORE INTO enforcement_receipts VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+        self.conn.execute("INSERT OR IGNORE INTO enforcement_receipts VALUES (?,?,?,?,?,?,?,?,?,?)",
                           [receipt_id, namespace, run_id, str(receipt.get("source_id")), str(receipt.get("provider")),
                            canonical(receipt.get("unit") or {}), canonical(receipt.get("requests") or []),
-                           canonical(dict(counts)), canonical(receipt.get("withheld") or {}),
-                           str(receipt.get("evidence_origin") or "live"), self.now()])
+                           canonical(dict(counts)), str(receipt.get("evidence_origin") or "live"), self.now()])
 
     # -------------------------------------------------------------- reads
 
-    def _rows(self, namespace: str, *, kinds: Sequence[str] | None = None, known_at_ms: int | None = None,
-              action_key: str | None = None) -> list[tuple]:
-        if not table_exists(self.conn, "enforcement_records"):
-            return []
-        rows = self.conn.execute(
-            "SELECT r.record_id, r.kind, v.revision, v.revision_id, v.record_hash, v.payload_json, v.run_id, "
-            "v.observed_at_ms FROM enforcement_records r JOIN enforcement_record_revisions v ON "
-            "v.namespace=r.namespace AND v.record_id=r.record_id WHERE r.namespace=? AND (? IS NULL OR "
-            "r.action_key=?) ORDER BY r.record_id, v.revision", [namespace, action_key, action_key]).fetchall()
-        chosen: dict[str, tuple] = {}
-        for row in rows:
-            if kinds and row[1] not in kinds:
-                continue
-            if known_at_ms is None or int(row[7]) <= known_at_ms:
-                chosen[row[0]] = row
-        return [chosen[k] for k in sorted(chosen)]
-
     @staticmethod
-    def _view(row: tuple) -> dict[str, Any]:
-        return {"record_id": row[0], "revision": int(row[2]), "revision_id": row[3], "record_hash": row[4],
-                "run_id": row[6], "observed_at_ms": int(row[7]), "record": json.loads(row[5])}
+    def _view(row: Sequence[Any]) -> dict[str, Any]:
+        return {"record_id": row[0], "revision": int(row[1]), "revision_id": row[2], "record_hash": row[3],
+                "record": json.loads(row[4]), "run_id": row[5], "observed_at_ms": int(row[6])}
 
     def views(self, namespace: str, kinds: Sequence[str] | None = None, *, known_at_ms: int | None = None,
               action_key: str | None = None) -> list[dict[str, Any]]:
-        """Current (or record-time) revisions of the given kinds; no scope check (callers authorise)."""
-        return [self._view(r) for r in self._rows(namespace, kinds=kinds, known_at_ms=known_at_ms,
-                                                  action_key=action_key)]
-
-    def by_key(self, namespace: str, record_key: str, *, known_at_ms: int | None = None) -> dict[str, Any] | None:
-        history = self.history(namespace, record_key)
-        if known_at_ms is not None:
-            history = [v for v in history if v["observed_at_ms"] <= known_at_ms]
-        return history[-1] if history else None
-
-    def history(self, namespace: str, record_key: str) -> list[dict[str, Any]]:
+        """Current revisions, or the revision each record had at record time ``known_at_ms``; no scope check."""
         if not table_exists(self.conn, "enforcement_records"):
             return []
         rows = self.conn.execute(
-            "SELECT r.record_id, r.kind, v.revision, v.revision_id, v.record_hash, v.payload_json, v.run_id, "
-            "v.observed_at_ms FROM enforcement_records r JOIN enforcement_record_revisions v ON "
-            "v.namespace=r.namespace AND v.record_id=r.record_id WHERE r.namespace=? AND r.record_id=? "
-            "ORDER BY v.revision", [namespace, record_id(namespace, record_key)]).fetchall()
+            "SELECT r.record_id, v.revision, v.revision_id, v.record_hash, v.payload_json, v.run_id, v.observed_at_ms, "
+            "r.kind, r.action_key FROM enforcement_records r JOIN enforcement_record_revisions v ON "
+            "v.namespace=r.namespace AND v.record_id=r.record_id WHERE r.namespace=? ORDER BY r.record_id, v.revision",
+            [namespace]).fetchall()
+        chosen: dict[str, tuple] = {}
+        for row in rows:
+            if kinds and row[7] not in kinds:
+                continue
+            if action_key is not None and row[8] != action_key:
+                continue
+            if known_at_ms is None or int(row[6]) <= known_at_ms:
+                chosen[row[0]] = row
+        return sorted((self._view(r) for r in chosen.values()), key=lambda v: v["record"]["record_key"])
+
+    def history(self, namespace: str, record_key: str) -> list[dict[str, Any]]:
+        """Every revision of one record in order (the revision chain)."""
+        if not table_exists(self.conn, "enforcement_records"):
+            return []
+        rows = self.conn.execute(
+            "SELECT record_id, revision, revision_id, record_hash, payload_json, run_id, observed_at_ms FROM "
+            "enforcement_record_revisions WHERE namespace=? AND record_id=? ORDER BY revision",
+            [namespace, record_id(namespace, record_key)]).fetchall()
         return [self._view(r) for r in rows]
 
+    def by_key(self, namespace: str, record_key: str, *, known_at_ms: int | None = None) -> dict[str, Any] | None:
+        """The current revision, or the revision held at record time ``known_at_ms`` (as-of lookup)."""
+        chain = [v for v in self.history(namespace, record_key)
+                 if known_at_ms is None or v["observed_at_ms"] <= known_at_ms]
+        return chain[-1] if chain else None
+
     def revision(self, namespace: str, revision_id: str) -> dict[str, Any] | None:
-        if not table_exists(self.conn, "enforcement_records"):
-            return None
         row = self.conn.execute(
-            "SELECT r.record_id, r.kind, v.revision, v.revision_id, v.record_hash, v.payload_json, v.run_id, "
-            "v.observed_at_ms FROM enforcement_records r JOIN enforcement_record_revisions v ON "
-            "v.namespace=r.namespace AND v.record_id=r.record_id WHERE r.namespace=? AND v.revision_id=?",
-            [namespace, revision_id]).fetchone()
+            "SELECT record_id, revision, revision_id, record_hash, payload_json, run_id, observed_at_ms FROM "
+            "enforcement_record_revisions WHERE namespace=? AND revision_id=?", [namespace, revision_id]).fetchone() \
+            if table_exists(self.conn, "enforcement_record_revisions") else None
         return self._view(row) if row else None
 
-    def action_children(self, namespace: str, action: str, *, known_at_ms: int | None = None
+    def action_children(self, namespace: str, action_key: str, *, known_at_ms: int | None = None
                         ) -> dict[str, list[dict[str, Any]]]:
-        out: dict[str, list[dict[str, Any]]] = {k: [] for k in ("respondent", "decision", "penalty", "appeal",
-                                                                "notice_document")}
-        for view in self.views(namespace, tuple(out), known_at_ms=known_at_ms, action_key=action):
+        out: dict[str, list[dict[str, Any]]] = {"respondent": [], "enforcement_decision": [], "penalty": [],
+                                                "appeal": []}
+        for view in self.views(namespace, tuple(out), known_at_ms=known_at_ms, action_key=action_key):
             out[view["record"]["kind"]].append(view)
-        for items in out.values():
-            items.sort(key=lambda v: v["record"]["record_key"])
-        out["respondent"].sort(key=lambda v: v["record"]["ordinal"])
         return out
-
-    def get(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        authorize(namespace, scopes, READ_SCOPE)
-        view = self.by_key(namespace, record_key)
-        if view is None:
-            raise EnforcementError("not_found", "no enforcement record with that key in this namespace")
-        return {**view, "history": [{"revision": v["revision"], "revision_id": v["revision_id"],
-                                     "observed_at_ms": v["observed_at_ms"]} for v in self.history(namespace,
-                                                                                                 record_key)]}
 
     def receipts(self, namespace: str, run_id: str, *, scopes: Iterable[str]) -> list[dict[str, Any]]:
         authorize(namespace, scopes, READ_SCOPE)
         if not table_exists(self.conn, "enforcement_receipts"):
             return []
         rows = self.conn.execute(
-            "SELECT receipt_id, source_id, provider, unit_json, requests_json, counts_json, withheld_json, "
-            "evidence_origin FROM enforcement_receipts WHERE namespace=? AND run_id=? ORDER BY source_id, receipt_id",
+            "SELECT receipt_id, source_id, provider, unit_json, requests_json, counts_json, evidence_origin FROM "
+            "enforcement_receipts WHERE namespace=? AND run_id=? ORDER BY source_id, receipt_id",
             [namespace, run_id]).fetchall()
         return [{"receipt_id": r[0], "source_id": r[1], "provider": r[2], "unit": json.loads(r[3]),
-                 "requests": json.loads(r[4]), "counts": json.loads(r[5]), "withheld": json.loads(r[6]),
-                 "evidence_origin": r[7]} for r in rows]
+                 "requests": json.loads(r[4]), "counts": json.loads(r[5]), "evidence_origin": r[6]} for r in rows]
+
+    def record_history(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        """The revision chain of one record, with each revision's source, run and observation time."""
+        authorize(namespace, scopes, READ_SCOPE)
+        chain = self.history(namespace, record_key)
+        return {"record_key": record_key, "status": "answered" if chain else "not_found",
+                "revisions": [{"revision": v["revision"], "revision_id": v["revision_id"], "run_id": v["run_id"],
+                               "observed_at_ms": v["observed_at_ms"], "record": v["record"]} for v in chain],
+                "notice": "revisions are immutable; corrections and removals by the source are later revisions"}
 
 
 class EnforcementProjector:
-    """Source-pack runtime projector for ``noesis-enforcement-record-v1``."""
+    """Source-pack runtime projector for ``noesis-enforcement-record-v2``."""
 
     def __init__(self, conn: Any) -> None:
         self.store = EnforcementStore(conn)
@@ -334,7 +317,10 @@ class EnforcementProjector:
 
     def project(self, namespace: str, records: Iterable[Mapping[str, Any]], *, run_id: str,
                 receipt: Mapping[str, Any] | None = None, observed_at_ms: int | None = None) -> dict[str, Any]:
-        counts = self.store.apply(namespace, [dict(r) for r in records], run_id=run_id, observed_at_ms=observed_at_ms)
+        records = [dict(r) for r in records]
+        if any(r.get("contract") != RECORD_CONTRACT for r in records):
+            raise EnforcementError("invalid_record", "page record is not an enforcement record")
+        counts = self.store.apply(namespace, records, run_id=run_id, observed_at_ms=observed_at_ms)
         self.store.record_receipt(namespace, run_id, dict(receipt or {}), counts)
         return {"counts": counts}
 
@@ -355,37 +341,20 @@ class EnforcementProjector:
         return {"status": status}
 
 
-OPTIONAL_PACKS = {
-    "ownership": ("ownership_records", ("respondents stay as published and unmatched; entity and group queries "
-                                        "answer 'ownership_unavailable' (published-identifier lookups still work)")),
-    "market": ("market_instrument_alias_assertions", ("CIK links to market issuers and filings are reported as "
-                                                      "provider_unavailable")),
-    "courts": ("legal_docket_revisions", "related court cases and appeals stay docket-number citations"),
-    "legal-works": ("legal_works", "cited statutes and regulations stay unresolved references"),
-    "competition": ("ownership_records", "cited competition cases stay unresolved references"),
-}
-
-
 def readiness(conn: Any, namespace: str = DEFAULT_NAMESPACE) -> dict[str, Any]:
-    """Which features are selected, what each provider has acquired and which optional links degrade."""
+    """Whether the feature is selected and what each provider has acquired; unverified live access is stated."""
     from src.ingestion.enforcement_sources import FORMATS, LIVE_VERIFICATION
 
     counts: dict[str, int] = {}
     if table_exists(conn, "enforcement_records"):
-        for provider, count in conn.execute(
-                "SELECT provider, count(*) FROM enforcement_records WHERE namespace=? GROUP BY 1",
-                [namespace]).fetchall():
+        for provider, count in conn.execute("SELECT provider, count(*) FROM enforcement_records WHERE namespace=? "
+                                            "GROUP BY 1", [namespace]).fetchall():
             counts[provider] = int(count)
-    providers: dict[str, dict[str, Any]] = {}
+    providers = {}
     for fmt, spec in FORMATS.items():
-        entry = providers.setdefault(spec["provider"], {"authority": spec["authority"], "formats": [],
-                                                        "feature": FEATURES[spec["provider"]],
-                                                        "records": counts.get(spec["provider"], 0),
-                                                        "live": LIVE_VERIFICATION[spec["provider"]]})
-        entry["formats"].append(fmt)
-    return {"bundle": BUNDLE, "namespace": namespace,
-            "features": {feature: feature_enabled(conn, feature) for feature in FEATURES.values()},
-            "providers": providers,
-            "optional_packs": {name: {"installed": table_exists(conn, table), "when_absent": effect}
-                               for name, (table, effect) in OPTIONAL_PACKS.items()},
+        providers[spec["provider"]] = {"feature_coverage": spec["coverage"], "format": fmt,
+                                       "records": counts.get(spec["provider"], 0),
+                                       "live": LIVE_VERIFICATION[spec["provider"]]}
+    return {"pack_id": PACK_ID, "bundle": BUNDLE, "features": {f: feature_enabled(conn, f) for f in FEATURES},
+            "namespace": namespace, "providers": providers, "exclusions": EXCLUSIONS,
             "notice": "unverified-live providers have fixture evidence only; a dated live run is outstanding (#2720)"}

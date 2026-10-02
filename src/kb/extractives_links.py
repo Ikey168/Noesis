@@ -1,293 +1,330 @@
 """Extractives records linked to other packs by citation, shared identifier or accepted match only (#2653, EX07).
 
-Every link records its **basis** - ``citation`` (a citing source and locator), ``shared-identifier`` (an
-identifier both records publish) or ``accepted-match`` (an accepted EX06 identity decision) - and points at a
-specific revision on both sides:
+Every link records its **basis** - ``explicit-citation`` (quoted text and locator), ``shared-identifier`` (a code
+both records publish) or ``accepted-match`` (an EX06 match a reviewer accepted, named by id) - and points at
+**specific record revisions** on both sides where the target store has them. A requested link whose target store
+is not held is recorded as ``provider_absent`` and one whose target is not found as ``target_not_found`` (or
+``no_target_on_record`` for an automatic join); missing providers and targets are reported, never dropped.
 
-* **public finance**: a payment line whose report states a budget reference (``scheme`` and ``code``, the code
-  written as the public-finance line key writes it, e.g. ``0802/12101``) links to the Economics public-finance
-  budget line with exactly that scheme and key (``shared-identifier``); the line's first release is the target
-  revision;
-* **trade flows**: a commodity with an accepted HS mapping (or an HS code the EITI summary states) links to the
-  Economics trade series of that HS code (a series of a more detailed code under the stated heading is labelled
-  ``narrower``); the series' latest vintage is the target revision;
-* **energy**: a hydrocarbon series links to an Energy series only when its source document names that series
-  (provider, dataset and native id) - ``shared-identifier``; nothing is linked by commodity name;
-* **infrastructure**: a reported project links to the infrastructure asset of its accepted EX06 match
-  (``accepted-match``) at the matched asset revision; project ownership is never inferred;
-* **explicit citation**: any other record can be linked with a citing source and a locator.
+* **Public finance** - an EITI payment or revenue stream to a public-finance budget line
+  (:class:`src.kb.public_finance.PublicFinanceStore`) by explicit citation only (e.g. the budget reference the
+  report states for a revenue stream).
+* **Trade flows** - a commodity series to trade-flow series (:class:`src.kb.trade_flows.TradeFlowStore`) whose
+  product code lies within an HS heading the commodity maps to through an **accepted** published-concordance match,
+  for the same country: the ISO alpha-2 code both publish (Eurostat GEO reporters, except the divergent EL/GR and
+  UK/GB) or the M49 code the operator declared for the country (Comtrade reporters).
+* **Energy** - a hydrocarbon series whose source document publishes a SIEC product code to Energy balance series
+  (:class:`src.kb.energy_store.EnergyStore`) of the same SIEC code and country (shared identifiers), or by explicit
+  citation.
+* **Infrastructure** - a project to an infrastructure asset through an accepted EX06 project match (shared
+  identifier or published coordinates). No ownership of a project is inferred.
 
-A missing provider store is reported as ``provider_absent`` and a missing target as ``target_not_held``; both are
-kept as unresolved links, never dropped. Nothing is linked by name similarity, co-location or correlation.
+Values of linked records are never combined: units, statistics and currencies are listed side by side.
 """
 
 from __future__ import annotations
 
-import json
+import time
 from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
 from src.kb.extractives_records import (
+    LINK_CONTRACT,
     READ_SCOPE,
     WRITE_SCOPE,
     ExtractivesError,
     authorize,
     canonical,
     digest,
+    iso_from_ms,
+    load,
+    require_scope,
     table_exists,
 )
 from src.kb.extractives_store import ExtractivesStore
 
-CONTRACT = "noesis-extractives-link-v1"
-BASES = ("citation", "shared-identifier", "accepted-match")
-REFUSED_BASES = ("name similarity", "similar name", "co-location", "colocation", "correlation")
-NO_INFERENCE = "A link records a published identifier, a citation or an accepted match; nothing is inferred."
+TRADE_READ = "knowledge:trade:read"
+ENERGY_READ = "knowledge:energy:read"
+PUBLIC_FINANCE_READ = "knowledge:economic:public-finance:read"
+INFRASTRUCTURE_READ = "knowledge:infrastructure:read"
+BASES = ("explicit-citation", "shared-identifier", "accepted-match")
+STATUSES = ("linked", "provider_absent", "target_not_found")
+DIVERGENT_COUNTRY_CODES = frozenset({"GR", "EL", "GB", "UK"})
+POLICY = ("links rest on an explicit citation, a shared published identifier or an accepted match only; linked "
+          "values are listed side by side and never combined, converted or reconciled; no project ownership is "
+          "inferred")
 _DDL = """
-CREATE TABLE IF NOT EXISTS ex_links (
-  namespace TEXT NOT NULL, link_id TEXT NOT NULL, source_kind TEXT NOT NULL, source_id TEXT NOT NULL,
-  source_revision TEXT NOT NULL, relation TEXT NOT NULL, target_owner TEXT NOT NULL, target_json TEXT,
-  basis TEXT NOT NULL, detail_json TEXT NOT NULL, state TEXT NOT NULL, reason TEXT, history_json TEXT NOT NULL,
-  created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
+CREATE TABLE IF NOT EXISTS extractives_links (
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, subject_kind TEXT NOT NULL, subject_id TEXT NOT NULL,
+  subject_revision_id TEXT, target_kind TEXT NOT NULL, target_namespace TEXT, target_id TEXT NOT NULL,
+  target_revision_id TEXT, basis TEXT NOT NULL, status TEXT NOT NULL, match_id TEXT, shared_json TEXT,
+  citation_json TEXT, side_by_side_json TEXT, created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
+  PRIMARY KEY(namespace, link_id)
 );
 """
 
 
 class ExtractivesLinks:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
+        from src.kb.extractives_identity import ExtractivesIdentity
+
         self.conn = conn
-        self.store = ExtractivesStore(conn, initialize=initialize, now=now)
-        self.now = self.store.now
+        self.now = now or (lambda: int(time.time() * 1000))
+        self.store = ExtractivesStore(conn, initialize=initialize, now=self.now)
+        self.identity = ExtractivesIdentity(conn, initialize=initialize, now=self.now)
         if initialize:
             conn.execute(_DDL)
 
-    def _put(self, namespace, source_kind, source_id, source_revision, relation, owner, target, basis, detail,
-             state, reason, principal_id):
-        if basis not in BASES:
-            raise ExtractivesError("invalid_link", f"a link basis is one of {BASES}")
-        link_id = "ex-link:" + digest([namespace, source_kind, source_id, source_revision, relation, owner, target,
-                                       state])[:24]
-        if self.conn.execute("SELECT 1 FROM ex_links WHERE namespace=? AND link_id=?", [namespace, link_id]).fetchone():
-            return link_id, False
-        now = self.now()
-        self.conn.execute(
-            "INSERT INTO ex_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
-            [namespace, link_id, source_kind, source_id, source_revision, relation, owner,
-             None if target is None else canonical(target), basis, canonical({**detail, "note": NO_INFERENCE}),
-             state, reason, canonical([{"state": state, "by": principal_id, "at_ms": now}]), principal_id, now])
-        return link_id, True
+    def _record(self, namespace, *, subject_kind, subject_id, subject_revision_id, target_kind, target_namespace,
+                target_id, target_revision_id, basis, status, principal_id, match_id=None, shared=None,
+                citation=None, side_by_side=None) -> dict[str, Any]:
+        if basis not in BASES or status not in STATUSES:
+            raise ExtractivesError("invalid_link", "unknown link basis or status")
+        link_id = "extractives-link:" + digest([namespace, subject_kind, subject_id, subject_revision_id, target_kind,
+                                                target_namespace, target_id, basis])[:24]
+        inserted = self.conn.execute(
+            "INSERT OR IGNORE INTO extractives_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?) RETURNING link_id",
+            [namespace, link_id, subject_kind, subject_id, subject_revision_id, target_kind, target_namespace,
+             target_id, target_revision_id, basis, status, match_id, canonical(shared) if shared else None,
+             canonical(citation) if citation else None, canonical(side_by_side) if side_by_side else None,
+             principal_id, self.now()]).fetchall()
+        return {**self._link(namespace, link_id), "created": bool(inserted)}
+
+    def _link(self, namespace: str, link_id: str) -> dict[str, Any]:
+        r = self.conn.execute(
+            "SELECT link_id, subject_kind, subject_id, subject_revision_id, target_kind, target_namespace, target_id, "
+            "target_revision_id, basis, status, match_id, shared_json, citation_json, side_by_side_json, created_by, "
+            "created_at_ms FROM extractives_links WHERE namespace=? AND link_id=?", [namespace, link_id]).fetchone()
+        return {"contract": LINK_CONTRACT, "link_id": r[0],
+                "subject": {"kind": r[1], "id": r[2], "revision_id": r[3]},
+                "target": {"kind": r[4], "namespace": r[5], "id": r[6], "revision_id": r[7]}, "basis": r[8],
+                "status": r[9], "match_id": r[10], "shared": load(r[11]), "citation": load(r[12]),
+                "side_by_side": load(r[13]), "created_by": r[14], "created_at": iso_from_ms(r[15])}
 
     @staticmethod
-    def _collect(result: dict[str, list[str]], link_id: str, new: bool, state: str) -> None:
-        if new:
-            result["linked" if state == "linked" else "unresolved"].append(link_id)
+    def _citation(citation: Mapping[str, Any] | None) -> dict[str, Any]:
+        citation = dict(citation or {})
+        if not str(citation.get("text") or "").strip() or not citation.get("locator"):
+            raise ExtractivesError("invalid_citation", "an explicit citation quotes its text and gives a locator")
+        return citation
 
-    def _current_reports(self, namespace: str) -> list[dict[str, Any]]:
-        return [self.store.report_as_of(namespace, key)[0] for key in self.store.report_keys(namespace)]
+    def _eiti_subject(self, namespace: str, record_key: str) -> dict[str, Any]:
+        view = self.store.record(namespace, record_key)
+        if view is None or view["record_type"] not in {"company_payment", "revenue_stream", "project"}:
+            raise ExtractivesError("not_found", "no current EITI payment, revenue stream or project with that key")
+        return view
 
-    # ------------------------------------------------------------------ public finance
+    def _series_subject(self, namespace: str, series_id: str) -> tuple[dict[str, Any], str | None]:
+        series = self.store.series(namespace, series_id)
+        return series, series["current_vintage_id"]
 
-    def link_public_finance(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
-                            finance_namespace: str = "global") -> dict[str, Any]:
-        """Payment lines whose report states a budget reference -> the budget line with that scheme and code."""
-        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
-        held = table_exists(self.conn, "public_finance_lines")
-        result: dict[str, list[str]] = {"linked": [], "unresolved": []}
-        for report in self._current_reports(namespace):
-            for line in self.store.payments(namespace, report["report_id"]):
-                ref = line.get("budget_reference")
-                if not ref:
-                    continue
-                rows = self.conn.execute(
-                    "SELECT line_id, line_key, first_release_id, provider FROM public_finance_lines WHERE "
-                    "namespace=? AND scheme=? AND line_key=? ORDER BY line_id",
-                    [finance_namespace, str(ref.get("scheme")), f"{ref.get('scheme')}:{ref.get('code')}"]
-                ).fetchall() if held else []
-                detail = {"stated_reference": ref, "stated_in": report["report_id"], "line": line["line_key"]}
-                if len(rows) == 1:
-                    target = {"kind": "budget-line", "namespace": finance_namespace, "id": rows[0][0],
-                              "revision": rows[0][2], "provider": rows[0][3]}
-                    state, reason = "linked", None
-                else:
-                    target, state = None, "unresolved"
-                    reason = ("provider_absent: the Economics public-finance store is not held" if not held else
-                              "several budget lines carry this code" if rows else
-                              "target_not_held: no budget line carries this scheme and code")
-                link_id, new = self._put(namespace, "payment", f"{report['report_id']}#{line['line_key']}",
-                                         report["report_id"], "revenue_recorded_as", "economics.public-finance",
-                                         target, "shared-identifier", detail, state, reason, principal_id)
-                self._collect(result, link_id, new, state)
-        return result
+    # -------------------------------------------------------------- public finance
 
-    # ------------------------------------------------------------------ trade
+    def link_public_finance(self, namespace: str, record_key: str, line_id: str, citation: Mapping[str, Any], *,
+                            principal_id: str, scopes: Iterable[str],
+                            public_finance_namespace: str | None = None) -> dict[str, Any]:
+        """An EITI payment or revenue stream to a budget line, by explicit citation only."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        citation = self._citation(citation)
+        subject = self._eiti_subject(namespace, record_key)
+        target_ns = public_finance_namespace or namespace
+        common = {"subject_kind": subject["record_type"], "subject_id": record_key,
+                  "subject_revision_id": subject["revision_id"], "target_kind": "public-finance-line",
+                  "target_namespace": target_ns, "target_id": line_id, "basis": "explicit-citation",
+                  "principal_id": principal_id, "citation": citation}
+        if not table_exists(self.conn, "public_finance_lines"):
+            return self._record(namespace, **common, target_revision_id=None, status="provider_absent")
+        require_scope(scopes, PUBLIC_FINANCE_READ)
+        from src.kb.public_finance import PublicFinanceError, PublicFinanceStore
 
-    def _hs_codes(self, namespace: str) -> list[dict[str, Any]]:
-        from src.kb.extractives_identity import ExtractivesIdentity
+        try:
+            line = PublicFinanceStore(self.conn, initialize=False).line(target_ns, line_id)
+        except PublicFinanceError:
+            return self._record(namespace, **common, target_revision_id=None, status="target_not_found")
+        return self._record(namespace, **common, target_revision_id=line["first_release_id"], status="linked",
+                            side_by_side={"extractives": {"amounts": {k: subject["record"].get(k) for k in (
+                                "government_reported", "company_reported")}},
+                                "public_finance": {"scheme": line["scheme"], "codes": line["codes"],
+                                                   "side": line["side"]},
+                                "combined": False, "note": "amounts listed side by side; never reconciled"})
 
-        identity = ExtractivesIdentity(self.conn, initialize=False, now=self.now)
-        out = []
-        for assertion in identity.assertions(namespace, scopes={"operator"}, kind="commodity", state="accepted"):
-            for mapped in assertion["target"]["codes"]:
-                out.append({"commodity_key": assertion["subject"]["commodity_key"], "code": mapped["code"],
-                            "relation": mapped["relation"], "assertion_id": assertion["assertion_id"],
-                            "method": assertion["method"]})
-        return out
+    # -------------------------------------------------------------- trade
 
-    def link_trade(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
-                   trade_namespace: str = "global") -> dict[str, Any]:
-        """Accepted commodity-to-HS mappings -> Economics trade series of that HS code (or narrower codes)."""
-        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
-        held = table_exists(self.conn, "trade_series")
-        result: dict[str, list[str]] = {"linked": [], "unresolved": []}
-        for code in self._hs_codes(namespace):
-            rows = self.conn.execute(
-                "SELECT series_id, product_code, classification_vintage FROM trade_series WHERE namespace=? AND "
-                "classification_scheme='HS' AND (product_code=? OR product_code LIKE ?) ORDER BY series_id",
-                [trade_namespace, code["code"], code["code"] + "%"]).fetchall() if held else []
-            detail = {"hs_code": code["code"], "mapping": {k: code[k] for k in ("assertion_id", "method",
-                                                                                 "relation")}}
-            if not rows:
-                reason = ("provider_absent: the Economics trade store is not held" if not held else
-                          "target_not_held: no trade series of this HS code is held")
-                link_id, new = self._put(namespace, "commodity", code["commodity_key"], code["assertion_id"],
-                                         "traded_as", "economics.trade", None, "accepted-match", detail,
-                                         "unresolved", reason, principal_id)
-                self._collect(result, link_id, new, "unresolved")
+    def link_trade_flows(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
+                         trade_namespace: str | None = None) -> dict[str, Any]:
+        """Commodity series to trade series within an accepted HS heading for the same published country code."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        if not table_exists(self.conn, "trade_series"):
+            return {"namespace": namespace, "status": "provider_absent", "linked": [], "unlinked": [],
+                    "note": "no trade-flow records are held; nothing is joined", "policy": POLICY}
+        require_scope(scopes, TRADE_READ)
+        from src.kb.trade_flows import TradeFlowStore
+
+        trade = TradeFlowStore(self.conn, initialize=False)
+        trade_namespace = trade_namespace or namespace
+        linked, unlinked = [], []
+        for series in self.store.find_series(namespace):
+            country = series["country"]
+            headings = self.identity.accepted_hs_codes(namespace, series["commodity"]["code"])
+            if not headings or country.get("aggregate"):
+                unlinked.append({"series_id": series["series_id"], "status": "no_target_on_record",
+                                 "reason": "no accepted HS match for the commodity" if not headings
+                                 else "an aggregate row has no country code"})
                 continue
-            for series_id, product, vintage_scheme in rows:
-                vintage = self.conn.execute(
-                    "SELECT vintage_id FROM trade_vintages WHERE namespace=? AND series_id=? ORDER BY release_at_ms "
-                    "DESC, sequence DESC LIMIT 1", [trade_namespace, series_id]).fetchone() \
-                    if table_exists(self.conn, "trade_vintages") else None
-                target = {"kind": "trade-series", "namespace": trade_namespace, "id": series_id,
-                          "revision": vintage[0] if vintage else None, "product_code": product,
-                          "classification_vintage": vintage_scheme,
-                          "code_relation": "exact" if product == code["code"] else "narrower"}
-                link_id, new = self._put(namespace, "commodity", code["commodity_key"], code["assertion_id"],
-                                         "traded_as", "economics.trade", target, "accepted-match", detail, "linked",
-                                         None, principal_id)
-                self._collect(result, link_id, new, "linked")
-        return result
+            keys = []
+            if country.get("iso2") and country["iso2"] not in DIVERGENT_COUNTRY_CODES:
+                keys.append(("eurostat-geo", country["iso2"]))
+            if country.get("m49"):
+                keys.append(("m49", str(int(country["m49"]))))
+            found = []
+            for heading in headings:
+                for scheme, code in keys:
+                    for flow in trade.find_series(trade_namespace, reporter_codes=[code]):
+                        if flow["reporter"].get("scheme") != scheme or \
+                                not str(flow["product"]["code"]).startswith(heading["hs_code"]):
+                            continue
+                        vintages = trade.vintage_rows(trade_namespace, flow["series_id"])
+                        link = self._record(
+                            namespace, subject_kind="commodity-series", subject_id=series["series_id"],
+                            subject_revision_id=series["current_vintage_id"], target_kind="trade-series",
+                            target_namespace=trade_namespace, target_id=flow["series_id"],
+                            target_revision_id=vintages[-1]["vintage_id"] if vintages else None,
+                            basis="accepted-match", status="linked", principal_id=principal_id,
+                            match_id=heading["match_id"],
+                            shared={"country": {"scheme": scheme, "code": code,
+                                                "extractives_basis": country.get("code_basis")},
+                                    "hs_heading": heading["hs_code"], "product_code": flow["product"]["code"],
+                                    "classification": flow["classification"]},
+                            side_by_side={"extractives": {"statistic": series["statistic"], "unit": series["unit"]},
+                                          "trade": {"flow": flow["flow"], "unit": flow["unit"],
+                                                    "frequency": flow["frequency"]},
+                                          "combined": False,
+                                          "note": "quantities and trade values listed side by side; never combined"})
+                        found.append(link["link_id"])
+            (linked if found else unlinked).append({"series_id": series["series_id"], "links": found,
+                                                    **({} if found else {"status": "no_target_on_record"})})
+        return {"namespace": namespace, "status": "linked" if linked else "no_target_on_record",
+                "linked": linked, "unlinked": unlinked, "policy": POLICY}
 
-    # ------------------------------------------------------------------ energy
+    # -------------------------------------------------------------- energy
 
     def link_energy(self, namespace: str, *, principal_id: str, scopes: Iterable[str],
-                    energy_namespace: str = "global") -> dict[str, Any]:
-        """Hydrocarbon series -> the Energy series their source document names (provider, dataset, native id)."""
-        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
-        held = table_exists(self.conn, "energy_series")
-        result: dict[str, list[str]] = {"linked": [], "unresolved": []}
-        for series in self.store.find_series(namespace):
-            if not series["commodity"].get("hydrocarbon"):
-                continue
-            named = [r for r in series["references"] if r.get("kind") == "energy-series"]
-            if not named:
-                link_id, new = self._put(namespace, "series", series["series_id"], series["current_vintage_id"],
-                                         "balance_series", "energy.core", None, "shared-identifier",
-                                         {"reason_detail": "the source names no Energy series"}, "unresolved",
-                                         "no published identifier names an Energy series; nothing is matched by "
-                                         "commodity name", principal_id)
-                self._collect(result, link_id, new, "unresolved")
-                continue
-            for ref in named:
-                row = self.conn.execute(
-                    "SELECT series_id FROM energy_series WHERE namespace=? AND provider=? AND dataset=? AND "
-                    "native_id=?", [energy_namespace, str(ref.get("provider")), str(ref.get("dataset")),
-                                    str(ref.get("native_id"))]).fetchone() if held else None
-                if row is None:
-                    reason = ("provider_absent: the Energy store is not held" if not held else
-                              "target_not_held: the named Energy series is not held")
-                    link_id, new = self._put(namespace, "series", series["series_id"], series["current_vintage_id"],
-                                             "balance_series", "energy.core", None, "shared-identifier",
-                                             {"named": ref}, "unresolved", reason, principal_id)
-                    self._collect(result, link_id, new, "unresolved")
-                    continue
-                vintage = self.conn.execute(
-                    "SELECT vintage_id FROM energy_vintages WHERE series_id=? ORDER BY sequence DESC LIMIT 1",
-                    [row[0]]).fetchone() if table_exists(self.conn, "energy_vintages") else None
-                target = {"kind": "energy-series", "namespace": energy_namespace, "id": row[0],
-                          "revision": vintage[0] if vintage else None, **{k: ref.get(k) for k in (
-                              "provider", "dataset", "native_id")}}
-                link_id, new = self._put(namespace, "series", series["series_id"], series["current_vintage_id"],
-                                         "balance_series", "energy.core", target, "shared-identifier",
-                                         {"named": ref}, "linked", None, principal_id)
-                self._collect(result, link_id, new, "linked")
-        return result
+                    energy_namespace: str = "energy") -> dict[str, Any]:
+        """Hydrocarbon series to Energy balance series of the same published SIEC code and country code."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        hydrocarbons = [s for s in self.store.find_series(namespace) if s["commodity"].get("hydrocarbon")]
+        if not table_exists(self.conn, "energy_series"):
+            return {"namespace": namespace, "status": "provider_absent", "linked": [],
+                    "unlinked": [{"series_id": s["series_id"], "status": "provider_absent"} for s in hydrocarbons],
+                    "note": "no Energy records are held; nothing is joined", "policy": POLICY}
+        require_scope(scopes, ENERGY_READ)
+        from src.kb.energy_store import EnergyStore
 
-    # ------------------------------------------------------------------ infrastructure
+        energy = EnergyStore(self.conn, initialize=False)
+        linked, unlinked = [], []
+        for series in hydrocarbons:
+            siec, iso2 = series["commodity"].get("siec"), series["country"].get("iso2")
+            found = []
+            if siec and iso2 and iso2 not in DIVERGENT_COUNTRY_CODES:
+                for target in energy.series(energy_namespace, scopes=scopes, record_type="energy_balance",
+                                            subject_codes=[iso2]):
+                    if target["facets"].get("siec") != siec or target["subject"]["scheme"] != "eurostat-geo":
+                        continue
+                    vintage = energy.select_vintage(energy_namespace, target["series_id"], scopes=scopes)
+                    link = self._record(
+                        namespace, subject_kind="commodity-series", subject_id=series["series_id"],
+                        subject_revision_id=series["current_vintage_id"], target_kind="energy-series",
+                        target_namespace=energy_namespace, target_id=target["series_id"],
+                        target_revision_id=vintage["vintage_id"] if vintage else None, basis="shared-identifier",
+                        status="linked", principal_id=principal_id,
+                        shared={"siec": siec, "country": {"scheme": "iso2/eurostat-geo", "code": iso2}},
+                        side_by_side={"extractives": {"statistic": series["statistic"], "unit": series["unit"]},
+                                      "energy": {"nrg_bal": target["facets"].get("nrg_bal"), "unit": target["unit"]},
+                                      "combined": False, "note": "listed side by side; never combined"})
+                    found.append(link["link_id"])
+            (linked if found else unlinked).append({"series_id": series["series_id"], "links": found,
+                                                    **({} if found else {"status": "no_target_on_record",
+                                                                         "siec": siec, "country": iso2})})
+        return {"namespace": namespace, "status": "linked" if linked else "no_target_on_record", "linked": linked,
+                "unlinked": unlinked, "policy": POLICY}
+
+    def link_energy_by_citation(self, namespace: str, series_id: str, energy_series_id: str,
+                                citation: Mapping[str, Any], *, principal_id: str, scopes: Iterable[str],
+                                energy_namespace: str = "energy") -> dict[str, Any]:
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        citation = self._citation(citation)
+        series, vintage_id = self._series_subject(namespace, series_id)
+        common = {"subject_kind": "commodity-series", "subject_id": series_id, "subject_revision_id": vintage_id,
+                  "target_kind": "energy-series", "target_namespace": energy_namespace, "target_id": energy_series_id,
+                  "basis": "explicit-citation", "principal_id": principal_id, "citation": citation}
+        if not table_exists(self.conn, "energy_series"):
+            return self._record(namespace, **common, target_revision_id=None, status="provider_absent")
+        require_scope(scopes, ENERGY_READ)
+        from src.kb.energy_store import EnergyStore
+
+        energy = EnergyStore(self.conn, initialize=False)
+        found = energy.series(energy_namespace, scopes=scopes, series_ids=[energy_series_id])
+        if not found:
+            return self._record(namespace, **common, target_revision_id=None, status="target_not_found")
+        vintage = energy.select_vintage(energy_namespace, energy_series_id, scopes=scopes)
+        return self._record(namespace, **common, target_revision_id=vintage["vintage_id"] if vintage else None,
+                            status="linked",
+                            side_by_side={"extractives": {"statistic": series["statistic"], "unit": series["unit"]},
+                                          "energy": {"unit": found[0]["unit"], "facets": found[0]["facets"]},
+                                          "combined": False, "note": "listed side by side; never combined"})
+
+    # -------------------------------------------------------------- infrastructure
 
     def link_infrastructure(self, namespace: str, *, principal_id: str, scopes: Iterable[str]) -> dict[str, Any]:
-        """Projects with an accepted EX06 match -> the matched infrastructure asset revision."""
-        from src.kb.extractives_identity import ExtractivesIdentity
+        """Projects to infrastructure assets through accepted EX06 project matches only."""
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        projects = self.store.records(namespace, record_types=("project",))
+        if not table_exists(self.conn, "infra_assets"):
+            return {"namespace": namespace, "status": "provider_absent", "linked": [],
+                    "unlinked": [{"record_key": p["record_key"], "status": "provider_absent"} for p in projects],
+                    "policy": POLICY}
+        linked, unlinked = [], []
+        for view in projects:
+            accepted = self.identity.matches(namespace, kind="project", subject_key=view["record_key"],
+                                             state="accepted")
+            found = []
+            for match in accepted:
+                link = self._record(
+                    namespace, subject_kind="project", subject_id=view["record_key"],
+                    subject_revision_id=view["revision_id"], target_kind="infrastructure-asset",
+                    target_namespace=match["target"]["namespace"], target_id=match["target"]["id"],
+                    target_revision_id=match["target"]["revision_id"], basis="accepted-match", status="linked",
+                    principal_id=principal_id, match_id=match["match_id"],
+                    shared={"method": match["method"], "evidence": match["evidence"]},
+                    side_by_side={"note": "the project as reported and the asset as its publisher states it; no "
+                                          "ownership of the project is inferred", "combined": False})
+                found.append(link["link_id"])
+            (linked if found else unlinked).append({"record_key": view["record_key"], "links": found,
+                                                    **({} if found else {"status": "no_target_on_record"})})
+        return {"namespace": namespace, "status": "linked" if linked else "no_target_on_record", "linked": linked,
+                "unlinked": unlinked, "policy": POLICY}
 
-        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
-        identity = ExtractivesIdentity(self.conn, initialize=False, now=self.now)
-        result: dict[str, list[str]] = {"linked": [], "unresolved": []}
-        held = table_exists(self.conn, "infra_assets")
-        for assertion in identity.assertions(namespace, scopes={"operator"}, kind="project"):
-            if assertion["state"] == "accepted":
-                target = {"kind": "infrastructure-asset", "namespace": assertion["target"]["infra_namespace"],
-                          "id": assertion["target"]["asset_id"], "revision": assertion["target"]["revision_id"],
-                          "asset_class": assertion["target"]["asset_class"]}
-                link_id, new = self._put(namespace, "project", assertion["subject"]["project_key"],
-                                         assertion["assertion_id"], "located_at_asset", "geospatial.infrastructure",
-                                         target, "accepted-match", {"method": assertion["method"],
-                                                                    "reviewed": assertion["history"][-1]},
-                                         "linked", None, principal_id)
-                self._collect(result, link_id, new, "linked")
-            elif assertion["state"] in {"unmatched", "proposed"}:
-                reason = ("provider_absent: no infrastructure store is held" if not held else
-                          "awaiting review" if assertion["state"] == "proposed" else assertion["reason"])
-                link_id, new = self._put(namespace, "project", assertion["subject"]["project_key"],
-                                         assertion["assertion_id"], "located_at_asset", "geospatial.infrastructure",
-                                         None, "accepted-match", {"state": assertion["state"]}, "unresolved", reason,
-                                         principal_id)
-                self._collect(result, link_id, new, "unresolved")
-        return result
+    # -------------------------------------------------------------- reads
 
-    # ------------------------------------------------------------------ explicit citation
-
-    def link_by_citation(self, namespace: str, *, source_kind: str, source_id: str, source_revision: str,
-                         relation: str, target: Mapping[str, Any], citation: Mapping[str, Any], principal_id: str,
-                         scopes: Iterable[str]) -> dict[str, Any]:
-        authorize(namespace, set(scopes), WRITE_SCOPE, write=True)
-        citation = dict(citation or {})
-        if not str(citation.get("source") or "").strip() or not str(citation.get("locator") or "").strip():
-            raise ExtractivesError("citation_required", "a link names the citing source and a locator")
-        if any(word in str(citation.get("basis") or "").casefold() for word in REFUSED_BASES):
-            raise ExtractivesError("inferred_link_refused", "links are never inferred from names, co-location or "
-                                                            "correlation")
-        target = dict(target or {})
-        if not target.get("owner") or not target.get("id") or not target.get("revision"):
-            raise ExtractivesError("invalid_link", "a cited target names its owner, id and revision")
-        link_id, _ = self._put(namespace, source_kind, source_id, source_revision, relation, str(target["owner"]),
-                               target, "citation", {"citation": citation}, "linked", None, principal_id)
-        return self.link(namespace, link_id)
-
-    # ------------------------------------------------------------------ reads
-
-    def link(self, namespace: str, link_id: str) -> dict[str, Any]:
-        row = self.conn.execute(
-            "SELECT link_id, source_kind, source_id, source_revision, relation, target_owner, target_json, basis, "
-            "detail_json, state, reason, history_json, created_by, created_at_ms FROM ex_links WHERE namespace=? AND "
-            "link_id=?", [namespace, link_id]).fetchone()
-        if row is None:
-            raise ExtractivesError("not_found", "link is not visible in this namespace")
-        return {"contract": CONTRACT, "namespace": namespace, "link_id": row[0], "source_kind": row[1],
-                "source_id": row[2], "source_revision": row[3], "relation": row[4], "target_owner": row[5],
-                "target": None if row[6] is None else json.loads(row[6]), "basis": row[7],
-                "detail": json.loads(row[8]), "state": row[9], "reason": row[10], "history": json.loads(row[11]),
-                "created_by": row[12], "created_at_ms": row[13]}
-
-    def links(self, namespace: str, *, scopes: Iterable[str], source_id: str | None = None,
-              target_owner: str | None = None, state: str | None = None) -> list[dict[str, Any]]:
-        authorize(namespace, set(scopes), READ_SCOPE)
-        if not table_exists(self.conn, "ex_links"):
+    def links(self, namespace: str, *, subject_id: str | None = None, target_kind: str | None = None,
+              status: str | None = None) -> list[dict[str, Any]]:
+        if not table_exists(self.conn, "extractives_links"):
             return []
         rows = self.conn.execute(
-            "SELECT link_id FROM ex_links WHERE namespace=? AND (? IS NULL OR source_id=?) AND "
-            "(? IS NULL OR target_owner=?) AND (? IS NULL OR state=?) ORDER BY source_kind, source_id, link_id",
-            [namespace, source_id, source_id, target_owner, target_owner, state, state]).fetchall()
-        return [self.link(namespace, r[0]) for r in rows]
+            "SELECT link_id FROM extractives_links WHERE namespace=? AND (? IS NULL OR subject_id=?) AND "
+            "(? IS NULL OR target_kind=?) AND (? IS NULL OR status=?) ORDER BY subject_id, target_kind, target_id",
+            [namespace, subject_id, subject_id, target_kind, target_kind, status, status]).fetchall()
+        return [self._link(namespace, r[0]) for r in rows]
 
 
-__all__ = ["BASES", "CONTRACT", "NO_INFERENCE", "ExtractivesLinks"]
+def read_links(conn: Any, namespace: str, scopes) -> ExtractivesLinks:
+    authorize(namespace, scopes, READ_SCOPE)
+    return ExtractivesLinks(conn, initialize=False)
+
+
+__all__ = ["BASES", "POLICY", "STATUSES", "ExtractivesLinks", "read_links"]

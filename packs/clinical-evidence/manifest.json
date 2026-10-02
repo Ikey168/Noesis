@@ -130,7 +130,7 @@
         "provider": "clinical.devices",
         "contract": {
           "name": "noesis-medical-device-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       },
       {
@@ -239,19 +239,20 @@
         }
       },
       {
-        "id": "clinical.devices-profile",
-        "description": "Medical-device regulatory profile: a device, product code or manufacturer to its clearances, approvals with supplements, recalls, device identifiers, EU registrations and certificates as of a date per jurisdiction, and MAUDE report counts with the source's caveats",
+        "id": "clinical.devices-regulatory-history",
+        "description": "Medical device regulatory history: a device (K or P number, DI, Basic UDI-DI) or FDA product code to its clearances, approvals with supplements, recalls and EU certificates as of a date, each citing its record revision, US and EU side by side, with reviewable identity across FDA, GUDID and EUDAMED and MAUDE report counts with FDA's caveats",
         "vocabulary": {
-          "clearance": "a 510(k) decision keyed by its K number, with decision code and date as published",
-          "approval": "a PMA original keyed by its P number; each supplement is its own record and the approval lists the supplements published for it",
-          "recall": "a recall keyed by its recall number; status and class changes are revisions",
-          "report count": "a number of MAUDE reports received in a window per event type; never a rate",
-          "device identifier": "a GUDID primary DI with its package DIs and published version"
+          "clearance": "a 510(k) decision keyed by K number, with decision code and date as published",
+          "approval": "a PMA keyed by P number; each supplement is its own record keyed by P number and supplement number",
+          "recall": "a device recall keyed by recall number; class and status changes are revisions as published",
+          "adverse-event report": "a MAUDE report keyed by report number; a report is not a finding that the device caused the event",
+          "report count": "the number of reports FDA received as published for a product code and window; never a rate or incidence",
+          "identity match": "a reviewed match by UDI-DI, premarket number or DUNS/SRN with method, evidence and confidence"
         },
         "workflow_defaults": {
-          "as_of": "the revision in force at the requested date by the source's own date",
-          "sources": "jurisdictions and sources side by side; nothing merged; identity only through reviewed matches",
-          "never": "Regulatory records quoted as regulators published them: no safety-signal detection, no causality from adverse-event reports, no clinical advice and no patient data beyond what regulators publish."
+          "as_of": "the revision each source had published by the requested date; event dates as published",
+          "sources": "FDA and EUDAMED side by side; nothing merged; unavailable EUDAMED modules stated",
+          "never": "Medical device records are kept as each regulator published them. Nothing here detects safety signals, infers causality from adverse-event reports or gives clinical advice, and no patient data beyond what regulators publish is stored."
         }
       }
     ]
@@ -469,12 +470,12 @@
     {
       "id": "medical-devices-fda",
       "default": false,
-      "description": "US medical devices from the openFDA device endpoints: 510(k) clearances, PMA approvals with supplements, product-code classifications, recalls and enforcement reports (status and class changes as revisions), MAUDE adverse-event reports and report counts with the source's caveats. Answers a device's regulatory history as of a date and report counts per event type with caveats, with reviewable identity across registries, citation links to Product safety, Medicines, trials, ownership and Products (degrading when those providers are absent) and subscription monitors. Contact persons, addresses and patient data are never stored (MD01). No safety-signal detection, no causality from adverse-event reports and no clinical advice.",
+      "description": "Medical devices from FDA: openFDA 510(k), PMA with supplements, classification, recall and MAUDE records (reports with FDA's caveats, never incidence) as versioned records, regulatory history as of a date, report counts, reviewable identity, citation links and monitors. No safety-signal detection, causality or clinical advice.",
       "requires": [
         {
           "capability": "clinical.devices-records",
           "contract": "noesis-medical-device-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -488,42 +489,18 @@
           "contract": "noesis-medical-device-monitor",
           "range": "^1.0.0",
           "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "accepted and reverted device and manufacturer matches are entity identity decisions"
-        },
-        {
-          "capability": "ownership.identity",
-          "contract": "noesis-ownership-identity-candidate",
-          "range": "^1.0.0",
-          "reason": "device and manufacturer matches use the reviewable identity state machine"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "medical-devices monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "device records are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "medical-devices-gudid",
       "default": false,
-      "description": "US device identifiers from AccessGUDID: primary and package DIs, published versions and premarket submission numbers as published. Answers a device's regulatory history as of a date and report counts per event type with caveats, with reviewable identity across registries, citation links to Product safety, Medicines, trials, ownership and Products (degrading when those providers are absent) and subscription monitors. Contact persons, addresses and patient data are never stored (MD01). No safety-signal detection, no causality from adverse-event reports and no clinical advice.",
+      "description": "Medical device identifiers from AccessGUDID: primary and package DIs, product codes and premarket submission numbers as versioned records, matched to FDA and EUDAMED records and Products GTINs through reviewable identity. No safety-signal detection or clinical advice.",
       "requires": [
         {
           "capability": "clinical.devices-records",
           "contract": "noesis-medical-device-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -537,42 +514,18 @@
           "contract": "noesis-medical-device-monitor",
           "range": "^1.0.0",
           "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "accepted and reverted device and manufacturer matches are entity identity decisions"
-        },
-        {
-          "capability": "ownership.identity",
-          "contract": "noesis-ownership-identity-candidate",
-          "range": "^1.0.0",
-          "reason": "device and manufacturer matches use the reviewable identity state machine"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "medical-devices monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "device records are acquired through the source-pack runtime"
         }
       ]
     },
     {
       "id": "medical-devices-eudamed",
       "default": false,
-      "description": "EU medical devices from the EUDAMED public actor, UDI/device and certificate modules (certificate status changes as revisions); modules that are not public stay explicit gaps. Answers a device's regulatory history as of a date and report counts per event type with caveats, with reviewable identity across registries, citation links to Product safety, Medicines, trials, ownership and Products (degrading when those providers are absent) and subscription monitors. Contact persons, addresses and patient data are never stored (MD01). No safety-signal detection, no causality from adverse-event reports and no clinical advice.",
+      "description": "Medical devices from the EUDAMED public modules: actors by SRN, devices by Basic UDI-DI and notified-body certificates with status revisions; unavailable modules (vigilance, clinical investigations, market surveillance) stay explicit gaps. No safety-signal detection or clinical advice.",
       "requires": [
         {
           "capability": "clinical.devices-records",
           "contract": "noesis-medical-device-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -586,33 +539,9 @@
           "contract": "noesis-medical-device-monitor",
           "range": "^1.0.0",
           "reason": "the feature's own entry points use these operations"
-        },
-        {
-          "capability": "platform.entity-identity",
-          "contract": "noesis-entity-identity-decision",
-          "range": "^1.0.0",
-          "reason": "accepted and reverted device and manufacturer matches are entity identity decisions"
-        },
-        {
-          "capability": "ownership.identity",
-          "contract": "noesis-ownership-identity-candidate",
-          "range": "^1.0.0",
-          "reason": "device and manufacturer matches use the reviewable identity state machine"
-        },
-        {
-          "capability": "platform.subscriptions",
-          "contract": "noesis-knowledge-subscription",
-          "range": "^1.0.0",
-          "reason": "medical-devices monitors are knowledge subscriptions"
-        },
-        {
-          "capability": "platform.source-acquisition",
-          "contract": "noesis-source-acquisition",
-          "range": "^1.0.0",
-          "reason": "device records are acquired through the source-pack runtime"
         }
       ]
     }
   ],
-  "content_hash": "sha256:663bf2b11cadd5bd33d41f1ffcb350703906741ec8fb3a8df360d0f804d4430c"
+  "content_hash": "sha256:c729c93cb505106a2e9376416666de02afd03f811214bf1120524d24f0b9fda9"
 }

@@ -1,0 +1,36 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe6jY6hFxgMAAOcDAAAsAAAAZHNhX2V4YW1wbGEtc29jaWFsXzIwOTktMDUtMDEtcGFydC0wMDAwMC56aXAL8GZmEWFgYOAAYsV3lhtOxJozMzCc5mFgUAeKpBQnxqdWJOYW5CTqFucnZybmxBsZWFrqGpjqGhjqGoCAXnJx2duw6PzFFiJ19+MTP77p8bgt6ftri8gcsU4GJqFck6hIvR0rVQ+cmLHqbrx9e/Ykv7Rdb7Ou2vWIsv7+cWf/+Wmz3VJ2nJq5b/KqBaraP+qu5qXaiG6doFrbcH7tidY6K9XFQfeLWytnXuzJrNuxuGLtVA9TiTe63JFFZ69c7p/0fJ7aT0/7qZP47+bkBxR/VQiqi5q/dGWO197rcizutxb72IfW5O8KVjgzb/3BD33acU4H3J5GPLG8v3HOsk1XZGK+rD745adafUvY9DXdmqdCxETP5BfbafaULf8WZyK36KHIqTueGV8tFuqcdkk393zFtWqXcOb7vC8XrtbvkNgwsyv56brE3Xv9bgeu2Rnk5K264JLV1AdNoaF2P96FLpO7tzHk+o5pvU3/Sh+27TxxIP606bWMyAbeA0dN5T9YTvjaV7CqQj1BKtzhtv2ZxDO79nd/e/96Rw678VlLtf41DWqLIpZN0Hn2tyjsu/fj2YkWR8qSzT+8ZLMLX/dcLTqLvc7pT4tbimhOR7JEvXSF1LRc9uwbPtsUFyY+yVvT8uDk6VKW2Xyltv0x0fdecPJ3FqRoB3ZMenpimqT7V3WT44nngur0P/dolzBYNk3WOiXLtZaldV7q5NkHij2uLBNQFyi+mpZx+IlVx7bgAwqLzMO2RK2zlWpvuWG+4N40y2lXUudO2D9pn8ajx8bFG2fMnJ/+TGZmvL6vcJ1zMg+z8uEIt7/Xv1tNZv768+aCfSFzzpvUX1nhLL0x+mbGlQOGrvVhv19laB8s3NCX47RWozC3/8LP6YvZfgQxe9/2rPbPrexdWyq0ZoFPu58vX3Ty6c/b3G/O4b8ZsunaZrG/Nx3f1DtP3/zfQ5z9xaQ9vXr7ZNcwZHznsjIqZEuOFnMNPqToaL3A5rzrydfeIeFrLLKk5hxfZPeE79tTzUlHtm3tWsnKOH3i1jK/wMOxkdef7N25kdMmY6Zo7sfzEgx/6hj/br6+qP5f3fSj7Y7/lWN42B84y9ZNuMD5P56p7l/UAf04hhoZ4RjlGR+l1oXdb6z5x1/z8NL0VXXChxJZvvfP3bKwWTV2Z53A0eUJ93bwcdoJnMu3eyK+/tCf+UeTGpu/1TYfesjYs/v5uZwa/v2HFd9/finwr3bVfMU7TGUtH8oDvBmZRJhx5z4YWMLIQHxeDPBmZQMpZwTCUCBdwwziAQBQSwECFAMUAAAACAAAACHuo2OoRcYDAADnAwAALAAAAAAAAAAAAAAApAEAAAAAZHNhX2V4YW1wbGEtc29jaWFsXzIwOTktMDUtMDEtcGFydC0wMDAwMC56aXBQSwUGAAAAAAEAAQBaAAAAEAQAAAAA",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/sor-exampla-social-2099-05-01-light.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe6tNinMTQMAAHQDAAAsAAAAZHNhX2V4YW1wbGEtc29jaWFsXzIwOTktMDUtMDItcGFydC0wMDAwMC56aXAL8GZmEWFgYOAAYsV3kQIpIUeYGBj42RkY1IEiKcWJ8akVibkFOYm6xfnJmYk58UYGlpa6Bqa6Bka6BiCgl1xcdjYkOn+2gUjd/fUbKsrUbq0Nvb088NEWDxYlhYuLMjfFWHjqMrodC3m7//7DWUu6yy7GpbneeP7u89zzmVIzL2qJpy0vOegdeMAxy1dyyaZpq57o77A9GTNre7HVujPGGVypx4wTH9xYtNAsahkbM9/EVq2DHH+/bX5Wu8yz3sx/6VXvciuWKwviU7ie/3WdtWqZCft7x8JHtq/ORLO2X9jrlvot7tgB2QyNjQmLi7U+y3xTer5SizehK07K6b70Q9GFeq7hwdNWamnZ2D81sOwpfJ6zn1du1UWR23e0W6psCiambuqebVLaGvs25dZyaeOSv/Lch3OWPXPZmX/k34PLSl68Gbq9l4Ss1wa3arqEPnV+dy/1UIF6UPDlKFOpj69P8abPTNw3LXuR4aoDEjLiEhLPipe8Fr4Y4rxcoC3M4zb/tw1pd58X/94pebSM8/a+RW9CRTiUOkO7pi+90L15l/ja/Gmm6evEqxMPmO+4W71ves5OaTZObiG5jak7EotP/8q7mGm5TnrdxRk54T3rlfIfq/T4RcopmZzb+fz3m4Mfj/uU7OAQCD/tNE1Jfd2phivyJ1ljnyq1pk9NX3Dy4gnOfSGR706e8jxxqjzmm8SvYrGt4R3Ca3bm5L949FCxZ1vwQYNH/X5bYtbUyq2XKJa/uDe3OGfl7tJD+9Rqg3UWTP/29u2ZfbNuTj+yb+fm3D+8ByLEVKdt7fhl+2H3BOXv3acP1i5kTGOL4325zPfI5CyezA8zJ+lfXWh9LytDZp3y9EJ1L5vr6X8e/WJpcJBMyazO+L+cybXZ4OE5K87pN17+WfJr+cKqpVnG2cttrVd9Vf+y45971ZmJcidd+k8WS7LpFBaofZRyF9iya/8ivwdt3jK7yvtf+PxZeCXU9eKUHwkn5F7y79RZuE+5VLVLmOFjrthXw/4ogfMCamVzU8/I6uzomPP1T/3Sk2pfBA1dJl/SvVKSxDQ/wXnV79vxQo9/tUjYMwR4MzKJMOPOCjCwhJGB+IwR4M3KBlLOCIShQJqTGcQDAFBLAQIUAxQAAAAIAAAAIe6tNinMTQMAAHQDAAAsAAAAAAAAAAAAAACkAQAAAABkc2FfZXhhbXBsYS1zb2NpYWxfMjA5OS0wNS0wMi1wYXJ0LTAwMDAwLnppcFBLBQYAAAAAAQABAFoAAACXAwAAAAA=",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/sor-exampla-social-2099-05-02-light.zip",
+   "status": 200
+  },
+  {
+   "body_base64": "UEsDBBQAAAAIAAAAIe6FSMFPQAMAAGwDAAAtAAAAZHNhX25vcnRod2luZC12aWRlb18yMDk5LTA1LTAxLXBhcnQtMDAwMDAuemlwC/BmZhFhYGDgAGLFd2d4nn/excTAwMrOwKABFEkpTozPyy8qySjPzEvRLctMSc2PNzKwtNQ1MNU1MNQ1AAG95OKys6G+/bcMBPZ+D4+wnK11IXfr7uVpzYnKrSyszS2rThl1Mnor9sm06/3f93gCy41F27Zfc9r4/LVv2jPLK1vPFMws3hz66wBXnYD4yVlGE095rWqSTbx9ImbWZVvZ4DR9EzHXY0Z5R7a6dp/KmCnFscNFLkSR5/ryeNP3E6v+xs4JWp1cvIslxEk+Vevd788moaWJevfWPjq2+/LMYE29hda8p97s5WmMXujKyJk9N3nm86TjxdNWHeJosPDOfVG9uKI5THzPSc3uEFkvi/yii9Ylhd9z6nnyNj8UOXVHM6O0PMHmdIrw9exVQqtunfrCc13R5Gs899ucX48qNq7++e5RsnVX74UoqaWqIVFLuRQqIp/pfru59P3DacuXHZq6yvTLes/r81LZKqZl7zF7xWBooJfoYj1f+64kx/IoE668As4tfx9sy75gI/fm8Ubht7d2vBNw95r9lz8yJYP1p4ieVWVBTsrz2Y97OuV1miyStG/ENRksyH52XFBVMJVz5lFto7I57/neTX/++6NQT4mtes48Fu1+oTuLfYQN+iIFfn7MeXfxgaqK7Bzeb6GVl4q2m68IubBJeN5zG9HqqelOyhlvFjpdL+4XiQs4MP/m9o8PDXonmzYEC7UdWe6t32Le8VxlYZi1Z1PGrR96ClN112kvqbweaqD2caeY0MOJv7+YFNjz31Eskp8fK16Xay/Drnx8pspzW67ZE7S/P1xROj9Dkc1tj+SVHsmPvat4Vz2sW7T+6VK9NNMKQX3h+QazdMSn9NxU+bIseFLCHjHRb9NM5lWG3f1euInn8Fffa/6514JC0xKOW+849dG8RuKvt92BPcsM1s7jetIrfypmwcwTKu5xWQFfBW3vXHjYxcGx7/amG4oJIrPa5/nHPS7I2d3+/tNiXzH1N1e90y54bZsh/Gj/v+1rPghJ/SgIbovPsxLQZJbXrd5QH10guWjGpnk6+1OPv2iTtWcM8GZkEmHGnQNgYAkjAwn5IcCblQ2knhEIw0AMZhABAFBLAQIUAxQAAAAIAAAAIe6FSMFPQAMAAGwDAAAtAAAAAAAAAAAAAACkAQAAAABkc2Ffbm9ydGh3aW5kLXZpZGVvXzIwOTktMDUtMDEtcGFydC0wMDAwMC56aXBQSwUGAAAAAAEAAQBbAAAAiwMAAAAA",
+   "headers": {
+    "Content-Type": "application/zip"
+   },
+   "request": "/sor-northwind-video-2099-05-01-light.zip",
+   "status": 200
+  }
+ ],
+ "note": "Authored responses in the provider's documented shape; every platform, page, advertiser, funding entity, notice and statement is fictional, and placeholder personal text is discarded by the parser (SP01 minimisation).",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "fictional-parties",
+  "minimised-free-text"
+ ]
+}

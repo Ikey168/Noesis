@@ -1,0 +1,30 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "Country,Commodity,Statistic,Year,Quantity,Units,Notes\nChile,Copper,Production,2021,5620000,tonnes (metal content),Mine production\nChile,Copper,Production,2022,5300000,tonnes (metal content),Mine production\nPeru,Copper,Production,2021,2300000,tonnes (metal content),Mine production\nPeru,Copper,Production,2022,2440000,tonnes (metal content),Mine production\nGermany,Copper,Imports,2022,1200000,tonnes (gross weight),Ores and concentrates\nGermany,Copper,Exports,2022,1500,tonnes (gross weight),Ores and concentrates\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/mineralsuk/statistics/wms.cfc?agreeToTsAndCs=agreed&commodity=copper&dateFrom=2021&dateTo=2022&method=listResults",
+   "status": 200
+  },
+  {
+   "body": "Country,Commodity,Statistic,Year,Quantity,Units,Notes\nGermany,Petroleum crude,Production,2021,1900000,tonnes,\nGermany,Petroleum crude,Production,2022,1750000,tonnes,\nNetherlands,Petroleum crude,Production,2021,800000,tonnes,\nNetherlands,Petroleum crude,Production,2022,..,tonnes,Not available\n",
+   "headers": {
+    "Content-Type": "text/csv"
+   },
+   "request": "/mineralsuk/statistics/wms.cfc?agreeToTsAndCs=agreed&commodity=petroleum-crude&dateFrom=2021&dateTo=2022&method=listResults",
+   "status": 200
+  }
+ ],
+ "note": "Authored fixture in the documented shape as known to the author (not re-verified live); every company, project, amount and figure is fictional (not provider data), and every declared release date lies in the past so that any real retrieval follows it.",
+ "provider": "authored",
+ "scenarios": [
+  "authored-fixture",
+  "publication-vintage",
+  "production-imports-exports",
+  "hydrocarbon-siec",
+  "not-available-value"
+ ]
+}

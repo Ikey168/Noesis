@@ -3,111 +3,416 @@
   "id": "society.income",
   "version": "1.0.0",
   "implementation": {
-    "name": "src.kb.income_distribution_store",
+    "name": "src.kb.income_distribution_*",
     "version": "1.0.0",
     "server": "noesis-knowledge-engine"
   },
   "capabilities": [
     {
-      "id": "society.income",
+      "id": "society.income-series",
       "contract": {
         "name": "noesis-income-distribution-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
+        "bundle-status",
+        "source-contracts",
+        "acquire-source",
+        "register-schemas",
         "list-series",
         "indicator-for-place",
         "series-history",
-        "comparability-notes",
-        "identity-assertions",
-        "links",
-        "poll-monitor",
-        "evidence-bundle"
+        "profile",
+        "export-profile",
+        "record-comparability-note",
+        "review-comparability-note"
       ],
       "semantic_constraints": {
-        "series": "an income series is keyed by source, indicator, welfare concept (income or consumption), equivalence scale, poverty line and its PPP base year, reference-year basis, survey, coverage, methodology, area and unit; World Bank PIP, Eurostat EU-SILC and OECD IDD figures are never one series; values live in the Economics series storage (economic_vintages, dataset_observations)",
-        "definitions": "each series cites its definition revision (income definition, equivalence scale, poverty line, methodology version, notes and the references the source states); a changed definition is a new revision",
-        "vintages": "each release that changes a series is an appended vintage with release and retrieval clocks, revision_of and the recorded changes (new, revised and removed periods, PPP revision, definition or version change, withdrawal); a PPP revision that restates past values is a new vintage, never an overwrite; each PIP release is its own vintage; as-of answers select the vintage released by the date",
-        "comparability": "sources are returned side by side, grouped by concept, welfare concept, equivalence scale, poverty line, PPP base year and reference-year basis; groups are never combined; unnoted pairs are comparability_unknown",
-        "identity": "places match through reviewed mappings by ISO, NUTS and World Bank region codes before names; the same indicator across sources is recorded as related, never merged; unmatched codes stay visible",
-        "links": "methodology documents, Demographics denominators and Labour indicators link by citation, shared identifier or accepted match, pointing at specific record revisions; missing providers and targets are reported",
-        "minimisation": "aggregate published statistics only; no person- or household-level field is stored or returned",
-        "exclusions": "no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD figures into one series, no re-harmonisation of welfare concepts"
+        "series": "keyed by source, indicator, welfare concept (income, consumption or a source's mixed regional aggregate), equivalence scale, poverty line and its PPP base year, place, coverage, survey, income definition and methodology; values also in the Economics series storage (domain society)",
+        "vintages": "each release that changes a series is an appended vintage with release and retrieval clocks; a PPP revision is a new vintage, never an overwrite; a source removal is a vintage, never a deletion; as-of answers select the vintage released by the date",
+        "comparability": "sources, lines, PPP rounds and welfare concepts are separate series shown side by side and never combined; pairs of vintages without notes are comparability_unknown",
+        "minimisation": "aggregate statistics only; person- and household-level fields refused at write time",
+        "exclusions": "no nowcasting, no filled years, no own poverty lines, no blending of PIP, EU-SILC and OECD figures, no re-harmonisation of welfare concepts, no derived indicators"
+      }
+    },
+    {
+      "id": "society.income-identity",
+      "contract": {
+        "name": "noesis-income-identity-assertion",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "propose-place-matches",
+        "propose-related-indicators",
+        "review-identity",
+        "revert-identity",
+        "list-identity"
+      ],
+      "semantic_constraints": {
+        "identity": "places match through reviewed assertions on published identifiers (ISO, NUTS, World Bank regions); the same indicator across sources is related, never merged; nothing auto-accepted"
+      }
+    },
+    {
+      "id": "society.income-links",
+      "contract": {
+        "name": "noesis-income-link",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "link-series",
+        "list-links"
+      ],
+      "semantic_constraints": {
+        "links": "methodology documents by exact URL, Demographics denominators and Labour series by shared identifier or accepted match; both revisions pinned; missing providers and targets reported"
+      }
+    },
+    {
+      "id": "society.income-monitoring",
+      "contract": {
+        "name": "noesis-income-monitor",
+        "version": "1.0.0"
+      },
+      "operations": [
+        "create-monitor",
+        "run-monitor",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "delivery": "knowledge subscriptions and source-pack watermarks; no new scheduler; notices are record changes, not assessments"
       }
     }
   ],
   "operations": [
     {
+      "id": "bundle-status",
+      "tool": "noesis-knowledge-engine.society_bundle_status",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.income_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "acquire-source",
+      "tool": "noesis-knowledge-engine.acquire_income_source",
+      "side_effect": "acquisition",
+      "idempotency": {
+        "supported": true,
+        "key": "run_key",
+        "receipt": "source_pack_runs"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write",
+        "knowledge:ingestion:execute"
+      ],
+      "required_context": [
+        "namespace",
+        "source_terms"
+      ]
+    },
+    {
+      "id": "register-schemas",
+      "tool": "noesis-knowledge-engine.register_income_schemas",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "schema name + version"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write",
+        "knowledge:schema:register"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
       "id": "list-series",
       "tool": "noesis-knowledge-engine.list_income_series",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     },
     {
       "id": "indicator-for-place",
       "tool": "noesis-knowledge-engine.income_indicator_for_place",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     },
     {
       "id": "series-history",
       "tool": "noesis-knowledge-engine.income_series_history",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     },
     {
-      "id": "comparability-notes",
-      "tool": "noesis-knowledge-engine.income_comparability_notes",
+      "id": "profile",
+      "tool": "noesis-knowledge-engine.income_profile",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     },
     {
-      "id": "identity-assertions",
-      "tool": "noesis-knowledge-engine.list_income_identity_assertions",
+      "id": "export-profile",
+      "tool": "noesis-knowledge-engine.export_income_profile",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     },
     {
-      "id": "links",
+      "id": "record-comparability-note",
+      "tool": "noesis-knowledge-engine.record_income_comparability_note",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series + relation + statement"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-comparability-note",
+      "tool": "noesis-knowledge-engine.review_income_comparability_note",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "note_id + state"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-place-matches",
+      "tool": "noesis-knowledge-engine.propose_income_place_matches",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subject + candidates"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "propose-related-indicators",
+      "tool": "noesis-knowledge-engine.propose_related_income_indicators",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series pair"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "review-identity",
+      "tool": "noesis-knowledge-engine.review_income_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "assertion_id + state"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:income:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revert-identity",
+      "tool": "noesis-knowledge-engine.revert_income_identity",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "assertion_id + state"
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:income:review"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-identity",
+      "tool": "noesis-knowledge-engine.list_income_identity",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "identity",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "link-series",
+      "tool": "noesis-knowledge-engine.link_income_series",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "series + vintage + target"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "list-links",
       "tool": "noesis-knowledge-engine.list_income_links",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "links",
+      "required_scopes": [
+        "knowledge:income:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "create-monitor",
+      "tool": "noesis-knowledge-engine.create_income_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "request_key"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "run-monitor",
+      "tool": "noesis-knowledge-engine.run_income_monitor",
+      "side_effect": "local-mutation",
+      "idempotency": {
+        "supported": true,
+        "key": "subscription + watermark"
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:write",
+        "knowledge:subscriptions:write"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     },
     {
       "id": "poll-monitor",
       "tool": "noesis-knowledge-engine.poll_income_monitor",
       "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read", "knowledge:subscriptions:read"],
-      "required_context": []
-    },
-    {
-      "id": "evidence-bundle",
-      "tool": "noesis-knowledge-engine.export_income_evidence_bundle",
-      "side_effect": "read-only",
-      "idempotency": {"supported": true},
-      "readiness_probe": "vintages",
-      "required_scopes": ["knowledge:income:read"],
-      "required_context": ["namespace"]
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "series",
+      "required_scopes": [
+        "knowledge:income:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
     }
   ],
   "stores": [
@@ -121,7 +426,8 @@
         "income_vintages",
         "income_observations",
         "income_release_members",
-        "income_comparability"
+        "income_comparability",
+        "income_receipts"
       ],
       "revision_addressable": true,
       "namespace_scoped": true
@@ -129,35 +435,56 @@
     {
       "record_type": "income-identity-assertion",
       "store": "src.kb.income_distribution_identity",
-      "tables": ["income_identity_assertions"],
-      "revision_addressable": true,
+      "tables": [
+        "income_identity_assertions"
+      ],
+      "revision_addressable": false,
       "namespace_scoped": true
     },
     {
       "record_type": "income-link",
       "store": "src.kb.income_distribution_links",
-      "tables": ["income_links"],
+      "tables": [
+        "income_links"
+      ],
       "revision_addressable": true,
       "namespace_scoped": true
     },
     {
       "record_type": "income-refresh-receipt",
       "store": "src.kb.income_distribution_monitoring",
-      "tables": ["income_refresh_receipts"],
+      "tables": [
+        "income_refresh_receipts"
+      ],
       "revision_addressable": true,
       "namespace_scoped": true
     }
   ],
   "readiness_probes": [
     {
-      "id": "vintages",
+      "id": "series",
       "kind": "table-exists",
       "target": "income_vintages"
+    },
+    {
+      "id": "identity",
+      "kind": "table-exists",
+      "target": "income_identity_assertions"
+    },
+    {
+      "id": "links",
+      "kind": "table-exists",
+      "target": "income_links"
+    },
+    {
+      "id": "income-source",
+      "kind": "source-pack-enabled",
+      "target": "society-income-distribution"
     }
   ],
   "source_packs": [
     {
-      "pack_id": "society-statistics",
+      "pack_id": "society-income-distribution",
       "version": "1.0.0",
       "range": "^1.0.0"
     }

@@ -1,72 +1,68 @@
-"""Treaty records linked to Legal works, sanctions legal bases and trade reporters (#2615)."""
+"""Treaty records linked to Legislation, Sanctions and Trade flows by citation and accepted matches (#2615, TR07)."""
 
 from __future__ import annotations
 
 import pytest
 
-from src.kb.treaties_identity import TreatiesIdentity
+from src.kb.treaties_identity import TreatiesIdentity, place_key
 from src.kb.treaties_links import TreatiesLinks
+from src.kb.treaties_records import TreatiesStore, forbidden_keys
 from tests.unit import treaties_harness as h
 
 
-@pytest.fixture()
-def conn():
-    connection = h.connection()
-    h.load_all(connection)
-    yield connection
-    connection.close()
+@pytest.fixture
+def world():
+    conn = h.connection()
+    h.load_all(conn)
+    yield conn
+    conn.close()
 
 
-def test_absent_providers_are_reported_not_dropped(conn):
-    result = TreatiesLinks(conn, now=h.Clock()).link_all(h.NS, principal_id="alice", scopes=h.SCOPES)
-    assert result["links"] == []
-    assert {p["pack"] for p in result["provider_unavailable"]} == {"legal.core", "legal.sanctions", "economics.trade"}
+def test_missing_providers_and_targets_are_reported_not_dropped(world):
+    result = TreatiesLinks(world).link_all(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    reported = {u["provider"] for u in result["unavailable"]}
+    assert reported == {"legal.core", "legal.sanctions", "economics.trade"}
+    legal = [link for link in result["links"] if link["target_kind"] == "legal-work"]
+    assert {link["target_key"] for link in legal} == {"celex:22090A0510(01)", "celex:32092D0101",
+                                                      "celex:32093D0202", "celex:32094R0303"}
+    assert {link["status"] for link in legal} == {"provider-missing"}
 
 
-def test_links_record_their_basis_and_point_at_revisions(conn):
-    clock = h.Clock()
-    work_id = h.seed_legal_act(conn)
-    h.seed_sanctions_bases(conn)
-    places = h.seed_places(conn)
-    trade_assertion = h.seed_trade_area(conn, places["DE"])
-    identity = TreatiesIdentity(conn, now=clock)
-    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES)
-    germany = next(c for c in proposed["candidates"] if c["subject"] == "treaties:participant:coe:germany")
-    identity.review(h.NS, germany["candidate_id"], "accept", "coded place", principal_id="bob",
+def test_links_record_their_basis_and_point_at_record_revisions(world):
+    work_id = h.seed_legal_work(world, "32093D0202")
+    h.seed_sanctions_basis(world, "Council Decision implementing Convention XXVII-99 (UNTC) and CETS No. 999")
+    h.seed_sanctions_basis(world, "Regulation (EU) 2099/1 - unrelated measure", celex="32099R0001")
+    h.seed_trade_reporter(world, "XEA")
+    places = h.seed_places(world)
+    links = TreatiesLinks(world)
+    result = links.link_all(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    by = {(link["treaty_key"], link["target_kind"], link["target_key"]): link for link in result["links"]}
+    concluded = by[(h.EU, "legal-work", work_id)]
+    assert concluded["status"] == "resolved" and concluded["basis"] == "citation"
+    assert concluded["evidence"]["citation"]["relation_as_published"].endswith("resource_legal_based_on_resource_legal")
+    treaty_revision = TreatiesStore(world).records(h.NS, scopes=h.READ_ONLY, record_keys=[h.EU])[0]["revision_id"]
+    assert concluded["treaty_revision_id"] == treaty_revision
+    assert by[(h.EU, "legal-work", "celex:32092D0101")]["status"] == "target-missing"
+    own = by[(h.EU, "legal-work", "celex:22090A0510(01)")]
+    assert own["basis"] == "shared-identifier" and own["status"] == "target-missing"
+    sanctions = [link for link in result["links"] if link["target_kind"] == "sanctions-legal-basis"]
+    assert {(link["treaty_key"], link["evidence"]["identifier"]) for link in sanctions} == {
+        (h.UNTC, "XXVII-99"), (h.COE, "CETS No. 999"), (h.EU, "CETS No. 999")}
+    assert all(link["basis"] == "citation" and link["target_revision"] == "snapshot:fixture" for link in sanctions)
+    trade = [link for link in result["links"] if link["target_kind"] == "trade-reporter"]
+    assert [(link["subject_key"], link["basis"]) for link in trade] == [
+        ("treaties:eu-cellar:participant:xea", "shared-identifier")]
+    assert trade[0]["target_key"] == "trade-reporter:m49:999" and trade[0]["evidence"]["iso3"] == "XEA"
+    # an accepted TR06 match adds the accepted-match route for a participant without a published code
+    identity = TreatiesIdentity(world)
+    proposed = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, geo_namespace=h.NS)
+    named = next(c for c in proposed["candidates"]
+                 if set(c["records"]) == {"treaties:untc:participant:exampland", place_key(places["XEA"])})
+    identity.review(h.NS, named["candidate_id"], "accept", "reviewed", principal_id="reviewer",
                     scopes=h.REVIEW_SCOPES)
-    links = TreatiesLinks(conn, now=clock)
-    result = links.link_all(h.NS, principal_id="alice", scopes=h.SCOPES)
-    assert result["provider_unavailable"] == []
-    by_kind: dict[str, list] = {}
-    for link in result["links"]:
-        by_kind.setdefault(link["link_kind"], []).append(link)
-    (act,) = [x for x in by_kind["eu-act"] if x["status"] == "linked"]
-    assert act["target_key"] == work_id and act["basis"] == "citation"
-    assert act["treaty_revision_id"].startswith("treaty-revision:") and act["treaty_key"] == h.CELLAR_TREATY
-    assert act["evidence"]["cellar_relation"].endswith("#work_cites_work")
-    missing = [x for x in by_kind["eu-act"] if x["status"] == "missing_target"]
-    assert [x["target_key"] for x in missing] == ["celex:32098D0901"]
-    sanctions = {x["status"]: x for x in by_kind["sanctions-legal-basis"]}
-    assert sanctions["linked"]["treaty_key"] == h.COE_TREATY
-    assert sanctions["linked"]["target_revision"] == "sanctions-snapshot:fixture-1"
-    assert sanctions["missing_target"]["evidence"]["cited"]["as_written"] == "CETS No. 991"
-    (trade,) = by_kind["participant-trade-reporter"]
-    assert trade["basis"] == "accepted-match" and trade["target_revision"] == trade_assertion
-    assert trade["subject_key"] == "treaties:participant:coe:germany" and "nothing says" in trade["evidence"]["note"]
-    again = links.link_all(h.NS, principal_id="alice", scopes=h.SCOPES)
-    assert {x["link_id"] for x in again["links"]} == {x["link_id"] for x in result["links"]}
-    assert len(links.links(h.NS, scopes=h.READ_ONLY)) == len(result["links"])
-
-
-def test_a_new_treaty_revision_is_linked_afresh_and_the_old_link_stays(conn):
-    h.seed_legal_act(conn)
-    links = TreatiesLinks(conn, now=h.Clock())
-    first = links.link_all(h.NS, principal_id="alice", scopes=h.SCOPES)
-    h.apply(conn, h.CELLAR, v2=True)
-    second = links.link_all(h.NS, principal_id="alice", scopes=h.SCOPES)
-    old = {x["treaty_revision_id"] for x in first["links"]}
-    new = {x["treaty_revision_id"] for x in second["links"]}
-    assert old.isdisjoint(new)
-    stored = links.links(h.NS, scopes=h.READ_ONLY, treaty_key=h.CELLAR_TREATY)
-    assert {x["treaty_revision_id"] for x in stored} == old | new
-    assert "celex:32100R0007" in {x["target_key"] for x in second["missing_targets"]}
+    again = links.link_all(h.NS, principal_id="analyst", scopes=h.SCOPES)
+    matched = [link for link in again["links"] if link["subject_key"] == "treaties:untc:participant:exampland"]
+    assert [(link["basis"], link["evidence"]["candidate_id"]) for link in matched] == [
+        ("accepted-match", named["candidate_id"])]
+    assert len(links.links(h.NS, scopes=h.READ_ONLY)) == len({link["link_id"] for link in again["links"]})
+    assert not forbidden_keys(again)

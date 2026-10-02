@@ -1,0 +1,23 @@
+{
+ "claims": [
+  {
+   "text": "Exampla City cut its bus fares by half in 2099.",
+   "claimant": "Exampla City Council",
+   "claimDate": "2099-06-27T00:00:00Z",
+   "claimReview": [
+    {
+     "publisher": {
+      "name": "Fabrikam Facts",
+      "site": "fabrikam-facts.example"
+     },
+     "url": "https://fabrikam-facts.example/bus-fares",
+     "title": "Were bus fares halved?",
+     "reviewDate": "2099-07-01T00:00:00Z",
+     "textualRating": "Half true",
+     "languageCode": "en"
+    }
+   ]
+  }
+ ],
+ "nextPageToken": "fixture-page-2"
+}

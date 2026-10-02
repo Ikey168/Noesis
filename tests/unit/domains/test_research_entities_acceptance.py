@@ -1,11 +1,14 @@
 """Offline organisation-to-research-records acceptance for the Science research-entities features (RE13, #2644).
 
-The pinned ROR, ORCID, DataCite and CORDIS fixtures (authored in the documented shapes; every organisation, person,
-identifier and value is fictional) replay through the real ``research-entities`` adapter and the runtime's projector,
-with all four features selected in the Science composition plan and sockets blocked. An organisation and a researcher
-reach cited registry records, asserted works, datasets and projects with record versions; identity is reviewed, links
-cross into Scholarly, Funding and Ownership records, and a subject with no records answers none_on_record. Offline
-evidence only, never live coverage (``docs/development/research-entities-evidence/``).
+The pinned ``research-discovery`` 1.5.0 fixtures for the ROR, ORCID, DataCite and CORDIS sources replay through the real
+source-pack runtime (fixture adapters compiled from the installed pack) with sockets blocked and the four
+``research-entities-*`` features selected. An organisation reaches its cited ROR records across two releases (a
+withdrawal with its successor), its CORDIS participation through reviewed identity with contributions per currency,
+its datasets and its Corporate Ownership match; a researcher reaches the ORCID-asserted works and employments of the
+record version in force at a date, linked to Scholarly literature papers by DOI; a paper reaches its datasets; a
+subject with no records is ``none_on_record``. Every organisation, researcher, dataset and project is fictional; the
+personal fields the RE01 minimisation decision excludes carry placeholders only in the native responses, which the
+parser discards. Nothing here is live evidence.
 """
 
 from __future__ import annotations
@@ -16,23 +19,29 @@ import socket
 import pytest
 
 from src.domains import registry as domain_registry
-from src.ingestion.research_entities_sources import EXCLUSIONS, LIVE_VERIFICATION
-from src.ingestion.source_pack_runtime import PROJECTORS
-from src.ingestion.source_packs import SourcePackConformance
-from src.kb.research_entities_identity import ResearchEntitiesIdentity
-from src.kb.research_entities_links import ResearchEntitiesLinks
-from src.kb.research_entities_monitoring import ResearchEntitiesMonitor
-from src.kb.research_entities_queries import ResearchEntitiesQueries
+from src.ingestion.research_entities_sources import EXCLUSIONS, FIXTURE_SECRET
+from src.ingestion.source_pack_runtime import SourcePackRuntime
+from src.ingestion.source_packs import SourcePackStore, validate_source_pack
+from src.kb.research_entities_identity import ResearchEntityIdentity
+from src.kb.research_entities_links import ResearchEntityLinks
+from src.kb.research_entities_monitoring import ResearchEntityMonitor
+from src.kb.research_entities_queries import ASSERTED, ResearchEntityQueries
 from src.kb.research_entities_records import (
-    FEATURES,
-    ResearchEntitiesError,
-    ResearchEntitiesProjector,
+    ResearchEntityError,
+    ResearchEntityStore,
     feature_enabled,
     forbidden_keys,
     readiness,
 )
+from src.kb.subscriptions import SubscriptionStore
 from tests.unit import research_entities_harness as h
 from tests.unit.composition.test_migration import _migrated
+
+PACK_ID = "research-discovery"
+FEATURES = ["research-entities-ror", "research-entities-orcid", "research-entities-datacite",
+            "research-entities-cordis"]
+PUBLIC_DNS = lambda _host: ["8.8.8.8"]
+EXCLUDED_WORDS = ("h-index", "h_index", "ranking", "citation count", "productivity score", "co-author affiliation")
 
 
 @pytest.fixture(autouse=True)
@@ -55,110 +64,147 @@ def isolated_registry():
     domain_registry.set_authority(saved[2])
 
 
-def test_organisation_and_researcher_to_cited_registry_records_works_datasets_and_projects():
-    conn, coordinator, bundles, _ = _migrated(h.connection())
-    coordinator.select("science", bundles["science"]["version"], features=sorted(FEATURES.values()))
-    assert coordinator.activate("research-entities-acceptance")["status"] == "published"
-    assert all(feature_enabled(conn, f) for f in FEATURES.values())
-    assert PROJECTORS["noesis-research-entity-record-v1"](conn).__class__ is ResearchEntitiesProjector
+class Env:
+    def __init__(self) -> None:
+        self.conn = h.connection()
+        self.clock = 4_102_444_800_000
+        _, coordinator, bundles, _ = _migrated(self.conn)
+        coordinator.select("science", bundles["science"]["version"], features=FEATURES)
+        coordinator.activate("research-entities-acceptance")
+        manifest = validate_source_pack(json.loads(h.PACK.read_text()))
+        SourcePackStore(self.conn).install(manifest, principal_id="operator", enable=True, now_ms=1)
+        runtime = self.runtime()
+        for item in manifest["sources"]:
+            runtime.accept_license(PACK_ID, item["source_id"], principal_id="operator")
 
-    # Pinned fixtures replay offline through the real adapter and match their recorded output hashes.
-    manifest = h.manifest()
-    ours = [s for s in manifest["sources"] if s["connector"] == "research-entities"]
-    replay = SourcePackConformance(h.ROOT).offline({**manifest, "sources": ours})
-    assert replay["valid"] and replay["coverage"]["verified"] == 4
+    def now(self) -> int:
+        self.clock += 1
+        return self.clock
 
-    # A monitor on the organisation from the start; first releases, then the later ones.
-    monitor = ResearchEntitiesMonitor(conn, now=lambda: h.SECOND_RETRIEVAL + 10)
-    watch = monitor.create(h.NS, "uni", watch={"ror": h.A1}, principal_id="alice", scopes=h.SCOPES)
-    h.load_all(conn)
-    first_notices = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"]
-    assert {n["kind"] for n in first_notices} == {"new_record", "new_dataset"}
-    for name in h.SOURCES:
-        h.apply(conn, name, later=True, retrieved_at_ms=h.SECOND_RETRIEVAL)
-    status = readiness(conn)
-    assert {p["live_verification"] for p in status["providers"].values()} == {"unverified-live"}
-    assert all(p["selected"] and p["records"] for p in status["providers"].values())
+    def runtime(self) -> SourcePackRuntime:
+        return SourcePackRuntime(self.conn, now=self.now, sleep=lambda _d: None)
 
-    # Reviewable identity: proposals only, a reviewer accepts, rejects and reverts; nothing merged.
-    h.seed_science_and_funding(conn)
-    own = h.seed_ownership(conn)
-    identity = ResearchEntitiesIdentity(conn)
-    proposed = identity.propose(h.NS, principal_id="analyst", scopes=h.SCOPES, ownership_namespace=h.OWN_NS)
-    assert {m["state"] for m in proposed["matches"]} == {"proposed"}
-    by = {(m["left"]["key"].rsplit(":", 1)[-1], m["right"]["key"]): m for m in proposed["matches"]}
-    uni_pic = by[("0re1ab101", "research-entities:pic:999999901")]
-    poly_pic = by[("0re1ab303", "research-entities:pic:999999902")]
-    uni_own = by[("0re1ab101", own["Universitaet Beispielstadt"])]
-    identity.review(h.NS, uni_pic["match_id"], "accept", "same website and country", principal_id="rev",
-                    scopes=h.SCOPES)
-    identity.review(h.NS, uni_own["match_id"], "accept", "ISNI agrees", principal_id="rev", scopes=h.SCOPES)
-    identity.review(h.NS, poly_pic["match_id"], "accept", "same website", principal_id="rev", scopes=h.SCOPES)
-    identity.revert(h.NS, poly_pic["match_id"], "polytechnic merged; reviewer withdraws", principal_id="rev",
-                    scopes=h.SCOPES)
-    unmatched = identity.unmatched(h.NS, scopes=h.SCOPES)
-    assert h.A2 in {o["ror_id"] for o in unmatched["organisations"]}
-    assert {"999999902", "999999903"} <= {p["pic"] for p in unmatched["participants"]}
-    links = ResearchEntitiesLinks(conn).build(h.NS, principal_id="analyst", scopes=h.SCOPES,
-                                              ownership_namespace=h.OWN_NS)
-    assert {v["target_status"] for v in links["missing"]} == {"target_missing"}
+    def run(self, source_ids, key, adapters=None) -> dict:
+        runtime = self.runtime()
+        fixtures = runtime.fixture_adapters(PACK_ID, h.ROOT)
+        return runtime.run(
+            {"pack_id": PACK_ID, "run_key": key, "operation": "selection", "source_ids": list(source_ids),
+             "max_results": 5000, "max_bytes": 100_000_000, "timeout_ms": 120_000},
+            principal_id="operator", adapters={s: (adapters or {}).get(s) or fixtures[s] for s in source_ids},
+            dns_resolver=PUBLIC_DNS, secret_resolver=lambda _ref: FIXTURE_SECRET)
 
-    queries = ResearchEntitiesQueries(conn)
-    # Organisation: the ROR record of the release in force, lineage, projects, datasets, ownership, all cited.
-    uni = queries.organisation(h.NS, h.A1, scopes=h.READ_ONLY, as_of="2099-07-01")
-    assert uni["status"] == "answered" and uni["record_revision"]["revision_marker"] == "v9.2-2099-03-15"
-    assert ("predecessor", h.M1) in {(r["type"], r["id"]) for r in uni["organisation"]["relationships"]}
-    assert uni["lineage"][0]["to_record"]["status"] == "inactive"
-    assert [p["project"]["project_id"] for p in uni["projects"]] == ["101999001"]
-    assert uni["contributions_by_currency"]["ec_contribution"] == {"EUR": "2050000"}
-    assert {d["doi"] for d in uni["datasets"]} == {"10.9999/rent.data1", "10.9999/rent.data3"}
-    assert uni["ownership_links"][0]["basis"]["method"] == "accepted-match"
-    assert all({"provider", "revision", "revision_marker", "as_of", "release_id"} <= set(c)
-               for c in uni["citations"])
-    earlier = queries.organisation(h.NS, h.A1, scopes=h.READ_ONLY, as_of="2099-02-01")
-    assert earlier["record_revision"]["revision_marker"] == "v9.1-2099-01-15" and earlier["lineage"] == []
-    assert earlier["contributions_by_currency"]["ec_contribution"] == {"EUR": "2000000"}
-    # The reverted participant match is not used: the polytechnic's project stays with no organisation.
-    poly = queries.organisation(h.NS, h.M1, scopes=h.READ_ONLY)
-    assert poly["projects"] == [] and poly["identity"]["status"] == "candidates_pending"
 
-    # Researcher: asserted works and employments of the version in force, minimised, cited.
-    with pytest.raises(ResearchEntitiesError):
-        queries.researcher(h.NS, h.R1, scopes=h.READ_ONLY)
-    ada = queries.researcher(h.NS, h.R1, scopes=h.SCOPES, as_of="2099-03-01")
-    assert ada["record_revision"]["revision"] == 1 and {p["target_status"] for p in ada["linked_papers"]} == {
-        "resolved"}
-    assert {w["assertion"] for w in ada["researcher"]["works"]} == {"orcid-asserted"}
-    text = json.dumps(ada)
-    assert "ada@example.invalid" not in text and "fictional biography" not in text and "Scopus" not in text
-    latest = queries.researcher(h.NS, h.R1, scopes=h.SCOPES)
-    assert latest["record_revision"]["revision"] == 2
-    assert "10.9999/rent.paper3" in {i["value"] for w in latest["researcher"]["works"] for i in w["identifiers"]}
-    missing_paper = next(p for p in latest["linked_papers"] if p["doi"] == "10.9999/rent.paper3")
-    assert missing_paper["target_status"] == "target_missing"
-    ben = queries.researcher(h.NS, h.R2, scopes=h.SCOPES)
-    assert ben["status"] == "removed" and ben["researcher"] is None
-    # Datasets related to a paper, with relation types as published.
-    related = queries.datasets_for_paper(h.NS, "10.9999/rent.paper1", scopes=h.READ_ONLY)
-    assert {d["doi"] for d in related["datasets"]} == {"10.9999/rent.data1", "10.9999/rent.data3"}
-    history = queries.record_history(h.NS, "organisation", h.M1, scopes=h.READ_ONLY)
-    assert [r["status"] for r in history["revisions"]] == ["active", "inactive"]
+def personal_data_anywhere(conn) -> list[str]:
+    """Every text column of every table that still holds a placeholder personal value (RE01)."""
+    found = []
+    columns = conn.execute("SELECT table_name, column_name FROM information_schema.columns WHERE data_type IN "
+                           "('VARCHAR', 'JSON')").fetchall()
+    for table, column in columns:
+        for needle in h.PERSONAL:
+            hit = conn.execute(f'SELECT count(*) FROM "{table}" WHERE "{column}" LIKE ?', [f"%{needle}%"]).fetchone()
+            if hit[0]:
+                found.append(f"{table}.{column}: {needle}")
+    return found
 
-    # A subject with no records.
-    assert queries.researcher(h.NS, h.R3, scopes=h.SCOPES)["status"] == "none_on_record"
-    assert queries.organisation(h.NS, "https://ror.org/0zzzzzz99", scopes=h.READ_ONLY)["status"] == "none_on_record"
 
-    # Evidence bundle, exclusions and minimisation.
-    bundle = queries.export_bundle(uni, created_at_ms=1)
-    assert bundle["completeness"]["status"] == "complete" and len(bundle["roots"]) == 1
-    for answer in (uni, ada, related, history):
-        assert forbidden_keys(answer) == [] and list(EXCLUSIONS) == answer["exclusions"]
-    assert all(v["status"] == "unverified-live" for v in LIVE_VERIFICATION.values())
+def test_organisation_and_researcher_to_cited_registry_records_asserted_works_datasets_and_projects():
+    env = Env()
+    assert all(feature_enabled(env.conn, feature) for feature in FEATURES)
+    first = env.run(h.SOURCES, "research-entities")
+    assert first["status"] == "complete", first
+    store = ResearchEntityStore(env.conn)
+    assert len(store.records(h.NS, scopes=h.SCOPES)) == 12  # 5 organisations, 3 researchers, 2 datasets, 2 projects
+    receipts = store.receipts(h.NS, scopes=h.SCOPES)
+    assert {r["source_id"] for r in receipts} == set(h.SOURCES)
+    assert all(r["receipt"]["evidence_origin"] == "fixture" for r in receipts)
+    assert personal_data_anywhere(env.conn) == []  # RE01: nothing excluded reached documents, records or receipts
+    report = readiness(env.conn)
+    assert {p["live_verification"] for p in report["providers"].values()} == {"unverified-live",
+                                                                              "documented-not-acquired"}
+    h.load_ownership(env.conn)
+    h.seed_papers(env.conn)
+    h.seed_funding(env.conn)
 
-    # The monitor reports the later release, and a restart replays nothing.
-    later = monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"]
-    assert {n["kind"] for n in later} == {"registry_change", "new_project"}
+    # --- revision history: two ROR releases, withdrawal kept with its successor ------------------------------
+    history = store.history(h.NS, "research-entities:ror:0zznwd303", scopes=h.SCOPES)
+    assert [(v["native_revision"], v["status"]) for v in history] == [("release:v9.1", "active"),
+                                                                      ("release:v9.2", "withdrawn")]
+
+    # --- reviewable identity: identifiers proposed, reviewed; names stay low evidence --------------------------
+    identity = ResearchEntityIdentity(env.conn, now=env.now)
+    proposed = identity.propose(h.NS, principal_id="alice", scopes=h.SCOPES, ownership_namespace=h.OWN_NS)
+    assert {c["state"] for c in proposed["candidates"]} == {"proposed"}
+    assert not [c for c in proposed["candidates"] if "orcid" in c["subject_key"] + c["target_key"]]
+    for candidate in proposed["candidates"]:
+        decision = "reject" if candidate["low_evidence"] else "accept"
+        identity.review(h.NS, candidate["candidate_id"], decision, "fixture review", principal_id="reviewer",
+                        scopes=h.REVIEW_SCOPES)
+    assert "research-entities:ror:0zzexa505" in {u["key"] for u in identity.unmatched(h.NS, scopes=h.SCOPES)}
+
+    # --- cross-pack links by citation, shared identifier and accepted match ----------------------------------
+    linked = ResearchEntityLinks(env.conn, now=env.now).link(h.NS, principal_id="alice", scopes=h.SCOPES,
+                                                             ownership_namespace=h.OWN_NS)
+    assert linked["providers"] == {"literature": "present", "funding": "present", "ownership": "present",
+                                   "researchers": "linked"}
+    kinds = {link["kind"] for link in linked["links"] if link["status"] == "resolved"}
+    assert {"researcher-asserted-work", "dataset-related-work", "dataset-funded-by-project", "project-funding-record",
+            "organisation-ownership-entity", "participant-organisation"} <= kinds
+    assert any(link["status"] == "target_missing" for link in linked["links"])  # reported, not dropped
+
+    ask = ResearchEntityQueries(env.conn)
+
+    # --- organisation -> lineage per release, projects, datasets, ownership, each version cited --------------
+    april = ask.organisation(h.NS, h.NORTHWIND_POLY, scopes=h.SCOPES, as_of="2099-04-01")
+    july = ask.organisation(h.NS, h.NORTHWIND_POLY, scopes=h.SCOPES, as_of="2099-07-01")
+    assert april["record_status"] == "active" and july["record_status"] == "withdrawn"
+    assert july["lineage"]["successors"][0]["ror_id"] == h.NORTHWIND_TECH
+    exampla = ask.organisation(h.NS, h.EXAMPLA, scopes=h.SCOPES, as_of="2099-07-01")
+    assert [(p["project_id"], p["participant"]["role"]) for p in exampla["projects"]] == [
+        (h.EXAMPLAR, "coordinator"), (h.NORTHWAVE, "participant")]
+    assert exampla["contribution_totals"]["currencies"] == ["EUR"]
+    assert [d["doi"] for d in exampla["datasets"]] == [h.DS1, h.DS2]  # DS2 names NORTHWAVE, where Exampla participates
+    assert exampla["ownership"][0]["target_key"] == "lei:5299EXAMPLAUNIV00001"
+    bundle = ask.evidence_bundle(exampla)
+    assert {exampla["citation"]["revision_id"]} | {p["citation"]["revision_id"] for p in exampla["projects"]} <= {
+        b["id"] for b in bundle["bibliography"]}
+
+    # --- researcher -> ORCID-asserted works and employments of the version in force ----------------------------
+    researcher = ask.researcher(h.NS, h.ADA, scopes=h.SCOPES, as_of="2099-03-01")
+    assert researcher["record_version"]["last_modified"] == "2099-02-14T09:00:00+00:00"
+    assert {w["assertion"] for w in researcher["works"]} == {ASSERTED}
+    paper = next(w for w in researcher["works"] if w["put_code"] == 2201)
+    assert paper["linked_records"][0]["target_key"] == "doc:exampla-paper-1"
+    with pytest.raises(ResearchEntityError):
+        ask.researcher(h.NS, h.ADA, scopes=h.NO_RESEARCHERS)
+    assert ask.researcher(h.NS, h.BO, scopes=h.SCOPES)["record_status"] == "active"
+    revised = env.run([h.ORCID_SOURCE], "research-entities-orcid-v2",
+                      adapters={h.ORCID_SOURCE: h.adapter(h.ORCID_SOURCE, "v2")})
+    assert revised["status"] == "complete"
+    assert ask.researcher(h.NS, h.BO, scopes=h.SCOPES)["record_status"] == "deactivated"  # a removal is a revision
+    assert ask.researcher(h.NS, h.BO, scopes=h.SCOPES, as_of="2099-03-10")["record_status"] == "active"
+    later = ask.researcher(h.NS, h.ADA, scopes=h.SCOPES, as_of="2099-06-01")
+    assert [w["external_ids"][0]["value"] for w in later["works"]][-1] == h.PAPER2
+
+    # --- paper -> datasets; a subject with no records -----------------------------------------------------------
+    assert [d["doi"] for d in ask.datasets_for_paper(h.NS, h.PAPER1, scopes=h.SCOPES)["datasets"]] == [h.DS1, h.DS2]
+    assert ask.organisation(h.NS, "https://ror.org/0zzqqq111", scopes=h.SCOPES)["status"] == "none_on_record"
+    assert ask.researcher(h.NS, "0000-0009-9999-0046", scopes=h.SCOPES)["status"] == "none_on_record"
+
+    # --- exclusions and minimisation ---------------------------------------------------------------------------
+    answers = [exampla, july, researcher]
+    text = json.dumps([{k: v for k, v in a.items() if k != "exclusions"} for a in answers]).lower()
+    assert not [w for w in EXCLUDED_WORDS if w in text] and not any(forbidden_keys(a) for a in answers)
+    assert set(exampla["exclusions"]) == set(EXCLUSIONS)
+    assert not [p for p in h.PERSONAL if p in json.dumps(answers)]
+
+    # --- monitor: a re-run of the same fixtures changes nothing; idempotent re-acquisition ---------------------
+    monitor = ResearchEntityMonitor(env.conn, now=env.now)
+    watch = monitor.create(h.NS, "exampla", watch="organisation", key=h.EXAMPLA, principal_id="alice",
+                           scopes=h.SCOPES)
+    SubscriptionStore(env.conn).commit_watermark(h.NS, 1)
+    assert monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"]
+    again = env.run(h.SOURCES, "research-entities-again")
+    assert again["status"] == "complete"
+    assert len(store.history(h.NS, "research-entities:ror:0zzexa101", scopes=h.SCOPES)) == 2
+    SubscriptionStore(env.conn).commit_watermark(h.NS, 2)
     assert monitor.run(watch["subscription_id"], principal_id="alice", scopes=h.SCOPES)["notifications"] == []
-    for name in h.SOURCES:
-        assert {r["status"] for r in h.apply(conn, name, later=True, retrieved_at_ms=h.SECOND_RETRIEVAL + 1)} == {
-            "unchanged"}

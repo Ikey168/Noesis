@@ -1,304 +1,219 @@
-"""Income, poverty and inequality answers: a place's indicator as of a release, a series' history (#2583, IP08-IP09).
+"""Answers: an income or poverty indicator for a place as of a release, and a series' history (IP08, IP09).
 
-:meth:`IncomeQueries.indicator_for_place` takes a place (a Geospatial place id, resolved through accepted IP06
-mappings only, or a published ``{scheme, code}``), an optional indicator concept and a date, and returns every
-source's series for that place with the vintage each source had released by the date, side by side. Series are
-grouped by the definition that makes values comparable - concept, welfare concept, equivalence scale, poverty line,
-PPP base year and reference-year basis - and values in different groups are never combined: a 2.15 PPP$ headcount,
-an EU-SILC at-risk-of-poverty rate and an OECD 50 %-of-median poverty rate stay three answers. Every value cites the
-vintage (release and retrieval clocks, release version, file digest) and the definition revision.
+Delivery issues #2623 and #2628.
 
-:meth:`IncomeQueries.history` lists a series' vintages with release dates, the periods each added, revised or
-removed, PPP revisions and source-stated breaks; each consecutive pair states its comparability notes or is marked
-``comparability_unknown``. :meth:`IncomeQueries.export_bundle` renders an answer as a ``noesis-evidence-bundle-v1``
-citing every value with source, record revision and as-of time.
+:meth:`IncomeQueries.indicator_for_place` takes a place (a Geospatial place id, read through accepted IP06 matches
+only, or a published area code), an indicator concept and a date, and returns **one row per series**: each source's
+value as released by that date (the vintage whose release clock is on or before the date), with its definition,
+poverty line and PPP base year, welfare concept, equivalence scale and the cited vintage. Rows are grouped by the
+fields that make figures incomparable (source, welfare concept, equivalence scale, poverty line, PPP round,
+income definition, methodology) and are **never combined**: there is no average, no blended series and no
+re-harmonised figure. Series released only after the date are listed as ``unavailable_by_as_of``; a source with no
+series for the place is listed under ``none_on_record``.
 
-Nothing is nowcast, filled, re-based to another PPP round, converted between income and consumption or averaged.
+:meth:`IncomeQueries.series_history` returns every vintage of one series with its release date and label, the
+periods each release added, revised or dropped (values before and after as published), PPP revisions, definition
+changes and removals by the source, and for each consecutive pair the comparability notes that apply (PPP revision,
+definition change, source-stated breaks, recorded notes). A pair without any note is ``comparability_unknown``.
+Every vintage is cited.
 """
 
 from __future__ import annotations
 
-from collections.abc import Iterable, Mapping
-from itertools import pairwise
+import time
+from collections.abc import Callable, Iterable, Mapping
 from typing import Any
 
 from src.ingestion.income_distribution_sources import (
     CONCEPTS,
-    EXCLUSIONS,
-    MINIMISATION,
-    PROVIDER_CONTRACTS,
+    NEVER_SENTENCE,
+    PROVIDERS,
 )
 from src.kb.income_distribution_records import (
     ANSWER_CONTRACT,
+    EXCLUSIONS,
+    MINIMISATION,
     READ_SCOPE,
     IncomeError,
     authorize,
-    canonical,
-    digest,
-    iso_from_ms,
-    minimised,
-    table_exists,
+    iso,
+    to_ms,
 )
-from src.kb.income_distribution_store import (
-    IncomeComparability,
-    IncomeStore,
-    comparability_basis,
-)
+from src.kb.income_distribution_store import IncomeDistributionStore, citation
 
-NOTE = ("each source's published values side by side; different poverty lines, PPP rounds, welfare concepts and "
-        "equivalence scales are separate groups and are never combined; no year is filled or nowcast")
+HISTORY_CONTRACT = "noesis-income-distribution-history-v1"
+GROUP_FIELDS = ("provider", "welfare_concept", "equivalence_scale", "poverty_line", "ppp_base_year",
+                "income_definition", "methodology")
 
 
-def comparable_group(series: Mapping[str, Any]) -> dict[str, Any]:
-    """The definition attributes values must share to sit in one group (sources still stay separate rows)."""
-    return {"concept": series["indicator"]["concept"], "welfare_concept": series["welfare_concept"],
-            "equivalence_scale": series["equivalence_scale"].get("code"), "poverty_line": series["poverty_line"],
-            "ppp_base_year": series["ppp_base_year"], "reference_year_basis": series["reference_year_basis"],
-            "unit": series["unit"].get("code")}
+def cutoff_ms(as_of: Any) -> int | None:
+    """A date means the end of that day (released *by* the date); a time is used as given."""
+    if as_of in (None, ""):
+        return None
+    if isinstance(as_of, (int, float)):
+        return int(as_of)
+    text = str(as_of).strip()
+    return to_ms(text) + 86_399_999 if len(text) == 10 else to_ms(text)
+
+
+def comparability_group(key: Mapping[str, Any]) -> str:
+    line = key.get("poverty_line") or {}
+    parts = [str(key.get("provider")), str(key.get("welfare_concept")), str(key.get("equivalence_scale")),
+             f"line={line.get('basis')}:{line.get('amount')}" if line else "line=none",
+             f"ppp={key.get('ppp_base_year')}", f"income={key.get('income_definition')}",
+             f"method={key.get('methodology')}"]
+    return " | ".join(parts)
 
 
 class IncomeQueries:
-    def __init__(self, conn: Any, *, now=None) -> None:
+    def __init__(self, conn: Any, *, now: Callable[[], int] | None = None) -> None:
         self.conn = conn
-        self.store = IncomeStore(conn, initialize=False, now=now)
+        self.now = now or (lambda: int(time.time() * 1000))
+        self.store = IncomeDistributionStore(conn, initialize=False, now=self.now)
 
     def _identity(self):
         from src.kb.income_distribution_identity import IncomeIdentity
 
-        return IncomeIdentity(self.conn, initialize=False, now=self.store.now) if table_exists(
-            self.conn, "income_identity_assertions") else None
+        return IncomeIdentity(self.conn, initialize=False, now=self.now)
 
-    def _place_codes(self, namespace: str, place: Any) -> dict[str, Any]:
-        """Area codes of a place: accepted mappings for a place id, else the published code as given."""
-        if isinstance(place, Mapping):
-            if not place.get("scheme") or not place.get("code"):
-                raise IncomeError("invalid_query", "a place code states its scheme and code")
-            return {"place": dict(place), "codes": [{"scheme": place["scheme"], "code": str(place["code"]),
-                                                    "basis": "published code as requested"}], "unmatched_codes": []}
+    def _area_codes(self, namespace: str, place_id: str | None, area: Mapping[str, Any] | None
+                    ) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         identity = self._identity()
-        if identity is None:
-            return {"place": {"place_id": place}, "codes": [], "unmatched_codes": []}
-        codes = [{**c, "basis": "accepted place mapping"} for c in identity.area_codes_for_place(namespace, place)]
-        pending = [{"scheme": a["subject"]["scheme"], "code": a["subject"]["code"], "state": a["state"],
-                    "reason": a["reason"]}
-                   for a in identity.assertions(namespace, scopes={"operator"}, kind="area")
-                   if a["state"] in {"proposed", "ambiguous"} and (
-                       (a["target"] or {}).get("place_id") == place
-                       or any(c["place_id"] == place for c in a["evidence"].get("candidates") or []))]
-        return {"place": {"place_id": place}, "codes": codes, "unmatched_codes": pending}
+        if place_id:
+            codes = [{**c, "basis": "accepted-match"} for c in identity.areas_for_place(namespace, place_id)]
+            return codes, {"place_id": place_id}
+        if not area or not area.get("scheme") or not area.get("code"):
+            raise IncomeError("invalid_request", "name a place_id or an area with scheme and code")
+        codes = [{"scheme": area["scheme"], "code": str(area["code"]), "basis": "published-code"}]
+        accepted = identity.place_for_area(namespace, area["scheme"], str(area["code"]))
+        if accepted:
+            for other in identity.areas_for_place(namespace, accepted["place_id"]):
+                if (other["scheme"], other["code"]) != (area["scheme"], str(area["code"])):
+                    codes.append({**other, "basis": "accepted-match"})
+        return codes, {"area": dict(area), "place_id": accepted["place_id"] if accepted else None}
 
-    def _citation(self, namespace: str, series: Mapping[str, Any], vintage: Mapping[str, Any],
-                  revision: Mapping[str, Any], as_of_ms: int | None) -> dict[str, Any]:
-        return {"provider": series["provider"], "source_id": revision["source_id"], "series_id": series["series_id"],
-                "series_key": series["native_key"], "vintage_id": vintage["vintage_id"],
-                "definition_id": vintage["definition_id"], "release_at": vintage["release_at"],
-                "release_basis": vintage["release_at_basis"], "release_version": vintage["release_version"],
-                "retrieved_at": vintage["retrieved_at"], "file_sha256": revision["file_sha256"], "url": revision["url"],
-                "evidence_origin": revision["evidence_origin"], "live_verification": revision["live_verification"],
-                "as_of": iso_from_ms(as_of_ms) or "latest"}
-
-    def indicator_for_place(self, namespace: str, *, scopes: Iterable[str], place: Any, concept: str | None = None,
-                            provider: str | None = None, as_of_ms: int | None = None, period_from: str | None = None,
-                            period_to: str | None = None, history: bool = False) -> dict[str, Any]:
-        """Published values known at ``as_of_ms`` per source with definitions, vintages and comparability."""
+    def indicator_for_place(self, namespace: str, *, scopes: Iterable[str], concept: str, as_of: Any = None,
+                            place_id: str | None = None, area: Mapping[str, Any] | None = None,
+                            reference_year: str | None = None, providers: Iterable[str] | None = None,
+                            enabled_providers: Iterable[str] | None = None) -> dict[str, Any]:
+        """Each source's figure for a place as released by a date, side by side with definitions; never combined."""
         scopes = set(scopes)
         authorize(namespace, scopes, READ_SCOPE)
-        if place is None:
-            raise IncomeError("invalid_query", "name a place (place id or {scheme, code})")
-        if concept is not None and concept not in CONCEPTS:
-            raise IncomeError("invalid_query", f"concept is one of {CONCEPTS}")
-        if provider is not None and provider not in PROVIDER_CONTRACTS:
-            raise IncomeError("invalid_query", f"provider is one of {sorted(PROVIDER_CONTRACTS)}")
-        places = self._place_codes(namespace, place)
-        areas = [(c["scheme"], c["code"]) for c in places["codes"]]
-        comparability = IncomeComparability(self.conn, now=self.store.now, initialize=False) if table_exists(
-            self.conn, "income_comparability") else None
+        if concept not in CONCEPTS:
+            raise IncomeError("invalid_request", f"concept is one of {CONCEPTS}")
+        cutoff = cutoff_ms(as_of)
+        codes, subject = self._area_codes(namespace, place_id, area)
+        wanted = set(providers or PROVIDERS)
+        enabled = set(enabled_providers if enabled_providers is not None else PROVIDERS)
+        series = self.store.find_series(namespace, concept=concept,
+                                        area_codes=[(c["scheme"], c["code"]) for c in codes]) if codes else []
+        bases = {(c["scheme"], c["code"]): c["basis"] for c in codes}
         identity = self._identity()
-        results, unavailable = [], []
-        for series in (self.store.find_series(namespace, provider=provider, concept=concept, areas=areas)
-                       if areas else []):
-            vintage, reason = self.store.select_vintage(namespace, series["series_id"], as_of_ms=as_of_ms)
-            if vintage is None:
-                unavailable.append({"series_id": series["series_id"], "provider": series["provider"],
-                                    "native_key": series["native_key"], "reason": reason})
+        rows, unavailable, groups = [], [], {}
+        for item in series:
+            if item["provider"] not in wanted or item["provider"] not in enabled:
                 continue
-            if vintage["status"] == "withdrawn":
-                unavailable.append({"series_id": series["series_id"], "provider": series["provider"],
-                                    "native_key": series["native_key"], "reason": "withdrawn_by_source",
-                                    "vintage_id": vintage["vintage_id"], "release_at": vintage["release_at"]})
+            answer = self.store.values(namespace, item["series_id"], as_of_ms=cutoff)
+            if answer["status"] == "unavailable":
+                first = self.store.vintage_rows(namespace, item["series_id"])
+                unavailable.append({"series_id": item["series_id"], "provider": item["provider"],
+                                    "reason": answer["reason"],
+                                    "first_release_at": first[0]["release_at"] if first else None})
                 continue
-            revision = self.store.source_revision(namespace, vintage["release_id"])
-            cite = self._citation(namespace, series, vintage, revision, as_of_ms)
-            observations = self.store.observations(namespace, vintage["vintage_id"], period_from=period_from,
-                                                   period_to=period_to)
-            results.append({
-                "series_id": series["series_id"], "provider": series["provider"], "native_key": series["native_key"],
-                "indicator": series["indicator"], "welfare_concept": series["welfare_concept"],
-                "equivalence_scale": series["equivalence_scale"], "poverty_line": series["poverty_line"],
-                "ppp_base_year": series["ppp_base_year"], "reference_year_basis": series["reference_year_basis"],
-                "survey": series["survey"], "coverage": series["coverage"],
-                "methodology_version": series["methodology_version"], "unit": series["unit"],
-                "unit_multiplier": series["unit_multiplier"], "area": series["area"],
-                "group": digest(comparable_group(series))[:16],
-                "definition": self.store.definition(namespace, vintage["definition_id"]),
-                "vintage": {**vintage, "source_revision": revision},
-                "values": [{**o, "citation": cite} for o in observations],
-                "withheld_periods": [{"period": o["period"], "status": o["status"], "flags": o["flags"]}
-                                     for o in observations if o["status"] != "reported"],
-                "source_notes": [] if comparability is None else [
-                    {k: n[k] for k in ("relation", "statement", "periods", "state")}
-                    for n in comparability.notes(namespace, scopes={"operator"}, series_id=series["series_id"],
-                                                 active_only=True) if n["right"] is None],
-                "related_series": [] if identity is None else identity.related_series(namespace, series["series_id"]),
-                **({"revision_history": [
-                    {k: v[k] for k in ("vintage_id", "release_at", "release_at_basis", "release_version",
-                                       "retrieved_at", "revision_of", "status", "changes")}
-                    for v in self.store.vintage_rows(namespace, series["series_id"])
-                    if as_of_ms is None or v["release_at_ms"] <= as_of_ms]} if history else {}),
+            observations = answer["observations"]
+            if reference_year:
+                observations = [o for o in observations if o["period"] == str(reference_year)]
+            group = comparability_group(item["key"])
+            groups.setdefault(group, []).append(item["series_id"])
+            rows.append({
+                "series_id": item["series_id"], "provider": item["provider"], "native_key": item["native_key"],
+                "indicator": item["indicator"], "area": item["area"],
+                "area_basis": bases.get((item["area"]["scheme"], str(item["area"]["code"]))),
+                "welfare_concept": item["key"]["welfare_concept"],
+                "equivalence_scale": item["key"]["equivalence_scale"],
+                "poverty_line": item["key"]["poverty_line"], "ppp_base_year": item["key"]["ppp_base_year"],
+                "survey": item["key"]["survey"], "income_definition": item["key"]["income_definition"],
+                "methodology": item["key"]["methodology"], "coverage": item["key"]["coverage"],
+                "unit": item["unit"], "comparability_group": group, "status": answer["status"],
+                "definition": answer.get("definition"), "observations": observations,
+                "vintage": {k: answer["vintage"][k] for k in ("vintage_id", "release_label", "release_at",
+                                                             "retrieved_at", "ppp", "dataflow_version", "status")},
+                "citation": answer["citation"],
+                "comparability_notes": self.store.notes(namespace, item["series_id"]),
+                "related_series": [a["subject"]["series_ids"] for a in identity.related(namespace, item["series_id"])],
             })
-        groups: dict[str, dict[str, Any]] = {}
-        for result in results:
-            entry = groups.setdefault(result["group"], {"group": result["group"], "definition": comparable_group({
-                **result, "indicator": result["indicator"]}), "series": []})
-            entry["series"].append({"series_id": result["series_id"], "provider": result["provider"]})
-        pairs = []
-        for i, left in enumerate(results):
-            for right in results[i + 1:]:
-                if left["indicator"]["concept"] != right["indicator"]["concept"]:
-                    continue
-                differences = comparability_basis(left, right)
-                notes = [] if comparability is None else comparability.notes_between(
-                    namespace, left["series_id"], right["series_id"])
-                pairs.append({"series": [left["series_id"], right["series_id"]],
-                              "same_group": left["group"] == right["group"], "recorded_differences": differences,
-                              "notes": notes, "status": "noted" if notes or differences else "comparability_unknown",
-                              "combined": False})
-        answer = {
-            "contract": ANSWER_CONTRACT,
-            "namespace": namespace,
-            "as_of": iso_from_ms(as_of_ms) or "latest",
-            "as_of_ms": as_of_ms,
-            "subject": {"place": places, "concept": concept, "provider": provider},
-            "status": "reported" if results else "none_published",
-            "results": results,
-            "groups": sorted(groups.values(), key=lambda g: canonical(g["definition"])),
-            "unavailable_by_as_of": unavailable,
-            "comparability": pairs,
-            "side_by_side": True,
-            "exclusions": list(EXCLUSIONS),
+        rows.sort(key=lambda r: (r["provider"], r["comparability_group"], r["native_key"]))
+        present = {r["provider"] for r in rows} | {u["provider"] for u in unavailable}
+        none_on_record = [{"provider": p, "concept": concept, "codes": [(c["scheme"], c["code"]) for c in codes]}
+                          for p in sorted(wanted & enabled) if p not in present]
+        disabled = sorted(wanted - enabled)
+        return {
+            "contract": ANSWER_CONTRACT, "namespace": namespace, "query": {**subject, "concept": concept,
+                                                                          "as_of": as_of,
+                                                                          "reference_year": reference_year},
+            "as_of": iso(cutoff) if cutoff is not None else None, "area_codes": codes, "results": rows,
+            "comparability_groups": groups, "unavailable_by_as_of": unavailable, "none_on_record": none_on_record,
+            "features_disabled": [{"provider": p, "reason": "optional feature not selected"} for p in disabled],
+            "combined_value": None,
+            "never_combined": "rows with different sources, poverty lines, PPP rounds, welfare concepts, equivalence "
+                              "scales or methodologies are separate series and are never combined",
+            "unmatched_place": not codes, "statement": NEVER_SENTENCE, "exclusions": list(EXCLUSIONS),
             "minimisation": MINIMISATION["decision"],
-            "note": NOTE,
         }
-        if not results:
-            answer["reason"] = ("no accepted place mapping or published code for this place" if not areas else
-                                "no source has published a series for this place and indicator by the date")
-        return minimised(answer)
 
-    def history(self, namespace: str, series_id: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        """Every vintage with release dates, changed periods, PPP revisions and breaks, and pairwise comparability."""
-        authorize(namespace, set(scopes), READ_SCOPE)
+    def series_history(self, namespace: str, series_id: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        """Every vintage of a series, what each release changed, and comparability per consecutive pair."""
+        authorize(namespace, scopes, READ_SCOPE)
         series = self.store.series(namespace, series_id)
-        comparability = IncomeComparability(self.conn, now=self.store.now, initialize=False) if table_exists(
-            self.conn, "income_comparability") else None
-        notes = [] if comparability is None else comparability.notes(namespace, scopes={"operator"},
-                                                                     series_id=series_id, active_only=True)
+        notes = self.store.notes(namespace, series_id)
         vintages, pairs = [], []
-        rows = self.store.vintage_rows(namespace, series_id)
-        for vintage in rows:
-            revision = self.store.source_revision(namespace, vintage["release_id"])
+        previous = None
+        for vintage in self.store.vintage_rows(namespace, series_id):
+            release = self.store.release(namespace, vintage["release_id"])
             changes = vintage["changes"]
-            vintages.append({
-                **vintage, "source_revision": revision,
-                "citation": self._citation(namespace, series, vintage, revision, None),
-                "changed_periods": {"new": changes.get("new_periods") or [],
-                                    "revised": [r["period"] for r in changes.get("revised") or []],
-                                    "removed": changes.get("removed_periods") or []},
-                "observations": self.store.observations(namespace, vintage["vintage_id"]),
-            })
-        for before, after in pairwise(rows):
-            changes = after["changes"]
-            changed = set(changes.get("new_periods") or []) | {r["period"] for r in changes.get("revised") or []}
-            stated = []
-            if changes.get("ppp_revision"):
-                stated.append({"relation": "ppp_revision", "statement": "; ".join(changes["ppp_revision_basis"]),
-                               "periods": changes.get("restated_periods") or [], "origin": "release record"})
-            if changes.get("definition_change"):
-                stated.append({"relation": "different_methodology", "statement":
-                               f"definition {changes['definition']['before']} -> {changes['definition']['after']}; "
-                               f"release version {changes['release_version']['before']} -> "
-                               f"{changes['release_version']['after']}", "periods": [], "origin": "release record"})
-            if changes.get("withdrawn"):
-                stated.append({"relation": "source_note", "statement": "the source no longer states this series",
-                               "periods": changes.get("removed_periods") or [], "origin": "release record"})
-            for note in notes:
-                if note["right"] is None and (not note["periods"] or set(note["periods"]) & changed):
-                    stated.append({k: note[k] for k in ("relation", "statement", "periods", "origin", "state")})
-            pairs.append({"vintages": [before["vintage_id"], after["vintage_id"]],
-                          "release_dates": [before["release_at"], after["release_at"]],
-                          "notes": stated, "status": "noted" if stated else "comparability_unknown"})
-        return minimised({
-            "contract": ANSWER_CONTRACT, "series": series, "vintages": vintages, "comparability": pairs,
-            "source_notes": [{k: n[k] for k in ("relation", "statement", "periods", "state", "origin")}
-                             for n in notes],
-            "exclusions": list(EXCLUSIONS),
-            "note": "every retained vintage; earlier values are never overwritten; a PPP revision is its own vintage",
-        })
+            entry = {
+                "vintage_id": vintage["vintage_id"], "sequence": vintage["sequence"], "status": vintage["status"],
+                "release_label": vintage["release_label"], "release_at": vintage["release_at"],
+                "release_basis": vintage["release_basis"], "retrieved_at": vintage["retrieved_at"],
+                "ppp": vintage["ppp"], "dataflow_version": vintage["dataflow_version"],
+                "definition_id": vintage["definition_id"], "new_periods": changes.get("new_periods", []),
+                "changed_periods": [r["period"] for r in changes.get("revised", [])],
+                "revisions": changes.get("revised", []), "dropped_periods": changes.get("dropped_periods", []),
+                "ppp_revision": changes.get("ppp_revision"), "definition_change": changes.get("definition_change"),
+                "removed_by_source": changes.get("removed_by_source"),
+                "citation": citation(series, vintage, release),
+            }
+            vintages.append(entry)
+            if previous is not None:
+                pairs.append(self._pair(previous, entry, notes))
+            previous = entry
+        return {"contract": HISTORY_CONTRACT, "namespace": namespace, "series": series, "vintages": vintages,
+                "pairs": pairs, "series_notes": notes, "statement": NEVER_SENTENCE, "exclusions": list(EXCLUSIONS)}
 
     @staticmethod
-    def export_bundle(answer: Mapping[str, Any], *, created_at_ms: int | None = None) -> dict[str, Any]:
-        """A ``noesis-evidence-bundle-v1`` citing every value with source, record revision and as-of time."""
-        from src.evidence_bundle.builder import EvidenceBundleBuilder
-
-        builder = EvidenceBundleBuilder("answer", {"operation": "income-indicator-for-place",
-                                                   "subject": answer["subject"], "as_of": answer["as_of"]},
-                                        created_at_ms=created_at_ms, as_of_ms=answer.get("as_of_ms"))
-        refs, statements = [], []
-        for result in answer["results"]:
-            label = f"{result['provider']} {result['indicator']['concept']} {result['area']['code']}"
-            result_refs = []
-            for value in result["values"]:
-                citation = value["citation"]
-                object_id = f"income-value:{result['series_id']}:{value['period']}@{citation['vintage_id']}"
-                builder.add_object("evidence", {
-                    "kind": "income-value",
-                    "locator": {"cited": True, "document_id": result["vintage"]["release_id"],
-                                "series_id": result["series_id"], "period": value["period"]},
-                    "provider": result["provider"], "indicator": result["indicator"],
-                    "welfare_concept": result["welfare_concept"],
-                    "equivalence_scale": result["equivalence_scale"].get("code"),
-                    "poverty_line": result["poverty_line"], "ppp_base_year": result["ppp_base_year"],
-                    "reference_year_basis": result["reference_year_basis"], "area": result["area"],
-                    "period": value["period"], "value_text": value["value_text"], "status": value["status"],
-                    "flags": value["flags"], "attributes": value["attributes"], "unit": result["unit"],
-                    "record_revision": {"vintage_id": citation["vintage_id"], "definition_id": citation["definition_id"],
-                                        "release_version": citation["release_version"],
-                                        "revision_of": result["vintage"]["revision_of"]},
-                    "as_of": citation["as_of"], "released_at": citation["release_at"],
-                    "retrieved_at": citation["retrieved_at"],
-                    "source": {k: citation[k] for k in ("provider", "source_id", "url", "file_sha256",
-                                                        "evidence_origin", "live_verification")},
-                }, object_id=object_id)
-                refs.append(object_id)
-                result_refs.append(object_id)
-                if citation.get("url"):
-                    builder.add_external_reference(f"release:{result['vintage']['release_id']}", citation["url"],
-                                                   required=False)
-                if value["status"] != "reported":
-                    builder.add_omission(f"{label} {value['period']}: {value['status']}; no value",
-                                         object_id=object_id)
-            statements.append({"statement": f"{label} as published in vintage {result['vintage']['vintage_id']} "
-                               f"(group {result['group']}; never combined with another group)",
-                               "status": "cited", "evidence_refs": sorted(result_refs)})
-        for missing in answer["unavailable_by_as_of"]:
-            builder.add_omission(f"{missing['provider']} {missing['native_key']}: {missing['reason']}")
-        if answer["status"] == "none_published":
-            builder.add_omission(f"no published series: {answer.get('reason')}")
-        root = {k: answer[k] for k in ("contract", "subject", "as_of", "status", "exclusions", "minimisation")}
-        builder.add_object("answer", {"kind": "income-indicator-for-place", **root, "statements": statements,
-                                      "groups": answer["groups"]},
-                           object_id=f"income-answer:{digest([answer['subject'], answer['as_of']])[:24]}",
-                           references=sorted(set(refs)), root=True)
-        return builder.build()
+    def _pair(before: Mapping[str, Any], after: Mapping[str, Any], notes: list[dict[str, Any]]) -> dict[str, Any]:
+        stated = []
+        if after["ppp_revision"]:
+            stated.append({"kind": "ppp_revision", "statement": "the release restates values under PPP revision "
+                           f"{after['ppp_revision']['after'].get('revision')} (was "
+                           f"{after['ppp_revision']['before'].get('revision')}) of the "
+                           f"{after['ppp_revision']['after'].get('base_year')} PPP round"})
+        if after["definition_change"]:
+            stated.append({"kind": "definition_change", "statement": "the definition or dataflow version changed",
+                           "detail": after["definition_change"]})
+        if after["removed_by_source"]:
+            stated.append({"kind": "removed_by_source", "statement": after["removed_by_source"]["statement"]})
+        touched = set(after["changed_periods"]) | set(after["new_periods"])
+        for note in notes:
+            if note["relation"] == "break_in_series" and (not note["periods"] or touched & set(note["periods"])):
+                stated.append({"kind": "break_in_series", "note_id": note["note_id"], "statement": note["statement"],
+                               "periods": note["periods"], "origin": note["origin"]})
+            elif note["origin"] == "recorded" and note["state"] == "accepted" and not note["other_series_id"]:
+                stated.append({"kind": note["relation"], "note_id": note["note_id"], "statement": note["statement"]})
+        return {"from_vintage_id": before["vintage_id"], "to_vintage_id": after["vintage_id"],
+                "from_release_at": before["release_at"], "to_release_at": after["release_at"],
+                "changed_periods": after["changed_periods"], "new_periods": after["new_periods"],
+                "comparability": "noted" if stated else "comparability_unknown", "notes": stated}
 
 
-__all__ = ["IncomeQueries", "comparable_group"]
+__all__ = ["HISTORY_CONTRACT", "IncomeQueries", "comparability_group", "cutoff_ms"]

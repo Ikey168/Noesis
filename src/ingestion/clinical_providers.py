@@ -1470,28 +1470,6 @@ PROVIDER_CONTRACTS.update({provider: {**contract, "record_owner": "src.kb.health
 PROVIDER_HOSTS.update(_CAPACITY_HOSTS)
 LIVE_VERIFICATION.update(_CAPACITY_LIVE)
 
-# Medical devices (#2654, MD01): openFDA device endpoints, AccessGUDID and EUDAMED public modules through the
-# medical-devices connector. Records are owned by src/kb/medical_devices_records.py; the openFDA device sources use
-# the same optional NOESIS_OPENFDA_API_KEY as the openfda provider above.
-from src.ingestion.medical_devices_sources import (
-    LIVE_VERIFICATION as _DEVICES_LIVE,
-)
-from src.ingestion.medical_devices_sources import (
-    PROVIDER_CONTRACTS as _DEVICES_CONTRACTS,
-)
-from src.ingestion.medical_devices_sources import (
-    PROVIDER_HOSTS as _DEVICES_HOSTS,
-)
-
-MEDICAL_DEVICES_PROVIDERS = tuple(_DEVICES_CONTRACTS)
-PROVIDER_CONTRACTS.update({
-    provider: {**contract, "record_owner": "src.kb.medical_devices_records",
-               "status": "implemented" if contract["formats"] else "not-implemented",
-               "access": "; ".join(contract["endpoints"]), "terms": contract["licence"]}
-    for provider, contract in _DEVICES_CONTRACTS.items()})
-PROVIDER_HOSTS.update(_DEVICES_HOSTS)
-LIVE_VERIFICATION.update(_DEVICES_LIVE)
-
 __all__ = [
     "ADAPTERS", "CONTRACT", "LIVE_VERIFICATION", "PROVIDER_CONTRACTS", "PROVIDER_HOSTS", "classify_identifier",
     "find_identifiers", "fixture_transport", "parse_ctgov_history", "parse_ctgov_search", "parse_ctgov_study",

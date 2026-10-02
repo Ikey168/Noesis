@@ -1,22 +1,20 @@
-"""Extractive payments per report version and commodity figures with sources side by side (#2653, EX08, EX09).
+"""Extractive payments per EITI report version and commodity production and reserves side by side (EX08, EX09).
 
-* :meth:`ExtractivesQueries.payments_for_company` - given an extractives company (its subject key) or an ownership
-  entity (and, optionally, its group through the ownership graph as of a date), the payments of every matched
-  reporting company per EITI report revision in force at the as-of time and per revenue stream: the
-  government-reported and company-reported figures side by side with the report's own discrepancies. Each figure
-  keeps the currency the report states; nothing is converted, summed across reports or reconciled. Every row cites
-  its report revision (report, version, release, retrieval time).
-* :meth:`ExtractivesQueries.payments_for_country` - the reports of a country as of a date with their government
-  revenues by stream, company lines and discrepancies, cited per revision.
-* :meth:`ExtractivesQueries.production` - given a commodity (a name as published or an HS code through accepted
-  mappings) and a country (a name as published or an ISO alpha-3 code through accepted mappings), production,
-  reserves and other statistics per source by vintage: USGS and BGS series side by side and never blended,
-  withheld, unavailable and estimated values marked, each figure citing its vintage.
-* :meth:`ExtractivesQueries.export_bundle` - a ``noesis-evidence-bundle-v1`` citing every item with source,
-  record revision and as-of time.
+* :meth:`ExtractivesQueries.payments_for_company` - the EITI payments of a company and, on request, of its group
+  (the ownership graph as of the same date: stated control-chain tops and their stated subsidiaries), reached only
+  through **accepted** company matches. Per report (country and fiscal period) the answer lists every report
+  version, the version in force at the as-of date and each payment of that version with the government-reported
+  and company-reported figures side by side with EITI's discrepancy as published, in the currency as reported,
+  each citing its record revision. Currencies are never converted and nothing is summed across reports; a company
+  without a matched payment gets ``no_payment_on_record`` - never a clean bill.
+* :meth:`ExtractivesQueries.payments_for_country` - the reports of a country with their versions, revenue streams
+  (government-reported totals as published) and payments, companies as reported with their match status.
+* :meth:`ExtractivesQueries.production_and_reserves` - a commodity (source commodity code, or an HS heading through
+  accepted concordance matches) and a country to production, reserves and trade quantities per source and series,
+  the vintage released by the as-of date and its values with status (withheld and estimated values stay marked),
+  every vintage on request; USGS and BGS series are listed side by side and never blended.
 
-A subject without records answers ``no_payment_on_record`` or ``none_published`` - never zero. Nothing scores risk,
-estimates reserves, forecasts or reconciles.
+Nothing reconciles discrepancies beyond the report, estimates reserves, scores risk or forecasts prices.
 """
 
 from __future__ import annotations
@@ -24,388 +22,330 @@ from __future__ import annotations
 from collections.abc import Iterable, Mapping
 from typing import Any
 
-from src.ingestion.extractives_sources import EXCLUSIONS, NEVER_SENTENCE, STATISTICS
 from src.kb.extractives_records import (
     ANSWER_CONTRACT,
     READ_SCOPE,
-    SUBJECT_PREFIX,
     ExtractivesError,
+    as_of_ms,
     authorize,
-    canonical,
-    digest,
-    iso_from_ms,
     table_exists,
 )
 from src.kb.extractives_store import ExtractivesStore
 
-NOTICE = ("Figures as each source published them. Government- and company-reported payments and EITI's own "
-          "discrepancies are side by side; amounts keep the currency the report states and are never converted or "
-          "summed across reports; USGS and BGS series are never blended and withheld values never filled. No risk "
-          "score, reserve estimate or forecast.")
+NOTICE = ("Figures as each publisher released them: EITI government- and company-reported amounts side by side "
+          "with the discrepancy the report states, in the currency as reported (never converted or summed across "
+          "reports); USGS and BGS series side by side, never blended. No reconciliation, own estimate, risk score "
+          "or price forecast.")
+MAX_GROUP_DEPTH = 5
 
 
-def _no_method(value: Any) -> Any:
-    """Bundle payloads reserve ``method``/``n``/``assumptions`` for analytic honesty envelopes."""
-    if isinstance(value, Mapping):
-        return {({"method": "match_method", "n": "count", "assumptions": "stated_assumptions"}.get(k, k)):
-                _no_method(v) for k, v in value.items()}
-    if isinstance(value, list):
-        return [_no_method(v) for v in value]
-    return value
+def _resolve(graph, entity: str) -> str:
+    from src.kb.ownership_store import OwnershipError
+
+    try:
+        return graph.resolve(entity)
+    except OwnershipError as exc:
+        for key in graph.entities:
+            if any(v["record"].get("canonical_entity_id") == entity for v in graph.entities[key]):
+                return graph.cluster(key)
+        raise ExtractivesError("not_found", "the company is not an entity of the ownership namespace") from exc
 
 
 class ExtractivesQueries:
-    def __init__(self, conn: Any, *, now=None) -> None:
-        self.conn = conn
-        self.store = ExtractivesStore(conn, initialize=False, now=now)
-
-    def _identity(self):
+    def __init__(self, conn: Any) -> None:
         from src.kb.extractives_identity import ExtractivesIdentity
 
-        return ExtractivesIdentity(self.conn, initialize=False, now=self.store.now)
+        self.conn = conn
+        self.store = ExtractivesStore(conn, initialize=False)
+        self.identity = ExtractivesIdentity(conn, initialize=False)
 
-    # ------------------------------------------------------------------ citations
+    # -------------------------------------------------------------- EITI
 
-    def _report_citation(self, namespace: str, report: Mapping[str, Any], as_of_ms: int | None) -> dict[str, Any]:
-        revision = self.store.source_revision(namespace, report["release_id"])
-        return {"report_id": report["report_id"], "report_key": report["report_key"], "revision": report["revision"],
-                "revision_of": report["revision_of"], "status": report["status"],
-                "report": report["report"], "country": report["country"], "fiscal_period": report["fiscal_period"],
-                "currency": report["currency"], "release_at": report["release_at"],
-                "retrieved_at": report["retrieved_at"], "selected_as_of": iso_from_ms(as_of_ms),
-                "source_revision": revision}
+    def _version_used(self, namespace: str, report_key: str, as_of: int | None) -> tuple[list[dict], dict | None]:
+        versions = self.store.report_versions(namespace, report_key)
+        clocks = {r["release_id"]: r["release_at_ms"] for r in self.store.releases(namespace, report_key=report_key)}
+        eligible = [v for v in versions if as_of is None or clocks[v["release_id"]] <= as_of]
+        for version in versions:
+            version["release_at_ms"] = clocks[version["release_id"]]
+        return versions, (eligible[-1] if eligible else None)
 
-    # ------------------------------------------------------------------ subjects
+    def _payment_row(self, namespace: str, view: Mapping[str, Any], clock: int) -> dict[str, Any]:
+        body = view["record"]
+        stream = self.store.record(namespace, body["stream_key"], as_of_ms=clock)
+        company = self.store.record(namespace, body["company_key"], as_of_ms=clock)
+        project = self.store.record(namespace, body["project_key"], as_of_ms=clock) if body.get("project_key") \
+            else None
+        return {
+            "record_key": body["record_key"],
+            "company": {"record_key": body["company_key"],
+                        "name_as_published": (company or {}).get("record", {}).get("name_as_published"),
+                        "natural_person": bool((company or {}).get("record", {}).get("natural_person"))},
+            "revenue_stream": {"record_key": body["stream_key"],
+                               "gfs_code": (stream or {}).get("record", {}).get("gfs_code"),
+                               "name_as_published": (stream or {}).get("record", {}).get("name_as_published")},
+            "project": None if project is None else {"record_key": body["project_key"],
+                                                     "name_as_published": project["record"].get("name_as_published")},
+            "government_reported": body.get("government_reported"),
+            "company_reported": body.get("company_reported"),
+            "discrepancy_as_published": body.get("discrepancy_as_published"),
+            "currency_note": "as reported; never converted",
+            "citation": self.store.cite(namespace, view),
+        }
 
-    def _subjects(self, namespace: str, company: str, *, scopes: set[str], ownership_namespace: str | None,
-                  group: bool, as_of: str | None, principal_id: str | None) -> dict[str, Any]:
-        """The extractives company keys a request reaches, with the accepted match and group member used."""
-        if company.startswith(SUBJECT_PREFIX + "company:"):
-            return {"entity": {"subject_key": company}, "group_members": [],
-                    "subjects": [{"subject_key": company, "group_member": None, "matched_through": None}],
-                    "status": "direct"}
-        if not ownership_namespace:
-            raise ExtractivesError("invalid_query", "an ownership entity needs its ownership_namespace")
-        if not table_exists(self.conn, "ownership_records"):
-            return {"entity": {"requested": company}, "group_members": [], "subjects": [],
-                    "status": "ownership_unavailable",
-                    "message": "the Corporate Ownership store is not held; ask by extractives company key instead"}
-        from src.kb.competition_queries import _graph, _resolve, group_members
-        from src.kb.ownership_records import READ_SCOPE as OWNERSHIP_READ
+    def _report_block(self, namespace: str, report_key: str, as_of: int | None, company_keys: set[str] | None,
+                      all_versions: bool) -> dict[str, Any] | None:
+        versions, used = self._version_used(namespace, report_key, as_of)
+        if used is None:
+            return None
+        report = self.store.record(namespace, report_key, as_of_ms=used["release_at_ms"])
 
-        authorize(ownership_namespace, scopes, OWNERSHIP_READ)
-        graph = _graph(self.conn, ownership_namespace, scopes, principal_id, None)
-        try:
-            root = _resolve(graph, company)
-        except Exception as exc:
-            raise ExtractivesError("not_found", "the company is not an entity of the ownership namespace") from exc
-        members = group_members(graph, root, as_of) if group else [{"entity": root, "relation": "self", "path": []}]
-        identity = self._identity()
-        subjects = []
+        def payments_at(clock: int) -> list[dict[str, Any]]:
+            rows = self.store.records(namespace, record_types=("company_payment",), report_key=report_key,
+                                      as_of_ms=clock)
+            return [self._payment_row(namespace, v, clock) for v in rows
+                    if company_keys is None or v["record"]["company_key"] in company_keys]
+
+        payments = payments_at(used["release_at_ms"])
+        body = (report or {}).get("record", {})
+        block = {
+            "report_key": report_key, "country": body.get("country"), "fiscal_period": body.get("fiscal_period"),
+            "title": body.get("title"), "currency_as_reported": body.get("currency"),
+            "reconciliation_note": body.get("reconciliation_note"),
+            "versions": [{k: v[k] for k in ("release_id", "report_version", "published_on", "evidence_origin")}
+                         for v in versions],
+            "version_used": {k: used[k] for k in ("release_id", "report_version", "published_on")},
+            "later_versions": [v["report_version"] for v in versions if v["release_at_ms"] > used["release_at_ms"]],
+            "payments": payments,
+            "currencies": sorted({(p.get(side) or {}).get("currency") for p in payments
+                                  for side in ("government_reported", "company_reported")} - {None}),
+            "citation": self.store.cite(namespace, report) if report else None,
+        }
+        if all_versions:
+            block["per_version"] = [{"report_version": v["report_version"], "release_id": v["release_id"],
+                                     "payments": payments_at(v["release_at_ms"])}
+                                    for v in versions if as_of is None or v["release_at_ms"] <= as_of]
+        return block
+
+    def payments_for_company(self, namespace: str, entity: str, *, ownership_namespace: str, scopes: Iterable[str],
+                             as_of: Any = None, group: bool = False, all_versions: bool = False,
+                             include_unknowns: bool = False, principal_id: str | None = None) -> dict[str, Any]:
+        from src.kb.ownership_graph import OwnershipGraph
+
+        scopes = set(scopes)
+        authorize(namespace, scopes, READ_SCOPE)
+        clock = as_of_ms(as_of)
+        base = {"contract": ANSWER_CONTRACT, "query": "payments_for_company", "namespace": namespace,
+                "ownership_namespace": ownership_namespace, "entity": entity, "as_of": as_of, "group": group,
+                "notice": NOTICE}
+        if not table_exists(self.conn, "ownership_records") or not self.conn.execute(
+                "SELECT 1 FROM ownership_records WHERE namespace=? LIMIT 1", [ownership_namespace]).fetchone():
+            return {**base, "status": "ownership_absent", "reports": [],
+                    "message": "no ownership records are held; company payments are reachable by country only"}
+        authorize(ownership_namespace, scopes, "knowledge:ownership:read")
+        graph = OwnershipGraph(self.conn, ownership_namespace, principal_id=principal_id, scopes=scopes)
+        root = _resolve(graph, entity)
+        day = None if clock is None else str(as_of)[:10]
+        if group:
+            from src.kb.competition_queries import group_members
+
+            members = group_members(graph, root, day, max_depth=MAX_GROUP_DEPTH)
+        else:
+            members = [{"entity": root, "relation": "self", "path": []}]
+        matched: dict[str, dict[str, Any]] = {}
+        names = set()
         for member in members:
             keys = graph.members(member["entity"])
-            for link in identity.accepted_company_links(namespace, keys, scopes=scopes):
-                subjects.append({"subject_key": link["subject_key"], "group_member": member["entity"],
-                                 "group_relation": member["relation"], "ownership_path": member["path"],
-                                 "matched_through": link})
-        seen, unique = set(), []
-        for subject in sorted(subjects, key=lambda s: (s["subject_key"], s["matched_through"]["candidate_id"])):
-            if subject["subject_key"] not in seen:
-                seen.add(subject["subject_key"])
-                unique.append(subject)
-        return {"entity": graph.describe(root), "group_members": [
-            {"entity": m["entity"], "relation": m["relation"], "ownership_path": m["path"]} for m in members],
-            "subjects": unique, "status": "resolved"}
-
-    # ------------------------------------------------------------------ payments
-
-    def _stream_rows(self, namespace: str, report: Mapping[str, Any], company_keys: set[str] | None
-                     ) -> list[dict[str, Any]]:
-        lines = self.store.payments(namespace, report["report_id"])
-        discrepancies = self.store.discrepancies(namespace, report["report_id"])
-        groups: dict[str, dict[str, Any]] = {}
-        for line in lines:
-            if company_keys is not None and line["company_key"] not in company_keys:
+            names |= {n["name"] for n in graph.describe(member["entity"])["names"] if n.get("name")}
+            for link in self.identity.accepted_company_links(namespace, keys, scopes=scopes):
+                matched.setdefault(link["subject_key"], {**link, "group_member": member["entity"],
+                                                         "group_relation": member["relation"],
+                                                         "ownership_path": member["path"]})
+        reports = []
+        report_keys = sorted({self.store.record(namespace, k, include_removed=True)["report_key"]
+                              for k in matched if self.store.record(namespace, k, include_removed=True)})
+        for report_key in report_keys:
+            block = self._report_block(namespace, report_key, clock, set(matched), all_versions)
+            if block is None:
                 continue
-            stream = line["revenue_stream"]
-            key = canonical([line["company_key"], stream.get("gfs_code"), stream.get("name_as_reported")])
-            group = groups.setdefault(key, {
-                "company_key": line["company_key"],
-                "company": None if not line["company"] else {
-                    k: line["company"].get(k) for k in ("name_as_reported", "identifiers", "redacted")},
-                "revenue_stream": stream, "government_reported": [], "company_reported": [], "discrepancies": []})
-            figure = {k: line[k] for k in ("line_key", "agency", "project", "amount_text", "amount", "currency",
-                                           "in_kind")}
-            group["government_reported" if line["reported_by"] == "government" else "company_reported"].append(figure)
-        for disc in discrepancies:
-            if company_keys is not None and disc["company_key"] not in company_keys:
-                continue
-            stream = disc["revenue_stream"]
-            key = canonical([disc["company_key"], stream.get("gfs_code"), stream.get("name_as_reported")])
-            group = groups.setdefault(key, {
-                "company_key": disc["company_key"], "company": None if not disc["company"] else {
-                    k: disc["company"].get(k) for k in ("name_as_reported", "identifiers", "redacted")},
-                "revenue_stream": stream, "government_reported": [], "company_reported": [], "discrepancies": []})
-            group["discrepancies"].append({k: disc[k] for k in (
-                "line", "government_amount_text", "company_amount_text", "discrepancy_text", "currency",
-                "explanation", "basis")})
-        out = []
-        for key in sorted(groups):
-            group = groups[key]
-            currencies = sorted({f["currency"] for side in ("government_reported", "company_reported")
-                                 for f in group[side] if f["currency"]} | {d["currency"] for d in group["discrepancies"]
-                                                                          if d["currency"]})
-            group["currencies"] = currencies
-            group["side_by_side"] = {"government_reported": bool(group["government_reported"]),
-                                     "company_reported": bool(group["company_reported"]),
-                                     "eiti_discrepancy_published": bool(group["discrepancies"])}
-            out.append(group)
-        return out
+            for payment in block["payments"] + [p for v in block.get("per_version", []) for p in v["payments"]]:
+                payment["matched_through"] = matched[payment["company"]["record_key"]]
+            if block["payments"] or block.get("per_version"):
+                reports.append(block)
+        answer = {**base, "entity": graph.describe(root),
+                  "group_members": [{"entity": m["entity"], "relation": m["relation"], "ownership_path": m["path"]}
+                                    for m in members],
+                  "matched_companies": sorted(matched.values(), key=lambda m: m["subject_key"]),
+                  "status": "answered" if reports else "no_payment_on_record", "reports": reports,
+                  "coverage": "only acquired EITI report versions and reviewed company matches are searched; 'no "
+                              "payment on record' is not a statement that no payment was made",
+                  "totals": "not computed: amounts stay per report, revenue stream and currency as reported"}
+        if not reports:
+            answer["message"] = "no payment on record for this company's reviewed matches (not a clean bill)"
+        if include_unknowns:
+            from src.kb.entities import normalize_surface
 
-    def payments_for_company(self, namespace: str, company: str, *, scopes: Iterable[str],
-                             ownership_namespace: str | None = None, group: bool = False, as_of_ms: int | None = None,
-                             as_of: str | None = None, history: bool = False, principal_id: str | None = None
-                             ) -> dict[str, Any]:
-        scopes = set(scopes)
+            wanted = {normalize_surface(n) for n in names}
+            answer["unknowns"] = [
+                {**u, "unknown": "not matched to this company; a similar name only, never counted"}
+                for u in self.identity.unmatched_companies(namespace, scopes=scopes)
+                if any(normalize_surface(u["name_as_published"]) == w or
+                       (len(w) > 3 and w in normalize_surface(u["name_as_published"])) for w in wanted)]
+        return answer
+
+    def payments_for_country(self, namespace: str, country: str, *, scopes: Iterable[str], as_of: Any = None,
+                             all_versions: bool = False) -> dict[str, Any]:
         authorize(namespace, scopes, READ_SCOPE)
-        resolved = self._subjects(namespace, company, scopes=scopes, ownership_namespace=ownership_namespace,
-                                  group=group, as_of=as_of, principal_id=principal_id)
-        by_subject = {s["subject_key"]: s for s in resolved["subjects"]}
-        reports, unavailable = [], []
-        if by_subject and self.store.ready():
-            keys = set(by_subject)
-            for report_key in self.store.report_keys(namespace):
-                revisions = self.store.report_revisions(namespace, report_key)
-                if not any(p["company_key"] in keys for r in revisions
-                           for p in self.store.payments(namespace, r["report_id"])):
+        clock = as_of_ms(as_of)
+        from src.kb.ownership_store import OwnershipError
+
+        matches: dict[str, list[str]] | None = {}
+        try:
+            for view in self.identity.company_candidates(namespace, scopes=scopes):
+                if view["state"] == "accepted":
+                    matches.setdefault(view["subject_key"], []).append(view["candidate_id"])
+        except OwnershipError:
+            matches = None  # match decisions are ownership identity records; not visible without ownership read
+        reports = []
+        for report_key in self.store.report_keys(namespace, country=country):
+            block = self._report_block(namespace, report_key, clock, None, all_versions)
+            if block is None:
+                continue
+            used = self.store.releases(namespace, report_key=report_key)
+            clock_used = next(r["release_at_ms"] for r in used if r["release_id"] == block["version_used"]["release_id"])
+            block["revenue_streams"] = [
+                {"record_key": v["record_key"], "gfs_code": v["record"].get("gfs_code"),
+                 "name_as_published": v["record"].get("name_as_published"),
+                 "government_reported_total": v["record"].get("government_reported"),
+                 "citation": self.store.cite(namespace, v)}
+                for v in self.store.records(namespace, record_types=("revenue_stream",), report_key=report_key,
+                                            as_of_ms=clock_used)]
+            for payment in block["payments"]:
+                payment["company"]["match_status"] = "not_visible" if matches is None else "matched" \
+                    if matches.get(payment["company"]["record_key"]) else "unmatched"
+            reports.append(block)
+        return {"contract": ANSWER_CONTRACT, "query": "payments_for_country", "namespace": namespace,
+                "country": country.upper(), "as_of": as_of,
+                "status": "answered" if reports else "no_report_on_record", "reports": reports, "notice": NOTICE,
+                "coverage": "only the declared, acquired EITI report versions are searched"}
+
+    def record_history(self, namespace: str, record_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
+        authorize(namespace, scopes, READ_SCOPE)
+        history = self.store.history(namespace, record_key)
+        return {"contract": ANSWER_CONTRACT, "query": "record_history", "namespace": namespace,
+                "record_key": record_key, "status": "answered" if history else "no_record_on_record",
+                "revisions": [{**{k: v[k] for k in ("revision", "revision_id", "revision_of", "state",
+                                                    "report_version", "as_of", "observed_at", "record")},
+                               "citation": self.store.cite(namespace, v)} for v in history],
+                "notice": NOTICE}
+
+    # -------------------------------------------------------------- commodities
+
+    def _commodity_codes(self, namespace: str, commodity: str) -> tuple[list[str], dict[str, Any]]:
+        if commodity.startswith("hs:"):
+            code = commodity.split(":")[-1]
+            accepted = [m for m in self.identity.matches(namespace, kind="commodity", state="accepted")
+                        if m["target"]["id"].split(":")[-1] == code]
+            return sorted({m["subject_key"].split(":", 1)[1] for m in accepted}), {
+                "requested": commodity, "resolved_through": [{"match_id": m["match_id"], "method": m["method"],
+                                                              "commodity": m["subject_key"]} for m in accepted]}
+        return [commodity], {"requested": commodity, "resolved_through": "source commodity code"}
+
+    def production_and_reserves(self, namespace: str, commodity: str, country: str, *, scopes: Iterable[str],
+                                as_of: Any = None, all_vintages: bool = False,
+                                statistic: str | None = None) -> dict[str, Any]:
+        authorize(namespace, scopes, READ_SCOPE)
+        clock = as_of_ms(as_of)
+        codes, resolution = self._commodity_codes(namespace, commodity)
+        sources: dict[str, list[dict[str, Any]]] = {}
+        excluded = []
+        for code in codes:
+            for series in self.store.find_series(namespace, commodity=code, country=country, statistic=statistic):
+                vintage = self.store.select_vintage(namespace, series["series_id"], clock)
+                if vintage is None:
+                    excluded.append({"series_id": series["series_id"], "reason": "no vintage released by the date"})
                     continue
-                report, reason = self.store.report_as_of(namespace, report_key, as_of_ms=as_of_ms)
-                if report is None:
-                    unavailable.append({"report_key": report_key, "reason": reason})
-                    continue
-                streams = self._stream_rows(namespace, report, keys)
-                for stream in streams:
-                    subject = by_subject.get(stream["company_key"]) or {}
-                    stream["group_member"] = subject.get("group_member")
-                    stream["matched_through"] = subject.get("matched_through")
-                entry = {"citation": self._report_citation(namespace, report, as_of_ms), "streams": streams,
-                         "note": "figures of this report revision only; never summed with another report"}
-                if not streams:
-                    entry["note"] = "the company's lines are absent from the revision in force (e.g. withdrawn)"
-                if history:
-                    entry["revision_history"] = [{k: r[k] for k in ("report_id", "revision", "revision_of", "status",
-                                                                    "release_at", "changes")} for r in revisions]
-                reports.append(entry)
-        reports.sort(key=lambda r: (r["citation"]["country"]["code"], r["citation"]["fiscal_period"]["start"]))
-        answer = {
-            "contract": ANSWER_CONTRACT, "namespace": namespace, "question": "payments-for-company",
-            "query": {"company": company, "ownership_namespace": ownership_namespace, "group": group,
-                      "as_of_ms": as_of_ms, "as_of": as_of},
-            "as_of_ms": as_of_ms, "entity": resolved["entity"], "group_members": resolved["group_members"],
-            "matched_companies": [{k: s.get(k) for k in ("subject_key", "group_member", "matched_through")}
-                                  for s in resolved["subjects"]],
-            "status": ("ownership_unavailable" if resolved["status"] == "ownership_unavailable" else
-                       "reported" if any(r["streams"] for r in reports) else "no_payment_on_record"),
-            "reports": reports, "unavailable_by_as_of": unavailable,
-            "coverage": "only the declared, acquired EITI summaries and reviewed company matches are searched; "
-                        "'no payment on record' is not a statement that no payment was made",
-            "exclusions": list(EXCLUSIONS), "never": NEVER_SENTENCE, "notice": NOTICE,
-        }
-        if resolved.get("message"):
-            answer["message"] = resolved["message"]
-        answer["receipt"] = {"digest": digest([answer["query"], [r["citation"]["report_id"] for r in reports]])}
-        return answer
+                values = self.store.values(namespace, vintage["vintage_id"])
+                restated = {v["period"] for v in values}
+                earlier = []
+                for older in reversed(self.store.vintage_rows(namespace, series["series_id"])):
+                    if older["release_at_ms"] >= vintage["release_at_ms"]:
+                        continue
+                    for value in self.store.values(namespace, older["vintage_id"]):
+                        if value["period"] not in restated:
+                            restated.add(value["period"])
+                            earlier.append({**value, "vintage_id": older["vintage_id"],
+                                            "citation": self.store.source_revision(namespace, older["release_id"])})
+                entry = {"series": series, "vintage_used": vintage, "values": values,
+                         "periods_not_restated": sorted(earlier, key=lambda v: v["period"]),
+                         "periods_not_restated_note": "periods the used vintage does not state, from the same "
+                                                      "source's earlier vintage (cited); never from another source",
+                         "citation": self.store.source_revision(namespace, vintage["release_id"])}
+                if all_vintages:
+                    entry["vintages"] = [{**v, "values": self.store.values(namespace, v["vintage_id"]),
+                                          "citation": self.store.source_revision(namespace, v["release_id"])}
+                                         for v in self.store.vintage_rows(namespace, series["series_id"])
+                                         if clock is None or v["release_at_ms"] <= clock]
+                sources.setdefault(series["provider"], []).append(entry)
+        return {"contract": ANSWER_CONTRACT, "query": "production_and_reserves", "namespace": namespace,
+                "commodity": resolution, "country": country.upper(), "as_of": as_of,
+                "status": "answered" if sources else "no_series_on_record",
+                "sources": [{"provider": p, "series": sources[p]} for p in sorted(sources)],
+                "excluded": excluded, "blended": False,
+                "side_by_side": "each source's series are listed separately; USGS and BGS figures are never blended "
+                                "or averaged", "notice": NOTICE}
 
-    def payments_for_country(self, namespace: str, country_code: str, *, scopes: Iterable[str],
-                             as_of_ms: int | None = None, history: bool = False) -> dict[str, Any]:
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        reports, unavailable = [], []
-        for report_key in self.store.report_keys(namespace, country_code=str(country_code).upper()):
-            report, reason = self.store.report_as_of(namespace, report_key, as_of_ms=as_of_ms)
-            if report is None:
-                unavailable.append({"report_key": report_key, "reason": reason})
-                continue
-            entry = {"citation": self._report_citation(namespace, report, as_of_ms),
-                     "government_revenues": [s for s in self._stream_rows(namespace, report, None)
-                                             if s["company_key"] is None],
-                     "companies": [s for s in self._stream_rows(namespace, report, None) if s["company_key"]],
-                     "note": "figures of this report revision only; never summed with another report"}
-            if history:
-                entry["revision_history"] = [{k: r[k] for k in ("report_id", "revision", "revision_of", "status",
-                                                                "release_at", "changes")}
-                                             for r in self.store.report_revisions(namespace, report_key)]
-            reports.append(entry)
-        answer = {"contract": ANSWER_CONTRACT, "namespace": namespace, "question": "payments-for-country",
-                  "query": {"country": str(country_code).upper(), "as_of_ms": as_of_ms}, "as_of_ms": as_of_ms,
-                  "status": "reported" if reports else "no_report_on_record", "reports": reports,
-                  "unavailable_by_as_of": unavailable, "exclusions": list(EXCLUSIONS), "never": NEVER_SENTENCE,
-                  "notice": NOTICE}
-        answer["receipt"] = {"digest": digest([answer["query"], [r["citation"]["report_id"] for r in reports]])}
-        return answer
+    # -------------------------------------------------------------- evidence bundle
 
-    # ------------------------------------------------------------------ production and reserves
+    @staticmethod
+    def evidence_bundle(answer: Mapping[str, Any]) -> dict[str, Any]:
+        """Assertions each citing source, record revision and as-of time of the record behind it."""
+        from src.ingestion.extractives_sources import EXCLUSIONS
 
-    def production(self, namespace: str, *, commodity: Any, country: Any, scopes: Iterable[str],
-                   statistic: str | None = None, as_of_ms: int | None = None, history: bool = False
-                   ) -> dict[str, Any]:
-        scopes = set(scopes)
-        authorize(namespace, scopes, READ_SCOPE)
-        if statistic is not None and statistic not in STATISTICS:
-            raise ExtractivesError("invalid_query", f"statistic is one of {STATISTICS}")
-        identity = self._identity()
-        commodities = identity.commodity_keys_for(namespace, commodity)
-        countries = identity.country_names_for(namespace, country)
-        keys = {k["commodity_key"] for k in commodities["keys"]}
-        names = {n["name"] for n in countries["names"]}
-        results, unavailable = [], []
-        for series in self.store.find_series(namespace, statistic=statistic, commodity_keys=keys, country_names=names):
-            if countries.get("code") and not series["country"].get("code") and not any(
-                    n.get("provider") in (None, series["provider"]) and n["name"] == series["country"].get("name")
-                    for n in countries["names"]):
-                continue
-            vintage, reason = self.store.select_vintage(namespace, series["series_id"], as_of_ms=as_of_ms)
-            if vintage is None:
-                unavailable.append({"series_id": series["series_id"], "provider": series["provider"],
-                                    "reason": reason})
-                continue
-            revision = self.store.source_revision(namespace, vintage["release_id"])
-            cite = {"provider": series["provider"], "source_id": revision["source_id"],
-                    "vintage_id": vintage["vintage_id"], "publication": vintage["publication"],
-                    "release_at": vintage["release_at"], "retrieved_at": vintage["retrieved_at"],
-                    "file_sha256": revision["file_sha256"], "licence": revision["licence"]}
-            observations = self.store.observations(namespace, vintage["vintage_id"])
-            match = next((k for k in commodities["keys"] if k["commodity_key"] == series["commodity_key"]), None)
-            results.append({
-                "series_id": series["series_id"], "provider": series["provider"], "commodity": series["commodity"],
-                "statistic": series["statistic"], "unit": series["unit"], "country": series["country"],
-                "commodity_matched_by": match,
-                "vintage": {**vintage, "source_revision": revision, "selected_as_of": iso_from_ms(as_of_ms)},
-                "values": [{**o, "citation": cite} for o in observations],
-                "marked": {"withheld": [o["period"] for o in observations if o["status"] == "withheld"],
-                           "not_available": [o["period"] for o in observations if o["status"] == "not_available"],
-                           "estimated": [o["period"] for o in observations if o["estimated"]],
-                           "revised": [o["period"] for o in observations if o["revised"]],
-                           "note": "withheld and unavailable values are not filled; estimates are the publisher's"},
-                **({"vintage_history": [
-                    {**{k: v[k] for k in ("vintage_id", "publication", "release_at", "retrieved_at", "revision_of",
-                                          "changes")},
-                     "values": self.store.observations(namespace, v["vintage_id"])}
-                    for v in self.store.vintage_rows(namespace, series["series_id"])]} if history else {}),
-            })
-        by_source: dict[str, list[str]] = {}
-        for result in results:
-            by_source.setdefault(result["provider"], []).append(result["series_id"])
-        answer = {
-            "contract": ANSWER_CONTRACT, "namespace": namespace, "question": "commodity-production",
-            "query": {"commodity": commodity, "country": country, "statistic": statistic, "as_of_ms": as_of_ms},
-            "as_of_ms": as_of_ms, "commodity": commodities, "country": countries,
-            "status": "reported" if results else "none_published", "results": results, "by_source": by_source,
-            "unavailable_by_as_of": unavailable, "side_by_side": True, "never_blended": True,
-            "exclusions": list(EXCLUSIONS), "never": NEVER_SENTENCE, "notice": NOTICE,
-        }
-        answer["receipt"] = {"digest": digest([answer["query"], [r["vintage"]["vintage_id"] for r in results]])}
-        return answer
+        bibliography: dict[str, dict[str, Any]] = {}
+        assertions = []
 
-    def series_history(self, namespace: str, series_id: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        authorize(namespace, set(scopes), READ_SCOPE)
-        series = self.store.series(namespace, series_id)
-        return {"contract": ANSWER_CONTRACT, "series": series, "vintages": [
-            {**v, "source_revision": self.store.source_revision(namespace, v["release_id"]),
-             "observations": self.store.observations(namespace, v["vintage_id"])}
-            for v in self.store.vintage_rows(namespace, series_id)],
-            "note": "every retained vintage; earlier values are never overwritten"}
+        def cite_release(source: Mapping[str, Any]) -> str:
+            bibliography.setdefault(source["release_id"], {
+                "id": source["release_id"],
+                "text": f"{source['provider']} {source.get('document')} (version {source.get('release_version')}, "
+                        f"published {source.get('published_on')}, retrieved {source.get('retrieved_at')}, "
+                        f"{source.get('evidence_origin')} evidence, {source.get('live_verification')}), "
+                        f"{source.get('url')}; {source.get('attribution')}"})
+            return source["release_id"]
 
-    def report_history(self, namespace: str, report_key: str, *, scopes: Iterable[str]) -> dict[str, Any]:
-        authorize(namespace, set(scopes), READ_SCOPE)
-        revisions = self.store.report_revisions(namespace, report_key)
-        if not revisions:
-            raise ExtractivesError("not_found", "no report with that key")
-        return {"contract": ANSWER_CONTRACT, "report_key": report_key, "revisions": [
-            {**r, "source_revision": self.store.source_revision(namespace, r["release_id"]),
-             "payments": self.store.payments(namespace, r["report_id"]),
-             "discrepancies": self.store.discrepancies(namespace, r["report_id"])} for r in revisions],
-            "note": "every retained revision; a withdrawal or correction is a revision, never a deletion"}
+        def add(identifier: str, text: str, record_id: str, revision: str, as_of: str | None,
+                source: Mapping[str, Any]) -> None:
+            assertions.append({"id": identifier, "text": text, "kind": "sourced",
+                               "dependencies": [{"kind": "source", "namespace": answer.get("namespace"),
+                                                 "id": record_id, "revision": revision, "as_of": as_of}],
+                               "citations": [cite_release(source)]})
 
-    # ------------------------------------------------------------------ evidence bundle
-
-    def export_bundle(self, answer: Mapping[str, Any], *, created_at_ms: int | None = None) -> dict[str, Any]:
-        """A noesis-evidence-bundle-v1 citing every item with source, record revision and as-of time."""
-        from src.evidence_bundle.builder import EvidenceBundleBuilder
-
-        builder = EvidenceBundleBuilder("answer", {"operation": answer["question"], "query": _no_method(
-            answer["query"])}, created_at_ms=created_at_ms, as_of_ms=answer.get("as_of_ms"))
-        refs, statements = [], []
         for report in answer.get("reports") or []:
-            citation = report["citation"]
-            source = {k: citation["source_revision"].get(k) for k in (
-                "provider", "source_id", "url", "file_sha256", "published_on", "evidence_origin",
-                "live_verification", "licence")}
-            if citation["source_revision"].get("url"):
-                builder.add_external_reference(f"release:{citation['source_revision']['release_id']}",
-                                               citation["source_revision"]["url"], required=False)
-            streams = list(report.get("streams") or []) + list(report.get("government_revenues") or []) + list(
-                report.get("companies") or [])
-            for stream in streams:
-                object_id = "ex-payment:" + digest([citation["report_id"], stream["company_key"],
-                                                   stream["revenue_stream"]])[:24]
-                builder.add_object("evidence", _no_method({
-                    "kind": "extractive-payment",
-                    "locator": {"cited": True, "document_id": citation["source_revision"]["release_id"],
-                                "report_id": citation["report_id"]},
-                    "company": stream["company"], "revenue_stream": stream["revenue_stream"],
-                    "government_reported": stream["government_reported"],
-                    "company_reported": stream["company_reported"], "eiti_discrepancies": stream["discrepancies"],
-                    "currencies": stream["currencies"],
-                    "report_revision": {k: citation[k] for k in ("report_id", "revision", "revision_of", "status",
-                                                                "report", "fiscal_period")},
-                    "as_of": citation["selected_as_of"], "release_at": citation["release_at"],
-                    "retrieved_at": citation["retrieved_at"], "source": source,
-                    "matched_through": stream.get("matched_through"),
-                }), object_id=object_id)
-                refs.append(object_id)
-                if len(stream["currencies"]) > 1:
-                    builder.add_omission(f"{citation['report_id']}: several currencies stated; not converted or "
-                                         "summed", object_id=object_id)
-                statements.append({"statement": f"{citation['report']['label']} (revision {citation['revision']}): "
-                                                f"{stream['revenue_stream'].get('name_as_reported')} figures as "
-                                                "reported", "status": "cited", "evidence_refs": [object_id]})
-        for result in answer.get("results") or []:
-            vintage = result["vintage"]
-            object_id = f"ex-figure:{result['series_id']}@{vintage['vintage_id']}"
-            builder.add_object("evidence", _no_method({
-                "kind": "commodity-figures",
-                "locator": {"cited": True, "document_id": vintage["release_id"], "series_id": result["series_id"]},
-                "provider": result["provider"], "commodity": result["commodity"], "statistic": result["statistic"],
-                "unit": result["unit"], "country": result["country"],
-                "values": [{k: v[k] for k in ("period", "value_text", "value", "status", "estimated", "revised")}
-                           for v in result["values"]],
-                "vintage": {k: vintage[k] for k in ("vintage_id", "release_id", "publication", "release_at",
-                                                    "revision_of")},
-                "as_of": vintage["selected_as_of"], "retrieved_at": vintage["retrieved_at"],
-                "source": {k: vintage["source_revision"].get(k) for k in (
-                    "provider", "source_id", "url", "file_sha256", "published_on", "evidence_origin",
-                    "live_verification", "licence")},
-            }), object_id=object_id)
-            refs.append(object_id)
-            for period in result["marked"]["withheld"] + result["marked"]["not_available"]:
-                builder.add_omission(f"{result['provider']} {result['series_id']} {period}: no value published "
-                                     "(withheld or not available); not filled", object_id=object_id)
-            statements.append({"statement": f"{result['provider']} {result['commodity'].get('name')} "
-                                            f"{result['statistic']} ({result['country'].get('name')}) as published "
-                                            f"in {vintage['publication'].get('label')}", "status": "cited",
-                               "evidence_refs": [object_id]})
-        if answer.get("status") in {"no_payment_on_record", "none_published", "no_report_on_record"}:
-            builder.add_omission(f"{answer['question']}: {answer['status']} (not zero)")
-            statements.append({"statement": f"{answer['question']}: {answer['status']}", "status": "not_found",
-                               "evidence_refs": []})
-        root = {k: answer.get(k) for k in ("contract", "question", "as_of_ms", "status", "receipt", "exclusions",
-                                           "never")}
-        builder.add_object("answer", {"kind": "extractives", **_no_method(root), "query": _no_method(answer["query"]),
-                                      "statements": statements},
-                           object_id=f"ex-answer:{answer['receipt']['digest'][:24]}", references=sorted(set(refs)),
-                           root=True)
-        return builder.build()
+            groups = [("", report["payments"])] + [(f"v{v['report_version']}-", v["payments"])
+                                                    for v in report.get("per_version") or []]
+            for prefix, payments in groups:
+                for payment in payments:
+                    citation = payment["citation"]
+                    add(f"{prefix}{payment['record_key']}",
+                        f"{payment['company']['name_as_published']} - {payment['revenue_stream']['name_as_published']}"
+                        f": government-reported {payment['government_reported']}, company-reported "
+                        f"{payment['company_reported']}, discrepancy as published "
+                        f"{payment['discrepancy_as_published']} (report version {citation['report_version']})",
+                        payment["record_key"], citation["revision_id"], citation["as_of"], citation["source"])
+        for source in answer.get("sources") or []:
+            for entry in source["series"]:
+                series, vintage = entry["series"], entry["vintage_used"]
+                add(f"{series['series_id']}:{vintage['vintage_id']}",
+                    f"{source['provider']} {series['commodity']['label']} {series['statistic']} "
+                    f"({series['unit']}), {series['country']['name']}: "
+                    + ", ".join(f"{v['period']}={v['value_text']} [{v['status']}"
+                                f"{', estimated' if v['estimated'] else ''}{', revised' if v['revised'] else ''}]"
+                                for v in entry["values"]),
+                    series["series_id"], vintage["vintage_id"], vintage["release_at"], entry["citation"])
+        title = answer.get("query", "answer")
+        return {"sections": [{"id": title, "title": f"{title} as of {answer.get('as_of') or 'latest'}",
+                              "assertions": assertions}],
+                "bibliography": list(bibliography.values()), "exclusions": list(EXCLUSIONS)}
 
 
 __all__ = ["NOTICE", "ExtractivesQueries"]

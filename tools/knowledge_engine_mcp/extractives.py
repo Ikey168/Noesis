@@ -1,15 +1,15 @@
-"""Economics extractives features' entry points: extractive payments for a company (and its group) per EITI report
-version, a country's reports, commodity production and reserves with sources side by side, series and report
-history, reviewable identity, cross-pack links, evidence bundles and subscription monitors.
+"""Economics extractives entry points: EITI payments per report version for a company, its group or a country,
+commodity production and reserves side by side, record history, evidence bundles, reviewable identity, cross-pack
+links and subscription monitors.
 
-Acquisition runs through the shared source-pack tools (pack ``economic-statistics-and-filings``: sources
-``eiti-summary-data``, ``usgs-mineral-commodity-summaries`` and ``bgs-world-mineral-statistics``). Every figure is
-cited with its source, report revision or series vintage and as-of time.
+Acquisition runs through the shared source-pack tools (pack ``economic-extractives``: EITI summary data, USGS
+Mineral Commodity Summaries, BGS World Mineral Statistics; features ``extractives-eiti``, ``extractives-usgs`` and
+``extractives-bgs``). Every item is cited with its source, record revision and as-of time; sources stay side by
+side and currencies as reported.
 
-Exclusions (declared by every answering tool): no reconciliation of payment discrepancies beyond those EITI
-reports, no own reserve estimates, no corruption or governance risk scoring, no price forecasts, no currency
-conversion or sums across reports, no blending of USGS and BGS series. Minimisation (EX01): no natural-person field
-is stored or returned; every answer is checked before it leaves the tool.
+Exclusions (declared by every tool): no reconciliation of payment discrepancies beyond the EITI reports, no own
+reserve estimates, no corruption or governance risk scoring, no price forecasts. Outputs follow the minimisation
+decision: no contact person, beneficial owner or individual payer's name is stored or returned.
 """
 
 READ = "knowledge:extractives:read"
@@ -17,24 +17,30 @@ WRITE = "knowledge:extractives:write"
 REVIEW = "knowledge:extractives:review"
 OWNERSHIP_READ = "knowledge:ownership:read"
 OWNERSHIP_REVIEW = "knowledge:ownership:review"
-INFRA_READ = "knowledge:infrastructure:read"
+TRADE_READ = "knowledge:trade:read"
+ENERGY_READ = "knowledge:energy:read"
+PUBLIC_FINANCE_READ = "knowledge:economic:public-finance:read"
+INFRASTRUCTURE_READ = "knowledge:infrastructure:read"
 SUBSCRIPTIONS_READ = "knowledge:subscriptions:read"
 SUBSCRIPTIONS_WRITE = "knowledge:subscriptions:write"
 EXCLUSIONS_NOTE = (
-    "Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates, "
-    "no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across "
-    "reports; USGS and BGS never blended."
+    "Exclusions: no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no "
+    "corruption or governance risk scoring, no price forecasts."
 )
 
 EXTRACTIVES_WRITES = {
-    "import_extractives_concordance",
-    "propose_extractives_identity",
     "propose_extractives_company_matches",
-    "review_extractives_identity",
-    "revert_extractives_identity",
     "review_extractives_company_match",
     "revert_extractives_company_match",
-    "link_extractives_records",
+    "import_extractives_concordance",
+    "propose_extractives_commodity_matches",
+    "propose_extractives_project_matches",
+    "review_extractives_match",
+    "revert_extractives_match",
+    "link_extractives_public_finance",
+    "link_extractives_trade_flows",
+    "link_extractives_energy",
+    "link_extractives_infrastructure",
     "create_extractives_monitor",
     "run_extractives_monitor",
 }
@@ -42,15 +48,14 @@ EXTRACTIVES_READS = {
     "extractives_source_contracts",
     "extractives_readiness",
     "list_extractives_series",
-    "extractive_payments_for_company",
-    "extractive_payments_for_country",
-    "commodity_production_side_by_side",
-    "extractives_series_history",
-    "eiti_report_history",
-    "list_extractives_identity",
-    "list_extractives_company_matches",
-    "list_extractives_links",
+    "extractives_series_values",
+    "query_extractives_production",
+    "query_extractives_company_payments",
+    "query_extractives_country_payments",
+    "extractives_record_history",
     "export_extractives_evidence_bundle",
+    "list_extractives_matches",
+    "list_extractives_links",
     "poll_extractives_monitor",
 }
 EXTRACTIVES_TOOLS = EXTRACTIVES_WRITES | EXTRACTIVES_READS
@@ -58,24 +63,27 @@ EXTRACTIVES_SCOPES = {
     "extractives_source_contracts": [],
     "extractives_readiness": [READ],
     "list_extractives_series": [READ],
-    "extractive_payments_for_company": [READ],
-    "extractive_payments_for_country": [READ],
-    "commodity_production_side_by_side": [READ],
-    "extractives_series_history": [READ],
-    "eiti_report_history": [READ],
-    "list_extractives_identity": [READ],
-    "list_extractives_company_matches": [READ, OWNERSHIP_READ],
-    "list_extractives_links": [READ],
+    "extractives_series_values": [READ],
+    "query_extractives_production": [READ],
+    "query_extractives_company_payments": [READ, OWNERSHIP_READ],
+    "query_extractives_country_payments": [READ],
+    "extractives_record_history": [READ],
     "export_extractives_evidence_bundle": [READ],
+    "list_extractives_matches": [READ],
+    "list_extractives_links": [READ],
     "poll_extractives_monitor": [READ, SUBSCRIPTIONS_READ],
-    "import_extractives_concordance": [WRITE],
-    "propose_extractives_identity": [WRITE],
     "propose_extractives_company_matches": [WRITE, OWNERSHIP_READ],
-    "review_extractives_identity": [REVIEW],
-    "revert_extractives_identity": [REVIEW],
     "review_extractives_company_match": [REVIEW, OWNERSHIP_REVIEW],
     "revert_extractives_company_match": [REVIEW, OWNERSHIP_REVIEW],
-    "link_extractives_records": [WRITE],
+    "import_extractives_concordance": [WRITE],
+    "propose_extractives_commodity_matches": [WRITE],
+    "propose_extractives_project_matches": [WRITE, INFRASTRUCTURE_READ],
+    "review_extractives_match": [REVIEW],
+    "revert_extractives_match": [REVIEW],
+    "link_extractives_public_finance": [WRITE],
+    "link_extractives_trade_flows": [WRITE],
+    "link_extractives_energy": [WRITE],
+    "link_extractives_infrastructure": [WRITE],
     "create_extractives_monitor": [READ, SUBSCRIPTIONS_WRITE],
     "run_extractives_monitor": [READ, SUBSCRIPTIONS_WRITE],
 }
@@ -94,20 +102,16 @@ def _require(scopes, *required):
 
 
 def _declared(answer):
-    """Declare the exclusions and enforce the EX01 minimisation decision on every answer."""
-    from src.ingestion.extractives_sources import (
-        EXCLUSIONS,
-        MINIMISATION,
-        personal_keys,
-    )
-    from src.kb.extractives_records import ExtractivesError, forbidden_keys
+    """Every answer declares the exclusions and is checked against the minimisation decision before it leaves."""
+    from src.ingestion.extractives_sources import EXCLUSIONS, personal_keys
+    from src.kb.extractives_records import ExtractivesError
 
-    if personal_keys(answer) or forbidden_keys(answer):
-        raise ExtractivesError("minimisation_violation", "an answer may not carry a natural-person field or a "
-                                                         "derived, converted, scored or forecast value")
-    if isinstance(answer, dict):
-        return {**answer, "exclusions": list(EXCLUSIONS), "minimisation": MINIMISATION["excluded"]}
-    return answer
+    if not isinstance(answer, dict):
+        return answer
+    found = personal_keys(answer)
+    if found:
+        raise ExtractivesError("personal_data_refused", "an answer would carry personal fields", paths=found)
+    return {**answer, "exclusions": list(EXCLUSIONS)}
 
 
 def register(mcp, safe, context):
@@ -115,7 +119,6 @@ def register(mcp, safe, context):
         return context()[0], context()[1]
 
     def run_tool(tool, operation, *, write=False):
-        """Checks every declared scope, runs the operation, declares exclusions and enforces minimisation."""
         scopes = EXTRACTIVES_SCOPES[tool]
 
         def run(conn):
@@ -127,237 +130,188 @@ def register(mcp, safe, context):
     @mcp.tool()
     def extractives_source_contracts() -> dict:
         """Per-provider access decisions (EITI summary data, USGS Mineral Commodity Summaries, BGS World Mineral
-        Statistics), endpoints, terms, revision models, the minimisation decision and the bounded coverage.
-        Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,
-        no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across
-        reports; USGS and BGS never blended."""
+        Statistics), formats, identifiers, licences, rate limits, revision models, the personal-data minimisation
+        decision and the bounded coverage; terms not re-verified live.
+        Exclusions: no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no
+        corruption or governance risk scoring, no price forecasts."""
         from src.ingestion.extractives_sources import (
-            BOUNDED_COVERAGE,
             EXCLUSIONS,
             LIVE_VERIFICATION,
-            MINIMISATION,
             NEVER_SENTENCE,
             PROVIDER_CONTRACTS,
+            coverage_report,
         )
 
         return {"contracts": PROVIDER_CONTRACTS, "live_verification": LIVE_VERIFICATION,
-                "bounded_coverage": BOUNDED_COVERAGE, "minimisation": MINIMISATION, "never": NEVER_SENTENCE,
-                "exclusions": list(EXCLUSIONS)}
+                "coverage": coverage_report(), "never": NEVER_SENTENCE, "exclusions": list(EXCLUSIONS)}
 
     @mcp.tool()
     def extractives_readiness() -> dict:
-        """Which extractives features are selected, the stores and per-provider releases."""
-        from src.kb.extractives_store import readiness
+        """Which extractives features are selected, whether the stores hold releases per provider, which link
+        targets (ownership, trade, Energy, public finance, infrastructure) are held, and the minimisation decision."""
+        from src.kb.extractives_records import readiness
 
         return run_tool("extractives_readiness", readiness)
 
     @mcp.tool()
-    def list_extractives_series(namespace: str, provider: str | None = None, statistic: str | None = None) -> dict:
-        """Commodity series with source, commodity and form as published, statistic, unit, country and vintages;
-        USGS and BGS series are always separate."""
-        from src.kb.extractives_records import authorize
-        from src.kb.extractives_store import ExtractivesStore
+    def list_extractives_series(namespace: str, provider: str | None = None, commodity: str | None = None,
+                                statistic: str | None = None, country: str | None = None) -> dict:
+        """Commodity series (production, reserves, imports, exports) keyed by source, commodity, statistic, unit and
+        country, with definition, licence and vintage count."""
+        from src.kb.extractives_store import read_store
+
+        return run_tool("list_extractives_series", lambda conn: {"series": read_store(
+            conn, namespace, who()[1]).find_series(namespace, provider=provider, commodity=commodity,
+                                                   statistic=statistic, country=country)})
+
+    @mcp.tool()
+    def extractives_series_values(namespace: str, series_id: str, as_of: str | None = None) -> dict:
+        """One series' values in the vintage published by the date (latest by default) with status, estimated and
+        revised markers and notes as published, every vintage and the release citation."""
+        from src.kb.extractives_records import ExtractivesError, as_of_ms
+        from src.kb.extractives_store import read_store
 
         def op(conn):
-            authorize(namespace, who()[1], READ)
-            return {"series": ExtractivesStore(conn, initialize=False).find_series(
-                namespace, provider=provider, statistic=statistic)}
+            store = read_store(conn, namespace, who()[1])
+            vintage = store.select_vintage(namespace, series_id, as_of_ms(as_of))
+            if vintage is None:
+                raise ExtractivesError("not_found", "no vintage of this series was published by the date")
+            return {"series": store.series(namespace, series_id), "vintage": vintage,
+                    "values": store.values(namespace, vintage["vintage_id"]),
+                    "citation": store.source_revision(namespace, vintage["release_id"]),
+                    "vintages": store.vintage_rows(namespace, series_id)}
 
-        return run_tool("list_extractives_series", op)
+        return run_tool("extractives_series_values", op)
 
     @mcp.tool()
-    def extractive_payments_for_company(namespace: str, company: str, ownership_namespace: str | None = None,
-                                        group: bool = False, as_of_ms: int | None = None, as_of: str | None = None,
-                                        history: bool = False) -> dict:
-        """Payments by a company (an extractives company key, or an ownership entity - with its group through
-        accepted ownership links when group=true) per EITI report revision and revenue stream: government- and
-        company-reported figures side by side with EITI's own discrepancies, each citing its report revision.
-        Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,
-        no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across
-        reports; USGS and BGS never blended."""
+    def query_extractives_production(namespace: str, commodity: str, country: str, as_of: str | None = None,
+                                     all_vintages: bool = False, statistic: str | None = None) -> dict:
+        """A commodity (source code, or hs:<heading> through accepted concordance matches) and a country to
+        production and reserves per source and vintage; USGS and BGS side by side, never blended; withheld and
+        estimated values stay marked.
+        Exclusions: no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no
+        corruption or governance risk scoring, no price forecasts."""
         from src.kb.extractives_queries import ExtractivesQueries
 
-        return run_tool("extractive_payments_for_company", lambda conn: ExtractivesQueries(conn).payments_for_company(
-            namespace, company, scopes=who()[1], ownership_namespace=ownership_namespace, group=group,
-            as_of_ms=as_of_ms, as_of=as_of, history=history, principal_id=who()[0]))
+        return run_tool("query_extractives_production", lambda conn: ExtractivesQueries(conn).production_and_reserves(
+            namespace, commodity, country, scopes=who()[1], as_of=as_of, all_vintages=all_vintages,
+            statistic=statistic))
 
     @mcp.tool()
-    def extractive_payments_for_country(namespace: str, country: str, as_of_ms: int | None = None,
-                                        history: bool = False) -> dict:
-        """A country's EITI reports (ISO alpha-3) as of a date: government revenues by stream, company lines and
-        discrepancies per report revision, cited.
-        Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,
-        no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across
-        reports; USGS and BGS never blended."""
+    def query_extractives_company_payments(namespace: str, entity: str, ownership_namespace: str,
+                                           as_of: str | None = None, group: bool = False,
+                                           all_versions: bool = False, include_unknowns: bool = False) -> dict:
+        """A company (ownership entity) and optionally its group as of a date to EITI payments per report version and
+        revenue stream through reviewed matches: government- and company-reported figures side by side with the
+        report's discrepancies, currencies as reported, each citing its report revision; no payment on record is
+        not a clean bill.
+        Exclusions: no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no
+        corruption or governance risk scoring, no price forecasts."""
         from src.kb.extractives_queries import ExtractivesQueries
 
-        return run_tool("extractive_payments_for_country", lambda conn: ExtractivesQueries(conn).payments_for_country(
-            namespace, country, scopes=who()[1], as_of_ms=as_of_ms, history=history))
+        return run_tool("query_extractives_company_payments",
+                        lambda conn: ExtractivesQueries(conn).payments_for_company(
+                            namespace, entity, ownership_namespace=ownership_namespace, scopes=who()[1], as_of=as_of,
+                            group=group, all_versions=all_versions, include_unknowns=include_unknowns,
+                            principal_id=who()[0]))
 
     @mcp.tool()
-    def commodity_production_side_by_side(namespace: str, commodity: str | dict, country: str | dict,
-                                          statistic: str | None = None, as_of_ms: int | None = None,
-                                          history: bool = False) -> dict:
-        """Production, reserves, capacity, imports or exports of a commodity (name as published or {hs_code})
-        for a country (name or ISO alpha-3) from each source by vintage; withheld, unavailable and estimated values
-        stay marked and each figure cites its vintage.
-        Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,
-        no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across
-        reports; USGS and BGS never blended."""
+    def query_extractives_country_payments(namespace: str, country: str, as_of: str | None = None,
+                                           all_versions: bool = False) -> dict:
+        """A country's EITI reports as of a date: versions, revenue streams with government-reported totals as
+        published, and payments with each company's match status (individual payers' names withheld).
+        Exclusions: no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no
+        corruption or governance risk scoring, no price forecasts."""
         from src.kb.extractives_queries import ExtractivesQueries
 
-        return run_tool("commodity_production_side_by_side", lambda conn: ExtractivesQueries(conn).production(
-            namespace, commodity=commodity, country=country, scopes=who()[1], statistic=statistic, as_of_ms=as_of_ms,
-            history=history))
+        return run_tool("query_extractives_country_payments",
+                        lambda conn: ExtractivesQueries(conn).payments_for_country(
+                            namespace, country, scopes=who()[1], as_of=as_of, all_versions=all_versions))
 
     @mcp.tool()
-    def extractives_series_history(namespace: str, series_id: str) -> dict:
-        """Every retained vintage of a commodity series with its new, revised and removed years."""
+    def extractives_record_history(namespace: str, record_key: str) -> dict:
+        """Every revision of one EITI record (report version, state, as-of time) with its citation."""
         from src.kb.extractives_queries import ExtractivesQueries
 
-        return run_tool("extractives_series_history", lambda conn: ExtractivesQueries(conn).series_history(
-            namespace, series_id, scopes=who()[1]))
+        return run_tool("extractives_record_history", lambda conn: ExtractivesQueries(conn).record_history(
+            namespace, record_key, scopes=who()[1]))
 
     @mcp.tool()
-    def eiti_report_history(namespace: str, report_key: str) -> dict:
-        """Every retained revision of an EITI report (a withdrawal or correction is a revision) with its lines."""
+    def export_extractives_evidence_bundle(namespace: str, query: str, key: str, country: str | None = None,
+                                           ownership_namespace: str | None = None, as_of: str | None = None,
+                                           group: bool = False) -> dict:
+        """An evidence bundle for 'company' (key = ownership entity), 'country' (key = ISO code) or 'commodity'
+        (key = commodity, with country): every assertion cites source, record revision and as-of time.
+        Exclusions: no reconciliation of payment discrepancies beyond the EITI reports, no own reserve estimates, no
+        corruption or governance risk scoring, no price forecasts."""
         from src.kb.extractives_queries import ExtractivesQueries
-
-        return run_tool("eiti_report_history", lambda conn: ExtractivesQueries(conn).report_history(
-            namespace, report_key, scopes=who()[1]))
-
-    @mcp.tool()
-    def list_extractives_identity(namespace: str, kind: str | None = None, state: str | None = None) -> dict:
-        """Commodity, country and project mappings (proposed, unmatched, accepted, rejected, reverted), each with
-        method, evidence and confidence."""
-        from src.kb.extractives_identity import ExtractivesIdentity
-
-        return run_tool("list_extractives_identity", lambda conn: {
-            "assertions": ExtractivesIdentity(conn, initialize=False).assertions(namespace, scopes=who()[1],
-                                                                                 kind=kind, state=state)})
-
-    @mcp.tool()
-    def list_extractives_company_matches(namespace: str) -> dict:
-        """Reporting-company candidates against ownership entities (exact identifier first, names as low evidence)
-        and the companies that stay unmatched; nothing is auto-merged."""
-        from src.kb.extractives_identity import ExtractivesIdentity
 
         def op(conn):
-            identity = ExtractivesIdentity(conn, initialize=False)
-            return {"candidates": identity.company_candidates(namespace, scopes=who()[1]),
-                    "unmatched": identity.unmatched_companies(namespace, scopes=who()[1])}
+            ask = ExtractivesQueries(conn)
+            if query == "company":
+                if not ownership_namespace:
+                    from src.kb.extractives_records import ExtractivesError
 
-        return run_tool("list_extractives_company_matches", op)
-
-    @mcp.tool()
-    def list_extractives_links(namespace: str, source_id: str | None = None, target_owner: str | None = None,
-                               state: str | None = None) -> dict:
-        """Links to public finance, trade, energy and infrastructure with their basis (citation, shared identifier
-        or accepted match) and target revision; missing providers or targets are listed as unresolved."""
-        from src.kb.extractives_links import ExtractivesLinks
-
-        return run_tool("list_extractives_links", lambda conn: {"links": ExtractivesLinks(conn, initialize=False).links(
-            namespace, scopes=who()[1], source_id=source_id, target_owner=target_owner, state=state)})
-
-    @mcp.tool()
-    def export_extractives_evidence_bundle(namespace: str, question: str, company: str | None = None,
-                                           country: str | dict | None = None, commodity: str | dict | None = None,
-                                           ownership_namespace: str | None = None, group: bool = False,
-                                           as_of_ms: int | None = None) -> dict:
-        """An evidence bundle for a payments or production answer, citing every item with source, record revision
-        and as-of time (question: payments-for-company, payments-for-country or commodity-production).
-        Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,
-        no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across
-        reports; USGS and BGS never blended."""
-        from src.kb.extractives_queries import ExtractivesQueries
-        from src.kb.extractives_records import ExtractivesError
-
-        def op(conn):
-            queries = ExtractivesQueries(conn)
-            if question == "payments-for-company":
-                answer = queries.payments_for_company(namespace, str(company), scopes=who()[1],
-                                                      ownership_namespace=ownership_namespace, group=group,
-                                                      as_of_ms=as_of_ms, principal_id=who()[0])
-            elif question == "payments-for-country":
-                answer = queries.payments_for_country(namespace, str(country), scopes=who()[1], as_of_ms=as_of_ms)
-            elif question == "commodity-production":
-                answer = queries.production(namespace, commodity=commodity, country=country, scopes=who()[1],
-                                            as_of_ms=as_of_ms)
+                    raise ExtractivesError("invalid_request", "a company bundle names its ownership namespace")
+                answer = ask.payments_for_company(namespace, key, ownership_namespace=ownership_namespace,
+                                                  scopes=who()[1], as_of=as_of, group=group, principal_id=who()[0])
+            elif query == "country":
+                answer = ask.payments_for_country(namespace, key, scopes=who()[1], as_of=as_of)
+            elif query == "commodity" and country:
+                answer = ask.production_and_reserves(namespace, key, country, scopes=who()[1], as_of=as_of)
             else:
-                raise ExtractivesError("invalid_query", "question is payments-for-company, payments-for-country or "
-                                                        "commodity-production")
-            return {"bundle": queries.export_bundle(answer)}
+                from src.kb.extractives_records import ExtractivesError
+
+                raise ExtractivesError("invalid_request", "query is company, country or commodity (with country)")
+            return {"status": answer["status"], "evidence_bundle": ask.evidence_bundle(answer)}
 
         return run_tool("export_extractives_evidence_bundle", op)
 
     @mcp.tool()
+    def list_extractives_matches(namespace: str, kind: str | None = None, state: str | None = None) -> dict:
+        """Company matches (with method, confidence, reviewer and evidence) and commodity/project matches, and the
+        companies that stay unmatched."""
+        from src.kb.extractives_identity import read_identity
+
+        def op(conn):
+            identity = read_identity(conn, namespace, who()[1])
+            out = {"matches": identity.matches(namespace, kind=kind, state=state)}
+            if kind in (None, "company"):
+                out["company_matches"] = [c for c in identity.company_candidates(namespace, scopes=who()[1])
+                                          if state is None or c["state"] == state]
+                out["unmatched_companies"] = identity.unmatched_companies(namespace, scopes=who()[1])
+            return out
+
+        return run_tool("list_extractives_matches", op)
+
+    @mcp.tool()
+    def list_extractives_links(namespace: str, subject_id: str | None = None, target_kind: str | None = None) -> dict:
+        """Links to public finance, trade flows, Energy and infrastructure with basis, status and revisions."""
+        from src.kb.extractives_links import read_links
+
+        return run_tool("list_extractives_links", lambda conn: {"links": read_links(conn, namespace, who()[1]).links(
+            namespace, subject_id=subject_id, target_kind=target_kind)})
+
+    @mcp.tool()
     def poll_extractives_monitor(subscription_id: str, cursor: str = "") -> dict:
-        """Poll an extractives monitor's events (new reports, report revisions, new releases, revised values)."""
+        """Poll an extractives monitor's delivered notices."""
         from src.kb.extractives_monitoring import ExtractivesMonitor
 
         return run_tool("poll_extractives_monitor", lambda conn: ExtractivesMonitor(conn, initialize=False).poll(
             subscription_id, principal_id=who()[0], scopes=who()[1], cursor=cursor))
 
-    # ------------------------------------------------------------------ writes
-
-    @mcp.tool()
-    def import_extractives_concordance(namespace: str, table: dict) -> dict:
-        """Record a published commodity-to-HS or country-name-to-code table with its URL, publisher, publication
-        date and file digest; each row exact, partial or one-to-many as published."""
-        from src.kb.extractives_identity import ExtractivesIdentity
-
-        return run_tool("import_extractives_concordance", lambda conn: ExtractivesIdentity(conn).import_concordance(
-            namespace, table, principal_id=who()[0], scopes=who()[1]), write=True)
-
-    @mcp.tool()
-    def propose_extractives_identity(namespace: str, kind: str, infra_namespace: str | None = None) -> dict:
-        """Propose commodity (stated HS code, else a cited concordance), country (published code, else a cited code
-        list) or project (published identifier or coordinates of an infrastructure asset) mappings; unmatched
-        subjects stay visible and nothing is used until reviewed."""
-        from src.kb.extractives_identity import ExtractivesIdentity
-        from src.kb.extractives_records import ExtractivesError
-
-        def op(conn):
-            identity = ExtractivesIdentity(conn)
-            if kind == "commodity":
-                return identity.propose_commodities(namespace, principal_id=who()[0], scopes=who()[1])
-            if kind == "country":
-                return identity.propose_countries(namespace, principal_id=who()[0], scopes=who()[1])
-            if kind == "project":
-                return identity.propose_projects(namespace, infra_namespace=infra_namespace or "global",
-                                                 principal_id=who()[0], scopes=who()[1])
-            raise ExtractivesError("invalid_query", "kind is commodity, country or project")
-
-        return run_tool("propose_extractives_identity", op, write=True)
-
     @mcp.tool()
     def propose_extractives_company_matches(namespace: str, ownership_namespace: str) -> dict:
-        """Offer reporting companies to ownership entities: published identifiers first, names as low evidence;
-        never accepted automatically; redacted natural persons are never proposed."""
+        """Offer EITI companies to ownership entities: published identifiers first, equal names as low-evidence
+        candidates; nothing accepted automatically, individual payers never offered."""
         from src.kb.extractives_identity import ExtractivesIdentity
 
         return run_tool("propose_extractives_company_matches", lambda conn: ExtractivesIdentity(conn).propose_companies(
             namespace, ownership_namespace=ownership_namespace, principal_id=who()[0], scopes=who()[1]), write=True)
 
     @mcp.tool()
-    def review_extractives_identity(namespace: str, assertion_id: str, decision: str, reason: str) -> dict:
-        """Accept or reject a proposed commodity, country or project mapping with a reason."""
-        from src.kb.extractives_identity import ExtractivesIdentity
-
-        return run_tool("review_extractives_identity", lambda conn: ExtractivesIdentity(conn).review(
-            namespace, assertion_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True)
-
-    @mcp.tool()
-    def revert_extractives_identity(namespace: str, assertion_id: str, reason: str) -> dict:
-        """Revert a reviewed commodity, country or project mapping; the subject is unmapped again."""
-        from src.kb.extractives_identity import ExtractivesIdentity
-
-        return run_tool("revert_extractives_identity", lambda conn: ExtractivesIdentity(conn).revert(
-            namespace, assertion_id, reason, principal_id=who()[0], scopes=who()[1]), write=True)
-
-    @mcp.tool()
     def review_extractives_company_match(namespace: str, candidate_id: str, decision: str, reason: str) -> dict:
-        """Accept or reject a company candidate as an entity identity decision (records are never merged)."""
+        """Accept or reject a company candidate with a reason (an entity identity decision)."""
         from src.kb.extractives_identity import ExtractivesIdentity
 
         return run_tool("review_extractives_company_match", lambda conn: ExtractivesIdentity(conn).review_company(
@@ -365,49 +319,106 @@ def register(mcp, safe, context):
 
     @mcp.tool()
     def revert_extractives_company_match(namespace: str, candidate_id: str, reason: str) -> dict:
-        """Revert a company identity decision; payments stay as reported and the company is unmatched again."""
+        """Revert a company decision with a reason; records stay intact."""
         from src.kb.extractives_identity import ExtractivesIdentity
 
         return run_tool("revert_extractives_company_match", lambda conn: ExtractivesIdentity(conn).revert_company(
             namespace, candidate_id, reason, principal_id=who()[0], scopes=who()[1]), write=True)
 
     @mcp.tool()
-    def link_extractives_records(namespace: str, finance_namespace: str = "global", trade_namespace: str = "global",
-                                 energy_namespace: str = "global") -> dict:
-        """Link payments to public-finance lines, commodities to trade series, hydrocarbon series to Energy series
-        and projects to infrastructure assets by shared identifier or accepted match; missing providers or targets
-        are reported, never dropped.
-        Exclusions: no reconciliation of payment discrepancies beyond those EITI reports, no own reserve estimates,
-        no corruption or governance risk scoring, no price forecasts; currencies never converted or summed across
-        reports; USGS and BGS never blended."""
-        from src.kb.extractives_links import ExtractivesLinks
+    def import_extractives_concordance(namespace: str, table: dict) -> dict:
+        """Record a published commodity-to-HS correspondence with its citation (URL and publication date)."""
+        from src.kb.extractives_identity import ExtractivesIdentity
 
-        def op(conn):
-            links = ExtractivesLinks(conn)
-            principal, scopes = who()
-            return {"public_finance": links.link_public_finance(namespace, principal_id=principal, scopes=scopes,
-                                                                finance_namespace=finance_namespace),
-                    "trade": links.link_trade(namespace, principal_id=principal, scopes=scopes,
-                                              trade_namespace=trade_namespace),
-                    "energy": links.link_energy(namespace, principal_id=principal, scopes=scopes,
-                                                energy_namespace=energy_namespace),
-                    "infrastructure": links.link_infrastructure(namespace, principal_id=principal, scopes=scopes)}
-
-        return run_tool("link_extractives_records", op, write=True)
+        return run_tool("import_extractives_concordance", lambda conn: ExtractivesIdentity(conn).import_concordance(
+            namespace, table, principal_id=who()[0], scopes=who()[1]), write=True)
 
     @mcp.tool()
-    def create_extractives_monitor(namespace: str, request_key: str, target: dict, delivery: dict | None = None) -> dict:
-        """Subscribe to a company, a country or a commodity: notices of new EITI reports, report revisions and new
-        commodity releases, each citing the new or revised record (record changes, never assessments)."""
+    def propose_extractives_commodity_matches(namespace: str) -> dict:
+        """Propose commodity-to-HS matches from recorded published concordances only; no code is guessed."""
+        from src.kb.extractives_identity import ExtractivesIdentity
+
+        return run_tool("propose_extractives_commodity_matches",
+                        lambda conn: ExtractivesIdentity(conn).propose_commodities(
+                            namespace, principal_id=who()[0], scopes=who()[1]), write=True)
+
+    @mcp.tool()
+    def propose_extractives_project_matches(namespace: str, infrastructure_namespace: str) -> dict:
+        """Propose project-to-infrastructure matches by shared published identifiers or equal published
+        coordinates; never by name."""
+        from src.kb.extractives_identity import ExtractivesIdentity
+
+        return run_tool("propose_extractives_project_matches",
+                        lambda conn: ExtractivesIdentity(conn).propose_projects(
+                            namespace, infrastructure_namespace=infrastructure_namespace, principal_id=who()[0],
+                            scopes=who()[1]), write=True)
+
+    @mcp.tool()
+    def review_extractives_match(namespace: str, match_id: str, decision: str, reason: str) -> dict:
+        """Accept or reject a proposed commodity or project match with a reason."""
+        from src.kb.extractives_identity import ExtractivesIdentity
+
+        return run_tool("review_extractives_match", lambda conn: ExtractivesIdentity(conn).review(
+            namespace, match_id, decision, reason, principal_id=who()[0], scopes=who()[1]), write=True)
+
+    @mcp.tool()
+    def revert_extractives_match(namespace: str, match_id: str, reason: str) -> dict:
+        """Revert an accepted or rejected commodity or project match with a reason."""
+        from src.kb.extractives_identity import ExtractivesIdentity
+
+        return run_tool("revert_extractives_match", lambda conn: ExtractivesIdentity(conn).revert(
+            namespace, match_id, reason, principal_id=who()[0], scopes=who()[1]), write=True)
+
+    @mcp.tool()
+    def link_extractives_public_finance(namespace: str, record_key: str, line_id: str, citation: dict,
+                                        public_finance_namespace: str | None = None) -> dict:
+        """Link an EITI payment or revenue stream to a public-finance budget line by explicit citation; an absent
+        store or line is recorded as provider_absent or target_not_found."""
+        from src.kb.extractives_links import ExtractivesLinks
+
+        return run_tool("link_extractives_public_finance", lambda conn: ExtractivesLinks(conn).link_public_finance(
+            namespace, record_key, line_id, citation, principal_id=who()[0], scopes=who()[1],
+            public_finance_namespace=public_finance_namespace), write=True)
+
+    @mcp.tool()
+    def link_extractives_trade_flows(namespace: str, trade_namespace: str | None = None) -> dict:
+        """Link commodity series to trade series within an accepted HS heading for the same published country
+        code; values side by side, never combined."""
+        from src.kb.extractives_links import ExtractivesLinks
+
+        return run_tool("link_extractives_trade_flows", lambda conn: ExtractivesLinks(conn).link_trade_flows(
+            namespace, principal_id=who()[0], scopes=who()[1], trade_namespace=trade_namespace), write=True)
+
+    @mcp.tool()
+    def link_extractives_energy(namespace: str, energy_namespace: str = "energy") -> dict:
+        """Link hydrocarbon series to Energy balance series by shared SIEC and country codes."""
+        from src.kb.extractives_links import ExtractivesLinks
+
+        return run_tool("link_extractives_energy", lambda conn: ExtractivesLinks(conn).link_energy(
+            namespace, principal_id=who()[0], scopes=who()[1], energy_namespace=energy_namespace), write=True)
+
+    @mcp.tool()
+    def link_extractives_infrastructure(namespace: str) -> dict:
+        """Link projects to infrastructure assets through accepted project matches; no ownership inferred."""
+        from src.kb.extractives_links import ExtractivesLinks
+
+        return run_tool("link_extractives_infrastructure", lambda conn: ExtractivesLinks(conn).link_infrastructure(
+            namespace, principal_id=who()[0], scopes=who()[1]), write=True)
+
+    @mcp.tool()
+    def create_extractives_monitor(namespace: str, request_key: str, watch: dict,
+                                   delivery: dict | None = None) -> dict:
+        """Subscribe to companies, countries or commodities: notices of new EITI report versions, payment revisions
+        and new or revised commodity releases (record changes, not assessments)."""
         from src.kb.extractives_monitoring import ExtractivesMonitor
 
         return run_tool("create_extractives_monitor", lambda conn: ExtractivesMonitor(conn).create(
-            namespace, request_key, target=target, principal_id=who()[0], scopes=who()[1], delivery=delivery),
+            namespace, request_key, watch=watch, principal_id=who()[0], scopes=who()[1], delivery=delivery),
             write=True)
 
     @mcp.tool()
     def run_extractives_monitor(subscription_id: str, watermark: int | None = None) -> dict:
-        """Evaluate an extractives monitor at a committed watermark; notices cite the records before and after."""
+        """Evaluate an extractives monitor at a committed watermark; notices cite the record revision and release."""
         from src.kb.extractives_monitoring import ExtractivesMonitor
 
         return run_tool("run_extractives_monitor", lambda conn: ExtractivesMonitor(conn).run(

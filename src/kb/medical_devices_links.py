@@ -1,27 +1,28 @@
-"""Medical-device records linked to other packs by citation, shared identifier or accepted match (#2654, MD08).
+"""Medical device records linked to other packs by citation, shared identifier or accepted match (#2654, MD08).
 
-Every link points at a specific record revision on both sides and records its
-basis:
+Links are derived from what a record publishes and are never inferred:
 
-* ``product-safety`` - a device recall and a Product safety notice
-  (:mod:`src.kb.product_safety`) whose number equals the recall number
-  (``shared-identifier``) or whose published text quotes it (``citation``, with
-  the JSON pointer of the quoting field);
-* ``medicines`` - a device record whose published text cites a Drugs@FDA
-  application number (a combination product) and the Medicines record
-  (``medicinal-product``, :mod:`src.kb.clinical_medicines`) with that number
-  (``citation``);
-* ``trial`` - a registered trial (:mod:`src.kb.clinical_records`) whose title,
-  summary or interventions name a device's K or P number or UDI-DI, and that
-  device record (``citation``);
-* ``ownership`` - a manufacturer's records and the Corporate Ownership record of
-  an accepted MD07 ``name+country`` match (``accepted-match``);
-* ``products`` - a GUDID device and the Products identity of an accepted MD07
-  ``gtin`` match (``accepted-match``).
+* **recall -> Product safety notice** (``products.safety-notices``): a notice
+  whose notice number is the recall number or recall event id
+  (``shared-identifier``), reusing the Product safety notice tables;
+* **recall -> clearance / approval** in this pack: the K and P numbers the
+  recall cites (``citation``);
+* **MAUDE report -> GUDID device**: the UDI-DI the report publishes
+  (``shared-identifier``); **certificate -> EUDAMED device** and **EUDAMED
+  device -> actor**: the Basic UDI-DI and SRN they cite (``citation``);
+* **combination product -> Medicines record** (``clinical.medicines``): a drug
+  application number (NDA, BLA, ANDA) a GUDID record publishes among its
+  premarket submissions, equal to a Drugs@FDA medicinal-product
+  (``shared-identifier``);
+* **device -> clinical-trial record** (``clinical.core``): a trial registration
+  whose published text names the device's K number, P number, UDI-DI or Basic
+  UDI-DI exactly (``citation``, identifier only - never a device name);
+* **manufacturer -> Corporate Ownership entity**: an accepted MD07 match
+  (``accepted-match``).
 
-Absent providers are reported as ``provider_unavailable`` and cited targets that
-are not on record as ``missing_targets``; neither is dropped. A link states a
-citation or a reviewed match only: it is never a safety conclusion.
+Every link points at the specific revision of both records. A target the pack
+does not hold is reported as ``target-missing``; a pack that is not installed
+as ``provider-missing`` - never dropped. No link carries a safety conclusion.
 """
 
 from __future__ import annotations
@@ -29,14 +30,13 @@ from __future__ import annotations
 import json
 import re
 import time
-from collections.abc import Callable, Iterable, Mapping
+from collections.abc import Callable, Iterable
 from typing import Any
 
-from src.kb.medical_devices_identity import MedicalDevicesIdentity
 from src.kb.medical_devices_records import (
     READ_SCOPE,
     WRITE_SCOPE,
-    MedicalDevicesError,
+    MedicalDeviceStore,
     authorize,
     canonical,
     digest,
@@ -44,290 +44,206 @@ from src.kb.medical_devices_records import (
 )
 
 CONTRACT = "noesis-medical-device-link-v1"
-LINK_KINDS = ("product-safety", "medicines", "trial", "ownership", "products")
-NOTICE = ("a link states a citation, a shared identifier or a reviewed identity match; it is not a safety "
-          "conclusion, a causal reading or clinical advice")
-APPLICATION = re.compile(r"\b(NDA|ANDA|BLA)\s?(\d{6})\b")
+BASES = ("citation", "shared-identifier", "accepted-match")
+STATUSES = ("linked", "target-missing", "provider-missing")
 _DDL = """
 CREATE TABLE IF NOT EXISTS medical_device_links (
-  namespace TEXT NOT NULL, link_id TEXT NOT NULL, link_kind TEXT NOT NULL, record_key TEXT NOT NULL,
-  record_revision_id TEXT NOT NULL, target_key TEXT NOT NULL, target_namespace TEXT NOT NULL,
-  target_revision TEXT, basis_json TEXT NOT NULL, created_by TEXT NOT NULL, created_at_ms BIGINT NOT NULL,
-  PRIMARY KEY(namespace, link_id)
+  namespace TEXT NOT NULL, link_id TEXT NOT NULL, record_key TEXT NOT NULL, record_revision_id TEXT NOT NULL,
+  target_pack TEXT NOT NULL, target_kind TEXT NOT NULL, target_key TEXT NOT NULL, target_revision TEXT,
+  target_namespace TEXT NOT NULL, basis TEXT NOT NULL, status TEXT NOT NULL, evidence_json TEXT NOT NULL,
+  linked_at_ms BIGINT NOT NULL, PRIMARY KEY(namespace, link_id)
 );
 """
-_COLUMNS = ("link_id", "link_kind", "record_key", "record_revision_id", "target_key", "target_namespace",
-            "target_revision", "basis_json", "created_by", "created_at_ms")
-# Published text fields that may quote another register's identifier.
-TEXT_FIELDS = ("ao_statement", "statement_or_summary", "device_description", "product_description",
-               "reason_for_recall", "supplement_reason", "code_info")
+_COLUMNS = ("link_id", "record_key", "record_revision_id", "target_pack", "target_kind", "target_key",
+            "target_revision", "target_namespace", "basis", "status", "evidence_json", "linked_at_ms")
 
 
-def _link_view(row) -> dict[str, Any]:
-    view = dict(zip(_COLUMNS, row))
-    view["basis"] = json.loads(view.pop("basis_json"))
-    return {"contract": CONTRACT, **view, "notice": NOTICE}
+def _token(value: str) -> re.Pattern[str]:
+    return re.compile(r"(?<![A-Za-z0-9])" + re.escape(value) + r"(?![A-Za-z0-9])")
 
 
-def token(value: str) -> re.Pattern[str]:
-    return re.compile(r"(?<![0-9A-Za-z])" + re.escape(value) + r"(?![0-9A-Za-z])")
-
-
-def _quotes(value: Any, pattern: re.Pattern[str], path: str = "") -> list[str]:
-    """JSON pointers of every string in ``value`` that contains ``pattern``."""
-    if isinstance(value, str):
-        return [path or "/"] if pattern.search(value) else []
-    if isinstance(value, Mapping):
-        return [p for k, v in value.items() for p in _quotes(v, pattern, f"{path}/{k}")]
-    if isinstance(value, list):
-        return [p for i, v in enumerate(value) for p in _quotes(v, pattern, f"{path}/{i}")]
-    return []
-
-
-class MedicalDevicesLinks:
+class MedicalDeviceLinks:
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None, initialize: bool = True) -> None:
         self.conn = conn
-        self.identity = MedicalDevicesIdentity(conn, now=now, initialize=initialize)
-        self.store = self.identity.store
         self.now = now or (lambda: int(time.time() * 1000))
+        self.store = MedicalDeviceStore(conn, initialize=initialize, now=self.now)
         if initialize:
             conn.execute(_DDL)
 
-    def ready(self) -> bool:
-        return table_exists(self.conn, "medical_device_links")
+    def _put(self, namespace, view, target_pack, target_kind, target_key, target_revision, target_namespace, basis,
+             status, evidence, out) -> None:
+        link_id = "md-link:" + digest([namespace, view["revision_id"], target_pack, target_key, basis])[:24]
+        self.conn.execute("DELETE FROM medical_device_links WHERE namespace=? AND link_id=?", [namespace, link_id])
+        self.conn.execute("INSERT INTO medical_device_links VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                          [namespace, link_id, view["record_key"], view["revision_id"], target_pack, target_kind,
+                           target_key, None if target_revision is None else str(target_revision), target_namespace,
+                           basis, status, canonical(evidence), self.now()])
+        out.append(link_id)
 
-    def _insert(self, namespace: str, kind: str, row: Mapping[str, Any], target_key: str, target_namespace: str,
-                target_revision: str | None, basis: Mapping[str, Any], principal_id: str
-                ) -> tuple[dict[str, Any], bool]:
-        link_id = "md-link:" + digest([namespace, kind, row["revision_id"], target_key, target_namespace,
-                                       target_revision])[:24]
-        created = not self.conn.execute("SELECT 1 FROM medical_device_links WHERE namespace=? AND link_id=?",
-                                        [namespace, link_id]).fetchone()
-        if created:
-            self.conn.execute("INSERT INTO medical_device_links VALUES (?,?,?,?,?,?,?,?,?,?,?)",
-                              [namespace, link_id, kind, row["record_key"], row["revision_id"], target_key,
-                               target_namespace, target_revision, canonical(basis), principal_id, self.now()])
-        found = self.conn.execute("SELECT " + ", ".join(_COLUMNS) + " FROM medical_device_links WHERE namespace=? "
-                                  "AND link_id=?", [namespace, link_id]).fetchone()
-        return _link_view(found), created
+    # ------------------------------------------------------------------ link
 
-    @staticmethod
-    def _result(kind: str, links: list, created: int, missing: list, **extra: Any) -> dict[str, Any]:
-        return {"kind": kind, "status": "linked" if links else "none_linked", "links": links, "created": created,
-                "missing_targets": missing, **extra}
+    def link(self, namespace: str, *, scopes: Iterable[str], ownership_namespace: str | None = None,
+             safety_namespace: str = "global") -> dict[str, Any]:
+        """(Re)derive every link of the current revisions; idempotent. Missing providers are recorded, not dropped."""
+        from src.kb.medical_devices_identity import MedicalDeviceIdentity
 
-    @staticmethod
-    def _unavailable(kind: str, provider: str, reason: str) -> dict[str, Any]:
-        return {"kind": kind, "status": "provider_unavailable", "provider": provider, "reason": reason, "links": [],
-                "created": 0, "missing_targets": []}
-
-    # ------------------------------------------------------------------ product safety (recall numbers)
-
-    def link_product_safety(self, namespace: str, products_namespace: str | None, *, principal_id: str,
-                            scopes: set[str]) -> dict[str, Any]:
-        kind = "product-safety"
-        if not products_namespace or not table_exists(self.conn, "product_safety_notices"):
-            return self._unavailable(kind, "products.safety", "no Product safety notices are on record")
-        from src.kb.product_safety import READ_SCOPE as PRODUCTS_READ
-        from src.kb.product_safety import authorize as products_authorize
-
+        scopes = set(scopes)
+        authorize(namespace, scopes, WRITE_SCOPE, write=True)
+        if not table_exists(self.conn, "medical_device_links"):
+            self.conn.execute(_DDL)
+        views = self.store.records(namespace, scopes=scopes, include_unpublished=False)
+        by_key = {v["record_key"]: v for v in views}
+        out: list[str] = []
+        self.conn.execute("BEGIN")
         try:
-            products_authorize(products_namespace, scopes, PRODUCTS_READ)
-        except Exception as exc:  # noqa: BLE001 - a missing grant degrades to an unavailable provider
-            return self._unavailable(kind, "products.safety", getattr(exc, "code", "unauthorized"))
-        notices = self.conn.execute(
-            "SELECT n.notice_id, n.provider, n.notice_number, c.revision_id, v.statement_json FROM "
-            "product_safety_notices n JOIN product_safety_current c ON c.namespace=n.namespace AND "
-            "c.notice_id=n.notice_id JOIN product_safety_revisions v ON v.namespace=c.namespace AND "
-            "v.revision_id=c.revision_id WHERE n.namespace=? ORDER BY n.notice_id", [products_namespace]).fetchall()
-        links, created, missing = [], 0, []
-        for row in self.store.records(namespace, scopes=scopes, kinds=["recall"]):
-            number = row["record"]["fields"]["recall_number"]
-            pattern, found = token(number), False
-            for notice_id, provider, notice_number, revision_id, statement in notices:
-                if notice_number == number:
-                    basis = {"basis": "shared-identifier", "recall_number": number, "notice_provider": provider}
-                else:
-                    pointers = _quotes(json.loads(statement), pattern)
-                    if not pointers:
-                        continue
-                    basis = {"basis": "citation", "recall_number": number, "notice_provider": provider,
-                             "notice_number": notice_number, "quoted_at": pointers}
-                found = True
-                view, new = self._insert(namespace, kind, row, notice_id, products_namespace, revision_id, basis,
-                                         principal_id)
-                links.append(view)
-                created += new
-            if not found:
-                missing.append({"record_key": row["record_key"], "recall_number": number,
-                                "reason": "no Product safety notice on record names this recall number"})
-        return self._result(kind, links, created, missing)
+            for view in views:
+                record, fields = view["record"], view["record"]["fields"]
+                kind = record["record_kind"]
+                if kind == "recall":
+                    self._safety(namespace, view, safety_namespace, out)
+                    for scheme, prefix in (("k_numbers", "510k"), ("pma_numbers", "pma")):
+                        for number in fields.get(scheme) or []:
+                            key = f"medical-devices:fda:{prefix}:{number}"
+                            target = by_key.get(key)
+                            self._put(namespace, view, "clinical-evidence", "clinical.devices", key,
+                                      target["revision_id"] if target else None, namespace, "citation",
+                                      "linked" if target else "target-missing",
+                                      {"cited": number, "field": f"fields.{scheme}"}, out)
+                if kind == "adverse-event-report":
+                    for device in fields.get("devices") or []:
+                        if device.get("udi_di"):
+                            key = f"medical-devices:gudid:di:{device['udi_di']}"
+                            target = by_key.get(key)
+                            self._put(namespace, view, "clinical-evidence", "clinical.devices", key,
+                                      target["revision_id"] if target else None, namespace, "shared-identifier",
+                                      "linked" if target else "target-missing",
+                                      {"udi_di": device["udi_di"], "field": "fields.devices[].udi_di"}, out)
+                if kind == "eudamed-certificate":
+                    for basic in fields.get("basic_udi_dis") or []:
+                        key = f"medical-devices:eudamed:basic-udi-di:{basic}"
+                        target = by_key.get(key)
+                        self._put(namespace, view, "clinical-evidence", "clinical.devices", key,
+                                  target["revision_id"] if target else None, namespace, "citation",
+                                  "linked" if target else "target-missing", {"basic_udi_di": basic}, out)
+                if kind in {"eudamed-device", "eudamed-certificate"} and fields.get("manufacturer_srn"):
+                    key = f"medical-devices:eudamed:actor:{fields['manufacturer_srn']}"
+                    target = by_key.get(key)
+                    self._put(namespace, view, "clinical-evidence", "clinical.devices", key,
+                              target["revision_id"] if target else None, namespace, "citation",
+                              "linked" if target else "target-missing", {"srn": fields["manufacturer_srn"]}, out)
+                if kind == "device-identifier":
+                    self._medicines(namespace, view, out)
+                if kind in {"clearance", "approval", "device-identifier", "eudamed-device"}:
+                    self._trials(namespace, view, out)
+            if ownership_namespace:
+                identity = MedicalDeviceIdentity(self.conn, initialize=False, now=self.now)
+                for subject in identity.manufacturers(namespace, scopes=scopes):
+                    for match in identity.accepted(namespace, subject["key"], scopes=scopes,
+                                                   target_kind="ownership-entity"):
+                        target = self._ownership_revision(match["namespace"], match["key"])
+                        for source in subject["records"]:
+                            view = by_key.get(source["record_key"])
+                            if view is None:
+                                continue
+                            self._put(namespace, view, "corporate-ownership", "ownership.core", match["key"],
+                                      target, match["namespace"], "accepted-match",
+                                      "linked" if target else "target-missing",
+                                      {"manufacturer_key": subject["key"], "candidate_id": match["candidate_id"],
+                                       "decision_id": match["decision_id"], "method": match["method"]}, out)
+            self.conn.execute("COMMIT")
+        except Exception:
+            self.conn.execute("ROLLBACK")
+            raise
+        links = self.links(namespace, scopes=scopes)
+        return {"derived": len(set(out)), "links": links,
+                "summary": {s: sum(link["status"] == s for link in links) for s in STATUSES},
+                "notice": "links record their basis and point at record revisions; no safety conclusion is drawn"}
 
-    # ------------------------------------------------------------------ medicines and trials (clinical store)
+    def _safety(self, namespace, view, safety_namespace, out) -> None:
+        fields = view["record"]["fields"]
+        wanted = [v for v in (fields.get("recall_number"), fields.get("event_id")) if v]
+        if not table_exists(self.conn, "product_safety_notices"):
+            self._put(namespace, view, "products", "products.safety-notices", fields["recall_number"], None,
+                      safety_namespace, "shared-identifier", "provider-missing",
+                      {"recall_number": fields["recall_number"], "reason": "the Products safety feature is not "
+                                                                           "installed in this deployment"}, out)
+            return
+        rows = self.conn.execute(
+            "SELECT n.notice_id, n.provider, n.notice_number, c.revision_id FROM product_safety_notices n LEFT JOIN "
+            "product_safety_current c ON c.namespace=n.namespace AND c.notice_id=n.notice_id WHERE n.namespace=? AND "
+            "n.notice_number IN (" + ",".join("?" * len(wanted)) + ") ORDER BY n.notice_id",
+            [safety_namespace, *wanted]).fetchall()
+        if not rows:
+            self._put(namespace, view, "products", "products.safety-notices", fields["recall_number"], None,
+                      safety_namespace, "shared-identifier", "target-missing",
+                      {"recall_number": fields["recall_number"], "event_id": fields.get("event_id")}, out)
+        for notice_id, provider, number, revision in rows:
+            self._put(namespace, view, "products", "products.safety-notices", notice_id, revision, safety_namespace,
+                      "shared-identifier", "linked", {"notice_number": number, "provider": provider}, out)
 
-    def _clinical(self, namespace: str, scopes: set[str], kinds: list[str]) -> list[dict[str, Any]] | None:
+    def _medicines(self, namespace, view, out) -> None:
+        numbers = [s["submission_number"] for s in view["record"]["fields"].get("premarket_submissions") or []
+                   if re.fullmatch(r"(NDA|ANDA|BLA)\d{6}", str(s.get("submission_number") or ""))]
+        if not numbers:
+            return
+        present = table_exists(self.conn, "clinical_records")
+        for number in numbers:
+            row = self.conn.execute(
+                "SELECT record_id, revision FROM clinical_records WHERE namespace=? AND provider='openfda' AND "
+                "native_id=? AND record_kind='medicinal-product'", [namespace, number]).fetchone() if present else None
+            self._put(namespace, view, "clinical-evidence", "clinical.medicines", row[0] if row else number,
+                      row[1] if row else None, namespace, "shared-identifier",
+                      "linked" if row else "target-missing" if present else "provider-missing",
+                      {"application_number": number, "field": "fields.premarket_submissions"}, out)
+
+    def _trials(self, namespace, view, out) -> None:
         if not table_exists(self.conn, "clinical_records"):
-            return None
-        from src.kb.clinical_records import ClinicalRecordStore
+            return  # reported once per answer through coverage; trials are optional context
+        identifiers = [i["value"] for i in view["record"].get("identifiers") or []
+                       if i["scheme"] in {"fda-510k", "fda-pma", "udi-di", "basic-udi-di"}]
+        if not identifiers:
+            return
+        rows = self.conn.execute(
+            "SELECT c.record_id, c.revision, r.content_json FROM clinical_records c JOIN clinical_record_revisions r "
+            "ON r.record_id=c.record_id AND r.revision=c.revision WHERE c.namespace=? AND "
+            "c.record_kind='registered-trial' ORDER BY c.record_id", [namespace]).fetchall()
+        for record_id, revision, content in rows:
+            text = json.dumps(json.loads(content), ensure_ascii=False)
+            for value in identifiers:
+                if _token(value).search(text):
+                    self._put(namespace, view, "clinical-evidence", "clinical.core", record_id, revision, namespace,
+                              "citation", "linked", {"identifier": value, "match": "exact identifier in the trial "
+                                                                                   "registration text"}, out)
 
-        return ClinicalRecordStore(self.conn, initialize=False).find(namespace, scopes=scopes, kinds=kinds)
+    def _ownership_revision(self, ownership_namespace: str, key: str) -> str | None:
+        from src.kb.ownership_store import record_id
 
-    def link_medicines(self, namespace: str, clinical_namespace: str | None, *, principal_id: str,
-                       scopes: set[str]) -> dict[str, Any]:
-        kind = "medicines"
-        try:
-            products = self._clinical(clinical_namespace or namespace, scopes, ["medicinal-product"])
-        except Exception as exc:  # noqa: BLE001 - access to the Medicines records is optional
-            return self._unavailable(kind, "clinical.medicines", getattr(exc, "code", "unavailable"))
-        if products is None:
-            return self._unavailable(kind, "clinical.medicines", "no clinical record store")
-        by_number = {p["native_id"]: p for p in products if p["provider"] == "openfda"}
-        links, created, missing = [], 0, []
-        for row in self.store.records(namespace, scopes=scopes):
-            fields = row["record"]["fields"]
-            cited: dict[str, list[str]] = {}
-            for field in TEXT_FIELDS:
-                for match in APPLICATION.finditer(str(fields.get(field) or "")):
-                    cited.setdefault(match[1] + match[2], []).append(f"/fields/{field}")
-            for number, pointers in sorted(cited.items()):
-                target = by_number.get(number)
-                if target is None:
-                    missing.append({"record_key": row["record_key"], "application_number": number,
-                                    "reason": "the cited application is not on record in the Medicines records"})
-                    continue
-                view, new = self._insert(namespace, kind, row, target["record_id"], clinical_namespace or namespace,
-                                         str(target["revision"]), {"basis": "citation", "application_number": number,
-                                                                   "quoted_at": pointers,
-                                                                   "target_record_kind": "medicinal-product"},
-                                         principal_id)
-                links.append(view)
-                created += new
-        return self._result(kind, links, created, missing)
-
-    def link_trials(self, namespace: str, clinical_namespace: str | None, *, principal_id: str,
-                    scopes: set[str]) -> dict[str, Any]:
-        kind = "trial"
-        try:
-            trials = self._clinical(clinical_namespace or namespace, scopes, ["registered-trial"])
-        except Exception as exc:  # noqa: BLE001 - access to the trial records is optional
-            return self._unavailable(kind, "clinical.core", getattr(exc, "code", "unavailable"))
-        if trials is None:
-            return self._unavailable(kind, "clinical.core", "no clinical record store")
-        links, created = [], 0
-        for row in self.store.records(namespace, scopes=scopes, kinds=["clearance", "approval", "device-identifier"]):
-            record = row["record"]
-            identifiers = sorted(set(record.get("premarket_numbers") or []) | set(record.get("udi_dis") or []))
-            if row["record_kind"] == "device-identifier":
-                identifiers = sorted(set(record.get("udi_dis") or []))  # the DI names the device itself
-            for trial in trials:
-                text = {k: trial["record"].get(k) for k in ("title", "brief_summary", "interventions")}
-                for identifier in identifiers:
-                    pointers = _quotes(text, token(identifier))
-                    if not pointers:
-                        continue
-                    view, new = self._insert(namespace, kind, row, trial["record_id"],
-                                             clinical_namespace or namespace, str(trial["revision"]),
-                                             {"basis": "citation", "identifier": identifier, "quoted_at": pointers,
-                                              "trial": trial["native_id"], "registry": trial["provider"]},
-                                             principal_id)
-                    links.append(view)
-                    created += new
-        return self._result(kind, links, created, [])
-
-    # ------------------------------------------------------------------ accepted matches (ownership, products)
-
-    def link_accepted(self, namespace: str, *, principal_id: str, scopes: set[str],
-                      ownership_namespace: str | None = None) -> list[dict[str, Any]]:
-        subjects = {s["record_key"]: s for s in self.identity.subjects(namespace, scopes=scopes)}
-        rows = {r["record_key"]: r for r in self.store.records(namespace, scopes=scopes)}
-        out = []
-        for kind, provider, methods in (("ownership", "ownership.core", {"name+country"}),
-                                        ("products", "products.core", {"gtin"})):
-            links, created, missing = [], 0, []
-            for key, subject in subjects.items():
-                for match in self.identity.accepted(namespace, key, scopes=scopes):
-                    if match["method"] not in methods:
-                        continue
-                    target_revision, target_namespace = None, None
-                    if kind == "ownership":
-                        target_revision = self._ownership_revision(ownership_namespace, match["record_key"])
-                        target_namespace = ownership_namespace if target_revision else None
-                    else:
-                        target_namespace, target_revision = self._product_revision(match["record_key"])
-                    if target_namespace is None:
-                        missing.append({"subject_key": key, "target_key": match["record_key"],
-                                        "reason": f"the accepted {provider} record is not on record"})
-                        continue
-                    for record_key in subject["records"]:
-                        view, new = self._insert(namespace, kind, rows[record_key], match["record_key"],
-                                                 target_namespace, target_revision,
-                                                 {"basis": "accepted-match", "method": match["method"],
-                                                  "identity_candidate_id": match["candidate_id"],
-                                                  "decision_id": match["decision_id"], "subject": key},
-                                                 principal_id)
-                        links.append(view)
-                        created += new
-            out.append(self._result(kind, links, created, missing))
-        return out
-
-    def _ownership_revision(self, ownership_namespace: str | None, record_key: str) -> str | None:
-        if not ownership_namespace or not table_exists(self.conn, "ownership_records"):
+        if not table_exists(self.conn, "ownership_records"):
             return None
         row = self.conn.execute(
             "SELECT v.revision_id FROM ownership_records r JOIN ownership_record_revisions v ON "
             "v.namespace=r.namespace AND v.record_id=r.record_id AND v.revision=r.current_revision WHERE "
-            "r.namespace=? AND r.record_key=? ORDER BY r.record_id LIMIT 1", [ownership_namespace, record_key]
-        ).fetchone()
+            "r.namespace=? AND r.record_id=?", [ownership_namespace, record_id(ownership_namespace, key)]).fetchone()
         return row[0] if row else None
 
-    def _product_revision(self, identity_id: str) -> tuple[str | None, str | None]:
-        if not table_exists(self.conn, "product_identities"):
-            return None, None
-        row = self.conn.execute("SELECT namespace FROM product_identities WHERE identity_id=?",
-                                [identity_id]).fetchone()
-        if row is None:
-            return None, None
-        current = self.conn.execute("SELECT revision_id FROM product_current WHERE variant_id=?",
-                                    [identity_id]).fetchone() if table_exists(self.conn, "product_current") else None
-        return row[0], current[0] if current else None
+    # ------------------------------------------------------------------ reads
 
-    # ------------------------------------------------------------------ entry point and reads
-
-    def link(self, namespace: str, *, principal_id: str, scopes: Iterable[str], kinds: Iterable[str] | None = None,
-             products_namespace: str | None = None, clinical_namespace: str | None = None,
-             ownership_namespace: str | None = None) -> dict[str, Any]:
-        """Link every record kind asked for; absent providers and missing targets are reported, never dropped."""
-        scopes = set(scopes)
-        authorize(namespace, scopes, WRITE_SCOPE, write=True)
-        authorize(namespace, scopes, READ_SCOPE)
-        kinds = list(kinds or LINK_KINDS)
-        unknown = set(kinds) - set(LINK_KINDS)
-        if unknown:
-            raise MedicalDevicesError("invalid_request", f"link kinds are {LINK_KINDS}")
-        results = []
-        if "product-safety" in kinds:
-            results.append(self.link_product_safety(namespace, products_namespace, principal_id=principal_id,
-                                                    scopes=scopes))
-        if "medicines" in kinds:
-            results.append(self.link_medicines(namespace, clinical_namespace, principal_id=principal_id,
-                                               scopes=scopes))
-        if "trial" in kinds:
-            results.append(self.link_trials(namespace, clinical_namespace, principal_id=principal_id, scopes=scopes))
-        if {"ownership", "products"} & set(kinds):
-            results += [r for r in self.link_accepted(namespace, principal_id=principal_id, scopes=scopes,
-                                                      ownership_namespace=ownership_namespace)
-                        if r["kind"] in kinds]
-        return {"contract": CONTRACT, "namespace": namespace, "results": results,
-                "unavailable": [r for r in results if r["status"] == "provider_unavailable"],
-                "missing_targets": [m for r in results for m in r["missing_targets"]], "notice": NOTICE}
-
-    def links(self, namespace: str, *, scopes: Iterable[str], kind: str | None = None,
-              record_key: str | None = None) -> list[dict[str, Any]]:
+    def links(self, namespace: str, *, scopes: Iterable[str], record_key: str | None = None,
+              status: str | None = None, target_pack: str | None = None) -> list[dict[str, Any]]:
         authorize(namespace, set(scopes), READ_SCOPE)
-        if not self.ready():
+        if not table_exists(self.conn, "medical_device_links"):
             return []
         rows = self.conn.execute(
             "SELECT " + ", ".join(_COLUMNS) + " FROM medical_device_links WHERE namespace=? AND (? IS NULL OR "
-            "link_kind=?) AND (? IS NULL OR record_key=?) ORDER BY link_kind, record_key, target_key",
-            [namespace, kind, kind, record_key, record_key]).fetchall()
-        return [_link_view(r) for r in rows]
+            "record_key=?) AND (? IS NULL OR status=?) AND (? IS NULL OR target_pack=?) ORDER BY record_key, "
+            "target_pack, target_key", [namespace, record_key, record_key, status, status, target_pack,
+                                        target_pack]).fetchall()
+        out = []
+        for row in rows:
+            item = dict(zip(_COLUMNS, row))
+            item["evidence"] = json.loads(item.pop("evidence_json"))
+            out.append({"contract": CONTRACT, **item})
+        return out
+
+
+__all__ = ["BASES", "CONTRACT", "STATUSES", "MedicalDeviceLinks"]

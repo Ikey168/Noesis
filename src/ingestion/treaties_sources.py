@@ -1,44 +1,55 @@
-"""Treaties and treaty actions acquisition for the Legal pack (#2581, TR01, TR03-TR05).
+"""UN Treaty Collection, EU international agreements (CELLAR) and Council of Europe treaty acquisition (#2581).
 
-The Legal pack's treaties provider (``legal.treaties``) adds one native
-connector, ``treaties``, registered beside the Legal adapters of
-:mod:`src.ingestion.legal_sources` in the ``legal-research`` source pack. Each
-source reads one bounded, declared selection from one documented provider and
-emits ``noesis-treaty-record-v1`` records as the provider published them:
+One native connector, ``treaties``, reads a bounded, declared selection of
+treaties from one depositary or catalogue per source and emits
+``noesis-treaty-record-v2`` records exactly as that source published them
+(TR01 audit: ``docs/development/treaties-evidence/source-audit.md``):
 
-* ``untc-status-html`` - the UN Treaty Collection status page of a multilateral
-  treaty deposited with the Secretary-General (MTDSG), keyed by chapter and
-  treaty number: the treaty header (place and date of adoption, entry into
-  force, UNTS registration, text reference), the participant table
-  (signature and consent to be bound with the published suffixes), the
-  declarations, reservations and objections verbatim with their anchors and
-  the numbered notes verbatim. **Gated on the TR01 licence decision**: the UN
-  terms reserve reuse and compilation of the online collection to written
-  permission, so the recorded decision is ``declined`` and the adapter refuses
-  to fetch until an operator records an accepted decision with its reference.
-* ``cellar-agreement-sparql`` - EU international agreements (CELEX sector 2)
-  through the existing :class:`src.ingestion.legal_sources.CellarLegalAdapter`
-  (its bounded SPARQL query and grouping are reused unchanged): the language
-  expressions are grouped into one treaty record per CELEX, and one more
-  bounded query on the same host reads the signature date and the EU acts
-  CELLAR links to the agreement (``cdm:work_cites_work`` in either direction,
-  plus any operator-declared CDM relation IRIs), recorded as citations.
-* ``coe-chart-html`` - the Council of Europe Treaty Office chart of signatures
-  and ratifications of one CETS/ETS treaty and its declarations page: per state
-  or organisation, signature, ratification/accession/succession, entry into
-  force and denunciation as charted; reservations, declarations, objections,
-  withdrawals and denunciations verbatim with their dates.
+* ``untc-status-html`` - the UN Treaty Collection status page of a
+  multilateral treaty deposited with the Secretary-General, keyed by UNTC
+  chapter and treaty number (``mtdsg_no``, e.g. ``XXVII-7``): the treaty
+  record (title, adoption, entry-into-force conditions, UNTS registration, the
+  "status as at" stamp), one participant record per participant as published,
+  one treaty-action record per participant and action (signature, definitive
+  signature, ratification, acceptance, approval, accession, succession) with
+  the column heading and suffix verbatim, and one treaty-statement record per
+  declaration, reservation, objection and footnote, verbatim with its anchor
+  and linked to the action (and, for an objection, to the objected statement
+  where the page links it);
+* ``cellar-agreement-sparql`` - an EU international agreement from the CELLAR
+  SPARQL endpoint, keyed by CELEX (and ELI where published). The work and its
+  language expressions are read with the Legal pack's reviewed CELLAR query
+  (:func:`src.ingestion.regional_providers.cellar_query` and
+  :func:`~src.ingestion.regional_providers.parse_cellar_results`); a second
+  bounded query reads the agreement's dates as CELLAR states them, its
+  contracting parties (authority-table codes) and the EU acts that point at it
+  (predicate verbatim), recorded as citations. Language versions are
+  ``treaty-expression`` records, never separate treaties;
+* ``coe-treaty-html`` - the Council of Europe Treaty Office chart of
+  signatures and ratifications and the declarations list of one treaty, keyed
+  by CETS/ETS number and state (member or non-member as published):
+  signatures, ratifications, entry into force per state, denunciations kept as
+  actions (never deletions) and reservations, declarations and objections
+  verbatim with their dates.
 
-Every page is one selection unit and is all-or-nothing; a response from another
-host is a network-policy failure. Receipts name every request, status and
-response digest. ``PROVIDER_CONTRACTS``, ``LICENCE_DECISIONS``,
-``MINIMISATION``, ``BOUNDED_COVERAGE`` and ``LIVE_VERIFICATION`` are the
-machine-readable copy of the TR01 audit
-(``docs/development/treaties-evidence/source-audit.md``).
+The HTML element structure the parsers read is the one recorded in the
+authored fixtures and **must be verified live** (``LIVE_VERIFICATION``); no
+dated live run has been made from this runtime.
 
-Nothing here gives legal advice, infers an obligation or compliance, or
-interprets the legal effect of a reservation; treaty texts are linked, never
-stored, and no natural-person field is kept.
+**Minimisation (TR01).** Participants are states, international organisations
+and the EU. No field names a natural person: signatory, plenipotentiary and
+contact names are never extracted into a field, a key, a participant or a
+match; any such field is rejected by :func:`minimisation_violations` here and
+again by the store at write time. Verbatim statements are the depositary's
+publication of a state's act and are kept as published; they are never indexed
+by person.
+
+A unit is all-or-nothing: a page larger than the declared limits is
+``budget_exhausted``, never truncated; a redirect to another host is a
+network-policy failure. Receipts name every request path, status and response
+digest. Nothing here gives legal advice, infers obligations or compliance,
+interprets the legal effect of a reservation or redistributes treaty text
+(texts are referenced by link only).
 """
 
 from __future__ import annotations
@@ -48,156 +59,168 @@ import json
 import re
 from collections.abc import Callable, Mapping, Sequence
 from datetime import date
+from html.parser import HTMLParser
 from typing import Any
 from urllib.parse import urlencode, urlsplit
 
 from src.ingestion.source_packs import SourcePackError
-from src.kb.treaties_records import (
-    RECORD_CONTRACT,
-    TreatiesError,
-    action_key,
-    participant_key,
-    treaty_key,
-    validate_record,
-)
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECEIPT_CONTRACT = "noesis-treaty-acquisition-receipt-v1"
+RECORD_CONTRACT = "noesis-treaty-record-v2"
+MINIMISATION_POLICY = "treaties-minimisation-v1"
 CONNECTOR = "treaties"
 MAX_UNITS = 20
-REVIEW_BOUNDARY = ("Treaty and treaty-action records are kept as the depositary or publisher published them. "
-                   "Reservations, declarations and objections are quoted verbatim; nothing here is legal advice, "
-                   "an inference of obligations or compliance, or an interpretation of a reservation's legal "
-                   "effect, and treaty texts are linked, not reproduced.")
-FORMATS: dict[str, dict[str, Any]] = {
-    "untc-status-html": {"provider": "untc", "unit": "treaties", "feature": "treaties-untc"},
-    "cellar-agreement-sparql": {"provider": "cellar", "unit": "agreements", "feature": "treaties-eu"},
-    "coe-chart-html": {"provider": "coe-treaty-office", "unit": "treaties", "feature": "treaties-coe"},
-}
-UNTC_SITE = "https://treaties.un.org"
-COE_SITE = "https://www.coe.int/en/web/conventions"
-EURLEX_SITE = "https://eur-lex.europa.eu/legal-content/EN/ALL/?uri=CELEX:"
-UNTC_ATTRIBUTION = "Source: United Nations Treaty Collection (reuse only under written permission of the United Nations)."
-CELLAR_ATTRIBUTION = "Source: Publications Office of the European Union, CELLAR (reuse authorised, Commission Decision 2011/833/EU)."
-COE_ATTRIBUTION = "Source: Council of Europe Treaty Office (reproduction authorised with acknowledgement of the source)."
+MAX_PARTICIPANTS = 250
+MAX_STATEMENTS = 1000
+REVIEW_BOUNDARY = ("Records are what each depositary or catalogue published. No legal advice, no inference of "
+                   "obligations or compliance, no interpretation of the legal effect of reservations, and no "
+                   "treaty-text redistribution beyond what each source licenses (texts are linked, not mirrored).")
+UN_ATTRIBUTION = "Source: United Nations Treaty Collection (treaties.un.org), status as published by the depositary."
+EU_ATTRIBUTION = "Source: Publications Office of the European Union, CELLAR (reuse under Commission Decision " \
+                 "2011/833/EU)."
+COE_ATTRIBUTION = "Source: Council of Europe Treaty Office (www.coe.int/conventions)."
 
-# TR01 access decisions. The official pages could not be fetched from this runtime (egress blocked); terms and
-# endpoints were read from search-result extracts of the official pages on 2026-09-30 and every item marked
-# ``verify`` must be checked against the live pages and a real response before a dated live run (TR13, #2645).
+FORMATS: dict[str, dict[str, Any]] = {
+    "untc-status-html": {"provider": "untc", "unit": "treaties", "keyed": False, "depositary": "UN Secretary-General"},
+    "cellar-agreement-sparql": {"provider": "eu-cellar", "unit": "agreements", "keyed": False,
+                                "depositary": "as stated per agreement"},
+    "coe-treaty-html": {"provider": "coe-treaty-office", "unit": "treaties", "keyed": False,
+                        "depositary": "Secretary General of the Council of Europe"},
+}
+PROVIDERS = tuple(sorted({spec["provider"] for spec in FORMATS.values()}))
+# provider -> the segment its record keys carry (treaties:<segment>:...)
+KEY_SEGMENT = {"untc": "untc", "eu-cellar": "eu-cellar", "coe-treaty-office": "coe"}
+RECORD_KINDS = ("treaty", "treaty-expression", "participant", "treaty-action", "treaty-statement")
+ACTION_TYPES = ("signature", "definitive-signature", "ratification", "acceptance", "approval", "accession",
+                "succession", "consent-to-be-bound", "entry-into-force", "denunciation", "withdrawal",
+                "territorial-application", "provisional-application", "other")
+CONSENT_TYPES = frozenset({"definitive-signature", "ratification", "acceptance", "approval", "accession",
+                           "succession", "consent-to-be-bound"})
+EXIT_TYPES = frozenset({"denunciation", "withdrawal"})
+STATEMENT_KINDS = ("reservation", "declaration", "objection", "communication", "withdrawal-of-reservation",
+                   "footnote")
+PARTICIPANT_TYPES = ("state", "international-organisation", "eu", "unknown")
+
+# TR01 access decisions. Endpoints, element structures and terms are recorded from the sources' public
+# documentation as known without network access; every item marked ``verify`` must be checked before a dated live
+# run (TR13, #2645). The audit did not re-read the terms pages live.
 PROVIDER_CONTRACTS: dict[str, dict[str, Any]] = {
     "untc": {
         "publisher": "United Nations, Office of Legal Affairs, Treaty Section (United Nations Treaty Collection)",
-        "endpoints": ["/Pages/ViewDetails.aspx?mtdsg_no={chapter-number}&chapter={chapter}&clang=_en"],
+        "endpoints": [("https://treaties.un.org/Pages/ViewDetails.aspx?src=TREATY&mtdsg_no={chapter}-{number}"
+                       "&chapter={chapter_number}&clang=_en")],
         "formats": ["untc-status-html"],
-        "authentication": "none (public web pages; no documented API or bulk export found - verify)",
-        "rate_limits": "none published (verify); one status page per declared treaty per run",
-        "identifiers": ["MTDSG chapter and treaty number (e.g. XVIII-10)", "UNTS registration number as published",
-                        "UNTS volume and page reference as published"],
-        "revisions": "the page's 'Status as at' stamp is the depositary revision; a changed page is a new revision "
-                     "of each changed record; an action the page no longer lists is a removed-by-source revision",
-        "licence": "UN terms of use: materials may be downloaded for personal, non-commercial use without any right "
-                   "to redistribute, compile or create derivative works; the online UN Treaty Collection is stated "
-                   "to be proprietary and reusable only with prior written permission (treaty texts themselves are "
-                   "stated to be public domain) - verify on the live pages",
-        "attribution": UNTC_ATTRIBUTION,
-        "access_decision": "declined",
-        "reason": "compiling the status database into Noesis is reuse that the UN terms reserve to written "
-                  "permission; the adapter and parser exist (fixture-tested) but refuse to fetch until an operator "
-                  "records an accepted licence decision with its permission reference",
+        "authentication": "none; no key is issued or handled",
+        "rate_limits": "none documented (verify); one status page per declared treaty, at most "
+                       f"{MAX_UNITS} treaties per source, sequential requests only",
+        "identifiers": ["UNTC chapter and treaty number (mtdsg_no, e.g. XXVII-7)",
+                        "UNTS registration number and volume as published",
+                        "depositary notification (C.N.) references as published in notes"],
+        "revisions": "the page states 'Status as at' (date and time); a changed page is a new revision of every "
+                     "record whose content changed, with the status stamp as the depositary's revision; a row or "
+                     "statement the page no longer shows becomes a 'no-longer-published' revision, never a deletion; "
+                     "footnotes announcing corrections, withdrawals of reservations or territorial changes are "
+                     "kept verbatim",
+        "licence": "UN website terms of use: content may be reproduced for non-commercial use with attribution; "
+                   "status data are official depositary information (verify the current wording, including the "
+                   "commercial-use clause); treaty texts (PDF) are linked, never mirrored",
+        "attribution": UN_ATTRIBUTION,
+        "personal_data": "none in the status tables; statements may name officials in their verbatim text",
+        "access_decision": "unverified-live",
+        "reason": "fixture-verified parser for the element structure recorded in the authored fixture; the live "
+                  "page's element ids, the date formats and the status stamp must be verified; no documented API",
     },
-    "cellar": {
+    "eu-cellar": {
         "publisher": "Publications Office of the European Union (CELLAR SPARQL endpoint)",
-        "endpoints": [("https://publications.europa.eu/webapi/rdf/sparql (the Legal pack's CELLAR adapter query, "
-                      "plus one agreement query on the same host)")],
+        "endpoints": ["https://publications.europa.eu/webapi/rdf/sparql"],
         "formats": ["cellar-agreement-sparql"],
         "authentication": "none",
-        "rate_limits": "no published quota for the public SPARQL endpoint (verify); one bounded query per page, "
-                       "1-20 CELEX numbers per source",
-        "identifiers": ["CELEX (sector 2 international agreements)", "ELI where published",
-                        "CELLAR work, expression, manifestation and item URIs", "linked acts' CELEX"],
-        "revisions": "CELLAR states no status stamp: a changed result set (a new expression, a new linked act, a "
-                     "corrected date) is a new revision dated by the acquisition",
-        "licence": "EUR-Lex/CELLAR legal documents may be reused for commercial or non-commercial purposes with "
-                   "acknowledgement (Commission Decision 2011/833/EU; EUR-Lex legal notice) - verify",
-        "attribution": CELLAR_ATTRIBUTION,
+        "rate_limits": "fair use; queries time out after 60 s (verify); two bounded queries per declared agreement",
+        "identifiers": ["CELEX (sector 2, international agreements, e.g. 22099A0101(01))", "ELI where published",
+                        "CELLAR work/expression/manifestation/item URIs",
+                        "authority-table country and corporate-body codes for contracting parties"],
+        "revisions": "CELLAR states no revision stamp per work in the bounded query; the work's last modification "
+                     "date is read where published (verify the property) and otherwise the acquisition is the "
+                     "revision; corrigenda are separate works linked by an explicit CDM triple",
+        "licence": "Commission Decision 2011/833/EU: reuse authorised with acknowledgement of the source; the "
+                   "official texts are referenced by item URI and never mirrored",
+        "attribution": EU_ATTRIBUTION,
+        "personal_data": "none in the bounded query (agent metadata is not queried)",
         "access_decision": "unverified-live",
-        "reason": "reuses the Legal pack's CELLAR adapter (prior live evidence for its base query); the agreement "
-                  "query's cdm:resource_legal_date_signature property and any declared relation IRIs are verify",
+        "reason": "the work/expression query is the Legal pack's reviewed CELLAR query (prior live evidence "
+                  "2026-09-09); the agreement-date, contracting-party and act-relation predicates are recorded "
+                  "from CDM documentation and must be verified live",
+        "predicates_to_verify": ["cdm:resource_legal_date_signature", "cdm:resource_legal_date_entry-into-force",
+                                 "cdm:resource_legal_date_end-of-validity", "cdm:work_date_document",
+                                 "cdm:agreement_international_has_contracting_party (verify)",
+                                 "cdm:resource_legal_based_on_resource_legal (inverse, from the EU act)",
+                                 "cdm:work_cites_work (inverse)"],
     },
     "coe-treaty-office": {
-        "publisher": "Council of Europe Treaty Office (Directorate of Legal Advice and Public International Law)",
-        "endpoints": ["/full-list?module=signatures-by-treaty&treatynum={number}",
-                      "/full-list?module=declarations-by-treaty&treatynum={number}"],
-        "formats": ["coe-chart-html"],
-        "authentication": "none (public web pages; no documented API found - verify)",
-        "rate_limits": "none published (verify); two pages per declared treaty per run",
-        "identifiers": ["CETS/ETS number", "state or organisation as charted"],
-        "revisions": "the chart's 'Status as of' date is the depositary revision; a changed chart or declaration is "
-                     "a new revision; denunciations and withdrawals are actions, never deletions",
-        "licence": "reproduction of material on Council of Europe websites is authorised for private use and for "
-                   "informational and educational uses relating to the Council's work, with the source "
-                   "acknowledged; commercial use needs prior permission; only the CETS printed texts are authentic "
-                   "(Treaty Office legal notice) - verify",
+        "publisher": "Council of Europe Treaty Office",
+        "endpoints": ["https://www.coe.int/en/web/conventions/full-list?module=signatures-by-treaty&treatynum={cets}",
+                      ("https://www.coe.int/en/web/conventions/full-list?module=declarations-by-treaty"
+                       "&numSte={cets}&codeNature=0")],
+        "formats": ["coe-treaty-html"],
+        "authentication": "none",
+        "rate_limits": "none documented (verify); two pages per declared treaty, sequential requests only",
+        "identifiers": ["CETS/ETS number (three digits, e.g. 005)",
+                        "state name as published, member or non-member of the Council of Europe as published"],
+        "revisions": "the chart states 'Status as of' (date); a changed chart or declaration is a new revision; "
+                     "denunciations are actions with their dates, never deletions; a row the chart no longer "
+                     "shows becomes a 'no-longer-published' revision",
+        "licence": "Council of Europe website terms: reproduction of official texts and data authorised with the "
+                   "source cited, except for commercial purposes without permission (verify)",
         "attribution": COE_ATTRIBUTION,
+        "personal_data": "declarations may name officials or authorities designated under a treaty (names and "
+                         "contact details of designated authorities are published for some conventions)",
         "access_decision": "unverified-live",
-        "reason": "public documented charts; the HTML structure used by the parser is authored from the published "
-                  "chart layout and must be verified against a real page",
+        "reason": "fixture-verified parser for the element structure recorded in the authored fixture; the "
+                  "live page structure and parameters must be verified; no documented API",
     },
 }
-LICENCE_DECISIONS = {
-    "untc": {"status": "declined", "recorded": "2026-09-30",
-             "reference": "docs/development/treaties-evidence/source-audit.md#un-treaty-collection-licence-decision"},
-    "cellar": {"status": "accepted", "recorded": "2026-09-30",
-               "reference": "docs/development/treaties-evidence/source-audit.md#access-decisions"},
-    "coe-treaty-office": {"status": "accepted", "recorded": "2026-09-30",
-                          "reference": "docs/development/treaties-evidence/source-audit.md#access-decisions"},
-}
 LIVE_VERIFICATION = {
-    provider: {"status": contract["access_decision"],
-               "note": ("not acquired: written permission required (TR01)" if contract["access_decision"] == "declined"
-                        else "no dated live run from this runtime; offline fixtures only (TR13, #2645)")}
+    provider: {"status": contract["access_decision"], "note": "no dated live run from this runtime; offline "
+                                                              "authored fixtures only (#2645)"}
     for provider, contract in PROVIDER_CONTRACTS.items()
 }
-# TR01 data-minimisation decision (also docs/development/treaties-evidence/source-audit.md).
-MINIMISATION = {
-    "participants": "states, international organisations and the EU as the source names them; the source's "
-                    "published codes only (e.g. CELLAR country authority codes)",
-    "stored_verbatim": [("reservations, declarations, objections, withdrawals and denunciations as the depositary "
-                        "published them"), "footnotes and notes as published", "titles as published"],
-    "never_stored": ["names of signatories, representatives or officials as separate fields", "contact details",
-                     "treaty full texts (linked, not reproduced)"],
-    "person_text": "official texts may mention an office holder; they are kept verbatim, never parsed into person "
-                   "records, never used as a query key or subscription target",
-    "retention": "revisions are kept for as long as the namespace retains Legal records; corrections and removals "
-                 "by the source are revisions, never deletions",
-    "access": "knowledge:legal:read with namespace read access; identity review needs knowledge:legal:review",
-}
-# TR01 bounded first coverage: nothing implies complete coverage of any depositary.
+# Bounded first coverage (TR01): nothing implies complete coverage of a chapter, a treaty series or a state.
 BOUNDED_COVERAGE = {
-    "untc": "the declared MTDSG treaties (at most 20 per source); fixtures: one fictional convention XXIX-99 "
-            "adopted in 2098 - not acquired live under the declined licence decision",
-    "cellar": "the declared EU international agreements (1-20 CELEX per source) and 1-24 languages; fixtures: one "
-              "fictional agreement 22099A0101(01) with its concluding decision",
-    "coe-treaty-office": "the declared CETS/ETS treaties (at most 20 per source) and every state or organisation "
-                         "the chart lists; fixtures: one fictional convention CETS No. 990 (2098-2099)",
-    "periods": "whatever period the declared pages cover; as-of answers use the published dates only",
+    "untc": f"the multilateral treaties named in the selection by UNTC chapter and number, at most {MAX_UNITS} per "
+            f"source, at most {MAX_PARTICIPANTS} participants and {MAX_STATEMENTS} statements per treaty; first "
+            "selection: human-rights, environment and trade-related chapters (IV, XXVII, X) named explicitly",
+    "eu-cellar": f"the EU international agreements named by CELEX, at most {MAX_UNITS} per source and at most three "
+                 "language expressions (ENG, FRA, DEU) per agreement; linked acts limited to the relations the "
+                 "second query declares",
+    "coe-treaty-office": f"the Council of Europe treaties named by CETS/ETS number, at most {MAX_UNITS} per source; "
+                         "all states (members and non-members) the chart lists",
+    "period": "the status as published at acquisition time; earlier statuses only as revisions this runtime has "
+              "itself observed (no back-filled history)",
 }
-UNTC_SUFFIXES = {"a": "accession", "d": "succession", "A": "acceptance", "AA": "approval", "c": "formal-confirmation"}
-COE_NOTES = {"a": "accession", "su": "succession", "s": "definitive-signature"}
-KNOWN_ORGANISATIONS = {"european union": "regional-economic-integration-organisation",
-                       "european community": "regional-economic-integration-organisation",
-                       "european atomic energy community": "regional-economic-integration-organisation"}
-STATEMENT_KINDS = {"reservation": "reservation", "reservations": "reservation", "declaration": "declaration",
-                   "declarations": "declaration", "objection": "objection", "objections": "objection",
-                   "withdrawal": "withdrawal", "denunciation": "denunciation", "communication": "communication",
-                   "notification": "communication"}
-_MONTHS = {m: i for i, m in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov",
-                                       "dec"), start=1)}
-_CITATIONS = (
-    ("cets", re.compile(r"\b(?:CETS|ETS)\s+No\.?\s*(\d{1,4})\b")),
-    ("unts-registration", re.compile(r"\bUNTS\s+(?:registration\s+)?No\.?\s*(\d{1,7})\b")),
-    ("untc-mtdsg", re.compile(r"\bMTDSG\s+([IVXL]+-\d{1,3}(?:-[a-z])?)\b")),
-)
+# TR01 data-minimisation decision (docs/development/treaties-evidence/source-audit.md).
+MINIMISATION: dict[str, Any] = {
+    "policy": MINIMISATION_POLICY,
+    "subjects": "participants are states, international organisations and the EU as each source names them; no "
+                "natural person is ever a participant, a key, a match candidate or a monitor target",
+    "stored": ["participant name as published", "codes the source publishes", "action type and dates as published",
+               "verbatim statement text (the depositary's publication of a state's act)", "anchors and footnotes"],
+    "never_stored": ["signatory, plenipotentiary or representative names as separate fields",
+                     "contact details (e-mail, telephone, postal address) of designated authorities",
+                     "any per-person index or profile"],
+    "redacted": "contact details of designated authorities published inside CoE declarations are replaced by "
+                "'[contact details withheld: TR01]' before a record exists; the rest of the statement is verbatim",
+    "retention": "retained with the treaty record; revisions are immutable and superseded, never purged; no "
+                 "personal identifier is stored as a field, so nothing personal remains to purge",
+    "query_scope": "knowledge:legal:read (the Legal pack read scope); verbatim statements are returned only in "
+                   "treaty and participant answers, never searchable by a person's name",
+}
+PERSONAL_FIELD_KEYS = frozenset({
+    "signatory", "signatory_name", "signed_by", "plenipotentiary", "representative", "representative_name",
+    "person", "person_name", "official_name", "contact", "contact_name", "email", "e_mail", "telephone", "phone",
+    "fax", "postal_address",
+})
+_CONTACT = re.compile(r"(?:\b(?:tel|phone|telephone|fax)\.?\s*:?\s*\+?[\d ()./-]{6,}|[\w.+-]+@[\w-]+\.[\w.-]+)", re.IGNORECASE)
+CONTACT_WITHHELD = "[contact details withheld: TR01]"
 
 
 class TreatiesFormatError(ValueError):
@@ -207,574 +230,790 @@ class TreatiesFormatError(ValueError):
 
 
 def _digest(value: Any) -> str:
-    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False,
-                                     default=str).encode()).hexdigest()
+    return hashlib.sha256(json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False).encode()
+                          ).hexdigest()
 
 
-def _clean(value: Any) -> str | None:
+def clean(value: Any) -> str | None:
     text = " ".join(str(value if value is not None else "").split())
     return text or None
 
 
-def _verbatim(value: Any) -> str | None:
-    text = str(value if value is not None else "").strip()
-    return text or None
+def slug(value: Any) -> str:
+    return re.sub(r"[^a-z0-9]+", "-", str(value or "").casefold()).strip("-") or "none"
 
 
-def parse_date(value: Any) -> str | None:
-    """ISO date of a published date ('1 Mar 2098', '1 March 2098', '01/03/2098', '30-09-2098', ISO); else None."""
-    text = _clean(value) or ""
-    match = re.search(r"\b(\d{4})-(\d{2})-(\d{2})\b", text)
-    parts = None
+_MONTHS = {m: i for i, m in enumerate(("jan", "feb", "mar", "apr", "may", "jun", "jul", "aug", "sep", "oct", "nov",
+                                       "dec"), 1)}
+
+
+def day(value: Any) -> str | None:
+    """An ISO day from ``2 Mar 2090``, ``02/03/2090``, ``15-01-2099`` or an ISO date/time; else ``None``."""
+    text = clean(value) or ""
+    match = re.search(r"\b(\d{4})-(\d{2})-(\d{2})", text)
     if match:
-        parts = (int(match.group(1)), int(match.group(2)), int(match.group(3)))
-    elif match := re.search(r"\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})\b", text):
-        parts = (int(match.group(3)), int(match.group(2)), int(match.group(1)))
-    elif match := re.search(r"\b(\d{1,2})\s+([A-Za-z]{3,9})\.?\s+(\d{4})\b", text):
-        month = _MONTHS.get(match.group(2)[:3].casefold())
-        parts = (int(match.group(3)), month, int(match.group(1))) if month else None
-    if not parts:
-        return None
+        parts = (int(match[1]), int(match[2]), int(match[3]))
+    else:
+        match = re.search(r"\b(\d{1,2})\s+([A-Za-z]{3})[a-z]*\.?\s+(\d{4})\b", text)
+        if match and match[2].casefold() in _MONTHS:
+            parts = (int(match[3]), _MONTHS[match[2].casefold()], int(match[1]))
+        else:
+            match = re.search(r"\b(\d{1,2})[/.-](\d{1,2})[/.-](\d{4})\b", text)
+            if not match:
+                return None
+            parts = (int(match[3]), int(match[2]), int(match[1]))
     try:
         return date(*parts).isoformat()
     except ValueError:
         return None
 
 
-def citations_in(text: Any) -> list[dict[str, str]]:
-    """Exact published catalogue citations in a text (CETS/ETS No., UNTS registration No., MTDSG number)."""
-    out = []
-    for scheme, pattern in _CITATIONS:
-        for match in pattern.finditer(str(text or "")):
-            item = {"scheme": scheme, "value": match.group(1), "as_written": match.group(0)}
-            if item not in out:
-                out.append(item)
+def stamp(value: Any) -> str | None:
+    """A sortable depositary revision stamp (ISO date plus time when published) from a 'status as at' text."""
+    text = clean(value) or ""
+    iso = day(text)
+    if not iso:
+        return None
+    match = re.search(r"\b(\d{1,2}):(\d{2})(?::(\d{2}))?", text)
+    return f"{iso}T{int(match[1]):02d}:{match[2]}:{match[3] or '00'}" if match else iso
+
+
+def treaty_key(provider: str, native_id: Any) -> str:
+    return f"treaties:{provider}:treaty:{str(native_id).strip()}"
+
+
+def participant_key(provider: str, name_or_code: Any) -> str:
+    return f"treaties:{provider}:participant:{slug(name_or_code)}"
+
+
+def action_key(treaty: str, participant: str, action_type: str, sequence: int) -> str:
+    native = treaty.split(":", 3)[3]
+    return f"{treaty.rsplit(':treaty:', 1)[0]}:action:{native}:{participant.rsplit(':', 1)[-1]}:{action_type}:{sequence}"
+
+
+def statement_key(treaty: str, participant: str | None, kind: str, anchor_or_seq: Any) -> str:
+    native = treaty.split(":", 3)[3]
+    who = participant.rsplit(":", 1)[-1] if participant else "depositary"
+    return f"{treaty.rsplit(':treaty:', 1)[0]}:statement:{native}:{who}:{kind}:{slug(anchor_or_seq)}"
+
+
+def minimisation_violations(record: Mapping[str, Any]) -> list[str]:
+    """Paths of any personal field (signatory, representative, contact) anywhere in a record."""
+    found: list[str] = []
+
+    def walk(value: Any, path: str) -> None:
+        if isinstance(value, Mapping):
+            for key, item in value.items():
+                if str(key).casefold() in PERSONAL_FIELD_KEYS:
+                    found.append(f"{path}.{key}")
+                walk(item, f"{path}.{key}")
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                walk(item, f"{path}[{index}]")
+
+    walk(dict(record), "$")
+    fields = dict(record.get("fields") or {})
+    if record.get("record_kind") == "participant" and fields.get("participant_type") not in PARTICIPANT_TYPES:
+        found.append("$.fields.participant_type")
+    text = str(fields.get("text_verbatim") or "")
+    if _CONTACT.search(text):
+        found.append("$.fields.text_verbatim (contact details)")
+    return found
+
+
+def withhold_contacts(text: str | None) -> tuple[str | None, bool]:
+    if not text:
+        return text, False
+    replaced = _CONTACT.sub(CONTACT_WITHHELD, text)
+    return replaced, replaced != text
+
+
+def _record(fmt: str, kind: str, record_key: str, *, treaty: str, title: Any, locator: str,
+            fields: Mapping[str, Any], native_revision: Any, participant: str | None = None) -> dict[str, Any]:
+    if kind not in RECORD_KINDS:
+        raise TreatiesFormatError("schema_drift", f"unknown record kind {kind!r}")
+    if not str(locator or "").startswith("https://"):
+        raise TreatiesFormatError("schema_drift", f"{record_key} has no HTTPS locator")
+    return {
+        "contract": RECORD_CONTRACT, "format": fmt, "provider": FORMATS[fmt]["provider"], "record_kind": kind,
+        "record_key": record_key, "treaty_key": treaty, "participant_key": participant,
+        "native_revision": clean(native_revision), "revision_order": clean(native_revision) or "",
+        "title": clean(title) or record_key, "locator": locator, "publication_status": "published",
+        "minimisation": MINIMISATION_POLICY, "fields": dict(fields),
+    }
+
+
+# ------------------------------------------------------------------ a minimal HTML tree
+
+
+class Node:
+    __slots__ = ("attrs", "children", "parent", "tag")
+
+    def __init__(self, tag: str, attrs: Mapping[str, Any], parent: Node | None) -> None:
+        self.tag, self.attrs, self.children, self.parent = tag, dict(attrs), [], parent
+
+    def text(self) -> str:
+        parts: list[str] = []
+        for child in self.children:
+            parts.append(child if isinstance(child, str) else child.text())
+        return " ".join(" ".join(parts).split())
+
+    def own_text(self, skip: tuple[str, ...] = ("sup",)) -> str:
+        parts = [c if isinstance(c, str) else ("" if c.tag in skip else c.own_text(skip)) for c in self.children]
+        return " ".join(" ".join(parts).split())
+
+    def iter(self):
+        for child in self.children:
+            if isinstance(child, Node):
+                yield child
+                yield from child.iter()
+
+    def find_all(self, tag: str | None = None, **attrs: str) -> list[Node]:
+        out = []
+        for node in self.iter():
+            if tag and node.tag != tag:
+                continue
+            if all((c in (node.attrs.get("class") or "").split()) if k == "class_" else node.attrs.get(k) == c
+                   for k, c in attrs.items()):
+                out.append(node)
+        return out
+
+    def find(self, tag: str | None = None, **attrs: str) -> Node | None:
+        found = self.find_all(tag, **attrs)
+        return found[0] if found else None
+
+    def get(self, key: str) -> str | None:
+        value = self.attrs.get(key)
+        return None if value is None else str(value)
+
+
+class _TreeBuilder(HTMLParser):
+    VOID = frozenset({"br", "img", "hr", "meta", "link", "input"})
+
+    def __init__(self) -> None:
+        super().__init__(convert_charrefs=True)
+        self.root = Node("#root", {}, None)
+        self.current = self.root
+
+    def handle_starttag(self, tag, attrs):
+        node = Node(tag, {k: (v or "") for k, v in attrs}, self.current)
+        self.current.children.append(node)
+        if tag not in self.VOID:
+            self.current = node
+
+    def handle_endtag(self, tag):
+        node = self.current
+        while node is not None and node.tag != tag:
+            node = node.parent
+        if node is not None and node.parent is not None:
+            self.current = node.parent
+
+    def handle_data(self, data):
+        self.current.children.append(data)
+
+
+def parse_html(raw: bytes) -> Node:
+    try:
+        text = raw.decode("utf-8-sig")
+    except UnicodeDecodeError as exc:
+        raise TreatiesFormatError("schema_drift", "response is not UTF-8 HTML") from exc
+    builder = _TreeBuilder()
+    builder.feed(text)
+    builder.close()
+    return builder.root
+
+
+def _required(node: Node | None, what: str) -> Node:
+    if node is None:
+        raise TreatiesFormatError("schema_drift", f"page has no {what}")
+    return node
+
+
+def _info_table(table: Node) -> dict[str, Node]:
+    out = {}
+    for row in table.find_all("tr"):
+        head, cell = row.find("th"), row.find("td")
+        if head is not None and cell is not None:
+            out[slug(head.text())] = cell
     return out
 
 
-def _participant(name: str, *, provider: str, kind: str | None = None, codes: Sequence[Mapping[str, str]] = ()
-                 ) -> dict[str, Any]:
-    stated = kind or KNOWN_ORGANISATIONS.get(name.casefold())
-    return {"name_as_published": name, "key": participant_key(provider, name),
-            "kind": stated or "state",
-            "kind_basis": "stated by the source's section" if kind else (
-                "the organisation as the source names it" if stated else "listed as a participant; no organisation "
-                                                                          "is named"),
-            "published_codes": [dict(c) for c in codes]}
+def _footnote_refs(cell: Node) -> list[str]:
+    refs = []
+    for link in cell.find_all("a"):
+        href = link.get("href") or ""
+        if href.startswith("#"):
+            refs.append(href[1:])
+    return refs
 
 
-def _record(fmt: str, kind: str, record_key: str, *, treaty: str, title: Any, locator: str, depositary_revision: Any,
-            depositary_date: str | None, fields: Mapping[str, Any], published_at: Any = None) -> dict[str, Any]:
-    spec = FORMATS[fmt]
-    record = {"contract": RECORD_CONTRACT, "format": fmt, "provider": spec["provider"], "record_kind": kind,
-              "record_key": record_key, "treaty_key": treaty, "title": _clean(title) or record_key,
-              "locator": locator, "depositary_revision": _clean(depositary_revision),
-              "depositary_date": depositary_date, "published_at": parse_date(published_at) if published_at else None,
-              "fields": dict(fields)}
-    try:
-        return validate_record(record)
-    except TreatiesError as exc:
-        raise TreatiesFormatError("schema_drift" if exc.code != "minimisation_violation" else exc.code,
-                                  str(exc)) from exc
+# ------------------------------------------------------------------ UNTC
+
+UNTC_SITE = "https://treaties.un.org"
+# Consent-column suffixes as the UNTC status tables print them (verify live).
+UNTC_SUFFIX = {"": "ratification", "a": "accession", "d": "succession", "A": "acceptance", "AA": "approval",
+               "s": "definitive-signature"}
+_UNTC_ID = re.compile(r"^([IVXL]+)-(\d{1,3}(?:-[a-z])?)$")
 
 
-def _soup(raw: bytes):
-    from bs4 import BeautifulSoup
-
-    try:
-        return BeautifulSoup(raw.decode("utf-8-sig"), "html.parser")
-    except UnicodeDecodeError as exc:
-        raise TreatiesFormatError("schema_drift", "page is not UTF-8") from exc
+def untc_url(unit: Mapping[str, Any]) -> str:
+    return (f"{UNTC_SITE}/Pages/ViewDetails.aspx?src=TREATY&mtdsg_no={unit['mtdsg_no']}&chapter={unit['chapter']}"
+            "&clang=_en")
 
 
-def _cell_text(cell) -> tuple[str, list[str]]:
-    """A cell's text without its footnote markers, and the markers."""
-    markers = []
-    for sup in cell.find_all("sup"):
-        marker = _clean(sup.get_text())
-        if marker:
-            markers.append(marker)
-        sup.extract()
-    return _clean(cell.get_text(" ")) or "", markers
+def _untc_date_suffix(text: str) -> tuple[str | None, str]:
+    """(ISO day, suffix) from a status cell such as ``10 May 2092 a``; the suffix stays verbatim."""
+    value = clean(text) or ""
+    match = re.match(r"^(\d{1,2}\s+[A-Za-z]{3,9}\.?\s+\d{4})\s*([A-Za-z]{0,2})$", value)
+    if not match:
+        return None, value
+    return day(match[1]), match[2]
 
 
-def _action(fmt, native, treaty, participant, action_type, qualifier, *, locator, revision, revision_date,
-            as_published, action_date=None, deposit_date=None, effective_date=None, text=None, anchor=None,
-            footnotes=(), extra=None):
-    fields = {"participant": participant, "action_type": action_type, "action_type_as_published": as_published,
-              "action_date": action_date, "deposit_date": deposit_date, "effective_date": effective_date,
-              "date_status": "as published" if (action_date or deposit_date or effective_date) else "undated",
-              "text": text, "text_anchor": anchor, "footnotes": list(footnotes), **dict(extra or {})}
-    key = action_key(FORMATS[fmt]["provider"], native, participant["name_as_published"], action_type, qualifier)
-    return _record(fmt, "treaty-action", key, treaty=treaty,
-                   title=f"{participant['name_as_published']}: {as_published}", locator=locator,
-                   depositary_revision=revision, depositary_date=revision_date, fields=fields)
-
-
-# ----------------------------------------------------------------- UN Treaty Collection
-
-
-def parse_untc(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """One UNTC status page into a treaty record and its participant actions (authored shape; verify live)."""
+def parse_untc(raw: bytes, unit: Mapping[str, Any]) -> list[dict[str, Any]]:
     fmt = "untc-status-html"
-    soup = _soup(responses["status"])
-    native = str(unit["mtdsg_no"])
-    locator = f"{UNTC_SITE}/Pages/ViewDetails.aspx?" + urlencode(
-        {"mtdsg_no": native, "chapter": unit["chapter"], "clang": "_en"})
-    stamp_node = soup.find(id="statusAsAt")
-    title_node = soup.find(id="treatyTitle")
-    if stamp_node is None or title_node is None:
-        raise TreatiesFormatError("schema_drift", "the UNTC page has no 'Status as at' stamp or treaty title")
-    stamp = _clean(stamp_node.get_text(" "))
-    revision_date = parse_date(stamp)
-    title = re.sub(r"^\d+[a-z]?\.\s*", "", _clean(title_node.get_text(" ")) or "")
-    header: dict[str, str] = {}
-    details = soup.find(id="treatyDetails")
-    for row in details.find_all("tr") if details else []:
-        cells = row.find_all(["td", "th"])
-        if len(cells) >= 2:
-            header[(_clean(cells[0].get_text()) or "").rstrip(":").casefold()] = _clean(cells[1].get_text(" ")) or ""
-    notes = []
-    notes_node = soup.find(id="notes")
-    for item in notes_node.find_all("li") if notes_node else []:
-        marker, text = None, _verbatim(item.get_text(" "))
-        sup = item.find("sup")
-        if sup is not None:
-            marker = _clean(sup.get_text())
-            sup.extract()
-            text = _verbatim(item.get_text(" "))
-        notes.append({"marker": marker, "text": text, "anchor": {"section": "Notes", "id": item.get("id")}})
-    by_marker = {n["marker"]: n for n in notes if n["marker"]}
-    table = soup.find(id="participants")
-    if table is None:
-        raise TreatiesFormatError("schema_drift", "the UNTC page has no participant table")
+    root = parse_html(raw)
+    mtdsg = str(unit["mtdsg_no"])
+    chapter_roman, number = mtdsg.split("-", 1)
+    key = treaty_key("untc", mtdsg)
+    locator = untc_url(unit)
+    header = _required(root.find(id="treaty-header"), "treaty header")
+    title_node = _required(header.find(class_="treaty-title"), "treaty title")
+    status_node = _required(header.find(class_="status-date"), "'Status as at' stamp")
+    status_text = clean(status_node.text())
+    revision = stamp(status_text)
+    if not revision:
+        raise TreatiesFormatError("schema_drift", "the 'Status as at' stamp carries no date")
+    info = _info_table(_required(header.find("table", id="treaty-info"), "treaty information table"))
+    notes: dict[str, dict[str, Any]] = {}
+    notes_block = root.find(id="notes")
+    for note in (notes_block.find_all("p", class_="note") if notes_block else []):
+        anchor = note.get("id") or f"note-{len(notes) + 1}"
+        notes[anchor] = {"anchor": anchor, "marker": clean((note.find("sup") or note).text()) if note.find("sup")
+                         else None, "text_verbatim": note.own_text()}
+    adoption = clean(info["place-and-date-of-adoption"].text()) if "place-and-date-of-adoption" in info else None
+    eif = clean(info["entry-into-force"].text()) if "entry-into-force" in info else None
+    registration = clean(info["registration"].text()) if "registration" in info else None
+    unts = re.search(r"No\.\s*(\d+)", registration or "")
+    texts = [{"label": clean(a.text()), "url": a.get("href")} for a in (info.get("text") or Node("x", {}, None))
+             .find_all("a") if str(a.get("href") or "").startswith("https://")]
+    cross = [{"scheme": "untc-mtdsg", "value": mtdsg, "as_published": mtdsg, "basis": "native identifier"}]
+    if unts:
+        cross.append({"scheme": "unts-registration", "value": unts[1], "as_published": registration,
+                      "basis": "registration as published"})
+    title = clean(title_node.text())
+    title = re.sub(r"^\d+[a-z]?\.\s*", "", title or "") or None
+    for match in re.finditer(r"\b(?:CETS|ETS)\s+No\.\s*(\d{1,3})", title or ""):
+        cross.append({"scheme": "cets", "value": f"{int(match[1]):03d}", "as_published": match[0],
+                      "basis": "citation in the published title"})
+    records = [_record(fmt, "treaty", key, treaty=key, title=title, locator=locator, native_revision=revision, fields={
+        "identifiers": {"untc_mtdsg": mtdsg, "untc_chapter": chapter_roman, "untc_number": number,
+                        "unts_registration": unts[1] if unts else None, "celex": None, "eli": None, "cets": None},
+        "title_as_published": title, "depositary": FORMATS[fmt]["depositary"],
+        "adoption": {"as_published": adoption, "date": day(adoption)},
+        "entry_into_force": {"conditions_as_published": eif, "date": day(eif)},
+        "registration_as_published": registration, "status_as_published": status_text,
+        "status_summary_as_published": clean(info["status"].text()) if "status" in info else None,
+        "text_references": texts, "text_policy": "linked, not mirrored",
+        "footnotes": [notes[a] for a in sorted(notes)], "cross_references": cross, "citations": [],
+        "attribution": UN_ATTRIBUTION})]
+    table = _required(root.find("table", id="participants"), "participants table")
     rows = table.find_all("tr")
-    headings = [(_clean(c.get_text(" ")) or "").casefold() for c in rows[0].find_all(["th", "td"])] if rows else []
-    if not headings or headings[0] != "participant":
-        raise TreatiesFormatError("schema_drift", "the participant table does not start with 'Participant'")
-    treaty = treaty_key("untc", native)
-    actions: list[dict[str, Any]] = []
-    for row in rows[1:]:
+    headings = [clean(h.text()) for h in rows[0].find_all("th")] if rows else []
+    if len(headings) < 3 or not (headings[0] or "").startswith("Participant"):
+        raise TreatiesFormatError("schema_drift", "participants table has an unexpected header")
+    participants: dict[str, str] = {}
+    body_rows = [r for r in rows[1:] if r.find("td") is not None]
+    if len(body_rows) > MAX_PARTICIPANTS:
+        raise TreatiesFormatError("input_limit", "more participants than the declared bound")
+    for row in body_rows:
         cells = row.find_all("td")
-        if not cells:
-            continue
-        name, markers = _cell_text(cells[0])
+        name = clean(cells[0].own_text())
         if not name:
-            continue
-        participant = _participant(name, provider="untc")
-        footnotes = [by_marker[m] for m in markers if m in by_marker]
-        for heading, cell in zip(headings[1:], cells[1:]):
-            text, cell_markers = _cell_text(cell)
+            raise TreatiesFormatError("schema_drift", "a participant row has no name")
+        pkey = participant_key("untc", name)
+        participants[name] = pkey
+        refs = _footnote_refs(cells[0])
+        ptype = "eu" if name.casefold() == "european union" else "unknown"
+        records.append(_record(fmt, "participant", pkey, treaty=key, title=name, locator=locator,
+                               native_revision=revision, participant=pkey, fields={
+                                   "name_as_published": name, "participant_type": ptype,
+                                   "participant_type_as_published": None, "codes": [],
+                                   "note": "UNTC publishes participant names only; no code is stated"}))
+        for column, cell in enumerate(cells[1:3], start=1):
+            text = clean(cell.own_text())
             if not text:
                 continue
-            cell_notes = footnotes + [by_marker[m] for m in cell_markers if m in by_marker]
-            suffix = re.search(r"\s(AA|A|a|d|c)$", text)
-            if heading.startswith("signature"):
-                action_type, label = "signature", "Signature"
-            elif heading.startswith("ratification"):
-                action_type = UNTC_SUFFIXES[suffix.group(1)] if suffix else "ratification"
-                label = f"{action_type.replace('-', ' ').capitalize()} ({suffix.group(1)})" if suffix else "Ratification"
-            elif "denunciation" in heading:
-                action_type, label = "denunciation", "Denunciation"
-            elif "withdrawal" in heading:
-                action_type, label = "withdrawal", "Withdrawal"
+            date, suffix = _untc_date_suffix(text)
+            if column == 1:
+                action_type = "definitive-signature" if suffix == "s" else "signature"
             else:
-                continue
-            actions.append(_action(fmt, native, treaty, participant, action_type, "table", locator=locator,
-                                   revision=stamp, revision_date=revision_date, as_published=label,
-                                   action_date=parse_date(text), extra={"date_as_published": text,
-                                                                        "column_as_published": heading},
-                                   anchor={"section": "participants", "participant": name, "column": heading},
-                                   footnotes=cell_notes))
-    statements: dict[str, dict[str, Any]] = {}
-    for section_node in soup.find_all(["h2", "h3"]):
-        section = _clean(section_node.get_text(" ")) or ""
-        lowered = section.casefold()
-        if not (lowered.startswith(("declarations", "reservations", "objections"))):
+                action_type = UNTC_SUFFIX.get(suffix, "other")
+            fields = {"participant_as_published": name, "action_type": action_type,
+                      "action_type_as_published": headings[column] + (f" [{suffix}]" if suffix else ""),
+                      "sequence": 1, "date_text_as_published": text,
+                      # UNTC prints the signature date and the date the instrument was deposited.
+                      "action_date": date if column == 1 else None,
+                      "deposit_date": date if column == 2 else None, "effective_date": None,
+                      "date_status": "stated" if date else "unclear",
+                      "footnote_refs": sorted(set(refs + _footnote_refs(cell))),
+                      "footnotes": [notes[r] for r in sorted(set(refs + _footnote_refs(cell))) if r in notes]}
+            akey = action_key(key, pkey, action_type, 1)
+            records.append(_record(fmt, "treaty-action", akey, treaty=key, title=f"{name}: {action_type}",
+                                   locator=locator, native_revision=revision, participant=pkey, fields=fields))
+    records += _untc_statements(root, key, locator, revision, participants, fmt)
+    referring: dict[str, list[str]] = {}
+    for record in records:
+        for ref in record["fields"].get("footnote_refs") or []:
+            if record["participant_key"] and record["participant_key"] not in referring.setdefault(ref, []):
+                referring[ref].append(record["participant_key"])
+    for anchor, note in sorted(notes.items()):
+        skey = statement_key(key, None, "footnote", anchor)
+        records.append(_record(fmt, "treaty-statement", skey, treaty=key, title=f"Note {note['marker'] or anchor}",
+                               locator=f"{locator}#{anchor}", native_revision=revision, fields={
+                                   "statement_kind": "footnote", "statement_kind_as_published": "Note",
+                                   "participant_as_published": None, "action_key": None, "anchor": anchor,
+                                   "text_verbatim": note["text_verbatim"], "objects_to_statement_key": None,
+                                   "objects_to_as_published": None, "made_on": day(note["text_verbatim"]),
+                                   "articles_as_published": None,
+                                   "refers_to_participants": sorted(referring.get(anchor) or []),
+                                   "reference_basis": "the participant's row carries the note marker"}))
+    return records
+
+
+def _consent_action(records: list[dict[str, Any]], pkey: str) -> str | None:
+    for record in records:
+        if record["record_kind"] == "treaty-action" and record["participant_key"] == pkey and \
+                record["fields"]["action_type"] in CONSENT_TYPES:
+            return record["record_key"]
+    return None
+
+
+def _untc_statements(root: Node, key: str, locator: str, revision: str, participants: Mapping[str, str],
+                     fmt: str) -> list[dict[str, Any]]:
+    out: list[dict[str, Any]] = []
+    anchors: dict[str, str] = {}
+    blocks = []
+    for section_id, default_kind in (("declarations", "declaration"), ("objections", "objection"),
+                                     ("communications", "communication")):
+        section = root.find(id=section_id)
+        if section is None:
             continue
-        default = "objection" if lowered.startswith("objections") else "declaration-or-reservation"
-        section_note = None
-        for sibling in section_node.find_next_siblings():
-            if sibling.name in {"h2", "h3"}:
-                break
-            if "note" in (sibling.get("class") or []):
-                section_note = _verbatim(sibling.get_text(" "))
-                continue
-            if "participant-block" not in (sibling.get("class") or []):
-                continue
-            name_node = sibling.find(class_="participant")
-            name = _clean(name_node.get_text(" ")) if name_node else None
-            if not name:
-                raise TreatiesFormatError("schema_drift", f"a block under {section!r} names no participant")
-            participant = _participant(name, provider="untc")
-            stated_date = None
-            ordinal: dict[tuple[str, str], int] = {}
-            for paragraph in sibling.find_all("p"):
-                if paragraph is name_node:
-                    continue
-                if "date" in (paragraph.get("class") or []):
-                    stated_date = parse_date(paragraph.get_text(" "))
-                    continue
-                label_node = paragraph.find(["em", "i"])
-                label = _clean(label_node.get_text(" ")).rstrip(":") if label_node else None
-                action_type = STATEMENT_KINDS.get((label or "").casefold(), default)
-                link = paragraph.find("a", href=re.compile(r"^#"))
-                text = _verbatim(paragraph.get_text())
-                qualifier_date = stated_date or "undated"
-                n = ordinal[(action_type, qualifier_date)] = ordinal.get((action_type, qualifier_date), 0) + 1
-                record = _action(
-                    fmt, native, treaty, participant, action_type, f"{qualifier_date}:{n}", locator=locator,
-                    revision=stamp, revision_date=revision_date, as_published=label or section,
-                    action_date=stated_date, text=text,
-                    anchor={"section": section, "participant": name, "paragraph": n, "id": paragraph.get("id")},
-                    extra={"section_note": section_note,
-                           "withdraws": "a statement published in this section (see the text)"
-                           if action_type == "withdrawal" else None,
-                           "objected": {"anchor": link["href"][1:], "action_key": None,
-                                        "basis": "the source links this objection to that anchor"}
-                           if (link and action_type == "objection") else None})
-                actions.append(record)
-                if paragraph.get("id"):
-                    statements[paragraph["id"]] = record
-    for record in actions:
-        objected = record["fields"].get("objected")
-        if objected and objected["anchor"] in statements:
-            objected["action_key"] = statements[objected["anchor"]]["record_key"]
-    registration = header.get("registration", "")
-    identifiers = [{"scheme": "untc-mtdsg", "value": native}, {"scheme": "untc-chapter", "value": str(unit["chapter"])}]
-    unts = re.search(r"No\.\s*(\d+)", registration)
-    if unts:
-        identifiers.append({"scheme": "unts-registration", "value": unts.group(1)})
-    fields = {
-        "identifiers": identifiers, "title_as_published": title,
-        "depositary": {"name": "Secretary-General of the United Nations",
-                       "basis": "the collection lists multilateral treaties deposited with the Secretary-General"},
-        "adoption": {"place": header.get("place"), "date": parse_date(header.get("date")),
-                     "date_as_published": header.get("date")},
-        "entry_into_force": {"date": parse_date(header.get("entry into force")),
-                             "as_published": header.get("entry into force") or None},
-        "registration_as_published": registration or None, "status_as_published": header.get("status") or None,
-        "text_reference_as_published": header.get("text") or None,
-        "text_policy": "linked, not stored", "text_url": locator, "footnotes": notes,
-        "cross_references": citations_in(title), "action_keys": sorted(a["record_key"] for a in actions),
-        "attribution": UNTC_ATTRIBUTION,
-    }
-    return [_record(fmt, "treaty", treaty, treaty=treaty, title=title, locator=locator, depositary_revision=stamp,
-                    depositary_date=revision_date, fields=fields, published_at=header.get("date")), *actions]
-
-
-# ----------------------------------------------------------------- Council of Europe Treaty Office
-
-
-def parse_coe(responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
-    """A Treaty Office chart and declarations page into a treaty record and its actions (authored shape; verify)."""
-    fmt = "coe-chart-html"
-    native = str(int(unit["number"])).zfill(3)
-    chart = _soup(responses["chart"])
-    locator = f"{COE_SITE}/full-list?module=signatures-by-treaty&treatynum={native}"
-    decl_locator = f"{COE_SITE}/full-list?module=declarations-by-treaty&treatynum={native}"
-    stamp_node, title_node = chart.find(id="status-as-of"), chart.find(id="treaty-title")
-    if stamp_node is None or title_node is None:
-        raise TreatiesFormatError("schema_drift", "the chart has no 'Status as of' date or treaty title")
-    stamp = _clean(stamp_node.get_text(" "))
-    revision_date = parse_date(stamp)
-    title = _clean(title_node.get_text(" "))
-    reference = _clean((chart.find(id="treaty-reference") or title_node).get_text(" "))
-    stated = citations_in(reference)
-    if not any(c["scheme"] == "cets" and c["value"].zfill(3) == native for c in stated):
-        raise TreatiesFormatError("schema_drift", "the chart is not the requested CETS/ETS treaty")
-    details: dict[str, list[str]] = {}
-    table = chart.find(id="treaty-details")
-    for row in table.find_all("tr") if table else []:
-        cells = [_clean(c.get_text(" ")) or "" for c in row.find_all(["td", "th"])]
-        if cells:
-            details[cells[0].casefold()] = cells[1:]
-
-    def detail(row: str, label: str) -> str | None:
-        for value in details.get(row, []):
-            if value.casefold().startswith(label.casefold() + ":"):
-                return _clean(value.split(":", 1)[1])
-        return None
-
-    treaty = treaty_key("coe-treaty-office", native)
-    actions: list[dict[str, Any]] = []
-    for heading in chart.find_all("h3"):
-        section = _clean(heading.get_text(" ")) or ""
-        lowered = section.casefold()
-        kind = ("international-organisation" if "organisation" in lowered else "state") if (
-            "member" in lowered or "organisation" in lowered or "states" in lowered) else None
-        grid = heading.find_next_sibling("table")
-        if kind is None or grid is None:
-            continue
-        rows = grid.find_all("tr")
-        columns = [(_clean(c.get_text(" ")) or "").casefold().rstrip(".") for c in rows[0].find_all(["th", "td"])]
-        if not columns or columns[0] not in {"states", "state", "international organisations", "organisations"}:
-            raise TreatiesFormatError("schema_drift", f"the chart table under {section!r} has no States column")
-        for row in rows[1:]:
-            cells = [_clean(c.get_text(" ")) or "" for c in row.find_all("td")]
-            if not cells or not cells[0]:
-                continue
-            values = dict(zip(columns, cells))
-            name = cells[0]
-            org_kind = KNOWN_ORGANISATIONS.get(name.casefold()) if kind != "state" else None
-            participant = _participant(name, provider="coe-treaty-office", kind=org_kind or kind)
-            participant["section_as_published"] = section
-            notes = [n for n in re.split(r"[\s,;]+", values.get("notes", "")) if n]
-            anchor = {"section": section, "participant": name}
-            common = {"locator": locator, "revision": stamp, "revision_date": revision_date}
-            if values.get("signature"):
-                action_type = "definitive-signature" if "s" in notes else "signature"
-                actions.append(_action(fmt, native, treaty, participant, action_type, "chart", **common,
-                                       as_published="Signature" + (" (s)" if "s" in notes else ""),
-                                       action_date=parse_date(values["signature"]), anchor={**anchor,
-                                                                                            "column": "signature"},
-                                       extra={"date_as_published": values["signature"], "notes_as_published": notes}))
-            if values.get("ratification"):
-                consent = next((COE_NOTES[n] for n in notes if n in COE_NOTES and n != "s"), "ratification")
-                actions.append(_action(fmt, native, treaty, participant, consent, "chart", **common,
-                                       as_published="Ratification" + (f" ({notes[0]})" if consent != "ratification"
-                                                                      else ""),
-                                       action_date=parse_date(values["ratification"]),
-                                       deposit_date=parse_date(values["ratification"]),
-                                       effective_date=parse_date(values.get("entry into force")),
-                                       anchor={**anchor, "column": "ratification"},
-                                       extra={"date_as_published": values["ratification"],
-                                              "notes_as_published": notes}))
-            if values.get("entry into force"):
-                actions.append(_action(fmt, native, treaty, participant, "entry-into-force", "chart", **common,
-                                       as_published="Entry into Force",
-                                       action_date=parse_date(values["entry into force"]),
-                                       effective_date=parse_date(values["entry into force"]),
-                                       anchor={**anchor, "column": "entry into force"},
-                                       extra={"date_as_published": values["entry into force"]}))
-            if values.get("denunciation"):
-                actions.append(_action(fmt, native, treaty, participant, "denunciation", "chart", **common,
-                                       as_published="Denunciation", action_date=parse_date(values["denunciation"]),
-                                       anchor={**anchor, "column": "denunciation"},
-                                       extra={"date_as_published": values["denunciation"]}))
-            flags = {k: bool(values.get(k)) for k in ("r", "d", "a", "t", "c", "o") if k in values}
-            if flags and actions and actions[-1]["fields"]["participant"]["key"] == participant["key"]:
-                for item in actions:
-                    if item["fields"]["participant"]["key"] == participant["key"]:
-                        item["fields"]["chart_flags_as_published"] = flags
-    ordinal: dict[tuple[str, str, str], int] = {}
-    statements = _soup(responses["declarations"]).find_all(class_="declaration")
-    for block in statements:
-        kind_node, state_node = block.find(class_="declaration-kind"), block.find(class_="declaration-state")
-        if kind_node is None or state_node is None:
-            raise TreatiesFormatError("schema_drift", "a declaration block has no kind or state line")
-        kind_line = _clean(kind_node.get_text(" ")) or ""
-        name = _clean(state_node.get_text(" ")) or ""
-        action_type = STATEMENT_KINDS.get(kind_line.split(" ", 1)[0].casefold())
-        if action_type is None:
-            raise TreatiesFormatError("schema_drift", f"unknown declaration kind {kind_line!r}")
-        deposited = re.search(r"(?:deposited|registered at the Secretariat General|dated)\s+on\s+(.+?)(?:\s+-\s+|$)",
-                              kind_line)
-        deposit_date = parse_date(deposited.group(1)) if deposited else None
-        period = block.find(class_="declaration-period")
-        period_text = _clean(period.get_text(" ")) if period else None
-        period_dates = re.findall(r"\d{1,2}/\d{1,2}/\d{4}", period_text or "")
-        articles = block.find(class_="declaration-articles")
-        text_node = block.find(class_="declaration-text")
-        text = _verbatim(text_node.get_text("\n")) if text_node else None
-        participant = _participant(name, provider="coe-treaty-office",
-                                   kind=KNOWN_ORGANISATIONS.get(name.casefold()) or "state")
-        qualifier = deposit_date or "undated"
-        n = ordinal[(name, action_type, qualifier)] = ordinal.get((name, action_type, qualifier), 0) + 1
-        withdraws = None
-        if action_type == "withdrawal":
-            target = re.search(r"withdrawal of (?:the |a )?(\w+)", kind_line, re.IGNORECASE)
-            withdraws = (target.group(1).casefold().rstrip("s") if target else None)
-        actions.append(_action(
-            fmt, native, treaty, participant, action_type, f"{qualifier}:{n}", locator=decl_locator, revision=stamp,
-            revision_date=revision_date, as_published=kind_line, action_date=deposit_date, deposit_date=deposit_date,
-            effective_date=parse_date(period_dates[0]) if period_dates else None, text=text,
-            anchor={"section": "declarations", "participant": name, "id": block.get("id")},
-            extra={"period_covered_as_published": period_text,
-                   "period_end": parse_date(period_dates[1]) if len(period_dates) > 1 else None,
-                   "articles_as_published": _clean(articles.get_text(" ").split(":", 1)[-1]) if articles else None,
-                   "withdraws": withdraws, "objected": None}))
-    fields = {
-        "identifiers": [{"scheme": "cets", "value": native}], "title_as_published": title,
-        "reference_as_published": reference,
-        "depositary": {"name": "Secretary General of the Council of Europe",
-                       "basis": "the Treaty Office charts treaties of the Council of Europe Treaty Series"},
-        "adoption": {"place": detail("opening of the treaty", "place"),
-                     "date": parse_date(detail("opening of the treaty", "date")),
-                     "date_as_published": detail("opening of the treaty", "date"),
-                     "event_as_published": "Opening of the treaty"},
-        "entry_into_force": {"date": parse_date(detail("entry into force", "date")),
-                             "conditions_as_published": detail("entry into force", "conditions"),
-                             "as_published": "; ".join(details.get("entry into force", [])) or None},
-        "text_policy": "linked, not stored", "text_url": f"{COE_SITE}/full-list?module=treaty-detail&treatynum={native}",
-        "footnotes": [], "cross_references": [c for c in stated if c["scheme"] != "cets"],
-        "action_keys": sorted(a["record_key"] for a in actions), "attribution": COE_ATTRIBUTION,
-    }
-    return [_record(fmt, "treaty", treaty, treaty=treaty, title=title, locator=locator, depositary_revision=stamp,
-                    depositary_date=revision_date, fields=fields,
-                    published_at=detail("opening of the treaty", "date")), *actions]
-
-
-# ----------------------------------------------------------------- CELLAR (EU international agreements)
-
-CDM = "http://publications.europa.eu/ontology/cdm#"
-DEFAULT_RELATIONS = (CDM + "work_cites_work",)
-
-
-def agreement_query(celex_ids: Sequence[str], relations: Sequence[str], *, limit: int) -> str:
-    """The bounded agreement query: signature date and the acts CELLAR links to each selected agreement."""
-    values = " ".join(json.dumps(v) + "^^<http://www.w3.org/2001/XMLSchema#string>" for v in celex_ids)
-    filters = ", ".join(f"<{r}>" for r in relations)
-    return (
-        "PREFIX cdm: <" + CDM + ">\n"
-        "SELECT DISTINCT ?celex ?signature ?direction ?relation ?actCelex ?actDate WHERE {\n"
-        " VALUES ?celex { " + values + " }\n"
-        " ?work cdm:resource_legal_id_celex ?celex .\n"
-        " OPTIONAL { ?work cdm:resource_legal_date_signature ?signature }\n"
-        " OPTIONAL {\n"
-        "  { ?act ?relation ?work . BIND(\"act-to-agreement\" AS ?direction) } UNION\n"
-        "  { ?work ?relation ?act . BIND(\"agreement-to-act\" AS ?direction) }\n"
-        "  FILTER (?relation IN (" + filters + "))\n"
-        "  ?act cdm:resource_legal_id_celex ?actCelex .\n"
-        "  OPTIONAL { ?act cdm:work_date_document ?actDate }\n"
-        " }\n"
-        "}\nORDER BY ?celex ?actCelex ?relation ?direction ?signature ?actDate\nLIMIT " + str(int(limit))
-    )
-
-
-def _bindings(raw: bytes, what: str) -> list[dict[str, Any]]:
-    try:
-        payload = json.loads(raw.decode("utf-8-sig"))
-        rows = payload["results"]["bindings"]
-    except (ValueError, KeyError, TypeError, UnicodeDecodeError) as exc:
-        raise TreatiesFormatError("schema_drift", f"{what} is not a SPARQL JSON result") from exc
-    if not isinstance(rows, list):
-        raise TreatiesFormatError("schema_drift", f"{what} has no bindings list")
-    return [{k: dict(v).get("value") for k, v in row.items() if isinstance(v, Mapping)} for row in rows]
-
-
-def parse_cellar(legal_records: Sequence[Mapping[str, Any]], agreement_raw: bytes, selection: Mapping[str, Any],
-                 *, retrieved: str | None) -> list[dict[str, Any]]:
-    """Group the CELLAR adapter's expression records per CELEX and add the agreement facts and linked acts."""
-    fmt = "cellar-agreement-sparql"
-    grouped: dict[str, dict[str, Any]] = {}
-    for record in legal_records:
-        fields = dict(record["fields"])
-        entry = grouped.setdefault(fields["celex"], {"work": fields["work"], "expressions": {}, "eli": set(),
-                                                     "effective": set(), "document": set(), "published": set(),
-                                                     "relations": []})
-        language = str(fields.get("language_identity") or "").rsplit("/", 1)[-1] or "und"
-        expression = entry["expressions"].setdefault(fields["expression"], {
-            "language": language, "expression": fields["expression"], "title_as_published": _clean(record["title"]),
-            "manifestations": []})
-        if fields.get("manifestation"):
-            item = {"manifestation": fields["manifestation"], "format": fields.get("format"), "item": fields.get("item")}
-            if item not in expression["manifestations"]:
-                expression["manifestations"].append(item)
-        entry["eli"] |= set(fields.get("eli_identifiers") or [])
-        entry["effective"] |= set(fields.get("effective_dates") or [])
-        entry["document"] |= set(fields.get("document_dates") or [])
-        entry["published"] |= set(fields.get("publication_dates") or [])
-        for relation in record.get("relationships") or []:
-            if relation not in entry["relations"]:
-                entry["relations"].append(dict(relation))
-    facts: dict[str, dict[str, Any]] = {}
-    for row in _bindings(agreement_raw, "the agreement query"):
-        if row.get("celex") not in selection["agreements"]:
-            raise TreatiesFormatError("schema_drift", "an agreement row is not a selected CELEX")
-        entry = facts.setdefault(row["celex"], {"signature": set(), "acts": []})
-        if row.get("signature"):
-            entry["signature"].add(row["signature"][:10])
-        if row.get("actCelex"):
-            act = {"celex": row["actCelex"], "relation": row.get("relation"), "direction": row.get("direction"),
-                   "document_date": parse_date(row.get("actDate")),
-                   "url": EURLEX_SITE + row["actCelex"],
-                   "basis": "CELLAR states this relation between the act and the agreement; its role is not inferred"}
-            if act not in entry["acts"]:
-                entry["acts"].append(act)
-    out = []
-    for celex in selection["agreements"]:
-        if celex not in grouped:
-            continue  # not published in the selected languages: reported by the receipt, never invented
-        entry, fact = grouped[celex], facts.get(celex, {"signature": set(), "acts": []})
-        expressions = sorted(entry["expressions"].values(), key=lambda e: (e["language"], e["expression"]))
-        for expression in expressions:
-            expression["manifestations"].sort(key=lambda m: (str(m["format"]), str(m["manifestation"])))
-        english = next((e for e in expressions if e["language"] == "ENG"), expressions[0])
-        title = english["title_as_published"] or celex
-        treaty = treaty_key("cellar", celex)
-        signature = sorted(fact["signature"])
-        identifiers = [{"scheme": "celex", "value": celex}, {"scheme": "cellar-work", "value": entry["work"]}] + [
-            {"scheme": "eli", "value": eli} for eli in sorted(entry["eli"])]
-        cross = []
-        for expression in expressions:
-            for citation in citations_in(expression["title_as_published"]):
-                item = {**citation, "basis": f"citation in the published title ({expression['language']} expression)"}
-                if not any(c["scheme"] == item["scheme"] and c["value"] == item["value"] for c in cross):
-                    cross.append(item)
-        fields = {
-            "identifiers": identifiers, "title_as_published": title,
-            "depositary": {"name": None, "basis": "CELLAR states no depositary in the bounded query"},
-            "adoption": {"place": None, "date": None, "document_dates": sorted(entry["document"])},
-            "signature": {"dates": signature, "date": signature[0] if len(signature) == 1 else None,
-                          "basis": "cdm:resource_legal_date_signature as CELLAR states it"},
-            "conclusion": {"date": None, "basis": "CELLAR states no conclusion date property in the bounded query; "
-                                                  "the linked acts are cited with their own document dates"},
-            "entry_into_force": {"dates": sorted(entry["effective"]),
-                                 "date": min(entry["effective"]) if len(entry["effective"]) == 1 else None,
-                                 "basis": "cdm:resource_legal_date_entry-into-force as CELLAR states it (several "
-                                          "dates are kept, never collapsed)"},
-            "publication_dates": sorted(entry["published"]),
-            "expressions": expressions, "eu_acts": sorted(fact["acts"], key=lambda a: (a["celex"], str(a["relation"]),
-                                                                                    str(a["direction"]))),
-            "cellar_relations": sorted(entry["relations"], key=lambda r: (str(r["relation"]), str(r["target"]))),
-            "text_policy": "linked, not stored", "text_url": EURLEX_SITE + celex, "footnotes": [],
-            "cross_references": cross, "action_keys": [], "attribution": CELLAR_ATTRIBUTION,
-        }
-        out.append(_record(fmt, "treaty", treaty, treaty=treaty, title=title, locator=EURLEX_SITE + celex,
-                           depositary_revision=None, depositary_date=None, fields=fields,
-                           published_at=min(entry["published"]) if entry["published"] else None))
-    del retrieved
+        for group in section.find_all(class_="participant-statements"):
+            name = clean(group.get("data-participant"))
+            for index, paragraph in enumerate(group.find_all("p", class_="statement"), start=1):
+                blocks.append((name, default_kind, index, paragraph))
+    if len(blocks) > MAX_STATEMENTS:
+        raise TreatiesFormatError("input_limit", "more statements than the declared bound")
+    for name, default_kind, index, paragraph in blocks:
+        pkey = participants.get(name or "")
+        if pkey is None:
+            raise TreatiesFormatError("schema_drift", f"statement names a participant not in the table: {name!r}")
+        kind_published = clean(paragraph.get("data-kind")) or default_kind.capitalize()
+        kind = slug(kind_published)
+        kind = kind if kind in STATEMENT_KINDS else default_kind
+        anchor = paragraph.get("id") or f"{slug(name)}-{default_kind}-{index}"
+        anchors[anchor] = statement_key(key, pkey, kind, anchor)
+        text, withheld = withhold_contacts(paragraph.own_text())
+        out.append(_record(fmt, "treaty-statement", anchors[anchor], treaty=key, participant=pkey,
+                           title=f"{name}: {kind_published}", locator=f"{locator}#{anchor}", native_revision=revision,
+                           fields={"statement_kind": kind, "statement_kind_as_published": kind_published,
+                                   "participant_as_published": name, "action_key": None, "anchor": anchor,
+                                   "text_verbatim": text, "contact_details_withheld": withheld,
+                                   "objects_to_statement_key": None,
+                                   "objects_to_as_published": clean(paragraph.get("data-objects-to")),
+                                   "made_on": day(paragraph.get("data-date")) if paragraph.get("data-date") else None,
+                                   "made_upon_as_published": clean(paragraph.get("data-upon")),
+                                   "articles_as_published": None}))
     return out
 
 
-# ----------------------------------------------------------------- selection and requests
+def link_statements(records: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    """Link each statement to its participant's consent action and each objection to the anchor it names."""
+    by_anchor = {r["fields"].get("anchor"): r["record_key"] for r in records if r["record_kind"] == "treaty-statement"}
+    for record in records:
+        if record["record_kind"] != "treaty-statement" or not record["participant_key"]:
+            continue
+        fields = record["fields"]
+        if fields.get("action_key") is None and fields.get("action_link_basis") != "not stated by the source":
+            fields["action_key"] = _consent_action(records, record["participant_key"])
+            fields["action_link_basis"] = fields.get("action_link_basis") or (
+                "the section states statements were made upon consent to be bound unless otherwise indicated")
+        target = fields.get("objects_to_as_published")
+        if target:
+            fields["objects_to_statement_key"] = by_anchor.get(target)
+            fields["objection_link"] = "linked by the source" if target in by_anchor else \
+                "the source names an anchor not on this page"
+    return records
+
+
+# ------------------------------------------------------------------ Council of Europe
+
+COE_SITE = "https://www.coe.int"
+
+
+def coe_urls(unit: Mapping[str, Any]) -> dict[str, str]:
+    cets = unit["cets"]
+    return {"chart": f"{COE_SITE}/en/web/conventions/full-list?module=signatures-by-treaty&treatynum={cets}",
+            "declarations": f"{COE_SITE}/en/web/conventions/full-list?module=declarations-by-treaty&numSte={cets}"
+                            "&codeNature=0"}
+
+
+def parse_coe(chart_raw: bytes, declarations_raw: bytes, unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+    fmt = "coe-treaty-html"
+    cets = str(unit["cets"])
+    key = treaty_key("coe", cets)
+    urls = coe_urls(unit)
+    chart = parse_html(chart_raw)
+    header = _required(chart.find(id="treaty-header"), "treaty header")
+    title = clean(_required(header.find(class_="treaty-title"), "treaty title").text())
+    status_text = clean(_required(header.find(class_="status-date"), "'Status as of' stamp").text())
+    revision = stamp(status_text)
+    if not revision:
+        raise TreatiesFormatError("schema_drift", "the 'Status as of' stamp carries no date")
+    info = _info_table(_required(header.find("table", id="treaty-info"), "treaty information table"))
+
+    def cell(name: str) -> str | None:
+        return clean(info[name].text()) if name in info else None
+
+    opening = cell("opening-for-signature")
+    eif = cell("entry-into-force")
+    records = [_record(fmt, "treaty", key, treaty=key, title=title, locator=urls["chart"], native_revision=revision,
+                       fields={
+                           "identifiers": {"untc_mtdsg": None, "untc_chapter": None, "untc_number": None,
+                                           "unts_registration": None, "celex": None, "eli": None, "cets": cets},
+                           "title_as_published": title, "depositary": FORMATS[fmt]["depositary"],
+                           "adoption": {"as_published": opening, "date": day(opening)},
+                           "entry_into_force": {"conditions_as_published": eif, "date": day(eif)},
+                           "registration_as_published": None, "status_as_published": status_text,
+                           "status_summary_as_published": cell("status"),
+                           "treaty_series_as_published": cell("treaty-series"),
+                           "text_references": [{"label": clean(a.text()), "url": a.get("href")} for a in
+                                               (info.get("text") or Node("x", {}, None)).find_all("a")
+                                               if str(a.get("href") or "").startswith("https://")],
+                           "text_policy": "linked, not mirrored", "footnotes": [],
+                           "cross_references": [{"scheme": "cets", "value": cets, "as_published": f"CETS No. {cets}",
+                                                 "basis": "native identifier"}],
+                           "citations": [], "attribution": COE_ATTRIBUTION})]
+    table = _required(chart.find("table", id="signatures"), "chart of signatures and ratifications")
+    rows = [r for r in table.find_all("tr") if r.find("td") is not None]
+    if len(rows) > MAX_PARTICIPANTS:
+        raise TreatiesFormatError("input_limit", "more states than the declared bound")
+    participants: dict[str, str] = {}
+    for row in rows:
+        cells = row.find_all("td")
+        if len(cells) < 5:
+            raise TreatiesFormatError("schema_drift", "a chart row has fewer than five cells")
+        name = clean(cells[0].own_text())
+        if not name:
+            raise TreatiesFormatError("schema_drift", "a chart row has no state")
+        membership = clean(row.get("data-membership"))
+        pkey = participant_key("coe", name)
+        participants[name] = pkey
+        records.append(_record(fmt, "participant", pkey, treaty=key, title=name, locator=urls["chart"],
+                               native_revision=revision, participant=pkey, fields={
+                                   "name_as_published": name, "participant_type": "eu" if name.casefold() ==
+                                   "european union" else "state" if membership in {"member", "non-member"}
+                                   else "unknown",
+                                   "participant_type_as_published": membership, "codes": [],
+                                   "note": "the chart lists states by name and membership; no code is stated"}))
+        notes_text = clean(cells[4].text())
+        actions = [("signature", "Signature", cells[1], "action_date"),
+                   ("ratification", "Ratification", cells[2], "deposit_date"),
+                   ("entry-into-force", "Entry into force", cells[3], "effective_date")]
+        for action_type, heading, node, date_field in actions:
+            text = clean(node.text())
+            if not text:
+                continue
+            date = day(text)
+            fields = {"participant_as_published": name, "action_type": action_type,
+                      "action_type_as_published": heading, "sequence": 1, "date_text_as_published": text,
+                      "action_date": None, "deposit_date": None, "effective_date": None,
+                      "date_status": "stated" if date else "unclear", "notes_as_published": notes_text,
+                      "footnote_refs": [], "footnotes": []}
+            fields[date_field] = date
+            records.append(_record(fmt, "treaty-action", action_key(key, pkey, action_type, 1), treaty=key,
+                                   title=f"{name}: {heading}", locator=urls["chart"], native_revision=revision,
+                                   participant=pkey, fields=fields))
+        for index, match in enumerate(re.finditer(r"(Denunciation|Withdrawal)[^:]*:\s*([^;]+)", notes_text or ""),
+                                      start=1):
+            action_type = "denunciation" if match[1] == "Denunciation" else "withdrawal"
+            date_text = clean(match[2])
+            records.append(_record(fmt, "treaty-action", action_key(key, pkey, action_type, index), treaty=key,
+                                   title=f"{name}: {match[1]}", locator=urls["chart"], native_revision=revision,
+                                   participant=pkey, fields={
+                                       "participant_as_published": name, "action_type": action_type,
+                                       "action_type_as_published": clean(match[0]), "sequence": index,
+                                       "date_text_as_published": date_text, "action_date": None,
+                                       "deposit_date": day(date_text), "effective_date": None,
+                                       "date_status": "stated" if day(date_text) else "unclear",
+                                       "notes_as_published": notes_text, "footnote_refs": [], "footnotes": []}))
+        effective = re.search(r"[Ee]ffective(?: date)?:\s*([^;]+)", notes_text or "")
+        if effective:
+            for record in records:
+                if record["participant_key"] == pkey and record["fields"].get("action_type") in EXIT_TYPES:
+                    record["fields"]["effective_date"] = day(effective[1])
+    declarations = parse_html(declarations_raw)
+    statements = declarations.find_all("div", class_="declaration")
+    if len(statements) > MAX_STATEMENTS:
+        raise TreatiesFormatError("input_limit", "more declarations than the declared bound")
+    counters: dict[tuple[str, str], int] = {}
+    for block in statements:
+        name = clean(block.get("data-state"))
+        pkey = participants.get(name or "")
+        if pkey is None:
+            raise TreatiesFormatError("schema_drift", f"a declaration names a state not in the chart: {name!r}")
+        kind_published = clean(block.get("data-kind")) or "Declaration"
+        kind = slug(kind_published)
+        kind = kind if kind in STATEMENT_KINDS else "communication"
+        counters[(pkey, kind)] = counters.get((pkey, kind), 0) + 1
+        anchor = block.get("id") or f"{slug(name)}-{kind}-{counters[(pkey, kind)]}"
+        head = clean((block.find("p", class_="decl-head") or Node("x", {}, None)).text())
+        upon = re.search(r"instrument of (ratification|acceptance|approval|accession)", head or "", re.IGNORECASE)
+        link_basis = f"the heading names the instrument of {upon[1].lower()}" if upon else "not stated by the source"
+        body = "\n".join(p.text() for p in block.find_all("p", class_="decl-text"))
+        text, withheld = withhold_contacts(body)
+        records.append(_record(fmt, "treaty-statement", statement_key(key, pkey, kind, anchor), treaty=key,
+                               participant=pkey, title=f"{name}: {kind_published}",
+                               locator=f"{urls['declarations']}#{anchor}", native_revision=revision, fields={
+                                   "statement_kind": kind, "statement_kind_as_published": kind_published,
+                                   "participant_as_published": name, "action_key": None, "anchor": anchor,
+                                   "text_verbatim": text, "contact_details_withheld": withheld,
+                                   "heading_as_published": head, "made_on": day(head),
+                                   "action_link_basis": link_basis,
+                                   "objects_to_statement_key": None,
+                                   "objects_to_as_published": clean(block.get("data-objects-to")),
+                                   "period_as_published": clean((block.find("p", class_="decl-period") or
+                                                                 Node("x", {}, None)).text()),
+                                   "articles_as_published": clean((block.find("p", class_="decl-articles") or
+                                                                   Node("x", {}, None)).text())}))
+    return link_statements(records)
+
+
+# ------------------------------------------------------------------ CELLAR (EU international agreements)
+
+CELLAR_LANGUAGES = ("ENG", "FRA", "DEU")
+_CELEX_AGREEMENT = re.compile(r"^2\d{4}[A-Z]\d{4}\(\d{2}\)$|^2\d{4}[A-Z]\d{4}$")
+# EU-act -> agreement relations read by the second query (predicate recorded verbatim; verify live).
+CELLAR_ACT_RELATIONS = ("http://publications.europa.eu/ontology/cdm#resource_legal_based_on_resource_legal",
+                        "http://publications.europa.eu/ontology/cdm#work_cites_work")
+CELLAR_DATE_PREDICATES = {
+    "document": "http://publications.europa.eu/ontology/cdm#work_date_document",
+    "signature": "http://publications.europa.eu/ontology/cdm#resource_legal_date_signature",
+    "entry_into_force": "http://publications.europa.eu/ontology/cdm#resource_legal_date_entry-into-force",
+    "end_of_validity": "http://publications.europa.eu/ontology/cdm#resource_legal_date_end-of-validity",
+}
+CELLAR_PARTY_PREDICATE = "http://publications.europa.eu/ontology/cdm#agreement_international_has_contracting_party"
+
+
+def cellar_agreement_query(celex: str) -> str:
+    """The bounded query for one agreement's dates, contracting parties and the EU acts that point at it."""
+    if not _CELEX_AGREEMENT.fullmatch(celex):
+        raise ValueError("an international agreement is selected by its sector-2 CELEX number")
+    value = json.dumps(celex) + "^^<http://www.w3.org/2001/XMLSchema#string>"
+    dates = " ".join(f"<{p}>" for p in CELLAR_DATE_PREDICATES.values())
+    relations = ", ".join(f"<{p}>" for p in CELLAR_ACT_RELATIONS)
+    return ("PREFIX cdm: <http://publications.europa.eu/ontology/cdm#>\n"
+            "SELECT DISTINCT ?work ?celex ?eli ?date_predicate ?date ?party ?act ?act_celex ?act_date ?relation\n"
+            "WHERE {\n"
+            f" VALUES ?celex {{ {value} }}\n"
+            " ?work cdm:resource_legal_id_celex ?celex .\n"
+            " OPTIONAL { ?work cdm:resource_legal_eli ?eli }\n"
+            f" OPTIONAL {{ VALUES ?date_predicate {{ {dates} }} ?work ?date_predicate ?date }}\n"
+            f" OPTIONAL {{ ?work <{CELLAR_PARTY_PREDICATE}> ?party }}\n"
+            " OPTIONAL { ?act ?relation ?work . ?act cdm:resource_legal_id_celex ?act_celex .\n"
+            f"            FILTER (?relation IN ({relations}))\n"
+            "            OPTIONAL { ?act cdm:work_date_document ?act_date } }\n"
+            "}\nORDER BY ?date_predicate ?party ?act_celex ?relation\nLIMIT 500")
+
+
+def _bindings(raw: bytes, what: str) -> tuple[list[dict[str, str]], Any]:
+    try:
+        payload = json.loads(raw.decode("utf-8-sig"))
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise TreatiesFormatError("schema_drift", f"{what} is not SPARQL JSON") from exc
+    rows = ((payload if isinstance(payload, Mapping) else {}).get("results") or {}).get("bindings")
+    if not isinstance(rows, list):
+        raise TreatiesFormatError("schema_drift", f"{what} has no bindings")
+    return [{k: str(v.get("value")) for k, v in row.items() if isinstance(v, Mapping)} for row in rows], payload
+
+
+def parse_cellar(expressions_raw: bytes, agreement_raw: bytes, unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+    from src.ingestion.regional_providers import ProviderError, parse_cellar_results
+
+    fmt = "cellar-agreement-sparql"
+    celex = str(unit["celex"])
+    key = treaty_key("eu-cellar", celex)
+    locator = f"https://eur-lex.europa.eu/legal-content/EN/TXT/?uri=CELEX:{celex}"
+    rows, payload = _bindings(expressions_raw, "the CELLAR expression result")
+    try:
+        grouped = parse_cellar_results(payload, celex_ids=[celex], languages=CELLAR_LANGUAGES, offset=0,
+                                       limit=max(1, len(rows)))
+    except ProviderError as exc:
+        raise TreatiesFormatError("schema_drift", f"CELLAR expressions: {exc}") from exc
+    facts, _ = _bindings(agreement_raw, "the CELLAR agreement result")
+    if not facts:
+        raise TreatiesFormatError("schema_drift", "CELLAR states nothing for the selected agreement")
+    if any(f.get("celex") != celex for f in facts):
+        raise TreatiesFormatError("source_identity", "CELLAR row does not match the selected agreement")
+    work = facts[0].get("work")
+    eli = sorted({f["eli"] for f in facts if f.get("eli")})
+    dates: dict[str, list[str]] = {}
+    for fact in facts:
+        for name, predicate in CELLAR_DATE_PREDICATES.items():
+            if fact.get("date_predicate") == predicate and fact.get("date"):
+                dates.setdefault(name, [])
+                if fact["date"] not in dates[name]:
+                    dates[name].append(fact["date"])
+    parties = sorted({f["party"] for f in facts if f.get("party")})
+    citations = []
+    for fact in facts:
+        if fact.get("act_celex"):
+            item = {"relation_as_published": fact.get("relation"), "celex": fact["act_celex"],
+                    "act_uri": fact.get("act"), "act_document_date": day(fact.get("act_date")),
+                    "direction": "the EU act points at the agreement", "basis": "explicit CDM triple"}
+            if item not in citations:
+                citations.append(item)
+    by_language: dict[str, dict[str, Any]] = {}
+    title = None
+    for record in grouped["records"]:
+        fields = record["fields"]
+        language = str(fields.get("language_identity") or "").rsplit("/", 1)[-1]
+        entry = by_language.setdefault(language, {"language": language, "expression_uri": fields["expression"],
+                                                  "title_as_published": record.get("title"), "manifestations": []})
+        if fields.get("manifestation"):
+            entry["manifestations"].append({"format": fields.get("format"), "manifestation": fields["manifestation"],
+                                            "item": fields.get("item")})
+        if language == "ENG" and record.get("title") and record.get("title") != celex:
+            title = record["title"]
+    title = title or next((e["title_as_published"] for e in by_language.values()), None) or celex
+
+    def first(name: str) -> str | None:
+        values = dates.get(name) or []
+        return day(values[0]) if values else None
+
+    cross = [{"scheme": "celex", "value": celex, "as_published": celex, "basis": "native identifier"}]
+    for match in re.finditer(r"\b(?:CETS|ETS)\s+No\.?\s*(\d{1,3})", title):
+        cross.append({"scheme": "cets", "value": f"{int(match[1]):03d}", "as_published": match[0],
+                      "basis": "citation in the published title"})
+    revision = None  # CELLAR states no per-work revision stamp in the bounded query
+    treaty = _record(fmt, "treaty", key, treaty=key, title=title, locator=locator, native_revision=revision, fields={
+        "identifiers": {"untc_mtdsg": None, "untc_chapter": None, "untc_number": None, "unts_registration": None,
+                        "celex": celex, "eli": eli[0] if eli else None, "cets": None},
+        "eli_identifiers": eli, "work_uri": work, "title_as_published": title,
+        "depositary": None, "adoption": {"as_published": None, "date": first("document")},
+        "entry_into_force": {"conditions_as_published": None, "date": first("entry_into_force"),
+                             "all_dates_as_stated": [day(d) for d in dates.get("entry_into_force") or []]},
+        "dates_as_stated": {name: [day(d) or d for d in values] for name, values in sorted(dates.items())},
+        "registration_as_published": None, "status_as_published": None, "status_summary_as_published": None,
+        "text_references": [{"label": f"EUR-Lex {celex}", "url": locator}], "text_policy": "linked, not mirrored",
+        "footnotes": [], "cross_references": cross, "citations": citations,
+        "contracting_parties_as_published": parties, "revision_basis": "CELLAR states no per-work revision stamp "
+        "in the bounded query; each acquisition whose bindings differ is a new revision",
+        "attribution": EU_ATTRIBUTION})
+    records = [treaty]
+    for language, entry in sorted(by_language.items()):
+        records.append(_record(fmt, "treaty-expression", f"{key}:expression:{language}", treaty=key,
+                               title=entry["title_as_published"] or title, locator=locator, native_revision=revision,
+                               fields={**entry, "note": "a language version of the agreement (an expression of the "
+                                                        "same work), never a separate treaty"}))
+    eu = participant_key("eu-cellar", "EU")
+    records.append(_record(fmt, "participant", eu, treaty=key, title="European Union", locator=locator,
+                           native_revision=revision, participant=eu, fields={
+                               "name_as_published": "European Union", "participant_type": "eu",
+                               "participant_type_as_published": "the EU as author of the agreement record",
+                               "codes": [{"scheme": "eu-authority-corporate-body", "value": "EU"}]}))
+    for uri in parties:
+        code = uri.rstrip("/").rsplit("/", 1)[-1]
+        scheme = "eu-authority-country" if "/authority/country/" in uri else "eu-authority-corporate-body"
+        pkey = participant_key("eu-cellar", code)
+        if pkey == eu:
+            continue
+        codes = [{"scheme": scheme, "value": code}]
+        if scheme == "eu-authority-country" and re.fullmatch(r"[A-Z]{3}", code):
+            codes.append({"scheme": "iso3166-1-alpha3", "value": code,
+                          "basis": "the EU country authority table code as published (ISO 3166-1 alpha-3 based)"})
+        records.append(_record(fmt, "participant", pkey, treaty=key, title=code, locator=uri if uri.startswith(
+            "https://") else locator, native_revision=revision, participant=pkey, fields={
+                "name_as_published": code, "participant_type": "state" if scheme == "eu-authority-country"
+                else "international-organisation", "participant_type_as_published": scheme, "codes": codes,
+                "authority_uri": uri}))
+    for action_type, name in (("signature", "signature"), ("entry-into-force", "entry_into_force")):
+        for index, value in enumerate(dates.get(name) or [], start=1):
+            fields = {"participant_as_published": "European Union", "action_type": action_type,
+                      "action_type_as_published": CELLAR_DATE_PREDICATES[name], "sequence": index,
+                      "date_text_as_published": value, "action_date": day(value) if action_type == "signature"
+                      else None, "deposit_date": None,
+                      "effective_date": day(value) if action_type == "entry-into-force" else None,
+                      "date_status": "stated" if day(value) else "unclear", "footnote_refs": [], "footnotes": [],
+                      "note": "the date as CELLAR states it for the agreement work; the EU is its author"}
+            records.append(_record(fmt, "treaty-action", action_key(key, eu, action_type, index), treaty=key,
+                                   title=f"European Union: {action_type}", locator=locator, native_revision=revision,
+                                   participant=eu, fields=fields))
+    return records
+
+
+# ------------------------------------------------------------------ units and requests
 
 
 def _units(fmt: str, selection: Mapping[str, Any]) -> list[dict[str, Any]]:
-    if fmt == "cellar-agreement-sparql":
-        celex = list(selection.get("agreements") or [])
-        languages = list(selection.get("languages") or [])
-        if not 1 <= len(celex) <= MAX_UNITS or any(not re.fullmatch(r"2\d{4}[A-Z]\d{4}(\(\d{2}\))?", c) for c in celex):
-            raise SourcePackError("invalid_manifest", f"CELLAR agreement selections name 1-{MAX_UNITS} sector-2 CELEX")
-        if not 1 <= len(languages) <= 24 or any(not re.fullmatch(r"[A-Z]{3}", lang) for lang in languages):
-            raise SourcePackError("invalid_manifest", "CELLAR agreement selections name 1-24 three-letter languages")
-        for relation in selection.get("act_relations") or []:
-            if not re.fullmatch(r"http://publications\.europa\.eu/ontology/cdm#[A-Za-z0-9_-]{3,120}", str(relation)):
-                raise SourcePackError("invalid_manifest", "act relations are CDM property IRIs")
-        return [{"agreements": celex, "languages": languages}]
-    units = [dict(u) if isinstance(u, Mapping) else {"id": u} for u in selection.get("treaties") or []]
-    if not 1 <= len(units) <= MAX_UNITS:
-        raise SourcePackError("invalid_manifest", f"a treaties selection names 1-{MAX_UNITS} treaties")
+    key = FORMATS[fmt]["unit"]
+    units = list(selection.get(key) or [])
+    if set(selection) - {key} or not 1 <= len(units) <= MAX_UNITS:
+        raise SourcePackError("invalid_manifest", f"a treaties selection names 1-{MAX_UNITS} {key}")
+    out = []
     for unit in units:
-        if fmt == "untc-status-html" and (not re.fullmatch(r"[IVXL]+-\d{1,3}(-[a-z])?", str(unit.get("mtdsg_no")))
-                                          or not str(unit.get("chapter") or "").isdigit()):
-            raise SourcePackError("invalid_manifest", "UNTC units name mtdsg_no (e.g. XVIII-10) and chapter")
-        if fmt == "coe-chart-html" and not re.fullmatch(r"\d{1,4}", str(unit.get("number") or "")):
-            raise SourcePackError("invalid_manifest", "Council of Europe units name a CETS/ETS number")
-    return units
+        unit = dict(unit)
+        if fmt == "untc-status-html":
+            if not _UNTC_ID.fullmatch(str(unit.get("mtdsg_no") or "")) or not 1 <= int(unit.get("chapter") or 0) <= 30:
+                raise SourcePackError("invalid_manifest", "a UNTC treaty names its mtdsg_no (e.g. XXVII-7) and chapter")
+        elif fmt == "coe-treaty-html":
+            if not re.fullmatch(r"\d{3}", str(unit.get("cets") or "")):
+                raise SourcePackError("invalid_manifest", "a Council of Europe treaty names its three-digit CETS number")
+        elif not _CELEX_AGREEMENT.fullmatch(str(unit.get("celex") or "")):
+            raise SourcePackError("invalid_manifest", "an EU agreement names its sector-2 CELEX number")
+        out.append(unit)
+    return out
 
 
 def requests_for(fmt: str, unit: Mapping[str, Any]) -> dict[str, tuple[str, dict[str, Any]]]:
-    """Named request paths (relative to the endpoint) and parameters for one UNTC or Council of Europe unit."""
+    """Named requests (path relative to the endpoint host, parameters) for one unit."""
     if fmt == "untc-status-html":
-        return {"status": ("/Pages/ViewDetails.aspx", {"mtdsg_no": unit["mtdsg_no"], "chapter": unit["chapter"],
-                                                       "clang": "_en"})}
-    if fmt == "coe-chart-html":
-        number = str(int(unit["number"])).zfill(3)
-        return {"chart": ("/full-list", {"module": "signatures-by-treaty", "treatynum": number}),
-                "declarations": ("/full-list", {"module": "declarations-by-treaty", "treatynum": number})}
-    raise SourcePackError("invalid_manifest", f"{fmt} is not a page-per-unit format")
+        return {"status": ("/Pages/ViewDetails.aspx", {"src": "TREATY", "mtdsg_no": unit["mtdsg_no"],
+                                                        "chapter": int(unit["chapter"]), "clang": "_en"})}
+    if fmt == "coe-treaty-html":
+        return {"chart": ("/en/web/conventions/full-list", {"module": "signatures-by-treaty",
+                                                            "treatynum": unit["cets"]}),
+                "declarations": ("/en/web/conventions/full-list", {"module": "declarations-by-treaty",
+                                                                   "numSte": unit["cets"], "codeNature": 0})}
+    if fmt == "cellar-agreement-sparql":
+        from src.ingestion.regional_providers import cellar_query
+
+        return {"expressions": ("/webapi/rdf/sparql", {"query": cellar_query([unit["celex"]],
+                                                                             languages=CELLAR_LANGUAGES, offset=0,
+                                                                             limit=100),
+                                                       "format": "application/sparql-results+json"}),
+                "agreement": ("/webapi/rdf/sparql", {"query": cellar_agreement_query(unit["celex"]),
+                                                     "format": "application/sparql-results+json"})}
+    raise SourcePackError("invalid_manifest", f"unknown treaties format {fmt!r}")
+
+
+def parse_unit(fmt: str, responses: Mapping[str, bytes], unit: Mapping[str, Any]) -> list[dict[str, Any]]:
+    if fmt == "untc-status-html":
+        records = link_statements(parse_untc(responses["status"], unit))
+    elif fmt == "coe-treaty-html":
+        records = parse_coe(responses["chart"], responses["declarations"], unit)
+    elif fmt == "cellar-agreement-sparql":
+        records = parse_cellar(responses["expressions"], responses["agreement"], unit)
+    else:
+        raise TreatiesFormatError("schema_drift", f"unknown treaties format {fmt!r}")
+    keys = [r["record_key"] for r in records]
+    if len(set(keys)) != len(keys):
+        raise TreatiesFormatError("schema_drift", "a page yields the same record key twice")
+    for record in records:
+        if minimisation_violations(record):
+            raise TreatiesFormatError("minimisation_violation", f"{record['record_key']} carries a personal field")
+    return records
 
 
 def treaties_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
@@ -782,19 +1021,18 @@ def treaties_declaration(source: Mapping[str, Any]) -> dict[str, Any]:
     fmt = declared.get("format")
     if fmt not in FORMATS or FORMATS[fmt]["provider"] != declared.get("provider"):
         raise SourcePackError("invalid_manifest", "treaties sources declare a matching provider and format")
-    if declared.get("live_verification") not in {"unverified-live", "verified-live", "declined"}:
+    if declared.get("live_verification") not in {"unverified-live", "verified-live"}:
         raise SourcePackError("invalid_manifest", "treaties sources state their LIVE_VERIFICATION status")
-    decision = dict(declared.get("licence_decision") or {})
-    if decision.get("status") not in {"accepted", "declined"} or not decision.get("reference"):
-        raise SourcePackError("invalid_manifest", "treaties sources reference their TR01 licence decision")
-    if (decision["status"] == "declined") != (declared["live_verification"] == "declined"):
-        raise SourcePackError("invalid_manifest", "a declined licence decision is the declined live status")
+    if declared.get("minimisation") != MINIMISATION_POLICY:
+        raise SourcePackError("invalid_manifest", "treaties sources declare the TR01 minimisation policy")
     _units(fmt, dict(declared.get("selection") or {}))
+    if dict(source.get("auth") or {}).get("kind") != "none":
+        raise SourcePackError("invalid_manifest", "treaty sources are unauthenticated; no secret is declared")
     return declared
 
 
 class TreatiesAdapter:
-    """Fetch one declared unit per page (UNTC, Council of Europe) or the agreement selection (CELLAR)."""
+    """Fetch one declared treaty per page from the source's endpoint host and emit its records."""
 
     accepts_transport = True
     connector = CONNECTOR
@@ -803,13 +1041,12 @@ class TreatiesAdapter:
                  secret: str | None = None) -> None:
         from src.ingestion.source_pack_runtime import HTTPSPageAdapter
 
-        del secret
+        del secret  # no treaty source takes a credential
         self.source = json.loads(json.dumps(source))
         self.declared = treaties_declaration(self.source)
         self.format = self.declared["format"]
         self.provider = self.declared["provider"]
-        self.selection = dict(self.declared.get("selection") or {})
-        self.units = _units(self.format, self.selection)
+        self.units = _units(self.format, dict(self.declared.get("selection") or {}))
         if transport is None:
             from functools import partial
 
@@ -821,7 +1058,7 @@ class TreatiesAdapter:
             "source_hash": source["source_hash"], "mapping": source["mapping"],
             "extractor_versions": source["extractor_versions"], "limits": source["budgets"],
             "treaties": {"provider": self.provider, "format": self.format, "units": len(self.units),
-                         "licence_decision": dict(self.declared["licence_decision"])},
+                         "minimisation": MINIMISATION_POLICY},
         }
 
     def describe(self) -> dict[str, Any]:
@@ -834,22 +1071,17 @@ class TreatiesAdapter:
             raise SourcePackError("parameter_forbidden", "runtime adapter received undeclared controls")
         if dict(request.get("parameters") or {}):
             raise SourcePackError("parameter_forbidden", "treaties runs fetch the declared selection only")
-        decision = self.declared["licence_decision"]
-        if decision["status"] != "accepted":
-            raise SourcePackError("licence_declined", f"{self.provider} is not acquired under the recorded licence "
-                                                      f"decision ({decision['reference']})")
 
-    def _get(self, path: str, params: Mapping[str, Any], *, url: str | None = None,
-             headers: Mapping[str, str] | None = None) -> tuple[bytes, dict[str, Any]]:
+    def _get(self, path: str, params: Mapping[str, Any]) -> tuple[bytes, dict[str, Any]]:
         from src.ingestion.source_pack_runtime import _retry_after_ms
 
         endpoint = self.source["endpoint"].rstrip("/")
-        url = url or endpoint + path
-        host = (urlsplit(endpoint).hostname or "").casefold()
-        if (urlsplit(url).hostname or "").casefold() != host:
-            raise SourcePackError("network_policy", "treaties sources fetch only from their declared host")
+        parts = urlsplit(endpoint)
+        host = (parts.hostname or "").casefold()
+        url = f"{parts.scheme}://{parts.netloc}{path}"
         ordered = dict(sorted(params.items()))
-        response = self.transport(url=url, params=ordered, headers=dict(headers or {"Accept": "text/html"}),
+        response = self.transport(url=url, params=ordered,
+                                  headers={"Accept": "text/html, application/sparql-results+json"},
                                   timeout=int(self.definition["limits"]["timeout_ms"]) / 1000)
         final_host = (urlsplit(str(response.get("final_url") or url)).hostname or "").casefold()
         if final_host != host:
@@ -861,62 +1093,21 @@ class TreatiesAdapter:
         if len(raw) > int(self.definition["limits"]["max_bytes"]):
             raise SourcePackError("response_too_large", "response exceeds its byte limit")
         if status == 429:
-            raise SourcePackError("rate_limited", "provider quota is temporarily exhausted",
+            raise SourcePackError("rate_limited", "source is temporarily rate limiting",
                                   retry_after_ms=_retry_after_ms(headers_in.get("retry-after")))
         if status in {401, 403}:
             raise SourcePackError("authentication_failed", f"request refused (HTTP {status})")
         if status >= 500:
-            raise SourcePackError("source_unavailable", f"provider returned HTTP {status}")
+            raise SourcePackError("source_unavailable", f"source returned HTTP {status}")
         if status >= 400:
             raise SourcePackError("schema_drift", f"request returned HTTP {status}")
-        name = "sparql" if "query" in ordered else path + ("?" + urlencode(ordered) if ordered else "")
-        return raw, {"path": name, "status": status, "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
+        shown = dict(ordered)
+        if "query" in shown:  # a SPARQL query is receipted by its digest, not verbatim
+            shown["query"] = "sha256:" + hashlib.sha256(str(shown["query"]).encode()).hexdigest()[:16]
+        query = urlencode(sorted(shown.items()))
+        return raw, {"path": path + ("?" + query if query else ""), "status": status,
+                     "sha256": hashlib.sha256(raw).hexdigest(), "bytes": len(raw),
                      "origin": "fixture" if response.get("origin") == "fixture" else "live"}
-
-    def _cellar(self) -> tuple[list[dict[str, Any]], list[dict[str, Any]]]:
-        """Reuse the Legal pack's CELLAR adapter for the expression rows, then read the agreement facts."""
-        from src.ingestion.legal_sources import CellarLegalAdapter
-
-        requests: list[dict[str, Any]] = []
-        origins: list[str] = []
-
-        def recording(**kwargs):
-            response = self.transport(**kwargs)
-            origins.append("fixture" if response.get("origin") == "fixture" else "live")
-            return response
-
-        cellar_source = {**self.source, "connector": "cellar",
-                         "legal": {"selection": {"celex": self.selection["agreements"],
-                                                 "languages": self.selection["languages"],
-                                                 "page_size": int(self.selection.get("page_size") or 100)}}}
-        base = CellarLegalAdapter(cellar_source, transport=recording)
-        legal_records, cursor = [], None
-        for page_no in range(int(self.source["budgets"]["max_pages"])):
-            page = base.fetch_page({"operation": min(self.source["operations"]), "parameters": {},
-                                    "limit": int(self.source["budgets"]["max_results"])}, cursor=cursor)
-            legal_records += [dict(item["legal_record"]) for item in page.records]
-            requests.append({"name": f"expressions:{page_no}", "path": "sparql", "status": page.receipt["status"],
-                             "sha256": page.receipt["response_sha256"], "query_sha256": page.receipt["query_sha256"],
-                             "bytes": int(page.bytes_read), "origin": origins[-1] if origins else "live"})
-            cursor = page.next_cursor
-            if cursor is None:
-                break
-        else:
-            raise SourcePackError("budget_exhausted", "the CELLAR expression rows need more pages than the budget")
-        relations = list(DEFAULT_RELATIONS) + [r for r in self.selection.get("act_relations") or []
-                                               if r not in DEFAULT_RELATIONS]
-        query = agreement_query(self.selection["agreements"], relations,
-                                limit=int(self.selection.get("page_size") or 100))
-        raw, receipt = self._get("", {"query": query, "format": "application/sparql-results+json"},
-                                 url=self.source["endpoint"], headers={"Accept": "application/sparql-results+json"})
-        if len(_bindings(raw, "the agreement query")) >= int(self.selection.get("page_size") or 100):
-            raise SourcePackError("budget_exhausted", "the agreement query filled its page; the unit is not truncated")
-        requests.append({"name": "agreement", **receipt, "query_sha256": _digest(query)})
-        try:
-            records = parse_cellar(legal_records, raw, self.selection, retrieved=None)
-        except TreatiesFormatError as exc:
-            raise SourcePackError("schema_drift", f"{exc.code}: {exc}") from exc
-        return records, requests
 
     def fetch_page(self, request: Mapping[str, Any], *, cursor: str | None):
         from src.ingestion.source_pack_runtime import RuntimePage
@@ -926,63 +1117,60 @@ class TreatiesAdapter:
         if not 0 <= index < len(self.units):
             raise SourcePackError("cursor_drift", "cursor is outside the declared selection")
         unit = self.units[index]
-        if self.format == "cellar-agreement-sparql":
-            records, requests = self._cellar()
-        else:
-            responses, requests = {}, []
-            for name, (path, params) in requests_for(self.format, unit).items():
-                raw, receipt = self._get(path, params)
-                responses[name] = raw
-                requests.append({"name": name, **receipt})
-            try:
-                records = (parse_untc if self.format == "untc-status-html" else parse_coe)(responses, unit)
-            except TreatiesFormatError as exc:
-                raise SourcePackError("schema_drift", f"{exc.code}: {exc}") from exc
+        responses, requests = {}, []
+        for name, (path, params) in requests_for(self.format, unit).items():
+            raw, receipt = self._get(path, params)
+            responses[name] = raw
+            requests.append({"name": name, **receipt})
+        try:
+            records = parse_unit(self.format, responses, unit)
+        except TreatiesFormatError as exc:
+            raise SourcePackError("budget_exhausted" if exc.code == "input_limit" else "schema_drift",
+                                  f"{exc.code}: {exc}") from exc
         limit = int(request.get("limit") or self.definition["limits"]["max_results"])
         if len(records) > limit:
             raise SourcePackError("budget_exhausted", "unit has more records than the run's result budget")
         origin = "fixture" if all(r["origin"] == "fixture" for r in requests) else "live"
+        treaty = next(r["record_key"] for r in records if r["record_kind"] == "treaty")
         receipt = {
-            "contract": RECEIPT_CONTRACT, "source_id": self.source["source_id"], "provider": self.provider,
-            "format": self.format, "unit_index": index, "unit": unit, "requests": requests, "records": len(records),
-            "treaties": sorted({r["treaty_key"] for r in records}), "evidence_origin": origin,
-            "live_verification": self.declared["live_verification"],
-            "licence_decision": dict(self.declared["licence_decision"]), "final_page": index + 1 >= len(self.units),
+            "contract": "noesis-treaty-acquisition-receipt-v1", "source_id": self.source["source_id"],
+            "provider": self.provider, "format": self.format, "unit_index": index, "unit": unit,
+            "requests": requests, "records": len(records), "evidence_origin": origin,
+            "live_verification": self.declared["live_verification"], "minimisation": MINIMISATION_POLICY,
+            "complete_for": [treaty], "final_page": index + 1 >= len(self.units),
         }
         out = []
         for record in records:
             record = {**record, "evidence_origin": origin}
             out.append({"id": record["record_key"], "title": record["title"], "url": record["locator"],
-                        "language": "en", "published_at": record["published_at"],
-                        "updated_at": record["depositary_date"],
+                        "language": "en", "published_at": None, "updated_at": record["native_revision"],
                         "content": json.dumps(record, sort_keys=True, ensure_ascii=False),
                         "treaty_record": record, "treaty_receipt": receipt})
         next_cursor = None if receipt["final_page"] else str(index + 1)
-        return RuntimePage(tuple(out), next_cursor, sum(int(r["bytes"]) for r in requests), receipt=receipt)
+        return RuntimePage(tuple(out), next_cursor, sum(r["bytes"] for r in requests), receipt=receipt)
 
 
 FIXTURE_SECRET = None
 ADAPTERS = {CONNECTOR: TreatiesAdapter}
 
 
-def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
-    """Replay authored responses keyed by URL path (+ sorted query); CELLAR queries by kind and offset."""
-    by_key = {page["request"]: page for page in pages}
+def request_key(url: str, params: Mapping[str, Any] | None) -> str:
+    """The key an authored native page is stored under: path plus sorted query (a SPARQL query by its digest)."""
+    parts = urlsplit(url)
+    params = dict(params or {})
+    if "query" in params:
+        params["query"] = "sha256:" + hashlib.sha256(str(params["query"]).encode()).hexdigest()[:16]
+    query = urlencode(sorted(params.items()))
+    return parts.path + ("?" + query if query else "")
 
-    def key_of(url: str, params: Mapping[str, Any]) -> str:
-        parts = urlsplit(url)
-        query = str(params.get("query") or "")
-        if query:
-            if "resource_legal_date_signature" in query:
-                return parts.path + "#agreement"
-            offset = re.search(r"OFFSET (\d+)\s*$", query)
-            return parts.path + f"#expressions@{offset.group(1) if offset else 0}"
-        encoded = urlencode(sorted(dict(params or {}).items()))
-        return parts.path + ("?" + encoded if encoded else "")
+
+def fixture_transport(pages: Sequence[Mapping[str, Any]]) -> Callable[..., Mapping[str, Any]]:
+    """Replay authored responses keyed by :func:`request_key`; responses are marked as fixture evidence."""
+    by_key = {page["request"]: page for page in pages}
 
     def transport(*, url, params, headers, timeout):
         del headers, timeout
-        key = key_of(url, params)
+        key = request_key(url, params)
         page = by_key.get(key)
         if page is None:
             raise SourcePackError("fixture_missing", f"no native page for {key}")
@@ -1009,8 +1197,8 @@ def replay_native_fixture(source: Mapping[str, Any], fixture: Mapping[str, Any])
 
 
 __all__ = [
-    "ADAPTERS", "BOUNDED_COVERAGE", "CONNECTOR", "FIXTURE_SECRET", "FORMATS", "LICENCE_DECISIONS",
-    "LIVE_VERIFICATION", "MINIMISATION", "PROVIDER_CONTRACTS", "RECORD_CONTRACT", "REVIEW_BOUNDARY",
-    "TreatiesAdapter", "TreatiesFormatError", "agreement_query", "citations_in", "fixture_transport", "parse_cellar",
-    "parse_coe", "parse_date", "parse_untc", "replay_native_fixture", "requests_for", "treaties_declaration",
+    "ADAPTERS", "BOUNDED_COVERAGE", "CONNECTOR", "FIXTURE_SECRET", "FORMATS", "LIVE_VERIFICATION", "MINIMISATION",
+    "PROVIDER_CONTRACTS", "RECORD_CONTRACT", "REVIEW_BOUNDARY", "TreatiesAdapter", "TreatiesFormatError",
+    "fixture_transport", "minimisation_violations", "parse_unit", "replay_native_fixture", "request_key",
+    "requests_for", "treaties_declaration",
 ]

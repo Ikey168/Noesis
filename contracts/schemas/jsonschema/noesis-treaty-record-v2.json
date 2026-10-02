@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://noesis.local/contracts/noesis-treaty-record-v2.json",
+  "title": "Treaty, treaty-text reference, participant, treaty action or statement as published",
+  "description": "One acquired record of the Legal pack's legal.treaties provider (#2581). A treaty keeps its depositary, registration and catalogue identifiers (UNTC chapter and number, UNTS registration, CELEX, ELI, CETS number), title as published, adoption place and date and entry-into-force conditions and dates; a treaty-expression is one language version (never a separate treaty); a participant is a state, an international organisation or the EU as the source names it; a treaty action keeps participant as published, action type, action date, deposit date and effective date as published; a statement keeps a reservation, declaration, objection, communication or note verbatim with its anchor, linked to the action and to the objected statement where the source links them. Every record carries its source, the depositary's revision stamp and, once stored, its record revision and as-of time. No record gives legal advice, infers obligations or compliance, or interprets the legal effect of a reservation; treaty texts are linked, never mirrored; no natural person is a field (TR01).",
+  "type": "object",
+  "required": ["contract", "format", "provider", "record_kind", "record_key", "treaty_key", "native_revision", "revision_order", "title", "locator", "publication_status", "minimisation", "fields"],
+  "properties": {
+    "contract": {"const": "noesis-treaty-record-v2"},
+    "format": {"enum": ["untc-status-html", "cellar-agreement-sparql", "coe-treaty-html"]},
+    "provider": {"enum": ["untc", "eu-cellar", "coe-treaty-office"]},
+    "record_kind": {"enum": ["treaty", "treaty-expression", "participant", "treaty-action", "treaty-statement"]},
+    "record_key": {"type": "string", "pattern": "^treaties:(untc|eu-cellar|coe):"},
+    "treaty_key": {"type": "string", "pattern": "^treaties:(untc|eu-cellar|coe):treaty:"},
+    "participant_key": {"type": ["string", "null"]},
+    "native_revision": {"type": ["string", "null"]},
+    "revision_order": {"type": "string"},
+    "title": {"type": "string", "minLength": 1},
+    "locator": {"type": "string", "pattern": "^https://"},
+    "publication_status": {"enum": ["published", "no-longer-published"]},
+    "minimisation": {"const": "treaties-minimisation-v1"},
+    "evidence_origin": {"enum": ["fixture", "live"]},
+    "fields": {
+      "type": "object",
+      "properties": {
+        "participant_type": {"enum": ["state", "international-organisation", "eu", "unknown"]},
+        "action_type": {"enum": ["signature", "definitive-signature", "ratification", "acceptance", "approval", "accession", "succession", "consent-to-be-bound", "entry-into-force", "denunciation", "withdrawal", "territorial-application", "provisional-application", "other"]},
+        "statement_kind": {"enum": ["reservation", "declaration", "objection", "communication", "withdrawal-of-reservation", "footnote"]},
+        "action_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "deposit_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "effective_date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "text_verbatim": {"type": "string", "minLength": 1},
+        "text_policy": {"const": "linked, not mirrored"}
+      }
+    }
+  },
+  "not": {"anyOf": [
+    {"required": ["legal_advice"]}, {"required": ["obligation"]}, {"required": ["compliance"]}, {"required": ["legal_effect"]},
+    {"properties": {"fields": {"anyOf": [{"required": ["legal_advice"]}, {"required": ["obligations"]}, {"required": ["compliance"]}, {"required": ["legal_effect"]}, {"required": ["reservation_valid"]}, {"required": ["signatory_name"]}, {"required": ["representative"]}, {"required": ["email"]}]}}}
+  ]}
+}
