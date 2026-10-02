@@ -119,7 +119,7 @@ wording above; and that a replayed page adds no revision.
 
 ## Record model
 
-`noesis-treaty-record-v1` (`contracts/schemas/jsonschema/noesis-treaty-record-v1.json`):
+`noesis-treaty-record-v2` (`contracts/schemas/jsonschema/noesis-treaty-record-v2.json`):
 `treaty` (identifiers, title as published, adoption, entry-into-force
 conditions and date, registration, depositary status stamp, text links,
 footnotes, cross-references, citations), `treaty-expression` (one language

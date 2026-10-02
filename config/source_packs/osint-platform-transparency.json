@@ -9,8 +9,8 @@
   {
    "connector": "platform-transparency",
    "mapping": {
-    "target_schema": "noesis-platform-transparency-record-v1",
-    "version": "1.0.0"
+    "target_schema": "noesis-platform-transparency-record-v2",
+    "version": "2.0.0"
    },
    "extractor_versions": [
     "platform-transparency:1.0.0"
@@ -77,14 +77,14 @@
    "fixture": {
     "path": "tests/fixtures/source_packs/osint-platform-transparency-dsa-sor-dumps.json",
     "sha256": "68b7575c72d7af7e4235c6a9dc1b1eced7b95d5ca776034bc7caba47faab5748",
-    "expected_output_hash": "0389be983c7e23add2cebb685023ff26e8fd2aed30d0c052d0d3ea5a879c79ca"
+    "expected_output_hash": "4e2689fbe8a1ac16a89e5e53850e0a77f0c4f7491f39d4e92f69fc76c5d5e46c"
    }
   },
   {
    "connector": "platform-transparency",
    "mapping": {
-    "target_schema": "noesis-platform-transparency-record-v1",
-    "version": "1.0.0"
+    "target_schema": "noesis-platform-transparency-record-v2",
+    "version": "2.0.0"
    },
    "extractor_versions": [
     "platform-transparency:1.0.0"
@@ -163,14 +163,14 @@
    "fixture": {
     "path": "tests/fixtures/source_packs/osint-platform-transparency-meta-ad-library-political.json",
     "sha256": "86f85f8feb2822bd1a538d3f094a754dc9869268a4a70f58f3c621eb7336977a",
-    "expected_output_hash": "1dfb4979a2c66ed802cc3ce95fa78103f97c18fcdb0f0026611653e8796a856f"
+    "expected_output_hash": "950c94bd0787295c5897b47ee955caa154cb801ccc7f47a43166c1fb6de481e7"
    }
   },
   {
    "connector": "platform-transparency",
    "mapping": {
-    "target_schema": "noesis-platform-transparency-record-v1",
-    "version": "1.0.0"
+    "target_schema": "noesis-platform-transparency-record-v2",
+    "version": "2.0.0"
    },
    "extractor_versions": [
     "platform-transparency:1.0.0"
@@ -240,14 +240,14 @@
    "fixture": {
     "path": "tests/fixtures/source_packs/osint-platform-transparency-google-political-ads.json",
     "sha256": "195dca1bb44357321919851ee9775fa69305308717f99da8f1a4ebfaf20029b3",
-    "expected_output_hash": "0a4a5da3950b2641ed3ef964a7d4e16323504352d8917d2d31c5393ec9232225"
+    "expected_output_hash": "d5a2db4fd82a1ba5e0f1b63b137a7326547a30e72fa98184ef0b4b2bcd5affbf"
    }
   },
   {
    "connector": "platform-transparency",
    "mapping": {
-    "target_schema": "noesis-platform-transparency-record-v1",
-    "version": "1.0.0"
+    "target_schema": "noesis-platform-transparency-record-v2",
+    "version": "2.0.0"
    },
    "extractor_versions": [
     "platform-transparency:1.0.0"
@@ -305,7 +305,7 @@
    "fixture": {
     "path": "tests/fixtures/source_packs/osint-platform-transparency-lumen-notices.json",
     "sha256": "c1cf6f462898d418742d143916ede7362a51c21fed24c1636044df1cb96e3fed",
-    "expected_output_hash": "04fe2cfff01027c639db358a6977cd91e5040ba6cd47b5cf4c27590257a4d2a9"
+    "expected_output_hash": "a336aa512a33b2656ddf85009096d9c86923b1a950413cf37efc63a32e69fe1c"
    }
   }
  ]

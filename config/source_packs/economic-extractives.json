@@ -12,8 +12,8 @@
    "required": false
   },
   "mapping": {
-   "target_schema": "noesis-extractives-record-v1",
-   "version": "1.0.0"
+   "target_schema": "noesis-extractives-record-v2",
+   "version": "2.0.0"
   },
   "operations": [
    "release"

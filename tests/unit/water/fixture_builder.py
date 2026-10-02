@@ -232,7 +232,7 @@ DEFAULTS = {
                           "published; stations and water bodies are revisions by retrieval time; assessments belong "
                           "to one WFD reporting cycle; every distinct payload is an immutable revision and absence "
                           "from a later complete USGS window is a dated tombstone",
-    "mapping": {"target_schema": "noesis-water-record-v1", "version": "1.0.0"},
+    "mapping": {"target_schema": "noesis-water-record-v2", "version": "2.0.0"},
     "extractor_versions": ["water-sources:1.0.0"],
     "operations": ["water"],
     "schedule": {"kind": "interval", "interval_s": 3600},

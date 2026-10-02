@@ -1,6 +1,6 @@
 """Regulatory enforcement in the Legal pack: revisioned store, projector, receipts and readiness (#2651, EN02).
 
-``noesis-enforcement-record-v1`` records (:mod:`src.kb.enforcement_records`)
+``noesis-enforcement-record-v2`` records (:mod:`src.kb.enforcement_records`)
 arrive through the ``legal-research`` source-pack runtime (connector
 ``enforcement``) and are persisted here, following the
 :mod:`src.kb.entity_history` / ownership-store revision pattern:
@@ -306,7 +306,7 @@ class EnforcementStore:
 
 
 class EnforcementProjector:
-    """Source-pack runtime projector for ``noesis-enforcement-record-v1``."""
+    """Source-pack runtime projector for ``noesis-enforcement-record-v2``."""
 
     def __init__(self, conn: Any) -> None:
         self.store = EnforcementStore(conn)

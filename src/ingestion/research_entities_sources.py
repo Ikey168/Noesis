@@ -41,7 +41,7 @@ from src.ingestion.source_packs import SourcePackError
 
 CONNECTOR = "research-entities"
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-research-entity-record-v1"
+RECORD_CONTRACT = "noesis-research-entity-record-v2"
 RECEIPT_CONTRACT = "noesis-research-entity-acquisition-receipt-v1"
 MINIMISATION_POLICY = "research-entities-minimisation-v1"
 MAX_UNITS = 50

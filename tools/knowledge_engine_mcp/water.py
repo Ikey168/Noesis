@@ -146,7 +146,7 @@ def register(mcp, safe, context):
 
     @mcp.tool()
     def register_water_schemas(namespace: str) -> dict:
-        """Register noesis-water-record-v1 in the schema registry."""
+        """Register noesis-water-record-v2 in the schema registry."""
         from src.kb.water_records import register_schemas
 
         return gated(namespace, "register_water_schemas", lambda conn: {

@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://noesis.local/contracts/noesis-enforcement-record-v1.json",
+  "$id": "https://noesis.local/contracts/noesis-enforcement-record-v2.json",
   "title": "Regulatory enforcement authority, action, respondent, notice, penalty or appeal as published",
   "description": "One record of the Legal pack's regulatory enforcement feature (#2651), stored as immutable revisions in the enforcement store. An action is keyed by authority and native identifier (SEC release or file number, FCA notice reference, ECHO case number, EDPB Article 60 register entry) with action type, legal bases and charges as cited, key dates, the outcome as published (a settlement keeps the published admission wording), court cases as citations, facilities by published FRS identifier and lead/concerned authorities. Respondents are organisational only, name and role as published, with published identifiers and no identity resolution; natural persons are counted on the action, never named (EN01 minimisation). Notices are versioned documents; penalties keep the published amount text and currency, with undisclosed amounts explicit; appeals keep forum, reference and status as published. Corrections and removals by the source are revisions. No record carries a risk or compliance score, an inferred finding of wrongdoing, a merged settlement finding, a personal profile or legal advice.",
   "type": "object",
   "required": ["contract", "kind", "record_key", "source", "authority"],
   "properties": {
-    "contract": {"const": "noesis-enforcement-record-v1"},
+    "contract": {"const": "noesis-enforcement-record-v2"},
     "kind": {"enum": ["authority", "enforcement_action", "respondent", "enforcement_decision", "penalty", "appeal"]},
     "record_key": {"type": "string", "pattern": "^enforcement:(authority|action|respondent|decision|penalty|appeal):"},
     "source": {

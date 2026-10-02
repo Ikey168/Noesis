@@ -12,7 +12,7 @@
       "id": "science.life-sciences",
       "contract": {
         "name": "noesis-lifesci-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
         "entry-as-of",

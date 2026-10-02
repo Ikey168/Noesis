@@ -1,6 +1,6 @@
 """Income, poverty and inequality series records for the ``society.income`` provider (IP02, #2592).
 
-One record contract, ``noesis-income-distribution-record-v1``, covers the record types the provider owns:
+One record contract, ``noesis-income-distribution-record-v2``, covers the record types the provider owns:
 
 * ``release`` - one acquired publication (a PIP release version, an EU-SILC dataset as of its ``LAST UPDATE`` or an
   OECD IDD response) with its release clock and basis, retrieval clock, PPP round, dataflow version and digests;
@@ -45,7 +45,7 @@ from src.ingestion.income_distribution_sources import (
     WELFARE_CONCEPTS,
 )
 
-CONTRACT = "noesis-income-distribution-record-v1"
+CONTRACT = "noesis-income-distribution-record-v2"
 ANSWER_CONTRACT = "noesis-income-distribution-answer-v1"
 READ_SCOPE = "knowledge:income:read"
 WRITE_SCOPE = "knowledge:income:write"
@@ -55,7 +55,7 @@ ECONOMIC_DOMAIN = "society"
 PROVIDER_ID = "society.income"
 RECORD_TYPES = ("release", "series", "definition", "vintage", "observation", "comparability_note")
 CHANGE_KINDS = ("new_series", "new_period", "revised_value", "ppp_revision", "definition_change", "removed_by_source")
-SCHEMA_FILE = "contracts/schemas/jsonschema/noesis-income-distribution-record-v1.json"
+SCHEMA_FILE = "contracts/schemas/jsonschema/noesis-income-distribution-record-v2.json"
 # Keys that would carry data about a person or a household (microdata); refused anywhere in a record.
 PERSONAL_DATA_FIELDS = frozenset({
     "person_id", "person_name", "full_name", "first_name", "last_name", "name_of_person", "household_id",
@@ -224,12 +224,12 @@ def register_schemas(conn: Any, *, principal_id: str, scopes: Iterable[str], roo
     results = []
     for name, content in sorted(schema_definitions(root).items()):
         definition = {
-            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": "1.0.0",
+            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": "2.0.0",
             "content": content, "owner": PROVIDER_ID, "dependencies": [], "compatibility_policy": "backward",
             "provenance": {"kind": "imported", "source": "packs/society"},
             "actor": {"principal_id": principal_id, "kind": "service"},
         }
-        results.append(registry.register(definition, f"income-schema:{name}:1.0.0:{digest(content)[:16]}",
+        results.append(registry.register(definition, f"income-schema:{name}:2.0.0:{digest(content)[:16]}",
                                          principal_id=principal_id, scopes=set(scopes)))
     return results
 

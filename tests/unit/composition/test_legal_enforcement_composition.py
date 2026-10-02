@@ -51,7 +51,7 @@ def test_the_descriptor_validates_and_declares_constraints_stores_and_the_source
     descriptor = {d["id"]: d for d in provider_descriptors()}["legal.enforcement"]
     assert validate_provider_descriptor(descriptor) == []
     capability = descriptor["capabilities"][0]
-    assert capability["contract"] == {"name": "noesis-enforcement-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-enforcement-record", "version": "2.0.0"}
     assert {"records", "outcomes", "penalties", "minimisation", "identity", "links", "exclusions"} <= set(
         capability["semantic_constraints"])
     assert "no risk or compliance scoring" in capability["semantic_constraints"]["exclusions"]

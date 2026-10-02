@@ -114,7 +114,7 @@ def register(mcp, safe, context):
 
     @mcp.tool()
     def register_income_schemas(namespace: str) -> dict:
-        """Register noesis-income-distribution-record-v1 in the schema registry."""
+        """Register noesis-income-distribution-record-v2 in the schema registry."""
         from src.kb.income_distribution_records import register_schemas
         return gated(namespace, lambda conn: {"modules": register_schemas(conn, principal_id=who()[0],
                                                                           scopes=who()[1])},

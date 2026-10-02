@@ -164,8 +164,8 @@
     "education-link": "1.0.0",
     "education-notification": "1.0.0",
     "media-metadata-record": "1.0.0",
-    "lifesci-record": "1.0.0",
-    "research-entity-record": "1.0.0",
+    "lifesci-record": "2.0.0",
+    "research-entity-record": "2.0.0",
     "research-entity-answer": "1.0.0",
     "research-entity-link": "1.0.0",
     "research-entity-notification": "1.0.0"
@@ -184,8 +184,8 @@
       "noesis-math-link-v1",
       "noesis-education-statistic-record-v1",
       "noesis-media-metadata-record-v1",
-      "noesis-lifesci-record-v1",
-      "noesis-research-entity-record-v1"
+      "noesis-lifesci-record-v2",
+      "noesis-research-entity-record-v2"
     ],
     "object_types": [
       "scholarly_work",

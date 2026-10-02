@@ -447,7 +447,7 @@ def read_store(conn: Any, namespace: str, scopes: Iterable[str]) -> LifeSciStore
 
 
 class LifeSciProjector:
-    """Source-pack runtime projector for ``noesis-lifesci-record-v1``."""
+    """Source-pack runtime projector for ``noesis-lifesci-record-v2``."""
 
     def __init__(self, conn: Any) -> None:
         self.store = LifeSciStore(conn)

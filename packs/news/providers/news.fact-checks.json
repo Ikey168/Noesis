@@ -13,7 +13,7 @@
       "id": "news.fact-checks",
       "contract": {
         "name": "noesis-fact-check-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
         "fact-check-source-contracts",

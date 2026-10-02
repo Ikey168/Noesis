@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://noesis.local/contracts/noesis-research-entity-record-v1.json",
+  "$id": "https://noesis.local/contracts/noesis-research-entity-record-v2.json",
   "title": "Research-entity registry record as published",
   "description": "One acquired record (#2579): a ROR organisation per dump release (names, types, status active/inactive/withdrawn, relationships and successor links, external identifiers as published), a public ORCID researcher record (iD, public name, last-modified time, public employments and works as asserted identifiers only), a DataCite dataset DOI (metadata version, related identifiers, funding references; personal creators reduced to ORCID iD and affiliation identifiers) or a CORDIS project (programme, participants with PIC and names, contributions with currency as published). Every record carries its provider, native revision, sortable revision order, the source's own as-of time, locator and evidence origin. Researcher records carry only the fields allowed by the RE01 minimisation decision. No record carries a ranking, a metric or an inferred affiliation.",
   "type": "object",
   "required": ["contract", "format", "provider", "record_kind", "record_key", "native_id", "native_revision", "revision_order", "as_of", "status", "title", "locator", "minimisation", "fields"],
   "properties": {
-    "contract": {"const": "noesis-research-entity-record-v1"},
+    "contract": {"const": "noesis-research-entity-record-v2"},
     "format": {"enum": ["ror-dump-zip", "orcid-record-json", "datacite-doi-json", "cordis-projects-csv-zip"]},
     "provider": {"enum": ["ror", "orcid", "datacite", "cordis"]},
     "record_kind": {"enum": ["organisation", "researcher", "dataset", "project"]},

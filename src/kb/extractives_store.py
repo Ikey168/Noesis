@@ -479,7 +479,7 @@ def read_store(conn: Any, namespace: str, scopes) -> ExtractivesStore:
 
 
 class ExtractivesProjector:
-    """Source-pack runtime projector for ``noesis-extractives-record-v1`` pages (one release per page)."""
+    """Source-pack runtime projector for ``noesis-extractives-record-v2`` pages (one release per page)."""
 
     def __init__(self, conn: Any) -> None:
         self.store = ExtractivesStore(conn)
@@ -521,12 +521,12 @@ def register_schemas(conn: Any, *, principal_id: str, scopes: Any) -> list[dict[
     path = Path(__file__).resolve().parents[2] / "contracts/schemas/jsonschema" / f"{CONTRACT}.json"
     definition = {
         "contract": "noesis-schema-module-v1", "name": "extractives-record", "kind": "schema",
-        "semantic_version": "1.0.0", "content": json.loads(path.read_text()), "owner": "economics.extractives",
+        "semantic_version": "2.0.0", "content": json.loads(path.read_text()), "owner": "economics.extractives",
         "dependencies": [], "compatibility_policy": "backward",
         "provenance": {"kind": "imported", "source": f"contracts/schemas/jsonschema/{CONTRACT}.json"},
         "actor": {"principal_id": principal_id, "kind": "service"},
     }
-    return [SchemaRegistry(conn).register(definition, "extractives-schema:extractives-record:1.0.0",
+    return [SchemaRegistry(conn).register(definition, "extractives-schema:extractives-record:2.0.0",
                                           principal_id=principal_id, scopes=scopes)]
 
 

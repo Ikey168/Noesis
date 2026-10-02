@@ -75,8 +75,8 @@
         "live_verification": "unverified-live"
       },
       "mapping": {
-        "target_schema": "noesis-fact-check-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-fact-check-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "fact-checks:1.0.0"
@@ -91,7 +91,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/news-fact-checks-google.json",
         "sha256": "6dd8cda9120be1b61ba20a3b93eeebd9697704d61249f099e3f3fe5cf6ad8fde",
-        "expected_output_hash": "0fe75f914b727412ca910aa3be20c3ec956e1857e9cf5b97514fa145f4f199c9"
+        "expected_output_hash": "b94bdd0daa3d4801ff9f44e6ea246ba6967638be74d2d23a8d6301b5948ff47b"
       }
     },
     {
@@ -141,8 +141,8 @@
         "live_verification": "unverified-live"
       },
       "mapping": {
-        "target_schema": "noesis-fact-check-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-fact-check-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "fact-checks:1.0.0"
@@ -157,7 +157,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/news-fact-checks-datacommons.json",
         "sha256": "7b3c909ae0e027411a3d72470784b7b40d30dcf825cedbd49ed4e37673df2ddc",
-        "expected_output_hash": "b4a888f9877c6444b1273f011c457c559271aee7becee4c600ab135e2a0530d5"
+        "expected_output_hash": "9fac7edeec48912cce2c2ab0d14dc4f1b3de3437570bbf8efb2dc47f6327fc66"
       }
     },
     {
@@ -201,8 +201,8 @@
         "live_verification": "unverified-live"
       },
       "mapping": {
-        "target_schema": "noesis-fact-check-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-fact-check-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "fact-checks:1.0.0"
@@ -217,7 +217,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/news-fact-checks-ifcn.json",
         "sha256": "576c57cfe01148d8a5b6fd3bb21ae675fe8136b63d56023595cd7604c254f315",
-        "expected_output_hash": "cdb3bb46562c0cc7ef6c89b79e16ddfddf56033fd4cc5fefd9f458ea5208af7b"
+        "expected_output_hash": "5bca0fba8827bb221744ef11d32ff32b9367427eb9bd5589bd2052303a0d955b"
       }
     }
   ]

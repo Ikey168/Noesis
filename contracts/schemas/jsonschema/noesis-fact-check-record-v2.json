@@ -1,12 +1,12 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://noesis.local/contracts/noesis-fact-check-record-v1.json",
+  "$id": "https://noesis.local/contracts/noesis-fact-check-record-v2.json",
   "title": "Fact-check or fact-check publisher record as published",
   "description": "One acquired record (#2659): a fact-check (one publisher's review of one claim, keyed by the publisher, the review URL and the reviewed claim) from the Google Fact Check Tools API or a Data Commons ClaimReview release, or a publisher (an IFCN signatory keyed by its website domain with its status as published). A fact-check keeps the publisher, review URL, title, date and language, the claim text as quoted, the claimant as named, the claim date, appearance URLs and the rating text and any numeric rating with its scale exactly as published. Corrections and removals by the source are revisions (status absent-from-release or absent-from-listing), never deletions. FC01 minimisation: no claimant image, job title, contact details, birth date or social profile, no review author who is a person, and social-platform appearances only as host plus the SHA-256 of the canonical URL. No record carries a truth verdict or a normalised rating.",
   "type": "object",
   "required": ["contract", "format", "provider", "record_kind", "record_key", "publisher_key", "review_key", "scope_key", "native_revision", "revision_order", "effective_on", "title", "locator", "minimisation", "fields"],
   "properties": {
-    "contract": {"const": "noesis-fact-check-record-v1"},
+    "contract": {"const": "noesis-fact-check-record-v2"},
     "format": {"enum": ["google-factcheck-claims-search-json", "datacommons-claimreview-feed-jsonld", "ifcn-signatories-html"]},
     "provider": {"enum": ["google-fact-check-tools", "datacommons-claimreview", "ifcn-signatories"]},
     "record_kind": {"enum": ["fact-check", "publisher"]},

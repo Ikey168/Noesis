@@ -79,7 +79,7 @@ class Env:
             self.runtime.accept_license(self.value["pack_id"], item["source_id"], principal_id="operator")
         self.store = WaterStore(self.conn, now=self.tick)
         # Retrieval times follow the deployment clock, so as-of answers are deterministic.
-        self.runtime.projectors["noesis-water-record-v1"] = WaterProjector(self.conn, now=self.tick)
+        self.runtime.projectors["noesis-water-record-v2"] = WaterProjector(self.conn, now=self.tick)
 
     def tick(self) -> int:
         self.clock += 1_000

@@ -17,7 +17,7 @@ from src.kb.fact_checks_records import (
 )
 from tests.unit import fact_checks_harness as h
 
-SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-fact-check-record-v1.json").read_text())
+SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-fact-check-record-v2.json").read_text())
 
 
 def loaded(*, v2: bool = True):

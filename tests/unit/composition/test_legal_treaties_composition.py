@@ -57,7 +57,7 @@ def test_descriptor_validates_declares_constraints_stores_scopes_and_the_source_
     descriptor = {d["id"]: d for d in provider_descriptors()}["legal.treaties"]
     assert validate_provider_descriptor(descriptor) == []
     capability = descriptor["capabilities"][0]
-    assert capability["contract"] == {"name": "noesis-treaty-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-treaty-record", "version": "2.0.0"}
     assert {"records", "as_of", "statements", "minimisation", "identity", "links", "exclusions"} <= \
         set(capability["semantic_constraints"])
     assert "no legal advice" in capability["semantic_constraints"]["exclusions"]

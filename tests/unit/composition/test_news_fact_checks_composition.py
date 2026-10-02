@@ -58,7 +58,7 @@ def test_descriptor_declares_operations_scopes_stores_exclusions_and_the_source_
     assert validate_provider_descriptor(found) == []
     assert (ROOT / "packs/news/providers/news.fact-checks.json").exists()
     (capability,) = found["capabilities"]
-    assert capability["contract"] == {"name": "noesis-fact-check-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-fact-check-record", "version": "2.0.0"}
     constraints = capability["semantic_constraints"]
     assert "no truth verdicts by Noesis" in constraints["exclusions"]
     assert "no automatic claim matching without review" in constraints["exclusions"]

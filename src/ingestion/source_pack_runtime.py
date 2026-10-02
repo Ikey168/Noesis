@@ -396,7 +396,7 @@ def _treaty_projector(conn: Any) -> Any:
 
 
 # Legal treaties provider (#2581).
-PROJECTORS["noesis-treaty-record-v1"] = _treaty_projector
+PROJECTORS["noesis-treaty-record-v2"] = _treaty_projector
 
 
 def _biodiversity_projector(conn: Any) -> Any:
@@ -414,7 +414,7 @@ def _water_projector(conn: Any) -> Any:
     return WaterProjector(conn)
 
 
-PROJECTORS["noesis-water-record-v1"] = _water_projector
+PROJECTORS["noesis-water-record-v2"] = _water_projector
 
 
 def _food_composition_projector(conn: Any) -> Any:
@@ -461,7 +461,7 @@ def _extractives_projector(conn: Any) -> Any:
 
 
 # Economics extractives provider (#2653).
-PROJECTORS["noesis-extractives-record-v1"] = _extractives_projector
+PROJECTORS["noesis-extractives-record-v2"] = _extractives_projector
 
 
 def _competition_projector(conn: Any) -> Any:
@@ -509,7 +509,7 @@ def _fact_check_projector(conn: Any) -> Any:
 
 
 # News fact-checks provider (#2659).
-PROJECTORS["noesis-fact-check-record-v1"] = _fact_check_projector
+PROJECTORS["noesis-fact-check-record-v2"] = _fact_check_projector
 
 
 def _enforcement_projector(conn: Any) -> Any:
@@ -519,7 +519,7 @@ def _enforcement_projector(conn: Any) -> Any:
 
 
 # Legal regulatory enforcement features (#2651).
-PROJECTORS["noesis-enforcement-record-v1"] = _enforcement_projector
+PROJECTORS["noesis-enforcement-record-v2"] = _enforcement_projector
 
 
 def _lifesci_projector(conn: Any) -> Any:
@@ -529,7 +529,7 @@ def _lifesci_projector(conn: Any) -> Any:
 
 
 # Science life-sciences reference records (#2652).
-PROJECTORS["noesis-lifesci-record-v1"] = _lifesci_projector
+PROJECTORS["noesis-lifesci-record-v2"] = _lifesci_projector
 
 
 def _medical_devices_projector(conn: Any) -> Any:
@@ -539,7 +539,7 @@ def _medical_devices_projector(conn: Any) -> Any:
 
 
 # Clinical Evidence medical devices provider (#2654).
-PROJECTORS["noesis-medical-device-record-v1"] = _medical_devices_projector
+PROJECTORS["noesis-medical-device-record-v2"] = _medical_devices_projector
 
 
 def _research_entities_projector(conn: Any) -> Any:
@@ -549,7 +549,7 @@ def _research_entities_projector(conn: Any) -> Any:
 
 
 # Science research-entities features (#2579).
-PROJECTORS["noesis-research-entity-record-v1"] = _research_entities_projector
+PROJECTORS["noesis-research-entity-record-v2"] = _research_entities_projector
 
 
 def _income_distribution_projector(conn: Any) -> Any:
@@ -559,7 +559,7 @@ def _income_distribution_projector(conn: Any) -> Any:
 
 
 # Society bundle, income, poverty and inequality (society.income, #2583).
-PROJECTORS["noesis-income-distribution-record-v1"] = _income_distribution_projector
+PROJECTORS["noesis-income-distribution-record-v2"] = _income_distribution_projector
 
 
 def _platform_transparency_projector(conn: Any) -> Any:
@@ -569,7 +569,7 @@ def _platform_transparency_projector(conn: Any) -> Any:
 
 
 # OSINT platform transparency feature (#2580).
-PROJECTORS["noesis-platform-transparency-record-v1"] = _platform_transparency_projector
+PROJECTORS["noesis-platform-transparency-record-v2"] = _platform_transparency_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (

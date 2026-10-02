@@ -10,8 +10,8 @@
     "temporal_semantics": "the source's release clock (PIP release_version date, Eurostat LAST UPDATE, a declared OECD release date, else the retrieval time, labelled) dates each vintage; the reference year is the period; survey year and income reference year are kept per value; vintages appended, never overwritten",
     "update_cadence": "PIP: two to three releases a year; EU-SILC: continuous dataset updates; OECD IDD: about twice a year",
     "mapping": {
-      "target_schema": "noesis-income-distribution-record-v1",
-      "version": "1.0.0"
+      "target_schema": "noesis-income-distribution-record-v2",
+      "version": "2.0.0"
     },
     "extractor_versions": [
       "income-distribution:1.0.0"

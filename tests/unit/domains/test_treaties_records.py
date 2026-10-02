@@ -30,7 +30,7 @@ def loaded():
 
 
 def test_every_record_follows_the_contract_and_carries_source_revision_and_as_of(loaded):
-    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-treaty-record-v1.json").read_text())
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-treaty-record-v2.json").read_text())
     validator = jsonschema.Draft202012Validator(schema)
     store = TreatiesStore(loaded)
     rows = store.records(h.NS, scopes=h.READ_ONLY)

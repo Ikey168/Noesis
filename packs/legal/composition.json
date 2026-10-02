@@ -46,7 +46,7 @@
         "provider": "legal.treaties",
         "contract": {
           "name": "noesis-treaty-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       },
       {
@@ -54,7 +54,7 @@
         "provider": "legal.enforcement",
         "contract": {
           "name": "noesis-enforcement-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       }
     ],
@@ -273,7 +273,7 @@
         {
           "capability": "legal.treaties",
           "contract": "noesis-treaty-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -310,7 +310,7 @@
         {
           "capability": "legal.treaties",
           "contract": "noesis-treaty-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -353,7 +353,7 @@
         {
           "capability": "legal.treaties",
           "contract": "noesis-treaty-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -390,7 +390,7 @@
         {
           "capability": "legal.enforcement",
           "contract": "noesis-enforcement-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -421,7 +421,7 @@
         {
           "capability": "legal.enforcement",
           "contract": "noesis-enforcement-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -452,7 +452,7 @@
         {
           "capability": "legal.enforcement",
           "contract": "noesis-enforcement-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -483,7 +483,7 @@
         {
           "capability": "legal.enforcement",
           "contract": "noesis-enforcement-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {

@@ -10,7 +10,7 @@
         "provider": "society.income",
         "contract": {
           "name": "noesis-income-distribution-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       },
       {
@@ -68,7 +68,7 @@
     {
       "capability": "society.income-series",
       "contract": "noesis-income-distribution-record",
-      "range": "^1.0.0",
+      "range": "^2.0.0",
       "reason": "the bundle's own entry points use these operations"
     },
     {
@@ -188,5 +188,5 @@
       }
     ]
   },
-  "content_hash": "sha256:33155f8bb64ab8aace7a6c1eef31ef3461c6b6871680244f40541472fbbe2b14"
+  "content_hash": "sha256:c60ce8c65698efa988bd4a6165a6778dd6c75a1beb89ebb797286086e9549d06"
 }

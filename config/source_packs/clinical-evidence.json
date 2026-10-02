@@ -1279,8 +1279,8 @@
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1340,13 +1340,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-openfda-510k.json",
         "sha256": "5f3399d57ab82448fe53cf33a4d2c1b3405872139966c416f79d67f3cccafa84",
-        "expected_output_hash": "4728ad53120133303634516354f8b3d8bc30e6594611fd075d3c3be86aa5dcef"
+        "expected_output_hash": "ed4b92cd5cb00ec82e63629ac412882746837909344ddb5227c28e047c00fd82"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1400,13 +1400,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-openfda-pma.json",
         "sha256": "4cbda9c46814e0a896548dc02d677e29bbefda42f8747959b877e63a313a8f8a",
-        "expected_output_hash": "98b610550e63872120a24335412e2bf01d44695ca5aa11d3c1b6db6f6bff4927"
+        "expected_output_hash": "99a2d995e0dfb89b9785925b7ee005b5be4f18fecf5f06fab32b6fd509cc447e"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1463,13 +1463,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-openfda-classification.json",
         "sha256": "8e71f6e7b3eba037993347e38f07c6648302ea34ff2b807343962a3635a0bdd2",
-        "expected_output_hash": "79f0ec3449f9b1d41053b2a6cf8e87f7fd54da92f8bd82ae4fe30ee7f7a14730"
+        "expected_output_hash": "170b9a633f7717c42742dbd69583432605d0004c5a75bdecb312734e0f0118c2"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1523,13 +1523,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-openfda-recalls.json",
         "sha256": "58ab81c450cd8e6ea931e3009aa87bda35fd9d0bc9233e6e8b2495b9427b2686",
-        "expected_output_hash": "8b004560cda60a3876c316dc7afb3ec1e86f5fc4e3653748bf42e8a9a46d6cd0"
+        "expected_output_hash": "ab547eea9c6582f8647d013ad42ea7c292f48e375168b9e4a908e0c425b8206f"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1590,13 +1590,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-openfda-maude.json",
         "sha256": "a4b83f4e64caa6b873800e2977b353262b8ab202714fa35d9a4559e8062c5f4f",
-        "expected_output_hash": "47a76dc2bd9860d136cad35e9f627b51b1f1301d19c34c2e8ee776e3aa5374e6"
+        "expected_output_hash": "c2e63b49ea35cf43825571341bbe89fb1595e488bc668fc1d16470a889ffba8f"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1653,13 +1653,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-accessgudid.json",
         "sha256": "6c48914093cae0b0187d7d293ecb526521d17e274d1f0efdf19533ef771a8ff6",
-        "expected_output_hash": "f060135996855f574b5c7c52511ec53a895c4a8ade74f20f3098559c69572849"
+        "expected_output_hash": "6a99247778283b0e182e1532851e71276e72b95d1ee9da7de71778ad98dc540f"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1716,13 +1716,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-eudamed-actors.json",
         "sha256": "7ff7932f1b0a62f83265bea53cf84ca4fd11d62e51322da0f44e6ac3a4f64294",
-        "expected_output_hash": "3882ea007d8fdf30da9e8ac219cdee64f86234ce76610ae1393b8e4bc5fc1fc2"
+        "expected_output_hash": "5977261ccdf307f118163dfdb1a59e51b75eea286328f235b7f6ef49475444b6"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1776,13 +1776,13 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-eudamed-devices.json",
         "sha256": "173a4b5a3dd5f9e3516527fd4443aa7fe79465741b88c4c98339cd4682355bc0",
-        "expected_output_hash": "0d1c98c90f90fd281e1e350a7963e980e4a3df13639b55d7939d494b5b39dc89"
+        "expected_output_hash": "1b3cc4ab4aed83a1d661da72bf4f91902b0d763d676117da859869f910f07874"
       }
     },
     {
       "mapping": {
-        "target_schema": "noesis-medical-device-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-medical-device-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "medical-devices-sources:1.0.0"
@@ -1837,7 +1837,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/clinical-devices-eudamed-certificates.json",
         "sha256": "d75729ce214ea8a01b0b63cfaaa7ee95503e47d9d6c34fcf5181be2897556292",
-        "expected_output_hash": "98702758e4f988d7ee76370a905b5bca7b0be425b62a9631cc6fdee3c41b2b6c"
+        "expected_output_hash": "b19a6c6c9010f55173695790260b9ab85408c054f1d4967ba134ded4ed428886"
       }
     }
   ]

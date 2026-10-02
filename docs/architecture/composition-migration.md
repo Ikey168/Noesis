@@ -98,7 +98,7 @@ projector introduces a store. Evidence:
 | `noesis-geospatial-feature-v1` | `src.kb.geospatial_features` | `geospatial.core` | `geospatial-berlin` |
 | `noesis-transit-feed-v1` | `src.kb.transit` | `geospatial.transit` | `geospatial-berlin` |
 | `noesis-biodiversity-record-v1` | `src.kb.biodiversity_store` | `environment.biodiversity` | `climate-environment-biodiversity` |
-| `noesis-water-record-v1` | `src.kb.water_store` | `environment.water` | `climate-environment-water` |
+| `noesis-water-record-v2` | `src.kb.water_store` | `environment.water` | `climate-environment-water` |
 | `noesis-housing-record-v1` | `src.kb.housing` | `geospatial.housing` | `geospatial-berlin` (1.3.0) |
 | `noesis-infrastructure-asset-record-v1` | `src.kb.infrastructure_assets` | `geospatial.infrastructure` | `geospatial-infrastructure` (1.0.0) |
 | `noesis-real-estate-record-v1` | `src.kb.real_estate` | `geospatial.real-estate` | `geospatial-real-estate` |
@@ -126,7 +126,7 @@ projector introduces a store. Evidence:
 | `noesis-labour-statistics-record-v1` | `src.kb.labour_statistics` | `economics.labour` | `economic-statistics-and-filings` (1.6.0) |
 | `noesis-education-statistic-record-v1` | `src.kb.education_statistics` | `science.education-statistics` | `primary-scientific-evidence` (1.2.0) |
 | `noesis-logistics-record-v1` | `src.kb.logistics_series` | `economics.logistics` | `economic-shipping-and-logistics` (1.0.0) |
-| `noesis-extractives-record-v1` | `src.kb.extractives_store` | `economics.extractives` | `economic-extractives` (1.0.0) |
+| `noesis-extractives-record-v2` | `src.kb.extractives_store` | `economics.extractives` | `economic-extractives` (1.0.0) |
 | `noesis-development-finance-record-v1` | `src.kb.development_finance` | `funding.development-finance` | `economic-statistics-and-filings` (1.4.0) |
 | `noesis-bafin-notice-v1` | `src.domains.market.bafin_notices` | `market.bafin` | `bafin-capital-market-notices` |
 | `noesis-insurance-record-v1` | `src.domains.market.insurance` | `market.insurance` | `insurance-supervisory-and-catastrophe-losses` |
@@ -138,13 +138,13 @@ projector introduces a store. Evidence:
 | `noesis-oss-ecosystem-record-v1` | `src.kb.oss_ecosystem_store` | `oss.registries` | `oss-ecosystems` |
 | `noesis-legislation-record-v1` | `src.kb.legislation` | `political.legislation` | `official-political-records` (1.3.0) |
 | `noesis-campaign-finance-record-v1` | `src.kb.campaign_finance_records` | `political.campaign-finance` | `official-political-records` (1.4.0) |
-| `noesis-lifesci-record-v1` | `src.kb.lifesci_store` | `science.life-sciences` | `primary-scientific-evidence` (1.2.0) |
-| `noesis-research-entity-record-v1` | `src.kb.research_entities_records` | `science.research-entities` | `research-discovery` (1.5.0) |
+| `noesis-lifesci-record-v2` | `src.kb.lifesci_store` | `science.life-sciences` | `primary-scientific-evidence` (1.2.0) |
+| `noesis-research-entity-record-v2` | `src.kb.research_entities_records` | `science.research-entities` | `research-discovery` (1.5.0) |
 | `noesis-energy-record-v1` | `src.kb.energy_store` | `energy.core` | `energy-systems` (1.0.0) |
 | `noesis-humanitarian-record-v1` | `src.kb.humanitarian_store` | `humanitarian.core` | `humanitarian-response` |
 | `noesis-court-justice-record-v1` | `src.kb.legal_dockets` (dockets, opinions) and `src.kb.justice_statistics` (statistics) | `legal.courts`, `legal.justice-statistics` | `legal-research` (1.4.0) |
-| `noesis-treaty-record-v1` | `src.kb.treaties_records` | `legal.treaties` | `legal-research` (1.5.0) |
-| `noesis-income-distribution-record-v1` | `src.kb.income_distribution_store` (values also in the Economics series storage, domain `society`) | `society.income` | `society-income-distribution` |
+| `noesis-treaty-record-v2` | `src.kb.treaties_records` | `legal.treaties` | `legal-research` (1.5.0) |
+| `noesis-income-distribution-record-v2` | `src.kb.income_distribution_store` (values also in the Economics series storage, domain `society`) | `society.income` | `society-income-distribution` |
 
 Music remains a possible future bundle and is neither migrated nor scaffolded.
 

@@ -87748,7 +87748,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Register noesis-income-distribution-record-v1 in the schema registry.",
+      "description": "Register noesis-income-distribution-record-v2 in the schema registry.",
       "id": "noesis-knowledge-engine.register_income_schemas",
       "input_schema": {
         "properties": {
@@ -89613,7 +89613,7 @@
     },
     {
       "cost_class": "medium",
-      "description": "Register noesis-water-record-v1 in the schema registry.",
+      "description": "Register noesis-water-record-v2 in the schema registry.",
       "id": "noesis-knowledge-engine.register_water_schemas",
       "input_schema": {
         "properties": {

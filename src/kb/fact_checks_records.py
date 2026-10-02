@@ -1,6 +1,6 @@
 """Fact-check and publisher records with immutable revisions and as-of lookup (#2659, FC02).
 
-Acquired ``noesis-fact-check-record-v1`` records (from
+Acquired ``noesis-fact-check-record-v2`` records (from
 :mod:`src.ingestion.fact_checks_sources`) are kept per source and record key
 with an append-only revision log, following the
 :mod:`src.kb.entity_history` pattern of never rewriting what was recorded:
@@ -436,7 +436,7 @@ class FactCheckStore:
 
 
 class FactCheckProjector:
-    """Source-pack runtime projector for ``noesis-fact-check-record-v1`` pages (one selection unit per page)."""
+    """Source-pack runtime projector for ``noesis-fact-check-record-v2`` pages (one selection unit per page)."""
 
     def __init__(self, conn: Any) -> None:
         self.store = FactCheckStore(conn)

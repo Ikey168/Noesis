@@ -1,7 +1,7 @@
 """Platform transparency records: statements of reasons, dump releases, ads, advertisers and takedown notices,
 versioned as the platforms and databases published them (#2580, SP02).
 
-Acquired ``noesis-platform-transparency-record-v1`` records (from
+Acquired ``noesis-platform-transparency-record-v2`` records (from
 :mod:`src.ingestion.platform_transparency_sources`) are kept per source and
 record key with an append-only revision log, following the
 :mod:`src.kb.entity_history` pattern of never rewriting what was recorded:
@@ -408,7 +408,7 @@ class PlatformTransparencyStore:
 
 
 class PlatformTransparencyProjector:
-    """Source-pack runtime projector for ``noesis-platform-transparency-record-v1`` pages (one unit per page)."""
+    """Source-pack runtime projector for ``noesis-platform-transparency-record-v2`` pages (one unit per page)."""
 
     def __init__(self, conn: Any, *, now: Callable[[], int] | None = None) -> None:
         self.store = PlatformTransparencyStore(conn, now=now)

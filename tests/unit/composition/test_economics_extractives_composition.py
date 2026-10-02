@@ -54,7 +54,7 @@ def test_descriptor_declares_read_only_operations_stores_probe_and_its_source_pa
     descriptor = next(d for d in provider_descriptors() if d["id"] == "economics.extractives")
     assert validate_provider_descriptor(descriptor) == []
     (capability,) = descriptor["capabilities"]
-    assert capability["contract"] == {"name": "noesis-extractives-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-extractives-record", "version": "2.0.0"}
     constraints = capability["semantic_constraints"]
     assert "no price forecasts" in constraints["exclusions"] and "never blended" in constraints["sources"]
     assert "never stored" in constraints["minimisation"]
@@ -115,7 +115,7 @@ def test_readiness_and_feature_enablement_follow_the_active_selection():
     assert feature_enabled(conn, "extractives-eiti") is False
     assert readiness(conn)["providers"]["usgs-mcs"]["feature_selected"] is True
     doc = (ROOT / "docs/architecture/composition-migration.md").read_text()
-    assert "optional `extractives-eiti`" in doc and "`noesis-extractives-record-v1`" in doc
+    assert "optional `extractives-eiti`" in doc and "`noesis-extractives-record-v2`" in doc
 
 
 def test_taxonomy_classifies_the_provider_and_the_gap_row_is_removed():

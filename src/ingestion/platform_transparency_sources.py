@@ -2,7 +2,7 @@
 
 One native connector, ``platform-transparency``, reads a bounded, declared
 selection from one documented provider per source and emits
-``noesis-platform-transparency-record-v1`` records exactly as the platform or
+``noesis-platform-transparency-record-v2`` records exactly as the platform or
 the database published them:
 
 * ``dsa-sor-dump-csv`` - the EU DSA Transparency Database daily dumps, one
@@ -59,7 +59,7 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-platform-transparency-record-v1"
+RECORD_CONTRACT = "noesis-platform-transparency-record-v2"
 RECEIPT_CONTRACT = "noesis-platform-transparency-acquisition-receipt-v1"
 MINIMISATION_POLICY = "platform-transparency-minimisation-v1"
 CONNECTOR = "platform-transparency"

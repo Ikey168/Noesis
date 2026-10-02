@@ -130,7 +130,7 @@
         "provider": "clinical.devices",
         "contract": {
           "name": "noesis-medical-device-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       },
       {
@@ -475,7 +475,7 @@
         {
           "capability": "clinical.devices-records",
           "contract": "noesis-medical-device-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -500,7 +500,7 @@
         {
           "capability": "clinical.devices-records",
           "contract": "noesis-medical-device-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -525,7 +525,7 @@
         {
           "capability": "clinical.devices-records",
           "contract": "noesis-medical-device-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -543,5 +543,5 @@
       ]
     }
   ],
-  "content_hash": "sha256:34f53fac79778cc128cdacac02dc78da7b821453571b614bc6060e25d005742b"
+  "content_hash": "sha256:c729c93cb505106a2e9376416666de02afd03f811214bf1120524d24f0b9fda9"
 }

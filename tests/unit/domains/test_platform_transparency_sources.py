@@ -178,7 +178,7 @@ def test_units_are_all_or_nothing_bounded_and_host_checked():
 
 def test_records_validate_against_the_published_record_schema():
     jsonschema = pytest.importorskip("jsonschema")
-    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-platform-transparency-record-v1.json"
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-platform-transparency-record-v2.json"
                          ).read_text())
     for source_id in h.SOURCES:
         for record in fetch_all(source_id)[0]:

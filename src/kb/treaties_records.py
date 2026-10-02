@@ -1,6 +1,6 @@
 """Treaty, treaty-text reference, participant, treaty-action and statement records with revisions (#2581, TR02).
 
-Acquired ``noesis-treaty-record-v1`` records (from
+Acquired ``noesis-treaty-record-v2`` records (from
 :mod:`src.ingestion.treaties_sources`) are kept per source and record key with
 an append-only revision log, following the :mod:`src.kb.entity_history`
 pattern of never rewriting what was recorded:
@@ -414,7 +414,7 @@ class TreatiesStore:
 
 
 class TreatiesProjector:
-    """Source-pack runtime projector for ``noesis-treaty-record-v1`` pages (one treaty per page)."""
+    """Source-pack runtime projector for ``noesis-treaty-record-v2`` pages (one treaty per page)."""
 
     def __init__(self, conn: Any) -> None:
         self.store = TreatiesStore(conn)

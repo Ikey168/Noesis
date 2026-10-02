@@ -1,6 +1,6 @@
 """Water and hydrology records for the Climate and Environment pack: stations, observations, water bodies, assessments.
 
-``noesis-water-record-v1`` (#2582, WA02 #2593) extends the Climate and
+``noesis-water-record-v2`` (#2582, WA02 #2593) extends the Climate and
 Environment record model (:mod:`src.kb.environment_records`: same scopes,
 canonical JSON and digest rules, source/revision/as-of on every record) with
 four record types, each a *statement* as one provider published it:
@@ -46,7 +46,7 @@ from src.kb.environment_records import (
     digest,
 )
 
-CONTRACT = "noesis-water-record-v1"
+CONTRACT = "noesis-water-record-v2"
 IDENTITY_CONTRACT = "noesis-water-identity-match-v1"
 LINK_CONTRACT = "noesis-water-link-v1"
 VALUE_ANSWER_CONTRACT = "noesis-water-value-v1"
@@ -318,7 +318,7 @@ def observation_key(station_id: str, parameter_code: str, statistic: str | None,
 def validate_statement(value: Mapping[str, Any]) -> dict[str, Any]:
     """Re-validate a stored or received statement by rebuilding it (round trip)."""
     if not isinstance(value, Mapping) or value.get("contract") != CONTRACT:
-        _fail("not a noesis-water-record-v1 statement")
+        _fail("not a noesis-water-record-v2 statement")
     required, _optional = _FIELDS.get(value.get("record_type"), ((), ()))
     published = {k: v for k, v in dict(value.get("as_published") or {}).items() if k in required or v is not None}
     effective = dict(value.get("effective") or {})
@@ -331,7 +331,7 @@ def validate_statement(value: Mapping[str, Any]) -> dict[str, Any]:
 
 # ------------------------------------------------------------------ schema registry
 
-SCHEMA_FILES = {"noesis-water-record": "contracts/schemas/jsonschema/noesis-water-record-v1.json"}
+SCHEMA_FILES = {"noesis-water-record": "contracts/schemas/jsonschema/noesis-water-record-v2.json"}
 
 
 def schema_definitions(root: Any = None) -> dict[str, Any]:
@@ -347,13 +347,13 @@ def register_schemas(conn: Any, *, principal_id: str, scopes: Iterable[str], roo
     results = []
     for name, content in sorted(schema_definitions(root).items()):
         definition = {
-            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": "1.0.0",
+            "contract": "noesis-schema-module-v1", "name": name, "kind": "schema", "semantic_version": "2.0.0",
             "content": content, "owner": "environment.water", "dependencies": [],
             "compatibility_policy": "backward",
             "provenance": {"kind": "imported", "source": "packs/climate-environment (water feature)"},
             "actor": {"principal_id": principal_id, "kind": "service"},
         }
-        results.append(registry.register(definition, f"water-schema:{name}:1.0.0:{digest(content)[:16]}",
+        results.append(registry.register(definition, f"water-schema:{name}:2.0.0:{digest(content)[:16]}",
                                          principal_id=principal_id, scopes=set(scopes)))
     return results
 

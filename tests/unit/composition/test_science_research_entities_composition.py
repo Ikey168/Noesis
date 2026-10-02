@@ -59,7 +59,7 @@ def test_descriptor_declares_read_only_operations_minimisation_stores_probe_and_
     raw = json.loads((ROOT / "packs/science/providers/science.research-entities.json").read_text())
     assert validate_provider_descriptor(raw) == []
     (capability,) = descriptor["capabilities"]
-    assert capability["contract"] == {"name": "noesis-research-entity-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-research-entity-record", "version": "2.0.0"}
     constraints = capability["semantic_constraints"]
     assert "no researcher rankings or metrics" in constraints["exclusions"]
     assert "researchers:read" in constraints["minimisation"]
@@ -124,7 +124,7 @@ def test_readiness_and_enablement_follow_the_active_selection():
     coordinator.activate("science-research-entities-off")
     assert feature_enabled(conn, "research-entities-orcid") is False
     doc = (ROOT / "docs/architecture/composition-migration.md").read_text()
-    assert "`research-entities-orcid`" in doc and "`noesis-research-entity-record-v1`" in doc
+    assert "`research-entities-orcid`" in doc and "`noesis-research-entity-record-v2`" in doc
 
 
 def test_the_taxonomy_classifies_the_provider_and_the_gap_row_is_gone():

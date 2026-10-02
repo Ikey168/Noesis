@@ -313,7 +313,7 @@ class IncomeDistributionStore:
             "provider_definition": dict(item["definition"]).get("source_text") or item["indicator"]["concept"],
             "attributes": {"income_series_id": series_id, "welfare_concept": item["welfare_concept"],
                            "equivalence_scale": item["equivalence_scale"], "poverty_line": item.get("poverty_line"),
-                           "contract": "noesis-income-distribution-record-v1"},
+                           "contract": "noesis-income-distribution-record-v2"},
         }
         try:
             economic = register_series(self.conn, record, semantics=semantics, domain=ECONOMIC_DOMAIN)
@@ -620,7 +620,7 @@ class IncomeDistributionStore:
 
 
 class IncomeDistributionProjector:
-    """Source-pack runtime projector for ``noesis-income-distribution-record-v1`` pages (one release per page)."""
+    """Source-pack runtime projector for ``noesis-income-distribution-record-v2`` pages (one release per page)."""
 
     @staticmethod
     def scopes_for(namespace: str) -> set[str]:

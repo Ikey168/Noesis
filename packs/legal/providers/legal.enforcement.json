@@ -12,7 +12,7 @@
       "id": "legal.enforcement",
       "contract": {
         "name": "noesis-enforcement-record",
-        "version": "1.0.0"
+        "version": "2.0.0"
       },
       "operations": [
         "enforcement-source-contracts",

@@ -17,7 +17,7 @@ from src.kb.research_entities_records import (
 )
 from tests.unit import research_entities_harness as h
 
-SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-research-entity-record-v1.json").read_text())
+SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-research-entity-record-v2.json").read_text())
 
 
 def loaded():

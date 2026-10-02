@@ -84,7 +84,7 @@
     "source-relationship": "1.0.0",
     "osint-corroboration": "1.1.0",
     "osint-movement-record": "1.0.0",
-    "platform-transparency-record": "1.0.0"
+    "platform-transparency-record": "2.0.0"
   },
   "ontology_extensions": {
     "extends": "noesis-canonical-entity-relation-ontology",

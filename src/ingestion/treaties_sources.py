@@ -2,7 +2,7 @@
 
 One native connector, ``treaties``, reads a bounded, declared selection of
 treaties from one depositary or catalogue per source and emits
-``noesis-treaty-record-v1`` records exactly as that source published them
+``noesis-treaty-record-v2`` records exactly as that source published them
 (TR01 audit: ``docs/development/treaties-evidence/source-audit.md``):
 
 * ``untc-status-html`` - the UN Treaty Collection status page of a
@@ -66,7 +66,7 @@ from urllib.parse import urlencode, urlsplit
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-treaty-record-v1"
+RECORD_CONTRACT = "noesis-treaty-record-v2"
 MINIMISATION_POLICY = "treaties-minimisation-v1"
 CONNECTOR = "treaties"
 MAX_UNITS = 20

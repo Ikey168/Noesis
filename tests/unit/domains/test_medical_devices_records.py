@@ -3,7 +3,9 @@
 from __future__ import annotations
 
 import copy
+import json
 
+import jsonschema
 import pytest
 
 from src.kb.medical_devices_records import (
@@ -43,6 +45,19 @@ def test_every_record_carries_source_revision_and_as_of_time(loaded):
             assert cite["as_of"], row["record_key"]
             if row["provider"] == "openfda-device":
                 assert cite["disclaimer"].startswith("Do not rely on openFDA")
+
+
+def test_every_stored_record_follows_the_published_contract(loaded):
+    conn, _ = loaded
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-medical-device-record-v2.json").read_text())
+    validator = jsonschema.Draft202012Validator(schema)
+    store = MedicalDeviceStore(conn)
+    rows = store.records(h.NS, scopes=h.SCOPES) + store.records(h.NS, scopes=h.NARRATIVE_SCOPES)
+    assert rows
+    for row in rows:
+        assert row["record"]["contract"] == "noesis-medical-device-record-v2"
+        assert not list(validator.iter_errors(row["record"])), row["record_key"]
+    assert list(validator.iter_errors({**rows[0]["record"], "safety_signal": True}))
 
 
 def test_kind_specific_fields_are_kept_as_published(loaded):

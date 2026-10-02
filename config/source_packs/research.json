@@ -399,8 +399,8 @@
         "kind": "none"
       },
       "mapping": {
-        "target_schema": "noesis-research-entity-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-research-entity-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "research-entities:1.0.0"
@@ -445,7 +445,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/research-entities-ror.json",
         "sha256": "fe4fd34acbb1222a997f5eebf7212efe906087f88ae4cd9fa1329517fad0da15",
-        "expected_output_hash": "b371d7a15545ff9371219fc7bd494fbc464dfd2e110c96cd54967bd9b1634808"
+        "expected_output_hash": "3e7871d86dfbd939b911f71f00d942dbbfc3d4f4d7072e3c1f83b1ca705378ae"
       }
     },
     {
@@ -476,8 +476,8 @@
         "secret_ref": "NOESIS_ORCID_PUBLIC_TOKEN"
       },
       "mapping": {
-        "target_schema": "noesis-research-entity-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-research-entity-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "research-entities:1.0.0"
@@ -506,7 +506,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/research-entities-orcid.json",
         "sha256": "4bc35b05b2029c7f51b03b8fe07c686414274f19a7b1173e44ba1bde4e02e2b1",
-        "expected_output_hash": "1155038e85c318f612f2202ef524ba0345a73d8d201098e8783aad0868f1d88f"
+        "expected_output_hash": "f284f0a6f5fa7dc8dbd00bef0f97129497108883fc97c855a7e84cc0b30e6c9c"
       }
     },
     {
@@ -536,8 +536,8 @@
         "kind": "none"
       },
       "mapping": {
-        "target_schema": "noesis-research-entity-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-research-entity-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "research-entities:1.0.0"
@@ -565,7 +565,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/research-entities-datacite.json",
         "sha256": "522fe259baee634163d8a64e3a7b38f961299c91c01f6f85776fc90d9b9c1ab2",
-        "expected_output_hash": "05f1f0acb6cc6f07e7dcf18dd09110d99d5351839f3756924e83eeaaaa809dcf"
+        "expected_output_hash": "88028ea272aa4098c4ade2c7f00cd298c3ac9d15aeeeb32d6ac374be174defa7"
       }
     },
     {
@@ -595,8 +595,8 @@
         "kind": "none"
       },
       "mapping": {
-        "target_schema": "noesis-research-entity-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-research-entity-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "research-entities:1.0.0"
@@ -630,7 +630,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/research-entities-cordis.json",
         "sha256": "699eb6e6e07022ba8ff8bd553d5ef714ae90eb813e51e2e62de898f43b1bef4d",
-        "expected_output_hash": "063af1786056f9afdb3d45e0a056b2e4682ab68ccb7d16d7c657aa53ea4530f0"
+        "expected_output_hash": "a372ecc21e9b3945f66211f1784a09c223f67cc307e4e110000d26a730838d55"
       }
     }
   ]

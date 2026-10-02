@@ -10,8 +10,8 @@
     "update_cadence": "hourly re-check of the declared PEGELONLINE windows, daily for USGS daily values and monthly for the WISE reporting cycles; every refresh stays inside the declared selection",
     "temporal_semantics": "observations carry their published timestamp (with offset) or day and a quality state as published; stations and water bodies are revisions by retrieval time; assessments belong to one WFD reporting cycle; every distinct payload is an immutable revision and absence from a later complete USGS window is a dated tombstone",
     "mapping": {
-      "target_schema": "noesis-water-record-v1",
-      "version": "1.0.0"
+      "target_schema": "noesis-water-record-v2",
+      "version": "2.0.0"
     },
     "extractor_versions": [
       "water-sources:1.0.0"
@@ -92,7 +92,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/water-pegelonline.json",
         "sha256": "5df5f7c793a79280f55dd82afdccc7b4a7fd8fce404d2abbc85277cbe9eb9e42",
-        "expected_output_hash": "d874a3254d723183c96014adf50f3787f7d3da0f1cc289275fedcb3548100a28"
+        "expected_output_hash": "5652e99c4c169fb3fd22ec6c76c56b6c6b18b95f977d318bda17a0c86f39e18e"
       }
     },
     {
@@ -148,7 +148,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/water-usgs.json",
         "sha256": "46e887676bf6cb730e89c7e41ab98a06b47a2c9d1a8aba413591dcef5697ff56",
-        "expected_output_hash": "d60dd66822bbb88ab4dcc3da781ed7524155244cd1de845b783dbdf05aa47c5c"
+        "expected_output_hash": "75525731790e2c7ad60290454423e8987a59fe1e215c5ebe26552c187f92c6a1"
       }
     },
     {
@@ -194,7 +194,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/water-eea-wise.json",
         "sha256": "c9d80a64aad2faac1ba6631a14a03679eb6d3fb3431f63fb388d60927843ce05",
-        "expected_output_hash": "da4add8d9c44735427175a8dbac1f175ff73827cee018beb83b5c47d89bd3ade"
+        "expected_output_hash": "d740898452c708dd469d3d1c81d2708195679547a5c0050e5fa71777769ceb9f"
       }
     }
   ]

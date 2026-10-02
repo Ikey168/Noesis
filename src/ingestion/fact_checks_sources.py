@@ -2,7 +2,7 @@
 list (#2659, FC01, FC03-FC05).
 
 One native connector, ``fact-checks``, reads a bounded, declared selection from
-one documented provider per source and emits ``noesis-fact-check-record-v1``
+one documented provider per source and emits ``noesis-fact-check-record-v2``
 records exactly as the publisher published them:
 
 * ``google-factcheck-claims-search-json`` - the Fact Check Tools API
@@ -58,7 +58,7 @@ from urllib.parse import urlencode, urlsplit
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-fact-check-record-v1"
+RECORD_CONTRACT = "noesis-fact-check-record-v2"
 MINIMISATION_POLICY = "fact-checks-minimisation-v1"
 URL_RULES = "wa-canon-v1"
 CONNECTOR = "fact-checks"

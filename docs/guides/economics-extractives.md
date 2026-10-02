@@ -38,7 +38,7 @@ held.
 ## Acquire
 
 Install the source pack and run its sources through the source-pack runtime
-(`noesis-extractives-record-v1` pages are projected by
+(`noesis-extractives-record-v2` pages are projected by
 `src.kb.extractives_store.ExtractivesProjector`). Each declared document is one
 publication:
 

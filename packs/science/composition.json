@@ -81,7 +81,7 @@
         "provider": "science.life-sciences",
         "contract": {
           "name": "noesis-lifesci-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       },
       {
@@ -89,7 +89,7 @@
         "provider": "science.research-entities",
         "contract": {
           "name": "noesis-research-entity-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       }
     ],
@@ -331,7 +331,7 @@
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -362,7 +362,7 @@
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -393,7 +393,7 @@
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -424,7 +424,7 @@
         {
           "capability": "science.life-sciences",
           "contract": "noesis-lifesci-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -455,7 +455,7 @@
         {
           "capability": "science.research-entities",
           "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -486,7 +486,7 @@
         {
           "capability": "science.research-entities",
           "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -517,7 +517,7 @@
         {
           "capability": "science.research-entities",
           "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -548,7 +548,7 @@
         {
           "capability": "science.research-entities",
           "contract": "noesis-research-entity-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {

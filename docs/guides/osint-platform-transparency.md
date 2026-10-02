@@ -48,7 +48,7 @@ dated live run (#2650). Offline coverage is not live coverage.
 
 ## What is stored (`src/kb/platform_transparency_records.py`)
 
-`noesis-platform-transparency-record-v1` revisions of statements of reasons,
+`noesis-platform-transparency-record-v2` revisions of statements of reasons,
 DSA dump releases (file, variant, SHA-256 - the dump version), ads, advertisers
 and takedown notices. Revisions are immutable: a changed record is `revised`,
 an older response is an `older-observation`, and a record the source no longer

@@ -39,7 +39,7 @@ def store():
 
 
 def test_the_contract_schema_is_draft7_and_accepts_every_fixture_statement():
-    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-lifesci-record-v1.json").read_text())
+    schema = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-lifesci-record-v2.json").read_text())
     jsonschema.Draft7Validator.check_schema(schema)
     for provider in h.SOURCES:
         for records, _ in h.fetch(provider):

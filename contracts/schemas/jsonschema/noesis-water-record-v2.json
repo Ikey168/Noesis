@@ -1,13 +1,13 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "noesis-water-record-v1",
+  "$id": "noesis-water-record-v2",
   "title": "Water record statement: what one provider published about a gauging station, an observation, a water body or its status in one reporting cycle",
   "description": "One statement a Climate and Environment water adapter emits (PEGELONLINE stations and measurements, USGS Water Data monitoring locations and daily values, EEA WISE Water Framework Directive water-body status) and src.kb.water_store keeps as an immutable revision with source, revision and retrieval time. Record types: station (native id, name, river, location and gauge zero or datum as published, published characteristic values), observation (parameter, unit, time, value and quality state as published, qualifiers per value), water_body (EU code, name, category, river basin district) and assessment (one reporting cycle's ecological and chemical status as reported). No statement carries a forecast, an interpolated or gap-filled value, a Noesis status assessment, a flood-risk score or personal data.",
   "type": "object",
   "required": ["contract", "record_type", "provider", "record_key", "subject", "as_published", "effective", "source", "unknowns"],
   "additionalProperties": false,
   "properties": {
-    "contract": {"const": "noesis-water-record-v1"},
+    "contract": {"const": "noesis-water-record-v2"},
     "record_type": {"enum": ["station", "observation", "water_body", "assessment"]},
     "provider": {"enum": ["pegelonline", "usgs", "eea-wise"]},
     "record_key": {"type": "string", "minLength": 1},

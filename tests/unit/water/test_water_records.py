@@ -41,7 +41,7 @@ def test_schema_registers_and_validates_every_fixture_statement():
     assert [m["name"] for m in modules] == ["noesis-water-record"]
     assert wr.register_schemas(conn, principal_id="water-service", scopes=scopes)[0]["idempotent_replay"]
     registry = SchemaRegistry(conn)
-    reference = {"kind": "schema", "name": "noesis-water-record", "version": "1.0.0"}
+    reference = {"kind": "schema", "name": "noesis-water-record", "version": "2.0.0"}
     for source in harness.manifest()["sources"]:
         fixture = json.loads((harness.ROOT / source["fixture"]["path"]).read_text())
         for item in replay_native_fixture(source, fixture):

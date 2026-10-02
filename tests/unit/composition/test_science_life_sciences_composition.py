@@ -58,7 +58,7 @@ def test_descriptor_declares_read_only_lookups_stores_probe_and_source_pack():
     raw = json.loads((ROOT / "packs/science/providers/science.life-sciences.json").read_text())
     assert validate_provider_descriptor(raw) == []
     (capability,) = descriptor["capabilities"]
-    assert capability["contract"] == {"name": "noesis-lifesci-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-lifesci-record", "version": "2.0.0"}
     constraints = capability["semantic_constraints"]
     assert "no biological or clinical inference" in constraints["exclusions"]
     assert "no personal names" in constraints["minimisation"]
@@ -90,7 +90,7 @@ def test_each_source_is_a_separate_optional_feature_and_no_pack_is_created():
         "uniprot-lifesci-proteins", "ncbi-gene-lifesci", "ncbi-taxonomy-lifesci", "rcsb-pdb-lifesci-structures",
         "chembl-lifesci-bioactivity"}
     pack = json.loads((ROOT / "packs/science/pack.json").read_text())
-    assert pack["schema_versions"]["lifesci-record"] == "1.0.0"
+    assert pack["schema_versions"]["lifesci-record"] == "2.0.0"
     assert "activity prediction, scoring or ranking of compounds" in pack["exclusions"]
 
 
@@ -126,7 +126,7 @@ def test_readiness_and_enablement_follow_the_active_selection():
     coordinator.activate("science-lifesci-off")
     assert not set(FEATURES) & set(selected_features(conn))
     doc = (ROOT / "docs/architecture/composition-migration.md").read_text()
-    assert "`life-sciences-uniprot`" in doc and "`noesis-lifesci-record-v1`" in doc
+    assert "`life-sciences-uniprot`" in doc and "`noesis-lifesci-record-v2`" in doc
 
 
 def test_the_taxonomy_classifies_the_provider_and_the_gap_row_is_gone():

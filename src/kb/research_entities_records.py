@@ -1,7 +1,7 @@
 """Research-entity records: organisations, researchers, datasets and projects with revisions and as-of lookup (#2579,
 RE02).
 
-Acquired ``noesis-research-entity-record-v1`` records (from :mod:`src.ingestion.research_entities_sources`) are kept
+Acquired ``noesis-research-entity-record-v2`` records (from :mod:`src.ingestion.research_entities_sources`) are kept
 per source and record key with an append-only revision log, following the :mod:`src.kb.entity_history` pattern of
 never rewriting what was recorded:
 
@@ -394,7 +394,7 @@ class ResearchEntityStore:
 
 
 class ResearchEntityProjector:
-    """Source-pack runtime projector for ``noesis-research-entity-record-v1`` pages (one selection unit per page)."""
+    """Source-pack runtime projector for ``noesis-research-entity-record-v2`` pages (one selection unit per page)."""
 
     def __init__(self, conn: Any) -> None:
         self.store = ResearchEntityStore(conn)

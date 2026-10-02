@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://noesis.local/contracts/noesis-extractives-record-v1.json",
-  "title": "noesis-extractives-record-v1",
+  "$id": "https://noesis.local/contracts/noesis-extractives-record-v2.json",
+  "title": "noesis-extractives-record-v2",
   "description": "Economics extractives records (#2653): EITI report, government agency, revenue stream, company, project and company payment revisions per report version, and commodity series (production, reserves, imports, exports) keyed by source, commodity, statistic, unit and country whose values are vintages in the Economics series storage. Every record carries its source, record revision and as-of time. Personal fields are never stored (EX01 minimisation decision).",
   "type": "object",
   "required": ["contract", "record_type", "namespace"],
   "properties": {
-    "contract": {"const": "noesis-extractives-record-v1"},
+    "contract": {"const": "noesis-extractives-record-v2"},
     "namespace": {"type": "string", "minLength": 1},
     "record_type": {"enum": ["eiti_report", "government_agency", "revenue_stream", "company", "project", "company_payment", "commodity_series"]}
   },

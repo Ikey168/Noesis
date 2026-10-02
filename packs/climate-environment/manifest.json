@@ -82,7 +82,7 @@
         "provider": "environment.water",
         "contract": {
           "name": "noesis-water-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       },
       {
@@ -334,7 +334,7 @@
         {
           "capability": "environment.water-records",
           "contract": "noesis-water-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -389,7 +389,7 @@
         {
           "capability": "environment.water-records",
           "contract": "noesis-water-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -444,7 +444,7 @@
         {
           "capability": "environment.water-records",
           "contract": "noesis-water-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -492,5 +492,5 @@
       ]
     }
   ],
-  "content_hash": "sha256:806cc792c37d5ca316938d8f4e4cf84d1d3904501b3c4e4641955bb75e2c7e64"
+  "content_hash": "sha256:ca3bf168a56d61b74efca668c8dfa90ded15d978dfe0f06260d94f251a49ba8e"
 }

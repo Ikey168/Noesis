@@ -1104,8 +1104,8 @@
       "update_cadence": "as the depositary updates the status page",
       "temporal_semantics": "signature and deposit dates as published as valid time; the page's 'Status as at' stamp as the depositary revision; acquisition time recorded separately; entry into force for a participant is never inferred",
       "mapping": {
-        "target_schema": "noesis-treaty-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-treaty-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "treaties:1.0.0"
@@ -1144,7 +1144,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-treaties-untc-treaty-status.json",
         "sha256": "28ac36adc398f93500231f35fb63a709ecc6845fb0ab250cae45bb1830a36cb8",
-        "expected_output_hash": "d10b5b0499acea29e6bcb678ee7d51ce09a330b2d58dcaff2557863ee288c542"
+        "expected_output_hash": "dec4d0980b9c4e99c4aa2e7be76fc8ff9e1d6237019dc4588bb57cad1e84e24c"
       }
     },
     {
@@ -1161,8 +1161,8 @@
       "update_cadence": "as the Publications Office updates CELLAR",
       "temporal_semantics": "dates as CELLAR states them for the agreement work; no per-work revision stamp is queried, so each acquisition with different bindings is a revision",
       "mapping": {
-        "target_schema": "noesis-treaty-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-treaty-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "treaties:1.0.0"
@@ -1200,7 +1200,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-treaties-eu-cellar-agreements.json",
         "sha256": "7308b99ce1b83b719a4da39485562bb76268c8bb44cb03b0987d14a940e413bd",
-        "expected_output_hash": "68619f1252aa7a4637309f90c4a5e4fef835e0862d5079d4c0e319689d42f266"
+        "expected_output_hash": "edf9581095826bb1e16d01783df8c1a67d261c455719890505891bea180018f3"
       }
     },
     {
@@ -1217,8 +1217,8 @@
       "update_cadence": "as the Treaty Office updates the chart",
       "temporal_semantics": "signature, ratification, entry-into-force and denunciation dates as published as valid time; the chart's 'Status as of' stamp as the depositary revision",
       "mapping": {
-        "target_schema": "noesis-treaty-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-treaty-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "treaties:1.0.0"
@@ -1256,7 +1256,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-treaties-coe-treaty-office.json",
         "sha256": "ae7c1752f7c85adf192d6861fe38fca091a4a3cd1453a7fc5c5f8957c554e2f4",
-        "expected_output_hash": "6cad4e9076fcf152b81debb97d3f68e707ef4e765a7379e9ee845cd5e2eb0bae"
+        "expected_output_hash": "d8193938898a40d3047fe2c13c031e56eb0c403488e94730fb98c992bb15693d"
       }
     },
     {
@@ -1275,8 +1275,8 @@
         "redistribution": "US government work, public domain (17 U.S.C. 105); credit the SEC"
       },
       "mapping": {
-        "target_schema": "noesis-enforcement-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-enforcement-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "enforcement:1.0.0"
@@ -1311,7 +1311,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-enforcement-sec-releases.json",
         "sha256": "a076f55d3255787a2be45c8ec9c0ebd6d218272357fb95c004ec83356f54c760",
-        "expected_output_hash": "c64a3e6da3ac077e4f0c2572133227193079a9b3fb26e16ba33bd20ed393c223"
+        "expected_output_hash": "901fb2503380c4f8d428900c0c7cf0dde401ae830f1b146825017a6a16b20eb0"
       }
     },
     {
@@ -1330,8 +1330,8 @@
         "redistribution": "FCA material reproduced free of charge with acknowledgement, accurately and not in a misleading context (verify)"
       },
       "mapping": {
-        "target_schema": "noesis-enforcement-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-enforcement-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "enforcement:1.0.0"
@@ -1366,7 +1366,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-enforcement-fca-final-notices.json",
         "sha256": "87ed5ae59f26623149a348b6488e28662ccf138bc503c6cf94449ef3b7102384",
-        "expected_output_hash": "a177f1f615010174b4078e1989a95aecf723d4e9316cd655be36f9c821aee6e2"
+        "expected_output_hash": "a9028d3ecba2413a40f741366298e4903da3728c36444cfed7833200b5413eb3"
       }
     },
     {
@@ -1385,8 +1385,8 @@
         "redistribution": "US government work, public domain; ECHO data disclaimer applies (verify)"
       },
       "mapping": {
-        "target_schema": "noesis-enforcement-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-enforcement-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "enforcement:1.0.0"
@@ -1421,7 +1421,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-enforcement-epa-echo-cases.json",
         "sha256": "2193ca3056055757b501454246462ea6cad0e12c1394db8f5b27520124b79698",
-        "expected_output_hash": "ac9caaa75cfe4019cd1263353897b7ea7e8202fdcd82e81b529a0b894c82fabc"
+        "expected_output_hash": "fd85a408f418be9363114251f5b383657b02364e7260aefcc2aaef76ca49784a"
       }
     },
     {
@@ -1440,8 +1440,8 @@
         "redistribution": "reuse authorised with acknowledgement of the source (verify)"
       },
       "mapping": {
-        "target_schema": "noesis-enforcement-record-v1",
-        "version": "1.0.0"
+        "target_schema": "noesis-enforcement-record-v2",
+        "version": "2.0.0"
       },
       "extractor_versions": [
         "enforcement:1.0.0"
@@ -1476,7 +1476,7 @@
       "fixture": {
         "path": "tests/fixtures/source_packs/legal-enforcement-edpb-art60.json",
         "sha256": "fb77959dc17a5e2bc835675ddcccd7691c2c2d783ae7aaac4a765e8362621e17",
-        "expected_output_hash": "a46cfe161d94b64107fca001b51c6020e858c4386751b647e5e8ca36a77ae938"
+        "expected_output_hash": "1b7d09f4f2d964a77be7e7f3deaed466f89dedb79c7207739437dca969992856"
       }
     }
   ]

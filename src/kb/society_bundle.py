@@ -54,7 +54,7 @@ BUNDLE = {
                     for p, c in PROVIDER_CONTRACTS.items()],
         "source_packs": [{"pack_id": "society-income-distribution", "version": "1.0.0",
                           "manifest": "config/source_packs/society.json"}],
-        "ontology": {"contract": "noesis-income-distribution-record-v1", "record_types": list(RECORD_TYPES)},
+        "ontology": {"contract": "noesis-income-distribution-record-v2", "record_types": list(RECORD_TYPES)},
         "optional_features": {feature: {"default": True, "provider": provider} for feature, provider in FEATURES.items()},
         "optional_links": {"economics.demographics": "population denominators by citation (provider_absent when "
                                                      "not installed)",

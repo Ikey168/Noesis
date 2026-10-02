@@ -64,7 +64,7 @@ def test_company_and_country_to_cited_extractive_payments_and_production_with_ve
                                  "trade-comext"])
     assert coordinator.activate("economics-extractives-acceptance")["status"] == "published"
     assert feature_enabled(conn) and feature_enabled(conn, "extractives-eiti")
-    assert "noesis-extractives-record-v1" in PROJECTORS
+    assert "noesis-extractives-record-v2" in PROJECTORS
     assert SourcePackConformance(h.ROOT).offline(json.loads(h.PACK_PATH.read_text()))["valid"]
 
     # Acquire: ownership, the first report versions and releases, then the revised versions; review identity.

@@ -26,7 +26,7 @@ from src.ingestion.source_packs import SourcePackConformance, SourcePackError
 from src.kb.extractives_store import ExtractivesStore
 from tests.unit import extractives_harness as h
 
-SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-extractives-record-v1.json").read_text())
+SCHEMA = json.loads((h.ROOT / "contracts/schemas/jsonschema/noesis-extractives-record-v2.json").read_text())
 
 
 def test_every_provider_has_a_recorded_contract_minimisation_decision_and_bounded_coverage():

@@ -158,7 +158,7 @@
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
         },
         {
@@ -189,7 +189,7 @@
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
         },
         {
@@ -220,7 +220,7 @@
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
         },
         {
@@ -251,7 +251,7 @@
         {
           "capability": "osint.platform-transparency",
           "contract": "noesis-platform-transparency-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own records, answers and tools"
         },
         {
@@ -314,7 +314,7 @@
         "provider": "osint.platform-transparency",
         "contract": {
           "name": "noesis-platform-transparency-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       }
     ],

@@ -2,7 +2,7 @@
 
 One native connector, ``enforcement``, registered in the ``legal-research``
 source pack, reads a bounded, declared selection from one publisher per source
-and emits ``noesis-enforcement-record-v1`` records
+and emits ``noesis-enforcement-record-v2`` records
 (:mod:`src.kb.enforcement_records`) as the regulator published them:
 
 * ``sec-release-html`` - SEC litigation releases and administrative
@@ -56,7 +56,7 @@ from urllib.parse import urlencode, urlsplit
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-enforcement-record-v1"
+RECORD_CONTRACT = "noesis-enforcement-record-v2"
 CONNECTOR = "enforcement"
 MAX_UNITS = 20
 INDIVIDUAL = "[individual]"

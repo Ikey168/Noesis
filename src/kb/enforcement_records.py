@@ -1,6 +1,6 @@
 """Regulatory enforcement records: authorities, actions, respondents, notices, penalties and appeals (#2651, EN02).
 
-``noesis-enforcement-record-v1`` records are *what one regulator published*
+``noesis-enforcement-record-v2`` records are *what one regulator published*
 about an enforcement action outside competition law (competition cases live in
 :mod:`src.kb.competition_records`). They are persisted as immutable revisions
 by :class:`src.kb.enforcement.EnforcementStore` (one stable record per
@@ -49,9 +49,9 @@ import re
 from pathlib import Path
 from typing import Any
 
-CONTRACT = "noesis-enforcement-record-v1"
+CONTRACT = "noesis-enforcement-record-v2"
 SCHEMA_NAME = "enforcement-record"
-SCHEMA_VERSION = "1.0.0"
+SCHEMA_VERSION = "2.0.0"
 KINDS = ("authority", "enforcement_action", "respondent", "enforcement_decision", "penalty", "appeal")
 CHILD_KINDS = ("respondent", "enforcement_decision", "penalty", "appeal")
 PROVIDERS = ("us-sec", "uk-fca", "us-epa-echo", "edpb-art60")
@@ -347,18 +347,18 @@ def child_key(kind: str, action: str, *parts: Any) -> str:
 
 
 def schema() -> dict[str, Any]:
-    return json.loads((SCHEMA_DIR / "noesis-enforcement-record-v1.json").read_text())
+    return json.loads((SCHEMA_DIR / "noesis-enforcement-record-v2.json").read_text())
 
 
 def register_schemas(conn: Any, *, principal_id: str, scopes: Any) -> list[dict[str, Any]]:
-    """Register ``noesis-enforcement-record-v1`` as a module in the shared schema registry."""
+    """Register ``noesis-enforcement-record-v2`` as a module in the shared schema registry."""
     from src.kb.schema_registry import SchemaRegistry
 
     definition = {
         "contract": "noesis-schema-module-v1", "name": SCHEMA_NAME, "kind": "schema",
         "semantic_version": SCHEMA_VERSION, "content": schema(), "owner": "legal.enforcement", "dependencies": [],
         "compatibility_policy": "backward",
-        "provenance": {"kind": "imported", "source": "contracts/schemas/jsonschema/noesis-enforcement-record-v1.json"},
+        "provenance": {"kind": "imported", "source": "contracts/schemas/jsonschema/noesis-enforcement-record-v2.json"},
         "actor": {"principal_id": principal_id, "kind": "service"},
     }
     return [SchemaRegistry(conn).register(definition, f"enforcement-schema:{SCHEMA_NAME}:{SCHEMA_VERSION}",

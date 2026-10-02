@@ -32,7 +32,7 @@ answers list a deselected source under `features_disabled`.
 
 ## Records and vintages
 
-`noesis-income-distribution-record-v1` (`src/kb/income_distribution_records.py`,
+`noesis-income-distribution-record-v2` (`src/kb/income_distribution_records.py`,
 `src/kb/income_distribution_store.py`). A **series** is keyed by source,
 indicator concept and native measure, welfare concept (income, consumption,
 or PIP's `mixed` regional aggregate), equivalence scale, poverty line with its

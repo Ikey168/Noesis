@@ -2,7 +2,7 @@
 
 One native connector, ``medical-devices``, registered in the ``clinical-evidence``
 source pack, reads a bounded, declared selection from one publisher per source
-and emits ``noesis-medical-device-record-v1`` records
+and emits ``noesis-medical-device-record-v2`` records
 (:mod:`src.kb.medical_devices_records`) exactly as the regulator published them:
 
 * ``openfda-510k-json`` - openFDA ``/device/510k.json``, one declared K number
@@ -55,7 +55,7 @@ from urllib.parse import urlencode, urlsplit
 from src.ingestion.source_packs import SourcePackError
 
 ADAPTER_CONTRACT = "noesis-source-pack-runtime-adapter-v1"
-RECORD_CONTRACT = "noesis-medical-device-record-v1"
+RECORD_CONTRACT = "noesis-medical-device-record-v2"
 RECEIPT_CONTRACT = "noesis-medical-device-acquisition-receipt-v1"
 CONNECTOR = "medical-devices"
 MINIMISATION_ID = "medical-devices-minimisation-v1"

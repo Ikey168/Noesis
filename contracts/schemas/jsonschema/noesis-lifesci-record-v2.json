@@ -1,12 +1,12 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://noesis.local/contracts/noesis-lifesci-record-v1.json",
-  "title": "noesis-lifesci-record-v1",
+  "$id": "https://noesis.local/contracts/noesis-lifesci-record-v2.json",
+  "title": "noesis-lifesci-record-v2",
   "description": "One provider statement of a life-science reference record (#2652, LS02): an NCBI Gene gene, a UniProtKB protein, an RCSB PDB structure, an NCBI Taxonomy taxon, or a ChEMBL target, compound, activity or document. Keyed by source and native accession; each statement is one immutable revision identified by the source's version marker (UniProt entry version, PDB major.minor revision) or a content digest, observed in a source release. Obsoletion, merges and corrections are revisions with the published status and successors. Cross-references are kept as the source publishes them. No personal names (authors, depositors, submitters) and no inferred, predicted or converted values are ever part of a statement.",
   "type": "object",
   "required": ["contract", "record_type", "source", "native_id", "release", "version", "status", "successors", "label", "attributes", "xrefs", "citations", "licence", "url"],
   "properties": {
-    "contract": {"const": "noesis-lifesci-record-v1"},
+    "contract": {"const": "noesis-lifesci-record-v2"},
     "record_type": {"enum": ["gene", "protein", "structure", "taxon", "target", "compound", "activity", "document"]},
     "source": {"enum": ["uniprot", "ncbi-gene", "ncbi-taxonomy", "rcsb-pdb", "chembl"]},
     "native_id": {"type": "string", "minLength": 1, "maxLength": 64},

@@ -1,6 +1,6 @@
 """Life-science reference records for the Science ``science.life-sciences`` provider (#2652, LS02 #2661).
 
-Contract ``noesis-lifesci-record-v1``: one provider statement of a **gene** (NCBI Gene), **protein** (UniProtKB),
+Contract ``noesis-lifesci-record-v2``: one provider statement of a **gene** (NCBI Gene), **protein** (UniProtKB),
 **structure** (RCSB PDB entry), **taxon** (NCBI Taxonomy), **target**, **compound**, **activity** or **document**
 (ChEMBL), keyed by source and native accession. Every statement carries
 
@@ -38,7 +38,7 @@ from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
-CONTRACT = "noesis-lifesci-record-v1"
+CONTRACT = "noesis-lifesci-record-v2"
 MATCH_CONTRACT = "noesis-lifesci-match-v1"
 LINK_CONTRACT = "noesis-lifesci-link-v1"
 ANSWER_CONTRACT = "noesis-lifesci-answer-v1"
@@ -119,7 +119,7 @@ NEVER_SENTENCE = (
     "history, lineage, cross-references and activity values with their relation, unit and validity comment - never "
     "inferred, predicted, converted, aggregated or merged by name; no personal names are stored."
 )
-SCHEMA_PATH = Path(__file__).resolve().parents[2] / "contracts/schemas/jsonschema/noesis-lifesci-record-v1.json"
+SCHEMA_PATH = Path(__file__).resolve().parents[2] / "contracts/schemas/jsonschema/noesis-lifesci-record-v2.json"
 _ENTITY_HISTORY_SCOPES = {"knowledge:entity-history:read", "knowledge:entity-history:write",
                           "knowledge:entity-history:review", "knowledge:entity-history:execute"}
 

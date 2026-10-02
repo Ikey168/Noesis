@@ -1,6 +1,6 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "noesis-income-distribution-record-v1",
+  "$id": "noesis-income-distribution-record-v2",
   "title": "Income, poverty and inequality series item: one series of one release (society.income)",
   "description": "One published series as a source released it: source, indicator, welfare concept, equivalence scale, poverty line with its PPP base year, place, coverage, survey, income definition and methodology, the definition the source states and the observations (value text as published, status, estimation type, survey and income reference years, flags). Each release is appended as a vintage by src/kb/income_distribution_store.py, never overwritten; removals and corrections are vintages. No record carries person- or household-level data, and no value is nowcast, filled, blended, re-harmonised or derived.",
   "type": "object",

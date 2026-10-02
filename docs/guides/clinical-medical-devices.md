@@ -47,7 +47,7 @@ answer lists them as gaps.
 
 ## Records
 
-`noesis-medical-device-record-v1` (`src/kb/medical_devices_records.py`):
+`noesis-medical-device-record-v2` (`src/kb/medical_devices_records.py`):
 classification (product code), clearance (K number), approval and
 approval-supplement (P number + supplement number), recall (recall number,
 class and status as published), adverse-event report (report number, event

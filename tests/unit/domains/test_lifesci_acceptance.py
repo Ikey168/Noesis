@@ -61,7 +61,7 @@ def test_protein_to_cited_reference_records_structures_and_published_bioactivity
     coordinator.select("science", bundles["science"]["version"], features=FEATURES)
     assert coordinator.activate("lifesci-acceptance")["status"] == "published"
     assert all(readiness(conn)["features"].values())
-    assert PROJECTORS["noesis-lifesci-record-v1"](conn).__class__ is LifeSciProjector
+    assert PROJECTORS["noesis-lifesci-record-v2"](conn).__class__ is LifeSciProjector
 
     # Pinned fixtures replay offline through the real adapter and match their recorded output hashes.
     manifest = h.manifest()

@@ -1,6 +1,6 @@
 """Revisioned water statements with observation-window tombstones and run receipts (#2582, WA02 #2593).
 
-Owns ``noesis-water-record-v1`` for the Climate and Environment pack's
+Owns ``noesis-water-record-v2`` for the Climate and Environment pack's
 optional ``water`` feature. Like the biodiversity store
 (:mod:`src.kb.biodiversity_store`) and the entity history store
 (:mod:`src.kb.entity_history`) it is namespace-scoped, append-only and
@@ -24,7 +24,7 @@ revision-addressable; nothing is overwritten or deleted:
   never deleted.
 
 Runtime pages arrive through :class:`WaterProjector` (registered for
-``noesis-water-record-v1`` in ``src/ingestion/source_pack_runtime.py``); each
+``noesis-water-record-v2`` in ``src/ingestion/source_pack_runtime.py``); each
 source's run outcome is a receipt row.
 """
 
@@ -317,7 +317,7 @@ def read_store(conn: Any, namespace: str, scopes: Iterable[str]) -> WaterStore:
 
 
 class WaterProjector:
-    """Runtime projector for ``noesis-water-record-v1`` pages; an observation window closes its snapshot."""
+    """Runtime projector for ``noesis-water-record-v2`` pages; an observation window closes its snapshot."""
 
     def __init__(self, conn: Any, *, now=None) -> None:
         self.store = WaterStore(conn, now=now)

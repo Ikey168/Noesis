@@ -9,7 +9,10 @@ import duckdb
 import pytest
 
 from src.composition.adapter import adapt_all, bundle_id
-from src.composition.contracts import validate_composition_manifest, validate_provider_set
+from src.composition.contracts import (
+    validate_composition_manifest,
+    validate_provider_set,
+)
 from src.composition.lifecycle import CompositionCoordinator, registry_name
 from src.composition.shadow import SHADOW_REPORT, provider_descriptors
 from src.domains import pack_install
@@ -70,22 +73,22 @@ PROJECTOR_OWNERS = {
     "noesis-agrifood-record-v1": "src.kb.agrifood_store",
     "noesis-court-justice-record-v1": "src.kb.legal_dockets",
     "noesis-biodiversity-record-v1": "src.kb.biodiversity_store",
-    "noesis-water-record-v1": "src.kb.water_store",
+    "noesis-water-record-v2": "src.kb.water_store",
     "noesis-food-composition-record-v1": "src.kb.food_composition",
     "noesis-real-estate-record-v1": "src.kb.real_estate",
     "noesis-logistics-record-v1": "src.kb.logistics_series",
     "noesis-competition-record-v1": "src.kb.competition",  # #2217
     "noesis-media-metadata-record-v1": "src.kb.media_metadata",  # Cultural Collections media metadata (#2225)
     "noesis-campaign-finance-record-v1": "src.kb.campaign_finance_records",
-    "noesis-treaty-record-v1": "src.kb.treaties_records",  # Legal treaties (#2581)
-    "noesis-fact-check-record-v1": "src.kb.fact_checks_records",
-    "noesis-enforcement-record-v1": "src.kb.enforcement",  # #2651
-    "noesis-extractives-record-v1": "src.kb.extractives_store",  # Economics extractives (#2653)
-    "noesis-lifesci-record-v1": "src.kb.lifesci_store",  # Science life-sciences reference data (#2652)
-    "noesis-medical-device-record-v1": "src.kb.medical_devices_records",  # #2654
-    "noesis-research-entity-record-v1": "src.kb.research_entities_records",
-    "noesis-income-distribution-record-v1": "src.kb.income_distribution_store",  # Society income (#2583)
-    "noesis-platform-transparency-record-v1": "src.kb.platform_transparency_records",
+    "noesis-treaty-record-v2": "src.kb.treaties_records",  # Legal treaties (#2581)
+    "noesis-fact-check-record-v2": "src.kb.fact_checks_records",
+    "noesis-enforcement-record-v2": "src.kb.enforcement",  # #2651
+    "noesis-extractives-record-v2": "src.kb.extractives_store",  # Economics extractives (#2653)
+    "noesis-lifesci-record-v2": "src.kb.lifesci_store",  # Science life-sciences reference data (#2652)
+    "noesis-medical-device-record-v2": "src.kb.medical_devices_records",  # #2654
+    "noesis-research-entity-record-v2": "src.kb.research_entities_records",
+    "noesis-income-distribution-record-v2": "src.kb.income_distribution_store",  # Society income (#2583)
+    "noesis-platform-transparency-record-v2": "src.kb.platform_transparency_records",
 }
 
 

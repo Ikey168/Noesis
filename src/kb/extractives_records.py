@@ -1,6 +1,6 @@
 """Shared contract, scopes and helpers of the Economics ``economics.extractives`` provider (#2653, EX02).
 
-Records follow ``noesis-extractives-record-v1``:
+Records follow ``noesis-extractives-record-v2``:
 
 * **EITI records** (:mod:`src.kb.extractives_store`) - ``eiti_report``, ``government_agency``, ``revenue_stream``,
   ``company``, ``project`` (with licences) and ``company_payment`` records, each an immutable revision keyed by
@@ -26,7 +26,7 @@ from collections.abc import Iterable
 from datetime import UTC, date, datetime
 from typing import Any
 
-CONTRACT = "noesis-extractives-record-v1"
+CONTRACT = "noesis-extractives-record-v2"
 ANSWER_CONTRACT = "noesis-extractives-answer-v1"
 MATCH_CONTRACT = "noesis-extractives-match-v1"
 LINK_CONTRACT = "noesis-extractives-link-v1"

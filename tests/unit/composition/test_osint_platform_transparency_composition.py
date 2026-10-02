@@ -57,7 +57,7 @@ def test_descriptor_validates_declares_scopes_stores_exclusions_and_the_source_p
     assert validate_provider_descriptor(found) == []
     assert (ROOT / "packs/osint/providers/osint.platform-transparency.json").exists()
     (capability,) = found["capabilities"]
-    assert capability["contract"] == {"name": "noesis-platform-transparency-record", "version": "1.0.0"}
+    assert capability["contract"] == {"name": "noesis-platform-transparency-record", "version": "2.0.0"}
     constraints = capability["semantic_constraints"]
     assert "no user-level profiling" in constraints["exclusions"] and "point estimates" in constraints["exclusions"]
     assert "platform-transparency-minimisation-v1" in constraints["minimisation"]
@@ -111,7 +111,7 @@ def test_feature_enablement_follows_the_active_selection_and_no_new_pack_exists(
     assert feature_enabled(conn, "platform-transparency-dsa")
     assert not feature_enabled(conn, "platform-transparency-meta")
     pack = json.loads((ROOT / "packs/osint/pack.json").read_text())
-    assert pack["schema_versions"]["platform-transparency-record"] == "1.0.0"
+    assert pack["schema_versions"]["platform-transparency-record"] == "2.0.0"
     assert {"user-level profiling from platform transparency data",
             "conversion of ad spend or impression ranges into point estimates"} <= set(pack["exclusions"])
     assert not list(ROOT.glob("packs/*platform-transparency*"))  # no new pack

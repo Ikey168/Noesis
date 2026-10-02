@@ -106,7 +106,7 @@ def test_tools_have_declared_scopes_mutability_and_are_in_the_catalog():
     catalog = {t["id"] for t in json.loads((ROOT / "contracts/generated/noesis-mcp-catalog-v1.json").read_text())["tools"]}
     assert {f"noesis-knowledge-engine.{t}" for t in INCOME_TOOLS} <= catalog
     doc = (ROOT / "docs/architecture/composition-migration.md").read_text()
-    assert "`society.income`" in doc and "`noesis-income-distribution-record-v1`" in doc
+    assert "`society.income`" in doc and "`noesis-income-distribution-record-v2`" in doc
 
 
 def test_feature_selection_follows_the_composition_plan_and_readiness_reports_it():

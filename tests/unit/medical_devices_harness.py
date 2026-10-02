@@ -131,7 +131,7 @@ def pack_source(source_id: str) -> dict:
     """The clinical-evidence source entry (without its fixture pin) for one medical-devices source."""
     spec = SOURCES[source_id]
     return {
-        "mapping": {"target_schema": "noesis-medical-device-record-v1", "version": "1.0.0"},
+        "mapping": {"target_schema": "noesis-medical-device-record-v2", "version": "2.0.0"},
         "extractor_versions": ["medical-devices-sources:1.0.0"],
         "health": {"required": False, "max_staleness_s": 2592000},
         "source_id": source_id, "connector": "medical-devices", "publisher": PUBLISHER[spec["provider"]],

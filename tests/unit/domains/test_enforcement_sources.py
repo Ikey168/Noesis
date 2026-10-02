@@ -214,7 +214,7 @@ def test_declined_units_foreign_hosts_and_missing_user_agent_are_refused(monkeyp
 def test_receipts_name_every_request_and_the_runtime_projector_is_registered():
     from src.ingestion.source_pack_runtime import PROJECTORS
 
-    assert "noesis-enforcement-record-v1" in PROJECTORS
+    assert "noesis-enforcement-record-v2" in PROJECTORS
     conn = h.connection()
     h.apply(conn, "sec-enforcement-releases", run_id="run-sec")
     receipts = EnforcementStore(conn).receipts(h.NS, "run-sec", scopes=h.SCOPES)

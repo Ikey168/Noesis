@@ -22,7 +22,7 @@
         "provider": "news.fact-checks",
         "contract": {
           "name": "noesis-fact-check-record",
-          "version": "1.0.0"
+          "version": "2.0.0"
         }
       }
     ],
@@ -46,7 +46,7 @@
         {
           "capability": "news.fact-checks",
           "contract": "noesis-fact-check-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -77,7 +77,7 @@
         {
           "capability": "news.fact-checks",
           "contract": "noesis-fact-check-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {
@@ -108,7 +108,7 @@
         {
           "capability": "news.fact-checks",
           "contract": "noesis-fact-check-record",
-          "range": "^1.0.0",
+          "range": "^2.0.0",
           "reason": "the feature's own entry points use these operations"
         },
         {

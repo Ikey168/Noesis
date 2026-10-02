@@ -1,6 +1,6 @@
 """Medical device, clearance, approval, recall and adverse-event report records with revisions (#2654, MD02).
 
-``noesis-medical-device-record-v1`` records (from
+``noesis-medical-device-record-v2`` records (from
 :mod:`src.ingestion.medical_devices_sources`) are kept per namespace and
 record key with an append-only revision log, following the
 :mod:`src.kb.entity_history` pattern of never rewriting what was recorded.
@@ -496,7 +496,7 @@ class MedicalDeviceStore:
 
 
 class MedicalDeviceProjector:
-    """Source-pack runtime projector for ``noesis-medical-device-record-v1`` pages (one selection unit per page)."""
+    """Source-pack runtime projector for ``noesis-medical-device-record-v2`` pages (one selection unit per page)."""
 
     def __init__(self, conn: Any) -> None:
         self.store = MedicalDeviceStore(conn)
