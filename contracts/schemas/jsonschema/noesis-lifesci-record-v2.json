@@ -1,0 +1,77 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://noesis.local/contracts/noesis-lifesci-record-v1.json",
+  "title": "noesis-lifesci-record-v1",
+  "description": "One provider statement of a life-science reference record (#2652, LS02): an NCBI Gene gene, a UniProtKB protein, an RCSB PDB structure, an NCBI Taxonomy taxon, or a ChEMBL target, compound, activity or document. Keyed by source and native accession; each statement is one immutable revision identified by the source's version marker (UniProt entry version, PDB major.minor revision) or a content digest, observed in a source release. Obsoletion, merges and corrections are revisions with the published status and successors. Cross-references are kept as the source publishes them. No personal names (authors, depositors, submitters) and no inferred, predicted or converted values are ever part of a statement.",
+  "type": "object",
+  "required": ["contract", "record_type", "source", "native_id", "release", "version", "status", "successors", "label", "attributes", "xrefs", "citations", "licence", "url"],
+  "properties": {
+    "contract": {"const": "noesis-lifesci-record-v1"},
+    "record_type": {"enum": ["gene", "protein", "structure", "taxon", "target", "compound", "activity", "document"]},
+    "source": {"enum": ["uniprot", "ncbi-gene", "ncbi-taxonomy", "rcsb-pdb", "chembl"]},
+    "native_id": {"type": "string", "minLength": 1, "maxLength": 64},
+    "url": {"type": ["string", "null"]},
+    "label": {"type": ["string", "null"], "maxLength": 2000},
+    "release": {
+      "type": "object",
+      "required": ["label", "published_on", "basis"],
+      "properties": {
+        "label": {"type": "string", "minLength": 1},
+        "published_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+        "basis": {"enum": ["provider", "declared", "retrieval"]}
+      },
+      "additionalProperties": false
+    },
+    "version": {
+      "type": "object",
+      "required": ["marker", "basis", "order"],
+      "properties": {
+        "marker": {"type": "string", "minLength": 1},
+        "basis": {"enum": ["entry-version", "pdb-revision", "content"]},
+        "order": {"type": ["array", "null"], "items": {"type": "integer"}},
+        "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
+      },
+      "additionalProperties": false
+    },
+    "status": {"enum": ["active", "merged", "demerged", "deleted", "obsolete", "replaced", "discontinued"]},
+    "status_published": {"type": ["string", "null"]},
+    "successors": {"type": "array", "items": {"type": "string", "minLength": 1}},
+    "attributes": {"type": "object"},
+    "xrefs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["database", "id"],
+        "properties": {
+          "database": {"type": "string", "minLength": 1},
+          "id": {"type": "string", "minLength": 1},
+          "relation": {"type": "string"},
+          "properties": {"type": "object"}
+        },
+        "additionalProperties": false
+      }
+    },
+    "citations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["kind", "id"],
+        "properties": {
+          "kind": {"enum": ["pubmed", "doi", "chembl-document"]},
+          "id": {"type": "string", "minLength": 1},
+          "title": {"type": ["string", "null"]},
+          "locator": {"type": ["string", "null"]}
+        },
+        "additionalProperties": false
+      }
+    },
+    "licence": {
+      "type": "object",
+      "required": ["id", "attribution"],
+      "properties": {"id": {"type": "string", "minLength": 1}, "attribution": {"type": "string", "minLength": 1}},
+      "additionalProperties": false
+    },
+    "excluded_fields": {"type": "array", "items": {"type": "string"}}
+  },
+  "additionalProperties": false
+}

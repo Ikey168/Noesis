@@ -1,77 +1,158 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://noesis.local/contracts/noesis-lifesci-record-v1.json",
-  "title": "noesis-lifesci-record-v1",
-  "description": "One provider statement of a life-science reference record (#2652, LS02): an NCBI Gene gene, a UniProtKB protein, an RCSB PDB structure, an NCBI Taxonomy taxon, or a ChEMBL target, compound, activity or document. Keyed by source and native accession; each statement is one immutable revision identified by the source's version marker (UniProt entry version, PDB major.minor revision) or a content digest, observed in a source release. Obsoletion, merges and corrections are revisions with the published status and successors. Cross-references are kept as the source publishes them. No personal names (authors, depositors, submitters) and no inferred, predicted or converted values are ever part of a statement.",
+  "$id": "noesis-lifesci-record-v1",
+  "title": "Life-science record statement: what UniProt, NCBI, RCSB PDB or ChEMBL published about one entry",
+  "description": "One statement the Science life-sciences adapter emits (UniProtKB entries and UniSave versions, NCBI Gene and Taxonomy reports, RCSB PDB entries, ChEMBL targets, compounds, activities and documents) and src.kb.lifesci_store keeps as an immutable revision with source, release or revision, and retrieval time. Obsolete, merged, replaced and superseded records are obsoleted revisions naming their successors; activities absent from a later complete release page are removed revisions. No statement carries a predicted, inferred, converted or aggregated value, a sequence analysis, or a person name (author, depositor, submitter or contact).",
   "type": "object",
-  "required": ["contract", "record_type", "source", "native_id", "release", "version", "status", "successors", "label", "attributes", "xrefs", "citations", "licence", "url"],
+  "required": ["contract", "record_type", "provider", "record_key", "subject", "as_published", "effective", "source", "unknowns"],
+  "additionalProperties": false,
+  "definitions": {
+    "date": {"type": ["string", "null"], "pattern": "^\\d{4}(-\\d{2}(-\\d{2}(T.*)?)?)?$"},
+    "chembl_id": {"type": "string", "pattern": "^CHEMBL[0-9]{1,12}$"},
+    "chembl_release": {"type": "string", "pattern": "^ChEMBL_"},
+    "published_value": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "properties": {
+        "type": {"type": ["string", "null"]},
+        "relation": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "units": {"type": ["string", "null"]},
+        "flag": {}
+      }
+    },
+    "citation": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "doi": {"type": ["string", "null"]},
+        "pubmed_id": {"type": ["string", "null"]},
+        "title": {"type": ["string", "null"]},
+        "journal": {"type": ["string", "null"]},
+        "year": {"type": ["string", "null"]},
+        "reference_number": {"type": ["integer", "null"]}
+      }
+    }
+  },
   "properties": {
     "contract": {"const": "noesis-lifesci-record-v1"},
-    "record_type": {"enum": ["gene", "protein", "structure", "taxon", "target", "compound", "activity", "document"]},
-    "source": {"enum": ["uniprot", "ncbi-gene", "ncbi-taxonomy", "rcsb-pdb", "chembl"]},
-    "native_id": {"type": "string", "minLength": 1, "maxLength": 64},
-    "url": {"type": ["string", "null"]},
-    "label": {"type": ["string", "null"], "maxLength": 2000},
-    "release": {
+    "record_type": {"enum": ["protein", "entry_version", "gene", "taxon", "structure", "target", "compound", "activity", "document"]},
+    "provider": {"enum": ["uniprot", "ncbi", "pdb", "chembl"]},
+    "record_key": {"type": "string", "minLength": 1, "maxLength": 200},
+    "subject": {
       "type": "object",
-      "required": ["label", "published_on", "basis"],
+      "required": ["key", "kind"],
       "properties": {
-        "label": {"type": "string", "minLength": 1},
-        "published_on": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
-        "basis": {"enum": ["provider", "declared", "retrieval"]}
-      },
-      "additionalProperties": false
-    },
-    "version": {
-      "type": "object",
-      "required": ["marker", "basis", "order"],
-      "properties": {
-        "marker": {"type": "string", "minLength": 1},
-        "basis": {"enum": ["entry-version", "pdb-revision", "content"]},
-        "order": {"type": ["array", "null"], "items": {"type": "integer"}},
-        "date": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"}
-      },
-      "additionalProperties": false
-    },
-    "status": {"enum": ["active", "merged", "demerged", "deleted", "obsolete", "replaced", "discontinued"]},
-    "status_published": {"type": ["string", "null"]},
-    "successors": {"type": "array", "items": {"type": "string", "minLength": 1}},
-    "attributes": {"type": "object"},
-    "xrefs": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["database", "id"],
-        "properties": {
-          "database": {"type": "string", "minLength": 1},
-          "id": {"type": "string", "minLength": 1},
-          "relation": {"type": "string"},
-          "properties": {"type": "object"}
-        },
-        "additionalProperties": false
+        "key": {"type": "string", "minLength": 1},
+        "kind": {"enum": ["protein", "entry_version", "gene", "taxon", "structure", "target", "compound", "activity", "document"]},
+        "name": {"type": ["string", "null"]}
       }
     },
-    "citations": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "required": ["kind", "id"],
-        "properties": {
-          "kind": {"enum": ["pubmed", "doi", "chembl-document"]},
-          "id": {"type": "string", "minLength": 1},
-          "title": {"type": ["string", "null"]},
-          "locator": {"type": ["string", "null"]}
-        },
-        "additionalProperties": false
+    "as_published": {"type": "object"},
+    "effective": {
+      "type": "object",
+      "required": ["event"],
+      "properties": {
+        "event": {"enum": ["published", "obsoleted", "removed"]},
+        "date": {"$ref": "#/definitions/date"},
+        "date_basis": {"type": ["string", "null"]}
       }
     },
-    "licence": {
+    "source": {
       "type": "object",
-      "required": ["id", "attribution"],
-      "properties": {"id": {"type": "string", "minLength": 1}, "attribution": {"type": "string", "minLength": 1}},
-      "additionalProperties": false
+      "required": ["url"],
+      "properties": {"url": {"type": "string", "pattern": "^https://"}}
     },
-    "excluded_fields": {"type": "array", "items": {"type": "string"}}
+    "unknowns": {"type": "array", "items": {"type": "string"}}
   },
-  "additionalProperties": false
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "protein"}}},
+      "then": {"properties": {"provider": {"const": "uniprot"}, "as_published": {
+        "required": ["accession", "entry_type", "entry_status"],
+        "properties": {
+          "accession": {"type": "string", "pattern": "^(?:[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2})$"},
+          "entry_status": {"enum": ["active", "obsolete"]},
+          "reviewed": {"type": ["boolean", "null"]},
+          "entry_version": {"type": ["integer", "null"], "minimum": 1},
+          "sequence_version": {"type": ["integer", "null"], "minimum": 1},
+          "release": {"type": ["string", "null"]},
+          "sequence": {"type": ["object", "null"], "additionalProperties": false, "required": ["value"],
+                       "properties": {"value": {"type": "string"}, "length": {}, "mol_weight": {}, "crc64": {}, "md5": {}}},
+          "citations": {"type": ["array", "null"], "items": {"$ref": "#/definitions/citation"}},
+          "inactive_reason": {"type": ["object", "null"], "required": ["type", "successors"],
+                              "properties": {"type": {"enum": ["MERGED", "DEMERGED", "DELETED"]},
+                                             "successors": {"type": "array", "items": {"type": "string"}}}}
+        }
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "entry_version"}}},
+      "then": {"properties": {"provider": {"const": "uniprot"}, "as_published": {
+        "required": ["accession", "entry_version", "sequence_version", "database"],
+        "properties": {"entry_version": {"type": "integer", "minimum": 1}, "sequence_version": {"type": "integer", "minimum": 1}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "gene"}}},
+      "then": {"properties": {"provider": {"const": "ncbi"}, "as_published": {
+        "required": ["gene_id", "symbol", "tax_id", "status"],
+        "properties": {"gene_id": {"type": "string", "pattern": "^[0-9]{1,12}$"},
+                       "status": {"enum": ["live", "discontinued", "replaced"]},
+                       "replaced_by": {"type": ["string", "null"]}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "taxon"}}},
+      "then": {"properties": {"provider": {"const": "ncbi"}, "as_published": {
+        "required": ["tax_id", "scientific_name", "rank", "status"],
+        "properties": {"tax_id": {"type": "string", "pattern": "^[0-9]{1,12}$"},
+                       "status": {"enum": ["active", "merged", "deleted"]},
+                       "merged_into": {"type": ["string", "null"]},
+                       "lineage": {"type": ["array", "null"], "items": {"type": "object", "required": ["tax_id"]}}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "structure"}}},
+      "then": {"properties": {"provider": {"const": "pdb"}, "as_published": {
+        "required": ["pdb_id", "status"],
+        "properties": {"pdb_id": {"type": "string", "pattern": "^[0-9][A-Z0-9]{3}$"},
+                       "status": {"enum": ["released", "obsolete"]},
+                       "entities": {"type": ["array", "null"], "items": {"type": "object", "required": ["entity_id", "uniprot_accessions"]}},
+                       "primary_citation": {"oneOf": [{"type": "null"}, {"$ref": "#/definitions/citation"}]}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "target"}}},
+      "then": {"properties": {"provider": {"const": "chembl"}, "as_published": {
+        "required": ["target_chembl_id", "release", "pref_name", "target_type"],
+        "properties": {"target_chembl_id": {"$ref": "#/definitions/chembl_id"}, "release": {"$ref": "#/definitions/chembl_release"}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "compound"}}},
+      "then": {"properties": {"provider": {"const": "chembl"}, "as_published": {
+        "required": ["molecule_chembl_id", "release"],
+        "properties": {"molecule_chembl_id": {"$ref": "#/definitions/chembl_id"}, "release": {"$ref": "#/definitions/chembl_release"},
+                       "standard_inchikey": {"type": ["string", "null"], "pattern": "^[A-Z]{14}-[A-Z]{10}-[A-Z]$"}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "activity"}}},
+      "then": {"properties": {"provider": {"const": "chembl"}, "as_published": {
+        "required": ["activity_id", "release", "assay_chembl_id", "target_chembl_id", "molecule_chembl_id", "document_chembl_id"],
+        "properties": {"release": {"$ref": "#/definitions/chembl_release"},
+                       "published": {"$ref": "#/definitions/published_value"},
+                       "standard": {"$ref": "#/definitions/published_value"},
+                       "data_validity_comment": {"type": ["string", "null"]}}
+      }}}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "document"}}},
+      "then": {"properties": {"provider": {"const": "chembl"}, "as_published": {
+        "required": ["document_chembl_id", "release"],
+        "properties": {"document_chembl_id": {"$ref": "#/definitions/chembl_id"}, "release": {"$ref": "#/definitions/chembl_release"}}
+      }}}
+    }
+  ]
 }

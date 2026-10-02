@@ -1,42 +1,140 @@
 {
-  "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://noesis.local/contracts/noesis-research-entity-record-v1.json",
-  "title": "Research-entity registry record as published",
-  "description": "One acquired record (#2579): a ROR organisation per dump release (names, types, status active/inactive/withdrawn, relationships and successor links, external identifiers as published), a public ORCID researcher record (iD, public name, last-modified time, public employments and works as asserted identifiers only), a DataCite dataset DOI (metadata version, related identifiers, funding references; personal creators reduced to ORCID iD and affiliation identifiers) or a CORDIS project (programme, participants with PIC and names, contributions with currency as published). Every record carries its provider, native revision, sortable revision order, the source's own as-of time, locator and evidence origin. Researcher records carry only the fields allowed by the RE01 minimisation decision. No record carries a ranking, a metric or an inferred affiliation.",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-research-entity-record-v1",
+  "title": "Research-entity record statement: a ROR organisation, an ORCID researcher, a DataCite dataset or a CORDIS project as one provider published it",
+  "description": "One statement per record and acquisition. The store keeps each distinct statement as an immutable revision of its record (keyed by provider and native id) with the revision marker (ROR release version, ORCID last-modified time, DataCite metadataVersion and updated, CORDIS contentUpdateDate), the effective time used for as-of answers and the acquired release it came from; corrections and removals by the source (not_in_release, not_found, deactivated, locked) are revisions, never deletions. Researcher statements carry only the public ORCID fields the RE01 data-minimisation decision allows (iD, display name, public employments with the organisation and its disambiguated identifier, public works as asserted identifiers); DataCite creators carry only an ORCID iD, an organisational name and affiliation identifiers. No ranking, metric, citation or usage count, inferred affiliation or co-authorship field is ever stored.",
   "type": "object",
-  "required": ["contract", "format", "provider", "record_kind", "record_key", "native_id", "native_revision", "revision_order", "as_of", "status", "title", "locator", "minimisation", "fields"],
-  "properties": {
-    "contract": {"const": "noesis-research-entity-record-v1"},
-    "format": {"enum": ["ror-dump-zip", "orcid-record-json", "datacite-doi-json", "cordis-projects-csv-zip"]},
-    "provider": {"enum": ["ror", "orcid", "datacite", "cordis"]},
-    "record_kind": {"enum": ["organisation", "researcher", "dataset", "project"]},
-    "record_key": {"type": "string", "pattern": "^research-entities:(ror|orcid|doi|cordis):\\S+$"},
-    "native_id": {"type": "string", "minLength": 1},
-    "native_revision": {"type": ["string", "null"]},
-    "revision_order": {"type": "string"},
-    "as_of": {"type": ["string", "null"]},
-    "status": {"type": "string", "minLength": 1},
-    "release": {"type": ["object", "null"]},
-    "title": {"type": "string", "minLength": 1},
-    "locator": {"type": "string", "pattern": "^https://"},
-    "evidence_origin": {"enum": ["fixture", "live"]},
-    "minimisation": {
-      "type": "object",
-      "required": ["policy", "subject", "withheld"],
+  "required": ["contract", "record_kind", "provider", "native_id", "status", "revision", "body", "citation"],
+  "additionalProperties": false,
+  "definitions": {
+    "money": {
+      "type": ["object", "null"],
+      "required": ["amount", "currency"],
+      "additionalProperties": false,
       "properties": {
-        "policy": {"const": "research-entities-minimisation-v1"},
-        "subject": {"enum": ["natural-person", "organisation"]},
-        "withheld": {"type": "array", "items": {"type": "string"}}
+        "amount": {"type": "string", "pattern": "^-?\\d+(\\.\\d+)?$"},
+        "currency": {"type": "string", "pattern": "^[A-Z]{3}$"},
+        "published": {"type": ["string", "null"]},
+        "currency_basis": {"type": "string"}
       }
     },
-    "fields": {"type": "object"}
+    "organisation_body": {
+      "type": "object",
+      "required": ["ror_id", "display_name", "names", "relationships", "external_ids"],
+      "additionalProperties": false,
+      "properties": {
+        "ror_id": {"type": "string", "pattern": "^https://ror\\.org/0[0-9a-hj-km-np-tv-z]{6}[0-9]{2}$"},
+        "display_name": {"type": "string", "minLength": 1},
+        "names": {"type": "array", "items": {"type": "object", "required": ["value", "types"], "additionalProperties": false, "properties": {"value": {"type": "string"}, "types": {"type": "array", "items": {"type": "string"}}, "lang": {"type": ["string", "null"]}}}},
+        "types": {"type": "array", "items": {"type": "string"}},
+        "established": {"type": ["integer", "null"]},
+        "external_ids": {"type": "array", "items": {"type": "object", "required": ["type", "all"], "additionalProperties": false, "properties": {"type": {"enum": ["grid", "isni", "wikidata", "fundref"]}, "all": {"type": "array", "items": {"type": "string"}}, "preferred": {"type": ["string", "null"]}}}},
+        "links": {"type": "array", "items": {"type": "object"}},
+        "domains": {"type": "array", "items": {"type": "string"}},
+        "locations": {"type": "array", "items": {"type": "object", "additionalProperties": false, "properties": {"geonames_id": {"type": ["integer", "null"]}, "name": {"type": ["string", "null"]}, "country_code": {"type": ["string", "null"]}, "country_name": {"type": ["string", "null"]}}}},
+        "relationships": {"type": "array", "items": {"type": "object", "required": ["type", "id"], "additionalProperties": false, "properties": {"type": {"enum": ["parent", "child", "related", "predecessor", "successor"]}, "id": {"type": "string"}, "label": {"type": ["string", "null"]}}}},
+        "provider_modified": {"type": ["string", "null"]}
+      }
+    },
+    "researcher_body": {
+      "type": "object",
+      "description": "Only the public ORCID fields of the RE01 minimisation decision; the store refuses any other key.",
+      "required": ["orcid", "employments", "works"],
+      "additionalProperties": false,
+      "properties": {
+        "orcid": {"type": "string", "pattern": "^\\d{4}-\\d{4}-\\d{4}-\\d{3}[\\dX]$"},
+        "display_name": {"type": ["string", "null"]},
+        "employments": {"type": "array", "items": {"type": "object", "additionalProperties": false, "properties": {
+          "put_code": {"type": ["integer", "string", "null"]},
+          "organisation": {"type": "object", "additionalProperties": false, "properties": {"name": {"type": ["string", "null"]}, "city": {"type": ["string", "null"]}, "country": {"type": ["string", "null"]}, "disambiguated": {"type": ["object", "null"], "additionalProperties": false, "properties": {"source": {"type": "string"}, "identifier": {"type": "string"}}}}},
+          "start": {"type": ["string", "null"]}, "end": {"type": ["string", "null"]}, "last_modified": {"type": ["string", "null"]}
+        }}},
+        "works": {"type": "array", "items": {"type": "object", "additionalProperties": false, "properties": {
+          "put_code": {"type": ["integer", "string", "null"]}, "title": {"type": ["string", "null"]}, "type": {"type": ["string", "null"]},
+          "publication_year": {"type": ["string", "null"]}, "last_modified": {"type": ["string", "null"]},
+          "identifiers": {"type": "array", "items": {"type": "object", "required": ["type", "value"], "additionalProperties": false, "properties": {"type": {"enum": ["doi", "arxiv", "pmid"]}, "value": {"type": "string"}}}}
+        }}}
+      }
+    },
+    "dataset_body": {
+      "type": "object",
+      "required": ["doi", "creators", "related_identifiers"],
+      "additionalProperties": false,
+      "properties": {
+        "doi": {"type": "string", "pattern": "^10\\.\\d{4,9}/\\S+$"},
+        "titles": {"type": "array", "items": {"type": "string"}},
+        "publisher": {"type": ["string", "null"]},
+        "publication_year": {"type": ["string", "null"]},
+        "resource_type_general": {"type": ["string", "null"]},
+        "resource_type": {"type": ["string", "null"]},
+        "version": {"type": ["string", "null"]},
+        "rights": {"type": "array", "items": {"type": "object"}},
+        "url": {"type": ["string", "null"]},
+        "state": {"type": ["string", "null"]},
+        "created": {"type": ["string", "null"]},
+        "registered": {"type": ["string", "null"]},
+        "metadata_version": {"type": ["integer", "null"]},
+        "creators": {"type": "array", "items": {"type": "object", "required": ["position"], "additionalProperties": false, "properties": {
+          "position": {"type": "integer"}, "name_type": {"type": ["string", "null"]},
+          "name": {"type": ["string", "null"], "description": "only for organisational creators"},
+          "orcid": {"type": ["string", "null"]},
+          "affiliation_identifiers": {"type": "array", "items": {"type": "object", "required": ["scheme", "identifier"], "additionalProperties": false, "properties": {"scheme": {"type": "string"}, "identifier": {"type": "string"}}}}
+        }}},
+        "related_identifiers": {"type": "array", "description": "as published: relatedIdentifier, relatedIdentifierType, relationType and optional scheme fields", "items": {"type": "object", "required": ["relatedIdentifier", "relatedIdentifierType", "relationType"]}}
+      }
+    },
+    "project_body": {
+      "type": "object",
+      "required": ["project_id", "programme", "participants"],
+      "additionalProperties": false,
+      "properties": {
+        "project_id": {"type": "string", "pattern": "^\\d{1,12}$"},
+        "programme": {"type": "string", "minLength": 1},
+        "acronym": {"type": ["string", "null"]}, "title": {"type": ["string", "null"]}, "status": {"type": ["string", "null"]},
+        "start_date": {"type": ["string", "null"]}, "end_date": {"type": ["string", "null"]},
+        "total_cost": {"$ref": "#/definitions/money"}, "ec_max_contribution": {"$ref": "#/definitions/money"},
+        "legal_basis": {"type": ["string", "null"]}, "funding_scheme": {"type": ["string", "null"]}, "topics": {"type": ["string", "null"]},
+        "grant_doi": {"type": ["string", "null"]}, "content_update_date": {"type": ["string", "null"]},
+        "participants": {"type": "array", "items": {"type": "object", "required": ["pic", "name", "role"], "additionalProperties": false, "properties": {
+          "pic": {"type": "string"}, "vat_number": {"type": ["string", "null"]}, "name": {"type": ["string", "null"]}, "short_name": {"type": ["string", "null"]},
+          "role": {"type": ["string", "null"]}, "order": {"type": ["string", "null"]}, "activity_type": {"type": ["string", "null"]}, "sme": {"type": ["string", "null"]},
+          "city": {"type": ["string", "null"]}, "country": {"type": ["string", "null"]}, "website": {"type": ["string", "null"]},
+          "ec_contribution": {"$ref": "#/definitions/money"}, "net_ec_contribution": {"$ref": "#/definitions/money"}, "total_cost": {"$ref": "#/definitions/money"},
+          "end_of_participation": {"type": ["string", "null"]}, "active": {"type": ["string", "null"]}, "content_update_date": {"type": ["string", "null"]},
+          "row": {"type": "integer"}
+        }}}
+      }
+    }
+  },
+  "properties": {
+    "contract": {"const": "noesis-research-entity-record-v1"},
+    "record_kind": {"enum": ["organisation", "researcher", "dataset", "project"]},
+    "provider": {"enum": ["ror", "orcid", "datacite", "cordis"]},
+    "native_id": {"type": "string", "minLength": 1},
+    "status": {"type": "string", "minLength": 1, "description": "as published (active, inactive, withdrawn; findable; a CORDIS project status) or a removal (not_in_release, not_found, deactivated, locked)"},
+    "revision": {
+      "type": "object",
+      "required": ["marker", "basis"],
+      "additionalProperties": false,
+      "properties": {
+        "marker": {"type": "string", "minLength": 1},
+        "basis": {"enum": ["ror-release", "orcid-last-modified", "orcid-response", "datacite-metadata-version", "datacite-response", "cordis-content-update"]},
+        "effective_at": {"type": ["string", "null"]},
+        "provider_modified": {"type": ["string", "null"]}
+      }
+    },
+    "body": {"type": "object"},
+    "citation": {
+      "type": "object",
+      "required": ["url", "licence", "attribution"],
+      "properties": {"url": {"type": "string", "pattern": "^https://"}, "record_url": {"type": "string"}, "licence": {"type": "string"}, "attribution": {"type": "string"}, "release": {"type": "string"}}
+    }
   },
   "allOf": [
-    {
-      "if": {"properties": {"record_kind": {"const": "researcher"}}},
-      "then": {"properties": {"fields": {"propertyNames": {"enum": ["orcid", "name", "name_status", "last_modified", "status", "employments", "works", "withheld_sections"]}}}}
-    }
-  ],
-  "not": {"anyOf": [{"required": ["rank"]}, {"required": ["score"]}, {"required": ["h_index"]}, {"required": ["metrics"]},
-                    {"required": ["inferred_affiliation"]}]}
+    {"if": {"properties": {"status": {"enum": ["not_in_release", "not_found", "deactivated", "locked"]}}}, "then": {"properties": {"body": {"maxProperties": 0}}}},
+    {"if": {"properties": {"record_kind": {"const": "organisation"}, "status": {"enum": ["active", "inactive", "withdrawn"]}}}, "then": {"properties": {"provider": {"const": "ror"}, "body": {"$ref": "#/definitions/organisation_body"}}}},
+    {"if": {"properties": {"record_kind": {"const": "researcher"}, "status": {"const": "active"}}}, "then": {"properties": {"provider": {"const": "orcid"}, "body": {"$ref": "#/definitions/researcher_body"}}}},
+    {"if": {"properties": {"record_kind": {"const": "dataset"}, "status": {"not": {"enum": ["not_found"]}}}}, "then": {"properties": {"provider": {"const": "datacite"}, "body": {"$ref": "#/definitions/dataset_body"}}}},
+    {"if": {"properties": {"record_kind": {"const": "project"}, "status": {"not": {"enum": ["not_in_release"]}}}}, "then": {"properties": {"provider": {"const": "cordis"}, "body": {"$ref": "#/definitions/project_body"}}}}
+  ]
 }

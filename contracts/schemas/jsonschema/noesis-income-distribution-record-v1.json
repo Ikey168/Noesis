@@ -1,73 +1,176 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "noesis-income-distribution-record-v1",
-  "title": "Income, poverty and inequality series item: one series of one release (society.income)",
-  "description": "One published series as a source released it: source, indicator, welfare concept, equivalence scale, poverty line with its PPP base year, place, coverage, survey, income definition and methodology, the definition the source states and the observations (value text as published, status, estimation type, survey and income reference years, flags). Each release is appended as a vintage by src/kb/income_distribution_store.py, never overwritten; removals and corrections are vintages. No record carries person- or household-level data, and no value is nowcast, filled, blended, re-harmonised or derived.",
+  "title": "Income distribution record: release, series, definition, vintage, observation or comparability note",
+  "description": "Income, poverty and inequality figures as published by World Bank PIP, Eurostat EU-SILC and the OECD Income Distribution Database, held in the Economics series storage (economic_indicators, economic_series_map, economic_vintages and dataset_observations) with income-specific metadata owned by the society.income provider. Every record carries its namespace and cites the release it came from, with the release clock and the retrieval clock kept apart, each with its basis label. A series is keyed by source, indicator, welfare concept (income or consumption; PIP regional aggregates are mixed-aggregate as PIP computes them), equivalence scale, poverty line and its PPP base year, reference-year basis (survey year, PIP reference-year lineup, income year), survey, coverage, methodology, area and unit: sources, poverty lines, PPP rounds and welfare concepts are never one series. Each release that changes a series is an appended vintage recording what changed (new, revised and removed periods, a PPP revision restating past values, a definition or version change, a withdrawal by the source); prior vintages stay queryable and nothing is deleted. Observations keep the published value text, status, flags and per-value attributes (welfare type, survey year, income reference year, survey acronym, PIP estimation label) verbatim. Records carry aggregate statistics only: no person- or household-level field (IP01 minimisation), and no nowcast, filled, blended, re-harmonised, converted or derived value.",
   "type": "object",
-  "required": ["provider", "native_key", "indicator", "welfare_concept", "equivalence_scale", "area", "definition", "observations"],
+  "required": ["contract", "record_type"],
   "definitions": {
-    "line": {
-      "type": ["object", "null"],
-      "required": ["basis"],
+    "day": {"type": ["string", "null"], "pattern": "^\\d{4}-\\d{2}-\\d{2}$"},
+    "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provider": {"enum": ["pip", "eu-silc", "oecd-idd"]},
+    "release_basis": {"enum": ["pip_release_version", "provider_last_update", "declared_release", "retrieval_time"]},
+    "code": {
+      "type": "object",
+      "required": ["scheme", "code"],
       "properties": {
-        "basis": {"enum": ["absolute-ppp", "relative-median", "relative-mean"]},
-        "amount": {"type": ["string", "null"]},
-        "unit": {"type": ["string", "null"]},
-        "label": {"type": ["string", "null"]},
-        "ppp_base_year": {"type": ["integer", "null"]}
+        "scheme": {"enum": ["iso3166-1-alpha3", "iso3166-1-alpha2", "eurostat-geo", "wb-region"]},
+        "code": {"type": "string", "minLength": 1},
+        "label": {"type": ["string", "null"]}
+      }
+    },
+    "poverty_line": {
+      "anyOf": [
+        {"type": "null"},
+        {"type": "object", "required": ["kind", "value", "unit", "ppp_base_year"],
+         "properties": {"kind": {"const": "absolute"}, "value": {"type": "string", "pattern": "^\\d+(\\.\\d+)?$"},
+                        "ppp_base_year": {"type": "string", "pattern": "^\\d{4}$"}}},
+        {"type": "object", "required": ["kind", "share", "of"],
+         "properties": {"kind": {"const": "relative"}, "share": {"type": "string"}, "of": {"type": "string"}}}
+      ]
+    },
+    "source_revision": {
+      "type": "object",
+      "required": ["release_id", "provider", "file_sha256", "release_basis", "release_at_ms", "evidence_origin", "retrieved_at_ms"],
+      "properties": {
+        "release_id": {"type": "string"},
+        "provider": {"$ref": "#/definitions/provider"},
+        "source_id": {"type": ["string", "null"]},
+        "file_sha256": {"$ref": "#/definitions/sha256"},
+        "published_on": {"$ref": "#/definitions/day"},
+        "published_at": {"type": ["string", "null"]},
+        "release_basis": {"$ref": "#/definitions/release_basis"},
+        "release_at_ms": {"type": "integer"},
+        "release_version": {"type": ["string", "null"]},
+        "url": {"type": ["string", "null"]},
+        "evidence_origin": {"enum": ["fixture", "operator", "live"]},
+        "retrieved_at_ms": {"type": "integer"},
+        "live_verification": {"type": ["string", "null"]}
       }
     },
     "observation": {
       "type": "object",
-      "required": ["period", "status", "estimation_type"],
+      "required": ["period", "status", "flags", "attributes"],
       "properties": {
         "period": {"type": "string", "pattern": "^\\d{4}$"},
         "value_text": {"type": ["string", "null"]},
-        "value": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"], "pattern": "^-?\\d+(\\.\\d+)?$"},
+        "numeric_value": {"type": ["number", "null"]},
         "status": {"enum": ["reported", "confidential", "not_published"]},
-        "estimation_type": {"enum": ["survey", "interpolation", "extrapolation", "regional-line-up", "not-stated"]},
-        "survey_year": {"type": ["string", "null"]},
-        "income_reference_year": {"type": ["string", "null"]},
-        "welfare_type": {"type": ["string", "null"]},
         "flags": {"type": "object"},
-        "attributes": {"type": "object"}
-      }
+        "attributes": {"type": "object", "required": ["welfare_type"]},
+        "footnotes": {"type": "array", "items": {"type": "object"}}
+      },
+      "allOf": [
+        {"if": {"properties": {"status": {"enum": ["confidential", "not_published"]}}},
+         "then": {"properties": {"value": {"type": "null"}}}}
+      ]
     }
   },
   "properties": {
-    "provider": {"enum": ["pip", "eurostat-silc", "oecd-idd"]},
-    "native_key": {"type": "string", "minLength": 1},
-    "indicator": {
-      "type": "object",
-      "required": ["concept", "measure"],
-      "properties": {
-        "concept": {"enum": ["poverty_headcount", "poverty_gap", "gini", "quintile_share_ratio", "income_share", "mean_income", "median_income", "poverty_threshold"]},
-        "measure": {"type": "string"},
-        "label": {"type": "string"}
+    "contract": {"enum": ["noesis-income-distribution-record-v1", "noesis-income-comparability-v1"]},
+    "record_type": {"enum": ["release", "series", "definition", "vintage", "observation", "comparability_note"]},
+    "namespace": {"type": "string", "minLength": 1}
+  },
+  "propertyNames": {
+    "not": {"enum": ["nowcast", "forecast", "forecast_value", "projection", "imputed_value", "gap_filled", "filled_value", "blended_value", "combined_value", "harmonised_value", "derived_value", "own_poverty_line", "converted_value", "person_id", "household_id", "respondent_id", "name", "address", "birth_date", "microdata"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"record_type": {"const": "release"}}},
+      "then": {
+        "required": ["release_id", "provider", "format", "document_key", "document", "release_basis", "release_at_ms", "file_sha256", "item_count", "structure", "evidence_origin", "retrieved_at_ms"],
+        "properties": {
+          "provider": {"$ref": "#/definitions/provider"},
+          "format": {"enum": ["pip-json", "eurostat-sdmx-csv", "oecd-sdmx-csv"]},
+          "document": {"type": "object", "required": ["label"]},
+          "published_on": {"$ref": "#/definitions/day"},
+          "release_basis": {"$ref": "#/definitions/release_basis"},
+          "release_version": {"type": ["string", "null"]},
+          "file_sha256": {"$ref": "#/definitions/sha256"},
+          "evidence_origin": {"enum": ["fixture", "operator", "live"]}
+        }
       }
     },
-    "welfare_concept": {"enum": ["income", "consumption", "mixed"]},
-    "equivalence_scale": {"enum": ["per-capita", "modified-oecd", "square-root"]},
-    "poverty_line": {"$ref": "#/definitions/line"},
-    "ppp_base_year": {"type": ["integer", "null"]},
-    "area": {
-      "type": "object",
-      "required": ["scheme", "code"],
-      "properties": {
-        "scheme": {"enum": ["iso3166-1-alpha3", "eurostat-geo", "wb-region"]},
-        "code": {"type": "string"},
-        "label": {"type": ["string", "null"]}
+    {
+      "if": {"properties": {"record_type": {"const": "series"}}},
+      "then": {
+        "required": ["series_id", "provider", "native_key", "dataflow", "indicator", "welfare_concept", "equivalence_scale", "poverty_line", "ppp_base_year", "reference_year_basis", "survey", "coverage", "frequency", "unit", "area", "references", "economic_series"],
+        "properties": {
+          "provider": {"$ref": "#/definitions/provider"},
+          "native_key": {"type": "string", "minLength": 1},
+          "dataflow": {"type": "object", "required": ["reference"]},
+          "indicator": {
+            "type": "object",
+            "required": ["concept", "measure"],
+            "properties": {
+              "concept": {"enum": ["poverty_headcount_ratio", "poverty_gap_index", "gini_index", "mean_welfare", "median_welfare", "income_share", "income_quintile_share_ratio", "poverty_threshold"]},
+              "measure": {"enum": ["share", "rate", "index", "ratio", "mean", "median", "level"]}
+            }
+          },
+          "welfare_concept": {"enum": ["income", "consumption", "mixed-aggregate"]},
+          "equivalence_scale": {"type": "object", "required": ["code"], "properties": {"code": {"enum": ["per-capita", "modified-oecd", "square-root", "none"]}}},
+          "poverty_line": {"$ref": "#/definitions/poverty_line"},
+          "ppp_base_year": {"type": ["string", "null"], "pattern": "^\\d{4}$"},
+          "reference_year_basis": {"enum": ["survey-year", "lineup-year", "income-year"]},
+          "survey": {"type": "string", "minLength": 1},
+          "coverage": {"type": "string", "minLength": 1},
+          "methodology_version": {"type": ["string", "null"]},
+          "frequency": {"enum": ["annual"]},
+          "unit": {"type": "object", "required": ["label"]},
+          "area": {"$ref": "#/definitions/code"},
+          "references": {"type": "array", "items": {"type": "object", "required": ["kind", "identifier"]}},
+          "economic_series": {"type": "object", "required": ["domain", "series_id", "indicator_id"]}
+        }
       }
     },
-    "coverage": {"type": "object"},
-    "survey": {"type": ["string", "null"]},
-    "income_definition": {"type": ["string", "null"]},
-    "methodology": {"type": ["string", "null"]},
-    "unit": {"type": "object"},
-    "frequency": {"enum": ["annual"]},
-    "definition": {"type": "object", "required": ["provider", "welfare_concept", "equivalence_scale"]},
-    "references": {"type": "array"},
-    "source_notes": {"type": "array"},
-    "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
-  }
+    {
+      "if": {"properties": {"record_type": {"const": "definition"}}},
+      "then": {
+        "required": ["definition_id", "definition_key", "revision", "provider", "content", "source_revision"],
+        "properties": {
+          "revision": {"type": "integer", "minimum": 1},
+          "content": {
+            "type": "object",
+            "required": ["concept", "measure", "welfare_concept", "income_definition", "equivalence_scale", "poverty_line", "reference_year_basis", "references", "source_notes"]
+          },
+          "source_revision": {"$ref": "#/definitions/source_revision"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "vintage"}}},
+      "then": {
+        "required": ["vintage_id", "series_id", "release_id", "economic_vintage_id", "release_at_ms", "release_at_basis", "retrieved_at_ms", "content_hash", "definition_id", "release_version", "status", "changes", "revision_of", "source_revision"],
+        "properties": {
+          "content_hash": {"$ref": "#/definitions/sha256"},
+          "revision_of": {"type": ["string", "null"]},
+          "status": {"enum": ["published", "withdrawn"]},
+          "economic_vintage_id": {"type": ["string", "null"]},
+          "changes": {
+            "type": "object",
+            "required": ["new_periods", "revised", "removed_periods", "ppp_revision", "definition_change"],
+            "properties": {"ppp_revision": {"type": "boolean"}, "definition_change": {"type": "boolean"}}
+          },
+          "source_revision": {"$ref": "#/definitions/source_revision"}
+        }
+      }
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "observation"}}},
+      "then": {"$ref": "#/definitions/observation"}
+    },
+    {
+      "if": {"properties": {"record_type": {"const": "comparability_note"}}},
+      "then": {
+        "required": ["note_id", "left", "relation", "statement", "periods", "cited", "origin", "state", "history"],
+        "properties": {
+          "relation": {"enum": ["different_welfare_concept", "different_equivalence_scale", "different_poverty_line", "different_ppp_base_year", "different_reference_year_basis", "different_survey", "different_methodology", "ppp_revision", "break_in_series", "source_note", "same_underlying_survey", "not_comparable"]},
+          "state": {"enum": ["source-stated", "proposed", "accepted", "rejected", "reverted"]},
+          "origin": {"enum": ["source", "reviewer"]},
+          "periods": {"type": "array", "items": {"type": "string"}}
+        }
+      }
+    }
+  ]
 }
