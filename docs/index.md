@@ -272,6 +272,11 @@ For the project overview and local setup, start with the
   side with statistical units, classifications, adjustment, base years, flags and vintages, reviewable place and
   NACE/NAICS candidate links, Labour and Trade links and monitors; no nowcast, re-based index, blended figure or
   reconstructed cell; [source audit](development/business-statistics-evidence/source-audit.md)
+- [Society social protection guide](guides/society-social-protection.md) — Eurostat ESSPROS, OECD SOCX and ILOSTAT
+  SDG 1.3.1 for a country as of a release, side by side by measure with definitions, functions, vintages and
+  comparability notes, reviewable place and function identity, Demographics and COFOG links and monitors; no
+  blend, re-classification, COFOG combination, derived figure or forecast; offline only;
+  [source audit](development/social-protection-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
