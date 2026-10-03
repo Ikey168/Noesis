@@ -28,8 +28,8 @@ SCOPES = {
     "knowledge:subscriptions:read",
     "knowledge:subscriptions:write",
     "knowledge:oss:read",
-    "knowledge:research-entities:read",
-    "knowledge:literature:read",
+    "knowledge:science:research-entities:read",
+    "knowledge:read",
     "namespace:global:read",
     "namespace:global:write",
 }
