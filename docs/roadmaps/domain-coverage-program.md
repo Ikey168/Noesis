@@ -1,6 +1,8 @@
 # Domain coverage program
 
-Status: wave 1 covered offline, 2026-10-01; waves 2 and 3 planned. Decision:
+Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
+2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)); wave 3
+planned. Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
@@ -34,9 +36,9 @@ Each track follows the existing domain-track pattern:
    agree.
 4. **Live validation.** Open a "Validate live coverage" issue for the track.
 
-Two domains have no bundle suited to their gaps, so two new bundles are
-proposed: `society` (Society and population) and `culture` (Culture and
-leisure). Every other gap becomes a provider in an existing bundle. Existing
+Two domains had no bundle suited to their gaps, so two new bundles were
+proposed: `society` (Society and population), created by wave 1, and `culture`
+(Culture and leisure), still proposed. Every other gap becomes a provider in an existing bundle. Existing
 providers stay where they are; their ids are preserved.
 
 ## Waves
@@ -46,15 +48,45 @@ providers stay where they are; their ids are preserved.
 - **Wave 2:** useful, with some access or modelling work.
 - **Wave 3:** restrictive terms, registration-gated data or narrow demand.
 
+## Wave 2 source audits
+
+Tracker: [#2736](https://github.com/Ikey168/Noesis/issues/2736). Each track's
+audit is `docs/development/<dir>-evidence/source-audit.md`. All fourteen were
+written without network access (publisher hosts blocked by the egress proxy,
+2026-10-03), so unchecked terms are marked _verify_ and no source is live.
+Per-track trackers and delivery issues are opened only for tracks whose audit
+leaves at least one source.
+
+| Code | Subdomain | Audit dir | Sources kept (`unverified-live`) | Not implemented or gated |
+| --- | --- | --- | --- | --- |
+| GT01 | government transparency | `government-transparency` | Bundestag DIP; UK written questions; FragDenStaat (metadata only) | none at the source level |
+| SS01 | social protection | `social-protection` | Eurostat ESSPROS; OECD SOCX; ILOSTAT coverage | ILO dashboards (no machine access) |
+| CV01 | civil society | `civil-society` | IRS EO BMF; IRS Form 990 e-file (needs range reads); Charity Commission API; 360Giving | none at the source level |
+| TO01 | tourism | `tourism` | Eurostat occupancy and capacity | UN Tourism (no machine access, terms unclear) |
+| IB01 | business | `business-statistics` | Eurostat STS and business demography; US Census CBP | none |
+| OM01 | marine | `marine` | ERDDAP OISST; Argo via ERDDAP; EEA Natura 2000 marine sites | Copernicus Marine (gated); WDPA (terms); Argo GDAC/Argovis (first coverage) |
+| LN01 | land and soils | `land-soils` | CORINE (EEA vector service); BKG CLC5; FAO FRA; BGR overview maps | CLMS API (gated); ESDAC (terms); BGS (first coverage) |
+| WC01 | waste | `waste` | Eurostat waste and circular-economy; EEA waste transfers; OECD municipal waste | none |
+| CD01 | mortality | `mortality` | WHO Mortality Database; WHO GHO; Eurostat causes of death; UN WPP files | UN Data Portal API (gated); IHME GBD (terms) |
+| AH01 | animal health | `animal-health` | EFSA Knowledge Junction records | WAHIS (no API); EMPRES-i (gated); EFSA dashboards |
+| II01 | internet infrastructure | `internet-infrastructure` | RIPEstat; PeeringDB; RDAP; crt.sh; CT log list | direct CT logs (unbounded); CAIDA (terms) |
+| AI01 | AI models | `ai-models` | Hugging Face Hub metadata; OpenML; Epoch AI | none |
+| CY01 | cyber incidents | `cyber-incidents` | SEC 8-K Item 1.05; Washington AG list (conditional) | HHS OCR portal (no API) |
+| MO01 | media outlets | `media-outlets` | **none** | Media Ownership Monitor (no machine access, terms); MAVISE and KEK (until an export and terms are confirmed) |
+
+MO01 leaves no source, so `media-outlets-ownership` stays a gap until an
+amended audit finds one. AH01 rests on one source whose records are
+themselves _verify_; if they do not exist, `animal-health` stays a gap too.
+
 ## Gap table
 
 | Subdomain | Domain | Proposed home | Candidate sources (unaudited) | Links to | Wave |
 | --- | --- | --- | --- | --- | --- |
 | `government-transparency` | Governance and law | `political.transparency` | Bundestag DIP (questions, printed papers); UK Parliament written questions API; FragDenStaat | legislation, public finance | 2 |
 | `defence-security` | Governance and law | `political.defence` | SIPRI military expenditure and arms transfers (terms restrict redistribution); UN Register of Conventional Arms; NATO defence expenditure reports | sanctions, humanitarian | 3 |
-| `social-protection` | Society and population | `society.social-protection` (new bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
-| `public-opinion-wellbeing` | Society and population | `society.public-opinion` (new bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
-| `civil-society` | Society and population | `society.civil-society` (new bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
+| `social-protection` | Society and population | `society.social-protection` (existing `society` bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
+| `public-opinion-wellbeing` | Society and population | `society.public-opinion` (existing `society` bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
+| `civil-society` | Society and population | `society.civil-society` (existing `society` bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
 | `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `industry-business` | Economy and markets | `economics.business` | Eurostat short-term business statistics and business demography; US Census County Business Patterns | trade, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
