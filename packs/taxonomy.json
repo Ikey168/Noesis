@@ -247,6 +247,7 @@
     "ownership.competition": {"subdomains": ["competition"], "shapes": ["events-notices"]},
     "ownership.core": {"subdomains": ["legal-entities-ownership"], "shapes": ["registry-records"]},
 
+    "economics.business": {"subdomains": ["industry-business"], "shapes": ["statistical-series"]},
     "economics.core": {"subdomains": ["macroeconomy-prices"], "shapes": ["statistical-series", "versioned-documents"]},
     "economics.demographics": {"domain": "society-population", "subdomains": ["population-migration"], "shapes": ["statistical-series"]},
     "economics.extractives": {"subdomains": ["extractives-natural-resources"], "shapes": ["statistical-series", "registry-records"], "themes": ["climate"]},
