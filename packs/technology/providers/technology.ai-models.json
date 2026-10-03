@@ -1,0 +1,228 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "technology.ai-models",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.ai_models_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "technology.ai-models",
+      "contract": {
+        "name": "noesis-ai-model-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "readiness",
+        "list-records",
+        "records-as-of",
+        "revision-history",
+        "identity-matches",
+        "links",
+        "evidence-bundle",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "revisions": "Hugging Face Hub repositories are keyed by repository id and revision sha with lastModified; a pinned sha is immutable and a new sha is a new revision; OpenML dataset versions are their own ids and status, description or checksum changes are new revisions; Epoch rows are vintaged by content digest and a revised estimate is a new revision of its row; gated, disabled, deactivated, 404 and renamed states are source-stated revisions and history is kept",
+        "cards": "card front matter (allow-listed keys) is stored with its digest; the card body is cited by revision URL and digest and never stored",
+        "observations": "self-reported card results (model-index), OpenML run evaluations and Epoch estimates are kept with who reported them and never merged; evaluations are immutable per run id and a run no longer listed becomes not-returned",
+        "licences": "declared licences are stored as stated and normalised to SPDX only on an exact licence-id match through oss_spdx; no licence-compliance interpretation",
+        "as_of": "as-of answers select each source's revision current at the date side by side and cite the Hub sha, the OpenML id and version, or the Epoch vintage, with the as-of time",
+        "identity": "an Epoch entry and a Hub model repository, or a Hub dataset repository and an OpenML dataset, are linked only by a reviewed, revertible identity decision on stated identifiers (repository id, OpenML id, arXiv id, DOI); a shared name is never a match; nothing is auto-merged and unmatched records stay visible",
+        "links": "links to papers (paper connector and scholarly sources), dataset DOIs (DataCite) and registry packages exist only where a source states the identifier or an accepted match carries it; library_name stays stated text; links pin record revisions and degrade to provider_absent or target_not_held",
+        "minimisation": "organisation namespaces only (a user namespace is refused); Hub user and commit authors, OpenML creators, contributors and uploaders and Epoch Authors are refused at parse time; card bodies, commit history, discussions and download, like and trending counts are never stored",
+        "exclusions": "no model weights or dataset files downloaded, no capability, safety, quality, risk or openness verdict, no leaderboard or ranking, no download, like or trending counts, no licence-compliance interpretation, no merging of self-reported card results with OpenML evaluations or Epoch estimates, no inference of training data, compute or parameters where the source states none"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.ai_models_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "readiness",
+      "tool": "noesis-knowledge-engine.ai_models_readiness",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": []
+    },
+    {
+      "id": "list-records",
+      "tool": "noesis-knowledge-engine.list_ai_model_records",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "records-as-of",
+      "tool": "noesis-knowledge-engine.ai_model_records_as_of",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "revision-history",
+      "tool": "noesis-knowledge-engine.ai_model_revision_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-matches",
+      "tool": "noesis-knowledge-engine.list_ai_model_identity_matches",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_ai_model_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_ai_model_evidence",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_ai_models_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "revisions",
+      "required_scopes": [
+        "knowledge:technical:ai-models:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "ai-model-record",
+      "store": "src.kb.ai_models_store",
+      "tables": [
+        "ai_records",
+        "ai_revisions",
+        "ai_observations",
+        "ai_observation_states",
+        "ai_vintages",
+        "ai_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "ai-model-identity-match",
+      "store": "src.kb.ai_models_identity",
+      "tables": [
+        "ai_identity_matches"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "ai-model-link",
+      "store": "src.kb.ai_models_links",
+      "tables": [
+        "ai_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "ai-model-refresh-receipt",
+      "store": "src.kb.ai_models_monitoring",
+      "tables": [
+        "ai_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "ai_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "technology-ai-models",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

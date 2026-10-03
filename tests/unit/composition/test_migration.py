@@ -89,6 +89,7 @@ PROJECTOR_OWNERS = {
     "noesis-research-entity-record-v2": "src.kb.research_entities_records",
     "noesis-income-distribution-record-v2": "src.kb.income_distribution_store",  # Society income (#2583)
     "noesis-platform-transparency-record-v2": "src.kb.platform_transparency_records",
+    "noesis-ai-model-record-v2": "src.kb.ai_models_store",  # Technology AI models and datasets (#2742)
 }
 
 

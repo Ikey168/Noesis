@@ -145,7 +145,11 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
     # The consumed Products bundle is pulled in with its own optional safety (#1916), appliances and components
     # (#2061) features left unselected;
     # nothing of the vulnerabilities feature is omitted.
+    # The Technology bundle's own AI models features (#2742) stay unselected too.
     assert plan["omissions"] == [
+        {"pack": "technology", "feature": "ai-models-epoch", "reason": "not selected"},
+        {"pack": "technology", "feature": "ai-models-hub", "reason": "not selected"},
+        {"pack": "technology", "feature": "ai-models-openml", "reason": "not selected"},
         {"pack": "products", "feature": "appliances", "reason": "not selected"},
         {"pack": "products", "feature": "components", "reason": "not selected"},
         {"pack": "products", "feature": "food", "reason": "not selected"},  # food composition (#2216)

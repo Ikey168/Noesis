@@ -9464,6 +9464,12 @@ from tools.knowledge_engine_mcp.research_entities import (
 
 register_research_entities_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.ai_models import (
+    register as register_ai_models_tools,
+)
+
+register_ai_models_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

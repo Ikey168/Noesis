@@ -32,6 +32,14 @@
           "name": "noesis-vulnerability-record",
           "version": "1.0.0"
         }
+      },
+      {
+        "id": "technology.ai-models",
+        "provider": "technology.ai-models",
+        "contract": {
+          "name": "noesis-ai-model-record",
+          "version": "2.0.0"
+        }
       }
     ],
     "providers": [
@@ -50,6 +58,10 @@
       {
         "id": "technology.vulnerabilities",
         "version": "1.0.0"
+      },
+      {
+        "id": "technology.ai-models",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
@@ -62,6 +74,35 @@
         "pack_id": "technical-software-knowledge",
         "version": "1.2.0",
         "range": "^1.2.0"
+      },
+      {
+        "pack_id": "technology-ai-models",
+        "version": "1.0.0",
+        "range": "^1.0.0"
+      }
+    ],
+    "profiles": [
+      {
+        "id": "technology.ai-models",
+        "description": "AI models and datasets: a model's or dataset's registry records as each source stated them - Hugging Face Hub revisions, OpenML dataset versions, tasks and run evaluations, Epoch AI notable-model rows - side by side as of a date, with revisions, declared licences as stated and who reported each figure, never merged or ranked",
+        "workflow_defaults": {
+          "as_of": "each source's revision current at the requested date, cited by Hub sha, OpenML id and version, or Epoch vintage",
+          "sources": "Hub, OpenML and Epoch side by side; self-reported card results, OpenML evaluations and Epoch estimates stay with who reported them",
+          "licences": "quoted as declared; SPDX only on an exact licence-id match; no compliance interpretation",
+          "identity": "records of different sources are put side by side only through accepted identity matches on stated identifiers; unmatched records stay visible",
+          "links": "papers, dataset DOIs and registry packages only where a source states the identifier; absent providers reported as provider_absent"
+        },
+        "vocabulary": {
+          "revision": "one source-stated state of a record: a Hub sha, an OpenML dataset revision or an Epoch row revision",
+          "sha": "the git commit of a Hub repository revision; a pinned sha is immutable",
+          "vintage": "one Epoch file release, identified by its content digest",
+          "self-reported result": "a model-index result stated in a Hub card by the repository itself",
+          "not-returned": "an OpenML run evaluation a later complete listing no longer names",
+          "withdrawn": "a repository the source states gated or disabled, or a dataset it states deactivated"
+        },
+        "source_packs": [
+          "technology-ai-models"
+        ]
       }
     ]
   },
@@ -126,6 +167,99 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "NVD, OSV, GitHub, KEV, EPSS, CVE, CPE and CWE sources run through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "ai-models-hub",
+      "default": false,
+      "description": "AI models and datasets from Hugging Face Hub metadata: public, non-gated model and dataset repositories under organisation namespaces per pinned revision sha, card front matter with digests (bodies cited, never stored), self-reported results labelled as such, declared licences as stated, reviewable identity, citation links, as-of answers and subscription monitors. OSS ecosystems and Literature links degrade to provider_absent when those providers are not composed. No weights or dataset files, no capability, safety, quality, risk or openness verdict, no rankings or download, like or trending counts, no licence-compliance interpretation and no merging of self-reported results with OpenML evaluations or Epoch estimates.",
+      "requires": [
+        {
+          "capability": "technology.ai-models",
+          "contract": "noesis-ai-model-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source matches are reviewable, revertible entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "AI models monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "Hugging Face Hub metadata is acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "ai-models-openml",
+      "default": false,
+      "description": "AI models and datasets from OpenML: declared dataset versions with status, declared licence and qualities, one task and its run evaluations (immutable per run, not-returned when no longer listed), reviewable identity, citation links, as-of answers and subscription monitors. OSS ecosystems and Literature links degrade to provider_absent when those providers are not composed. No weights or dataset files, no capability, safety, quality, risk or openness verdict, no rankings or download, like or trending counts, no licence-compliance interpretation and no merging of self-reported results with OpenML evaluations or Epoch estimates.",
+      "requires": [
+        {
+          "capability": "technology.ai-models",
+          "contract": "noesis-ai-model-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source matches are reviewable, revertible entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "AI models monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "OpenML is acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "ai-models-epoch",
+      "default": false,
+      "description": "AI models and datasets from the Epoch AI notable-models dataset: the declared rows with organisation, publication date, domain and Epoch's stated estimates with their confidence label, vintaged by content digest, reviewable identity, citation links, as-of answers and subscription monitors. OSS ecosystems and Literature links degrade to provider_absent when those providers are not composed. No weights or dataset files, no capability, safety, quality, risk or openness verdict, no rankings or download, like or trending counts, no licence-compliance interpretation and no merging of self-reported results with OpenML evaluations or Epoch estimates.",
+      "requires": [
+        {
+          "capability": "technology.ai-models",
+          "contract": "noesis-ai-model-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "platform.entity-identity",
+          "contract": "noesis-entity-identity-decision",
+          "range": "^1.0.0",
+          "reason": "cross-source matches are reviewable, revertible entity identity decisions"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "AI models monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the Epoch AI notable-models dataset is acquired through the source-pack runtime"
         }
       ]
     }

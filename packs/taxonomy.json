@@ -347,6 +347,7 @@
     "sports.olympics": {"subdomains": ["sports"], "shapes": ["events-notices"]},
     "sports.tennis": {"subdomains": ["sports"], "shapes": ["events-notices"]},
 
+    "technology.ai-models": {"subdomains": ["ai-models-datasets"], "shapes": ["registry-records", "versioned-documents", "observations"]},
     "technology.core": {"subdomains": ["software-vulnerabilities"], "shapes": ["registry-records", "versioned-documents"]},
     "technology.patents": {"subdomains": ["patents"], "shapes": ["versioned-documents"]},
     "technology.standards": {"subdomains": ["standards-certification"], "shapes": ["versioned-documents"]},
