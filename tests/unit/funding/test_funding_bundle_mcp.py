@@ -1,6 +1,5 @@
 """Bundle composition, readiness and MCP entry points (#1775)."""
 
-import asyncio
 
 import duckdb
 import pytest
@@ -12,6 +11,7 @@ from tests.unit.funding import harness
 from tests.unit.funding.harness import NS, SCOPES
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.funding import FUNDING_TOOLS, FUNDING_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": "alice", "scopes": set(SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, path
+    return tool_map(server.mcp), state, path
 
 
 def test_declared_contributions_reuse_existing_owners_and_admit_no_runtime():

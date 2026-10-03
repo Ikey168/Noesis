@@ -1,4 +1,3 @@
-import asyncio
 import json
 from pathlib import Path
 
@@ -7,6 +6,7 @@ import jsonschema
 
 from src.kb.research_loops import ResearchLoopStore
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -21,7 +21,7 @@ def test_research_bundle_mcp_discovery_and_scopes(tmp_path, monkeypatch):
     monkeypatch.setattr(server, "_context", lambda: ("alice", scopes))
     monkeypatch.setattr(server, "_connection",
                         lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert "review_research_claim_independence" in tools
     assert _mutability("review_research_claim_independence") == "write"
     assert _required_scopes(

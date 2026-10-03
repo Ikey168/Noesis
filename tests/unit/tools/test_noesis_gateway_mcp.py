@@ -1,8 +1,8 @@
 from __future__ import annotations
 
-import asyncio
 import json
 
+from src.mcp_host.introspection import tool_map
 from src.noesis_cli.config import initialize
 from tools.noesis_mcp import server
 
@@ -25,7 +25,7 @@ EXPECTED_TOOLS = {
 
 
 def _tools():
-    return asyncio.run(server.mcp.get_tools())
+    return tool_map(server.mcp)
 
 
 def test_gateway_exposes_only_curated_daily_driver_tools():

@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import json
 import socket
 import urllib.request
@@ -14,6 +13,7 @@ from jsonschema import Draft202012Validator
 from src.evidence_bundle import verify_bundle
 from src.kb import contract
 from src.kb.contract import KBContractError
+from src.mcp_host.introspection import tool_map
 from src.policy_monitor import (
     PolicyMonitorError,
     authorized_view,
@@ -290,7 +290,7 @@ def test_mcp_and_rest_adapters_route_to_canonical_contract(monkeypatch):
         return {"contract": "noesis-kb-v1", "data": {"visibility": "public"}}
 
     monkeypatch.setattr(contract, "policy_monitor_status", fake_status)
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert tools["policy_monitor_status"].fn() == fake_status()
     assert kb_routes.policy_monitor_public() == fake_status()
     private = kb_routes.policy_monitor_private({"sub": "alice"})

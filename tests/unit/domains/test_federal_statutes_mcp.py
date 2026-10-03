@@ -2,13 +2,13 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
 import pytest
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import federal_statutes_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.federal_statutes import (
@@ -43,7 +43,7 @@ def mcp_env(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(state["path"], read_only=read_only),
     )
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def load(path):

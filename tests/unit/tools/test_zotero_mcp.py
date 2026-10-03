@@ -1,8 +1,7 @@
-import asyncio
-
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -22,7 +21,7 @@ def test_public_sync_history_and_credentials_are_separate(tmp_path, monkeypatch)
         def close(self):
             pass
     monkeypatch.setattr(zotero_sync, "ZoteroReadClient", Client)
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     request = dict(namespace="r", library_id="1", library_type="user")
     denied = tools["sync_zotero_library"].fn(**request, credential_env="NOESIS_ZOTERO_API_KEY")
     assert denied["error"]["code"] == "unauthorized" and not created

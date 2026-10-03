@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import inspect
 import json
 
@@ -11,6 +10,7 @@ import pytest
 
 from src.kb.sports_records import forbidden_keys
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.sports import harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.sports import SPORTS_SCOPES, SPORTS_TOOLS, SPORTS_WRITES
@@ -171,7 +171,7 @@ def mcp_env(tmp_path, monkeypatch):
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
     duckdb.connect(path).close()
-    return asyncio.run(server.mcp.get_tools()), state, path
+    return tool_map(server.mcp), state, path
 
 
 def load(path):

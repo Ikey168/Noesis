@@ -1,11 +1,10 @@
-import asyncio
-
 import duckdb
 
 from tests.unit.kb.test_event_dossiers import seed
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.event_dossiers import DOSSIER_READS, DOSSIER_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 def test_public_event_dossier_workflow_with_revocation(tmp_path, monkeypatch):
@@ -20,7 +19,7 @@ def test_public_event_dossier_workflow_with_revocation(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
 
     def call(name, **kwargs):
         result = tools[name].fn(**kwargs)

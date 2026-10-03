@@ -1,4 +1,3 @@
-import asyncio
 import json
 from pathlib import Path
 
@@ -6,6 +5,7 @@ import duckdb
 
 from src.ingestion.opencitations import OpenCitationsClient
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server as writer
 from tools.research_mcp import server as reader
 
@@ -26,13 +26,13 @@ def test_capture_resume_and_research_traversal_tools(tmp_path, monkeypatch):
     monkeypatch.setattr(
         OpenCitationsClient, "snapshot", lambda self, *args, **kwargs: fixture
     )
-    tools = asyncio.run(writer.mcp.get_tools())
+    tools = tool_map(writer.mcp)
     acquire = tools["acquire_opencitations"].fn
     assert acquire(fixture["identifier"])["error"]["code"] == "unauthorized"
     scopes.add("knowledge:citation:capture")
     first = acquire(fixture["identifier"], page_size=3)
     assert first["imported"] == 3
-    read_tools = asyncio.run(reader.mcp.get_tools())
+    read_tools = tool_map(reader.mcp)
     traverse = read_tools["citation_graph"].fn
     assert (
         traverse(identifier=fixture["identifier"], direction="references")["edge_count"]

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -10,6 +9,7 @@ import pytest
 
 from src.kb.health_capacity import NEVER_SENTENCE
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.clinical import health_capacity_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.clinical import (
@@ -34,7 +34,7 @@ def mcp_env(tmp_path_factory):
     state = {"principal": "alice", "scopes": set()}
     patch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     patch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    yield asyncio.run(server.mcp.get_tools()), state, places
+    yield tool_map(server.mcp), state, places
     patch.undo()
 
 

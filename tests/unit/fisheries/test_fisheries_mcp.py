@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -13,6 +12,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit.fisheries import harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.fisheries import FISHERIES_READS, FISHERIES_TOOLS, FISHERIES_WRITES
+from src.mcp_host.introspection import tool_map
 
 NS = h.NS
 
@@ -30,7 +30,7 @@ def mcp_env(database, monkeypatch):
     state = {"principal": "alice", "scopes": set(h.ALL)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(database, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def test_declared_contributions_and_catalog_scopes():
@@ -100,7 +100,7 @@ def test_every_read_tool_is_read_only_against_an_empty_warehouse(tmp_path, monke
     duckdb.connect(path).close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.ALL)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     for name in sorted(FISHERIES_READS - {"fisheries_source_contracts"}):
         properties = tools[name].parameters.get("properties", {})
         kwargs = {key: "missing" for key in tools[name].parameters.get("required", [])}

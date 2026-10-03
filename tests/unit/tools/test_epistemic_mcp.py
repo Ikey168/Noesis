@@ -5,6 +5,7 @@ import inspect
 
 import duckdb
 
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -24,7 +25,7 @@ def test_epistemic_mcp_authorization_persistence_filters_and_explanation(
         "_connection",
         lambda *, read_only: duckdb.connect(str(database)),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
 
     denied = _call(
         tools["assess_epistemic_statement"],

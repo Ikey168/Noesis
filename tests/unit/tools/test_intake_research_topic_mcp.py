@@ -1,10 +1,10 @@
 """The paired research topic is discoverable and access checked over MCP."""
 
-import asyncio
 
 import duckdb
 
 from src.mcp_host.catalog import _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -21,7 +21,7 @@ def test_research_topic_mcp_start_replay_and_scope(tmp_path, monkeypatch):
         server, "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert "start_intake_research_topic" in tools
     assert _required_scopes("knowledge_engine_mcp", "write", "start_intake_research_topic") == [
         "knowledge:intake:write", "knowledge:projects:write",

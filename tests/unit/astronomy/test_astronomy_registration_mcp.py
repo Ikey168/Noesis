@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 
 import duckdb
 import pytest
@@ -12,6 +11,7 @@ from tests.unit.astronomy import harness as ah
 from tests.unit.astronomy import registration_harness as h
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.astronomy_registration import QUERY_EXAMPLES, REGISTRATION_TOOLS, REGISTRATION_WRITES
+from src.mcp_host.introspection import tool_map
 
 NAMESPACE_SCOPES = {f"namespace:{ah.NS}:read", f"namespace:{ah.NS}:write"}
 READS = {
@@ -35,7 +35,7 @@ def mcp_env(tmp_path, monkeypatch):
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection",
                         lambda *, read_only: duckdb.connect(state["path"], read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def load(path):

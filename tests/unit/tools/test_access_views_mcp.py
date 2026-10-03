@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -29,7 +30,7 @@ def test_access_view_mcp_flow_and_admin_separation(tmp_path, monkeypatch):
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(db))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = {
         "register_access_view_policy",
         "register_access_bound_object",

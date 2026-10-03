@@ -1,10 +1,9 @@
-import asyncio
-
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tools.knowledge_engine_mcp import intake
 from tools.knowledge_engine_mcp import server
+from src.mcp_host.introspection import tool_map
 
 
 def test_intake_public_tools_and_access(tmp_path, monkeypatch):
@@ -21,7 +20,7 @@ def test_intake_public_tools_and_access(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert len(tools["discover_intake_modes"].fn()["modes"]) == 10
     assert (
         tools["route_intake_mode"].fn(answers={"decision_needed": True})["mode"]
@@ -91,7 +90,7 @@ def test_jev_free_text_intake_route_mcp_explicit_precedence(tmp_path, monkeypatc
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert {
         "register_jev_intake_intent",
         "revise_jev_intake_intent",
@@ -156,7 +155,7 @@ def test_awareness_mcp_uses_persistent_feed_inbox(tmp_path, monkeypatch):
             b'<rss version="2.0"><channel><item><title>One</title><link>https://example.org/one</link></item></channel></rss>'
         ),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     subscription = tools["subscribe_intake_feed"].fn(
         namespace="research", url="https://example.org/rss", name="Example"
     )
@@ -214,7 +213,7 @@ def test_awareness_newsletter_input_over_mcp(tmp_path, monkeypatch):
         server, "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     subscribed = tools["subscribe_intake_newsletter_input"].fn(
         namespace="research", sender="editor@example.org", name="Weekly"
     )
@@ -250,7 +249,7 @@ def test_exploration_capture_over_mcp(tmp_path, monkeypatch):
         "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     started = tools["start_intake_mode"].fn(
         namespace="research",
         mode="Exploration",
@@ -352,7 +351,7 @@ def test_modulo_plugin_link_recheck_mcp_is_read_only_scoped_and_fail_closed(
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
     monkeypatch.setattr(intake, "MODULO_PLUGIN_LINK_PROVIDER", None)
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert "recheck_modulo_plugin_link" in tools
     link = {
         "workspace_id": "workspace:personal", "account_id": "account:alice",

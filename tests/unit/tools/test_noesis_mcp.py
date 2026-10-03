@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-import asyncio
 from pathlib import Path
 
 from src.argument_mining.models import ClaimPrediction
+from src.mcp_host.introspection import tool_map
 from src.noesis_cli.config import initialize
 from tools.noesis_mcp import server
 
@@ -39,7 +39,7 @@ def _workspace(tmp_path, monkeypatch):
 
 
 def test_default_gateway_has_only_curated_daily_driver_tools():
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert set(tools) == EXPECTED_TOOLS
 
 

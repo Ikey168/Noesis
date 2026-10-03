@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import importlib.util
 import json
 from pathlib import Path
@@ -28,6 +27,7 @@ from src.kb.membership import run_membership_pass
 from src.kb.promotion import promote_to_namespace
 from src.kb.registry import load_registry
 from src.kb.watches import grant_watch_domain
+from src.mcp_host.introspection import tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REQUEST_SCHEMA = REPO_ROOT / "contracts/schemas/jsonschema/noesis-cross-domain-request-v1.json"
@@ -540,7 +540,7 @@ def test_mcp_and_rest_use_the_same_cross_domain_contract(monkeypatch):
     assert spec and spec.loader
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
-    tools = asyncio.run(module.mcp.get_tools())
+    tools = tool_map(module.mcp)
     mcp = tools["kb_search_domains"].fn(
         query="inflation", domains=["economics", "papers"]
     )

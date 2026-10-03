@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -20,6 +19,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit.humanitarian.harness import NS, REVIEWER_SCOPES, SCOPES, world
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.humanitarian import HUMANITARIAN_TOOLS, HUMANITARIAN_WRITES
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 MANIFEST = json.loads((ROOT / "packs/humanitarian/manifest.json").read_text())
@@ -91,7 +91,7 @@ def mcp_env(database, monkeypatch):
     state = {"principal": "alice", "scopes": set(SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(database, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, database
+    return tool_map(server.mcp), state, database
 
 
 def test_dossier_identity_and_export_through_mcp(mcp_env):

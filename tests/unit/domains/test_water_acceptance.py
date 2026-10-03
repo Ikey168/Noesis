@@ -11,7 +11,6 @@ acquisition. Stations, codes and values are fictional, not live evidence.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import socket
 
@@ -20,6 +19,7 @@ import pytest
 
 from src.kb.water_records import personal_keys
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit.water import fixture_builder, harness
 from tests.unit.water.harness import ALL, NS
 from tools.knowledge_engine_mcp import server
@@ -42,7 +42,7 @@ def _tools(monkeypatch, path, principal="alice"):
     state = {"principal": principal, "scopes": set(ALL) | {"knowledge:schema:register"}}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def _matches(proposed, method):

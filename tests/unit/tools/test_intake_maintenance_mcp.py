@@ -1,10 +1,10 @@
 """Maintenance review is discoverable and scoped on the supported MCP surface."""
 
-import asyncio
 
 import duckdb
 
 from src.mcp_host.catalog import _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -20,7 +20,7 @@ def test_maintenance_mcp_review_and_denied_read(tmp_path, monkeypatch):
         server, "_connection",
         lambda *, read_only: duckdb.connect(path, read_only=read_only),
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     scan = tools["scan_intake_maintenance"].fn(namespace="research")
     assert scan["contract"] == "noesis-intake-maintenance-review-v1"
     assert [item["reason"] for item in scan["findings"]] == ["routine_health_check"]

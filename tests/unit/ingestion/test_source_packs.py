@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import copy
 import json
 from pathlib import Path
@@ -17,6 +16,7 @@ from src.ingestion.source_packs import (
     replay_native_fixture,
     validate_source_pack,
 )
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 PACK_DIR = ROOT / "config/source_packs"
@@ -357,7 +357,7 @@ def test_upgrade_preview_through_mcp_is_read_only_and_scoped(
     monkeypatch.setattr(server, "_context", lambda: ("reader", scopes))
     candidate = raw("research")
     candidate["version"] = _next_minor(candidate["version"])
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     preview = tools["preview_source_pack_upgrade"].fn(candidate=candidate)
     assert preview["installed_version"] == raw("research")["version"]
     assert opened == [True]

@@ -11,7 +11,6 @@ bundle. Identifiers and values are illustrative, not live evidence.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import socket
 
@@ -23,6 +22,7 @@ from tests.unit.biodiversity import harness
 from tests.unit.biodiversity.harness import ALL, NS
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.biodiversity import BIODIVERSITY_TOOLS, BIODIVERSITY_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture(autouse=True)
@@ -38,7 +38,7 @@ def _tools(monkeypatch, path, principal="alice"):
     state = {"principal": principal, "scopes": set(ALL) | {"knowledge:schema:register"}}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def test_taxon_and_place_to_cited_occurrences_and_conservation_status_history(tmp_path, monkeypatch):

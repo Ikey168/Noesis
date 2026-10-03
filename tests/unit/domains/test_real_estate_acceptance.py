@@ -11,7 +11,6 @@ evidence.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import socket
 
@@ -22,6 +21,7 @@ from tests.unit.real_estate import fixture_builder as fb
 from tests.unit.real_estate.harness import NS, REVIEW_SCOPES, Env, owner_markers, seed_places
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.real_estate import REAL_ESTATE_TOOLS
+from src.mcp_host.introspection import tool_map
 
 FORBIDDEN_OUTPUT = ("market_value", "estimated_value", "price_per_m2", "valuation\"", "owner_name", "buyer_name",
                     "seller_name", "NOM FICTIF")
@@ -40,7 +40,7 @@ def _tools(monkeypatch, path, principal="alice"):
     state = {"principal": principal, "scopes": set(REVIEW_SCOPES) | {"knowledge:entity-history:review"}}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state
+    return tool_map(server.mcp), state
 
 
 def _clean(value) -> None:

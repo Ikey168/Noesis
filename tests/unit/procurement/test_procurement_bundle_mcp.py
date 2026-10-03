@@ -1,6 +1,5 @@
 """Bundle declaration, readiness, enablement and MCP entry points (P13)."""
 
-import asyncio
 
 import duckdb
 import pytest
@@ -11,6 +10,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from tests.unit.procurement.harness import NS, SCOPES, Env, supplier_profile
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.procurement import PROCUREMENT_TOOLS, PROCUREMENT_WRITES
+from src.mcp_host.introspection import tool_map
 
 
 @pytest.fixture
@@ -23,7 +23,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": "alice", "scopes": set(SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, path
+    return tool_map(server.mcp), state, path
 
 
 def profile_id(path):

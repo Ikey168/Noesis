@@ -1,6 +1,5 @@
 """Bundle declaration, enablement, readiness and MCP entry points (#1860)."""
 
-import asyncio
 import json
 from pathlib import Path
 
@@ -13,6 +12,7 @@ from tests.unit.ownership import harness
 from tests.unit.ownership.harness import NS, SCOPES, UK_KEYS
 from tools.knowledge_engine_mcp import server
 from tools.knowledge_engine_mcp.ownership import OWNERSHIP_SCOPES, OWNERSHIP_TOOLS, OWNERSHIP_WRITES
+from src.mcp_host.introspection import tool_map
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -26,7 +26,7 @@ def mcp_env(tmp_path, monkeypatch):
     state = {"principal": harness.PRINCIPAL, "scopes": set(harness.REVIEW_SCOPES)}
     monkeypatch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    return asyncio.run(server.mcp.get_tools()), state, path
+    return tool_map(server.mcp), state, path
 
 
 def test_declaration_reuses_existing_owners_and_never_determines_ownership():

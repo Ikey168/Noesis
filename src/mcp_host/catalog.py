@@ -18,6 +18,7 @@ from src.mcp_host.config import (
     REPO_ROOT,
     _is_project_server,
 )
+from src.mcp_host.introspection import list_tools_async
 
 CATALOG_CONTRACT = "noesis-mcp-catalog-v1"
 CATALOG_VERSION = 1
@@ -248,7 +249,7 @@ async def _inspect_server(
         mcp = getattr(module, "mcp", None)
         if mcp is None:
             return None, [], "server module does not export mcp"
-        discovered = await mcp.get_tools()
+        discovered = await list_tools_async(mcp)
         tools = []
         for name, tool in sorted(discovered.items()):
             tools.append(

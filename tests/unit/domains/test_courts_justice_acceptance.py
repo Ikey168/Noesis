@@ -13,7 +13,6 @@ evidence.
 
 from __future__ import annotations
 
-import asyncio
 import json
 import socket
 
@@ -33,6 +32,7 @@ from src.kb.legal_dockets import LegalDocketStore
 from src.kb.subscriptions import SubscriptionStore
 from tests.unit import courts_justice_harness as h
 from tests.unit.composition.test_migration import _migrated
+from src.mcp_host.introspection import tool_map
 
 PACK_ID = "legal-research"
 PUBLIC_DNS = lambda _host: ["8.8.8.8"]  # noqa: E731 - resolver stub
@@ -205,7 +205,7 @@ def test_the_mcp_tools_answer_the_same_journeys(tmp_path, monkeypatch):
     env.conn.close()
     monkeypatch.setattr(server, "_context", lambda: ("alice", set(h.REVIEW_SCOPES)))
     monkeypatch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     assert tools["link_court_citations"].fn(namespace=h.NS)["links"]
     answer = tools["dockets_citing_provision"].fn(namespace=h.NS, provision="42 U.S.C. § 1983")
     assert answer["status"] == "answered" and answer["dockets"][0]["record_key"] == h.DOCKET

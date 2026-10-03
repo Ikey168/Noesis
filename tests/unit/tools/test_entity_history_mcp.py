@@ -6,6 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -21,7 +22,7 @@ def test_entity_history_mcp_flow_auth_dual_control_audit(tmp_path, monkeypatch):
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(db))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     names = {
         "register_entity_history_identity",
         "record_entity_identity_decision",

@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 
-import asyncio
 import json
 
 import duckdb
@@ -10,6 +9,7 @@ import pytest
 
 from src.kb.clinical_medicines import BOUNDARY
 from src.mcp_host.catalog import _mutability, _required_scopes
+from src.mcp_host.introspection import tool_map
 from tests.unit import medicines_fixture_builder as fb
 from tests.unit.clinical.harness import NS, ROOT
 from tests.unit.clinical.medicines_harness import Env
@@ -49,7 +49,7 @@ def mcp_env(tmp_path_factory):
     patch.setattr(medicines_sources, "RxNavClient", FixtureRxNav)
     patch.setattr(server, "_context", lambda: (state["principal"], state["scopes"]))
     patch.setattr(server, "_connection", lambda *, read_only: duckdb.connect(path, read_only=read_only))
-    yield asyncio.run(server.mcp.get_tools()), state
+    yield tool_map(server.mcp), state
     patch.undo()
 
 

@@ -5,6 +5,7 @@ import inspect
 
 import duckdb
 
+from src.mcp_host.introspection import tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -22,7 +23,7 @@ def test_freshness_mcp_policy_assessment_simulation_propagation_and_auth(
     monkeypatch.setattr(
         server, "_connection", lambda *, read_only: duckdb.connect(str(database))
     )
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     expected = {
         "register_evidence_freshness_policy",
         "get_evidence_freshness_policy",

@@ -1,10 +1,9 @@
-import asyncio
-
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
 from tools.knowledge_engine_mcp import server
 from tests.unit.kb.test_research_analysis import setup, AUTH, Runtime
+from src.mcp_host.introspection import tool_map
 
 
 def test_public_analysis_execution_package_and_access(monkeypatch):
@@ -15,7 +14,7 @@ def test_public_analysis_execution_package_and_access(monkeypatch):
     scopes = {*AUTH['scopes'], 'knowledge:packages:read'}
     monkeypatch.setattr(server, '_context', lambda: ('alice', scopes))
     monkeypatch.setattr(PodmanNotebookRuntime, 'execute', Runtime().execute)
-    tools = asyncio.run(server.mcp.get_tools())
+    tools = tool_map(server.mcp)
     state = tools['register_research_analysis'].fn(namespace='r', request_key='analysis', manifest=manifest)
     run = tools['execute_research_analysis'].fn(namespace='r', analysis_id=state['analysis_id'], request_key='run')
     assert run['status'] == 'complete', run
