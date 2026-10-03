@@ -422,6 +422,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"income-distribution"})
 # OSINT platform transparency: DSA statements of reasons, Meta and Google political ads, Lumen (#2580).
 NATIVE_CONNECTOR_MODULES["platform-transparency"] = "src.ingestion.platform_transparency_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"})
+# Technology AI models and datasets: Hugging Face Hub metadata, OpenML and Epoch AI (#2742).
+NATIVE_CONNECTOR_MODULES["ai-models"] = "src.ingestion.ai_models_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ai-models"})
 
 
 def native_connector_module(connector: str) -> Any:

@@ -1,0 +1,23 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<html><body><p>Last updated: 2096-01-15</p></body></html>",
+   "request": "epoch.ai/data/notable-ai-models",
+   "status": 200
+  },
+  {
+   "body": "Model,Domain,Task,Organization,Authors,Publication date,Reference,Link,Citations,Parameters,Parameters notes,Training compute (FLOP),Training compute notes,Training dataset size (datapoints),Confidence,Abstract\nFixture Model,Language,Text generation,Example Org,\"Ada Example, Bob Example\",2095-02-20,Fixture Model: a fictional model,https://huggingface.co/example-org/fixture-model,77,1200000000,stated in the fictional paper,3.4e21,estimated from tokens,56000000000,Likely,A fictional abstract.\nFixture Small Model,Language,,Example Org,Cy Example,2096-01-30,,https://arxiv.org/abs/2096.00042,,110000000,,,,,Confident,\nOther Fixture Model,Vision,,Example Lab,Dee Example,2094-09-09,,,,5000000,,,,,Likely,\n",
+   "request": "epoch.ai/data/notable_ai_models.csv",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape (verify field names before a live run); every organisation, repository, sha, id, value and date (2094-2099) is fictional; not live coverage",
+ "scenarios": [
+  "authored-fixture",
+  "page-last-updated",
+  "declared-rows-only",
+  "authors-excluded",
+  "confidence-labels"
+ ]
+}

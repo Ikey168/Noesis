@@ -571,6 +571,16 @@ def _platform_transparency_projector(conn: Any) -> Any:
 # OSINT platform transparency feature (#2580).
 PROJECTORS["noesis-platform-transparency-record-v2"] = _platform_transparency_projector
 
+
+def _ai_models_projector(conn: Any) -> Any:
+    from src.kb.ai_models_store import AiModelsProjector
+
+    return AiModelsProjector(conn)
+
+
+# Technology AI models and datasets (technology.ai-models, #2742).
+PROJECTORS["noesis-ai-model-record-v2"] = _ai_models_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,
