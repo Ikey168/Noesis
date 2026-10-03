@@ -92,6 +92,7 @@ PROJECTOR_OWNERS = {
     "noesis-business-statistics-record-v2": "src.kb.business_statistics_store",  # Economics business (#2738)
     "noesis-ai-model-record-v2": "src.kb.ai_models_store",  # Technology AI models and datasets (#2742)
     "noesis-waste-record-v2": "src.kb.waste_store",  # Climate and Environment waste (#2740)
+    "noesis-social-protection-record-v2": "src.kb.social_protection_store",  # Society social protection (#2741)
 }
 
 

@@ -2,8 +2,8 @@
 
 Status: wave 1 covered offline, 2026-10-01; wave 2 source audits recorded,
 2026-10-03 ([#2736](https://github.com/Ikey168/Noesis/issues/2736)), and the
-wave 2 industry-business (IB), AI models and datasets (AI) and waste and
-circular economy (WC) tracks covered offline, not live; wave 3 planned. Decision:
+wave 2 tracks listed under "Wave 2" covered offline, not live; wave 3 planned.
+Decision:
 [ADR-005](../architecture/decisions/ADR-005-domain-coverage-program.md).
 Taxonomy: [`packs/taxonomy.json`](../../packs/taxonomy.json).
 
@@ -11,7 +11,7 @@ The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
 gaps. Wave 1 and the wave 2 tracks listed under "Wave 2" are now covered
-offline, so 69 are covered and 20 are gaps. This program
+offline, so 70 are covered and 19 are gaps. This program
 fills every gap, one track per subdomain.
 
 ## How coverage is counted
@@ -82,6 +82,13 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+SS01 is covered offline: `society.social-protection` (track
+[#2741](https://github.com/Ikey168/Noesis/issues/2741)) holds fixture-tested
+Eurostat ESSPROS, OECD SOCX and ILOSTAT SDG 1.3.1 sources, so its gap row is
+gone. Its sources stay `unverified-live` (the ILO dashboards
+`not-implemented`); live coverage waits for the track's "Validate live
+coverage" run (SS13).
+
 WC01 is covered offline: `environment.waste` (track
 [#2740](https://github.com/Ikey168/Noesis/issues/2740)) holds fixture-tested
 Eurostat waste and circular-economy, EEA waste-transfer and OECD municipal
@@ -101,7 +108,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | --- | --- | --- | --- | --- | --- |
 | `government-transparency` | Governance and law | `political.transparency` | Bundestag DIP (questions, printed papers); UK Parliament written questions API; FragDenStaat | legislation, public finance | 2 |
 | `defence-security` | Governance and law | `political.defence` | SIPRI military expenditure and arms transfers (terms restrict redistribution); UN Register of Conventional Arms; NATO defence expenditure reports | sanctions, humanitarian | 3 |
-| `social-protection` | Society and population | `society.social-protection` (existing `society` bundle) | Eurostat ESSPROS; OECD SOCX; ILO social protection data | public finance, demographics | 2 |
 | `public-opinion-wellbeing` | Society and population | `society.public-opinion` (existing `society` bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
 | `civil-society` | Society and population | `society.civil-society` (existing `society` bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
 | `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
@@ -130,7 +136,9 @@ their rows removed:
 - AI models and datasets: covered offline (not live) by `technology.ai-models`
   (track [#2742](https://github.com/Ikey168/Noesis/issues/2742));
 - waste and circular economy: covered offline (not live) by `environment.waste`
-  (track [#2740](https://github.com/Ikey168/Noesis/issues/2740)).
+  (track [#2740](https://github.com/Ikey168/Noesis/issues/2740));
+- social protection: covered offline (not live) by `society.social-protection`
+  (track [#2741](https://github.com/Ikey168/Noesis/issues/2741)).
 
-11 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
+10 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
 track's "Validate live coverage" run. Wave 3 has 9.

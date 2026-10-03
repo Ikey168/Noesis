@@ -1,0 +1,113 @@
+{
+ "version": "2.0",
+ "class": "dataset",
+ "label": "General government expenditure by function (COFOG), social protection (authored fixture: fictional values, not Eurostat data)",
+ "source": "ESTAT",
+ "updated": "2098-04-22T23:00:00+0200",
+ "id": [
+  "freq",
+  "unit",
+  "sector",
+  "cofog99",
+  "na_item",
+  "geo",
+  "time"
+ ],
+ "size": [
+  1,
+  1,
+  1,
+  1,
+  1,
+  1,
+  3
+ ],
+ "dimension": {
+  "freq": {
+   "label": "Time frequency",
+   "category": {
+    "index": {
+     "A": 0
+    },
+    "label": {
+     "A": "Annual"
+    }
+   }
+  },
+  "unit": {
+   "label": "Unit of measure",
+   "category": {
+    "index": {
+     "MIO_EUR": 0
+    },
+    "label": {
+     "MIO_EUR": "Million euro"
+    }
+   }
+  },
+  "sector": {
+   "label": "Sector",
+   "category": {
+    "index": {
+     "S13": 0
+    },
+    "label": {
+     "S13": "General government"
+    }
+   }
+  },
+  "cofog99": {
+   "label": "Classification of the functions of government (COFOG 1999)",
+   "category": {
+    "index": {
+     "GF10": 0
+    },
+    "label": {
+     "GF10": "Social protection"
+    }
+   }
+  },
+  "na_item": {
+   "label": "National accounts indicator (ESA 2010)",
+   "category": {
+    "index": {
+     "TE": 0
+    },
+    "label": {
+     "TE": "Total general government expenditure"
+    }
+   }
+  },
+  "geo": {
+   "label": "Geopolitical entity",
+   "category": {
+    "index": {
+     "DE": 0
+    },
+    "label": {
+     "DE": "Germany"
+    }
+   }
+  },
+  "time": {
+   "label": "Time",
+   "category": {
+    "index": {
+     "2094": 0,
+     "2095": 1,
+     "2096": 2
+    },
+    "label": {
+     "2094": "2094",
+     "2095": "2095",
+     "2096": "2096"
+    }
+   }
+  }
+ },
+ "value": {
+  "0": 7100.5,
+  "1": 7180.25,
+  "2": 7260.0
+ }
+}

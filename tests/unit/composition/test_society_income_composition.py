@@ -64,8 +64,8 @@ def test_manifest_and_provider_validate_and_declare_the_taxonomy_cell():
     assert validate_composition_manifest(MANIFEST) == []
     assert validate_provider_descriptor(PROVIDER) == []
     assert SHARED <= {r["capability"] for r in MANIFEST["requires"]}
-    assert [(f["id"], f["default"]) for f in MANIFEST["optional_features"]] == [
-        ("pip", True), ("eu-silc", True), ("oecd-idd", True)]
+    assert [(f["id"], f["default"]) for f in MANIFEST["optional_features"]][:3] == [
+        ("pip", True), ("eu-silc", True), ("oecd-idd", True)]  # then the social-protection features (#2741)
     assert MANIFEST["advisory"]["exclusions"] == BUNDLE["exclusions"]
     tools = {o["tool"].split(".", 1)[1] for o in PROVIDER["operations"]}
     assert tools == INCOME_TOOLS - {"set_society_bundle_enabled"}

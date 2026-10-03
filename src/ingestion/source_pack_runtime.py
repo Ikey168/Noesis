@@ -599,6 +599,16 @@ def _waste_projector(conn: Any) -> Any:
 # Climate and Environment waste and circular economy (environment.waste, #2740).
 PROJECTORS["noesis-waste-record-v2"] = _waste_projector
 
+
+def _social_protection_projector(conn: Any) -> Any:
+    from src.kb.social_protection_store import SocialProtectionProjector
+
+    return SocialProtectionProjector(conn)
+
+
+# Society social protection (society.social-protection, #2741).
+PROJECTORS["noesis-social-protection-record-v2"] = _social_protection_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

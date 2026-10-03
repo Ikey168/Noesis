@@ -127,6 +127,12 @@ MATRIX = {
     "Place and facility to waste and circularity figures":
         "tests/unit/domains/test_waste_acceptance.py::"
         "test_place_and_facility_to_cited_waste_figures_side_by_side_and_transfers_with_revisions",
+    # The Society social-protection features' offline journey (#2741) composes society.social-protection (ESSPROS,
+    # SOCX, ILOSTAT) with the source-pack runtime, geospatial identity, entity identity, subscriptions and, by
+    # citation, demographics and public finance.
+    "Country to cited social protection figures":
+        "tests/unit/domains/test_social_protection_acceptance.py::"
+        "test_country_to_cited_esspros_socx_and_ilo_figures_side_by_side",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

@@ -1,10 +1,13 @@
 # Social protection: source-contract audit and bounded coverage (SS01)
 
-Tracking: wave 2 tracker #2736 · recorded 2026-10-03.
+Tracking: social protection track #2741 (wave 2 tracker #2736) · recorded
+2026-10-03.
 
-No per-track tracker or delivery issue exists yet. They are opened once this
-audit names a surviving source; the acquisition, store, link and live-validation
-issues then cite this document.
+Delivery codes: SS02 records (#2747), SS03 ESSPROS (#2755), SS04 SOCX (#2762),
+SS05 ILOSTAT (#2769), SS06 identity (#2775), SS07 links (#2779), SS08/SS09
+queries (#2784, #2789), SS10 monitoring (#2794), SS11 provider registration and
+gap closure (#2798), SS12 acceptance and guide (#2803), SS13 live validation
+(#2808, not yet run).
 
 This audit sets out, per source, what a `society.social-protection` provider in
 the existing Society bundle (`packs/society/`, beside `society.income`) may
@@ -18,12 +21,18 @@ against the live pages, the live terms and a real response before the first
 dated live run (the track's "Validate live coverage" issue, not yet opened). No
 source is `live` until that run exists.
 
-The machine-readable copy of these decisions does not exist yet.
-`PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and
-`LIVE_VERIFICATION` will be added in `src/ingestion/social_protection_sources.py`
-by the track's acquisition issues and must match this audit; the source-pack
-entries those issues declare (beside `config/source_packs/society.json`, pack
-id chosen there) carry the same `live_verification` status.
+The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS`, `PACING` and `LIVE_VERIFICATION` in
+`src/ingestion/social_protection_sources.py` (SS03-SS05); it must match this
+audit. The source-pack entries `eurostat-esspros`, `oecd-socx` and
+`ilo-social-protection-coverage` live in the `society-social-protection` pack
+(`config/source_packs/society-social-protection.json`, beside
+`config/source_packs/society.json`) and carry the same `live_verification`
+status. The SOCX request shape (dataflow, key and dimension ids
+`PROGRAMME_TYPE`, `EXPEND_SOURCE`, `SPENDING_TYPE`, `UNIT_MEASURE`), the
+ESSPROS dimension ids (`spdeps`, `spfunc`, `spdepb`, `spdepm`) and the ILOSTAT
+contingency dimension (`SOC_CONTIG`) and note attributes in the fixtures are the
+author's reading of the documentation and stay _verify_ until SS13.
 
 Non-goals for every source: no nowcasting, no filled years, no blending of
 ESSPROS, SOCX and ILO figures into one series, no re-classification of one

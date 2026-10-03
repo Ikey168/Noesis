@@ -432,6 +432,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ai-models"})
 # OECD municipal waste (#2740).
 NATIVE_CONNECTOR_MODULES["waste"] = "src.ingestion.waste_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"waste"})
+# Society social protection: Eurostat ESSPROS, OECD SOCX and ILOSTAT SDG 1.3.1 (#2741).
+NATIVE_CONNECTOR_MODULES["social-protection"] = "src.ingestion.social_protection_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"social-protection"})
 
 
 def native_connector_module(connector: str) -> Any:

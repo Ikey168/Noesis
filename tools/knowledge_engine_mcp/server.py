@@ -9481,6 +9481,12 @@ from tools.knowledge_engine_mcp.waste import (
 
 register_waste_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.social_protection import (
+    register as register_social_protection_tools,
+)
+
+register_social_protection_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

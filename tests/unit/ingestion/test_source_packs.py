@@ -55,8 +55,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Economics extractives features' separate economic-extractives pack (#2653),
     # plus the Society bundle's society-income-distribution pack (#2583),
     # plus the OSINT platform-transparency features' osint-platform-transparency pack (#2580),
-    # plus the Technology AI models and datasets technology-ai-models pack (#2742).
-    assert len(packs) == 36
+    # plus the Technology AI models and datasets technology-ai-models pack (#2742),
+    # plus the Society bundle's society-social-protection pack (#2741).
+    assert len(packs) == 37
     assert {domain for pack in packs for domain in pack["domains"]} == {
         "agrifood",
         "astronomy",
@@ -140,8 +141,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the Society income pack's PIP country, PIP regional, EU-SILC and OECD IDD sources (#2583),
     # plus the OSINT platform-transparency features' DSA, Meta, Google and Lumen sources (#2580),
     # plus the Economics business-statistics Eurostat STS, business demography and Census CBP sources (#2738),
-    # plus the Technology AI models and datasets Hugging Face Hub, OpenML and Epoch AI sources (#2742).
-    assert sum(len(pack["sources"]) for pack in packs) == 343
+    # plus the Technology AI models and datasets Hugging Face Hub, OpenML and Epoch AI sources (#2742),
+    # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741).
+    assert sum(len(pack["sources"]) for pack in packs) == 346
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

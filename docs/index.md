@@ -277,6 +277,11 @@ For the project overview and local setup, start with the
   notable-model rows, side by side and cited, with revision and declared-licence history, reviewable
   cross-source identity, Literature and OSS links and monitors; no weights, verdicts, rankings or licence
   interpretation; offline only; [source audit](development/ai-models-evidence/source-audit.md)
+- [Society social protection guide](guides/society-social-protection.md) — Eurostat ESSPROS, OECD SOCX and ILOSTAT
+  SDG 1.3.1 for a country as of a release, side by side by measure with definitions, functions, vintages and
+  comparability notes, reviewable place and function identity, Demographics and COFOG links and monitors; no
+  blend, re-classification, COFOG combination, derived figure or forecast; offline only;
+  [source audit](development/social-protection-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

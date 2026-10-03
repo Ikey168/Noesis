@@ -1,0 +1,307 @@
+{
+ "note": "authored synthetic revision (reference years 2094-2098, releases in 2099); not a published figure",
+ "documents": [
+  {
+   "label": "ESSPROS total expenditure, all schemes, Germany and France (spr_exp_sum)",
+   "flow": "spr_exp_sum",
+   "dataset": "spr_exp_sum",
+   "key": "A.TOTALNOREROUTE.MIO_EUR+PC_GDP.DE+FR",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "measure": {
+    "concept": "expenditure",
+    "code": "TOTALNOREROUTE",
+    "label": "ESSPROS total social protection expenditure"
+   },
+   "function_scheme": "esspros-spfunc",
+   "key_fields": {
+    "financing": {
+     "fixed": {
+      "code": "_Z",
+      "label": "expenditure side; receipts by financing source not requested"
+     }
+    },
+    "basis": {
+     "fixed": {
+      "code": "GROSS",
+      "label": "gross (ESSPROS core system)"
+     }
+    },
+    "sex": {
+     "fixed": {
+      "code": "_Z",
+      "label": "not applicable"
+     }
+    },
+    "function": {
+     "fixed": {
+      "code": "TOTAL",
+      "label": "All functions"
+     }
+    },
+    "scheme_type": {
+     "dimension": "spdeps",
+     "codes": {
+      "TOTALNOREROUTE": "Total expenditure, all schemes, without rerouted contributions (verify)"
+     }
+    },
+    "cash_or_kind": {
+     "fixed": {
+      "code": "TOTAL",
+      "label": "cash and in kind"
+     }
+    },
+    "unit": {
+     "dimension": "unit",
+     "codes": {
+      "MIO_EUR": "Million euro",
+      "PC_GDP": "Percentage of gross domestic product (GDP)"
+     }
+    }
+   },
+   "dimensions": {
+    "area": "geo"
+   },
+   "area_labels": {
+    "DE": "Germany",
+    "FR": "France"
+   },
+   "manual_edition": "ESSPROS manual and user guidelines, fixture edition B (synthetic label; verify the real edition)",
+   "definition": {
+    "source_text": "ESSPROS core system: total expenditure on social protection, all schemes (verify)",
+    "methodology_notes": [
+     "Percentages of GDP are Eurostat's published figures, stored as published"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "eurostat-esms",
+     "identifier": "spr_esms",
+     "url": "https://ec.europa.eu/eurostat/cache/metadata/en/spr_esms.htm",
+     "relation": "documented_in"
+    },
+    {
+     "kind": "manual",
+     "scheme": "url",
+     "identifier": "esspros-manual",
+     "url": "https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines",
+     "relation": "defined_by",
+     "locator": "ESSPROS manual and user guidelines (verify the edition and page)"
+    }
+   ]
+  },
+  {
+   "label": "ESSPROS expenditure by function: old age and sickness/health care, Germany and France (spr_exp_func)",
+   "flow": "spr_exp_func",
+   "dataset": "spr_exp_func",
+   "key": "A.OLD+SICK.TOTAL.MIO_EUR.DE+FR",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "measure": {
+    "concept": "expenditure",
+    "code": "SPBEN",
+    "label": "ESSPROS social protection benefits"
+   },
+   "function_scheme": "esspros-spfunc",
+   "key_fields": {
+    "financing": {
+     "fixed": {
+      "code": "_Z",
+      "label": "expenditure side; receipts by financing source not requested"
+     }
+    },
+    "basis": {
+     "fixed": {
+      "code": "GROSS",
+      "label": "gross (ESSPROS core system)"
+     }
+    },
+    "sex": {
+     "fixed": {
+      "code": "_Z",
+      "label": "not applicable"
+     }
+    },
+    "function": {
+     "dimension": "spfunc",
+     "codes": {
+      "OLD": "Old age",
+      "SICK": "Sickness/health care"
+     }
+    },
+    "scheme_type": {
+     "fixed": {
+      "code": "TOTAL",
+      "label": "All schemes"
+     }
+    },
+    "cash_or_kind": {
+     "dimension": "spdepb",
+     "codes": {
+      "TOTAL": "Cash and in kind benefits"
+     }
+    },
+    "unit": {
+     "dimension": "unit",
+     "codes": {
+      "MIO_EUR": "Million euro"
+     }
+    }
+   },
+   "dimensions": {
+    "area": "geo"
+   },
+   "area_labels": {
+    "DE": "Germany",
+    "FR": "France"
+   },
+   "manual_edition": "ESSPROS manual and user guidelines, fixture edition B (synthetic label; verify the real edition)",
+   "scope_notes": [
+    {
+     "relates_to": "oecd-socx",
+     "statement": "ESSPROS functions and SOCX branches overlap but differ in scope: SOCX counts active labour-market programmes and excludes some transfers ESSPROS includes; the publishers' reconciliation is cited, the figures are never merged (verify the published reconciliation)",
+     "cites": [
+      {
+       "kind": "methodology",
+       "url": "https://www.oecd.org/en/data/datasets/social-expenditure-database-socx.html",
+       "note": "SOCX manual and ESSPROS reconciliation (verify)"
+      }
+     ]
+    }
+   ],
+   "definition": {
+    "source_text": "ESSPROS core system: social protection benefits by function (spfunc) (verify)",
+    "methodology_notes": [
+     "Functions are ESSPROS functions; SOCX branches and COFOG functions are other classifications"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "eurostat-esms",
+     "identifier": "spr_esms",
+     "url": "https://ec.europa.eu/eurostat/cache/metadata/en/spr_esms.htm",
+     "relation": "documented_in"
+    },
+    {
+     "kind": "manual",
+     "scheme": "url",
+     "identifier": "esspros-manual",
+     "url": "https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines",
+     "relation": "defined_by",
+     "locator": "ESSPROS manual and user guidelines (verify the edition and page)"
+    }
+   ]
+  },
+  {
+   "label": "ESSPROS pension beneficiaries, total, Germany and France (spr_pns_ben)",
+   "flow": "spr_pns_ben",
+   "dataset": "spr_pns_ben",
+   "key": "A.TOTAL.NR.DE+FR",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "measure": {
+    "concept": "beneficiaries",
+    "code": "PNS_BEN",
+    "label": "ESSPROS pension beneficiaries"
+   },
+   "function_scheme": "esspros-pension-category",
+   "key_fields": {
+    "financing": {
+     "fixed": {
+      "code": "_Z",
+      "label": "expenditure side; receipts by financing source not requested"
+     }
+    },
+    "basis": {
+     "fixed": {
+      "code": "GROSS",
+      "label": "gross (ESSPROS core system)"
+     }
+    },
+    "sex": {
+     "fixed": {
+      "code": "_Z",
+      "label": "not applicable"
+     }
+    },
+    "function": {
+     "dimension": "spdepm",
+     "codes": {
+      "TOTAL": "All pension categories"
+     }
+    },
+    "scheme_type": {
+     "fixed": {
+      "code": "TOTAL",
+      "label": "All schemes"
+     }
+    },
+    "cash_or_kind": {
+     "fixed": {
+      "code": "CASH",
+      "label": "cash benefits (pensions)"
+     }
+    },
+    "unit": {
+     "dimension": "unit",
+     "codes": {
+      "NR": "Number"
+     }
+    }
+   },
+   "dimensions": {
+    "area": "geo"
+   },
+   "area_labels": {
+    "DE": "Germany",
+    "FR": "France"
+   },
+   "manual_edition": "ESSPROS manual and user guidelines, fixture edition B (synthetic label; verify the real edition)",
+   "definition": {
+    "source_text": "ESSPROS pension beneficiaries module: beneficiaries of at least one pension, counted once (verify)",
+    "methodology_notes": [
+     "A beneficiary count is not an expenditure figure"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "eurostat-esms",
+     "identifier": "spr_esms",
+     "url": "https://ec.europa.eu/eurostat/cache/metadata/en/spr_esms.htm",
+     "relation": "documented_in"
+    },
+    {
+     "kind": "manual",
+     "scheme": "url",
+     "identifier": "esspros-manual",
+     "url": "https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines",
+     "relation": "defined_by",
+     "locator": "ESSPROS manual and user guidelines (verify the edition and page)"
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/spr_exp_sum/A.TOTALNOREROUTE.MIO_EUR+PC_GDP.DE+FR?format=SDMX-CSV&startPeriod=2094",
+   "status": 200,
+   "body": "DATAFLOW,LAST UPDATE,freq,spdeps,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,DE,2094,9100.5,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,DE,2095,9110.5,b\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,DE,2096,9125.0,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,DE,2097,9130.5,p\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,DE,2094,41.2,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,DE,2095,41.5,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,DE,2096,41.8,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,DE,2097,42.1,p\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,FR,2094,8200.25,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,FR,2095,8210.25,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,FR,2096,8220.25,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,MIO_EUR,FR,2097,8230.25,p\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,FR,2094,43.7,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,FR,2095,44.0,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,FR,2096,44.3,\nESTAT:SPR_EXP_SUM(1.0),20/03/99 23:00:00,A,TOTALNOREROUTE,PC_GDP,FR,2097,44.6,p\n"
+  },
+  {
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/spr_exp_func/A.OLD+SICK.TOTAL.MIO_EUR.DE+FR?format=SDMX-CSV&startPeriod=2094",
+   "status": 200,
+   "body": "DATAFLOW,LAST UPDATE,freq,spfunc,spdepb,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,OLD,TOTAL,MIO_EUR,DE,2094,3900.0,d\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,OLD,TOTAL,MIO_EUR,DE,2095,3905.0,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,OLD,TOTAL,MIO_EUR,DE,2096,3910.0,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,SICK,TOTAL,MIO_EUR,DE,2094,2700.5,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,SICK,TOTAL,MIO_EUR,DE,2095,2705.5,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,SICK,TOTAL,MIO_EUR,DE,2096,2710.5,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,OLD,TOTAL,MIO_EUR,FR,2094,3600.75,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,OLD,TOTAL,MIO_EUR,FR,2095,3605.75,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,OLD,TOTAL,MIO_EUR,FR,2096,3610.75,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,SICK,TOTAL,MIO_EUR,FR,2094,2300.0,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,SICK,TOTAL,MIO_EUR,FR,2095,2305.0,\nESTAT:SPR_EXP_FUNC(1.0),20/03/99 23:00:00,A,SICK,TOTAL,MIO_EUR,FR,2096,:,c\n"
+  },
+  {
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/spr_pns_ben/A.TOTAL.NR.DE+FR?format=SDMX-CSV&startPeriod=2094",
+   "status": 200,
+   "body": "DATAFLOW,LAST UPDATE,freq,spdepm,unit,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:SPR_PNS_BEN(1.0),20/03/99 23:00:00,A,TOTAL,NR,DE,2094,210000,\nESTAT:SPR_PNS_BEN(1.0),20/03/99 23:00:00,A,TOTAL,NR,DE,2095,210100,\nESTAT:SPR_PNS_BEN(1.0),20/03/99 23:00:00,A,TOTAL,NR,DE,2096,210200,\n"
+  }
+ ]
+}
