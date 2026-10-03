@@ -282,6 +282,11 @@ For the project overview and local setup, start with the
   comparability notes, reviewable place and function identity, Demographics and COFOG links and monitors; no
   blend, re-classification, COFOG combination, derived figure or forecast; offline only;
   [source audit](development/social-protection-evidence/source-audit.md)
+- [Economics tourism guide](guides/economics-tourism.md) — Eurostat tourism occupancy and capacity for a place as
+  of a release, monthly and annual series kept apart with residence, accommodation type, NUTS version, flags and
+  vintages, reviewable place and NUTS correspondence identity, Geospatial boundary and Labour links and monitors;
+  UN Tourism not-implemented; no nowcast, filled month, blended or derived figure;
+  [source audit](development/tourism-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

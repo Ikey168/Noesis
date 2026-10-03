@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1879,
+      "tool_count": 1899,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1254,6 +1254,7 @@
         "noesis-knowledge-engine.create_substance_monitor",
         "noesis-knowledge-engine.create_surveillance_monitor",
         "noesis-knowledge-engine.create_technical_impact_report",
+        "noesis-knowledge-engine.create_tourism_monitor",
         "noesis-knowledge-engine.create_trade_monitor",
         "noesis-knowledge-engine.create_treaties_monitor",
         "noesis-knowledge-engine.create_vulnerability_monitor",
@@ -1415,6 +1416,7 @@
         "noesis-knowledge-engine.export_sports_records",
         "noesis-knowledge-engine.export_systematic_review",
         "noesis-knowledge-engine.export_technical_impact_report",
+        "noesis-knowledge-engine.export_tourism_evidence_bundle",
         "noesis-knowledge-engine.export_trade_evidence_bundle",
         "noesis-knowledge-engine.export_treaty_evidence_bundle",
         "noesis-knowledge-engine.export_waste_bundle",
@@ -1523,6 +1525,7 @@
         "noesis-knowledge-engine.import_sports_olympic_results",
         "noesis-knowledge-engine.import_surveillance_export",
         "noesis-knowledge-engine.import_technical_inventory",
+        "noesis-knowledge-engine.import_tourism_nuts_correspondence",
         "noesis-knowledge-engine.import_trade_concordance",
         "noesis-knowledge-engine.income_indicator_for_place",
         "noesis-knowledge-engine.income_profile",
@@ -1725,6 +1728,7 @@
         "noesis-knowledge-engine.link_study_artifact",
         "noesis-knowledge-engine.link_substance_citations",
         "noesis-knowledge-engine.link_surveillance_series",
+        "noesis-knowledge-engine.link_tourism_series",
         "noesis-knowledge-engine.link_trade_ownership",
         "noesis-knowledge-engine.link_trade_sanctions",
         "noesis-knowledge-engine.link_treaty_records",
@@ -1878,6 +1882,9 @@
         "noesis-knowledge-engine.list_surveillance_resolutions",
         "noesis-knowledge-engine.list_surveillance_series",
         "noesis-knowledge-engine.list_taxon_identity_matches",
+        "noesis-knowledge-engine.list_tourism_identity_assertions",
+        "noesis-knowledge-engine.list_tourism_links",
+        "noesis-knowledge-engine.list_tourism_series",
         "noesis-knowledge-engine.list_trade_comparability_notes",
         "noesis-knowledge-engine.list_trade_concordances",
         "noesis-knowledge-engine.list_trade_identity_assertions",
@@ -2046,6 +2053,7 @@
         "noesis-knowledge-engine.poll_statute_monitor",
         "noesis-knowledge-engine.poll_substance_monitor",
         "noesis-knowledge-engine.poll_surveillance_monitor",
+        "noesis-knowledge-engine.poll_tourism_monitor",
         "noesis-knowledge-engine.poll_trade_monitor",
         "noesis-knowledge-engine.poll_treaties_monitor",
         "noesis-knowledge-engine.poll_vulnerability_monitor",
@@ -2178,6 +2186,8 @@
         "noesis-knowledge-engine.propose_substance_identities",
         "noesis-knowledge-engine.propose_substance_identity_manual",
         "noesis-knowledge-engine.propose_taxon_identity_matches",
+        "noesis-knowledge-engine.propose_tourism_nuts_links",
+        "noesis-knowledge-engine.propose_tourism_place_matches",
         "noesis-knowledge-engine.propose_trade_area_matches",
         "noesis-knowledge-engine.propose_trade_product_matches",
         "noesis-knowledge-engine.propose_treaty_matches",
@@ -2256,6 +2266,7 @@
         "noesis-knowledge-engine.record_sports_decision",
         "noesis-knowledge-engine.record_sports_table_rule",
         "noesis-knowledge-engine.record_sports_transfer",
+        "noesis-knowledge-engine.record_tourism_comparability",
         "noesis-knowledge-engine.record_trade_comparability",
         "noesis-knowledge-engine.record_translation",
         "noesis-knowledge-engine.recover_research_analysis_run",
@@ -2446,6 +2457,7 @@
         "noesis-knowledge-engine.revert_sports_news_link",
         "noesis-knowledge-engine.revert_substance_identity",
         "noesis-knowledge-engine.revert_taxon_identity_match",
+        "noesis-knowledge-engine.revert_tourism_identity_match",
         "noesis-knowledge-engine.revert_trade_identity_match",
         "noesis-knowledge-engine.revert_treaty_match",
         "noesis-knowledge-engine.revert_vulnerability_component_match",
@@ -2546,6 +2558,8 @@
         "noesis-knowledge-engine.review_substance_identity",
         "noesis-knowledge-engine.review_surveillance_resolution",
         "noesis-knowledge-engine.review_taxon_identity_match",
+        "noesis-knowledge-engine.review_tourism_comparability",
+        "noesis-knowledge-engine.review_tourism_identity_match",
         "noesis-knowledge-engine.review_trade_comparability",
         "noesis-knowledge-engine.review_trade_identity_match",
         "noesis-knowledge-engine.review_translation",
@@ -2636,6 +2650,7 @@
         "noesis-knowledge-engine.run_statute_monitor",
         "noesis-knowledge-engine.run_substance_monitor",
         "noesis-knowledge-engine.run_surveillance_monitor",
+        "noesis-knowledge-engine.run_tourism_monitor",
         "noesis-knowledge-engine.run_trade_monitor",
         "noesis-knowledge-engine.run_treaties_monitor",
         "noesis-knowledge-engine.run_vulnerability_monitor",
@@ -2787,6 +2802,11 @@
         "noesis-knowledge-engine.surveillance_series_values",
         "noesis-knowledge-engine.sync_control_list_entries",
         "noesis-knowledge-engine.sync_zotero_library",
+        "noesis-knowledge-engine.tourism_comparability_notes",
+        "noesis-knowledge-engine.tourism_indicator_for_place",
+        "noesis-knowledge-engine.tourism_readiness",
+        "noesis-knowledge-engine.tourism_series_history",
+        "noesis-knowledge-engine.tourism_source_contracts",
         "noesis-knowledge-engine.trade_readiness",
         "noesis-knowledge-engine.trade_series_values",
         "noesis-knowledge-engine.trade_source_contracts",
@@ -2852,7 +2872,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1879
+      "visible_tool_count": 1899
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2863,11 +2883,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 164,
+      "available": 165,
       "degraded": 174,
-      "unauthorized": 1879
+      "unauthorized": 1898
     },
-    "tools": 2217
+    "tools": 2237
   },
   "tools": [
     {
@@ -38782,6 +38802,61 @@
     },
     {
       "cost_class": "medium",
+      "description": "Subscribe to a tourism series, provider, concept, frequency or place: notices for new releases, new\nperiods, revised provisional months, definition changes and removals (record changes, no forecasts).",
+      "id": "noesis-knowledge-engine.create_tourism_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_tourism_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Subscribe to a country pair (both report directions), optionally products and providers: notices when a\nrelease publishes or revises flows there (record changes, not trade alerts).",
       "id": "noesis-knowledge-engine.create_trade_monitor",
       "input_schema": {
@@ -46852,6 +46927,87 @@
     },
     {
       "cost_class": "low",
+      "description": "An evidence bundle for a place's tourism figures: every item cites its source, record revision (vintage)\nand as-of time; confidential cells appear as their status.\nExclusions: no nowcasting, no filled months or regions, no own seasonal adjustment, no blending of Eurostat and\nUN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.export_tourism_evidence_bundle",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "frequency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "namespace",
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "export_tourism_evidence_bundle",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "A noesis-evidence-bundle-v1 for a pair's flows citing every figure with source, classification vintage,\nrelease vintage and as-of time; none-reported pairs, confidential cells and non-exact mappings are\nomissions.\nExclusions: no estimation, imputation or nowcast of flows, no reconciliation of reporter and mirror\nfigures, no sanctions-evasion inference.",
       "id": "noesis-knowledge-engine.export_trade_evidence_bundle",
       "input_schema": {
@@ -52194,6 +52350,44 @@
       ],
       "required_scopes": [
         "knowledge:technical:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Record Eurostat's published NUTS correspondence (e.g. NUTS 2021 to 2024) with its URL, publisher,\npublication date and file digest; each row's relation as published.",
+      "id": "noesis-knowledge-engine.import_tourism_nuts_correspondence",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "table": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "table"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_tourism_nuts_correspondence",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -61435,6 +61629,49 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link tourism series to the Geospatial boundary of their NUTS code (in their NUTS version) and to Labour\nseries for NACE Rev.2 section I for the same place (shared code or accepted match); never a ratio.\nExclusions: no nowcasting, no filled months or regions, no own seasonal adjustment, no blending of Eurostat and\nUN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.link_tourism_series",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "labour_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_tourism_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:write",
+        "knowledge:geospatial:read",
+        "knowledge:labour:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link an observation vintage to an ownership record a cited source names (source and locator required);\nnever inferred from trade values; target_missing and provider_absent are reported.",
       "id": "noesis-knowledge-engine.link_trade_ownership",
       "input_schema": {
@@ -69663,6 +69900,205 @@
     },
     {
       "cost_class": "low",
+      "description": "Place matches and NUTS correspondence links in force (proposed, ambiguous, unmatched, accepted, rejected,\nreverted), each citing its basis and reviewer.",
+      "id": "noesis-knowledge-engine.list_tourism_identity_assertions",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_tourism_identity_assertions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links of tourism series to Geospatial boundary features and Labour section I series (shared code or\naccepted place match), each pinning both revisions; absent providers and targets reported.",
+      "id": "noesis-knowledge-engine.list_tourism_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_tourism_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Tourism series with dataset, indicator, residence of guest, accommodation type, unit, frequency and place\nwith its NUTS version; monthly national and annual NUTS 2 series are separate.",
+      "id": "noesis-knowledge-engine.list_tourism_series",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "frequency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_tourism_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Reviewable comparability notes between trade series (valuation basis, classification vintage, period,\npartner attribution); notes never merge series.",
       "id": "noesis-knowledge-engine.list_trade_comparability_notes",
       "input_schema": {
@@ -77441,6 +77877,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a tourism monitor's events (new releases, new periods, revisions, definition changes, removals).",
+      "id": "noesis-knowledge-engine.poll_tourism_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_tourism_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Poll a trade monitor's events (new releases and revisions of the watched pair).",
       "id": "noesis-knowledge-engine.poll_trade_monitor",
       "input_schema": {
@@ -83403,6 +83877,77 @@
     },
     {
       "cost_class": "medium",
+      "description": "Propose links between place keys of different NUTS versions through the imported correspondence only;\nlinks are reviewable and never merge series.",
+      "id": "noesis-knowledge-engine.propose_tourism_nuts_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_tourism_nuts_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer every stated place key (code and NUTS version) to Geospatial places by the published code;\nambiguous keys stay review candidates; nothing is used until reviewed.",
+      "id": "noesis-knowledge-engine.propose_tourism_place_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_tourism_place_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:write",
+        "knowledge:geospatial:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Offer every reporter and partner code to Geospatial places by published code, stated ISO3 or ISO\nalpha-2 equivalence; special areas stay distinct; nothing is linked until reviewed.",
       "id": "noesis-knowledge-engine.propose_trade_area_matches",
       "input_schema": {
@@ -88022,6 +88567,81 @@
       ],
       "required_scopes": [
         "knowledge:sports:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a typed, cited comparability note on a series or between two series; notes never merge series.",
+      "id": "noesis-knowledge-engine.record_tourism_comparability",
+      "input_schema": {
+        "properties": {
+          "cited": {
+            "items": {},
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "other_series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "relation",
+          "statement",
+          "cited"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_tourism_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -97935,6 +98555,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed place match or NUTS correspondence link; queries stop using it.",
+      "id": "noesis-knowledge-engine.revert_tourism_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_tourism_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert a reviewed match; the code is unmatched again.",
       "id": "noesis-knowledge-engine.revert_trade_identity_match",
       "input_schema": {
@@ -102668,6 +103329,107 @@
     },
     {
       "cost_class": "medium",
+      "description": "Accept, reject or revert a proposed comparability note with a reason (reviewed by another principal).",
+      "id": "noesis-knowledge-engine.review_tourism_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_tourism_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed place match or NUTS correspondence link with a reason (an ambiguous place by\nchoosing a cited candidate).",
+      "id": "noesis-knowledge-engine.review_tourism_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_tourism_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Accept or reject a proposed comparability note with a reason.",
       "id": "noesis-knowledge-engine.review_trade_comparability",
       "input_schema": {
@@ -107244,6 +108006,51 @@
       "required_scopes": [
         "knowledge:clinical:read",
         "knowledge:subscriptions:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a tourism monitor at a committed watermark; notices cite the vintages before and after.",
+      "id": "noesis-knowledge-engine.run_tourism_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_tourism_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -115836,6 +116643,251 @@
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Comparability notes of a series: source-stated breaks, provisional periods and definition differences,\nand reviewer notes; notes never merge series.",
+      "id": "noesis-knowledge-engine.tourism_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "include_inactive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tourism_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Published tourism statistics for a place (place id or {scheme, code, nuts_version}) as released by a date:\none row per series with definition, national threshold, flags, confidential cells as their status, vintage\nand citation; monthly and annual series kept apart; UN Tourism reported not-implemented.\nExclusions: no nowcasting, no filled months or regions, no own seasonal adjustment, no blending of Eurostat and\nUN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.tourism_indicator_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "frequency": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          },
+          "providers": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "residence": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace",
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tourism_indicator_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Which tourism features (one per source) are selected, the stores, per-source releases and staleness.",
+      "id": "noesis-knowledge-engine.tourism_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tourism_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained vintage of a tourism series with what each release added, revised or dropped (values and\nflags before and after, provisional months revised), definition changes, removals, and the source-stated\ncomparability notes per release pair (breaks, definition differences, thresholds, NUTS versions).\nExclusions: no nowcasting, no filled months or regions, no own seasonal adjustment, no blending of Eurostat and\nUN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.tourism_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tourism_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-source access decisions (Eurostat tourism occupancy and capacity; UN Tourism not-implemented), limits,\nterms, revision models, caps and the bounded coverage; every Eurostat source is unverified-live until a dated\nlive run.\nExclusions: no nowcasting, no filled months or regions, no own seasonal adjustment, no blending of Eurostat and\nUN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures, no derived figures and no\nforecasts.",
+      "id": "noesis-knowledge-engine.tourism_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "tourism_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
       "version": "1"
     },
     {

@@ -1,0 +1,64 @@
+{
+ "document": {
+  "area": {
+   "dimension": "geo",
+   "labels": {
+    "DE": "Germany",
+    "DE30": "Berlin"
+   },
+   "scheme": "eurostat-geo"
+  },
+  "definition": {
+   "age_bounds": "15-64",
+   "basis": "eu-lfs",
+   "coverage": "private households",
+   "methodology_notes": [
+    "LFS results from 2020 follow Regulation (EU) 2019/1700 (ESMS 3.4)"
+   ],
+   "source_text": "Employed persons (EU-LFS)"
+  },
+  "estimate_type": "survey",
+  "flow": "lfst_r_lfe2en2",
+  "indicator": {
+   "code": "lfst_r_lfe2en2",
+   "concept": "employment",
+   "label": "Employment by sex, age, economic activity and NUTS 2 region (NACE Rev. 2), thousand persons",
+   "measure": "level"
+  },
+  "key": "A.THS_PER.I.T.Y15-64.DE+DE30",
+  "label": "Eurostat LFS employment by NACE Rev.2 and NUTS 2 region (lfst_r_lfe2en2, section I, DE and DE30; authored fixture declaration, verify)",
+  "params": {
+   "startPeriod": "2096"
+  },
+  "references": [
+   {
+    "identifier": "lfst_r_esms",
+    "kind": "methodology",
+    "relation": "documented_in",
+    "scheme": "eurostat-esms",
+    "url": "https://ec.europa.eu/eurostat/cache/metadata/en/reg_lmk_esms.htm"
+   }
+  ],
+  "seasonal_adjustment": "NSA",
+  "sector": {
+   "dimension": "nace_r2",
+   "labels": {
+    "I": "Accommodation and food service activities"
+   },
+   "scheme": "NACE",
+   "version": "Rev.2"
+  },
+  "unit": {
+   "code": "THS_PER",
+   "label": "thousand persons"
+  }
+ },
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,unit,nace_r2,sex,age,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:LFST_R_LFE2EN2(1.0),20/03/24 23:00:00,A,THS_PER,I,T,Y15-64,DE,2096,1801.4,\nESTAT:LFST_R_LFE2EN2(1.0),20/03/24 23:00:00,A,THS_PER,I,T,Y15-64,DE,2097,1822.9,\nESTAT:LFST_R_LFE2EN2(1.0),20/03/24 23:00:00,A,THS_PER,I,T,Y15-64,DE30,2096,92.3,\nESTAT:LFST_R_LFE2EN2(1.0),20/03/24 23:00:00,A,THS_PER,I,T,Y15-64,DE30,2097,:,c\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/lfst_r_lfe2en2/A.THS_PER.I.T.Y15-64.DE+DE30?format=SDMX-CSV&startPeriod=2096",
+   "status": 200
+  }
+ ],
+ "note": "an operator-declared Eurostat LFS document for NACE Rev.2 section I (accommodation and food services), authored in the documented shape for the tourism link tests; every value is fictional"
+}

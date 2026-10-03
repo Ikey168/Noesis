@@ -609,6 +609,16 @@ def _social_protection_projector(conn: Any) -> Any:
 # Society social protection (society.social-protection, #2741).
 PROJECTORS["noesis-social-protection-record-v2"] = _social_protection_projector
 
+
+def _tourism_statistics_projector(conn: Any) -> Any:
+    from src.kb.tourism_store import TourismProjector
+
+    return TourismProjector(conn)
+
+
+# Economics tourism statistics (economics.tourism, #2739).
+PROJECTORS["noesis-tourism-statistics-record-v2"] = _tourism_statistics_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

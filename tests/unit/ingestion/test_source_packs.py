@@ -142,8 +142,9 @@ def test_all_production_packs_validate_against_contract() -> None:
     # plus the OSINT platform-transparency features' DSA, Meta, Google and Lumen sources (#2580),
     # plus the Economics business-statistics Eurostat STS, business demography and Census CBP sources (#2738),
     # plus the Technology AI models and datasets Hugging Face Hub, OpenML and Epoch AI sources (#2742),
-    # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741).
-    assert sum(len(pack["sources"]) for pack in packs) == 346
+    # plus the Society social-protection pack's ESSPROS, SOCX and ILOSTAT SDG 1.3.1 sources (#2741),
+    # plus the Economics tourism-statistics Eurostat occupancy and capacity sources (#2739).
+    assert sum(len(pack["sources"]) for pack in packs) == 348
     schema = json.loads(
         (ROOT / "contracts/schemas/jsonschema/noesis-source-pack-v1.json").read_text()
     )

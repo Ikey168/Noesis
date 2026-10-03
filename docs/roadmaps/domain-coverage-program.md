@@ -11,7 +11,7 @@ The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
 gaps. Wave 1 and the wave 2 tracks listed under "Wave 2" are now covered
-offline, so 70 are covered and 19 are gaps. This program
+offline, so 71 are covered and 18 are gaps. This program
 fills every gap, one track per subdomain.
 
 ## How coverage is counted
@@ -82,6 +82,12 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+TO01 is covered offline: `economics.tourism` (track
+[#2739](https://github.com/Ikey168/Noesis/issues/2739)) holds fixture-tested
+Eurostat tourism occupancy and capacity sources, so its gap row is gone. Its
+sources stay `unverified-live` and UN Tourism stays `not-implemented`; live
+coverage waits for the track's "Validate live coverage" run (TO12).
+
 SS01 is covered offline: `society.social-protection` (track
 [#2741](https://github.com/Ikey168/Noesis/issues/2741)) holds fixture-tested
 Eurostat ESSPROS, OECD SOCX and ILOSTAT SDG 1.3.1 sources, so its gap row is
@@ -110,7 +116,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `defence-security` | Governance and law | `political.defence` | SIPRI military expenditure and arms transfers (terms restrict redistribution); UN Register of Conventional Arms; NATO defence expenditure reports | sanctions, humanitarian | 3 |
 | `public-opinion-wellbeing` | Society and population | `society.public-opinion` (existing `society` bundle) | Eurobarometer via GESIS; European Social Survey (registration); OECD How's Life | elections polls | 3 |
 | `civil-society` | Society and population | `society.civil-society` (existing `society` bundle) | IRS exempt-organisation data and Form 990 filings; Charity Commission for England and Wales register; 360Giving | funding, lobbying, ownership | 2 |
-| `tourism-hospitality` | Economy and markets | `economics.tourism` | Eurostat tourism statistics; UN Tourism statistics | geospatial, labour | 2 |
 | `oceans-marine` | Earth and environment | `environment.marine` | NOAA ERDDAP; Argo; Copernicus Marine (registration); WDPA marine areas (non-commercial terms) | fisheries, climate | 2 |
 | `land-soils-geology` | Earth and environment | `environment.land` | CORINE Land Cover; FAO Forest Resources Assessment; ESDAC soil data; national geological surveys | agrifood, hazards, biodiversity | 2 |
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
@@ -138,7 +143,9 @@ their rows removed:
 - waste and circular economy: covered offline (not live) by `environment.waste`
   (track [#2740](https://github.com/Ikey168/Noesis/issues/2740));
 - social protection: covered offline (not live) by `society.social-protection`
-  (track [#2741](https://github.com/Ikey168/Noesis/issues/2741)).
+  (track [#2741](https://github.com/Ikey168/Noesis/issues/2741));
+- tourism: covered offline (not live) by `economics.tourism`
+  (track [#2739](https://github.com/Ikey168/Noesis/issues/2739)).
 
-10 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
+9 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
 track's "Validate live coverage" run. Wave 3 has 9.

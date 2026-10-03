@@ -1,0 +1,234 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.tourism",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.tourism_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.tourism",
+      "contract": {
+        "name": "noesis-tourism-statistics-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "list-series",
+        "indicator-for-place",
+        "series-history",
+        "evidence-bundle",
+        "comparability-notes",
+        "identity-assertions",
+        "links",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "series": "a tourism series is keyed by dataset, indicator (nights spent, arrivals, establishments, bedrooms, bed places), residence of guest (c_resid), accommodation type (nace_r2), unit, frequency and geography with its NUTS version; monthly national and annual NUTS 2 series are always different series and an annual total is never computed from months; values live in the Economics series storage (economic_vintages, dataset_observations)",
+        "vintages": "each release that changes a series is an appended vintage with release (Eurostat LAST UPDATE) and retrieval clocks, revision_of and the recorded changes; a provisional month revised later is a new vintage, never an overwrite; a series a complete later release no longer states gets a removed_by_source vintage; as-of answers select the vintage released by the date and cite source, record revision and as-of time",
+        "flags": "Eurostat OBS_FLAG letters are kept verbatim per value; a confidential cell (c) is a status and carries no value; the capacity reference date Eurostat states is stored per value",
+        "definitions": "each series cites its definition revision, including the establishment-size threshold each country applies as a definition note; a changed definition is a new revision",
+        "comparability": "history pairs list source-stated breaks (b), definition differences (d), threshold changes, provisional months revised and NUTS version changes through the published correspondence; a pair without notes is comparability_unknown; nothing is blended",
+        "identity": "countries and NUTS regions match Geospatial places only through reviewed published codes, code before name; a NUTS code-list change is a different place key, linked only through Eurostat's published correspondence as a reviewable link; nothing is auto-merged and unmatched keys stay visible",
+        "links": "links to Geospatial boundary features (shared NUTS code in the series' NUTS version) and to economics.labour series for NACE Rev.2 section I (shared code or accepted place matches) record their basis and pin both revisions; never a ratio; absent providers and targets are reported as provider_absent or target_not_held, never dropped",
+        "sources": "Eurostat tourism occupancy and capacity are unverified-live until a dated live run; UN Tourism statistics are not-implemented and reported as such, never as an empty answer",
+        "minimisation": "published aggregates only; traveller survey microdata (tour_dem_*), establishment-level returns and experimental platform data (tour_ce_oa*) are never acquired; person-, guest- and establishment-level fields are refused at write time",
+        "exclusions": "no nowcasting, no filled months or regions, no seasonal adjustment of our own, no blending of Eurostat and UN Tourism figures, no occupancy rates, averages, per-capita or per-bed figures of our own, no derived indicators, no forecasts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.tourism_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_tourism_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-for-place",
+      "tool": "noesis-knowledge-engine.tourism_indicator_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.tourism_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_tourism_evidence_bundle",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.tourism_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-assertions",
+      "tool": "noesis-knowledge-engine.list_tourism_identity_assertions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_tourism_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_tourism_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:tourism:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "tourism-statistics-record",
+      "store": "src.kb.tourism_store",
+      "tables": [
+        "tourism_releases",
+        "tourism_series",
+        "tourism_definitions",
+        "tourism_vintages",
+        "tourism_observations",
+        "tourism_release_members",
+        "tourism_comparability",
+        "tourism_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "tourism-identity-assertion",
+      "store": "src.kb.tourism_identity",
+      "tables": [
+        "tourism_identity_assertions",
+        "tourism_nuts_correspondences"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "tourism-link",
+      "store": "src.kb.tourism_links",
+      "tables": [
+        "tourism_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "tourism-refresh-receipt",
+      "store": "src.kb.tourism_monitoring",
+      "tables": [
+        "tourism_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "tourism_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.8.0",
+      "range": "^1.8.0"
+    }
+  ]
+}

@@ -56,8 +56,8 @@ def test_the_source_pack_declares_pinned_fixtures_that_replay_offline():
     # 1.2.0 added the public-finance sources; 1.3.0 adds the demographics feature's sources (#1914); 1.4.0 adds the
     # Funding development-finance feature's OECD CRS source (#1932), 1.5.0 the trade features' sources (#2210) and
     # 1.6.0 the labour-statistics feature's sources (#2219) and 1.7.0 the business-statistics feature's sources
-    # (#2738); every earlier source is kept verbatim.
-    assert manifest["version"] == "1.7.0"
+    # (#2738), 1.8.0 the tourism-statistics feature's sources (#2739); every earlier source is kept verbatim.
+    assert manifest["version"] == "1.8.0"
     sources = {
         s["source_id"]: s
         for s in manifest["sources"]

@@ -133,6 +133,12 @@ MATRIX = {
     "Country to cited social protection figures":
         "tests/unit/domains/test_social_protection_acceptance.py::"
         "test_country_to_cited_esspros_socx_and_ilo_figures_side_by_side",
+    # The Economics tourism-statistics feature's offline journey (#2739) composes economics (Eurostat tourism
+    # occupancy and capacity, Labour links), geospatial identity and boundaries, subscriptions and the source-pack
+    # runtime.
+    "Place to tourism statistics":
+        "tests/unit/domains/test_tourism_acceptance.py::"
+        "test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_flags",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":
