@@ -1,0 +1,15 @@
+{
+ "native_pages": [
+  {
+   "request": "/sql?nrOfHits=500&p=1&query=SELECT+w.FacilityInspireId%2C+w.reportingYear%2C+w.wasteClassification%2C+w.wasteTreatment%2C+w.transboundary%2C+w.totalWasteQuantityTNE%2C+w.methodCode+FROM+%5BIED%5D.%5Blatest%5D.%5BOffsiteWasteTransfer%5D+w+JOIN+%5BIED%5D.%5Blatest%5D.%5BFacility%5D+f+ON+f.FacilityInspireId+%3D+w.FacilityInspireId+WHERE+f.countryCode+%3D+%27DE%27+AND+f.city+%3D+%27Berlin%27+AND+w.reportingYear+%3D+2096+ORDER+BY+w.FacilityInspireId%2C+w.wasteClassification%2C+w.wasteTreatment%2C+w.transboundary",
+   "status": 200,
+   "body": "{\n \"datasetVersion\": \"v13.0 (authored fixture)\",\n \"datasetPublished\": \"2099-04-02\",\n \"results\": [\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000901.FACILITY\",\n   \"reportingYear\": 2096,\n   \"wasteClassification\": \"HW\",\n   \"wasteTreatment\": \"D\",\n   \"transboundary\": \"DOMESTIC\",\n   \"totalWasteQuantityTNE\": 12.5,\n   \"methodCode\": \"M\"\n  },\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000901.FACILITY\",\n   \"reportingYear\": 2096,\n   \"wasteClassification\": \"NONHW\",\n   \"wasteTreatment\": \"R\",\n   \"transboundary\": \"DOMESTIC\",\n   \"totalWasteQuantityTNE\": 851.75,\n   \"methodCode\": \"M\"\n  },\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000902.FACILITY\",\n   \"reportingYear\": 2096,\n   \"wasteClassification\": \"HW\",\n   \"wasteTreatment\": \"D\",\n   \"transboundary\": \"DOMESTIC\",\n   \"totalWasteQuantityTNE\": 0.8,\n   \"methodCode\": \"M\"\n  },\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000902.FACILITY\",\n   \"reportingYear\": 2096,\n   \"wasteClassification\": \"NONHW\",\n   \"wasteTreatment\": \"R\",\n   \"transboundary\": \"DOMESTIC\",\n   \"totalWasteQuantityTNE\": 2210,\n   \"methodCode\": \"M\"\n  },\n  {\n   \"FacilityInspireId\": \"DE.UBA.PRTR/000000999.FACILITY\",\n   \"reportingYear\": 2096,\n   \"wasteClassification\": \"NONHW\",\n   \"wasteTreatment\": \"D\",\n   \"transboundary\": \"DOMESTIC\",\n   \"totalWasteQuantityTNE\": 55,\n   \"methodCode\": \"E\"\n  }\n ]\n}"
+  }
+ ],
+ "note": "authored offline fixture in the provider's documented response shape (verify); every value is fictional; reference years 2094-2097 and release dates 2098-2099 are fictional, so nothing can be mistaken for a published figure; not live coverage",
+ "scenarios": [
+  "corrected-past-year-row",
+  "new-row",
+  "removed-by-source"
+ ]
+}

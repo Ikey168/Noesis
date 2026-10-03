@@ -1,10 +1,12 @@
 # Waste and circular economy: source-contract audit and bounded coverage (WC01)
 
-Tracking: wave 2 tracker #2736 · recorded 2026-10-03.
+Tracking: waste and circular economy track #2740 (wave 2 tracker #2736) ·
+recorded 2026-10-03.
 
-No per-track tracker or delivery issue exists yet. They are opened once this
-audit names a surviving source; the acquisition, store, link and live-validation
-issues then cite this document.
+Delivery codes: WC02 records, WC03 Eurostat waste and circular economy, WC04
+EEA waste transfers, WC05 OECD municipal waste, WC06 identity, WC07 links,
+WC08/WC09 queries, WC10 monitoring, WC11 provider registration and gap closure,
+WC12 acceptance and guide, WC13 live validation (not yet run).
 
 This audit sets out, per source, what an `environment.waste` provider in the
 existing Climate and Environment bundle (`packs/climate-environment/`, beside
@@ -20,11 +22,13 @@ against the live pages, the live terms and a real response before the first
 dated live run (the track's "Validate live coverage" issue, not yet opened). No
 source is `live` until that run exists.
 
-The machine-readable copy of these decisions does not exist yet.
-`PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and
-`LIVE_VERIFICATION` will be added in `src/ingestion/waste_sources.py` by the
-track's acquisition issues and must match this audit; the source-pack entries
-those issues declare carry the same `live_verification` status.
+The machine-readable copy of these decisions is `PROVIDER_CONTRACTS`,
+`BOUNDED_COVERAGE`, `CAPS`, `EXCLUSIONS` and `LIVE_VERIFICATION` in
+`src/ingestion/waste_sources.py` (WC03-WC05) and must match this audit; the four
+entries of `packs/climate-environment/source_packs/climate-environment-waste.json`
+(`eurostat-waste`, `eurostat-circular-economy`, `eea-industry-waste-transfers`
+and `oecd-municipal-waste`, pack version 1.0.0) carry the same
+`live_verification` status.
 
 Non-goals for every source: no nowcasting, no filled years (Eurostat waste
 generation and treatment are biennial; odd years stay absent), no blending of
@@ -112,9 +116,21 @@ Decision:
 | Source | Places | Series | Periods | Caps |
 | --- | --- | --- | --- | --- |
 | Eurostat waste | Germany (DE), France (FR) | `env_wasgen` total waste, all NACE and households, hazardous and non-hazardous; `env_wastrt` total by treatment operation | from a declared start year (biennial) | 2 documents, 60 series per response |
-| Eurostat circular economy | Germany (DE), France (FR) | `cei_wm011`, `cei_srm030` | from a declared start year | 1 document, 10 series |
-| EEA waste transfers | Berlin, DE (the `environment.core` selection) | hazardous and non-hazardous transfers per facility | one reporting year | 1 document, 500 rows (`nrOfHits`) |
-| OECD municipal waste | Germany (DEU), France (FRA) | municipal waste generated, total | from a declared start year | 1 document, 10 series |
+| Eurostat circular economy | Germany (DE), France (FR) | `cei_wm011`, `cei_srm030` | from a declared start year | 1 document per dataset (see the clarification below), 10 series per response |
+| EEA waste transfers | Berlin, DE (the `environment.core` selection) | hazardous and non-hazardous transfers per facility | one reporting year | 1 document, 500 rows (`nrOfHits`); a full page is stored and labelled truncated (`eea_truncated`) |
+| OECD municipal waste | Germany (DEU), France (FRA) | municipal waste generated, total | from a declared start year | 1 document, 10 series; one request per 60 seconds (the stricter recorded OECD limit, _verify_) |
+
+**Clarification (WC03, recorded with the acquisition commit).** One SDMX data
+request names one dataflow, so `cei_wm011` and `cei_srm030` cannot share a
+request: the circular-economy cap is read as one document per dataset (two
+documents, each at most 10 series), as the Eurostat waste cap already is (one
+document each for `env_wasgen` and `env_wastrt`). The EEA waste query reuses the
+`environment.core` selection (`countryCode` and `city` in the `WHERE` clause of
+a join on `[IED].[latest].[Facility]`) and selects only the INSPIRE id,
+reporting year, hazardousness, R/D, destination, quantity and method code
+(table `[IED].[latest].[OffsiteWasteTransfer]` and its column names, the codes
+`HW`/`NONHW`, `R`/`D`, `DOMESTIC`/`TRANSBOUNDARY` and the `datasetVersion` and
+`datasetPublished` response fields are _verify_).
 
 Justification: two countries in all three statistical sources show the same
 concept side by side without blending; Berlin reuses the facility selection
@@ -132,11 +148,16 @@ dataset is a source-pack version bump.
 
 | Source | Status | Checked | Evidence |
 | --- | --- | --- | --- |
-| Eurostat waste | `unverified-live` | - | none yet; offline fixtures to be authored |
-| Eurostat circular economy | `unverified-live` | - | none yet; offline fixtures to be authored |
-| EEA waste transfers | `unverified-live` | - | none yet; the `eea-industry` probe failed with `ConnectError` on 2026-09-27 (`docs/development/environment-evidence/live-check-2026-09-27.json`) and verified nothing |
-| OECD municipal waste | `unverified-live` | - | none yet; offline fixtures to be authored |
+| Eurostat waste | `unverified-live` | - | none yet; authored offline fixtures only |
+| Eurostat circular economy | `unverified-live` | - | none yet; authored offline fixtures only |
+| EEA waste transfers | `unverified-live` | - | none yet; the `eea-industry` probe failed with `ConnectError` on 2026-09-27 (`docs/development/environment-evidence/live-check-2026-09-27.json`) and verified nothing; authored offline fixtures only |
+| OECD municipal waste | `unverified-live` | - | none yet; authored offline fixtures only |
 
-The fixtures will be authored, not captured: synthetic values for reference
-years 2094-2097 and release dates in 2098-2099, with facility names marked as
-fixtures, so nothing can be mistaken for a published figure or a real operator.
+The fixtures are authored, not captured (`tests/unit/waste_fixture_builder.py`):
+synthetic values for reference years 2094-2097 and release dates in 2098-2099,
+with facility names marked as fixtures, so nothing can be mistaken for a
+published figure or a real operator. A release is never dated after its
+retrieval, so the offline tests and the runtime fixture run use a deployment
+clock in 2098-2099 (the projector stamps retrieval with the runtime's document
+ingestion time); a runtime run at the real clock refuses these fixture releases
+rather than storing a release dated in the future.

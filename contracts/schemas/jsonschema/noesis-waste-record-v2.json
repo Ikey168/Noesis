@@ -1,0 +1,76 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-waste-record-v2",
+  "title": "Waste and circular-economy item: one statistical series or one facility transfer row of one release (environment.waste)",
+  "description": "One item as a source released it. A statistical series (Eurostat waste env_wasgen and env_wastrt, Eurostat circular economy cei_wm011 and cei_srm030, OECD municipal waste) states source, dataset, indicator, waste category (EWC-Stat), hazardousness, NACE activity or households, treatment operation (wst_oper), unit as published, place, periodicity (biennial years stay absent), the definition the source states and the observations (value text as published, status, flags verbatim); its values also live in the Economics series storage. A facility transfer row (EEA Industrial Reporting) states the facility INSPIRE id, reporting year, hazardous or non-hazardous, recovery (R) or disposal (D), domestic or transboundary, the quantity in tonnes as published and the method code; it is stored as an environment.core observation series located at the environment.core facility record, never as a second facility register. Each release is appended as a vintage by src/kb/waste_store.py; removals are removed_by_source vintages. No item carries an operator, parent-company, address, contact or competent-authority field; nothing is nowcast, filled, blended, summed into national totals or derived.",
+  "type": "object",
+  "required": ["kind", "provider"],
+  "definitions": {
+    "code": {"type": "object", "required": ["code"], "properties": {"code": {"type": ["string", "null"]}, "label": {"type": "string"}, "scheme": {"type": "string"}}},
+    "observation": {
+      "type": "object",
+      "required": ["period", "status", "flags"],
+      "properties": {
+        "period": {"type": "string", "pattern": "^\\d{4}$"},
+        "value_text": {"type": ["string", "null"]},
+        "value": {"type": ["string", "null"]},
+        "status": {"enum": ["reported", "confidential", "not_published"]},
+        "flags": {"type": "object", "additionalProperties": {"type": "string"}},
+        "flag_meanings": {"type": "array", "items": {"type": "string"}},
+        "attributes": {"type": "object"}
+      },
+      "if": {"properties": {"status": {"not": {"const": "reported"}}}},
+      "then": {"properties": {"value": {"type": "null"}}}
+    }
+  },
+  "oneOf": [
+    {
+      "properties": {
+        "kind": {"const": "series"},
+        "provider": {"enum": ["eurostat-waste", "eurostat-circular-economy", "oecd-municipal-waste"]},
+        "dataset": {"type": "string", "minLength": 1},
+        "native_key": {"type": "string", "minLength": 1},
+        "indicator": {
+          "type": "object",
+          "required": ["code", "concept"],
+          "properties": {
+            "code": {"type": "string"},
+            "concept": {"enum": ["waste_generated", "waste_treated", "municipal_waste_recycling_rate", "circular_material_use_rate", "municipal_waste_generated"]},
+            "label": {"type": "string"}
+          }
+        },
+        "waste_category": {"$ref": "#/definitions/code"},
+        "hazard": {"$ref": "#/definitions/code"},
+        "activity": {"$ref": "#/definitions/code"},
+        "operation": {"$ref": "#/definitions/code"},
+        "unit": {"$ref": "#/definitions/code"},
+        "area": {
+          "type": "object",
+          "required": ["scheme", "code"],
+          "properties": {"scheme": {"enum": ["eurostat-geo", "iso3166-1-alpha3"]}, "code": {"type": "string"}, "label": {"type": ["string", "null"]}}
+        },
+        "periodicity": {"enum": ["annual", "biennial"]},
+        "definition": {"type": "object", "required": ["provider"]},
+        "observations": {"type": "array", "items": {"$ref": "#/definitions/observation"}}
+      },
+      "required": ["dataset", "native_key", "indicator", "waste_category", "hazard", "activity", "operation", "unit", "area", "periodicity", "definition", "observations"]
+    },
+    {
+      "properties": {
+        "kind": {"const": "transfer"},
+        "provider": {"const": "eea-industry-waste-transfers"},
+        "inspire_id": {"type": "string", "minLength": 1},
+        "reporting_year": {"type": "integer"},
+        "hazardous": {"type": "object", "properties": {"code": {"enum": ["HW", "NONHW"]}}},
+        "treatment": {"type": "object", "properties": {"code": {"enum": ["R", "D"]}}},
+        "destination": {"type": "object", "properties": {"code": {"enum": ["DOMESTIC", "TRANSBOUNDARY"]}}},
+        "quantity": {"type": "string"},
+        "unit": {"type": "object", "properties": {"code": {"const": "t"}}},
+        "method": {"type": "object", "properties": {"code": {"enum": ["M", "C", "E", null]}}},
+        "facility_ref": {"type": "string", "pattern": "^eea-industry:"},
+        "definition": {"type": "object"}
+      },
+      "required": ["inspire_id", "reporting_year", "hazardous", "treatment", "destination", "quantity", "unit", "method", "facility_ref", "definition"]
+    }
+  ]
+}

@@ -581,6 +581,16 @@ def _business_statistics_projector(conn: Any) -> Any:
 # Economics industry and business statistics (economics.business, #2738).
 PROJECTORS["noesis-business-statistics-record-v2"] = _business_statistics_projector
 
+
+def _waste_projector(conn: Any) -> Any:
+    from src.kb.waste_store import WasteProjector
+
+    return WasteProjector(conn)
+
+
+# Climate and Environment waste and circular economy (environment.waste, #2740).
+PROJECTORS["noesis-waste-record-v2"] = _waste_projector
+
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
   pack_id TEXT NOT NULL, source_id TEXT NOT NULL, license_id TEXT NOT NULL,

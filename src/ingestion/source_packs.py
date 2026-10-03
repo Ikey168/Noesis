@@ -425,6 +425,10 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"
 # Economics industry and business statistics: Eurostat STS, Eurostat business demography and Census CBP (#2738).
 NATIVE_CONNECTOR_MODULES["business-statistics"] = "src.ingestion.business_statistics_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
+# Climate and Environment waste and circular economy: Eurostat waste and circular economy, EEA waste transfers,
+# OECD municipal waste (#2740).
+NATIVE_CONNECTOR_MODULES["waste"] = "src.ingestion.waste_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"waste"})
 
 
 def native_connector_module(connector: str) -> Any:

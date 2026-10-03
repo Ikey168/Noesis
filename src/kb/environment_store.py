@@ -127,8 +127,12 @@ class EnvironmentStore:
     # ----------------------------------------------------------------- writes
 
     def apply(self, namespace, records, *, run_id, principal_id, scopes, evidence=None, execution="injected",
-              observed_at_ms=None):
-        """Apply validated records; unchanged content is a no-op, changes are new revisions/vintages."""
+              observed_at_ms=None, record_provider_state=True):
+        """Apply validated records; unchanged content is a no-op, changes are new revisions/vintages.
+
+        ``record_provider_state=False`` is for another provider's rows stored here (the environment.waste transfer
+        rows, #2740): they never mark the environment.core provider's own acquisition as fresh.
+        """
 
         authorize(namespace, scopes, WRITE_SCOPE, write=True)
         if namespace == "global":
@@ -145,8 +149,9 @@ class EnvironmentStore:
             for key, value in outcome.items():
                 counts[key] = counts.get(key, 0) + value
         counts["features"] = self._project_features(namespace, features, run_id=run_id, principal_id=principal_id)
-        self._provider_state(namespace, {r["provider"] for r in ordered}, success=observed, execution=execution,
-                             run_id=run_id)
+        if record_provider_state:
+            self._provider_state(namespace, {r["provider"] for r in ordered}, success=observed, execution=execution,
+                                 run_id=run_id)
         return counts
 
     def _apply_one(self, namespace, record, *, run_id, principal_id, evidence, observed, features):
