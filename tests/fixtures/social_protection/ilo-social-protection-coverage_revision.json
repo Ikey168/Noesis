@@ -1,0 +1,116 @@
+{
+ "note": "authored synthetic revision (reference years 2094-2098, releases in 2099); not a published figure",
+ "documents": [
+  {
+   "label": "ILOSTAT SDG 1.3.1 social protection coverage, total and old age, both sexes, Germany and France",
+   "flow": "ILO,DF_SDG_0131_SEX_SOC_RT,1.0",
+   "dataset": "DF_SDG_0131_SEX_SOC_RT",
+   "key": "DEU+FRA.A.SDG_0131_RT.SEX_T.SOC_CONTIG_TOTAL+SOC_CONTIG_OLD",
+   "params": {
+    "startPeriod": "2094"
+   },
+   "measure": {
+    "concept": "coverage",
+    "code": "SDG_0131_RT",
+    "label": "Proportion of the population covered by social protection floors/systems"
+   },
+   "function_scheme": "ilo-contingency",
+   "key_fields": {
+    "function": {
+     "dimension": "SOC_CONTIG",
+     "codes": {
+      "SOC_CONTIG_TOTAL": "Population covered by at least one social protection benefit",
+      "SOC_CONTIG_OLD": "Persons above retirement age receiving a pension"
+     }
+    },
+    "scheme_type": {
+     "fixed": {
+      "code": "_Z",
+      "label": "all schemes (at least one benefit)"
+     }
+    },
+    "financing": {
+     "fixed": {
+      "code": "_Z",
+      "label": "not applicable"
+     }
+    },
+    "cash_or_kind": {
+     "fixed": {
+      "code": "_Z",
+      "label": "not applicable"
+     }
+    },
+    "basis": {
+     "fixed": {
+      "code": "_Z",
+      "label": "not applicable"
+     }
+    },
+    "sex": {
+     "dimension": "SEX",
+     "codes": {
+      "SEX_T": "Total (both sexes)"
+     }
+    },
+    "unit": {
+     "fixed": {
+      "code": "PT",
+      "label": "Percent of the population group ILO states"
+     }
+    }
+   },
+   "dimensions": {
+    "area": "REF_AREA"
+   },
+   "area_labels": {
+    "DEU": "Germany",
+    "FRA": "France"
+   },
+   "population": {
+    "SOC_CONTIG_TOTAL": {
+     "label": "total population",
+     "source": "ILO metadata for SDG 1.3.1 (verify)"
+    },
+    "SOC_CONTIG_OLD": {
+     "label": "persons above statutory pensionable age",
+     "source": "ILO metadata for SDG 1.3.1 (verify)"
+    }
+   },
+   "release": {
+    "published_on": "2099-05-10",
+    "label": "ILOSTAT SDG 1.3.1, 2099-05 (fixture declaration)",
+    "edition": "World Social Protection Report, fixture edition 2 (synthetic label)"
+   },
+   "definition": {
+    "source_text": "SDG indicator 1.3.1: proportion of the population covered by social protection floors/systems, by contingency (verify)",
+    "methodology_notes": [
+     "Coverage is a share of a population group, never an expenditure figure"
+    ]
+   },
+   "references": [
+    {
+     "kind": "methodology",
+     "scheme": "url",
+     "identifier": "ilostat-social-protection",
+     "url": "https://ilostat.ilo.org/methods/concepts-and-definitions/description-social-protection/",
+     "relation": "documented_in"
+    },
+    {
+     "kind": "metadata",
+     "scheme": "url",
+     "identifier": "sdg-1-3-1",
+     "url": "https://unstats.un.org/sdgs/metadata/files/Metadata-01-03-01a.pdf",
+     "relation": "defined_by"
+    }
+   ]
+  }
+ ],
+ "native_pages": [
+  {
+   "request": "/rest/data/ILO,DF_SDG_0131_SEX_SOC_RT,1.0/DEU+FRA.A.SDG_0131_RT.SEX_T.SOC_CONTIG_TOTAL+SOC_CONTIG_OLD?format=csv&startPeriod=2094",
+   "status": 200,
+   "body": "DATAFLOW,REF_AREA,FREQ,MEASURE,SEX,SOC_CONTIG,TIME_PERIOD,OBS_VALUE,UNIT_MEASURE,OBS_STATUS,NOTE_SOURCE,NOTE_INDICATOR,NOTE_CLASSIF\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),DEU,A,SDG_0131_RT,SEX_T,SOC_CONTIG_TOTAL,2094,95.7,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),DEU,A,SDG_0131_RT,SEX_T,SOC_CONTIG_TOTAL,2096,96.3,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),DEU,A,SDG_0131_RT,SEX_T,SOC_CONTIG_TOTAL,2098,96.5,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),DEU,A,SDG_0131_RT,SEX_T,SOC_CONTIG_OLD,2094,98.0,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),DEU,A,SDG_0131_RT,SEX_T,SOC_CONTIG_OLD,2096,98.6,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),DEU,A,SDG_0131_RT,SEX_T,SOC_CONTIG_OLD,2098,98.8,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),FRA,A,SDG_0131_RT,SEX_T,SOC_CONTIG_TOTAL,2094,95.3,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),FRA,A,SDG_0131_RT,SEX_T,SOC_CONTIG_TOTAL,2096,95.5,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),FRA,A,SDG_0131_RT,SEX_T,SOC_CONTIG_TOTAL,2098,95.7,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),FRA,A,SDG_0131_RT,SEX_T,SOC_CONTIG_OLD,2094,99.0,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),FRA,A,SDG_0131_RT,SEX_T,SOC_CONTIG_OLD,2096,99.2,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\nILO:DF_SDG_0131_SEX_SOC_RT(1.0),FRA,A,SDG_0131_RT,SEX_T,SOC_CONTIG_OLD,2098,99.4,PT,,R1:2383:Social Security Inquiry (fixture note),T3:9001:Fixture indicator note,C7:3020:Contingency as stated by ILO (fixture note)\n"
+  }
+ ]
+}

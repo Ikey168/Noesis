@@ -1,0 +1,630 @@
+{
+  "pack_id": "society-social-protection",
+  "version": "1.0.0",
+  "description": "Society bundle, society.social-protection provider: Eurostat ESSPROS expenditure and pension beneficiaries, OECD SOCX public social expenditure and ILOSTAT SDG 1.3.1 coverage, for one bounded selection (Germany and France). Values are quoted as each source released them with definitions, release vintages and flags; ESSPROS, SOCX, ILO and COFOG figures are never blended and no publisher's functions are re-classified into another's; no nowcasting, no filled years, no derived indicators. Audit: docs/development/social-protection-evidence/source-audit.md.",
+  "domains": [
+    "society"
+  ],
+  "defaults": {
+    "connector": "social-protection",
+    "temporal_semantics": "the source's release clock (Eurostat LAST UPDATE, a declared OECD or ILO release date, else the retrieval time, labelled) dates each vintage; the reference year is the period; report editions that restate earlier years are new vintages; vintages appended, never overwritten",
+    "update_cadence": "ESSPROS: annual; SOCX: about annual; ILOSTAT: per indicator and report edition",
+    "mapping": {
+      "target_schema": "noesis-social-protection-record-v2",
+      "version": "2.0.0"
+    },
+    "extractor_versions": [
+      "social-protection:1.0.0"
+    ],
+    "schedule": {
+      "kind": "interval",
+      "interval_s": 604800
+    },
+    "auth": {
+      "kind": "none"
+    },
+    "budgets": {
+      "timeout_ms": 30000,
+      "max_results": 60,
+      "max_bytes": 2000000,
+      "max_pages": 3
+    },
+    "health": {
+      "required": false,
+      "max_staleness_s": 31536000
+    },
+    "operations": [
+      "release"
+    ],
+    "policy": {
+      "personal_data": "never; published aggregates only; registers, microdata and Social Security Inquiry returns excluded",
+      "values": "as published per source and release; never blended, filled, nowcast, recomputed or re-classified",
+      "cofog": "COFOG social-protection expenditure stays in economics.public-finance, a distinct concept"
+    }
+  },
+  "sources": [
+    {
+      "source_id": "eurostat-esspros",
+      "endpoint": "https://ec.europa.eu/eurostat/api/dissemination/sdmx/2.1/data",
+      "publisher": "Eurostat, European System of integrated Social PROtection Statistics (ESSPROS)",
+      "scope": "ESSPROS for Germany (DE) and France (FR): spr_exp_sum total expenditure (MIO_EUR, PC_GDP), spr_exp_func old age and sickness/health care, spr_pns_ben pension beneficiaries, total, from a declared start period; 3 documents, at most 60 series per response; OBS_FLAG letters verbatim (operator must verify dataset codes, dimension order and the flag list)",
+      "license": {
+        "id": "eurostat-reuse",
+        "terms_url": "https://ec.europa.eu/eurostat/about-us/policies/copyright",
+        "redistribution": "attribution-required (verify)"
+      },
+      "update_cadence": "annual ESSPROS releases with revisions of earlier years",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 60,
+        "max_bytes": 2000000,
+        "max_pages": 3
+      },
+      "social_protection": {
+        "namespace": "global",
+        "provider": "eurostat-esspros",
+        "format": "esspros-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "ESSPROS total expenditure, all schemes, Germany and France (spr_exp_sum)",
+            "flow": "spr_exp_sum",
+            "dataset": "spr_exp_sum",
+            "key": "A.TOTALNOREROUTE.MIO_EUR+PC_GDP.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "measure": {
+              "concept": "expenditure",
+              "code": "TOTALNOREROUTE",
+              "label": "ESSPROS total social protection expenditure"
+            },
+            "function_scheme": "esspros-spfunc",
+            "key_fields": {
+              "financing": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "expenditure side; receipts by financing source not requested"
+                }
+              },
+              "basis": {
+                "fixed": {
+                  "code": "GROSS",
+                  "label": "gross (ESSPROS core system)"
+                }
+              },
+              "sex": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "function": {
+                "fixed": {
+                  "code": "TOTAL",
+                  "label": "All functions"
+                }
+              },
+              "scheme_type": {
+                "dimension": "spdeps",
+                "codes": {
+                  "TOTALNOREROUTE": "Total expenditure, all schemes, without rerouted contributions (verify)"
+                }
+              },
+              "cash_or_kind": {
+                "fixed": {
+                  "code": "TOTAL",
+                  "label": "cash and in kind"
+                }
+              },
+              "unit": {
+                "dimension": "unit",
+                "codes": {
+                  "MIO_EUR": "Million euro",
+                  "PC_GDP": "Percentage of gross domestic product (GDP)"
+                }
+              }
+            },
+            "dimensions": {
+              "area": "geo"
+            },
+            "area_labels": {
+              "DE": "Germany",
+              "FR": "France"
+            },
+            "manual_edition": "ESSPROS manual and user guidelines, fixture edition A (synthetic label; verify the real edition)",
+            "definition": {
+              "source_text": "ESSPROS core system: total expenditure on social protection, all schemes (verify)",
+              "methodology_notes": [
+                "Percentages of GDP are Eurostat's published figures, stored as published"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "spr_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/spr_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "manual",
+                "scheme": "url",
+                "identifier": "esspros-manual",
+                "url": "https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines",
+                "relation": "defined_by",
+                "locator": "ESSPROS manual and user guidelines (verify the edition and page)"
+              }
+            ]
+          },
+          {
+            "label": "ESSPROS expenditure by function: old age and sickness/health care, Germany and France (spr_exp_func)",
+            "flow": "spr_exp_func",
+            "dataset": "spr_exp_func",
+            "key": "A.OLD+SICK.TOTAL.MIO_EUR.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "measure": {
+              "concept": "expenditure",
+              "code": "SPBEN",
+              "label": "ESSPROS social protection benefits"
+            },
+            "function_scheme": "esspros-spfunc",
+            "key_fields": {
+              "financing": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "expenditure side; receipts by financing source not requested"
+                }
+              },
+              "basis": {
+                "fixed": {
+                  "code": "GROSS",
+                  "label": "gross (ESSPROS core system)"
+                }
+              },
+              "sex": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "function": {
+                "dimension": "spfunc",
+                "codes": {
+                  "OLD": "Old age",
+                  "SICK": "Sickness/health care"
+                }
+              },
+              "scheme_type": {
+                "fixed": {
+                  "code": "TOTAL",
+                  "label": "All schemes"
+                }
+              },
+              "cash_or_kind": {
+                "dimension": "spdepb",
+                "codes": {
+                  "TOTAL": "Cash and in kind benefits"
+                }
+              },
+              "unit": {
+                "dimension": "unit",
+                "codes": {
+                  "MIO_EUR": "Million euro"
+                }
+              }
+            },
+            "dimensions": {
+              "area": "geo"
+            },
+            "area_labels": {
+              "DE": "Germany",
+              "FR": "France"
+            },
+            "manual_edition": "ESSPROS manual and user guidelines, fixture edition A (synthetic label; verify the real edition)",
+            "scope_notes": [
+              {
+                "relates_to": "oecd-socx",
+                "statement": "ESSPROS functions and SOCX branches overlap but differ in scope: SOCX counts active labour-market programmes and excludes some transfers ESSPROS includes; the publishers' reconciliation is cited, the figures are never merged (verify the published reconciliation)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.oecd.org/en/data/datasets/social-expenditure-database-socx.html",
+                    "note": "SOCX manual and ESSPROS reconciliation (verify)"
+                  }
+                ]
+              }
+            ],
+            "definition": {
+              "source_text": "ESSPROS core system: social protection benefits by function (spfunc) (verify)",
+              "methodology_notes": [
+                "Functions are ESSPROS functions; SOCX branches and COFOG functions are other classifications"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "spr_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/spr_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "manual",
+                "scheme": "url",
+                "identifier": "esspros-manual",
+                "url": "https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines",
+                "relation": "defined_by",
+                "locator": "ESSPROS manual and user guidelines (verify the edition and page)"
+              }
+            ]
+          },
+          {
+            "label": "ESSPROS pension beneficiaries, total, Germany and France (spr_pns_ben)",
+            "flow": "spr_pns_ben",
+            "dataset": "spr_pns_ben",
+            "key": "A.TOTAL.NR.DE+FR",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "measure": {
+              "concept": "beneficiaries",
+              "code": "PNS_BEN",
+              "label": "ESSPROS pension beneficiaries"
+            },
+            "function_scheme": "esspros-pension-category",
+            "key_fields": {
+              "financing": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "expenditure side; receipts by financing source not requested"
+                }
+              },
+              "basis": {
+                "fixed": {
+                  "code": "GROSS",
+                  "label": "gross (ESSPROS core system)"
+                }
+              },
+              "sex": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "function": {
+                "dimension": "spdepm",
+                "codes": {
+                  "TOTAL": "All pension categories"
+                }
+              },
+              "scheme_type": {
+                "fixed": {
+                  "code": "TOTAL",
+                  "label": "All schemes"
+                }
+              },
+              "cash_or_kind": {
+                "fixed": {
+                  "code": "CASH",
+                  "label": "cash benefits (pensions)"
+                }
+              },
+              "unit": {
+                "dimension": "unit",
+                "codes": {
+                  "NR": "Number"
+                }
+              }
+            },
+            "dimensions": {
+              "area": "geo"
+            },
+            "area_labels": {
+              "DE": "Germany",
+              "FR": "France"
+            },
+            "manual_edition": "ESSPROS manual and user guidelines, fixture edition A (synthetic label; verify the real edition)",
+            "definition": {
+              "source_text": "ESSPROS pension beneficiaries module: beneficiaries of at least one pension, counted once (verify)",
+              "methodology_notes": [
+                "A beneficiary count is not an expenditure figure"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "eurostat-esms",
+                "identifier": "spr_esms",
+                "url": "https://ec.europa.eu/eurostat/cache/metadata/en/spr_esms.htm",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "manual",
+                "scheme": "url",
+                "identifier": "esspros-manual",
+                "url": "https://ec.europa.eu/eurostat/web/products-manuals-and-guidelines",
+                "relation": "defined_by",
+                "locator": "ESSPROS manual and user guidelines (verify the edition and page)"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-eurostat-esspros.json",
+        "sha256": "b61df58c3daaade0f15036b14df64b71431c271b3c87c1ab5863ea5a23973f5a",
+        "expected_output_hash": "c99cdd80e757082e7486d02cce72392e6a22febfcc24594f2db998fa6162fa0d"
+      }
+    },
+    {
+      "source_id": "oecd-socx",
+      "endpoint": "https://sdmx.oecd.org/public/rest/data",
+      "publisher": "OECD, Social Expenditure Database (SOCX)",
+      "scope": "SOCX public social expenditure, total and old age, % of GDP, for Germany (DEU) and France (FRA), from a declared start period; 1 document, at most 20 series; requests paced at one a minute until the OECD limits are verified (operator must verify the dataflow agency, id, version and dimensions)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://www.oecd.org/en/about/terms-conditions.html",
+        "redistribution": "attribution-required (verify)"
+      },
+      "update_cadence": "about annual SOCX updates; the latest years are estimates or projections",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 1000000,
+        "max_pages": 1
+      },
+      "social_protection": {
+        "namespace": "global",
+        "provider": "oecd-socx",
+        "format": "socx-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "OECD SOCX public social expenditure, total and old age, % of GDP, Germany and France",
+            "flow": "OECD.ELS.SPD,DSD_SOCX_AGG@DF_SOCX_AGG,1.0",
+            "dataset": "DSD_SOCX_AGG@DF_SOCX_AGG",
+            "key": "DEU+FRA.A.SOCX.PT_B1GQ.ES10._T.TP_ALL+TP11",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "measure": {
+              "concept": "expenditure",
+              "code": "SOCX",
+              "label": "SOCX public social expenditure"
+            },
+            "function_scheme": "socx-branch",
+            "key_fields": {
+              "function": {
+                "dimension": "PROGRAMME_TYPE",
+                "codes": {
+                  "TP_ALL": "Total, all SOCX policy areas",
+                  "TP11": "Old age"
+                }
+              },
+              "scheme_type": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not broken down by scheme"
+                }
+              },
+              "financing": {
+                "dimension": "EXPEND_SOURCE",
+                "codes": {
+                  "ES10": "Public"
+                }
+              },
+              "cash_or_kind": {
+                "dimension": "SPENDING_TYPE",
+                "codes": {
+                  "_T": "Cash and in kind"
+                }
+              },
+              "basis": {
+                "fixed": {
+                  "code": "GROSS",
+                  "label": "gross (before taxes and tax breaks)"
+                }
+              },
+              "sex": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "unit": {
+                "dimension": "UNIT_MEASURE",
+                "codes": {
+                  "PT_B1GQ": "Percentage of GDP"
+                }
+              }
+            },
+            "dimensions": {
+              "area": "REF_AREA"
+            },
+            "area_labels": {
+              "DEU": "Germany",
+              "FRA": "France"
+            },
+            "methodology": "SOCX manual (OECD Social Expenditure Database methodology; verify the edition)",
+            "release": {
+              "published_on": "2098-10-01",
+              "label": "SOCX update 2098-10 (fixture declaration)"
+            },
+            "scope_notes": [
+              {
+                "relates_to": "eurostat-esspros",
+                "statement": "ESSPROS functions and SOCX branches overlap but differ in scope: SOCX counts active labour-market programmes and excludes some transfers ESSPROS includes; the publishers' reconciliation is cited, the figures are never merged (verify the published reconciliation)",
+                "cites": [
+                  {
+                    "kind": "methodology",
+                    "url": "https://www.oecd.org/en/data/datasets/social-expenditure-database-socx.html",
+                    "note": "SOCX manual and ESSPROS reconciliation (verify)"
+                  }
+                ]
+              }
+            ],
+            "definition": {
+              "source_text": "OECD SOCX: public social expenditure by policy area, gross, % of GDP (verify)",
+              "methodology_notes": [
+                "The most recent years are OECD estimates or projections from national budget data and keep that status (verify the attribute)",
+                "Net social expenditure is a separate OECD series, not in first coverage"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "oecd-socx",
+                "url": "https://www.oecd.org/en/data/datasets/social-expenditure-database-socx.html",
+                "relation": "documented_in"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-oecd-socx.json",
+        "sha256": "918d4d7016a24b392afcb7145e8cdd4c1cbc994979bb03ebf4f2ea40491c86a7",
+        "expected_output_hash": "4c51dead6b02ef3d9d396f9a07f2b8d89efed216417de06ecd1db94f3fef7101"
+      }
+    },
+    {
+      "source_id": "ilo-social-protection-coverage",
+      "endpoint": "https://sdmx.ilo.org/rest/data",
+      "publisher": "ILO, ILOSTAT (SDG indicator 1.3.1)",
+      "scope": "ILOSTAT SDG 1.3.1 total and old-age coverage, both sexes, for Germany (DEU) and France (FRA), from a declared start period; 1 document, at most 20 series; regional and global modelled estimates excluded; the World Social Protection Data Dashboards are not implemented and never scraped (operator must verify the dataflow id and the contingency dimension)",
+      "license": {
+        "id": "cc-by-4.0",
+        "terms_url": "https://ilostat.ilo.org/about/terms-of-use/",
+        "redistribution": "attribution-required (verify)"
+      },
+      "update_cadence": "per-indicator ILOSTAT updates; World Social Protection Report editions restate earlier years",
+      "budgets": {
+        "timeout_ms": 30000,
+        "max_results": 20,
+        "max_bytes": 1000000,
+        "max_pages": 1
+      },
+      "social_protection": {
+        "namespace": "global",
+        "provider": "ilo-social-protection-coverage",
+        "format": "ilo-sdmx-csv",
+        "live_verification": "unverified-live",
+        "documents": [
+          {
+            "label": "ILOSTAT SDG 1.3.1 social protection coverage, total and old age, both sexes, Germany and France",
+            "flow": "ILO,DF_SDG_0131_SEX_SOC_RT,1.0",
+            "dataset": "DF_SDG_0131_SEX_SOC_RT",
+            "key": "DEU+FRA.A.SDG_0131_RT.SEX_T.SOC_CONTIG_TOTAL+SOC_CONTIG_OLD",
+            "params": {
+              "startPeriod": "2094"
+            },
+            "measure": {
+              "concept": "coverage",
+              "code": "SDG_0131_RT",
+              "label": "Proportion of the population covered by social protection floors/systems"
+            },
+            "function_scheme": "ilo-contingency",
+            "key_fields": {
+              "function": {
+                "dimension": "SOC_CONTIG",
+                "codes": {
+                  "SOC_CONTIG_TOTAL": "Population covered by at least one social protection benefit",
+                  "SOC_CONTIG_OLD": "Persons above retirement age receiving a pension"
+                }
+              },
+              "scheme_type": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "all schemes (at least one benefit)"
+                }
+              },
+              "financing": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "cash_or_kind": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "basis": {
+                "fixed": {
+                  "code": "_Z",
+                  "label": "not applicable"
+                }
+              },
+              "sex": {
+                "dimension": "SEX",
+                "codes": {
+                  "SEX_T": "Total (both sexes)"
+                }
+              },
+              "unit": {
+                "fixed": {
+                  "code": "PT",
+                  "label": "Percent of the population group ILO states"
+                }
+              }
+            },
+            "dimensions": {
+              "area": "REF_AREA"
+            },
+            "area_labels": {
+              "DEU": "Germany",
+              "FRA": "France"
+            },
+            "population": {
+              "SOC_CONTIG_TOTAL": {
+                "label": "total population",
+                "source": "ILO metadata for SDG 1.3.1 (verify)"
+              },
+              "SOC_CONTIG_OLD": {
+                "label": "persons above statutory pensionable age",
+                "source": "ILO metadata for SDG 1.3.1 (verify)"
+              }
+            },
+            "release": {
+              "published_on": "2098-11-20",
+              "label": "ILOSTAT SDG 1.3.1, 2098-11 (fixture declaration)",
+              "edition": "World Social Protection Report, fixture edition 1 (synthetic label)"
+            },
+            "definition": {
+              "source_text": "SDG indicator 1.3.1: proportion of the population covered by social protection floors/systems, by contingency (verify)",
+              "methodology_notes": [
+                "Coverage is a share of a population group, never an expenditure figure"
+              ]
+            },
+            "references": [
+              {
+                "kind": "methodology",
+                "scheme": "url",
+                "identifier": "ilostat-social-protection",
+                "url": "https://ilostat.ilo.org/methods/concepts-and-definitions/description-social-protection/",
+                "relation": "documented_in"
+              },
+              {
+                "kind": "metadata",
+                "scheme": "url",
+                "identifier": "sdg-1-3-1",
+                "url": "https://unstats.un.org/sdgs/metadata/files/Metadata-01-03-01a.pdf",
+                "relation": "defined_by"
+              }
+            ]
+          }
+        ]
+      },
+      "fixture": {
+        "path": "tests/fixtures/source_packs/society-ilo-social-protection-coverage.json",
+        "sha256": "bab0393157d3d9116910198e24e140a9e4bd09d9381d6fe73a0d10dc97ec76e8",
+        "expected_output_hash": "68bf5babb9e7fdf99f9c7cabf0f20d2432cc6a3d0083f20d8527da73dd1ab3e4"
+      }
+    }
+  ]
+}
