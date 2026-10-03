@@ -74,8 +74,9 @@ This evidence validates SEC-to-SEC normalization; it does not validate a
 commercial fundamentals vendor or record an analyst review. SEC requests need
 a descriptive `NOESIS_SEC_USER_AGENT` (operator name and contact), the one
 variable every SEC reader resolves through `src/ingestion/sec_user_agent.py`.
-The deprecated `NOESIS_EDGAR_USER_AGENT` and `NOESIS_SEC_CONTACT` still work
-with a warning naming `NOESIS_SEC_USER_AGENT`; when two of them are set to
-different values the run is refused rather than picking one. SEC rejects some
+The deprecated `NOESIS_EDGAR_USER_AGENT` still works with a warning naming
+`NOESIS_SEC_USER_AGENT`; when both are set to different values the run is
+refused rather than picking one. `NOESIS_SEC_CONTACT` is a different setting:
+the bare contact the corporate-ownership pack wraps in its own User-Agent. SEC rejects some
 agent strings with HTTP 403, which the connector reports as an error rather
 than empty data.

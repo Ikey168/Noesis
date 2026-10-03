@@ -28,9 +28,11 @@ logger = logging.getLogger(__name__)
 
 SEC_USER_AGENT_ENV = "NOESIS_SEC_USER_AGENT"
 # Deprecated names, in the order they are reported. NOESIS_EDGAR_USER_AGENT was
-# read by the EDGAR market connectors and scripts; NOESIS_SEC_CONTACT was the
-# economic pack's ``sec-edgar`` secret reference.
-DEPRECATED_SEC_USER_AGENT_ENVS: tuple[str, ...] = ("NOESIS_EDGAR_USER_AGENT", "NOESIS_SEC_CONTACT")
+# read by the EDGAR market connectors and scripts. NOESIS_SEC_CONTACT is not an
+# alias: the corporate-ownership pack still reads it as a bare contact address
+# that it wraps in its own User-Agent, so it may legitimately differ from this
+# setting.
+DEPRECATED_SEC_USER_AGENT_ENVS: tuple[str, ...] = ("NOESIS_EDGAR_USER_AGENT",)
 
 
 class SecUserAgentError(ValueError):

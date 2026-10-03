@@ -32,7 +32,7 @@ def _clean_env(monkeypatch):
 def test_one_canonical_name_shared_by_every_sec_reader():
     assert SEC_USER_AGENT_ENV == "NOESIS_SEC_USER_AGENT"
     assert USER_AGENT_ENV == ENFORCEMENT_ENV == SEC_USER_AGENT_ENV
-    assert DEPRECATED_SEC_USER_AGENT_ENVS == ("NOESIS_EDGAR_USER_AGENT", "NOESIS_SEC_CONTACT")
+    assert DEPRECATED_SEC_USER_AGENT_ENVS == ("NOESIS_EDGAR_USER_AGENT",)
     pack = json.loads((ROOT / "config/source_packs/economic.json").read_text())
     sec = next(s for s in pack["sources"] if s["source_id"] == "sec-edgar")
     assert sec["auth"]["secret_ref"] == SEC_USER_AGENT_ENV
@@ -61,8 +61,6 @@ def test_alias_with_the_same_value_as_the_canonical_name_is_not_a_conflict():
     "env",
     [
         {SEC_USER_AGENT_ENV: AGENT, "NOESIS_EDGAR_USER_AGENT": "someone else x@example.org"},
-        {SEC_USER_AGENT_ENV: AGENT, "NOESIS_SEC_CONTACT": "x@example.org"},
-        {"NOESIS_EDGAR_USER_AGENT": AGENT, "NOESIS_SEC_CONTACT": "x@example.org"},
     ],
 )
 def test_conflicting_values_are_refused_rather_than_picked(env):
@@ -70,6 +68,14 @@ def test_conflicting_values_are_refused_rather_than_picked(env):
         resolve_sec_user_agent(env)
     assert exc.value.code == "sec_user_agent_conflict"
     assert SEC_USER_AGENT_ENV in str(exc.value) and AGENT not in str(exc.value)
+
+
+def test_ownership_contact_variable_is_not_an_alias():
+    # The corporate-ownership pack reads NOESIS_SEC_CONTACT as a bare contact;
+    # setting it beside a full User-Agent must not be a conflict.
+    env = {SEC_USER_AGENT_ENV: AGENT, "NOESIS_SEC_CONTACT": "x@example.org"}
+    assert resolve_sec_user_agent(env) == AGENT
+    assert resolve_sec_user_agent({"NOESIS_SEC_CONTACT": "x@example.org"}) == ""
 
 
 def test_missing_variable_is_empty_for_skip_readers_and_refused_for_strict_ones():
@@ -100,7 +106,7 @@ def test_edgar_readers_refuse_a_conflict_and_skip_when_missing(monkeypatch):
     with pytest.raises(ValueError, match=SEC_USER_AGENT_ENV):
         harvest_sec_company_materials("ACME", issuer_id="issuer:acme")
     monkeypatch.setenv(SEC_USER_AGENT_ENV, AGENT)
-    monkeypatch.setenv("NOESIS_SEC_CONTACT", "x@example.org")
+    monkeypatch.setenv("NOESIS_EDGAR_USER_AGENT", "someone else x@example.org")
     with pytest.raises(SecUserAgentError):
         EdgarClient()
     with pytest.raises(PermanentFetchError, match="conflicting"):
