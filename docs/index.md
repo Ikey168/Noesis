@@ -267,6 +267,11 @@ For the project overview and local setup, start with the
   BGS production and reserves side by side per vintage, reviewable company, commodity and project identity,
   cross-pack links and monitors; no reconciliation, own reserve estimate, risk score or price forecast;
   [source audit](development/extractives-evidence/source-audit.md)
+- [Technology internet infrastructure guide](guides/technology-internet-infrastructure.md) — RIPEstat routing
+  observations, the PeeringDB self-declaration, RDAP registrations and crt.sh certificates for a declared ASN,
+  prefix or domain as of a date, side by side and cited, reviewable identity, OSINT links and monitors; no
+  port or banner data, IP- or person-keyed lookup, verdict or ranking;
+  [source audit](development/internet-infrastructure-evidence/source-audit.md)
 - [Economics business statistics guide](guides/economics-business-statistics.md) — Eurostat short-term business
   statistics and business demography and US Census County Business Patterns for a place as of a release, side by
   side with statistical units, classifications, adjustment, base years, flags and vintages, reviewable place and

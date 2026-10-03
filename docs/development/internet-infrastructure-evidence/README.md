@@ -19,5 +19,12 @@ provider (wave 2 tracker #2736, subdomain `internet-infrastructure`).
   `tests/fixtures/source_packs/technology-internet-infrastructure-*.json`
   (pinned in the source pack) and the revision, removal, deprecation and
   transfer fixtures in `tests/fixtures/internet_infrastructure/`.
-- Live evidence: none. Until a dated live run exists every source is
-  `unverified-live`, and offline coverage is never reported as live coverage.
+- Offline acceptance (II12): `tests/unit/domains/test_internet_infrastructure_acceptance.py`
+  (a declared ASN and domain to cited routing, interconnection, registration
+  and certificate records with revisions, sockets blocked) and the
+  [guide](../../guides/technology-internet-infrastructure.md). Status:
+  covered offline (II02-II12), not live.
+- Live evidence: none. II13 (live validation) has not run: the provider hosts
+  are blocked by this runtime's egress proxy. Until a dated live run exists
+  every source is `unverified-live`, and offline coverage is never reported
+  as live coverage.
