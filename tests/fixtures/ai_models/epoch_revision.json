@@ -1,0 +1,21 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": "<html><body><p>Notable models (fictional page, no stamp)</p></body></html>",
+   "request": "epoch.ai/data/notable-ai-models",
+   "status": 200
+  },
+  {
+   "body": "Model,Domain,Task,Organization,Authors,Publication date,Reference,Link,Citations,Parameters,Parameters notes,Training compute (FLOP),Training compute notes,Training dataset size (datapoints),Confidence,Abstract\nFixture Model,Language,Text generation,Example Org,\"Ada Example, Bob Example\",2095-02-20,Fixture Model: a fictional model,https://huggingface.co/example-org/fixture-model,77,1200000000,stated in the fictional paper,3.9e21,estimated from tokens,56000000000,Confident,A fictional abstract.\nOther Fixture Model,Vision,,Example Lab,Dee Example,2094-09-09,,,,5000000,,,,,Likely,\n",
+   "request": "epoch.ai/data/notable_ai_models.csv",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape (verify field names before a live run); every organisation, repository, sha, id, value and date (2094-2099) is fictional; not live coverage",
+ "scenarios": [
+  "revised-estimate",
+  "row-removed",
+  "retrieval-time-basis"
+ ]
+}

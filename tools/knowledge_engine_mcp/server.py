@@ -9469,6 +9469,11 @@ from tools.knowledge_engine_mcp.business import (
 )
 
 register_business_tools(mcp, _intake_safe, _intake_context)
+from tools.knowledge_engine_mcp.ai_models import (
+    register as register_ai_models_tools,
+)
+
+register_ai_models_tools(mcp, _intake_safe, _intake_context)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,261 @@
+{
+ "captured": null,
+ "native_pages": [
+  {
+   "body": {
+    "fullname": "Example Org (fictional)",
+    "isEnterprise": false,
+    "name": "example-org"
+   },
+   "request": "huggingface.co/api/organizations/example-org/overview",
+   "status": 200
+  },
+  {
+   "body": {
+    "_id": "fixture-object-id-0001",
+    "author": "example-org",
+    "cardData": {
+     "base_model": "example-org/fixture-base",
+     "datasets": [
+      "example-org/fixture-corpus"
+     ],
+     "language": [
+      "en"
+     ],
+     "library_name": "fixture-lib",
+     "license": "other",
+     "license_link": "LICENSE",
+     "license_name": "fixture-model-licence-1.0",
+     "pipeline_tag": "text-generation"
+    },
+    "disabled": false,
+    "downloads": 123456,
+    "gated": false,
+    "id": "example-org/fixture-model",
+    "lastModified": "2096-05-10T08:00:00.000Z",
+    "library_name": "fixture-lib",
+    "likes": 789,
+    "modelId": "example-org/fixture-model",
+    "pipeline_tag": "text-generation",
+    "private": false,
+    "sha": "bb00000000000000000000000000000000002096",
+    "siblings": [
+     {
+      "rfilename": "README.md"
+     },
+     {
+      "rfilename": "config.json"
+     },
+     {
+      "rfilename": "model.safetensors"
+     }
+    ],
+    "tags": [
+     "arxiv:2095.01234",
+     "base_model:example-org/fixture-base",
+     "dataset:example-org/fixture-corpus",
+     "fixture-lib",
+     "license:other",
+     "text-generation"
+    ],
+    "trendingScore": 12
+   },
+   "request": "huggingface.co/api/models/example-org/fixture-model",
+   "status": 200
+  },
+  {
+   "body": {
+    "branches": [
+     {
+      "name": "main",
+      "ref": "refs/heads/main",
+      "targetCommit": "bb00000000000000000000000000000000002096"
+     }
+    ],
+    "converts": [],
+    "tags": [
+     {
+      "name": "v1.0",
+      "ref": "refs/tags/v1.0",
+      "targetCommit": "aa00000000000000000000000000000000002095"
+     }
+    ]
+   },
+   "request": "huggingface.co/api/models/example-org/fixture-model/refs",
+   "status": 200
+  },
+  {
+   "body": {
+    "_id": "fixture-object-id-0001",
+    "author": "example-org",
+    "cardData": {
+     "base_model": "example-org/fixture-base",
+     "datasets": [
+      "example-org/fixture-corpus"
+     ],
+     "language": [
+      "en"
+     ],
+     "library_name": "fixture-lib",
+     "license": "apache-2.0",
+     "pipeline_tag": "text-generation"
+    },
+    "disabled": false,
+    "downloads": 123456,
+    "gated": false,
+    "id": "example-org/fixture-model",
+    "lastModified": "2095-03-01T10:00:00.000Z",
+    "library_name": "fixture-lib",
+    "likes": 789,
+    "modelId": "example-org/fixture-model",
+    "pipeline_tag": "text-generation",
+    "private": false,
+    "sha": "aa00000000000000000000000000000000002095",
+    "siblings": [
+     {
+      "rfilename": "README.md"
+     },
+     {
+      "rfilename": "config.json"
+     },
+     {
+      "rfilename": "model.safetensors"
+     }
+    ],
+    "tags": [
+     "arxiv:2095.01234",
+     "base_model:example-org/fixture-base",
+     "dataset:example-org/fixture-corpus",
+     "fixture-lib",
+     "license:apache-2.0",
+     "text-generation"
+    ],
+    "trendingScore": 12
+   },
+   "request": "huggingface.co/api/models/example-org/fixture-model/revision/aa00000000000000000000000000000000002095",
+   "status": 200
+  },
+  {
+   "body": "---\nlicense: apache-2.0\nlibrary_name: fixture-lib\npipeline_tag: text-generation\nlanguage:\n- en\ndatasets:\n- example-org/fixture-corpus\nbase_model: example-org/fixture-base\ntags:\n- arxiv:2095.01234\nauthors:\n- Ada Example\nmodel-index:\n- name: fixture-model\n  results:\n  - task:\n      type: text-classification\n      name: Text classification\n    dataset:\n      type: example-org/fixture-corpus\n      name: Fixture Corpus\n      split: test\n    metrics:\n    - type: accuracy\n      name: Accuracy\n      value: 0.71\n      verified: false\n---\n# Fixture Model\n\nThis card body is authored prose; it is cited by digest and never stored.\n",
+   "request": "huggingface.co/example-org/fixture-model/resolve/aa00000000000000000000000000000000002095/README.md",
+   "status": 200
+  },
+  {
+   "body": "---\nlicense: other\nlicense_name: fixture-model-licence-1.0\nlicense_link: LICENSE\nlibrary_name: fixture-lib\npipeline_tag: text-generation\nlanguage:\n- en\ndatasets:\n- example-org/fixture-corpus\nbase_model: example-org/fixture-base\ntags:\n- arxiv:2095.01234\nmodel-index:\n- name: fixture-model\n  results:\n  - task:\n      type: text-classification\n      name: Text classification\n    dataset:\n      type: example-org/fixture-corpus\n      name: Fixture Corpus\n      split: test\n    metrics:\n    - type: accuracy\n      name: Accuracy\n      value: 0.74\n      verified: false\n---\n# Fixture Model v2\n\nA revised body that is never stored either.\n",
+   "request": "huggingface.co/example-org/fixture-model/resolve/bb00000000000000000000000000000000002096/README.md",
+   "status": 200
+  },
+  {
+   "body": {
+    "author": "example-org",
+    "cardData": {
+     "license": "mit"
+    },
+    "disabled": false,
+    "downloads": 5,
+    "gated": false,
+    "id": "example-org/fixture-small-model",
+    "lastModified": "2096-02-02T00:00:00.000Z",
+    "library_name": "fixture-lib",
+    "likes": 1,
+    "pipeline_tag": "text-classification",
+    "sha": "cc00000000000000000000000000000000002096",
+    "siblings": [
+     {
+      "rfilename": "config.json"
+     }
+    ],
+    "tags": [
+     "fixture-lib",
+     "license:mit",
+     "pkg:pypi/fixture-lib",
+     "text-classification"
+    ]
+   },
+   "request": "huggingface.co/api/models/example-org/fixture-small-model",
+   "status": 200
+  },
+  {
+   "body": {
+    "branches": [
+     {
+      "name": "main",
+      "targetCommit": "cc00000000000000000000000000000000002096"
+     }
+    ],
+    "tags": []
+   },
+   "request": "huggingface.co/api/models/example-org/fixture-small-model/refs",
+   "status": 200
+  },
+  {
+   "body": null,
+   "request": "huggingface.co/example-org/fixture-small-model/resolve/cc00000000000000000000000000000000002096/README.md",
+   "status": 404
+  },
+  {
+   "body": {
+    "author": "example-org",
+    "cardData": {
+     "license": "cc-by-4.0",
+     "pretty_name": "Fixture Corpus",
+     "task_categories": [
+      "text-classification"
+     ]
+    },
+    "disabled": false,
+    "downloads": 42,
+    "gated": false,
+    "id": "example-org/fixture-corpus",
+    "lastModified": "2095-11-11T11:11:00.000Z",
+    "likes": 3,
+    "sha": "dd00000000000000000000000000000000002095",
+    "siblings": [
+     {
+      "rfilename": "README.md"
+     },
+     {
+      "rfilename": "data/train.parquet"
+     }
+    ],
+    "tags": [
+     "arxiv:2095.04321",
+     "doi:10.99999/fixture-corpus-2095",
+     "license:cc-by-4.0",
+     "task_categories:text-classification"
+    ]
+   },
+   "request": "huggingface.co/api/datasets/example-org/fixture-corpus",
+   "status": 200
+  },
+  {
+   "body": {
+    "branches": [
+     {
+      "name": "main",
+      "targetCommit": "dd00000000000000000000000000000000002095"
+     }
+    ],
+    "tags": []
+   },
+   "request": "huggingface.co/api/datasets/example-org/fixture-corpus/refs",
+   "status": 200
+  },
+  {
+   "body": "---\nlicense: cc-by-4.0\npretty_name: Fixture Corpus\ntask_categories:\n- text-classification\nsource_datasets:\n- https://www.openml.org/d/990061\ndoi: 10.99999/fixture-corpus-2095\n---\n# Fixture Corpus\n\nDataset card prose (never stored).\n",
+   "request": "huggingface.co/datasets/example-org/fixture-corpus/resolve/dd00000000000000000000000000000000002095/README.md",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape (verify field names before a live run); every organisation, repository, sha, id, value and date (2094-2099) is fictional; not live coverage",
+ "scenarios": [
+  "authored-fixture",
+  "organisation-check",
+  "pinned-revisions",
+  "card-front-matter-and-digest",
+  "self-reported-results",
+  "licence-change",
+  "excluded-counts-and-authors",
+  "optional-token-never-recorded"
+ ]
+}

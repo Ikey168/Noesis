@@ -405,6 +405,9 @@ def _mutability(name: str) -> str:
     from tools.knowledge_engine_mcp.web_archives import WEB_ARCHIVE_WRITES
     if name in WEB_ARCHIVE_WRITES:
         return "write"
+    from tools.knowledge_engine_mcp.ai_models import AI_MODELS_WRITES
+    if name in AI_MODELS_WRITES:
+        return "write"
     from tools.knowledge_engine_mcp.education_statistics import EDUCATION_WRITES
     if name in EDUCATION_WRITES:
         return "write"
@@ -1132,6 +1135,10 @@ def _required_scopes(server_stem: str, mutability: str, tool_name: str) -> list[
     )
     if server_stem == "knowledge_engine_mcp" and tool_name in WEB_ARCHIVE_TOOLS:
         return web_archive_scopes(tool_name, mutability)
+    from tools.knowledge_engine_mcp.ai_models import AI_MODELS_TOOLS
+    from tools.knowledge_engine_mcp.ai_models import required_scopes as ai_models_scopes
+    if server_stem == "knowledge_engine_mcp" and tool_name in AI_MODELS_TOOLS:
+        return ai_models_scopes(tool_name, mutability)
     from tools.knowledge_engine_mcp.trade import TRADE_TOOLS
     from tools.knowledge_engine_mcp.trade import required_scopes as trade_scopes
     if server_stem == "knowledge_engine_mcp" and tool_name in TRADE_TOOLS:

@@ -272,6 +272,11 @@ For the project overview and local setup, start with the
   side with statistical units, classifications, adjustment, base years, flags and vintages, reviewable place and
   NACE/NAICS candidate links, Labour and Trade links and monitors; no nowcast, re-based index, blended figure or
   reconstructed cell; [source audit](development/business-statistics-evidence/source-audit.md)
+- [Technology AI models and datasets guide](guides/technology-ai-models.md) — a model's or dataset's registry
+  records as of a date from Hugging Face Hub revisions, OpenML datasets, tasks and run evaluations and Epoch AI
+  notable-model rows, side by side and cited, with revision and declared-licence history, reviewable
+  cross-source identity, Literature and OSS links and monitors; no weights, verdicts, rankings or licence
+  interpretation; offline only; [source audit](development/ai-models-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and

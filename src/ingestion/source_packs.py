@@ -425,6 +425,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"platform-transparency"
 # Economics industry and business statistics: Eurostat STS, Eurostat business demography and Census CBP (#2738).
 NATIVE_CONNECTOR_MODULES["business-statistics"] = "src.ingestion.business_statistics_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"business-statistics"})
+# Technology AI models and datasets: Hugging Face Hub metadata, OpenML and Epoch AI (#2742).
+NATIVE_CONNECTOR_MODULES["ai-models"] = "src.ingestion.ai_models_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"ai-models"})
 
 
 def native_connector_module(connector: str) -> Any:

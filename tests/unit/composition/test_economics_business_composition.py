@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import json
+import re
 from pathlib import Path
 
 import duckdb
@@ -146,4 +147,5 @@ def test_taxonomy_classifies_the_provider_and_the_gap_row_is_removed():
                                                            "shapes": ["statistical-series"]}
     program = (ROOT / "docs/roadmaps/domain-coverage-program.md").read_text()
     assert "| `industry-business` |" not in program
-    assert "67 are covered and 22 are gaps" in program
+    covered, gaps = map(int, re.search(r"(\d+) are covered and (\d+) are gaps", " ".join(program.split())).groups())
+    assert covered + gaps == 89 and covered >= 67

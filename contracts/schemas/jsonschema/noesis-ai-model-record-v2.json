@@ -1,0 +1,104 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "noesis-ai-model-record-v2",
+  "title": "AI model and dataset registry statement (technology.ai-models)",
+  "description": "One statement as a source stated it: a Hugging Face Hub model or dataset repository at a pinned revision sha (or a source-stated withdrawn, removed_by_source or renamed state), its refs, an OpenML dataset version or task, an Epoch AI notable-model row with its estimates and confidence label, or an observation (a self-reported card result or an OpenML run evaluation) labelled with who reported it. Appended as revisions by src/kb/ai_models_store.py, never overwritten; a pinned sha is immutable. The card body is cited by revision URL and digest and never stored; no statement carries a person field, a popularity count or a verdict (refused by src/kb/ai_models_records.py at parse time). Declared licences are stated as published and normalised to SPDX only on an exact licence-id match.",
+  "type": "object",
+  "required": ["record_type", "source"],
+  "properties": {
+    "record_type": {"enum": ["hub_repository_revision", "hub_refs", "openml_dataset_revision", "openml_task_revision", "epoch_model_revision", "observation", "evaluation_listing", "epoch_listing"]},
+    "source": {"enum": ["huggingface-hub", "openml", "epoch-ai"]},
+    "kind": {"enum": ["model", "dataset"]},
+    "repo_id": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9_.-]*/[A-Za-z0-9][A-Za-z0-9_.-]*$"},
+    "organisation": {"type": "string"},
+    "sha": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "last_modified": {"type": "string", "format": "date-time"},
+    "state": {"enum": ["published", "withdrawn", "removed_by_source", "renamed"]},
+    "state_detail": {"type": "object"},
+    "declared": {
+      "type": "object",
+      "properties": {
+        "pipeline_tag": {"type": "string"},
+        "library_name": {"type": "string", "description": "stated text; a package link needs a stated registry package"},
+        "tags": {"type": "array", "items": {"type": "string"}},
+        "base_model": {"type": "array", "items": {"type": "string"}},
+        "datasets": {"type": "array", "items": {"type": "string"}},
+        "languages": {"type": "array", "items": {"type": "string"}},
+        "licence": {"$ref": "#/definitions/licence"}
+      }
+    },
+    "card": {
+      "type": "object",
+      "required": ["status", "url"],
+      "properties": {
+        "status": {"enum": ["stated", "none", "over_cap"]},
+        "url": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "body_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "front_matter_sha256": {"type": ["string", "null"]},
+        "bytes": {"type": "integer", "minimum": 0, "maximum": 1000000},
+        "front_matter": {"type": "object", "propertyNames": {"enum": ["license", "license_name", "license_link", "language", "library_name", "pipeline_tag", "tags", "datasets", "base_model", "base_model_relation", "metrics", "task_categories", "task_ids", "size_categories", "source_datasets", "pretty_name", "paperswithcode_id", "doi", "arxiv"]}},
+        "body": {"const": "cited by revision URL and digest; never stored"}
+      }
+    },
+    "files": {"type": "object"},
+    "refs": {"type": "object"},
+    "identifiers": {
+      "type": "object",
+      "properties": {
+        "arxiv": {"type": "array", "items": {"type": "string"}},
+        "doi": {"type": "array", "items": {"type": "string"}},
+        "openml_dataset": {"type": "array", "items": {"type": "string"}},
+        "packages": {"type": "array", "items": {"type": "string", "pattern": "^pkg:"}},
+        "hub": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "dataset_id": {"type": "integer", "minimum": 1},
+    "task_id": {"type": "integer", "minimum": 1},
+    "name": {"type": "string"},
+    "version": {"type": "string"},
+    "status": {"enum": ["active", "in_preparation", "deactivated"]},
+    "licence": {"$ref": "#/definitions/licence"},
+    "md5_checksum": {"type": "string"},
+    "description_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "qualities": {"type": "object", "additionalProperties": {"type": ["string", "null"]}},
+    "model": {"type": "string"},
+    "organization": {"type": "string"},
+    "publication_date": {"type": "string"},
+    "domain": {"type": "string"},
+    "estimates": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value_text", "confidence"],
+        "properties": {"value_text": {"type": "string", "minLength": 1}, "unit": {"type": "string"}, "column": {"type": "string"}, "confidence": {"type": ["string", "null"]}}
+      }
+    },
+    "confidence": {"type": ["string", "null"]},
+    "observation_kind": {"enum": ["self_reported_result", "openml_run_evaluation"]},
+    "reported_by": {"type": "string", "minLength": 1},
+    "run_id": {"type": "integer", "minimum": 1},
+    "measure": {"type": "string"},
+    "value_text": {"type": ["string", "null"]},
+    "url": {"type": ["string", "null"]}
+  },
+  "definitions": {
+    "licence": {
+      "type": "object",
+      "description": "The declared licence fields as stated, with where they were stated; never interpreted.",
+      "properties": {
+        "license": {"type": "string"},
+        "license_name": {"type": "string"},
+        "license_link": {"type": "string"},
+        "licence": {"type": ["string", "null"]},
+        "stated_in": {"type": "string"}
+      }
+    }
+  },
+  "not": {
+    "anyOf": [
+      {"required": ["author"]}, {"required": ["authors"]}, {"required": ["creator"]}, {"required": ["contributor"]},
+      {"required": ["uploader"]}, {"required": ["downloads"]}, {"required": ["likes"]}, {"required": ["card_body"]}
+    ]
+  }
+}

@@ -580,6 +580,14 @@ def _business_statistics_projector(conn: Any) -> Any:
 
 # Economics industry and business statistics (economics.business, #2738).
 PROJECTORS["noesis-business-statistics-record-v2"] = _business_statistics_projector
+def _ai_models_projector(conn: Any) -> Any:
+    from src.kb.ai_models_store import AiModelsProjector
+
+    return AiModelsProjector(conn)
+
+
+# Technology AI models and datasets (technology.ai-models, #2742).
+PROJECTORS["noesis-ai-model-record-v2"] = _ai_models_projector
 
 _DDL = """
 CREATE TABLE IF NOT EXISTS source_pack_license_acceptance (
