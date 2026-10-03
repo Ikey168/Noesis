@@ -74,7 +74,7 @@ leaves at least one source.
 | II01 | internet infrastructure | `internet-infrastructure` | RIPEstat; PeeringDB; RDAP; crt.sh; CT log list | direct CT logs (unbounded); CAIDA (terms) |
 | AI01 | AI models | `ai-models` | Hugging Face Hub metadata; OpenML; Epoch AI | none |
 | CY01 | cyber incidents | `cyber-incidents` | SEC 8-K Item 1.05; Washington AG list (conditional) | HHS OCR portal (no API) |
-| MO01 | media outlets | `media-outlets` | **none** | Media Ownership Monitor (no machine access, terms); MAVISE and KEK (until an export and terms are confirmed) |
+| MO01 | media outlets | `media-outlets` | Wikidata ownership statements, narrowly (statements, never a register; amendment #2754) | Media Ownership Monitor (no machine access, terms); MAVISE, KEK, Ofcom licence lists and the medienanstalten TV station database (until an export or file and terms are confirmed); EMFA Art. 6 national databases (none confirmed) |
 
 IB01 is covered offline: `economics.business` (track
 [#2738](https://github.com/Ikey168/Noesis/issues/2738)) holds fixture-tested
@@ -82,8 +82,11 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
-MO01 leaves no source, so `media-outlets-ownership` stays a gap until an
-amended audit finds one. AH01 rests on one source whose records are
+MO01 left no source; its amendment (#2754, written offline) leaves only
+Wikidata ownership statements, kept as "what Wikidata states" and never as a
+register, and no register-grade source. `media-outlets-ownership` stays a gap
+until a tracker's live validation passes; a tracker may open only on the
+conditions in the audit's "Conclusion of the amendment". AH01 rests on one source whose records are
 themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 
 ## Gap table
