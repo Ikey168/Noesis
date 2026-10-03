@@ -2,6 +2,11 @@
 
 One owned event loop/session per client; deadline cancellation never creates a
 replacement browser or leaks credentials into captured evidence.
+
+The session is opened with ``streamable_http_client`` and a client built here
+(mcp 2 removed ``streamablehttp_client`` and its ``httpx_client_factory``);
+``src.integrations.mcp_sdk`` resolves the remaining 1.x/2.x differences and
+records the mcp 2 redirect, session-expiry and OAuth-issuer review.
 """
 
 from __future__ import annotations
@@ -12,9 +17,16 @@ import ipaddress
 import json
 import threading
 import time
-from datetime import timedelta
 from urllib.parse import urlsplit
 
+from src.integrations.mcp_sdk import (
+    field,
+    page_params,
+    read_timeout,
+    session_streams,
+    streamable_http,
+    wire,
+)
 from src.kb.federation import FederationError
 
 GITHUB_TOOLS = frozenset({"issue_read", "pull_request_read"})
@@ -113,9 +125,9 @@ class MCPHTTPClient:
             self._ready.set()
 
     async def _serve(self):
-        import httpx
         from mcp import ClientSession
-        from mcp.client.streamable_http import streamablehttp_client
+
+        streamable_http_client, httpx = streamable_http()
 
         self._loop = asyncio.get_running_loop()
         self._stop = asyncio.Event()
@@ -160,30 +172,22 @@ class MCPHTTPClient:
             async def aclose(self):
                 await self.inner.aclose()
 
-        def factory(headers=None, timeout=None, auth=None):
-            return httpx.AsyncClient(
+        async with (
+            httpx.AsyncClient(
                 headers=headers,
-                timeout=timeout,
-                auth=auth,
+                timeout=httpx.Timeout(self.timeout, read=self.timeout),
                 transport=LimitedTransport(),
                 follow_redirects=False,
                 trust_env=False,
-            )
-
-        async with (
-            streamablehttp_client(
-                self.endpoint,
-                headers=headers,
-                timeout=self.timeout,
-                sse_read_timeout=self.timeout,
-                httpx_client_factory=factory,
-            ) as (reader, writer, _),
+            ) as http_client,
+            streamable_http_client(self.endpoint, http_client=http_client) as streams,
             ClientSession(
-                reader, writer, read_timeout_seconds=timedelta(seconds=self.timeout)
+                *session_streams(streams),
+                read_timeout_seconds=read_timeout(self.timeout),
             ) as session,
         ):
             initialized = await session.initialize()
-            self.version = initialized.serverInfo.version
+            self.version = field(initialized, "serverInfo").version
             self._session = session
             self._ready.set()
             await self._stop.wait()
@@ -234,12 +238,12 @@ class MCPHTTPClient:
     async def _tools(self):
         values, cursor, seen = [], None, set()
         for _ in range(10):
-            page = await self._session.list_tools(cursor=cursor)
+            page = await self._session.list_tools(params=page_params(cursor))
             for tool in page.tools:
                 if tool.name in self.allowed_tools:
-                    self._schemas[tool.name] = tool.inputSchema
-                    values.append(tool.model_dump(mode="json"))
-            cursor = page.nextCursor
+                    self._schemas[tool.name] = field(tool, "inputSchema")
+                    values.append(wire(tool))
+            cursor = field(page, "nextCursor")
             if not cursor:
                 return self._bounded(values)
             if cursor in seen:
@@ -273,12 +277,12 @@ class MCPHTTPClient:
 
         async def call():
             result = await self._session.call_tool(name, arguments)
-            if result.isError:
+            if field(result, "isError"):
                 raise FederationError(
                     "remote_tool_error",
                     "MCP tool returned an error, not source evidence",
                 )
-            return self._bounded(result.model_dump(mode="json", exclude_none=True))
+            return self._bounded(wire(result, exclude_none=True))
 
         return self._submit(call(), cancelled=cancelled)
 
