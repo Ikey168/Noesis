@@ -107,8 +107,8 @@ def test_each_selection_resolves_independently_and_together(selection):
         assert bound(plan) == {"economics.core"}
     if selection in (["trade-comtrade"], ["trade-comext"]):
         assert bound(plan) == FEATURE_PROVIDERS
-        # The bundle now pins 1.6.0 (the labour sources, #2219); this provider still declares ^1.5.0, which it meets.
-        assert {**PACK, "version": "1.6.0", "range": "^1.6.0"} in plan["source_packs"]
+        # The bundle now pins 1.7.0 (the business sources, #2738); this provider still declares ^1.5.0, which it meets.
+        assert {**PACK, "version": "1.7.0", "range": "^1.7.0"} in plan["source_packs"]
     view = CompositionView(plan, provider_descriptors(), adapt_all().values())
     assert ("noesis-knowledge-engine.query_trade_flows" in view.tools) == trade
     assert "noesis-kb.kb_economic" in view.tools

@@ -965,7 +965,7 @@
       "pack": null,
       "reason": null,
       "state": "available",
-      "tool_count": 1803,
+      "tool_count": 1823,
       "tools": [
         "noesis-knowledge-engine.accept_awareness_jev_suggestion",
         "noesis-knowledge-engine.accept_citation_repair",
@@ -1069,6 +1069,11 @@
         "noesis-knowledge-engine.build_procurement_shortlist",
         "noesis-knowledge-engine.build_research_package",
         "noesis-knowledge-engine.build_review_annotation_dataset",
+        "noesis-knowledge-engine.business_comparability_notes",
+        "noesis-knowledge-engine.business_indicator_for_place",
+        "noesis-knowledge-engine.business_readiness",
+        "noesis-knowledge-engine.business_series_history",
+        "noesis-knowledge-engine.business_source_contracts",
         "noesis-knowledge-engine.calculate_decision_sensitivity",
         "noesis-knowledge-engine.calculate_spatial_relation",
         "noesis-knowledge-engine.campaign_finance_affiliate_donations",
@@ -1111,6 +1116,7 @@
         "noesis-knowledge-engine.company_source_contracts",
         "noesis-knowledge-engine.compare_advisory_revisions",
         "noesis-knowledge-engine.compare_budget_line",
+        "noesis-knowledge-engine.compare_business_places",
         "noesis-knowledge-engine.compare_change_briefs",
         "noesis-knowledge-engine.compare_claim_sources",
         "noesis-knowledge-engine.compare_control_list_editions",
@@ -1166,6 +1172,7 @@
         "noesis-knowledge-engine.create_bafin_notice_monitor",
         "noesis-knowledge-engine.create_binary_forecast",
         "noesis-knowledge-engine.create_biodiversity_monitor",
+        "noesis-knowledge-engine.create_business_monitor",
         "noesis-knowledge-engine.create_campaign_finance_monitor",
         "noesis-knowledge-engine.create_change_brief_subscription",
         "noesis-knowledge-engine.create_clinical_monitor",
@@ -1491,6 +1498,7 @@
         "noesis-knowledge-engine.humanitarian_source_contracts",
         "noesis-knowledge-engine.impact_risk_listing_as_of",
         "noesis-knowledge-engine.import_audit_findings",
+        "noesis-knowledge-engine.import_business_concordance",
         "noesis-knowledge-engine.import_certificates",
         "noesis-knowledge-engine.import_demographic_figure_sheet",
         "noesis-knowledge-engine.import_election_poll_release",
@@ -1653,6 +1661,7 @@
         "noesis-knowledge-engine.link_budget_acts",
         "noesis-knowledge-engine.link_budget_districts",
         "noesis-knowledge-engine.link_budget_dossier",
+        "noesis-knowledge-engine.link_business_series",
         "noesis-knowledge-engine.link_campaign_finance_contests",
         "noesis-knowledge-engine.link_campaign_finance_lobbying",
         "noesis-knowledge-engine.link_campaign_finance_ownership",
@@ -1720,6 +1729,9 @@
         "noesis-knowledge-engine.list_bill_votes",
         "noesis-knowledge-engine.list_biodiversity_links",
         "noesis-knowledge-engine.list_budget_lines",
+        "noesis-knowledge-engine.list_business_identity_assertions",
+        "noesis-knowledge-engine.list_business_links",
+        "noesis-knowledge-engine.list_business_series",
         "noesis-knowledge-engine.list_campaign_finance_identity_candidates",
         "noesis-knowledge-engine.list_campaign_finance_links",
         "noesis-knowledge-engine.list_change_briefs",
@@ -1961,6 +1973,7 @@
         "noesis-knowledge-engine.poll_astronomy_monitor",
         "noesis-knowledge-engine.poll_bafin_notice_monitor",
         "noesis-knowledge-engine.poll_biodiversity_monitor",
+        "noesis-knowledge-engine.poll_business_monitor",
         "noesis-knowledge-engine.poll_campaign_finance_monitor",
         "noesis-knowledge-engine.poll_cited_evidence_alerts",
         "noesis-knowledge-engine.poll_clinical_monitor",
@@ -2064,6 +2077,8 @@
         "noesis-knowledge-engine.propose_authored_report_edit",
         "noesis-knowledge-engine.propose_bafin_identity_link",
         "noesis-knowledge-engine.propose_bafin_identity_matches",
+        "noesis-knowledge-engine.propose_business_classification_links",
+        "noesis-knowledge-engine.propose_business_place_matches",
         "noesis-knowledge-engine.propose_campaign_finance_identity_matches",
         "noesis-knowledge-engine.propose_certificate_product_links",
         "noesis-knowledge-engine.propose_competition_identity_matches",
@@ -2173,6 +2188,7 @@
         "noesis-knowledge-engine.real_estate_readiness",
         "noesis-knowledge-engine.real_estate_source_contracts",
         "noesis-knowledge-engine.recheck_modulo_plugin_link",
+        "noesis-knowledge-engine.record_business_comparability",
         "noesis-knowledge-engine.record_citation_health",
         "noesis-knowledge-engine.record_clinical_trial_design",
         "noesis-knowledge-engine.record_decision_evidence",
@@ -2345,6 +2361,7 @@
         "noesis-knowledge-engine.revert_astronomy_identity_match",
         "noesis-knowledge-engine.revert_bafin_identity_match",
         "noesis-knowledge-engine.revert_bill_record_link",
+        "noesis-knowledge-engine.revert_business_identity_match",
         "noesis-knowledge-engine.revert_campaign_finance_identity_match",
         "noesis-knowledge-engine.revert_competition_identity_match",
         "noesis-knowledge-engine.revert_component_manufacturer_link",
@@ -2402,6 +2419,8 @@
         "noesis-knowledge-engine.review_astronomy_launch_site",
         "noesis-knowledge-engine.review_bafin_identity_match",
         "noesis-knowledge-engine.review_bill_record_link",
+        "noesis-knowledge-engine.review_business_comparability",
+        "noesis-knowledge-engine.review_business_identity_match",
         "noesis-knowledge-engine.review_campaign_finance_identity_match",
         "noesis-knowledge-engine.review_certificate_product_link",
         "noesis-knowledge-engine.review_change_brief",
@@ -2519,6 +2538,7 @@
         "noesis-knowledge-engine.run_astronomy_monitor",
         "noesis-knowledge-engine.run_bafin_notice_monitor",
         "noesis-knowledge-engine.run_biodiversity_monitor",
+        "noesis-knowledge-engine.run_business_monitor",
         "noesis-knowledge-engine.run_campaign_finance_monitor",
         "noesis-knowledge-engine.run_clinical_monitor",
         "noesis-knowledge-engine.run_competition_monitor",
@@ -2776,7 +2796,7 @@
         "streamable-http"
       ],
       "version": "1",
-      "visible_tool_count": 1803
+      "visible_tool_count": 1823
     }
   ],
   "source": ".mcp.json + registered FastMCP tool discovery",
@@ -2787,11 +2807,11 @@
     },
     "servers": 32,
     "states": {
-      "available": 160,
+      "available": 161,
       "degraded": 174,
-      "unauthorized": 1807
+      "unauthorized": 1826
     },
-    "tools": 2141
+    "tools": 2161
   },
   "tools": [
     {
@@ -27910,6 +27930,238 @@
       "version": "1"
     },
     {
+      "cost_class": "low",
+      "description": "Comparability notes of a series: source-stated breaks, provisional periods and base-year changes, and\nreviewer notes; notes never merge series.",
+      "id": "noesis-knowledge-engine.business_comparability_notes",
+      "input_schema": {
+        "properties": {
+          "include_inactive": {
+            "default": false,
+            "type": "boolean"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "business_comparability_notes",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Published business statistics for a place (place id or {scheme, code}) and optional concept and\nclassification ({scheme, version, code}) as released by a date: each source side by side with definition,\nstatistical unit, classification, adjustment, base year, vintage, flags, withheld periods and comparability\nnotes; every value cites source, series key, vintage and retrieval.\nExclusions: no nowcasting, no filled periods, no re-based indices or own seasonal adjustment, no blending of\nEurostat and Census figures, no reconstructed suppressed cells, no derived figures and no forecasts.",
+      "id": "noesis-knowledge-engine.business_indicator_for_place",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "period_from": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "period_to": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "place": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "additionalProperties": true,
+                "type": "object"
+              }
+            ]
+          }
+        },
+        "required": [
+          "namespace",
+          "place"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "business_indicator_for_place",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Whether the business-statistics feature is selected, the stores, per-provider releases and staleness.",
+      "id": "noesis-knowledge-engine.business_readiness",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "business_readiness",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Every retained vintage of a business series with what each release added, revised or dropped (values\nand flags before and after), definition changes, removals, and the comparability notes per release pair\n(provisional periods confirmed, breaks, base-year changes, NAICS vintages).\nExclusions: no nowcasting, no filled periods, no re-based indices or own seasonal adjustment, no blending of\nEurostat and Census figures, no reconstructed suppressed cells, no derived figures and no forecasts.",
+      "id": "noesis-knowledge-engine.business_series_history",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "business_series_history",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Per-provider access decisions (Eurostat STS, Eurostat business demography, US Census CBP), keys, limits,\nterms, revision models, CBP disclosure protection, caps and the bounded coverage; every provider is\nunverified-live until a dated live run.\nExclusions: no nowcasting, no filled periods, no re-based indices or own seasonal adjustment, no blending of\nEurostat and Census figures, no reconstructed suppressed cells, no derived figures and no forecasts.",
+      "id": "noesis-knowledge-engine.business_source_contracts",
+      "input_schema": {
+        "properties": {},
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "business_source_contracts",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": null,
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [],
+      "server": "noesis-knowledge-engine",
+      "state": "available",
+      "version": "1"
+    },
+    {
       "cost_class": "medium",
       "description": "Record bounded weighted-utility comparisons with ties, missing data, and formula provenance.",
       "id": "noesis-knowledge-engine.calculate_decision_sensitivity",
@@ -30111,6 +30363,93 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Several places side by side (e.g. Germany through Eurostat, California through CBP), each with its own\nsources, statistical units and classifications, and the recorded differences per pair; never blended.\nExclusions: no nowcasting, no filled periods, no re-based indices or own seasonal adjustment, no blending of\nEurostat and Census figures, no reconstructed suppressed cells, no derived figures and no forecasts.",
+      "id": "noesis-knowledge-engine.compare_business_places",
+      "input_schema": {
+        "properties": {
+          "as_of": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "classifications": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "places": {
+            "items": {},
+            "type": "array"
+          }
+        },
+        "required": [
+          "namespace",
+          "places"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "compare_business_places",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -33127,6 +33466,61 @@
       ],
       "required_scopes": [
         "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Subscribe to a business series, provider, concept, classification code or place: notices for new\nreleases, new periods, revised values, definition changes and removals (record changes, no forecasts).",
+      "id": "noesis-knowledge-engine.create_business_monitor",
+      "input_schema": {
+        "properties": {
+          "delivery": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "request_key": {
+            "type": "string"
+          },
+          "target": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "request_key",
+          "target"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "create_business_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",
@@ -50473,6 +50867,44 @@
     },
     {
       "cost_class": "medium",
+      "description": "Record a published classification concordance (NACE-ISIC, NAICS-ISIC, 2017-2022 NAICS, ...) with its URL,\npublisher, publication date and file digest; each row exact, partial or one-to-many as published.",
+      "id": "noesis-knowledge-engine.import_business_concordance",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          },
+          "table": {
+            "additionalProperties": true,
+            "type": "object"
+          }
+        },
+        "required": [
+          "namespace",
+          "table"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "import_business_concordance",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Import certificate or conformity-declaration records from a named source with locators.",
       "id": "noesis-knowledge-engine.import_certificates",
       "input_schema": {
@@ -57750,6 +58182,49 @@
     },
     {
       "cost_class": "medium",
+      "description": "Link business series to Labour and Trade series for the same place (shared code or accepted place match)\nand methodology references by exact URL; never by name similarity, nothing combined.\nExclusions: no nowcasting, no filled periods, no re-based indices or own seasonal adjustment, no blending of\nEurostat and Census figures, no reconstructed suppressed cells, no derived figures and no forecasts.",
+      "id": "noesis-knowledge-engine.link_business_series",
+      "input_schema": {
+        "properties": {
+          "labour_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "trade_namespace": {
+            "default": "global",
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "link_business_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:write",
+        "knowledge:labour:read",
+        "knowledge:trade:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Link filing versions and independent expenditures to election contests through accepted candidate and\nparty matches; degrades when the elections feature is absent and reports missing targets.",
       "id": "noesis-knowledge-engine.link_campaign_finance_contests",
       "input_schema": {
@@ -61127,6 +61602,206 @@
       ],
       "required_scopes": [
         "knowledge:economic:public-finance:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Place matches and NACE/NAICS candidate links in force (proposed, ambiguous, unmatched, accepted,\nrejected, reverted), each citing its basis, concordance rows and reviewer.",
+      "id": "noesis-knowledge-engine.list_business_identity_assertions",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_business_identity_assertions",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Links of business series to Labour and Trade series (shared code or accepted place match) and to\nmethodology documents (exact URL), each pinning both revisions; absent providers and targets reported.",
+      "id": "noesis-knowledge-engine.list_business_links",
+      "input_schema": {
+        "properties": {
+          "kind": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "state": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_business_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
+      "description": "Business series with source, dataset, indicator, classification and version, size class, place,\nadjustment, unit and base year and statistical unit; adjusted, unadjusted and rebased series are separate.",
+      "id": "noesis-knowledge-engine.list_business_series",
+      "input_schema": {
+        "properties": {
+          "area": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "classification": {
+            "anyOf": [
+              {
+                "additionalProperties": true,
+                "type": "object"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "concept": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "provider": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "list_business_series",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -73514,6 +74189,44 @@
     },
     {
       "cost_class": "low",
+      "description": "Poll a business monitor's events (new releases, new periods, revisions, definition changes, removals).",
+      "id": "noesis-knowledge-engine.poll_business_monitor",
+      "input_schema": {
+        "properties": {
+          "cursor": {
+            "default": "",
+            "type": "string"
+          },
+          "subscription_id": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "read",
+      "name": "poll_business_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read",
+        "knowledge:subscriptions:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "low",
       "description": "Delivered campaign-finance monitor events after a cursor.",
       "id": "noesis-knowledge-engine.poll_campaign_finance_monitor",
       "input_schema": {
@@ -78118,6 +78831,77 @@
         "market:bafin:read",
         "knowledge:ownership:read",
         "knowledge:ownership:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose candidate links between stated NACE and NAICS codes (and NAICS vintages) through published\nconcordances only; links are reviewable and never merge series.",
+      "id": "noesis-knowledge-engine.propose_business_classification_links",
+      "input_schema": {
+        "properties": {
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_business_classification_links",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Offer every stated area code to Geospatial places by the published code; ambiguous codes stay review\ncandidates; nothing is used until reviewed.",
+      "id": "noesis-knowledge-engine.propose_business_place_matches",
+      "input_schema": {
+        "properties": {
+          "geo_namespace": {
+            "default": "global",
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "propose_business_place_matches",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:write",
+        "knowledge:geospatial:read"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -83102,6 +83886,81 @@
       ],
       "required_scopes": [
         "knowledge:intake:read"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Propose a typed, cited comparability note on a series or between two series; notes never merge series.",
+      "id": "noesis-knowledge-engine.record_business_comparability",
+      "input_schema": {
+        "properties": {
+          "cited": {
+            "items": {},
+            "type": "array"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "other_series_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "periods": {
+            "anyOf": [
+              {
+                "items": {
+                  "type": "string"
+                },
+                "type": "array"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "relation": {
+            "type": "string"
+          },
+          "series_id": {
+            "type": "string"
+          },
+          "statement": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "series_id",
+          "relation",
+          "statement",
+          "cited"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "record_business_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:write"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -93260,6 +94119,47 @@
     },
     {
       "cost_class": "medium",
+      "description": "Revert a reviewed place match or candidate link; queries stop using it.",
+      "id": "noesis-knowledge-engine.revert_business_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "revert_business_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
       "description": "Revert an accepted or rejected campaign-finance identity decision; records stay intact.",
       "id": "noesis-knowledge-engine.revert_campaign_finance_identity_match",
       "input_schema": {
@@ -95658,6 +96558,107 @@
       "required_scopes": [
         "knowledge:political:legislation:read",
         "knowledge:political:legislation:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept, reject or revert a proposed comparability note with a reason (reviewed by another principal).",
+      "id": "noesis-knowledge-engine.review_business_comparability",
+      "input_schema": {
+        "properties": {
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "note_id": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "note_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_business_comparability",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:review"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Accept or reject a proposed place match or candidate link with a reason (an ambiguous place by choosing a\ncited candidate).",
+      "id": "noesis-knowledge-engine.review_business_identity_match",
+      "input_schema": {
+        "properties": {
+          "assertion_id": {
+            "type": "string"
+          },
+          "decision": {
+            "type": "string"
+          },
+          "namespace": {
+            "type": "string"
+          },
+          "place_id": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          },
+          "reason": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "namespace",
+          "assertion_id",
+          "decision",
+          "reason"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "review_business_identity_match",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:review"
       ],
       "server": "noesis-knowledge-engine",
       "state": "unauthorized",
@@ -101466,6 +102467,51 @@
       ],
       "required_scopes": [
         "knowledge:environment:read",
+        "knowledge:subscriptions:write"
+      ],
+      "server": "noesis-knowledge-engine",
+      "state": "unauthorized",
+      "version": "1"
+    },
+    {
+      "cost_class": "medium",
+      "description": "Evaluate a business monitor at a committed watermark; notices cite the vintages before and after.",
+      "id": "noesis-knowledge-engine.run_business_monitor",
+      "input_schema": {
+        "properties": {
+          "subscription_id": {
+            "type": "string"
+          },
+          "watermark": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "default": null
+          }
+        },
+        "required": [
+          "subscription_id"
+        ],
+        "type": "object"
+      },
+      "latency_class": "interactive",
+      "mutability": "write",
+      "name": "run_business_monitor",
+      "output_schema": {
+        "additionalProperties": true,
+        "type": "object"
+      },
+      "reason": "required scope is not granted",
+      "required_data": [
+        "knowledge-engine-runtime"
+      ],
+      "required_scopes": [
+        "knowledge:business:read",
         "knowledge:subscriptions:write"
       ],
       "server": "noesis-knowledge-engine",

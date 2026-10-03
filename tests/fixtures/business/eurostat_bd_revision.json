@@ -1,0 +1,14 @@
+{
+ "native_pages": [
+  {
+   "body": "DATAFLOW,LAST UPDATE,freq,indic_sb,nace_r2,sizeclas,geo,TIME_PERIOD,OBS_VALUE,OBS_FLAG\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11910,B-S_X_O_S94,TOTAL,DE,2094,3010200,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11910,B-S_X_O_S94,TOTAL,DE,2095,3024500,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11910,B-S_X_O_S94,TOTAL,DE,2096,3031800,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11920,B-S_X_O_S94,TOTAL,DE,2094,271300,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11920,B-S_X_O_S94,TOTAL,DE,2095,:,c\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11920,B-S_X_O_S94,TOTAL,DE,2096,268400,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11930,B-S_X_O_S94,TOTAL,DE,2094,248900,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11930,B-S_X_O_S94,TOTAL,DE,2095,249300,\nESTAT:BD_9BD_SZ_CL_R2(1.0),21/10/24 23:00:00,A,V11930,B-S_X_O_S94,TOTAL,DE,2096,255100,p\n",
+   "request": "/eurostat/api/dissemination/sdmx/2.1/data/bd_9bd_sz_cl_r2/A.V11910+V11920+V11930.B-S_X_O_S94.TOTAL.DE?format=SDMX-CSV&startPeriod=2094",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape; every value is fictional and the reference periods (2094-2097) are fictional (not live coverage); release stamps are past-dated so runtime retrievals never precede them",
+ "scenarios": [
+  "provisional-deaths-revised",
+  "new-period"
+ ]
+}

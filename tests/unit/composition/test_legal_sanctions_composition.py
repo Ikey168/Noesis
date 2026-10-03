@@ -140,6 +140,7 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
             "feature": "bafin-voting-rights",
             "reason": "not selected",
         },
+        {"pack": "economics", "feature": "business-statistics", "reason": "not selected"},  # #2738
         {"pack": "corporate-ownership", "feature": "competition", "reason": "not selected"},  # #2217
         {"pack": "legal", "feature": "courts", "reason": "not selected"},  # #2218
         {"pack": "economics", "feature": "demographics", "reason": "not selected"},

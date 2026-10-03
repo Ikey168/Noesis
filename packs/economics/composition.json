@@ -56,6 +56,14 @@
           "name": "noesis-extractives-record",
           "version": "2.0.0"
         }
+      },
+      {
+        "id": "economics.business",
+        "provider": "economics.business",
+        "contract": {
+          "name": "noesis-business-statistics-record",
+          "version": "2.0.0"
+        }
       }
     ],
     "providers": [
@@ -86,13 +94,17 @@
       {
         "id": "economics.extractives",
         "version": "1.0.0"
+      },
+      {
+        "id": "economics.business",
+        "version": "1.0.0"
       }
     ],
     "source_packs": [
       {
         "pack_id": "economic-statistics-and-filings",
-        "version": "1.6.0",
-        "range": "^1.6.0"
+        "version": "1.7.0",
+        "range": "^1.7.0"
       },
       {
         "pack_id": "economic-shipping-and-logistics",
@@ -232,6 +244,29 @@
         },
         "source_packs": [
           "economic-extractives"
+        ]
+      },
+      {
+        "id": "economics.business",
+        "description": "Industry and business statistics: a place's published production indices, business demography and County Business Patterns per source as of a release vintage, with statistical units, classifications, adjustment, base years, flags, vintages and comparability notes, side by side and never blended",
+        "workflow_defaults": {
+          "as_of": "the vintage released on or before the requested date, cited per value; every vintage on request",
+          "sources": "Eurostat STS, Eurostat business demography and Census CBP side by side; enterprises, kind-of-activity units and establishments are different statistical units and are never blended",
+          "series": "adjusted and unadjusted series, rebased indices and NAICS vintages are separate series; nothing is re-based or adjusted",
+          "cells": "withheld, suppressed and confidential cells are shown as such and never reconstructed; noise-infused values are never exact",
+          "identity": "places through accepted matches; NACE and NAICS only through reviewed candidate links from published concordances; unlinked codes queryable natively"
+        },
+        "vocabulary": {
+          "statistical unit": "enterprise, kind-of-activity unit or establishment, as the source states",
+          "adjustment": "NSA (not adjusted), CA (calendar adjusted) or SCA (seasonally and calendar adjusted), as published",
+          "base year": "the index reference year of a unit code (I21 = 2021=100); a new base year is a new series",
+          "vintage": "one release of a series; a revised value is a new vintage",
+          "noise flag": "CBP's per-value noise-infusion flag (low, moderate or high noise)",
+          "withheld": "a cell the source does not publish to avoid disclosure; it carries no value",
+          "candidate link": "a reviewable NACE-NAICS or NAICS-vintage relation from published concordances; never a merge"
+        },
+        "source_packs": [
+          "economic-statistics-and-filings"
         ]
       }
     ]
@@ -611,6 +646,43 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "reports and statistics are acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "business-statistics",
+      "default": false,
+      "description": "Industry and business statistics: Eurostat short-term business statistics (SDMX), Eurostat business demography (SDMX) and US Census County Business Patterns (Data API, optional key) in the Economics series storage with statistical units, classifications, adjustment, base years, flags and release vintages, reviewable place matches and NACE/NAICS candidate links through published concordances, citation links to Labour and Trade, comparability notes, as-of answers and subscription monitors. No nowcasting, filled periods, re-based indices, own seasonal adjustment, blending of Eurostat and Census figures, reconstructed suppressed cells, derived figures or forecasts; Labour and Trade links degrade to provider_absent when those stores are not held.",
+      "requires": [
+        {
+          "capability": "economics.business",
+          "contract": "noesis-business-statistics-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own entry points use these operations"
+        },
+        {
+          "capability": "economics.knowledge",
+          "contract": "noesis-economic-knowledge",
+          "range": "^1.0.0",
+          "reason": "business values and vintages live in the Economics series storage"
+        },
+        {
+          "capability": "geospatial.place-resolution",
+          "contract": "noesis-geospatial-place",
+          "range": "^1.0.0",
+          "reason": "area codes resolve to places through reviewable matches"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "business monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "business series are acquired through the source-pack runtime"
         }
       ]
     }

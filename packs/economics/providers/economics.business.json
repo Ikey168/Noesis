@@ -1,0 +1,233 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "economics.business",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.business_statistics_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "economics.business",
+      "contract": {
+        "name": "noesis-business-statistics-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "list-series",
+        "indicator-for-place",
+        "compare-places",
+        "series-history",
+        "comparability-notes",
+        "identity-assertions",
+        "links",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "series": "a business series is keyed by source, dataset, indicator, classification (NACE Rev.2 or a NAICS vintage), size class, place, adjustment (NSA, CA, SCA or not applicable), unit with its index base year and frequency; adjusted and unadjusted series, a rebased index and another NAICS vintage are always different series; values live in the Economics series storage (economic_vintages, dataset_observations)",
+        "vintages": "each release that changes a series is an appended vintage with release and retrieval clocks (Eurostat LAST UPDATE, a declared CBP release date or the labelled retrieval time), revision_of and the recorded changes; a series a complete later release no longer states gets a removed_by_source vintage; as-of answers select the vintage released by the date and cite source, record revision and as-of time",
+        "flags": "Eurostat OBS_FLAG letters and CBP noise flags and withheld markers are kept verbatim per value; a withheld, suppressed or confidential cell carries no value (never a zero) and is never reconstructed; a noise-infused value is never exact",
+        "definitions": "each series cites its definition revision (statistical unit, scope, methodology notes, cited documents, CBP disclosure protection); a changed definition is a new revision",
+        "comparability": "Eurostat enterprises and kind-of-activity units and Census establishments are different statistical units; answers list sources side by side with recorded differences, source-stated breaks, provisional periods and base-year changes; a pair without either is comparability_unknown; nothing is blended",
+        "identity": "places match only through reviewed published codes; NACE and NAICS codes are linked only as reviewable candidate links through published concordances with their citations (relation exact, partial or one-to-many); nothing is merged or re-classified and unlinked codes stay queryable",
+        "links": "links to economics.labour and economics.trade rest on a shared published code or accepted place matches, record the classification relation as evidence only and pin both revisions; absent providers and targets are reported, never dropped",
+        "minimisation": "published aggregates only; person- and firm-level fields, business-register and survey microdata and single-business figures are never stored and are refused at write time",
+        "exclusions": "no nowcasting, no filled periods, no re-based indices, no own seasonal adjustment, no blending of Eurostat and Census figures, no reconstruction of suppressed or noise-infused cells, no rates, shares or per-establishment figures of our own, no derived indicators, no forecasts"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.business_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "list-series",
+      "tool": "noesis-knowledge-engine.list_business_series",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "indicator-for-place",
+      "tool": "noesis-knowledge-engine.business_indicator_for_place",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "compare-places",
+      "tool": "noesis-knowledge-engine.compare_business_places",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "series-history",
+      "tool": "noesis-knowledge-engine.business_series_history",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "comparability-notes",
+      "tool": "noesis-knowledge-engine.business_comparability_notes",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "identity-assertions",
+      "tool": "noesis-knowledge-engine.list_business_identity_assertions",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_business_links",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read"
+      ],
+      "required_context": [
+        "namespace"
+      ]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_business_monitor",
+      "side_effect": "read-only",
+      "idempotency": {
+        "supported": true
+      },
+      "readiness_probe": "vintages",
+      "required_scopes": [
+        "knowledge:business:read",
+        "knowledge:subscriptions:read"
+      ],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "business-statistics-record",
+      "store": "src.kb.business_statistics_store",
+      "tables": [
+        "business_releases",
+        "business_series",
+        "business_definitions",
+        "business_vintages",
+        "business_observations",
+        "business_release_members",
+        "business_comparability",
+        "business_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "business-identity-assertion",
+      "store": "src.kb.business_statistics_identity",
+      "tables": [
+        "business_identity_assertions",
+        "business_concordances"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "business-link",
+      "store": "src.kb.business_statistics_links",
+      "tables": [
+        "business_links"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "business-refresh-receipt",
+      "store": "src.kb.business_statistics_monitoring",
+      "tables": [
+        "business_refresh_receipts"
+      ],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "vintages",
+      "kind": "table-exists",
+      "target": "business_vintages"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "economic-statistics-and-filings",
+      "version": "1.7.0",
+      "range": "^1.7.0"
+    }
+  ]
+}

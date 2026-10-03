@@ -1,0 +1,26 @@
+{
+ "native_pages": [
+  {
+   "body": "[[\"NAME\", \"ESTAB\", \"EMP\", \"PAYANN\", \"EMP_N\", \"PAYANN_N\", \"EMPSZES\", \"state\", \"NAICS2017\"], [\"California\", \"900100\", \"15020900\", \"1100300400\", \"H\", \"G\", \"001\", \"06\", \"00\"], [\"California\", \"40100\", \"1200300\", \"0\", \"J\", \"D\", \"001\", \"06\", \"31-33\"]]",
+   "request": "/data/2096/cbp?EMPSZES=001&NAICS2017=00&NAICS2017=31-33&for=state%3A06&get=NAME%2CESTAB%2CEMP%2CPAYANN%2CEMP_N%2CPAYANN_N",
+   "status": 200
+  },
+  {
+   "body": "[[\"NAME\", \"ESTAB\", \"EMP\", \"PAYANN\", \"EMP_N\", \"PAYANN_N\", \"EMPSZES\", \"state\", \"NAICS2022\"], [\"California\", \"905300\", \"15100400\", \"1130500600\", \"G\", \"G\", \"001\", \"06\", \"00\"], [\"California\", \"39800\", \"1190700\", \"98760500\", \"H\", \"H\", \"001\", \"06\", \"31-33\"]]",
+   "request": "/data/2097/cbp?EMPSZES=001&NAICS2022=00&NAICS2022=31-33&for=state%3A06&get=NAME%2CESTAB%2CEMP%2CPAYANN%2CEMP_N%2CPAYANN_N",
+   "status": 200
+  }
+ ],
+ "note": "authored in the provider's documented shape; every value is fictional and the reference periods (2094-2097) are fictional (not live coverage); release stamps are past-dated so runtime retrievals never precede them; the operator re-declares the 2096 document's release for the correction",
+ "release_declarations": {
+  "2096": {
+   "label": "CBP 2096 corrected (fixture declaration; verify the correction notice)",
+   "published_on": "2024-10-24"
+  }
+ },
+ "scenarios": [
+  "correction",
+  "noise-flag-change",
+  "unchanged-year"
+ ]
+}
