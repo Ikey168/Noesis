@@ -184,6 +184,12 @@ MATRIX = {
     "Package to release history and dependency graphs":
         "tests/unit/domains/test_oss_ecosystems_acceptance.py::"
         "test_package_to_cited_history_graphs_licences_identity_advisories_and_monitoring",
+    # The Technology AI models features' offline journey (#2742) composes technology (Hugging Face Hub, OpenML and
+    # Epoch AI records), entity identity, Literature (paper connector) and OSS ecosystems links, subscriptions and the
+    # source-pack runtime.
+    "Model to cited registry records":
+        "tests/unit/domains/test_ai_models_acceptance.py::"
+        "test_model_to_cited_registry_records_across_sources_with_revisions_licences_identity_and_links",
     # The Political legislation features' offline journey (#2451) composes the political dossier store, the
     # source-pack runtime, entity identity, the lobbying links, Legal works and subscriptions.
     "US or UK bill to cited legislative dossier":
