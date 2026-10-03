@@ -176,7 +176,7 @@ The taxonomy has two more axes:
 
 Coverage is measured, not claimed. [ADR-005](docs/architecture/decisions/ADR-005-domain-coverage-program.md)
 splits the nine domains into 89 subdomains, and each provider names the ones
-it covers. Today 71 are covered by fixture-tested providers. The other 18 are
+it covers. Today 72 are covered by fixture-tested providers. The other 17 are
 gaps, scheduled in the
 [domain coverage program](docs/roadmaps/domain-coverage-program.md). Offline
 coverage and live coverage are reported separately.

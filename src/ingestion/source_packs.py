@@ -438,6 +438,9 @@ SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"social-protection"})
 # Economics tourism statistics: Eurostat tourism occupancy and capacity (#2739).
 NATIVE_CONNECTOR_MODULES["tourism-statistics"] = "src.ingestion.tourism_sources"
 SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"tourism-statistics"})
+# Technology internet infrastructure: RIPEstat, PeeringDB, RDAP, crt.sh and the CT log list (#2743).
+NATIVE_CONNECTOR_MODULES["internet-infrastructure"] = "src.ingestion.internet_infrastructure_sources"
+SUPPORTED_CONNECTORS = SUPPORTED_CONNECTORS | frozenset({"internet-infrastructure"})
 
 
 def native_connector_module(connector: str) -> Any:

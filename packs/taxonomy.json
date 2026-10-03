@@ -353,6 +353,7 @@
 
     "technology.ai-models": {"subdomains": ["ai-models-datasets"], "shapes": ["registry-records", "versioned-documents", "observations"]},
     "technology.core": {"subdomains": ["software-vulnerabilities"], "shapes": ["registry-records", "versioned-documents"]},
+    "technology.internet-infrastructure": {"subdomains": ["internet-infrastructure"], "shapes": ["registry-records", "observations"]},
     "technology.patents": {"subdomains": ["patents"], "shapes": ["versioned-documents"]},
     "technology.standards": {"subdomains": ["standards-certification"], "shapes": ["versioned-documents"]},
     "technology.vulnerabilities": {"subdomains": ["software-vulnerabilities"], "shapes": ["events-notices"], "themes": ["security-defence"]},

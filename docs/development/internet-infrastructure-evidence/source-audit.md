@@ -1,10 +1,9 @@
 # Internet infrastructure: source-contract audit and bounded coverage (II01)
 
-Tracking: wave 2 tracker #2736 · recorded 2026-10-03.
+Tracking: wave 2 tracker #2736 · track #2743 · recorded 2026-10-03.
 
-No per-track tracker or delivery issue exists yet. They are opened once this
-audit names a surviving source, which it does (RIPEstat, PeeringDB, RDAP and
-crt.sh below), so the next step is to open them and link them here.
+The track's delivery issues (II02-II13, #2752 to #2812) are linked from
+tracker #2743.
 
 This audit sets out, per source, what the Technology bundle's
 `technology.internet-infrastructure` provider (subdomain
@@ -18,11 +17,32 @@ the author knows it. Every item marked _verify_ must be checked against the
 live terms page and a real response before the first dated live run. No source
 is `live` until that run exists.
 
-**There is no machine-readable copy yet.** `PROVIDER_CONTRACTS`,
-`BOUNDED_COVERAGE`, `CAPS`, `MINIMISATION`, `EXCLUSIONS` and
-`LIVE_VERIFICATION` will be added in
-`src/ingestion/internet_infrastructure_sources.py` by the track's acquisition
-issues, and must match this audit; a difference is a defect in one of the two.
+**Machine-readable copy.** `PROVIDER_CONTRACTS`, `BOUNDED_COVERAGE`, `CAPS`,
+`MINIMISATION`, `EXCLUSIONS` and `LIVE_VERIFICATION` live in
+`src/ingestion/internet_infrastructure_sources.py` (II03-II06) and must match
+this audit; a difference is a defect in one of the two
+(`tests/unit/domains/test_internet_infrastructure_sources.py` checks them).
+The source-pack entries are the five sources of the separate
+`technology-internet-infrastructure` 1.0.0 source pack
+(`config/source_packs/technology-internet-infrastructure.json`): `ripestat-routing`,
+`peeringdb-network`, `rdap-registrations`, `crtsh-certificates` and
+`ct-log-list`, each `live_verification: unverified-live`.
+
+Amendments made while implementing (II04-II06), offline, still _verify_:
+
+- PeeringDB `fac` is read only for declared facility ids, at most 2 (the
+  audit set no facility cap; the network's own facility list, `netfac`, is
+  not read).
+- The RIPEstat data-call major versions the parsers read are pinned
+  (`DATA_CALL_VERSIONS`, _verify_ each against the live documentation); another
+  major version fails the unit like a deprecated one.
+- crt.sh's JSON output is not known to state log ids (_verify_). When a row
+  states them they are stored; otherwise `log_ids` is null and nothing is
+  inferred. The JSON states no subject organisation either, so
+  `subject_organisation` is null; the subject CN is never stored.
+- The RDAP registry server for `.org` that the fixtures name
+  (`rdap.publicinterestregistry.org`) is _verify_; a bootstrap target outside
+  the declared host list fails the unit with `network_policy`.
 
 Non-goals for every source: no exposed-service search, port or banner data, no
 subdomain enumeration or attack-surface mapping, no IP-keyed "what else is

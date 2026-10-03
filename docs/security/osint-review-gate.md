@@ -119,6 +119,19 @@ Passive DNS history has a recorded access decision in
 provider is adopted, so no adapter ships. Organization-keyed infrastructure
 facts come from RDAP and certificate transparency instead.
 
+## Internet infrastructure tools (checked, not gated)
+
+The Technology bundle's `technology.internet-infrastructure` tools
+(`tools/knowledge_engine_mcp/internet_infrastructure.py`, track #2743) were
+checked against this gate and are **not gated**: they answer RIPEstat,
+PeeringDB, RDAP, crt.sh and CT log list facts for *declared* ASNs, prefixes
+and domains only, refuse IP-keyed, person-keyed and wildcard queries in code,
+never list other networks of an organisation and never store contacts or
+natural persons (audit:
+`docs/development/internet-infrastructure-evidence/source-audit.md`). Any
+undeclared or reverse lookup is out of scope; a later issue that wants one
+goes through this gate and `osint-abuse-analysis.md` first.
+
 Until all five hold, the tools do not ship. This document is the gate; the
 absence test is its enforcement.
 

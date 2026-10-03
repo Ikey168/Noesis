@@ -153,6 +153,11 @@ def test_selecting_the_feature_binds_its_provider_and_the_consumed_ones():
         {"pack": "products", "feature": "appliances", "reason": "not selected"},
         {"pack": "products", "feature": "components", "reason": "not selected"},
         {"pack": "products", "feature": "food", "reason": "not selected"},  # food composition (#2216)
+        # The Technology internet-infrastructure features (#2743) stay unselected.
+        {"pack": "technology", "feature": "internet-infrastructure-ct", "reason": "not selected"},
+        {"pack": "technology", "feature": "internet-infrastructure-peeringdb", "reason": "not selected"},
+        {"pack": "technology", "feature": "internet-infrastructure-rdap", "reason": "not selected"},
+        {"pack": "technology", "feature": "internet-infrastructure-ripestat", "reason": "not selected"},
         {"pack": "products", "feature": "safety", "reason": "not selected"},
     ]
     assert {

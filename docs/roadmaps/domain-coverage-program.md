@@ -11,7 +11,7 @@ The nine domains of [ADR-004](../architecture/decisions/ADR-004-pack-taxonomy.md
 are divided into 89 subdomains. A subdomain is **covered** when at least one
 classified provider names it. The program started with 56 covered and 33
 gaps. Wave 1 and the wave 2 tracks listed under "Wave 2" are now covered
-offline, so 71 are covered and 18 are gaps. This program
+offline, so 72 are covered and 17 are gaps. This program
 fills every gap, one track per subdomain.
 
 ## How coverage is counted
@@ -82,6 +82,12 @@ Eurostat STS, Eurostat business demography and Census CBP sources, so its gap
 row is gone. Its sources stay `unverified-live`; live coverage waits for the
 track's "Validate live coverage" run (IB13).
 
+II01 is covered offline: `technology.internet-infrastructure` (track
+[#2743](https://github.com/Ikey168/Noesis/issues/2743)) holds fixture-tested
+RIPEstat, PeeringDB, RDAP, crt.sh and CT log list sources, so its gap row is
+gone. Its sources stay `unverified-live`; live coverage waits for the track's
+"Validate live coverage" run (II13).
+
 TO01 is covered offline: `economics.tourism` (track
 [#2739](https://github.com/Ikey168/Noesis/issues/2739)) holds fixture-tested
 Eurostat tourism occupancy and capacity sources, so its gap row is gone. Its
@@ -121,7 +127,6 @@ themselves _verify_; if they do not exist, `animal-health` stays a gap too.
 | `physical-sciences-reference` | Science and knowledge | `science.physical-reference` | NIST CODATA constants; NIST Atomic Spectra Database; IAEA nuclear data; Particle Data Group | materials, chemicals | 3 |
 | `mortality-health-outcomes` | Health | `clinical.mortality` | WHO Mortality Database; Eurostat causes of death; UN World Population Prospects; IHME GBD (non-commercial terms) | surveillance, demographics | 2 |
 | `animal-health` | Health | `clinical.animal-health` | WOAH WAHIS; EFSA data; FAO EMPRES-i | surveillance, agrifood | 2 |
-| `internet-infrastructure` | Technology | `technology.internet-infrastructure` | RIPEstat; PeeringDB; RDAP; certificate transparency logs; CAIDA datasets (acceptable-use policy) | OSINT, vulnerabilities | 2 |
 | `telecommunications-spectrum` | Technology | `technology.telecommunications` | FCC ULS and broadband data; Bundesnetzagentur data; ITU DataHub (terms) | infrastructure, competition | 3 |
 | `cyber-incidents` | Technology | `technology.cyber-incidents` | SEC 8-K Item 1.05 disclosures; HHS OCR breach portal; state breach-notification registers | vulnerabilities, market filings | 2 |
 | `film-broadcast` | Culture and leisure | `culture.film-broadcast` (new bundle) | Wikidata; European Audiovisual Observatory LUMIERE and MAVISE; TMDB (API terms) | media metadata | 3 |
@@ -145,7 +150,10 @@ their rows removed:
 - social protection: covered offline (not live) by `society.social-protection`
   (track [#2741](https://github.com/Ikey168/Noesis/issues/2741));
 - tourism: covered offline (not live) by `economics.tourism`
-  (track [#2739](https://github.com/Ikey168/Noesis/issues/2739)).
+  (track [#2739](https://github.com/Ikey168/Noesis/issues/2739));
+- internet infrastructure: covered offline (not live) by
+  `technology.internet-infrastructure` (track
+  [#2743](https://github.com/Ikey168/Noesis/issues/2743)).
 
-9 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
+8 wave 2 rows remain. Covered tracks' sources stay `unverified-live` until each
 track's "Validate live coverage" run. Wave 3 has 9.

@@ -40,6 +40,14 @@
           "name": "noesis-ai-model-record",
           "version": "2.0.0"
         }
+      },
+      {
+        "id": "technology.internet-infrastructure",
+        "provider": "technology.internet-infrastructure",
+        "contract": {
+          "name": "noesis-internet-infrastructure-record",
+          "version": "2.0.0"
+        }
       }
     ],
     "providers": [
@@ -61,6 +69,10 @@
       },
       {
         "id": "technology.ai-models",
+        "version": "1.0.0"
+      },
+      {
+        "id": "technology.internet-infrastructure",
         "version": "1.0.0"
       }
     ],
@@ -260,6 +272,106 @@
           "contract": "noesis-source-acquisition",
           "range": "^1.0.0",
           "reason": "the Epoch AI notable-models dataset is acquired through the source-pack runtime"
+        }
+      ]
+    },
+    {
+      "id": "internet-infrastructure-ripestat",
+      "default": false,
+      "description": "RIPEstat routing observations for one declared ASN and one declared prefix it announces (as-overview, announced-prefixes, routing-status, rpki-validation, prefix-overview), dated by RIPEstat's stated time and data-call version. Every record cites source, record revision and as-of time; statements of different sources are never merged; identity across sources is reviewable; OSINT and Vulnerabilities links degrade to provider_absent when those providers are not composed. Only declared ASNs, prefixes and domains; no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed lookups, no reputation, risk, hijack or misconfiguration verdicts and no ranking of networks.",
+      "requires": [
+        {
+          "capability": "technology.internet-infrastructure",
+          "contract": "noesis-internet-infrastructure-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own records, answers, identity reviews and tools"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "registration, routing and certificate monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the technology-internet-infrastructure sources run through the source-pack runtime with receipts"
+        }
+      ]
+    },
+    {
+      "id": "internet-infrastructure-peeringdb",
+      "default": false,
+      "description": "PeeringDB self-declared network, organisation, IX presence, IX and declared facility records of one declared ASN, revisioned by updated; status=deleted or a 404 is removed_by_source. Every record cites source, record revision and as-of time; statements of different sources are never merged; identity across sources is reviewable; OSINT and Vulnerabilities links degrade to provider_absent when those providers are not composed. Only declared ASNs, prefixes and domains; no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed lookups, no reputation, risk, hijack or misconfiguration verdicts and no ranking of networks.",
+      "requires": [
+        {
+          "capability": "technology.internet-infrastructure",
+          "contract": "noesis-internet-infrastructure-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own records, answers, identity reviews and tools"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "registration, routing and certificate monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the technology-internet-infrastructure sources run through the source-pack runtime with receipts"
+        }
+      ]
+    },
+    {
+      "id": "internet-infrastructure-rdap",
+      "default": false,
+      "description": "RDAP registrations of one declared ASN, prefix and domain through the IANA bootstrap: holder organisation, country, RIR, status, events and nameservers; contacts and natural persons never stored. Every record cites source, record revision and as-of time; statements of different sources are never merged; identity across sources is reviewable; OSINT and Vulnerabilities links degrade to provider_absent when those providers are not composed. Only declared ASNs, prefixes and domains; no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed lookups, no reputation, risk, hijack or misconfiguration verdicts and no ranking of networks.",
+      "requires": [
+        {
+          "capability": "technology.internet-infrastructure",
+          "contract": "noesis-internet-infrastructure-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own records, answers, identity reviews and tools"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "registration, routing and certificate monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the technology-internet-infrastructure sources run through the source-pack runtime with receipts"
+        }
+      ]
+    },
+    {
+      "id": "internet-infrastructure-ct",
+      "default": false,
+      "description": "Certificates crt.sh states for one exactly named declared domain (more than 200 is budget_exhausted, never truncated) and the CT log list v3 with log state revisions. Every record cites source, record revision and as-of time; statements of different sources are never merged; identity across sources is reviewable; OSINT and Vulnerabilities links degrade to provider_absent when those providers are not composed. Only declared ASNs, prefixes and domains; no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed or person-keyed lookups, no reputation, risk, hijack or misconfiguration verdicts and no ranking of networks.",
+      "requires": [
+        {
+          "capability": "technology.internet-infrastructure",
+          "contract": "noesis-internet-infrastructure-record",
+          "range": "^2.0.0",
+          "reason": "the feature's own records, answers, identity reviews and tools"
+        },
+        {
+          "capability": "platform.subscriptions",
+          "contract": "noesis-knowledge-subscription",
+          "range": "^1.0.0",
+          "reason": "registration, routing and certificate monitors are knowledge subscriptions"
+        },
+        {
+          "capability": "platform.source-acquisition",
+          "contract": "noesis-source-acquisition",
+          "range": "^1.0.0",
+          "reason": "the technology-internet-infrastructure sources run through the source-pack runtime with receipts"
         }
       ]
     }

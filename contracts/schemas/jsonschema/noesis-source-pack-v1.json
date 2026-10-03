@@ -18,7 +18,7 @@
         "required": ["source_id", "connector", "endpoint", "publisher", "scope", "license", "update_cadence", "temporal_semantics", "mapping", "extractor_versions", "schedule", "budgets", "auth", "fixture", "health", "operations", "source_hash"],
         "properties": {
           "source_id": {"type": "string", "minLength": 1},
-          "connector": {"enum": ["agrifood", "ai-models", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "business-statistics", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "platform-transparency", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "social-protection", "sports-results", "substances", "surveillance", "ted", "tourism-statistics", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
+          "connector": {"enum": ["agrifood", "ai-models", "astronomy", "astronomy-registration", "bafin-notices", "berlin-law", "blog", "bmecat", "bods", "business-statistics", "campaign-finance", "cellar", "companies-house", "competition", "courts-justice", "cpsc", "ctgov", "ctis", "dataset", "ddb", "declarative-rest", "demographics", "development-finance", "education-statistics", "election-results", "ema-medicines", "energy", "enforcement", "engineering-safety", "epo-ops", "eprel", "eu-ctr", "europeana", "extractives", "fact-checks", "filings", "fisheries", "food-composition", "formal-library", "geojson", "gesetze-im-internet", "git", "gleif", "gtfs", "health-capacity", "housing", "humanitarian", "icecat", "income-distribution", "infrastructure", "insurance", "internet-infrastructure", "iso-open-data", "labour-statistics", "legislation", "life-sciences", "linguistics", "lobbying-register", "logistics", "manifest", "materials", "media-metadata", "medical-devices", "medicines", "natural-hazards", "nhtsa", "ocds", "oeis", "openfda", "osint-movements", "oss-ecosystem", "package-registry", "paper", "platform-transparency", "public-finance", "rasff", "recht-bund", "rechtsinformationen-bund", "research-entities", "rii", "safety-gate", "sam-gov", "sanctions-list", "sec-edgar-ownership", "social-protection", "sports-results", "substances", "surveillance", "ted", "tourism-statistics", "trade-flows", "treaties", "vulnerability-feed", "weather", "web", "wfs", "zbmath"]},
           "wfs": {
             "type": "object",
             "description": "Pinned WFS 2.0.0 GetFeature contract; required for the wfs connector.",
@@ -641,6 +641,29 @@
                   "flow": {"enum": ["tour_occ_nim", "tour_occ_arm", "tour_occ_nin2", "tour_cap_nuts2"]}
                 }
               }}
+            },
+            "additionalProperties": false
+          },
+          "internet_infrastructure": {
+            "type": "object",
+            "description": "Declared resources for the internet-infrastructure connector (Technology technology.internet-infrastructure, #2743): provider (RIPEstat, PeeringDB, RDAP, crt.sh or the CT log list), namespace, live-verification status, the audit decision and the bounded selection (one declared ASN, one declared prefix, one declared domain, declared PeeringDB facility ids, or the v3 CT log list); never an IP address, a person, a wildcard or an undeclared resource (docs/development/internet-infrastructure-evidence/source-audit.md).",
+            "required": ["provider", "live_verification", "selection"],
+            "properties": {
+              "namespace": {"type": "string", "minLength": 1},
+              "provider": {"enum": ["ripestat", "peeringdb", "rdap", "crtsh", "ct-log-list"]},
+              "live_verification": {"enum": ["unverified-live", "verified-live", "blocked"]},
+              "decision": {"type": "string", "minLength": 1},
+              "selection": {
+                "type": "object",
+                "properties": {
+                  "asn": {"type": "string", "pattern": "^AS[0-9]+$"},
+                  "prefix": {"type": "string", "minLength": 1},
+                  "domain": {"type": "string", "minLength": 1},
+                  "facilities": {"type": "array", "maxItems": 2, "items": {"type": "integer", "minimum": 1}},
+                  "list": {"enum": ["v3"]}
+                },
+                "additionalProperties": false
+              }
             },
             "additionalProperties": false
           },

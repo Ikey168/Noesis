@@ -1,0 +1,60 @@
+{
+ "_note": "Authored offline fixture in the publisher's documented shape (verify against a live response, II13): documentation ASN AS64500, documentation prefix 192.0.2.0/24, example.org, fictional organisations and dates in 2094-2099. Nothing here is a published record.",
+ "scenarios": [
+  "v3 log list",
+  "log states"
+ ],
+ "native_pages": [
+  {
+   "request": "www.gstatic.com/ct/log_list/v3/log_list.json",
+   "status": 200,
+   "body": {
+    "version": "2094.1",
+    "log_list_timestamp": "2094-06-01T00:00:00Z",
+    "operators": [
+     {
+      "name": "Fictional Log Operator",
+      "email": [
+       "ct-ops@example.org"
+      ],
+      "logs": [
+       {
+        "description": "Fictional Log A 2094",
+        "log_id": "RklDVElPTkFMLUxPRy1BLTIwOTQ=",
+        "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE-fictional",
+        "url": "https://ct.example.org/a2094/",
+        "mmd": 86400,
+        "state": {
+         "usable": {
+          "timestamp": "2094-01-01T00:00:00Z"
+         }
+        },
+        "temporal_interval": {
+         "start_inclusive": "2094-01-01T00:00:00Z",
+         "end_exclusive": "2095-01-01T00:00:00Z"
+        }
+       },
+       {
+        "description": "Fictional Log B 2094",
+        "log_id": "RklDVElPTkFMLUxPRy1CLTIwOTQ=",
+        "key": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE-fictional",
+        "url": "https://ct.example.org/b2094/",
+        "mmd": 86400,
+        "state": {
+         "usable": {
+          "timestamp": "2094-01-01T00:00:00Z"
+         }
+        },
+        "temporal_interval": {
+         "start_inclusive": "2094-01-01T00:00:00Z",
+         "end_exclusive": "2095-01-01T00:00:00Z"
+        }
+       }
+      ],
+      "tiled_logs": []
+     }
+    ]
+   }
+  }
+ ]
+}

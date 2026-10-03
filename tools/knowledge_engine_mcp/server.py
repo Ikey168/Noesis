@@ -9493,6 +9493,12 @@ from tools.knowledge_engine_mcp.tourism import (
 
 register_tourism_tools(mcp, _intake_safe, _intake_context)
 
+from tools.knowledge_engine_mcp.internet_infrastructure import (
+    register as register_internet_infrastructure_tools,
+)
+
+register_internet_infrastructure_tools(mcp, _intake_safe, _intake_context)
+
 
 if __name__ == "__main__":
     from src.mcp_host.transport import run_server

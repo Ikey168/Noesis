@@ -1,0 +1,158 @@
+{
+  "contract": "noesis-provider-descriptor-v1",
+  "id": "technology.internet-infrastructure",
+  "version": "1.0.0",
+  "implementation": {
+    "name": "src.kb.internet_infrastructure_store",
+    "version": "1.0.0",
+    "server": "noesis-knowledge-engine"
+  },
+  "capabilities": [
+    {
+      "id": "technology.internet-infrastructure",
+      "contract": {
+        "name": "noesis-internet-infrastructure-record",
+        "version": "2.0.0"
+      },
+      "operations": [
+        "source-contracts",
+        "declared-resources",
+        "records-as-of",
+        "history",
+        "identity-assertions",
+        "links",
+        "evidence-bundle",
+        "poll-monitor"
+      ],
+      "semantic_constraints": {
+        "records": "registry records (PeeringDB networks, organisations, IX presence, IXs and facilities; RDAP autnum, IP network and domain registrations; crt.sh certificates; CT logs) are keyed by their own source and appended as revisions carrying the source's revision (updated, last changed, CT log list version, crt.sh entry time, else the content digest) and the as-of time; a 404, status=deleted or absence from a complete listing is a removed_by_source revision",
+        "observations": "RIPEstat answers are observations dated by RIPEstat's stated time and data-call version, never rewritten; a deprecated data call fails the unit",
+        "no_merging": "statements of RIPEstat, PeeringDB and RDAP about one ASN or prefix are never merged into one record; answers show each source separately and cited",
+        "identity": "records of different sources are related only by reviewed, revertible assertions resting on stated identifiers (ASN, prefix, domain, PeeringDB id); a shared organisation name is never a match; there is no other-networks-of-this-organisation listing; unmatched records stay visible",
+        "links": "OSINT source identities are linked by the stated domain only (read-only) and technology.vulnerabilities only where a source states a CVE id; links pin both revisions; absent providers are provider_absent, missing targets target_not_held; nothing is inferred from shared addresses",
+        "lookups": "only declared ASNs, prefixes and domains are answered; IP-keyed, person-keyed, wildcard and undeclared lookups are refused in code; not a gated tool under docs/security/osint-review-gate.md, any reverse or undeclared lookup goes through that gate first",
+        "minimisation": "RDAP individuals, contacts, e-mail, telephone and postal properties, PeeringDB poc objects and users, the RIPEstat whois and abuse-contact-finder calls, certificate subjects beyond O, e-mail SANs and revocation are never stored and are refused at write time",
+        "exclusions": "no exposed-service, port or banner data, no subdomain enumeration, no IP-keyed pivots, no person-keyed lookups, no reputation, risk, hijack or misconfiguration verdicts, no ranking of networks and no merging of RIPEstat, PeeringDB and RDAP statements into one record"
+      }
+    }
+  ],
+  "operations": [
+    {
+      "id": "source-contracts",
+      "tool": "noesis-knowledge-engine.internet_infrastructure_source_contracts",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": [],
+      "required_context": []
+    },
+    {
+      "id": "declared-resources",
+      "tool": "noesis-knowledge-engine.list_internet_infrastructure_resources",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "records-as-of",
+      "tool": "noesis-knowledge-engine.internet_infrastructure_records_as_of",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "history",
+      "tool": "noesis-knowledge-engine.internet_infrastructure_history",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "identity-assertions",
+      "tool": "noesis-knowledge-engine.list_internet_infrastructure_identity",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "links",
+      "tool": "noesis-knowledge-engine.list_internet_infrastructure_links",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "evidence-bundle",
+      "tool": "noesis-knowledge-engine.export_internet_infrastructure_bundle",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read"],
+      "required_context": ["namespace"]
+    },
+    {
+      "id": "poll-monitor",
+      "tool": "noesis-knowledge-engine.poll_internet_infrastructure_monitor",
+      "side_effect": "read-only",
+      "idempotency": {"supported": true},
+      "readiness_probe": "revisions",
+      "required_scopes": ["knowledge:technical:internet-infrastructure:read", "knowledge:subscriptions:read"],
+      "required_context": []
+    }
+  ],
+  "stores": [
+    {
+      "record_type": "internet-infrastructure-record",
+      "store": "src.kb.internet_infrastructure_store",
+      "tables": ["ii_units", "ii_declared", "ii_objects", "ii_revisions", "ii_observations", "ii_listings",
+                 "ii_receipts"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "internet-infrastructure-identity-assertion",
+      "store": "src.kb.internet_infrastructure_identity",
+      "tables": ["ii_identity_assertions"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "internet-infrastructure-link",
+      "store": "src.kb.internet_infrastructure_links",
+      "tables": ["ii_links"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    },
+    {
+      "record_type": "internet-infrastructure-refresh-receipt",
+      "store": "src.kb.internet_infrastructure_monitoring",
+      "tables": ["ii_refresh_receipts"],
+      "revision_addressable": true,
+      "namespace_scoped": true
+    }
+  ],
+  "readiness_probes": [
+    {
+      "id": "revisions",
+      "kind": "table-exists",
+      "target": "ii_revisions"
+    }
+  ],
+  "source_packs": [
+    {
+      "pack_id": "technology-internet-infrastructure",
+      "version": "1.0.0",
+      "range": "^1.0.0"
+    }
+  ]
+}

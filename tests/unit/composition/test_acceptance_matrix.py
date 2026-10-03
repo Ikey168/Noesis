@@ -139,6 +139,11 @@ MATRIX = {
     "Place to tourism statistics":
         "tests/unit/domains/test_tourism_acceptance.py::"
         "test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_flags",
+    # The Technology internet-infrastructure features' offline journey (#2743) composes technology (RIPEstat,
+    # PeeringDB, RDAP, crt.sh, CT log list), OSINT source identities, subscriptions and the source-pack runtime.
+    "ASN and domain to network registry records":
+        "tests/unit/domains/test_internet_infrastructure_acceptance.py::"
+        "test_asn_and_domain_to_cited_routing_interconnection_registration_and_certificate_records_with_revisions",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":
