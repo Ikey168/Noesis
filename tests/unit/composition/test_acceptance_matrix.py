@@ -122,6 +122,12 @@ MATRIX = {
     "Place to business statistics":
         "tests/unit/domains/test_business_statistics_acceptance.py::"
         "test_place_to_cited_eurostat_and_cbp_figures_side_by_side_with_definitions_vintages_and_flags",
+    # The Economics tourism-statistics feature's offline journey (#2739) composes economics (Eurostat tourism
+    # occupancy and capacity, Labour links), geospatial identity and boundaries, subscriptions and the source-pack
+    # runtime.
+    "Place to tourism statistics":
+        "tests/unit/domains/test_tourism_acceptance.py::"
+        "test_place_to_cited_occupancy_and_capacity_with_definitions_vintages_and_flags",
     # The On-chain Observations bundle's offline journey (#2058) composes its own record owner, entity identity,
     # the OSINT provenance chain and the source-pack declarations.
     "Contract and address to cited ledger observations":

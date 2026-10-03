@@ -272,6 +272,11 @@ For the project overview and local setup, start with the
   side with statistical units, classifications, adjustment, base years, flags and vintages, reviewable place and
   NACE/NAICS candidate links, Labour and Trade links and monitors; no nowcast, re-based index, blended figure or
   reconstructed cell; [source audit](development/business-statistics-evidence/source-audit.md)
+- [Economics tourism guide](guides/economics-tourism.md) — Eurostat tourism occupancy and capacity for a place as
+  of a release, monthly and annual series kept apart with residence, accommodation type, NUTS version, flags and
+  vintages, reviewable place and NUTS correspondence identity, Geospatial boundary and Labour links and monitors;
+  UN Tourism not-implemented; no nowcast, filled month, blended or derived figure;
+  [source audit](development/tourism-evidence/source-audit.md)
 - [Clinical Evidence surveillance guide](guides/clinical-surveillance.md) — notifiable-disease and health-indicator
   series with case-definition revisions as breaks, reporting and reference dates kept apart, vintages and
   reporting-delay notes, MeSH/ICD alignment, boundary projections and explicit-citation links to trials and
