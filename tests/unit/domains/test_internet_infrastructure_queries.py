@@ -6,7 +6,11 @@ import pytest
 
 from src.kb.internet_infrastructure_identity import InfrastructureIdentity
 from src.kb.internet_infrastructure_queries import InfrastructureQueries
-from src.kb.internet_infrastructure_records import InfrastructureRecordError, forbidden_paths, personal_data_paths
+from src.kb.internet_infrastructure_records import (
+    InfrastructureRecordError,
+    forbidden_paths,
+    personal_data_paths,
+)
 from tests.unit import internet_infrastructure_harness as h
 
 
