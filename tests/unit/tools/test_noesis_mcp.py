@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 from src.argument_mining.models import ClaimPrediction
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from src.noesis_cli.config import initialize
 from tools.noesis_mcp import server
 
@@ -64,12 +64,12 @@ def test_gateway_add_ask_inspect_and_export_share_production_state(
         lambda: Detector(),
     )
 
-    added = server.add.fn(str(FIXTURE), domain="local")
+    added = tool_function(server.add)(str(FIXTURE), domain="local")
     assert added["contract"] == "noesis-gateway-v1"
     assert added["data"]["processing"]["claims_indexed"] == 2
     document_id = added["data"]["documents"][0]
 
-    answer = server.ask.fn("What was the mission result?", domain="local")
+    answer = tool_function(server.ask)("What was the mission result?", domain="local")
     assert answer["data"]["answer_status"] == "answered"
     # Which extracted claim ranks first is kb/answer.py's (main's) ranking;
     # the gateway only has to answer from the claims it indexed.
@@ -77,11 +77,11 @@ def test_gateway_add_ask_inspect_and_export_share_production_state(
     assert statement["claim_id"]
     assert statement["supporting_evidence"][0]["document_id"] == document_id
 
-    source = server.inspect_source.fn(document_id, domain="local")
+    source = tool_function(server.inspect_source)(document_id, domain="local")
     assert source["data"]["document"]["document_id"] == document_id
     assert source["data"]["integrity"] is not None
 
-    bundle = server.export.fn(
+    bundle = tool_function(server.export)(
         "answer",
         domain="local",
         question="What was the mission result?",
@@ -93,12 +93,12 @@ def test_gateway_add_ask_inspect_and_export_share_production_state(
 def test_gateway_defaults_to_local_domain_and_watch_list(tmp_path, monkeypatch):
     _workspace(tmp_path, monkeypatch)
 
-    domains = server.domains.fn()
+    domains = tool_function(server.domains)()
     assert [item["name"] for item in domains["data"]] == ["local"]
 
-    coverage = server.coverage.fn()
+    coverage = tool_function(server.coverage)()
     assert coverage["domain"] == "local"
 
-    watches = server.watch.fn()
+    watches = tool_function(server.watch)()
     assert watches["domain"] in {None, "local"}
     assert "data" in watches

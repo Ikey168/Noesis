@@ -40,7 +40,7 @@ from src.kb.watches import (
     set_watch_status,
     watch_metrics,
 )
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = (
@@ -687,7 +687,7 @@ def test_invalid_event_fixture_is_rejected():
 def test_contract_registry_resolves_watch_aliases(alias):
     from tools.contract_mcp.server import validate
 
-    result = validate.fn(alias, "valid-watch")
+    result = tool_function(validate)(alias, "valid-watch")
     assert result["valid"] is True
     assert result["verdicts"]["jsonschema"]["contract"] == (
         "noesis-claim-watch-v1"

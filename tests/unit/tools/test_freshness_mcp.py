@@ -5,7 +5,7 @@ import inspect
 
 import duckdb
 
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -171,7 +171,7 @@ def test_freshness_mcp_policy_assessment_simulation_propagation_and_auth(
 
 
 def test_freshness_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-evidence-freshness-policy-v1",
         "noesis-evidence-freshness-assessment-v1",

@@ -27,7 +27,7 @@ from src.kb.membership import run_membership_pass
 from src.kb.promotion import promote_to_namespace
 from src.kb.registry import load_registry
 from src.kb.watches import grant_watch_domain
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 REQUEST_SCHEMA = REPO_ROOT / "contracts/schemas/jsonschema/noesis-cross-domain-request-v1.json"
@@ -551,7 +551,7 @@ def test_mcp_and_rest_use_the_same_cross_domain_contract(monkeypatch):
 def test_contract_registry_exposes_cross_domain_schemas():
     from tools.contract_mcp.server import get_contract
 
-    request = get_contract.fn("cross-domain-request")
-    response = get_contract.fn("cross-domain-response")
+    request = tool_function(get_contract)("cross-domain-request")
+    response = tool_function(get_contract)("cross-domain-response")
     assert request["id"] == "noesis-cross-domain-request-v1"
     assert response["id"] == "noesis-cross-domain-response-v1"

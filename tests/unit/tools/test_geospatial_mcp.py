@@ -5,7 +5,7 @@ import inspect
 
 import duckdb
 
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -154,7 +154,7 @@ def test_optional_multipart_simplification_tool(tmp_path, monkeypatch):
 
 
 def test_geospatial_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-geospatial-place-v1",
         "noesis-geospatial-geometry-v1",

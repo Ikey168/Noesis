@@ -5,7 +5,7 @@ import inspect
 
 import duckdb
 
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -155,7 +155,7 @@ def test_optional_pint_formula_tool(tmp_path, monkeypatch):
 
 
 def test_quantitative_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-quantitative-metric-v1",
         "noesis-quantitative-observation-v1",

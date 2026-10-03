@@ -6,7 +6,7 @@ import inspect
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -134,5 +134,5 @@ def test_change_brief_catalog():
     ) == ["knowledge:briefs:read"]
     assert (
         "noesis-change-brief-v1"
-        in server.knowledge_engine_capabilities.fn()["contracts"]
+        in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     )

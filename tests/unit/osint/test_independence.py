@@ -17,7 +17,7 @@ from src.kb import contract
 from src.kb.clusters import ensure_cluster_schema
 from src.kb.membership import run_membership_pass
 from src.kb.registry import load_registry
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from src.osint.corroboration import corroborate
 from src.osint.independence import (
     METHOD_VERSION,
@@ -490,7 +490,7 @@ def test_signal_repository_is_separate_from_decisions():
 def test_contract_registry_validates_origin_graph_example(alias):
     from tools.contract_mcp.server import validate
 
-    result = validate.fn(alias, "valid-origin-graph")
+    result = tool_function(validate)(alias, "valid-origin-graph")
     assert result["valid"] is True
     assert result["verdicts"]["jsonschema"]["contract"] == (
         "noesis-evidence-independence-v1"

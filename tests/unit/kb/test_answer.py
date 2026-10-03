@@ -25,7 +25,7 @@ from src.kb.contract import KBContractError
 from src.kb.membership import run_membership_pass
 from src.kb.promotion import promote_to_namespace
 from src.kb.registry import load_registry
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_PATH = (
@@ -631,7 +631,7 @@ def test_committed_invalid_example_is_rejected():
 def test_contract_registry_resolves_answer_aliases(alias, sample):
     from tools.contract_mcp.server import validate
 
-    result = validate.fn(alias, sample)
+    result = tool_function(validate)(alias, sample)
     assert result["valid"] is True
     assert result["verdicts"]["jsonschema"]["contract"] == "noesis-answer-v1"
 

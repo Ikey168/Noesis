@@ -26,6 +26,10 @@ API
 ``call_tool(tool, **kwargs)``
     Call the tool's Python function directly (no MCP validation or
     serialisation) and await the result if it is a coroutine.
+``tool_function(decorated)``
+    The plain Python function behind a module-level ``@mcp.tool`` name. On
+    fastmcp 2 the decorator returns a ``FunctionTool`` (function on ``.fn``);
+    on fastmcp 3 it returns the function itself.
 
 Before -> after
 ---------------
@@ -40,6 +44,7 @@ Before (fastmcp 2 only)                                After (fastmcp 2.14 and 3
 ``mcp._tool_manager.get_tool("name")``                 ``get_tool(mcp, "name")``
 ``tool.parameters`` / ``tool.output_schema``           unchanged, or ``tool_schema(tool)``
 ``v = tool.fn(**kw); asyncio.run(v) if awaitable``     ``call_tool(tool, **kw)``
+``server.some_tool.fn(...)`` (decorated name)          ``tool_function(server.some_tool)(...)``
 =====================================================  ==========================================
 
 ``tool.fn``, ``tool.description``, ``tool.parameters``, ``tool.output_schema``
@@ -62,6 +67,7 @@ __all__ = [
     "get_tool",
     "get_tool_async",
     "list_tools_async",
+    "tool_function",
     "tool_map",
     "tool_names",
     "tool_schema",
@@ -140,3 +146,9 @@ def call_tool(tool: Any, /, **kwargs: Any) -> Any:
         )
     value = fn(**kwargs)
     return asyncio.run(value) if inspect.isawaitable(value) else value
+
+
+def tool_function(decorated: Any) -> Any:
+    """The Python function behind a module-level ``@mcp.tool``-decorated name."""
+    fn = getattr(decorated, "fn", None)
+    return fn if callable(fn) else decorated

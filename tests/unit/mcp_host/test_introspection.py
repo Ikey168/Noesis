@@ -15,6 +15,7 @@ from src.mcp_host.introspection import (
     get_tool,
     get_tool_async,
     list_tools_async,
+    tool_function,
     tool_map,
     tool_names,
     tool_schema,
@@ -87,6 +88,19 @@ def test_call_tool_resolves_sync_and_async_functions():
     tools = tool_map(_server())
     assert call_tool(tools["echo"], text="hi") == {"text": "hi"}
     assert call_tool(tools["double"], value=4) == {"value": 8}
+
+
+def test_tool_function_unwraps_a_decorated_module_level_tool():
+    mcp = FastMCP("decorated-fixture")
+
+    @mcp.tool
+    def shout(text: str) -> str:
+        """Upper-case the text."""
+        return text.upper()
+
+    # fastmcp 2 binds a FunctionTool to the name, fastmcp 3 the function.
+    assert tool_function(shout)("hi") == "HI"
+    assert tool_function(tool_function(shout))("ok") == "OK"
 
 
 def test_removed_fastmcp_apis_are_only_used_inside_the_helper():

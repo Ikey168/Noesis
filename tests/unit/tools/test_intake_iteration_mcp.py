@@ -7,7 +7,7 @@ from src.mcp_host.catalog import _mutability, _required_scopes
 from src.kb.decisions import DecisionStore
 from src.kb.authored_reports import AuthoredReportStore
 from tools.knowledge_engine_mcp import server
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 
 
 def test_iteration_mcp_discovery_and_scope(tmp_path, monkeypatch):
@@ -82,7 +82,7 @@ def test_decision_iteration_mcp_discovery_and_authoritative_revision(tmp_path, m
         intent="Review the schedule",
     )
     assert cycle["inputs"]["iteration_contract"] == "noesis-intake-iteration-decision-v1"
-    assert "noesis-intake-iteration-decision-v1" in server.knowledge_engine_capabilities.fn()["contracts"]
+    assert "noesis-intake-iteration-decision-v1" in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     measured = tools["record_intake_iteration_outcome"].fn(
         namespace="research", session_id=cycle["session_id"], command_key="measure",
         expected_revision=1, observed="Latency reached 7 seconds",
@@ -171,7 +171,7 @@ def test_report_iteration_mcp_discovery_and_authoritative_revision(tmp_path, mon
         expected_revision=proposed["revision"],
     )
     assert accepted["data"]["accepted_revision"]["revision"] == 2
-    assert "noesis-intake-iteration-report-v1" in server.knowledge_engine_capabilities.fn()["contracts"]
+    assert "noesis-intake-iteration-report-v1" in tool_function(server.knowledge_engine_capabilities)()["contracts"]
     current = AuthoredReportStore(duckdb.connect(path), initialize=False).inspect(
         "research", report["report_id"], principal_id="alice", scopes=scopes,
     )

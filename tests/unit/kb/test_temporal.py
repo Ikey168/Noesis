@@ -30,7 +30,7 @@ from src.kb.temporal import (
     store_document_times,
 )
 from src.kb.watches import grant_watch_domain
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 
 REPO_ROOT = Path(__file__).resolve().parents[3]
 SCHEMA_DIR = REPO_ROOT / "contracts/schemas/jsonschema"
@@ -570,6 +570,6 @@ def test_indexed_temporal_pagination_performance():
 def test_contract_registry_exposes_temporal_schemas():
     from tools.contract_mcp.server import get_contract
 
-    assert get_contract.fn("temporal-assertion")["id"] == "noesis-temporal-assertion-v1"
-    assert get_contract.fn("temporal-query")["id"] == "noesis-temporal-query-v1"
-    assert get_contract.fn("temporal-response")["id"] == "noesis-temporal-response-v1"
+    assert tool_function(get_contract)("temporal-assertion")["id"] == "noesis-temporal-assertion-v1"
+    assert tool_function(get_contract)("temporal-query")["id"] == "noesis-temporal-query-v1"
+    assert tool_function(get_contract)("temporal-response")["id"] == "noesis-temporal-response-v1"

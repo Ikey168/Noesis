@@ -6,7 +6,7 @@ import json
 
 import duckdb
 
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -206,7 +206,7 @@ def test_source_planner_mcp_six_domain_reproducibility(tmp_path, monkeypatch):
 
 
 def test_source_planner_capabilities_advertise_contracts_and_features():
-    capabilities = server.knowledge_engine_capabilities.fn()
+    capabilities = tool_function(server.knowledge_engine_capabilities)()
     assert {
         "noesis-source-capability-v1",
         "noesis-source-research-objective-v1",

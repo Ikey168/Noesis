@@ -4,7 +4,7 @@
 import duckdb
 
 from src.mcp_host.catalog import _mutability, _required_scopes
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import intake, server
 
 
@@ -36,7 +36,7 @@ def test_problem_action_mcp_scopes_and_truthful_unavailable_result(tmp_path, mon
         ]
     assert all(_mutability(name) == "write" for name in write_tools)
     assert _mutability("preview_problem_action") == "read"
-    assert "noesis-problem-action-v1" in server.knowledge_engine_capabilities.fn()["contracts"]
+    assert "noesis-problem-action-v1" in tool_function(server.knowledge_engine_capabilities)()["contracts"]
 
     opened = tools["start_problem_session"].fn(
         namespace="research",

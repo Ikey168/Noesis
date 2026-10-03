@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from src.mcp_host.catalog import _mutability, _required_scopes
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -29,4 +29,4 @@ def test_source_bound_jev_nlp_suggestions_are_public_and_scoped():
         "noesis-jev-stance-suggestion-v1",
         "noesis-jev-frame-suggestion-v1",
         "noesis-jev-mining-evaluation-v1",
-    } <= set(server.knowledge_engine_capabilities.fn()["contracts"])
+    } <= set(tool_function(server.knowledge_engine_capabilities)()["contracts"])

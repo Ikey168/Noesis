@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from src.mcp_host.catalog import _mutability, _required_scopes
-from src.mcp_host.introspection import tool_map
+from src.mcp_host.introspection import tool_function, tool_map
 from tools.knowledge_engine_mcp import server
 
 
@@ -24,4 +24,4 @@ def test_jev_evidence_suggestions_are_public_and_scoped():
         "noesis-jev-claim-relation-suggestion-v1",
         "noesis-jev-rerank-evaluation-v1",
         "noesis-jev-claim-relation-evaluation-v1",
-    } <= set(server.knowledge_engine_capabilities.fn()["contracts"])
+    } <= set(tool_function(server.knowledge_engine_capabilities)()["contracts"])
